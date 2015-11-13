@@ -1,0 +1,1813 @@
+%%% Årsrapportmal for nasjonale medisinske kvalitetsregistre.               %%%
+%                                                                             %
+%   For utfyllende informasjon om dokumentet, se 'Om årsrapportmalen'.        %
+%   SKDE vedlikeholder LaTeX-koden som er under versjonskontroll i            %
+%   kodebrønn (Subversion) hos Helse Nord IKT.                                %
+%                                                                             %
+%%% SKDE, Are Edvardsen 2013, 2014                                          %%%
+
+\documentclass[norsk, a4paper]{report}
+
+\usepackage[utf8x]{inputenc}
+\usepackage{babel}
+\usepackage{authblk}
+\usepackage{longtable}
+\usepackage{multicol}
+\usepackage{color}
+\usepackage{wasysym}
+\usepackage[raggedright]{titlesec}
+\usepackage{color,hyperref}
+\usepackage{booktabs}
+\usepackage{rotating}
+\usepackage{attachfile}
+
+% Gjør alle lenker mørkeblå
+\definecolor{darkblue}{rgb}{0.0,0.0,0.3}
+\hypersetup{colorlinks,breaklinks,linkcolor=darkblue,urlcolor=darkblue,anchorcolor=darkblue,citecolor=darkblue}
+
+% Ikke sett inn sidenummer for ``Parts''
+\makeatletter
+\let\sv@endpart\@endpart
+\def\@endpart{\thispagestyle{empty}\sv@endpart}
+\makeatother
+
+% Ikke bruk innrykk for nye avsnitt, men heller litt større vertikal avstand
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+
+<<variables,include=FALSE>>=
+ReportYear <- 2014
+@
+
+<<loadlibs,include=FALSE>>=
+require( quantreg )
+require( Hmisc )
+require( effects )
+require( xtable)
+require( ggplot2 )
+@ 
+
+<<SKDEcol,include=FALSE>>=
+colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
+colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
+colKontrast <- "#FF7260"
+@ 
+
+<<DefineFunc,include=FALSE>>=
+Tquantil <- function( x , probs )
+    round(
+        quantile( x = x , na.rm = TRUE , probs = probs ) ,
+        digits = 1)
+
+describe <- function(X){
+    DTAB <- c(
+        as.character(sum(!is.na(X))) ,
+        Tquantil( X , 0.250 ) ,
+        Tquantil( X , 0.500 ) ,
+        Tquantil( X , 0.750 ))
+        attr( DTAB , "names") <- c(
+            "N" , "25%", "50%", "75%")
+        return(DTAB)}
+@ 
+
+
+
+
+
+<<DBconnect,include=FALSE>>=
+
+if (!exists("reshID")) {reshID <- "100000"} # for local testing
+if (!exists("con")) {
+    conf <- yaml::yaml.load_file(
+        input = "../dbConfig.yml" )[[
+            paste(
+                "noricStaging" ,
+                reshID ,
+                sep = "")
+            ]]
+    con <- DBI::dbConnect(
+        drv = RMySQL::MySQL() ,
+        dbname = unlist( conf["name"] ) ,
+        host = unlist( conf["host"]) ,
+        user = unlist( conf["user"]) ,
+        password = unlist( conf["pass"])
+        )
+    options( stringsAsFactors = FALSE , width = "120")
+    DBI::dbGetQuery( con , "SET NAMES utf8;" )}
+
+@ 
+
+
+<<LoadRawTables,include=FALSE>>=
+
+@ 
+
+
+<<SOPrepare,include=FALSE>>=
+SO <- DBI::dbGetQuery(
+    conn = con , 
+    statement = "SELECT * FROM SkjemaOversikt")
+
+SO$RegDate <- as.Date(
+    x = SO$OpprettetDato ,
+    format = "%d.%b.%Y")
+
+SO$Year <- as.numeric(
+    format(
+        x = SO$RegDate ,
+        format = "%Y"))
+
+SO <- subset(
+    x = SO ,
+    subset =
+        (SO$Year == ReportYear) &
+            (SO$Sykehusnavn %in% c("Ullevål" ,"Sørlandet" ,"UNN" ,"St. Olav" ,"SUS" ,"Haukeland"))
+    )
+
+SO$Month <- factor(
+    format(
+        x = SO$RegDate ,
+        format = "%m") ,
+    labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Okt","Nov","Des"))
+
+@ 
+
+
+<<AsDateConversion,include=FALSE>>=
+AP <- DBI::dbGetQuery(
+    conn = con , 
+    statement = "SELECT * FROM AngioPCI")
+
+AP $ FodselsDato <- as.Date(
+    AP $ FodselsDato )
+
+AP $ DatoInnleggelseIHenvisendeSykehus <- as.Date(
+    AP $ DatoInnleggelseIHenvisendeSykehus )
+
+AP $ AnkomstPCIDato <- as.Date(
+    AP $ AnkomstPCIDato )
+
+AP $ ProsedyreDato <- as.Date(
+    x = AP $ ProsedyreDato)
+
+AP $ Year <- as.numeric(
+    format(
+        x = AP $ ProsedyreDato ,
+        format = "%Y"))
+@ 
+
+
+<<APfiltering,include=FALSE>>=
+AP <- subset(
+    x = AP ,
+    subset =
+        (Sykehusnavn %in% c("Haukeland","Stavanger","St. Olavs","Sørlandet","Ullevål","UNN")))
+@ 
+
+
+<<APrecodes,include=FALSE>>=
+AP $ Sykehusnavn <- factor( AP $ Sykehusnavn )
+AP $ Sykehus <- factor(
+    x = AP $ Sykehusnavn ,
+    labels = c("HUS","SL","SUS","StO","UUS","UNN"))
+AP $ Kjonn <- factor( AP $ Kjonn )
+AP $ ProsedyreStatus <- factor(
+    x = !is.na(AP $ PrimaerForlopsID) ,
+    labels = c("Primær" , "Sekundær"))
+AP $ PasientID2 <- AP $ PasientID + 10^5 * as.numeric( AP $ Sykehusnavn )
+AP $ ForlopsID2 <- AP $ ForlopsID + 10^5 * as.numeric( AP $ Sykehusnavn )
+AP $ ProsedyreType <- factor(AP $ ProsedyreType)
+
+AP $ Primaerbeslutning <- factor(car::recode(
+             var = AP $ PrimarBeslutning ,
+             recodes = "
+            'Fortsatt medisinsk behandling'='Medisinsk behandling';
+            'Ingen behandling'='Medisinsk behandling';
+            'PCI ad hoc'='PCI ad hoc';
+            ''=NA;
+            else='Fortsatt utredning/ kirurgi';"))
+
+
+AP $ HenvisningsStatus <- car::recode(
+    var = AP $ OverflyttetFra ,
+    recodes = "
+        'Annet sykehus'='Overflyttet';
+        '' = NA;
+        'Annen  avdeling pÃ¥ sykehuset' = NA;
+        'Nei, direkte inn til dette sykehus' = 'Direkte';
+        'Omdirigert ambulanse' = 'Direkte';
+        ")
+
+i.direkte <- which(AP $ HenvisningsStatus == "Direkte")
+AP $ DatoInnleggelseIHenvisendeSykehus[ i.direkte ] <- AP $ AnkomstPCIDato[ i.direkte ]
+
+AP $ Alder <- as.numeric(
+    AP $ ProsedyreDato - AP $ FodselsDato ) / 365
+
+AP $ AldersKlasse <- cut(
+    x = AP $ Alder ,
+    breaks = c(0,60,200) ,
+    include.lowest = TRUE ,
+    labels = c("<60","60+"))
+
+AP $ AldersKlasse2 <- cut(
+    x = AP $ Alder ,
+    breaks = c(0,50,60,70,80,90,200) ,
+    include.lowest = TRUE ,
+    labels = c("-50","50-59","60-69","70-79","80-89","90+"))
+
+AP $ AdmissionType <- car::recode(
+    var = AP $ OverflyttetFra ,
+    recodes = "
+        'Annet sykehus'='Referred';
+        '' = NA;
+        'Annen  avdeling på sykehuset' = NA;
+        'Nei, direkte inn til dette sykehus' = 'Directly admitted';
+        'Omdirigert ambulanse' = 'Directly admitted';
+        ")
+
+AP $ Hastegrad <- factor(
+    x = AP $ HendelsesType ,
+    levels = c("Planlagt","Subakutt","Akutt"))
+
+AP $ Indikasjon2 <- factor(
+    car::recode(
+        var = AP $ Indikasjon ,
+        recodes = "
+            'Stabil koronarsykdom '='Stabil angina pectoris';
+            'UAP'='Ustabil angina pectoris';
+            'NSTEMI'='NSTEMI';
+            'Riskovurdering etter vellykket trombolyse'='Alle STEMI indikasjoner';
+            'STEMI'='Alle STEMI indikasjoner';
+            'Hjertestans ved STEMI'='Alle STEMI indikasjoner';
+            'STEMI > 24h'='Alle STEMI indikasjoner';
+            'STEMI/Rescue PCI'='Alle STEMI indikasjoner';
+            ' Uklare brystsmerter'='Uklare brystsmerter';
+            else='Annet';
+            ") ,
+    levels = c("Annet","Uklare brystsmerter","Stabil angina pectoris","Ustabil angina pectoris","NSTEMI","Alle STEMI indikasjoner") )
+
+AP $ Indikasjon3 <- factor(
+    car::recode(
+        var = AP $ Indikasjon ,
+        recodes = "
+            'STEMI'='STEMI';
+            'Hjertestans ved STEMI'='Hjertestans ved STEMI';
+            'STEMI > 24h'='STEMI > 24h';
+            'STEMI/Rescue PCI'='STEMI/Rescue PCI';
+            'Riskovurdering etter vellykket trombolyse'='Riskovurdering etter trombolyse';
+            else='Annet';
+            ") ,
+    levels = c("STEMI","Hjertestans ved STEMI","STEMI/Rescue PCI", "STEMI > 24h", "Riskovurdering etter trombolyse") )
+
+
+            
+AP $ Funn2 <- factor(
+    car::recode(
+        var = AP $ Funn ,
+        recodes = "
+            '1-kar ikke HS'='1-kar';
+            '2-kar ikke HS'='2-kar';
+            '3-kar ikke HS'='3-kar';
+            'Normalt /Ateromatos'='Normale kar';
+            'Ikke konklusiv undersÃ¸kelse'='Ukjent';
+            'HS'='HS';
+            'HS + 1-kar'='HS';
+            'HS + 3-kar'='HS';
+            'HS + 2-kar'='HS';
+            ''='Ukjent';
+            ") ,
+    levels = c("Normale kar","1-kar","2-kar","3-kar","HS","Ukjent")
+    )
+
+AP $ Stenose <- factor(
+    car::recode(
+        var = AP $ Funn ,
+        recodes = "
+            'Normalt /Ateromatos'='Nei';
+            '1-kar ikke HS'='Ja';
+            '2-kar ikke HS'='Ja';
+            '3-kar ikke HS'='Ja';
+            'HS + 1-kar'='Ja';
+            'HS + 2-kar'='Ja';
+            'HS + 3-kar'='Ja';
+            else=NA;
+            ") ,
+    levels = c("Nei","Ja"))
+
+@ 
+
+
+<<CalcDays,include=FALSE>>=
+AP $ DaysFromIndexAdmissionToProcedure <- as.numeric(
+    AP $ ProsedyreDato - AP $ DatoInnleggelseIHenvisendeSykehus )
+
+AP $ DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
+    AP $ ProsedyreDato - AP $ AnkomstPCIDato )
+@ 
+
+
+<<TnegNA,include=FALSE>>=
+AP <- AP[ - which(
+    AP $ DaysFromIndexAdmissionToProcedure < 0 ),]
+
+#AP <- AP[ - which( AP $ DaysFromPCIcenterAdmissionToProcedure < 0 ),]
+
+AP <- AP[ - which(
+    AP $ DaysFromIndexAdmissionToProcedure > 100 ),]
+
+#AP <- AP[ - which(  AP $ DaysFromPCIcenterAdmissionToProcedure > 100 ),]
+@ 
+
+
+<<APMainTimeLine,include=FALSE>>=
+AP $ Month <- factor(
+    format(
+        x = AP $ ProsedyreDato ,
+        format = "%m") ,
+    labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Okt","Nov","Des"))
+
+AP $ Day <- as.numeric(
+    AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
+@ 
+
+
+<<subsetting,include=FALSE>>=
+AP13 <- subset(
+    x = AP ,
+    subset =
+        (Year == 2013) &
+        (Sykehusnavn %in% c("UNN","Haukeland")))
+AP13 $ Sykehusnavn <- factor(AP13 $ Sykehusnavn)
+
+
+AP <- subset(
+    x = AP ,
+    subset = Year == ReportYear)
+
+
+NSTEMI <- subset(
+    x = AP ,
+    subset = (Indikasjon == "NSTEMI") & is.na(PrimaerForlopsID) & !is.na(HenvisningsStatus))
+
+NSTEMI13 <- subset(
+    x = AP13 ,
+    subset = (Indikasjon == "NSTEMI") & is.na(PrimaerForlopsID) & !is.na(HenvisningsStatus))
+
+
+PrimaerAngio <- subset(
+    x = AP ,
+    subset = ProsedyreType != "PCI" )
+@ 
+
+
+
+
+
+
+% Sett registerets navn
+\def \registernavn {\textit{Norsk register for invasiv kardiologi (NORIC)}}
+
+% tittelting
+\title{\registernavn \\ \textbf{Årsrapport for \textit{\Sexpr{ReportYear}} med \\
+plan for forbedringstiltak}}
+
+\author[$\dag$]{Siren Hovland\thanks{Daglig leder: \texttt{siren.hovland@helse-bergen.no}}}
+\author[$\dag$]{Reinhard Seifert\thanks{Statistiker: \texttt{reinhard.seifert@helse-bergen.no}}}
+\author[$\dag$]{Svein Rotevatn\thanks{Faglig leder: \texttt{svein.rotevatn@helse-bergen.no}}}
+\affil[$\dag$]{NORIC\\Norsk register for invasiv kardiologi \\
+Haukeland universitetssjukehus \\
+Hjerteavdelingen \\
+Postboks 1400 \\
+Jonas Lies vei 65 \\
+5021 Bergen \\
+epost \texttt{noric@helse-bergen.no} \\
+Telefon 55 97 22 20}
+
+\renewcommand\Authands{ og }
+\renewcommand\Authfont{\scshape}
+\renewcommand\Affilfont{\itshape\small}
+
+% stil for veiledende tekst
+\definecolor{guidegray}{rgb}{0.2,0.2,0.2}
+\newcommand{\guide}[1] {
+	\textit{[\textcolor{guidegray}{#1}]}
+	}
+
+% alternative hyphenations
+\hyphenation{stadium-vurder-ing system-atiske pasi-ent-rap-porterte
+retnings-linjer hjemmelsgrunnlag data-behandlings-ansvar nasjon-ale
+indi-kator-er styrings-gruppe}
+
+
+
+
+\begin{document}
+
+
+
+
+\maketitle
+
+\tableofcontents
+
+
+\part{Årsrapport}\label{par:rap}
+\thispagestyle{empty}
+
+
+
+\chapter{Sammendrag}
+
+
+
+\chapter{Registerbeskrivelse}\label{cha:reg}
+
+\section{Bakgrunn og formål}
+
+\subsection{Bakgrunn for registeret}\label{sec:bak}
+Norsk register for invasiv kardiologi (NORIC) ble i 2012 etablert som nasjonalt medisinsk kvalitetsregister og inngår som ett av flere kvalitetsregistre knyttet til Hjerte- og karregisteret ved det Nasjonale folkehelseinstitutt (FHI). NORIC omfatter invasive kardiologiske prosedyrer. Det innbefatter i første rekke undersøkelser og behandlingsformer som koronar angiografi og perkutan koronar intervensjon (PCI). Tilgangen til hjertet går her via en blodåre i armen eller lysken. På landsbasis er det forventet et årlig volum av prosedyrer på ca. 30 000. Registeret har også utviklet egne moduler for koronar CT-angiografi og kateterbasert behandling av sykdommer i hjerteklaffene. Resultater fra de to sistnevnte modulene blir ikke presentert i denne årsrapporten.
+
+\subsection{Registerets formål}\label{sec:for}
+Overordnet formål med registeret er gitt ved Hjerte- og karregisterforskriften §1-2: 
+``Formålet med Hjerte- og karregisteret er å bidra til bedre kvalitet på helsehjelpen til personer med hjerte- og karsykdommer. Opplysninger i registeret skal benyttes til forebyggende arbeid, kvalitetsforbedring og helseforskning. Registeret skal også utgjøre et grunnlag for styring og planlegging av helsetjenester rettet mot personer med hjerte- og karsykdommer, overvåkning av nye tilfeller og forekomst av slike sykdommer i befolkningen''.
+
+\section{Juridisk hjemmelsgrunnlag}\label{cha:jur}
+Lovhjemmel for registeret er Helseregisterloven med tilknyttet forskrift: Forskrift om innsamling og behandling av helseopplysninger i Nasjonalt register over hjerte- og karlidelser (Hjerte- og karregisterforskriften). 
+
+
+\section{Faglig ledelse og databehandlingsansvar}\label{cha:led}
+Nasjonalt folkehelseinstitutt har databehandlingsansvaret for innsamling og behandling av helseopplysninger i NORIC. Den skriftlige databehandleravtalen ble inngått 10. oktober 2013. Registeret er forankret i Helse Vest RHF og det nasjonale registersekretariatet er tilknyttet Hjerteavdelingen ved Haukeland universitetssjukehus i Bergen.
+
+
+\subsection{Nasjonalt registersekretariat 2014}
+
+\subsubsection{Ansatte}
+
+Faglig leder\\
+\textbf{Svein Rotevatn\\}
+svein.rotevatn@helse-bergen.no
+
+Daglig leder\\
+\textbf{Siren Hovland\\}
+siren.hovland@helse-bergen.no
+
+Registerkoordinator
+\textbf{Janne Dyngeland\\}
+(ansatt t.o.m. 31.05.15)
+
+Statistiker\\
+\textbf{Reinhard Seifert\\}
+reinhard.seifert@helse-bergen.no
+
+\subsubsection{Adresse} 
+Hjerteavdelingen\\
+Haukeland universitetssjukehus\\
+Postboks 1400\\
+Jonas Lies vei 65\\
+5021 Bergen\\
+Tlf. 55 97 22 20\\
+noric@helse-bergen.no\\
+
+
+
+
+\subsection{Aktivitet i styringsgruppe/referansegruppe}
+NORIC har etablert en nasjonal faglig styringsgruppe bestående av én representant fra hvert av de 8 sykehusene (jfr. tabell 2.1) som per dags dato utfører koronar angiografi og PCI.  I 2014 ble det avholdt to møter i styringsgruppen. De viktigste sakene har vært statusoppdateringer, evaluering og plan for videre utvikling av registeret. Det har vært stort fokus på gjennomgang av eksisterende variabler og behov for tillegg av nye variabler/funksjoner i de ulike registreringsskjemaene.  
+
+Våren 2014 ble det arrangert et eget brukermøte for leger, helsepersonell og annet registreringspersonell fra sykehus som leverer data til det nasjonale registeret.
+
+
+\begin{table}[ht]
+  \centering
+  \label{tab:oppstart}
+  \begin{tabular}{ll}
+    \toprule
+    Sykehus & Dato for oppstart \\
+    \midrule
+    Haukeland universitetssjukehus & 01.01.13\\
+    Universitetssykehuset Nord-Norge & 01.05.13\\
+    St. Olavs hospital & 01.01.14\\
+    Stavanger universitetssjukehus & 01.01.14\\
+    Sørlandet sykehus, Arendal & 01.01.14\\
+    Oslo universitetssykehus, Ullevål & 01.01.14\\
+    Oslo universitetssykehus, Rikshospitalet & 01.01.15\\
+    LHL-klinikkene Feiring & 01.01.15\\
+  \end{tabular}
+  \caption{Oversikt over deltakende sykehus med dato for oppstart}
+\end{table}
+
+
+
+
+\chapter{Resultater}\label{cha:res}
+
+Per 31.desember 2014 ble koronar angiografi og perkutan koronar intervensjon (PCI) utført ved 8 av landets sykehus (jfr. tabell 2.1). 6 av disse sykehusene leverte data til registeret i rapporteringsåret. Resultatene omfatter kun data hentet fra registreringsmodulen for koronar angiografi og PCI.
+
+
+\section{Prosedyreoversikt}
+
+
+\subsection{Alder og kjønn}
+
+Figur \ref{fig:FigRAgeSex} 3.1 viser den prosentvise fordeling av prosedyrer for ulike aldersgrupper og kjønn. Tall over stolpene viser det totale antall prosedyrer for hver aldersgruppe. Det er godt over 2 ganger så mange menn som får utført koronar angiografi og/eller PCI enn kvinner. Hos kvinnene er alderen ved prosedyrer høyere (median 69 år for kvinner mot 65 år for menn). Det er bare mindre variasjoner mellom sykehusene når det gjelder alders- og kjønnsfordeling.
+
+<<FigRAgeSex,fig.cap="Prosentandel prosedyrer etter aldersgrupper og kjønn",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+TabNAgeSex <- xtabs(
+    formula = ~ Kjonn + AldersKlasse2 ,
+    data = AP)
+
+TabRAgeSex <- 100 * prop.table(
+                        x = TabNAgeSex ,
+                        margin = 2 )
+
+par(
+    mar = c(3,5,2,10) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRAgeSex[2:1,] ,
+    beside = FALSE ,
+    ylab = "%" ,
+    col = colPrimary[c(4,2)] )
+
+text(
+    x = xBarplot ,
+    y = TabRAgeSex[2,] ,
+    pos = 3 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNAgeSex[1,])
+
+text(
+    x = xBarplot  ,
+    y = TabRAgeSex[2,] ,
+    pos = 1 ,
+    col = "#FFFFFFAA" ,
+    labels = TabNAgeSex[2,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = levels( AP$Kjonn ) ,
+    fill = colPrimary[c(2,4)])
+
+@
+
+
+<<FigNAgeSex,fig.cap="Antall prosedyrer etter aldersgrupper og kjønn",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+par(
+    mar = c(3,5,2,10) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabNAgeSex[2:1,] ,
+    beside = TRUE ,
+    space = c(0,0.2) ,
+    ylab = "Antall" ,
+    col = colPrimary[c(4,2)] )
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = levels( AP$Kjonn ) ,
+    fill = colPrimary[c(2,4)])
+
+@
+
+
+<<TabFordelingAlderKjonn, include=FALSE>>=
+
+TABV <- as.data.frame(
+    lapply(
+        X = split(
+            x = AP$Alder ,
+            f = list( AP$Sykehusnavn , AP$Kjonn ) ) ,
+        FUN = describe))
+
+TABVD <- TABV[,1:6]
+names(TABVD) <- c("Haukeland","Sørlandet","St.Olav","SUS","Ullevål","UNN")
+TABVH <- TABV[,7:12]
+names(TABVH) <- c("Haukeland","Sørlandet","St.Olav","SUS","Ullevål","UNN")
+
+
+Hmisc::latex(
+    object = rbind(
+        TABVD ,
+        TABVH) ,
+    booktabs = TRUE,
+    center = "none",
+    rgroup = c("Kvinner","Menn") ,
+    n.rgroup = c(4,4) ,
+    where="!htbp" ,    
+    table.env = FALSE ,
+    title = "",
+    file = "")
+@
+
+
+
+<<TabRAgeSex,include=FALSE>>=
+latex(
+    object = ftable(
+            round(
+                100 * prop.table(
+                    addmargins(
+                        xtabs(
+                            formula = ~ Kjonn + AldersKlasse2 + Sykehusnavn ,
+                            data = AP) ,
+                        margin = 3 ) ,
+                    margin = c(1,3) ) ,
+                digits = 1 ) ,
+            row.vars = 3 ) ,
+    rowname = c( levels( AP$Sykehusnavn ) , "Nasjonalt") ,
+    colhead = c("-50","50-59","60-69","70-79","80-89","90+","<50","50-59","60-69","70-79","80-89","90+") ,
+    cgroup = c("Kvinner","Menn") ,
+    n.cgroup = c(6,6) ,
+    booktabs = TRUE,
+    center = "none",
+    where="!htbp" ,
+    table.env = FALSE ,
+    file = "" ,
+    title = ""
+    )
+@   
+
+
+
+\clearpage
+\subsection{Prosedyre type}
+
+Figur \ref{fig:FigNProsedyreType}/ tabell 3.1, 3.2 viser antall invasive kardiologiske prosedyrer ved de forskjellige PCI-sykehusene i Norge fordelt på diagnostisk koronar angiografi (Angio), perkutan koronar intervensjon (PCI) og Angio + PCI i de tilfeller at Angio og PCI blir utført under samme prosedyre. Som det framgår av figuren er det betydelige forskjeller mellom sykehusene når det gjelder antall prosedyrer og hvor mange som får utført PCI i forhold til hvor mange som blir angiografert. 
+
+<<FigRProsedyreType,fig.cap="Prosentandel prosedyrer etter type og PCI sykehus (totalt antall i stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth",include=FALSE>>=
+
+TabNProsType <- xtabs(
+    formula = ~ ProsedyreType + Sykehusnavn ,
+    data = AP)
+
+TabRProsType <- 100 * prop.table(
+                        x = TabNProsType ,
+                        margin = 2 )
+
+par(
+    mar = c(3,5,2,10) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRProsType[1:3,] ,
+    beside = FALSE ,
+    ylab = "%" ,
+    col = colPrimary[c(5,4,2)] )
+
+text(
+    x = xBarplot ,
+    y = 100 ,
+    pos = 1 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNProsType[3,])
+
+text(
+    x = xBarplot ,
+    y = TabRProsType[1,] ,
+    pos = 3 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNProsType[2,])
+
+text(
+    x = xBarplot ,
+    y = TabRProsType[1,] ,
+    pos = 1 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNProsType[1,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = levels( AP$ProsedyreType )[3:1] ,
+    fill = colPrimary[c(2,4,5)])
+
+@
+
+
+<<FigNProsedyreType,fig.cap="Antall prosedyrer etter type og PCI sykehus",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+TabNProsType <- xtabs(
+    formula = ~ ProsedyreType + Sykehusnavn ,
+    data = AP)
+
+TabRProsType <- 100 * prop.table(
+                        x = TabNProsType ,
+                        margin = 2 )
+
+par(
+    mar = c(3,5,2,10) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabNProsType[1:3,] ,
+    beside = FALSE ,
+    ylab = "Antall" ,
+    col = colPrimary[c(5,4,2)] )
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = levels( AP$ProsedyreType )[3:1] ,
+    fill = colPrimary[c(2,4,5)])
+
+@
+
+
+<<TabNProsedyreType, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ ProsedyreType + Sykehusnavn ,
+                data = AP)) ,
+        caption = "Antall prosedyrer etter prosedyretype og PCI sykehus" ,
+        digits = 0) ,
+    booktabs = TRUE )
+@   
+
+
+
+<<TabRProsedyreType, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ ProsedyreType + Sykehusnavn ,
+                data = AP) ,
+            margin = 2) ,
+        caption = "Prosentandel prosedyrer etter prosedyretype og PCI sykehus" ,
+        digits = 1) ,
+    booktabs = TRUE )
+@   
+
+
+
+
+\clearpage
+\subsection{Hastegrad}
+
+Figur \ref{fig:FigRHastegrad} viser antall prosedyrer fordelt etter hastegrad av prosedyrene (akutt – må utføres umiddelbart; subakutt – må utføres under sykehusoppholdet; planlagt – elektivt der pasienten kalles inn fra hjemmet). Ullevål skiller seg ut med en høy andel akutte prosedyrer.
+
+
+<<FigRHastegrad,fig.cap="Prosentandel (totalt antall i stolpene) prosedyrer etter hastegrad og PCI sykehus ",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+TabNHast <- xtabs(
+    formula = ~ Hastegrad + Sykehusnavn ,
+    data = AP)
+
+TabRHast <- 100 * prop.table(
+                      x = TabNHast ,
+                      margin = 2)
+
+par(
+    mar = c(3,5,2,10) ,
+    xpd = NA ,
+    las = 1)
+
+xbarplot <- barplot(
+    TabRHast ,
+    ylab = "%" ,
+    col = colPrimary[c(5,4,2)] )
+
+text(
+    x = xBarplot ,
+    y = 100 ,
+    pos = 1 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNHast[3,])
+
+text(
+    x = xBarplot ,
+    y = TabRHast[1,] ,
+    pos = 3 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNHast[2,])
+
+text(
+    x = xBarplot ,
+    y = TabRHast[1,] ,
+    pos = 1 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNHast[1,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = levels( AP$Hastegrad )[3:1] ,
+    fill = colPrimary[c(2,4,5)])
+
+@
+
+
+<<FigNHastegradT,fig.cap="Antall prosedyrer etter hastegrad og måned, najsonale data",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+TabNHastT <- xtabs(
+    formula = ~ Hastegrad + Month ,
+    data = AP)
+
+par(
+    mar = c(3,5,2,10) ,
+    xpd = NA ,
+    las = 1)
+
+barplot(
+    TabNHastT ,
+    ylab = "Antall" ,
+    col = colPrimary[c(5,4,2)] )
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = levels( AP$Hastegrad )[3:1] ,
+    fill = colPrimary[c(2,4,5)])
+
+@
+
+Figur \ref{fig:FigNHastegradT} viser hvordan antall prosedyrer fordeler seg utover året. Det er jevnt høy aktivitet hele året med ca. 25\% reduksjon av planlagte prosedyrer i månedene juli, august og desember i forhold til resten av året.
+
+
+
+\clearpage
+\subsection{Indikasjon}
+
+
+<<FigNIndikasjon,fig.width=10,fig.height=5,include=FALSE>>=
+
+TabNIndikasjon <- xtabs(
+    formula = ~ Indikasjon2 + Sykehusnavn ,
+    data = AP)
+
+TabRIndikasjon <- 100 * prop.table(
+                      x = TabNIndikasjon ,
+                      margin = 2)
+
+par(
+    mar = c(3,5,2,11) ,
+    xpd = NA ,
+    las = 1)
+
+xbarplot <- barplot(
+    TabRIndikasjon ,
+    ylab = "%" ,
+    col = colPrimary )
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = c("STEMI","NSTEMI","Ustabil angina pectoris","Stabil angina pectoris","Uklare brystsmerter","Annet") ,
+    fill = colPrimary[6:1])
+
+Nbar <- function(i) {
+    text(
+        x = xBarplot ,
+        y = if (i==1) 0 else colSums(TabRIndikasjon[1:i,]) ,
+        pos = if (i==1) 3 else 1 ,
+        col = "#FFFFFFDD" ,
+        labels = TabNIndikasjon[i,])}
+
+lapply( 1:6 , Nbar ) -> NoDisplay
+
+@
+
+
+<<TabNIndikasjon, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Indikasjon2 + Sykehusnavn ,
+                data = AP)) ,
+        caption = "Antall prosedyrer ved forskjellige indikasjoner ved ulike sykehus uansett hastegrad.  «Alle STEMI indikasjoner» omfatter angio/PCI med tanke på primær PCI ved ST-elevasjonsinfarkt (STEMI), risikovurdering etter vellykket trombolyse, rescue PCI, hjertestans ved STEMI og STEMI $<$ 24 timer etter symptomer. «Annet» inkluderer bl.a. utredning ved klaffefeil, rytmeforstyrrelser og hjertesvikt." ,
+        digits = 0) ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+
+
+
+<<TabRIndikasjon,include=FALSE>>=
+TabRIndikasjon <- 100 * prop.table(
+    addmargins(
+        xtabs(
+            formula = ~ Indikasjon2 + Sykehusnavn ,
+            data = AP) ,
+        margin = 2 ),
+    margin = 2)
+
+attr(TabRIndikasjon , "dimnames")[[2]] <- c("Haukeland","Sørlandet","Stavanger","St. Olavs","Ullevål","UNN","Nasjonalt")
+
+print.xtable(
+    x = xtable(
+        TabRIndikasjon ,
+        caption = "Prosentandel prosedyrer etter indikasjon og PCI sykehus" ,
+        digits = 1) ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+
+
+
+
+<<TabRIndikasjonPlanlagt, echo = FALSE , results = 'asis'>>=
+TabRIndikasjonPlanlagt <-100 * prop.table(
+    addmargins(
+        xtabs(
+            formula = ~ Indikasjon2 + Sykehusnavn ,
+            subset = HendelsesType == "Planlagt" ,
+            data = AP) ,
+        margin = 2 ),
+    margin = 2)
+
+attr(TabRIndikasjonPlanlagt , "dimnames")[[2]] <- c("Haukeland","Sørlandet","Stavanger","St. Olavs","Ullevål","UNN","Nasjonalt")
+
+print.xtable(
+    x = xtable(
+        TabRIndikasjonPlanlagt ,
+        caption = "Prosentvis fordeling av \\textbf{elektive} prosedyrer per PCI sykehus syner at stabil angina pectoris er den dominerende indikasjonen. Sammen med indikasjonen uklare brystsmerter utgjør dette 70 – 80\\% av prosedyrene ved de fleste sykehus. Unntaket er St.Olavs Hospital der det er flere med indikasjon ikke-ST-elevasjonsinfarkt (NSTEMI) og ustabil angina som blir undersøkt/behandlet ved elektive prosedyrer. Indikasjonen «Annet» omfatter bl.a. klaffesykdommer, og her ligger Sørlandet sykehus noe lavere enn de andre sykehusene." ,
+        digits = 1) ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+
+
+
+<<TabRIndikasjonSubakutt, echo = FALSE , results = 'asis'>>=
+TabRIndikasjonSubakutt <-100 * prop.table(
+    addmargins(
+        xtabs(
+            formula = ~ Indikasjon2 + Sykehusnavn ,
+            subset = HendelsesType == "Subakutt" ,
+            data = AP) ,
+        margin = 2 ),
+    margin = 2)
+
+attr(TabRIndikasjonSubakutt , "dimnames")[[2]] <- c("Haukeland","Sørlandet","Stavanger","St. Olavs","Ullevål","UNN","Nasjonalt")
+
+print.xtable(
+    x = xtable(
+        TabRIndikasjonSubakutt ,
+        caption = "Prosentandel indikasjon etter PCI sykehus ved \\textbf{subakutte} prosedyrer. Akutte koronarsyndrom med indikasjonene ustabil angina pectoris og NSTEMI dominerer.  Det er forskjeller mellom sykehusene når det gjelder bruk av indikasjonen «uklare brystsmerter» og «ustabil angina pectoris», og disse indikasjonene bør trolig sees under ett for subakutte prosedyrer da dette mest sannsynlig skyldes ulik registreringspraksis og ikke reelle forskjeller i pasientpopulasjonen. For de fleste sykehusene utgjør denne gruppen ca 30\\%, men her skiller Haukeland universitetssjukehus seg ut med 45\\% samlet for denne gruppen. " ,
+        digits = 1) ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+
+
+<<TabRIndikasjonAkutt, echo = FALSE , results = 'asis'>>=
+TabRIndikasjonAkutt <-100 * prop.table(
+    addmargins(
+        xtabs(
+            formula = ~ Indikasjon2 + Sykehusnavn ,
+            subset = HendelsesType == "Akutt" ,
+            data = AP) ,
+        margin = 2 ),
+    margin = 2)
+
+attr(TabRIndikasjonAkutt , "dimnames")[[2]] <- c("Haukeland","Sørlandet","Stavanger","St. Olavs","Ullevål","UNN","Nasjonalt")
+
+print.xtable(
+    x = xtable(
+        TabRIndikasjonAkutt ,
+        caption = "Prosentandel indikasjon etter PCI sykehus ved \\textbf{akutte} prosedyrer. Her dominerer indikasjonen ST-elevasjonsinfarkt (STEMI) / primær PCI med en andel av prosedyrene på 65-72\\% ved alle sykehus bortsett fra ved Universitetssykehuset Nord-Norge (UNN) der den er 31\\%. Dette har sammenheng med deres utstrakte bruk av trombolyse som primærbehandling ved STEMI." ,
+        digits = 1) ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+
+
+
+<<TabRSTEMIIndikasjon, echo = FALSE , results = 'asis'>>=
+TabRSTEMIIndikasjon <-100 * prop.table(
+    addmargins(
+        xtabs(
+            formula = ~ Indikasjon3 + Sykehusnavn ,
+            subset = (HendelsesType %in% c("Subakutt","Akutt")) & (Indikasjon2=="Alle STEMI indikasjoner") ,
+            data = AP) ,
+        margin = 2 ),
+    margin = 2)
+
+attr(TabRSTEMIIndikasjon , "dimnames")[[2]] <- c("Haukeland","Sørlandet","Stavanger","St. Olavs","Ullevål","UNN","Nasjonalt")
+
+print.xtable(
+    x = xtable(
+        TabRSTEMIIndikasjon ,
+        caption = "Prosentandel indikasjon etter PCI sykehus ved \\textbf{STEMI} prosedyrer" ,
+        digits = 1) ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+
+
+
+
+
+
+
+\clearpage
+\subsection{Funn}
+
+<<FigNFunn,fig.cap="Antall prosedyrer etter funn og PCI sykehus",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth",eval=FALSE,include=FALSE>>=
+ggplot(
+    data = AP ,
+    mapping = aes(
+        x = Sykehusnavn ,
+        group = Funn2 )
+    ) +
+    geom_histogram( aes( fill = Funn2 ))+
+        scale_y_continuous("Antall")
+
+@
+
+
+<<TabNFunn, echo = FALSE , results = 'asis',eval=FALSE,include=FALSE>>=
+print.xtable(
+    x = xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Funn2 + Sykehusnavn ,
+                data = AP)) ,
+        caption = "Antall registrerte prosedyrer etter funn og PCI sykehus. HS inkluderer isolert hovedstamme stenose eller hovedstamme stenose med 1-, 2-, 3-kar sykdom." ,
+        digits = 0) ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+
+
+<<TabRFunn, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Funn2 + Sykehusnavn ,
+                data = AP) ,
+            margin = 2) ,
+        caption = "Prosentandel prosedyrer etter funn og PCI sykehus. HS inkluderer hovedstamme stenose med 1-, 2-, 3-kar sykdom. Det viser prosentvis fordeling av pasienter med stenoser $>$ 50\\% gruppert etter hvor mange koronarkar det er påvist stenoser i.  Tabellen viser at fordelingen av angiografiske funn for de ulike sykehusene er tilnærmet lik. Omtrent en tredjedel av pasientene har koronarkar uten stenoser av betydning (fra 28 - 37\\% ved de forskjellige sykehusene), og knapt 30\\% har 1-kar sykdom. Ukjent omfatter enten manglende data eller at undersøkelsen ikke har vært konklusiv." ,
+        digits = 1) ,
+    booktabs = TRUE )
+@   
+
+
+
+\clearpage
+
+<<FigNAgeGender,fig.cap="Antall prosedyrer etter kjønn og funn av signifikante stenoser",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+TabNStenoseGender <- xtabs(
+    formula = ~ Stenose + Kjonn ,
+    data = PrimaerAngio )
+
+par(
+    mar = c(3,5,2,10) ,
+    xpd = NA ,
+    las = 1)
+
+barplot(
+    TabNStenoseGender ,
+    ylab = "Antall" ,
+    beside = TRUE ,
+    col = colPrimary[c(1,6)] )
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = levels( AP$Stenose ) ,
+    fill = colPrimary[c(1,6)])
+
+@
+
+
+Sannsynligheten for funn av signifikante stenoser er betydelig lavere hos kvinner enn hos menn som vist i figur 3.5 og tabell 3.11 men øker med alderen (fig 3.6).
+
+
+
+<<TabRAgeGender, echo = FALSE , results = 'asis'>>=
+TAB <- round(
+    matrix(
+        100 * prop.table(
+            x = addmargins(
+                xtabs(
+                    formula = ~ Sykehusnavn + AldersKlasse + Kjonn + Stenose ,
+                    data = PrimaerAngio ) ,
+                margin = 1:2 ),
+                margin = 1:3 )[,,,2] ,
+        nrow = 7) ,
+    digits = 1 )
+
+attr( TAB , "dimnames" )[[1]] <- c( levels(PrimaerAngio$Sykehusnavn) , "Nasjonalt" )
+attr( TAB , "dimnames" )[[2]] <- c("0-60","60+","Alle","0-60","60+","Alle")
+
+latex(
+    object = TAB ,
+    caption = "Prosentandel funn med signifikante stenoser (1-,2- eller 3-kar sykdom) ved primær angiografi etter aldersgruppe, kjønn og PCI sykehus" ,
+    rowlabel = "Sykehus" ,
+    cgroup = c("Kvinner","Menn") ,
+    n.cgroup = c(3,3) ,
+    where="!htbp" ,
+    file = ""
+    )
+@ 
+
+
+<<GLMAgeSex,fig.cap="Andel signifikante stenoser (1-,2- eller 3-kar sykdom) ved primaer angografi etter alder og kjønn - nasjonale data. Prevalens og standard error estimert med logistisk regresjon",echo=FALSE,fig.pos='!h',fig.width=6,fig.height=5,out.width="\\textwidth">>=
+glmAK <- glm(
+    formula = Stenose ~  AldersKlasse2 * Kjonn ,
+    family = "binomial" ,
+    data = PrimaerAngio )
+
+plot(
+    allEffects( glmAK ) ,
+    main = "" ,
+    xlab = "Alder" ,
+    ylab = "Andel signifikante stenoser" ,
+    lty = 3)
+
+@ 
+
+
+
+
+
+\clearpage
+\subsection{Primærbeslutning}
+
+<<FigRPrimaerbeslutning,fig.cap="Prosentandel (totalt antall i stolpene) angiografiske prosedyrer etter primærbeslutning og PCI sykehus ",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+TabNPrimaerbeslutning <- xtabs(
+    formula = ~ Primaerbeslutning + Sykehusnavn ,
+    subset = (ProsedyreType != "PCI") & (!is.na(Primaerbeslutning)) ,
+    data = AP )
+
+TabRPrimaerbeslutning <- 100 * prop.table(
+                      x = TabNPrimaerbeslutning ,
+                      margin = 2)
+
+par(
+    mar = c(3,5,2,12) ,
+    xpd = NA ,
+    las = 1)
+
+xbarplot <- barplot(
+    TabRPrimaerbeslutning ,
+    ylab = "%" ,
+    col = colPrimary[c(5,4,2)] )
+
+text(
+    x = xBarplot ,
+    y = 100 ,
+    pos = 1 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNPrimaerbeslutning[3,])
+
+text(
+    x = xBarplot ,
+    y = TabRPrimaerbeslutning[1,] ,
+    pos = 3 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNPrimaerbeslutning[2,])
+
+text(
+    x = xBarplot ,
+    y = TabRPrimaerbeslutning[1,] ,
+    pos = 1 ,
+    col = "#FFFFFFBB" ,
+    labels = TabNPrimaerbeslutning[1,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    legend = levels( AP$Primaerbeslutning )[3:1] ,
+    fill = colPrimary[c(2,4,5)])
+
+@
+
+
+Når koronar angiografi er utført, kan operatøren i de fleste tilfeller konkludere når det gjelder videre behandling («primærbeslutning»). Hos pasienter som får påvist koronarsykdom ved angiografi, kan det i mange tilfeller gjøres PCI som en forlengelse av samme prosedyre (PCI ad hoc). Pasienter som ikke får påvist signifikante stenoser eller der det ikke ligger til rette for PCI eller ACB-operasjon, er videre medisinsk behandling aktuelt. Noen pasienter skal få utført kirurgiske inngrep, eller det kan være behov for videre utredning og diskusjon før behandling kan bestemmes. Fig \ref{fig:FigRPrimaerbeslutning} viser fordelingen av primærbeslutninger for disse tre gruppene ved de ulike sykehusene. Samlet sett får 40 \% av pasientene medikamentell behandling, 40 \% PCI ad hoc, og 20 \% videre utredning/diskusjon og eventuelt kirurgisk behandling. Her er det imidlertid forskjeller mellom sykehusene ved at Sørlandet sykehus har en høyere andel med PCI ad hoc og medisinsk behandling. Dette kan ha sammenheng med lavere volum av utredning for hjerteklaffelidelser.  
+
+
+
+<<TabRPrimaerbeslutningHastegrad, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Primaerbeslutning + Hastegrad ,
+                data = AP) ,
+            margin = 2) ,
+        caption = "Prosentandel prosedyrer etter primærbeslutning og hastegrad" ,
+        digits = 1) ,
+    booktabs = TRUE )
+@   
+
+
+
+<<TabNPrimaerbeslutningFunn,include=FALSE>>=
+print.xtable(
+    x = xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Primaerbeslutning + Funn2 ,
+                data = AP)) ,
+        caption = "Antall registrerte prosedyrer etter primærbeslutning og funn" ,
+        digits = 0) ,
+    rotate.colnames = TRUE ,
+    booktabs = TRUE )
+@   
+
+<<TabRPrimaerbeslutningFunn,include=FALSE>>=
+print.xtable(
+    x = xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Primaerbeslutning + Funn2 ,
+                data = AP) ,
+            margin = 2) ,
+        caption = "Prosentandel prosedyrer etter primærbeslutning og funn" ,
+        digits = 1) ,
+    rotate.colnames = TRUE ,
+    booktabs = TRUE )
+@   
+
+
+
+
+
+
+\clearpage
+\section{Tilleggsprosedyrer}
+<<TabNTillegg, echo = FALSE , results = 'asis'>>=
+nFFR <- xtabs(
+    formula = ~ Sykehusnavn + as.numeric(FFR=="Ja") ,
+    data = AP ,
+    exclude = 0)
+
+rFFR <- round( 100 * prop.table(
+    xtabs(
+        formula = ~ Sykehusnavn + as.numeric(FFR=="Ja") ,
+        data = AP ,
+        exclude = NULL ,
+        na.action = na.pass ) ,
+    margin = 1 )[,2] , 1)
+
+
+nIVUS <- xtabs(
+    formula = ~ Sykehusnavn + as.numeric(IVUS=="Ja") ,
+    data = AP ,
+    exclude = 0)
+
+rIVUS <- round( 100 * prop.table(
+    xtabs(
+        formula = ~ Sykehusnavn + as.numeric(IVUS=="Ja") ,
+        data = AP ,
+        exclude = NULL ,
+        na.action = na.pass ) ,
+    margin = 1 )[,2] , 1)
+
+
+nOCT <- xtabs(
+    formula = ~ Sykehusnavn + as.numeric(OCT=="Ja") ,
+    data = AP ,
+    exclude = 0)
+
+rOCT <- round( 100 * prop.table(
+    xtabs(
+        formula = ~ Sykehusnavn + as.numeric(OCT=="Ja") ,
+        data = AP ,
+        exclude = NULL ,
+        na.action = na.pass ) ,
+    margin = 1 )[,2] , 1)
+
+TabTillegg <- rbind(
+    paste(nFFR , " (",rFFR,")" , sep = "") ,
+    paste(nIVUS , " (",rIVUS,")" , sep = "") ,
+    paste(nOCT , " (",rOCT,")" , sep = ""))
+
+attr(TabTillegg , "dimnames")[[1]] <- c("FFR","IVUS","OCT")
+attr(TabTillegg , "dimnames")[[2]] <- levels( AP $ Sykehusnavn )
+
+print(
+    xtable(
+        x = TabTillegg ,
+        caption = "Totalt antall (prosent) prosedyrer der det blir brukt supplerende diagnostiske undersøkelser. Fractional flow reserve (FFR) refererer til måling av intrakoronart trykk under infusjon med Adenosin og utføres for å vurdere hvorvidt en stenose er signifikant eller ikke. Intravaskulær ultralyd (IVUS) er en metode for å framstille både lumen og karvegg ved hjelp av ultralyd og nyttes ved behov for ytterligere billeddiagnostikk i forbindelse med angiografi og PCI. Optical coherence tomography (OCT) gir en billedmessig fremstilling fra innsiden av koronararterien ved bruk av infrarødt lys. FFR blir brukt ved alle sykehus i mellom 6 og 10\\% av prosedyrene. IVUS og OCT er alternative billeddannende undersøkelser, men blir brukt i svært varierende grad.  Lavest ligger Sørlandet sykehus og UNN som bruker disse metodene i mindre en 1\\% av prosedyrene.") ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@ 
+
+
+
+
+
+
+\clearpage
+\section{Ventetid ved NSTEMI}
+
+<<FigT2T,fig.cap="Fordeling av ventetid fra indeks innleggelse til prosedyre etter PCI sykehus blant henviste vs direkte innlagte NSTEMI pasienter. Ventetidene er regnet ut basert på innleggelsedato i henvisende sykehus for henviste pasienter og ankomst dato PCI sykehus for direkte innlagte pasienter. Pasienter som blir overflytet fra annen avdeling på samme sykehus, er ekskludert fra oversikten. Tiden er regnet ut for alle primære angio-, angio-PCI og PCI-prosedyrer.",fig.height=6,fig.pos='!h',fig.width=6,out.width="\\textwidth",warning=FALSE,echo=FALSE>>=
+ggplot(
+    data = NSTEMI ,
+    mapping = aes(
+        x = DaysFromIndexAdmissionToProcedure ,
+        group = HenvisningsStatus )) +
+    facet_grid( Sykehusnavn ~ .  ) +
+    geom_density(
+        mapping = aes( fill = HenvisningsStatus ) ,
+        alpha = 0.4 ,
+        adjust = 2) +
+        scale_y_continuous( "Relativ hyppighet" ) +
+        scale_x_continuous(
+            "Antall dager fra innleggelse til prosedyre hos\npasienter med indikasjon NSTEMI" ,
+            limit = c(0,15))
+@ 
+
+
+<<T2Ttable,eval=FALSE,include=FALSE>>=
+Hmisc::latex(
+    as.data.frame(
+        lapply(
+            X = split(
+                x = NSTEMI$DaysFromIndexAdmissionToProcedure ,
+                f = NSTEMI$Sykehusnavn ) ,
+            FUN = describe)) ,
+    booktabs = TRUE,
+    center = "none",
+    where="!htbp" ,    
+    table.env = FALSE ,
+    title = "",
+    file = "")
+@
+
+
+\begin{table}
+  \caption{Dager ventetid fra indeks innleggelse til prosedyre for NSTEMI pasienter etter PCI sykehus og henvisnings status}
+  \centering
+  \resizebox{1.1\textwidth}{!}{
+<<T2TtableB, results = 'asis' , echo = FALSE , warning = FALSE>>=
+
+TABV <- as.data.frame(
+    lapply(
+        X = split(
+            x = NSTEMI$DaysFromIndexAdmissionToProcedure ,
+            f = list( NSTEMI$Sykehusnavn , NSTEMI$HenvisningsStatus ) ) ,
+        FUN = describe))
+
+TABVD <- TABV[,1:6]
+names(TABVD) <- c("Haukeland","Sørlandet","Stavanger","St.Olav","Ullevål","UNN")
+TABVH <- TABV[,7:12]
+names(TABVH) <- c("Haukeland","Sørlandet","Stavanger","St.Olav","Ullevål","UNN")
+
+
+TABlong <- as.matrix(
+    rbind(
+        TABVD ,
+        TABVH))
+
+attr(TABlong , "dimnames")[[1]] <- c("N","25%","50%","75%","N","25%","50%","75%")
+
+Hmisc::latex(
+    object = TABlong ,
+    booktabs = TRUE,
+    center = "none",
+    rgroup = c("Direkte","Henvist") ,
+    n.rgroup = c(4,4) ,
+    where="!htbp" ,    
+    table.env = FALSE ,
+    title = "",
+    file = "")
+
+@
+}\end{table}
+
+
+
+
+
+
+<<FigT2T13,fig.cap="Fordeling av ventetid fra indeks innleggelse til prosedyre for henviste vs direkte innlagte NSTEMI pasienter etter PCI sykehus i 2013",fig.height=4,fig.pos='!h',fig.width=8,out.width="\\textwidth", warning = FALSE, echo = FALSE, include=FALSE>>=
+ggplot(
+    data = NSTEMI13 ,
+    mapping = aes(
+        x = DaysFromIndexAdmissionToProcedure ,
+        group = Sykehusnavn )) +
+    facet_grid( HenvisningsStatus ~ .  ) +
+    geom_density(
+        mapping = aes( fill = Sykehusnavn ) ,
+        alpha = 0.4 ,
+        adjust = 2) +
+        scale_x_continuous(
+            "Dager fra indeks innleggelse til prosedyre" ,
+            limit = c(0,15))
+@ 
+
+
+<<T2Ttable13, results = 'asis' , echo = FALSE , warning = FALSE, include=FALSE>>=
+Hmisc::latex(
+    as.data.frame(
+        lapply(
+            X = split(
+                x = NSTEMI13$DaysFromIndexAdmissionToProcedure ,
+                f = NSTEMI13$Sykehusnavn ) ,
+            FUN = describe)) ,
+    booktabs = TRUE,
+    center = "none",
+    where="!htbp" ,    
+    table.env = FALSE ,
+    title = "",
+    file = "")
+@
+
+
+Analyser av ventetid på invasiv utredning/behandling for pasienter med indikasjon NSTEMI viser at det er betydelige forskjeller mellom sykehusene (fig \ref{fig:FigT2T}, tabell 3.12). Her skiller Haukeland universitetssjukehus og Stavanger universitetssjukehus seg ut med lengre ventetid enn øvrige PCI sykehus i landet, og vesentlig lengre enn det som er anbefalt i internasjonale retningslinjer. Kortest ventetid er det ved Sørlandet sykehus. For pasienter som blir innlagt direkte til sykehus med PCI-lab, er median ventetid 1-2 dager kortere enn for de som først blir innlagt ved annet sykehus.  
+
+
+
+
+\clearpage
+\chapter{Metoder for fangst av data}\label{cha:metoder}
+
+Data registreres direkte til lokale kvalitetsregister via en elektronisk løsning som er administrert av Helse-Nord IKT. Data fra de enkelte lokale registrene blir så overført til det nasjonale kvalitetsregisteret, NORIC. 
+Registrering av data vil delvis bli gjort av den legen som utfører prosedyren og delvis av sekretærer og annet helsepersonell. Fordelingen av arbeidet mellom disse personellgruppene vil være avhengig av lokale forhold ved det enkelte sykehus. 
+Registeret inneholder fire skjemaer som skal fylles ut (jfr. figur 4.1). Samtlige obligatoriske variabler må være utfylt før skjemaet kan ferdigstilles. For hver variabel er det tilknyttet en hjelpetekst med definisjon eller forklaringer som skal sikre felles forståelse. For flere av variablene er det i tillegg implementert valideringssjekk for å unngå logiske feil.
+
+\begin{figure}[!h]
+  \centering
+\includegraphics[width=\textwidth]{figure/AngioPCI_arbeidsflyt}
+\caption{Oversikt over registerets fire skjemaer med et utvalg av tilhørende variabler. Ved de fleste deltakende sykehus er det den enkelte operatør som primært fyller ut hovedskjemaet i registeret. Det første skjemaet kan da allerede være utfylt av en sekretær eller radiograf, mens de resterende skjemaene blir supplert av annet helsepersonell i ettertid. Ved et fåtall av sykehusene er det operatøren som i hovedsak fyller ut samtlige skjemaer. Fra hovedskjemaet er det mulig å generere en tekstrapport som kan overføres til den elektroniske pasientjournal og nyttes som prosedyrebeskrivelse og journalnotat.}
+\end{figure}
+
+
+Det er størst grad av kompletthet for registreringsskjemaene som inneholder data ved innkomst og fra selve prosedyren (hovedskjema Angio/PCI) bedømt ut fra kontroll for at alle obligatoriske variabler er utfylt. Registreringsskjemaene for komplikasjoner og utskrivelse er derimot noe mer mangelfullt utfylt ved enkelte av sykehusene. I årsrapporten presenteres i hovedsak resultater hentet fra innkomst- og hovedskjemaet. Hovedskjemaet er ferdigstilt i over 99\% av pasientene hos de fleste sykehusene (jfr. tabell 4.1).
+
+\begin{table}
+  \caption{Prosent andel ferdigstilte hoved registrerings skjemaer etter PCI sykeshus}
+  \centering
+<<SOtab2, echo = FALSE , results = 'asis'>>=
+TAB1 <- addmargins(
+    xtabs(
+        formula = ~ Month + Sykehusnavn ,
+        subset = Skjemanavn == "AngioPCI" ,
+        data = SO))
+
+TAB1b <- addmargins(
+    xtabs(
+        formula = ~ Month + Sykehusnavn ,
+        subset = (Skjemanavn == "AngioPCI") & 
+            (SkjemaStatus == 1),
+        data = SO))
+
+TAB2 <- round( 100 * TAB1b[13,] / TAB1[13,] , digits = 1 )
+
+Hmisc::latex(
+    object = TAB2 ,
+    booktabs = TRUE,
+    center = "none",
+    table.env = FALSE ,
+    where="!htbp" ,
+    title = "",
+    file = "")
+
+@   
+\end{table}
+
+
+
+
+
+\chapter{Metodisk kvalitet}\label{cha:kva}
+
+\section{Antall registreringer}\label{sec:reg}
+Per 31.12.2014 for rapporteringsåret var det i NORIC registrert 19448 enkeltprosedyrer. Det totale antall prosedyrer er fordelt på koronar angiografi (11121), kombinert koronar angiografi/PCI (7342) og bare PCI (985) der koronaranatomien er kjent på forhånd. 
+
+\section{Metode for beregning av dekningsgrad}\label{sec:met}
+
+Data fra FHI basert på prosedyrekoder fra NPR ble sammenlignet med opptellinger fra NORIC. Prosedyrekodene fra NPR skriver seg fra epikrisene, og vil ikke fange opp de tilfellene der det er utført flere PCI under samme opphold. Vi har derfor valgt å sammenligne hovr mange pasienter som har fått utført PCI minst en gang i løpet av 2014. Vi mener at dette er den mest robuste måten å sammenligne data fra disse kildene.
+
+
+\section{Dekningsgrad på institusjonsnivå}\label{sec:endek}
+
+Seks av åtte sykehus (75\%) av PCI sykehus har fullstendig rapportert fra og med 01.01.2014.
+
+
+\section{Dekningsgrad på individnivå}\label{sec:obs}
+
+<<GetNPRdata,include=FALSE>>=
+pas <- DBI::dbGetQuery(
+    conn = con , 
+    statement = "
+SELECT PasientID, Sykehusnavn , count(1) AS N
+FROM AngioPCI
+WHERE
+   ProsedyreType IN('Angio + PCI','PCI') AND
+   Sykehusnavn IN('Ullevål','Sørlandet','St. Olavs','Stavanger','UNN','Haukeland') AND
+   year(ProsedyreDato) = 2014
+GROUP BY PasientID, Sykehusnavn
+ ")
+
+pros <- DBI::dbGetQuery(
+    conn = con , 
+    statement = "
+SELECT ForlopsID, Sykehusnavn , count(1) AS N
+FROM AngioPCI
+WHERE
+   ProsedyreType IN('Angio + PCI','PCI') AND
+   Sykehusnavn IN('Ullevål','Sørlandet','St. Olavs','Stavanger','UNN','Haukeland') AND
+   year(ProsedyreDato) = 2014
+GROUP BY ForlopsID, Sykehusnavn
+ ")
+
+npr <- read.table(
+    file = "NPR_AntallPCI_FNG02_FNG05_2014.csv" ,
+    sep = ",",
+    header = TRUE)[-7,]
+@ 
+
+
+\begin{table}
+  \caption{Antall pasienter med PCI behandling per PCI sykehus registrert i NPR vs NORIC}
+  \centering
+<<TabDekningsgrad, results = 'asis' , echo = FALSE , warning = FALSE>>=
+
+n.pci.noric <- cbind(
+    table( pros$Sykehusnavn ) ,
+    table( pas$Sykehusnavn ))
+attr(
+    x = n.pci.noric ,
+    which = "dimnames" ) [[2]] <- c(
+    "Prosedyrer" ,
+    "Pasienter")
+
+n.pci.npr <- as.matrix( npr[,-1] )
+attr(
+    x = n.pci.npr ,
+    which = "dimnames" ) [[1]] <- npr[,1]
+r.dekningsgrad <- round(
+    x = 100 * n.pci.noric / n.pci.npr ,
+    digits = 1 )
+
+TABdekningsgrad <- cbind(
+    n.pci.noric[,1] ,
+    n.pci.npr[,1] ,
+    r.dekningsgrad[,1] ,
+    n.pci.noric[,2] ,
+    n.pci.npr[,2] ,
+    r.dekningsgrad[,2])
+attr( TABdekningsgrad , "dimnames" )[[2]] <- c("NORIC","NPR","%","NORIC","NPR","%")
+
+latex(
+    object = TABdekningsgrad[-5,4:6] ,
+#    cgroup = c("Prosedyrer","Pasienter") ,
+#    n.cgroup = c(3,3) ,
+    booktabs = TRUE,
+    center = "none",
+    where="!htbp" ,    
+    table.env = FALSE ,
+    title = "",
+    file = "")
+
+@
+\end{table}
+
+
+
+\section{Metoder for intern sikring av datakvalitet}\label{sec:sik}
+Det arbeides kontinuerlig for å sikre at datakvaliteten er så god som mulig. Følgende tiltak er allerede iverksatt:
+
+\begin{itemize}
+  \item {Representanter fra det nasjonale registeret har besøkt deltakende sykehus og tilbudt opplæring i forbindelse med oppstart av pasientregistreringer. Oppfølging og brukerstøtte tilbys ellers via telefon, e-post og møter.}
+  \item{Under selve utfyllingen av det elektroniske registreringsskjemaet blir variabler der dette er mulig og aktuelt, automatisk sjekket mot andre variabler for å sikre samsvar mellom disse. Kvaliteten på data blir også forsøkt sikret ved å sjekke at de verdiene som blir lagt inn er innenfor grenser som er sannsynlige eller tillatt.}
+  \item{Hjelpetekst knyttet til hver enkelt variabel i registeret skal bidra til felles forståelse og hjelp til utfyllingen.}
+\end{itemize}
+ 
+
+
+
+\section{Metode for validering av data i registeret}\label{sec:metval}
+Det er ikke benyttet eksterne kilder for å validere data i registeret for 2014.
+
+\section{Vurdering av datakvalitet}\label{sec:valdat}
+Tilbakemeldinger fra brukerne peker på at det er noe ulik forståelse og tolkning av enkelte variabler i registeret. På bakgrunn av disse tilbakemeldingene har styringsgruppen ved flere anledninger hatt gjennomgang av aktuelle variabler for å komme fram til definisjonsavklaringer og felles variabelforståelse. 
+
+For å sikre komplette datasett er det ikke mulig å ferdigstille registreringsskjemaet med mindre det foreligger svar på samtlige obligatoriske variabler. Opptelling for 2014 viser at det er stor grad av ferdigstillelse av hovedskjema i alle deltagende sykehus, men at dette i mindre grad er oppnådd for komplikasjonsskjema og utskrivelsesskjema (se kapittel 4).
+
+
+\chapter{Fagutvikling og klinisk kvalitetsforbedring}\label{cha:fag}
+
+\section{Pasientgruppe som omfattes av registeret}{sec:patgru}
+
+Registeret inkluderer alle pasienter som ved norske sykehus blir utredet og behandlet for hjertesykdom ved hjelp av invasive kardiologiske prosedyrer. Dette gjelder i første rekke koronar angiografi og perkutane koronare intervensjoner, men også andre invasive kardiologiske prosedyrer som transkateter klaffeintervensjoner (TAVI og MitraClip) og kateterbaserte hjertepumper. I tillegg er det utviklet en modul for koronar CT-angiografi siden denne ligger nær opp til invasiv koronar angiografi og kan være et alternativ til denne.
+
+Aktuelle prosedyrekoder er:
+
+\begin{itemize}
+  \item{FYDB10, FYDB11, FYDB12, FYDB13, FYDB14}
+  \item{FNG02, FNG05}
+  \item{FNFM00}
+  \item{FMD12 (TAVI) for klaffemodulen}
+  \item{FNQAE (koronar CT angiografi) for CT-hjertemodulen}
+\end{itemize}
+
+
+
+\section{Registerets spesifikke kvalitetsmål}\label{sec:regspe}
+Registeret inneholder informasjon om indikasjon for prosedyrene, risikofaktorer, medisinsk tilstand, viktigste funn, valg av intervensjon samt andre prosedyrespesifikke data og eventuelle komplikasjoner. Ved akutte koronarsyndrom registreres dato og klokkeslett for symptomdebut, ankomst sykehus og eventuelt åpning av kar.
+
+Ventetid fra innleggelse i sykehus til angiografi hos pasienter med ikke-ST-elevasjonsinfarkt (NSTEMI) er et kvalitetsmål som ble rapportert i fjor. Dette vil egne seg godt som en nasjonal kvalitetsindikator. Vi er i en prosess der vi arbeider sammen med Norsk Hjerteinfarktregister for å sikre best mulig datakvalitet og rapportering på dette målet.  
+
+Når det gjelder andre spesifikke kvalitetsmål er ikke dette endelig bestemt, men vil omfatte mål på om virksomheten er i samsvar med anbefalinger i internasjonale retningslinjer. Eksempler på aktuelle kvalitetsmål er «Dør til ballongtid» ved ST-elevasjonsinfarkt (STEMI), stråledoser ved prosedyrene, blodfortynnende medikamenter ved utreise hos pasienter etter PCI. Det er også aktuelt å se på 30-dagers mortalitet etter PCI. 
+
+
+\section{Pasientrapporterte resultat- og erfaringsmål (PROM og PREM)}\label{sec:pasutk}
+Det er foreløpig ikke utarbeidet en plan for registrering av pasientrapporterte resultat- og erfaringsmål.
+
+
+\section{Sosiale og demografiske ulikheter i helse}\label{sec:sosdem}
+Sosiale og demografiske ulikheter er i liten grad med i registeret siden det ikke er hjemmel for å registrere dette i henhold til Hjerte- og karregisterforskriften. Det er kun variabler som alder, kjønn og kommunetilhørighet som nå registreres via kobling til Folkeregisteret.
+
+
+\section{Bidrag til utvikling av nasjonale retningslinjer, nasjonale kvalitetsindikatorer o.l.}\label{sec:retut}
+Ventetid fra innleggelse i sykehus til angiografi hos pasienter med NSTEMI er et kvalitetsmål som kan være aktuelt som en nasjonal kvalitetsindikator. Vi samarbeider med Norsk Hjerteinfarktregister om denne, både når det gjelder beskrivelse av selve målet (f.eks. andel pasienter innenfor en viss tidsperiode) og om hvordan vi skal sikre best mulig datakvalitet.
+
+
+\section{Etterlevelse av nasjonale retningslinjer}\label{sec:retbru}
+Det er ikke utviklet nasjonale retningslinjer for dette fagområdet.
+
+
+\section{Identifisering av kliniske forbedringsområder}\label{sec:ide}
+Europeiske retningslinjer for behandling av akutte koronarsyndrom anbefaler at pasienter med ikke-ST-elevasjonsinfarkt (NSTEMI) skal få utført invasiv utredning/behandling innen 24 timer. Tidspunkter for første innleggelse i sykehus og for invasiv utredning blir registrert i NORIC. Analyser av ventetiden på utredning viser at den er for lang ved de fleste PCI sykehusene, og særlig for pasienter som blir først innlagt ved andre sykehus To av sykehusene skiller seg ut med lengre ventetid enn de øvrige sykehusene med median ventetid på 2 døgn for pasienter som blir innlagt direkte i PCI-sykehus og 4 døgn for pasienter som blir overflyttet fra andre sykehus (jfr. tabell 3.17). 
+
+
+\section{Tiltak for klinisk kvalitetsforbedring initiert av registeret}\label{sec:brures}
+Analyser for 2013 viste at ved Haukeland universitetssjukehus var ventetiden fra sykehusinnleggelse til koronar angiografi ved indikasjon NSTEMI vesentlig lengre enn det som var anbefalt i internasjonalt aksepterte retningslinjer. Dette gjaldt i særlig grad pasienter henvist fra annet sykehus. Ledelsen ved den aktuelle avdelingen ble da gjort oppmerksom på problemet. Det ble etablert en arbeidsgruppe som iverksatte tiltak for å korte ned ventetiden for denne pasientgruppen.
+
+
+\section{Evaluering av tiltak for klinisk kvalitetsforbedring (endret praksis)}\label{sec:evakva}
+På bakgrunn av analyser i 2013 ble det iverksatt tiltak for å redusere ventetiden for pasienter med indikasjon NSTEMI ved Haukeland universitetssjukehus. Tallene for 2014 viser at ventetiden ved det aktuelle sykehuset er noe redusert for pasienter som blir overflyttet (median 5 og 4 døgn for henholdsvis 2013 og 2014), men fortsatt vesentlig lengre enn anbefalinger i retningslinjer. 
+
+
+
+\section{Pasientsikkerhet}\label{sec:kom}
+I registeret skilles det mellom komplikasjoner som oppstår i direkte tilknytning til prosedyren og komplikasjoner oppstått etter at pasienten har blitt overflyttet til sengepost. 
+Utvalg av variabler som registreres under komplikasjoner:
+
+\begin{itemize}
+   \item{Behandlingskrevende arytmi}
+   \item{Blødning (beskrives i detalj)}
+   \item{Allergisk reaksjon}
+   \item{Perforasjon}
+   \item{Tamponade}
+   \item{Prosedyrerelatert hjerteinfarkt}
+   \item{Nevrologisk komplikasjon}
+   \item{ACB-operasjon pga. komplikasjon}
+   \item{Død}
+\end{itemize}
+
+
+
+
+\chapter{Formidling av resultater}\label{cha:dat}
+
+\section{Resultater tilbake til deltakende fagmiljø}\label{sec:resfag}
+Ved hjelp av resultattjenesten i Rapportekt er det utarbeidet en standard månedsrapport for virksomheten og en rapport som viser forbruk av ulike stenter. Disse rapportene ble i 2014 sendt regelmessig til seksjonsleder ved det enkelte sykehus. Så snart det er etablert en samlet database, vil tallene i rapporten til det enkelte sykehus kunne sammenlignes med tilsvarende for hele landet.
+
+
+\section{Resultater til administrasjon og ledelse}\label{sec:resled}
+Resultater blir presentert i form av årsrapport. Internt formidles resultater til det medisinske fagmiljøet ved ulike møter og anledninger. Seksjonslederne har tilgang til data fra eget sykehus gjennom Rapporteket, hvor data oppdateres daglig. 
+
+
+\section{Resultater til pasienter}\label{sec:respas}
+Resultater til offentliggjøring har vært formidlet gjennom senter for klinisk dokumentasjon og evaluering (SKDE). Det planlegges oppretting av egen nettside hvor pasienter kan hente informasjon om registeret og hvor årsrapporter vil kunne lastes ned. 
+
+
+\section{Offentliggjøring av resultater på institusjonsnivå}\label{sec:off}
+Resultater på institusjonsnivå ble for første gang presentert i årsrapporten for 2013, da begrenset til to av sykehusene som på det tidspunktet hadde startet med pasientregistreringer i NORIC. Resultater på institusjonsnivå blir også presentert i denne årsrapporten, og omfatter resultater fra alle deltagende sykehus.
+Resultater for ventetider ved NSTEMI ved Haukeland universitetssjukehus ble presentert på Helse- og kvalitetsregisterkonferansen i 2014 og på Vårmøtet i Norsk Cardiologisk Selskap. Utover dette har resultater blitt formidlet til det medisinske fagmiljø ved flere forskjellige anledninger. 
+
+
+
+
+
+\chapter{Samarbeid og forskning}\label{cha:for}
+
+\section{Samarbeid med andre helse- og kvalitetsregistre}\label{sec:samfag}
+
+NORIC samarbeider med det tilsvarende svenske kvalitetsregisteret for invasiv kardiologi (SCAAR). I oppbyggingen av registeret ble SCAAR benyttet som modell. Det er relevant for registeret å dra nytte av de erfaringer som er gjort gjennom mange år med registerarbeid i Sverige. Vi bruker i stor grad samme variabeldefinisjoner for å sikre at vi kan sammenligne resultater og bruke registrene i felles vitenskapelige publikasjoner.  
+
+
+\section{Vitenskapelige arbeider}\label{sec:vitarb}
+Registeret er i en oppbyggingsfase og bidrag til vitenskapelige arbeider har av den grunn vært begrenset.
+
+
+
+
+\part{Plan for forbedringstiltak}\label{par:for}
+
+
+\chapter{Forbedringstiltak}
+
+
+\section{Datafangst og metodisk kvalitet}
+
+I 2013 var det kun 2 sykehus som leverte data til registeret. I januar 2014 startet 6 nye sykehus opp med pasientregistreringer i NORIC. Fra 01.01.15 vil registret for innværende år være landsdekkende.
+
+Dataregistreringen foregår på samme måte som tidligere ved at operatør sammen med sykepleier/radiograf og eget registreringspersonell legger inn bakgrunns-opplysninger om pasienten, data fra prosedyren og opplysninger om utskrivelsen og eventuelle komplikasjoner. Det arbeides med å utvikle et system for direkte overføring av stråledoser fra røntgenapparatene til registeret. Dette vil kunne være direkte anvendbart også for andre register som bruker røntgenstråler, og danne en modell for dataoverføring fra medisinsk teknisk utstyr til kvalitetsregister.
+
+
+For å gi tettere oppfølging og sikre høy grad av kvalitet på innregistrerte data, vil det være aktuelt å opprette en funksjon for monitorering med besøk til de sykehusene som leverer data til registeret. Dette vil innebære kontroll av et utvalg registerdata sammenholdt med data hentet fra journalnotat. 
+
+De sykehusene har mangelfulle registreringsskjemaer vil få tilbakemelding om dette slik at skjemaene kan ferdigstilles i god tid før neste resultatrapportering. 
+
+
+\section{Fagutvikling og kvalitetsforbedring av tjenesten}
+
+Styringsgruppen har ved flere anledninger hatt gjennomgang av de ulike variablene og funksjonene i registeret. Det er ytret ønske om ytterligere gjennomgang av enkelte variabler som har gitt rom for ulike tolkninger. For å sikre en felles variabelforståelse og med det økt kvalitet på registerdataene, vil registeret utarbeide nye, entydige hjelpetekster knyttet til hver enkelt variabel på det elektroniske skjemaet.
+
+Det arbeides fortsatt med å bestemme nye kvalitetsmål for registeret. I den forbindelse er det relevant å sammenligne med de kvalitetsmål som blir brukt i Sverige på tilsvarende register der. Disse er delvis basert på etterlevelse av aksepterte retningslinjer for behandling av spesifikke tilstander. NORIC vil bidra til etablering av nasjonale kvalitetsindikatorer innenfor invasiv kardiologi.
+
+På sikt er det ønskelig å utvikle et registreringssystem for pasientrapporterte resultater, men registeret er avhengig av finansiering for å kunne gjennomføre dette. 
+
+
+
+
+\section{Formidling av resultater}
+
+Til nå er det opprettet en standard månedsrapport for virksomheten og en rapport som viser forbruket av forskjellige stenter. Rapportene genereres via Rapporteket og sendes elektronisk via e-post. Noen av resultatene hentet fra disse rapportene, vil offentliggjøres på nettsiden til registeret og dermed gjøres tilgjengelig for pasienter og andre interesserte.
+
+Videre vil det bli utviklet rapporter som inneholder prosessmål og oversikt over stråledose og gjennomlysningstid. Det er også ønskelig å utvikle rapporter for den enkelte operatør, slik at vedkommende kan sjekke sin praksis med et gjennomsnitt for landet.   
+
+
+
+
+
+\part{Stadievurdering}
+
+\chapter{Referanser til vurdering av stadium}
+
+\begin{longtable}{rp{7cm}lcc}
+  \caption[Vurderingspunkter for stadium \registernavn]
+  {Vurderingspunkter for stadium \registernavn} \\
+  \hline 	 
+  Nr & Beskrivelse & Kapittel & Ja & Nei \\ 	 
+  \hline 	 
+  \endfirsthead 	 
+  \caption[]{forts.}\\ 	 
+  \hline 	 
+  Nr & Beskrivelse & Kapittel & Ja & Nei \\
+  \hline 	 
+  \endhead
+  \\
+  \multicolumn{4}{c}{\textit{Tabellen fortsetter på neste side}} \\
+  \hline
+  \endfoot 	 
+  \hline 	 
+  \endlastfoot
+
+  & \textbf{Stadium 2} & & \\
+  1 & Er i drift og samler data fra HF i alle helseregioner & \ref{cha:res} & \CheckedBox & \Square \\
+  2 & Presenterer resultater på nasjonalt nivå & \ref{cha:res} & \CheckedBox & \Square \\
+  3 & Har en konkret plan for gjennomføring av dekningsgradsanalyser & \ref{sec:met} & \CheckedBox & \Square \\
+  4 & Har en konkret plan for gjennomføring av analyser og løpende rapportering av resultater på sykehusnivå tilbake til deltakende enheter & \ref{sec:resfag} & \CheckedBox & \Square \\
+  5 & Har en oppdatert plan for videre utvikling av registeret & Del \ref{par:for} & \CheckedBox & \Square \\
+  & & & \\
+
+  & \textbf{Stadium 3} & & \\
+  6 & Kan redegjøre for registerets datakvalitet & \ref{sec:sik}, \ref{sec:metval}, \ref{sec:valdat} & \CheckedBox & \Square \\
+  7 & Har beregnet dekningsgrad mot uavhengig datakilde & \ref{sec:met}, \ref{sec:endek}, \ref{sec:obs} & \CheckedBox & \Square \\
+  8 & Registrerende enheter kan få utlevert egne aggregerte og nasjonale resultater & \ref{sec:resfag} & \CheckedBox & \Square \\
+  9 & Presenterer deltakende enheters etterlevelse av de viktigste nasjonale retningslinjer der disse finnes & \ref{sec:retbru} & \Square & \CheckedBox \\
+  10 & Har identifisert kliniske forbedringsområder basert på analyser fra registeret & \ref{sec:ide} & \CheckedBox & \Square \\
+  11 & Brukes til klinisk kvalitetsforbedringsarbeid & \ref{sec:brures}, \ref{sec:evakva} & \CheckedBox & \Square \\
+  12 & Resultater anvendes vitenskapelig & \ref{sec:vitarb} & \Square & \CheckedBox \\
+  13 & Presenterer resultater for PROM/PREM & \ref{sec:pasutk} & \Square & \CheckedBox \\
+  14 & Har en oppdatert plan for videre utvikling av registeret & Del \ref{par:for} & \CheckedBox & \Square \\
+  & & & \\
+
+  & \textbf{Stadium 4} & & \\
+  15 & Kan dokumentere registerets datakvalitet gjennom valideringsanalyser & \ref{sec:valdat} & \Square & \CheckedBox \\
+  16 & Presenterer oppdatert dekningsgradsanalyse hvert 2. år & \ref{sec:met}, \ref{sec:endek}, \ref{sec:obs} & \Square & \CheckedBox \\
+  17 & Har dekningsgrad over 80\% & \ref{sec:obs} & \CheckedBox & \Square \\
+  18 & Registrerende enheter har løpende (online) tilgang til oppdaterte egne og nasjonale resultater & \ref{sec:resfag}, \ref{sec:off} & \Square & \CheckedBox \\
+  19 & Presentere resultater på sosial ulikhet i helse & \ref{sec:sosdem} & \Square & \CheckedBox \\
+  20 & Resultater fra registeret er tilpasset og tilgjengelig for pasienter & \ref{sec:respas} & \Square & \CheckedBox \\
+  21 & Kunne dokumentere at registeret har ført til kvalitetsforbedring/endret klinisk praksis & \ref{sec:evakva} & \Square & \CheckedBox \\
+  \label{tab:sta} 	 
+\end{longtable}
+
+\listoffigures
+\listoftables
+
+\end{document}

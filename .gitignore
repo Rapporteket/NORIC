@@ -8,6 +8,32 @@
 # RStudio files
 .Rproj.user/
 
+# knitr figures
+figure/
+
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
+
+# intermediate .tex files and logs
+*.tex
+*.log
+*.aux
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+
+# SPSS, word,..
+*.sav
+*.doc
+*.docx
+
+# Rdata files
+*.Rdata
+*.data.R
+
+# Example code in package build process
+*-Ex.R
+

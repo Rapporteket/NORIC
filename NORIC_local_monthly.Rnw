@@ -1,0 +1,537 @@
+\documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
+\usetheme{Hannover}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english, norsk]{babel}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{rotating}
+
+
+<<loadlibs,include=FALSE>>=
+# knitr::knit2pdf("NORIC_local_monthly.Rnw")
+require( Hmisc )
+require( xtable)
+require( ggplot2 )
+@ 
+
+
+<<DefineFunc,include=FALSE>>=
+Tquantil <- function( x , probs )
+    round(
+        quantile( x = x , na.rm = TRUE , probs = probs ) ,
+        digits = 1)
+
+describe <- function(X){
+    DTAB <- c(
+        as.character(sum(!is.na(X))) ,
+        round( mean( X , na.rm = TRUE ) , digits = 1 ) ,
+        min( X , na.rm = TRUE ) ,
+        max( X , na.rm = TRUE ) ,
+        Tquantil( X , 0.100 ) ,
+        Tquantil( X , 0.250 ) ,
+        Tquantil( X , 0.500 ) ,
+        Tquantil( X , 0.750 ) ,
+        Tquantil( X , 0.900 ))
+        attr( DTAB , "names") <- c(
+            "N" , "Mean", "Minimum", "Maximum",
+            "10%", "25%", "50%", "75%", "90%")
+        return(DTAB)}
+@ 
+
+
+
+<<DBconnect,include=FALSE>>=
+
+if (!exists("reshID")) {reshID <- "100000"} # for local testing
+if (!exists("con")) {
+    conf <- yaml::yaml.load_file(
+        input = "../dbConfig.yml" )[[
+            paste(
+                "noricStaging" ,
+                reshID ,
+                sep = "")
+            ]]
+    con <- DBI::dbConnect(
+        drv = RMySQL::MySQL() ,
+        dbname = unlist( conf["name"] ) ,
+        host = unlist( conf["host"]) ,
+        user = unlist( conf["user"]) ,
+        password = unlist( conf["pass"])
+        )
+    options( stringsAsFactors = FALSE )
+    DBI::dbGetQuery( con , "SET NAMES utf8;" )}
+
+@ 
+
+
+<<LoadRawTables,include=FALSE>>=
+options(stringsAsFactors=FALSE , width = "120")
+
+SO <- DBI::dbGetQuery(
+    conn = con , 
+    statement = "SELECT * FROM SkjemaOversikt")
+
+AP <- DBI::dbGetQuery(
+    conn = con , 
+    statement = "SELECT * FROM AngioPCI")
+@ 
+
+
+<<SOPrepare,include=FALSE>>=
+SO$RegDate <- as.Date(
+    x = SO$OpprettetDato ,
+    format = "%d.%b.%Y")
+
+SO$Year <- as.numeric(
+    format(
+        x = SO$RegDate ,
+        format = "%Y"))
+
+SO$nMonth <- as.numeric(
+    as.factor(
+        format(
+            x = SO$RegDate ,
+            format = "%Y-%m")))
+
+SO <- subset(
+    x = SO ,
+    subset = nMonth > max(nMonth)-18 )
+
+SO$Month <- as.factor(
+    format(
+        SO$RegDate ,
+        format = "%Y-%m"))
+@ 
+
+
+
+<<AsDateConversion,include=FALSE>>=
+AP $ FodselsDato <- as.Date(
+    AP $ FodselsDato )
+
+AP $ SymptomDato <- as.Date(
+    AP $ SymptomDato)
+
+AP $ DatoInnleggelseIHenvisendeSykehus <- as.Date(
+    AP $ DatoInnleggelseIHenvisendeSykehus )
+
+AP $ AnkomstPCIDato <- as.Date(
+    AP $ AnkomstPCIDato )
+
+AP $ ProsedyreDato <- as.Date(
+    x = AP $ ProsedyreDato)
+@ 
+
+
+<<CalcDays,include=FALSE>>=
+AP $ DaysFromSymptomToIndexAdmission <- as.numeric(
+    AP $ DatoInnleggelseIHenvisendeSykehus - AP $ SymptomDato )
+
+AP $ DaysFromIndexAdmissionToProcedure <- as.numeric(
+    AP $ ProsedyreDato - AP $ DatoInnleggelseIHenvisendeSykehus )
+
+AP $ DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
+    AP $ ProsedyreDato - AP $ AnkomstPCIDato )
+@ 
+
+
+<<TnegNA,include=FALSE>>=
+AP <- AP [ - which(
+    AP $ DaysFromSymptomToIndexAdmission < 0 ),]
+
+AP <- AP[ - which(
+    AP $ DaysFromIndexAdmissionToProcedure < 0 ),]
+
+AP <- AP[ - which(
+    AP $ DaysFromPCIcenterAdmissionToProcedure < 0 ),]
+
+AP <- AP[ - which(
+    AP $ DaysFromSymptomToIndexAdmission > 100 ),]
+
+AP <- AP[ - which(
+    AP $ DaysFromIndexAdmissionToProcedure > 100 ),]
+
+AP <- AP[ - which(
+    AP $ DaysFromPCIcenterAdmissionToProcedure > 100 ),]
+@ 
+
+
+<<APfiltering,include=FALSE>>=
+AP $ Year <- as.numeric(
+    format(
+        x = AP $ ProsedyreDato ,
+        format = "%Y"))
+
+AP$nMonth <- as.numeric(
+    as.factor(
+        format(
+            AP$ProsedyreDato ,
+            format = "%Y-%m")))
+
+AP <- subset(
+    x = AP ,
+    subset = nMonth > max(nMonth,na.rm=T)-18 )
+
+AP $ Month <- as.factor(
+    format(
+        x = AP $ ProsedyreDato ,
+        format = "%Y-%m"))
+
+AP $ Day <- as.numeric(
+    AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
+@ 
+
+
+<<APrecodes,include=FALSE>>=
+AP $ Sykehusnavn <- factor( AP $ Sykehusnavn )
+
+AP $ AdmissionType <- car::recode(
+    var = AP $ OverflyttetFra ,
+    recodes = "
+        'Annet sykehus'='Referred';
+        '' = NA;
+        'Annen  avdeling på sykehuset' = NA;
+        'Nei, direkte inn til dette sykehus' = 'Directly admitted';
+        'Omdirigert ambulanse' = 'Directly admitted';
+        ")
+
+AP $ Indikasjon2 <- factor(
+    car::recode(
+        var = AP $ Indikasjon ,
+        recodes = "
+            'Stabil koronarsykdom '='SAP';
+            'UAP'='UAP';
+            'NSTEMI'='NSTEMI';
+            'STEMI'='STEMI';
+            'Hjertestans ved STEMI'='STEMI';
+            'STEMI > 24h'='STEMI';
+            'STEMI/Rescue PCI'='STEMI';
+            ' Uklare brystsmerter'='Uklare brystsmerter';
+            else='Annet';
+            ") ,
+    levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
+
+@ 
+
+
+
+
+
+<<subsetting,include=FALSE>>=
+NSTEMI <- subset(
+    x = AP ,
+    subset = (Indikasjon == "NSTEMI"))
+@ 
+
+
+<<TestFeiring,include=FALSE>>=
+conf$disp <- "Feiring"
+AP <- AP[ which(AP$Sykehusnavn=="Feiring"&AP$nMonth>24) , ]
+SO <- SO[ which(SO$Sykehusnavn=="Feiring"&SO$nMonth>24) , ]
+NSTEMI <- NSTEMI[ which(NSTEMI$Sykehusnavn=="Feiring"&NSTEMI$nMonth>24) , ]
+@ 
+
+
+
+\title[AngioPCI\\\Sexpr{conf$disp}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{conf$disp}}
+\date{}
+
+
+
+\begin{document}
+\begin{tiny}
+  
+\maketitle
+
+
+
+\section{Hastegrad}
+
+\begin{frame}[fragile]
+<<FigNHendelsesType,fig.cap="Antall primær prosedyrer etter hastegrad og måned",echo=FALSE,fig.width=8,fig.height=4,out.width="\\textwidth">>=
+ggplot(
+    data = AP ,
+    mapping = aes(
+        x = Month ,
+        group = HendelsesType )
+    ) +
+    geom_histogram( aes( fill = HendelsesType ))
+@
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<TabNHendelsesType, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Month + HendelsesType ,
+                subset = is.na( PrimaerForlopsID ) ,
+                data = AP)) ,
+        caption = "Antall registrerte primær prosedyrer etter hastegrad og måned" ,
+        digits = 0) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<TabRHendelsesType, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Month + HendelsesType ,
+                subset = is.na( PrimaerForlopsID ) ,
+                data = AP) ,
+            margin = 1) ,
+        caption = "Prosent andel primær prosedyrer etter hastegrad og måned" ,
+        digits = 1) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+
+
+\section{Prosedyre type}
+
+\begin{frame}[fragile]
+<<FigNProsedyreType,fig.cap="Antall primær prosedyrer etter type og PCI senter",echo=FALSE,fig.width=8,fig.height=4,out.width="\\textwidth">>=
+ggplot(
+    data = AP ,
+    mapping = aes(
+        x = Month ,
+        group = ProsedyreType )
+    ) +
+    geom_histogram( aes( fill = ProsedyreType ))
+@
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<TabNProsedyreType, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Month + ProsedyreType ,
+                subset = is.na( PrimaerForlopsID ) ,
+                data = AP)) ,
+        caption = "Antall primær prosedyrer etter prosedyretype og PCI senter" ,
+        digits = 0) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<TabRProsedyreType, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Month + ProsedyreType ,
+                subset = is.na( PrimaerForlopsID ) ,
+                data = AP) ,
+            margin = 1) ,
+        caption = "Prosentandel primær prosedyrer etter prosedyretype og måned" ,
+        digits = 1) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+
+
+\section{Indikasjon}
+
+\begin{frame}[fragile]
+<<FigNIndikasjon,fig.cap="Antall primær prosedyrer etter indikasjon og PCI senter",echo=FALSE,fig.width=8,fig.height=4,out.width="\\textwidth">>=
+ggplot(
+    data = AP ,
+    mapping = aes(
+        x = Month ,
+        group = Indikasjon2 )
+    ) +
+    geom_histogram( aes( fill = Indikasjon2 ))
+@
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<TabNIndikasjon, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Month + Indikasjon2 ,
+                subset = is.na( PrimaerForlopsID ) ,
+                data = AP)) ,
+        caption = "Antall primær prosedyrer etter indikasjon og måned" ,
+        digits = 0) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<TabRIndikasjon, echo = FALSE , results = 'asis'>>=
+print.xtable(
+    x = xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Month + Indikasjon2 ,
+                subset = is.na( PrimaerForlopsID ) ,
+                data = AP) ,
+            margin = 1) ,
+        caption = "Prosentandel primær prosedyrer etter indikasjon og måned" ,
+        digits = 1) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+
+
+\section{FFR}
+
+\begin{frame}[fragile]
+  \frametitle{FFR}
+<<TabNTillegg, echo = FALSE , results = 'asis'>>=
+nFFR <- xtabs(
+    formula = ~ Month + as.numeric(FFR=="Ja") ,
+    data = AP ,
+    exclude = 0)
+
+rFFR <- 100 * prop.table(
+    xtabs(
+        formula = ~ Month + as.numeric(FFR=="Ja") ,
+        subset = is.na( PrimaerForlopsID ) ,
+        data = AP ,
+        exclude = NULL ,
+        na.action = na.pass ) ,
+    margin = 1 )[,2]
+
+TabTillegg <- cbind(
+    nFFR ,
+    rFFR )
+
+attr(TabTillegg , "dimnames")[[2]] <- c("Antall FFR" , "Prosentandel FFR")
+
+print(
+    xtable(
+        x = TabTillegg ,
+        digits = c(0,0,1) ,
+        caption = "Totalt antall og prosent FFR av gjennomførte prosedyrer etter måned") ,
+    booktabs = TRUE )
+@ 
+\end{frame}
+
+
+
+
+
+\section{Kompletthet}
+
+
+\begin{frame}[fragile]
+<<SOtab1, echo = FALSE , results = 'asis'>>=
+TAB1 <- addmargins(
+    xtabs(
+        formula = ~ Month + Skjemanavn ,
+        data = SO))
+
+print.xtable(
+    x = xtable(
+        x = TAB1 ,
+        caption = "Antall registreringer etter skjema og måned" ,
+        digits = 0) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<SOtab1b, echo = FALSE , results = 'asis'>>=
+TAB1b <- addmargins(
+    xtabs(
+        formula = ~ Month + Skjemanavn ,
+        subset = SkjemaStatus == 1 ,
+        data = SO))
+
+print.xtable(
+    x = xtable(
+        x = TAB1b ,
+        caption = "Antall ferdigstilte registreringer etter skjema og måned" ,
+        digits = 0) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<SOtab2, echo = FALSE , results = 'asis'>>=
+TAB2 <- 100 * TAB1b / TAB1
+
+print.xtable(
+    x = xtable(
+        x = TAB2 ,
+        caption = "Prosent andel ferdigstilte registreringer etter skjema og måned" ,
+        digits = 1) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+
+
+\section{Ventetid}
+
+
+\begin{frame}[fragile]
+<<FigT2TetterIndikasjon,fig.cap="Fordeling av ventetid fra indeks innleggelse til prosedyre for henviste pasienter etter indikasjon", fig.height = 4, fig.width = 8, out.width = "\\textwidth", warning = FALSE, echo = FALSE>>=
+ggplot(
+    data = AP ,
+    mapping = aes(
+        x = DaysFromIndexAdmissionToProcedure ,
+        group = Indikasjon2 )) +
+            geom_density(
+                mapping = aes( fill = Indikasjon2 ) ,
+                alpha = 0.4 ,
+                adjust = 2) +
+            scale_x_continuous(
+                "Days from Index Admission to Procedure" ,
+                limit = c(0,15))
+@ 
+\end{frame}
+
+
+\begin{frame}[fragile]
+\begin{table}
+  \caption{Dager ventetid fra indeks innleggelse til prosedyre for henviste pasienter etter indikasjon}
+  \centering
+  \resizebox{0.8\textwidth}{!}{
+<<T2Ttable, results = 'asis' , echo = FALSE , warning = FALSE>>=
+Hmisc::latex(
+    as.data.frame(
+        lapply(
+            X = split(
+                x = AP$DaysFromIndexAdmissionToProcedure ,
+                f = AP$Indikasjon2 ) ,
+            FUN = describe)) ,
+    booktabs = TRUE,
+    center = "none",
+    table.env = FALSE ,
+    title = "",
+    file = "")
+@
+}\end{table}
+\end{frame}
+
+
+\end{tiny}
+\end{document}
