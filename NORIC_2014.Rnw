@@ -136,7 +136,7 @@ SO$Month <- factor(
 <<AsDateConversion,include=FALSE>>=
 AP <- DBI::dbGetQuery(
     conn = con , 
-    statement = "SELECT * FROM AngioPCI")
+    statement = "SELECT * FROM AngioPCIVar")
 
 AP $ FodselsDato <- as.Date(
     AP $ FodselsDato )
