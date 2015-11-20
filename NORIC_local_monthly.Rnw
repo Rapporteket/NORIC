@@ -44,7 +44,7 @@ describe <- function(X){
 
 <<DBconnect,include=FALSE>>=
 
-if (!exists("reshID")) {reshID <- "100000"} # for local testing
+if (!exists("reshID")) {reshID <- "102966"} # for local testing
 if (!exists("con")) {
     conf <- yaml::yaml.load_file(
         input = "../dbConfig.yml" )[[
@@ -75,7 +75,7 @@ SO <- DBI::dbGetQuery(
 
 AP <- DBI::dbGetQuery(
     conn = con , 
-    statement = "SELECT * FROM AngioPCI")
+    statement = "SELECT * FROM AngioPCIVar")
 @ 
 
 
@@ -93,7 +93,7 @@ SO$nMonth <- as.numeric(
     as.factor(
         format(
             x = SO$RegDate ,
-            format = "%Y-%m")))
+            format = "%y/%m")))
 
 SO <- subset(
     x = SO ,
@@ -102,7 +102,7 @@ SO <- subset(
 SO$Month <- as.factor(
     format(
         SO$RegDate ,
-        format = "%Y-%m"))
+        format = "%y/%m"))
 @ 
 
 
@@ -111,11 +111,8 @@ SO$Month <- as.factor(
 AP $ FodselsDato <- as.Date(
     AP $ FodselsDato )
 
-AP $ SymptomDato <- as.Date(
-    AP $ SymptomDato)
-
-AP $ DatoInnleggelseIHenvisendeSykehus <- as.Date(
-    AP $ DatoInnleggelseIHenvisendeSykehus )
+AP $ InnleggelseHenvisendeSykehusDato <- as.Date(
+    AP $ InnleggelseHenvisendeSykehusDato )
 
 AP $ AnkomstPCIDato <- as.Date(
     AP $ AnkomstPCIDato )
@@ -126,11 +123,9 @@ AP $ ProsedyreDato <- as.Date(
 
 
 <<CalcDays,include=FALSE>>=
-AP $ DaysFromSymptomToIndexAdmission <- as.numeric(
-    AP $ DatoInnleggelseIHenvisendeSykehus - AP $ SymptomDato )
 
 AP $ DaysFromIndexAdmissionToProcedure <- as.numeric(
-    AP $ ProsedyreDato - AP $ DatoInnleggelseIHenvisendeSykehus )
+    AP $ ProsedyreDato - AP $ InnleggelseHenvisendeSykehusDato )
 
 AP $ DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
     AP $ ProsedyreDato - AP $ AnkomstPCIDato )
@@ -138,23 +133,15 @@ AP $ DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
 
 
 <<TnegNA,include=FALSE>>=
-AP <- AP [ - which(
-    AP $ DaysFromSymptomToIndexAdmission < 0 ),]
 
-AP <- AP[ - which(
-    AP $ DaysFromIndexAdmissionToProcedure < 0 ),]
+i.out <- which(
+    (AP $ DaysFromIndexAdmissionToProcedure < 0) |
+    (AP $ DaysFromIndexAdmissionToProcedure > 100) |
+    (AP $ DaysFromPCIcenterAdmissionToProcedure < 0 ) |
+    (AP $ DaysFromPCIcenterAdmissionToProcedure > 100 ))
 
-AP <- AP[ - which(
-    AP $ DaysFromPCIcenterAdmissionToProcedure < 0 ),]
+if (length(i.out)>0) AP <- AP[-i.out,]
 
-AP <- AP[ - which(
-    AP $ DaysFromSymptomToIndexAdmission > 100 ),]
-
-AP <- AP[ - which(
-    AP $ DaysFromIndexAdmissionToProcedure > 100 ),]
-
-AP <- AP[ - which(
-    AP $ DaysFromPCIcenterAdmissionToProcedure > 100 ),]
 @ 
 
 
@@ -168,16 +155,16 @@ AP$nMonth <- as.numeric(
     as.factor(
         format(
             AP$ProsedyreDato ,
-            format = "%Y-%m")))
+            format = "%y/%m")))
 
 AP <- subset(
     x = AP ,
-    subset = nMonth > max(nMonth,na.rm=T)-18 )
+    subset = nMonth > max( nMonth , na.rm = TRUE ) - 18 )
 
 AP $ Month <- as.factor(
     format(
         x = AP $ ProsedyreDato ,
-        format = "%Y-%m"))
+        format = "%y/%m"))
 
 AP $ Day <- as.numeric(
     AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
@@ -223,14 +210,6 @@ AP $ Indikasjon2 <- factor(
 NSTEMI <- subset(
     x = AP ,
     subset = (Indikasjon == "NSTEMI"))
-@ 
-
-
-<<TestFeiring,include=FALSE>>=
-conf$disp <- "Feiring"
-AP <- AP[ which(AP$Sykehusnavn=="Feiring"&AP$nMonth>24) , ]
-SO <- SO[ which(SO$Sykehusnavn=="Feiring"&SO$nMonth>24) , ]
-NSTEMI <- NSTEMI[ which(NSTEMI$Sykehusnavn=="Feiring"&NSTEMI$nMonth>24) , ]
 @ 
 
 
@@ -350,7 +329,7 @@ print.xtable(
 \section{Indikasjon}
 
 \begin{frame}[fragile]
-<<FigNIndikasjon,fig.cap="Antall primær prosedyrer etter indikasjon og PCI senter",echo=FALSE,fig.width=8,fig.height=4,out.width="\\textwidth">>=
+<<FigNIndikasjon,fig.cap="Antall primær prosedyrer etter indikasjon og PCI senter",echo=FALSE,fig.width=12,fig.height=6,out.width="\\textwidth">>=
 ggplot(
     data = AP ,
     mapping = aes(
@@ -440,48 +419,25 @@ print(
 
 \begin{frame}[fragile]
 <<SOtab1, echo = FALSE , results = 'asis'>>=
-TAB1 <- addmargins(
-    xtabs(
-        formula = ~ Month + Skjemanavn ,
-        data = SO))
+Totalt <- xtabs(
+    formula = ~ Month ,
+    subset = Skjemanavn == "AngioPCI" ,
+    data = SO)
+
+Komplett <- xtabs(
+    formula = ~ Month ,
+    subset = (Skjemanavn == "AngioPCI") & (SkjemaStatus == 1) ,
+    data = SO)
+
+Prosent <- 100 * TAB1b / TAB1
+
+TAB <- cbind( Totalt, Komplett, Prosent )
 
 print.xtable(
     x = xtable(
-        x = TAB1 ,
-        caption = "Antall registreringer etter skjema og måned" ,
-        digits = 0) ,
-    booktabs = TRUE )
-@   
-\end{frame}
-
-
-\begin{frame}[fragile]
-<<SOtab1b, echo = FALSE , results = 'asis'>>=
-TAB1b <- addmargins(
-    xtabs(
-        formula = ~ Month + Skjemanavn ,
-        subset = SkjemaStatus == 1 ,
-        data = SO))
-
-print.xtable(
-    x = xtable(
-        x = TAB1b ,
-        caption = "Antall ferdigstilte registreringer etter skjema og måned" ,
-        digits = 0) ,
-    booktabs = TRUE )
-@   
-\end{frame}
-
-
-\begin{frame}[fragile]
-<<SOtab2, echo = FALSE , results = 'asis'>>=
-TAB2 <- 100 * TAB1b / TAB1
-
-print.xtable(
-    x = xtable(
-        x = TAB2 ,
-        caption = "Prosent andel ferdigstilte registreringer etter skjema og måned" ,
-        digits = 1) ,
+        x = TAB ,
+        caption = "Antall hoved registreringsskjemaer etter måned" ,
+        digits = c(0,0,0,1)) ,
     booktabs = TRUE )
 @   
 \end{frame}
@@ -493,7 +449,7 @@ print.xtable(
 
 
 \begin{frame}[fragile]
-<<FigT2TetterIndikasjon,fig.cap="Fordeling av ventetid fra indeks innleggelse til prosedyre for henviste pasienter etter indikasjon", fig.height = 4, fig.width = 8, out.width = "\\textwidth", warning = FALSE, echo = FALSE>>=
+<<FigT2TetterIndikasjon,fig.cap="Fordeling av ventetid fra indeks innleggelse til prosedyre for henviste pasienter etter indikasjon", fig.height = 6, fig.width = 12, out.width = "\\textwidth", warning = FALSE, echo = FALSE>>=
 ggplot(
     data = AP ,
     mapping = aes(
