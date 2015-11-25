@@ -97,7 +97,7 @@ SO$nMonth <- as.numeric(
 
 SO <- subset(
     x = SO ,
-    subset = nMonth > max(nMonth)-18 )
+    subset = nMonth > max(nMonth)-24 )
 
 SO$Month <- as.factor(
     format(
@@ -145,7 +145,7 @@ if (length(i.out)>0) AP <- AP[-i.out,]
 @ 
 
 
-<<APfiltering,include=FALSE>>=
+<<APdaterecodes,include=FALSE>>=
 AP $ Year <- as.numeric(
     format(
         x = AP $ ProsedyreDato ,
@@ -157,18 +157,11 @@ AP$nMonth <- as.numeric(
             AP$ProsedyreDato ,
             format = "%y/%m")))
 
-AP <- subset(
-    x = AP ,
-    subset = nMonth > max( nMonth , na.rm = TRUE ) - 18 )
-
-AP $ Month <- as.factor(
-    format(
-        x = AP $ ProsedyreDato ,
-        format = "%y/%m"))
-
 AP $ Day <- as.numeric(
     AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
+
 @ 
+
 
 
 <<APrecodes,include=FALSE>>=
@@ -204,12 +197,27 @@ AP $ Indikasjon2 <- factor(
 
 
 
-
-
 <<subsetting,include=FALSE>>=
+
 NSTEMI <- subset(
     x = AP ,
     subset = (Indikasjon == "NSTEMI"))
+
+NSTEMI $ Month <- as.factor(
+    format(
+        x = NSTEMI $ ProsedyreDato ,
+        format = "%y/%m"))
+
+
+AP <- subset(
+    x = AP ,
+    subset = nMonth > max( nMonth , na.rm = TRUE ) - 24 )
+
+AP $ Month <- as.factor(
+    format(
+        x = AP $ ProsedyreDato ,
+        format = "%y/%m"))
+
 @ 
 
 
@@ -429,7 +437,7 @@ Komplett <- xtabs(
     subset = (Skjemanavn == "AngioPCI") & (SkjemaStatus == 1) ,
     data = SO)
 
-Prosent <- 100 * TAB1b / TAB1
+Prosent <- 100 * Komplett / Totalt
 
 TAB <- cbind( Totalt, Komplett, Prosent )
 
