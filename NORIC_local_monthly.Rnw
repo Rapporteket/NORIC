@@ -18,6 +18,7 @@ require( ggplot2 )
 
 
 <<DefineFunc,include=FALSE>>=
+
 Tquantil <- function( x , probs )
     round(
         quantile( x = x , na.rm = TRUE , probs = probs ) ,
@@ -38,6 +39,7 @@ describe <- function(X){
             "N" , "Mean", "Minimum", "Maximum",
             "10%", "25%", "50%", "75%", "90%")
         return(DTAB)}
+
 @ 
 
 
@@ -80,9 +82,9 @@ AP <- DBI::dbGetQuery(
 
 
 <<SOPrepare,include=FALSE>>=
+
 SO$RegDate <- as.Date(
-    x = SO$OpprettetDato ,
-    format = "%d.%b.%Y")
+    SO$OpprettetDato)
 
 SO$Year <- as.numeric(
     format(
@@ -97,17 +99,19 @@ SO$nMonth <- as.numeric(
 
 SO <- subset(
     x = SO ,
-    subset = nMonth > max(nMonth)-24 )
+    subset = nMonth > max(nMonth) - 24 )
 
 SO$Month <- as.factor(
     format(
         SO$RegDate ,
         format = "%y/%m"))
+
 @ 
 
 
 
 <<AsDateConversion,include=FALSE>>=
+
 AP $ FodselsDato <- as.Date(
     AP $ FodselsDato )
 
@@ -119,6 +123,7 @@ AP $ AnkomstPCIDato <- as.Date(
 
 AP $ ProsedyreDato <- as.Date(
     x = AP $ ProsedyreDato)
+
 @ 
 
 
@@ -129,6 +134,7 @@ AP $ DaysFromIndexAdmissionToProcedure <- as.numeric(
 
 AP $ DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
     AP $ ProsedyreDato - AP $ AnkomstPCIDato )
+
 @ 
 
 
@@ -426,7 +432,9 @@ print(
 
 
 \begin{frame}[fragile]
-<<SOtab1, echo = FALSE , results = 'asis'>>=
+  
+<<SOtab1,echo=FALSE,results='asis'>>=
+
 Totalt <- xtabs(
     formula = ~ Month ,
     subset = Skjemanavn == "AngioPCI" ,
@@ -447,6 +455,7 @@ print.xtable(
         caption = "Antall hoved registreringsskjemaer etter måned" ,
         digits = c(0,0,0,1)) ,
     booktabs = TRUE )
+
 @   
 \end{frame}
 
