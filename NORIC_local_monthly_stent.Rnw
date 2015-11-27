@@ -327,9 +327,9 @@ print(
                 xtabs(
                     formula = ~ Stentnavn2 + YearQuarter ,
                     data = SegmentStent ) ,
-                margin = 2 ) ,
+                margin = 1 ) ,
             margin = 2) ,
-        digits = 0 , caption = "Prosent stentermerke per kvartal") ,
+        digits = 1 , caption = "Prosent stentermerke per kvartal") ,
     booktabs = TRUE ,
     rotate.colnames = TRUE)
 @
