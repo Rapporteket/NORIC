@@ -329,7 +329,7 @@ print(
                     data = SegmentStent ) ,
                 margin = 2 ) ,
             margin = 2) ,
-        digits = 1 , caption = "Prosent stentermerke per kvartal") ,
+        digits = 0 , caption = "Prosent stentermerke per kvartal") ,
     booktabs = TRUE ,
     rotate.colnames = TRUE)
 @
