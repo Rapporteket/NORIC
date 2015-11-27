@@ -40,6 +40,12 @@ describe <- function(X){
             "10%", "25%", "50%", "75%", "90%")
         return(DTAB)}
 
+interleaveEveryOtherEmpty <- function(v){
+        ind <- seq(2, length(v), by=2)
+        v[ind] <- ""
+        everyOtherEmpty <- v
+        return(everyOtherEmpty)
+        }
 @ 
 
 
@@ -250,7 +256,9 @@ ggplot(
         x = Month ,
         group = HendelsesType )
     ) +
-    geom_histogram( aes( fill = HendelsesType ))
+    geom_histogram( aes( fill = HendelsesType )
+    ) +
+    scale_x_discrete(labels = interleaveEveryOtherEmpty(as.character(levels(AP$Month))))
 @
 \end{frame}
 
@@ -300,7 +308,9 @@ ggplot(
         x = Month ,
         group = ProsedyreType )
     ) +
-    geom_histogram( aes( fill = ProsedyreType ))
+    geom_histogram( aes( fill = ProsedyreType )
+    ) +
+    scale_x_discrete(labels = interleaveEveryOtherEmpty(as.character(levels(AP$Month))))
 @
 \end{frame}
 
