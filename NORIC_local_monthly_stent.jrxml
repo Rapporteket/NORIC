@@ -33,7 +33,7 @@
 		<defaultValueExpression><![CDATA[new Integer(1)]]></defaultValueExpression>
 	</parameter>
 	<parameter name="emailSubject" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA[new String("Rapport fra NORIC: Prosedyrer")]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[new String("Rapport fra NORIC: Stentbruk")]]></defaultValueExpression>
 	</parameter>
 	<queryString language="SQL">
 		<![CDATA[]]>
