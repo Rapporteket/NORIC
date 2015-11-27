@@ -56,7 +56,7 @@
 				<textElement textAlignment="Center">
 					<font size="20"/>
 				</textElement>
-				<text><![CDATA[NORIC Prosedyrer]]></text>
+				<text><![CDATA[NORIC Stentbruk]]></text>
 			</staticText>
 		</band>
 	</title>
