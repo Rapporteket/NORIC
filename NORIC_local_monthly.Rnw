@@ -470,51 +470,5 @@ print.xtable(
 \end{frame}
 
 
-
-
-\section{Ventetid}
-
-
-\begin{frame}[fragile]
-<<FigT2TetterIndikasjon,fig.cap="Fordeling av ventetid fra indeks innleggelse til prosedyre for henviste pasienter etter indikasjon", fig.height = 6, fig.width = 12, out.width = "\\textwidth", warning = FALSE, echo = FALSE>>=
-ggplot(
-    data = AP ,
-    mapping = aes(
-        x = DaysFromIndexAdmissionToProcedure ,
-        group = Indikasjon2 )) +
-            geom_density(
-                mapping = aes( fill = Indikasjon2 ) ,
-                alpha = 0.4 ,
-                adjust = 2) +
-            scale_x_continuous(
-                "Days from Index Admission to Procedure" ,
-                limit = c(0,15))
-@ 
-\end{frame}
-
-
-\begin{frame}[fragile]
-\begin{table}
-  \caption{Dager ventetid fra indeks innleggelse til prosedyre for henviste pasienter etter indikasjon}
-  \centering
-  \resizebox{0.8\textwidth}{!}{
-<<T2Ttable, results = 'asis' , echo = FALSE , warning = FALSE>>=
-Hmisc::latex(
-    as.data.frame(
-        lapply(
-            X = split(
-                x = AP$DaysFromIndexAdmissionToProcedure ,
-                f = AP$Indikasjon2 ) ,
-            FUN = describe)) ,
-    booktabs = TRUE,
-    center = "none",
-    table.env = FALSE ,
-    title = "",
-    file = "")
-@
-}\end{table}
-\end{frame}
-
-
 \end{tiny}
 \end{document}
