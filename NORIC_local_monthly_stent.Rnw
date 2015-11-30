@@ -312,7 +312,8 @@ print(
                 data = SegmentStent )) ,
         digits = 0 , caption = "Antall stenter etter merke per kvartal") ,
     booktabs = TRUE ,
-    rotate.colnames = TRUE)
+    rotate.colnames = TRUE,
+    scalebox = 0.95)
 @
 \end{frame}
 
@@ -331,7 +332,8 @@ print(
             margin = 2) ,
         digits = 1 , caption = "Prosent stentermerke per kvartal") ,
     booktabs = TRUE ,
-    rotate.colnames = TRUE)
+    rotate.colnames = TRUE,
+    scalebox = 0.95)
 @
 \end{frame}
 
