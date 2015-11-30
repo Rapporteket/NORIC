@@ -1,0 +1,376 @@
+\documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
+
+\usetheme{Hannover}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{rotating}
+\usepackage{graphicx}
+
+
+\title{Ventetid NSTEMI}
+\subtitle{fra innleggelse i henvisende sykehus til prosdyre}
+\date{}
+
+
+\begin{document}
+\begin{tiny}
+
+\maketitle
+
+
+\begin{frame}
+  \begin{itemize}
+    \item{Ventetid NSTEMI - Tid fra index innleggelse til prosedyre}
+    \item{missing data ekskludert og NA <- 0}
+    \item{eksludere overført fra samme sykehus (mye komorbiditet)}
+    \item{både nasjonalt og Bergen}
+  \end{itemize}
+\end{frame}
+
+
+
+<<TestConfig, eval = FALSE , echo = FALSE>>=
+knitr::knit2pdf( "NORIC_local_monthly_time2treatment.Rnw" )
+@ 
+
+
+<<DBconnect, echo = FALSE , message = FALSE>>=
+if (!exists("reshID")) {reshID <- "100000"} # for local testing
+if (!exists("con")) {
+    conf <- yaml::yaml.load_file(
+        input = "../dbConfig.yml" )[[
+            paste(
+                "noricStaging" ,
+                reshID ,
+                sep = "")
+            ]]
+    con <- DBI::dbConnect(
+        drv = RMySQL::MySQL() ,
+        dbname = unlist( conf["name"] ) ,
+        host = unlist( conf["host"]) ,
+        user = unlist( conf["user"]) ,
+        password = unlist( conf["pass"])
+        )
+    options( stringsAsFactors = FALSE )
+    DBI::dbGetQuery( con , "SET NAMES utf8;" )}
+@ 
+
+
+<<getData, echo = FALSE , message = FALSE>>=
+options(stringsAsFactors=FALSE , width = "120")
+AngioPCI <- DBI::dbGetQuery(
+    conn = con , 
+    statement = "SELECT * FROM AngioPCI")
+AngioPCI$Sykehusnavn <- gsub( pattern = "SÃ¸rlandet" , replacement = "Sørlandet" , x = AngioPCI$Sykehusnavn )
+AngioPCI$Sykehusnavn <- gsub( pattern = "UllevÃ¥l" , replacement = "Ullevål" , x = AngioPCI$Sykehusnavn )
+@ 
+
+
+<<describefunc, echo = FALSE , message = FALSE>>=
+Tquantil <- function( x , probs )
+    round(
+        quantile( x = x , na.rm = TRUE , probs = probs ) ,
+        digits = 1)
+
+describe <- function(X){
+    DTAB <- c(
+        as.character(sum(!is.na(X))) ,
+        round( mean( X , na.rm = TRUE ) , digits = 1 ) ,
+        min( X , na.rm = TRUE ) ,
+        max( X , na.rm = TRUE ) ,
+        Tquantil( X , 0.100 ) ,
+        Tquantil( X , 0.250 ) ,
+        Tquantil( X , 0.500 ) ,
+        Tquantil( X , 0.750 ) ,
+        Tquantil( X , 0.900 ))
+        attr( DTAB , "names") <- c(
+            "N" , "Mean", "Minimum", "Maximum",
+            "10%", "25%", "50%", "75%", "90%")
+        return(DTAB)}
+@ 
+
+
+
+\section{Data preparation}
+
+\begin{frame}[fragile]
+  \frametitle{Recode innleggelses type}
+<<RecodeInnType>>=
+AngioPCI $ AdmissionType <- car::recode(
+    var = AngioPCI $ OverflyttetFra ,
+    recodes = "
+'Annet sykehus'='Referred';
+'' = NA;
+'Annen  avdeling på sykehuset' = NA;
+'Nei, direkte inn til dette sykehus' = 'Directly admitted';
+'Omdirigert ambulanse' = 'Directly admitted';
+")
+@ 
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Date formating}
+<<AsDateConversion>>=
+AngioPCI $ FodselsDato <- as.Date(
+    AngioPCI $ FodselsDato )
+
+AngioPCI $ SymptomDato <- as.Date(
+    AngioPCI $ SymptomDato)
+
+AngioPCI $ DatoInnleggelseIHenvisendeSykehus <- as.Date(
+    AngioPCI $ DatoInnleggelseIHenvisendeSykehus )
+
+AngioPCI $ AnkomstPCIDato <- as.Date(
+    AngioPCI $ AnkomstPCIDato )
+
+AngioPCI $ ProsedyreDato <- as.Date(
+    x = AngioPCI $ ProsedyreDato)
+@ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Calculate Date Differences}
+<<CalcDays>>=
+AngioPCI $ DaysFromSymptomToIndexAdmission <- as.numeric(
+    AngioPCI $ DatoInnleggelseIHenvisendeSykehus - AngioPCI $ SymptomDato )
+
+AngioPCI $ DaysFromIndexAdmissionToProcedure <- as.numeric(
+    AngioPCI $ ProsedyreDato - AngioPCI $ DatoInnleggelseIHenvisendeSykehus )
+
+AngioPCI $ DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
+    AngioPCI $ ProsedyreDato - AngioPCI $ AnkomstPCIDato )
+@ 
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Exclude false registrations}
+$T < 0$ or $T > 100$
+<<TnegNA>>=
+AngioPCI <- AngioPCI [ - which(
+    AngioPCI $ DaysFromSymptomToIndexAdmission < 0 ),]
+
+AngioPCI <- AngioPCI[ - which(
+    AngioPCI $ DaysFromIndexAdmissionToProcedure < 0 ),]
+
+AngioPCI <- AngioPCI[ - which(
+    AngioPCI $ DaysFromPCIcenterAdmissionToProcedure < 0 ),]
+
+AngioPCI <- AngioPCI[ - which(
+    AngioPCI $ DaysFromSymptomToIndexAdmission > 100 ),]
+
+AngioPCI <- AngioPCI[ - which(
+    AngioPCI $ DaysFromIndexAdmissionToProcedure > 100 ),]
+
+AngioPCI <- AngioPCI[ - which(
+    AngioPCI $ DaysFromPCIcenterAdmissionToProcedure > 100 ),]
+@ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Filtering}
+  All records from 2015, excluding Rikshospitalet and Feiring from 2014. Exclude false records with hosptialization date before 2013 (~ 5).
+<<filtering>>=
+AngioPCI <- subset(
+    x = AngioPCI ,
+    subset =
+        ( ProsedyreDato >= as.Date("2015-01-01" ) |
+             (
+                 (ProsedyreDato >= as.Date("2014-01-01")) &
+                     (Sykehusnavn %in% c("SUS","Ullevål","Sørlandet","St. Olav","UNN","Haukeland")))))
+@ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Year, Month, Day of Procedure}
+<<MainTimeLine>>=
+AngioPCI $ Year <- as.numeric(
+    format(
+        x = AngioPCI $ ProsedyreDato ,
+        format = "%Y"))
+AngioPCI $ Month <- as.factor(
+    format(
+        x = AngioPCI $ ProsedyreDato ,
+        format = "%Y-%m"))
+AngioPCI $ Day <- as.numeric(
+    AngioPCI $ ProsedyreDato - min( AngioPCI $ ProsedyreDato , na.rm = TRUE ) )
+@ 
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Subsetting}
+<<subsetting>>=
+NSTEMI <- subset(
+    x = AngioPCI ,
+    subset = (Indikasjon == "NSTEMI") &
+        is.na(PrimaerForlopsID))
+BergenNSTEMI <- subset(
+    x = AngioPCI ,
+    subset = (Indikasjon == "NSTEMI") &
+        is.na(PrimaerForlopsID) &
+        (Sykehusnavn == "Haukeland"))
+@ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Missing dates}
+<<missingDates>>=
+table( BergenNSTEMI$AdmissionType , !is.na(BergenNSTEMI$DatoInnleggelseIHenvisendeSykehus))
+table( BergenNSTEMI$AdmissionType , !is.na(BergenNSTEMI$AnkomstPCIDato))
+@ 
+\end{frame}
+
+
+
+
+
+
+
+\section{Results}
+
+\begin{frame}[fragile]
+  \frametitle{}
+<<DensityT2T, fig.height = 6, fig.width = 8, out.width = "3in", warning = FALSE>>=
+require( ggplot2 )
+ggplot(
+    data = NSTEMI ,
+    mapping = aes(
+        x = DaysFromIndexAdmissionToProcedure ,
+        group = Sykehusnavn )) +
+            facet_grid( facets = . ~ Year ) +
+            geom_density(
+                mapping = aes( fill = Sykehusnavn ) ,
+                alpha = 0.4 ,
+                adjust = 2) +
+            scale_x_continuous(
+                "Days from Index Admission to Procedure" ,
+                limit = c(0,15))
+@ 
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Time to treatment}
+  \framesubtitle{only admissions referred from other hospitals}
+<<FigT2T, fig.height = 6, fig.width = 8, out.width = "4in", warning = FALSE, echo = FALSE>>=
+ggplot(
+    data = NSTEMI ,
+    mapping = aes(
+        x = DaysFromIndexAdmissionToProcedure ,
+        group = Sykehusnavn )) +
+            facet_grid( facets = . ~ Year ) +
+            geom_density(
+                mapping = aes( fill = Sykehusnavn ) ,
+                alpha = 0.4 ,
+                adjust = 2) +
+            scale_x_continuous(
+                "Days from Index Admission to Procedure" ,
+                limit = c(0,15))
+@ 
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Ventetid NSTEMI 2014}
+  \begin{table}
+    \caption{Dager ventetid fra indeks innleggelse til prosedyre for NSTEMI pasienter etter PCI senter - kun henviste pasienter}
+    \centering
+    \resizebox{\textwidth}{!}{
+<<T2Ttable2014, results = 'asis' , echo = FALSE>>=
+Hmisc::latex(
+    object = as.data.frame(
+        lapply(
+            X = split(
+                x = NSTEMI$DaysFromIndexAdmissionToProcedure[NSTEMI$Year==2014] ,
+                f = NSTEMI$Sykehusnavn[NSTEMI$Year==2014] ) ,
+            FUN = describe)) ,
+    booktabs = TRUE,
+    center = "none",
+    table.env = FALSE ,
+    title = "",
+    file = "")
+@
+}
+  \end{table}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Ventetid NSTEMI 2015}
+  \begin{table}
+    \caption{Dager ventetid fra indeks innleggelse til prosedyre for NSTEMI pasienter etter PCI senter - kun henviste pasienter}
+    \centering
+    \resizebox{\textwidth}{!}{
+<<T2Ttable2015, results = 'asis' , echo = FALSE>>=
+Hmisc::latex(
+    object = as.data.frame(
+        lapply(
+            X = split(
+                x = NSTEMI$DaysFromIndexAdmissionToProcedure[NSTEMI$Year==2015] ,
+                f = NSTEMI$Sykehusnavn[NSTEMI$Year==2015] ) ,
+            FUN = describe)) ,
+    booktabs = TRUE,
+    center = "none",
+    table.env = FALSE ,
+    title = "",
+    file = "")
+@
+}
+  \end{table}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Ventetid NSTEMI 2014-2015}
+  \begin{table}
+    \caption{Dager ventetid fra indeks innleggelse til prosedyre for NSTEMI pasienter etter PCI senter - kun henviste pasienter}
+    \centering
+    \resizebox{\textwidth}{!}{
+<<T2Ttable, results = 'asis' , echo = FALSE>>=
+Hmisc::latex(
+    object = as.data.frame(
+        lapply(
+            X = split(
+                x = NSTEMI$DaysFromIndexAdmissionToProcedure ,
+                f = NSTEMI$Sykehusnavn ) ,
+            FUN = describe)) ,
+    booktabs = TRUE,
+    center = "none",
+    table.env = FALSE ,
+    title = "",
+    file = "")
+@
+}
+  \end{table}
+\end{frame}
+
+
+
+
+\end{tiny}
+\end{document}
+
+
+\begin{frame}[fragile]
+  \frametitle{}
+<<>>=
+@ 
+\end{frame}
