@@ -161,6 +161,10 @@ AP <- DBI::dbGetQuery(
     conn = con , 
     statement = "SELECT * FROM AngioPCI")
 
+# clean up and close
+con <- DBI::dbDisconnect(con)
+con <- DBI::dbUnloadDriver(dbDriver("MySQL"))
+con <- null
 @ 
 
 
