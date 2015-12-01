@@ -142,7 +142,7 @@ par(op)}
 if (!exists("reshID")) {reshID <- "100000"} # for local testing
 if (!exists("con")) {
     conf <- yaml::yaml.load_file(
-        input = "../dbConfig.yml" )[[noricStagingNasjonal]]
+        input = "../dbConfig.yml" )[["noricStagingNasjonal"]]
     con <- DBI::dbConnect(
         drv = RMySQL::MySQL() ,
         dbname = unlist( conf["name"] ) ,
@@ -163,8 +163,7 @@ AP <- DBI::dbGetQuery(
 
 # clean up and close
 con <- DBI::dbDisconnect(con)
-con <- DBI::dbUnloadDriver(dbDriver("MySQL"))
-con <- null
+con <- NULL
 @ 
 
 
