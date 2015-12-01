@@ -286,7 +286,7 @@ AP <- subset(
         ( ProsedyreDato >= as.Date("2015-01-01" ) |
              (
                  (ProsedyreDato >= as.Date("2014-01-01")) &
-                     (Sykehusnavn %in% c("SUS","Ullevål","Sørlandet","St. Olav","UNN","Haukeland")))))
+                     (Sykehusnavn %in% c("Stavanger","Ullevål","Sørlandet","St. Olavs","UNN","Haukeland")))))
 
 @ 
 
@@ -356,20 +356,23 @@ HUSNSTEMI$OverflyttetFraSykehus <- factor(HUSNSTEMI$OverflyttetFraSykehus)
 
 
 \begin{frame}[fragile]
-<<FigT2TSykehusStatus,warning=FALSE,echo=FALSE,fig.height=6,fig.width=8,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosdyre for NSTEMI pasienter etter henvisnings status og PCI sykehus">>=
+<<FigT2TSykehusStatus,warning=FALSE,echo=FALSE,fig.height=12,fig.width=19.4,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosdyre for NSTEMI pasienter etter henvisnings status og PCI sykehus">>=
+
 ggplot(
     data = NSTEMI ,
     mapping = aes(
         x = DaysFromIndexAdmissionToProcedure ,
         group = HenvisningsStatus )) +
-            facet_grid( facets = . ~ Sykehusnavn ) +
+            facet_grid( facets = Year ~ Sykehusnavn ) +
             geom_density(
                 mapping = aes( fill = HenvisningsStatus ) ,
                 alpha = 0.4 ,
                 adjust = 2) +
             scale_x_continuous(
-                "Dager fra indeks innleggelse til prosedyre" ,
-                limit = c(0,10))
+                limit = c(0,10) ,
+                breaks = 0:5*2 ,
+                name = "Dager fra indeks innleggelse til prosedyre" )
+
 @ 
 \end{frame}
 
@@ -377,7 +380,7 @@ ggplot(
 
 
 \begin{frame}[fragile]
-<<FigT2TSykehusAar,warning=FALSE,echo=FALSE,fig.height=6,fig.width=8,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosdyre for NSTEMI pasienter etter PCI sykehus og år">>=
+<<FigT2TSykehusAar,warning=FALSE,echo=FALSE,fig.height=6,fig.width=9.7,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosdyre for NSTEMI pasienter etter PCI sykehus og år">>=
 ggplot(
     data = NSTEMI ,
     mapping = aes(
@@ -389,8 +392,9 @@ ggplot(
                 alpha = 0.4 ,
                 adjust = 2) +
             scale_x_continuous(
-                "Dager fra indeks innleggelse til prosedyre" ,
-                limit = c(0,15))
+                limits = c(0,10) ,
+                breaks = 0:5*2 ,
+                name = "Dager fra indeks innleggelse til prosedyre" )
 @ 
 \end{frame}
 
@@ -475,7 +479,7 @@ Hmisc::latex(
 
 
 \begin{frame}[fragile]
-<<FigT2Trefer,warning=FALSE,echo=FALSE,fig.height=18,fig.width=24,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre for NSTEMI pasienter etter PCI sykehus og henvisende Sykehus">>=
+<<FigT2Trefer,warning=FALSE,echo=FALSE,fig.height=18,fig.width=29.1,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre for NSTEMI pasienter etter PCI sykehus og henvisende Sykehus">>=
 ggplot(
     data = NSTEMI ,
     mapping = aes(
@@ -487,8 +491,9 @@ ggplot(
                 alpha = 0.4 ,
                 adjust = 2) +
             scale_x_continuous(
-                "Dager fra indeks innleggelse til prosedyre" ,
-                limit = c(0,15))
+                limits = c(0,14) ,
+                name = "Dager fra indeks innleggelse til prosedyre" )
+
 @ 
 \end{frame}
 
@@ -501,7 +506,8 @@ ggplot(
 
 
 \begin{frame}[fragile]
-<<FigT2TreferBergen,warning=FALSE,echo=FALSE,fig.height=12,fig.width=16,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre for NSTEMI pasienter ved Haukeland universitetssykehus">>=
+<<FigT2TreferBergen,warning=FALSE,echo=FALSE,fig.height=12,fig.width=19.4,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre for NSTEMI pasienter ved Haukeland universitetssykehus">>=
+
 ggplot(
     data = HUSNSTEMI ,
     mapping = aes(
@@ -513,11 +519,11 @@ ggplot(
                 alpha = 0.4 ,
                 adjust = 2) +
             scale_x_continuous(
-                "Dager fra indeks innleggelse til prosedyre" ,
-                limit = c(0,15))
+                limits = c(0,14),
+                name = "Dager fra indeks innleggelse til prosedyre" )
+
 @ 
 \end{frame}
-
 
 
 \begin{frame}[fragile]
@@ -551,28 +557,31 @@ Hmisc::latex(
     table.env = FALSE ,
     rgroup = c("2014","2015") ,
     n.rgroup = c(9,9) ,
+#    rowname = rownames(T14) ,
     title = "",
     file = "")
+
 @
-}\end{table}
+} \end{table}
 \end{frame}
 
 
 \begin{frame}[fragile]
-<<BoxplotT2TbyPdate,echo=FALSE,fig.height=8,fig.width=12,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter ved Haukeland universitetssykehus">>=
+<<BoxplotT2TbyPdate,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter ved Haukeland universitetssykehus">>=
 
 boxplot(
     DaysFromIndexAdmissionToProcedure ~ Month ,
     data = HUSNSTEMI ,
     varwidth = TRUE ,
-    col = "#84848484" ,
+    col = "#84848433" ,
     ylim = c(0,12) ,
     ylab = "Dager" ,
     xlab = "Måned")
 
 abline(
     h = 3 ,
-    col = "#84222284")
+    lwd = 2 ,
+    col = "#FF000055")
 
 @ 
 \end{frame}
@@ -580,7 +589,7 @@ abline(
 
 
 \begin{frame}[fragile]
-<<BoxplotT2TbyPdateDirekte,echo=FALSE,fig.height=8,fig.width=12,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter direkte innlagt ved Haukeland universitetssykehus">>=
+<<BoxplotT2TbyPdateDirekte,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter direkte innlagt ved Haukeland universitetssykehus">>=
 
 boxplot(
     DaysFromIndexAdmissionToProcedure ~ Month ,
@@ -594,7 +603,8 @@ boxplot(
 
 abline(
     h = 3 ,
-    col = "#84222284")
+    lwd = 2 ,
+    col = "#FF000055")
 
 @ 
 \end{frame}
@@ -602,8 +612,8 @@ abline(
 
 
 \begin{frame}[fragile]
-<<BoxplotT2TbyPdateOverflyttet,echo=FALSE,fig.height=8,fig.width=12,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter overflyttet til Haukeland universitetssykehus">>=
-
+<<BoxplotT2TbyPdateOverflyttet,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter \\emph{overflyttet} til Haukeland universitetssykehus">>=
+# 1.168
 boxplot(
     DaysFromIndexAdmissionToProcedure ~ Month ,
     data = HUSNSTEMI ,
@@ -616,13 +626,11 @@ boxplot(
 
 abline(
     h = 3 ,
-    col = "#84222284")
+    lwd = 2 ,
+    col = "#FF000055")
 
 @ 
 \end{frame}
-
-
-
 
 
 
@@ -637,7 +645,7 @@ abline(
 
 
 \begin{frame}[fragile]
-<<FigT2TetterIndikasjon,fig.cap="Fordeling av ventetid fra indeks innleggelse til prosedyre etter indikasjon for akutte og subakutte hendelser", fig.height = 6, fig.width = 12, out.width = "\\textwidth", warning = FALSE, echo = FALSE>>=
+<<FigT2TetterIndikasjon,fig.cap="Fordeling av ventetid fra indeks innleggelse til prosedyre etter indikasjon for akutte og subakutte hendelser", fig.height = 6, fig.width = 9.7, out.width = "\\textwidth", warning = FALSE, echo = FALSE>>=
 ggplot(
     data = AP ,
     mapping = aes(
@@ -648,8 +656,12 @@ ggplot(
                 alpha = 0.4 ,
                 adjust = 2) +
             scale_x_continuous(
-                "Dager fra indeks innleggelse til prosedyre" ,
-                limit = c(0,15))
+                limits = c(0,15) ,
+                breaks = 0:7*2 ,
+                name = "Dager fra indeks innleggelse til prosedyre")
+   #        ...: common continuous scale parameters: ‘name’, ‘breaks’,
+   #             ‘labels’, ‘na.value’, ‘limits’ and ‘trans’.  See
+   #             ‘continuous_scale’ for more details
 @ 
 \end{frame}
 
