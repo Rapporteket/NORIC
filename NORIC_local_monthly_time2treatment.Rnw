@@ -139,6 +139,7 @@ par(op)}
 
 
 <<DBconnect,include=FALSE>>=
+
 if (!exists("reshID")) {reshID <- "100000"} # for local testing
 if (!exists("con")) {
     conf <- yaml::yaml.load_file(
@@ -157,6 +158,7 @@ if (!exists("con")) {
         )
     options( stringsAsFactors = FALSE )
     DBI::dbGetQuery( con , "SET NAMES utf8;" )}
+
 @ 
 
 
@@ -164,7 +166,8 @@ if (!exists("con")) {
 
 AP <- DBI::dbGetQuery(
     conn = con , 
-    statement = "SELECT * FROM AngioPCI")
+    statement = "SELECT * FROM Time2Treatment20151202")
+#    statement = "SELECT * FROM AngioPCIVar")
 
 @ 
 
@@ -218,20 +221,14 @@ AP$Indikasjon2 <- factor(
 
 
 <<AsDateConversion,include=FALSE>>=
-AP$FodselsDato <- as.Date(
-    AP$FodselsDato )
-
-AP$SymptomDato <- as.Date(
-    AP$SymptomDato)
-
 AP$AnkomstPCIDato <- as.Date(
     AP$AnkomstPCIDato )
 
-AP$DatoInnleggelseIHenvisendeSykehus <- as.Date(
-    AP$DatoInnleggelseIHenvisendeSykehus )
+AP$InnleggelseHenvisendeSykehusDato <- as.Date(
+    AP$InnleggelseHenvisendeSykehusDato )
 
 i.direct <- which(AP$HenvisningsStatus == "Direkte innlagt")
-AP$DatoInnleggelseIHenvisendeSykehus[ i.direct ] <- AP$AnkomstPCIDato[ i.direct ]
+AP$InnleggelseHenvisendeSykehusDato[ i.direct ] <- AP$AnkomstPCIDato[ i.direct ]
 
 AP$ProsedyreDato <- as.Date(
     x = AP$ProsedyreDato)
@@ -242,10 +239,7 @@ AP$ProsedyreDato <- as.Date(
 <<CalcDays,include=FALSE>>=
 
 AP$DaysFromIndexAdmissionToProcedure <- as.numeric(
-    AP$ProsedyreDato - AP$DatoInnleggelseIHenvisendeSykehus )
-
-AP$DaysFromSymptomToIndexAdmission <- as.numeric(
-    AP$DatoInnleggelseIHenvisendeSykehus - AP$SymptomDato )
+    AP$ProsedyreDato - AP$InnleggelseHenvisendeSykehusDato )
 
 AP$DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
     AP$ProsedyreDato - AP$AnkomstPCIDato )
@@ -255,17 +249,11 @@ AP$DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
 
 <<TnegNA,include=FALSE>>=
  # Exclude false registrations
-AP <- AP [ - which(
-    AP$DaysFromSymptomToIndexAdmission < 0 ),]
-
 AP <- AP[ - which(
     AP$DaysFromIndexAdmissionToProcedure < 0 ),]
 
 AP <- AP[ - which(
     AP$DaysFromPCIcenterAdmissionToProcedure < 0 ),]
-
-AP <- AP[ - which(
-    AP$DaysFromSymptomToIndexAdmission > 100 ),]
 
 AP <- AP[ - which(
     AP$DaysFromIndexAdmissionToProcedure > 100 ),]
