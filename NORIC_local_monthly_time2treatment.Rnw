@@ -140,7 +140,6 @@ par(op)}
 
 <<DBconnect,include=FALSE>>=
 
-if (!exists("reshID")) {reshID <- "100000"} # for local testing
 if (!exists("con")) {
     conf <- yaml::yaml.load_file(
         input = "../dbConfig.yml" )[["noricStagingNasjonal"]]
