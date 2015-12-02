@@ -166,8 +166,8 @@ if (!exists("con")) {
 
 AP <- DBI::dbGetQuery(
     conn = con , 
-    statement = "SELECT * FROM Time2Treatment20151202")
-#    statement = "SELECT * FROM AngioPCIVar")
+#    statement = "SELECT * FROM Time2Treatment20151202")
+    statement = "SELECT * FROM AngioPCIVar")
 
 @ 
 
