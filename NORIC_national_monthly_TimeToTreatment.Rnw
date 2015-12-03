@@ -14,7 +14,7 @@
 
 
 <<TestConfig,include=FALSE,eval=FALSE>>=
-knitr::knit2pdf( "NORIC_local_monthly_time2treatment.Rnw" )
+knitr::knit2pdf( "NORIC_national_monthly_TimeToTreatment.Rnw" )
 @ 
 
 
