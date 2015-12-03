@@ -50,29 +50,60 @@ describe <- function(X){
         return(DTAB)}
 @ 
 
-<<TimeGAM,include=FALSE,eval=FALSE>>=
 
-TimeGAM <- function(
+<<qTimeGAM,include=FALSE,eval=FALSE>>=
+
+qTimeGAM <- function(
     x = "DaysFromIndexAdmissionToProcedure" ,
     data = NSTEMI ,
     ymax = 10 ,
-    lambda = 0.8 ) {
+    lambda = 5 ) {
 
+    
     DAT <- na.exclude(
         data.frame(
             T = data[,paste(x)] ,
             Day = data$Day ,
             Month = data$Month ,
-            nMonth = (Day/30.5+1) ))
+            nMonth = (data$Day/30.5+1) ))
 
     NTAB <- as.numeric(
         table(
             as.numeric(DAT$Month)))
 
+
+    rqss25 <- rqss(
+        T ~ qss( nMonth , lambda = lambda ) ,
+        tau = 0.25 ,
+        data = DAT )
+
+    rqss50 <- rqss(
+        T ~ qss( nMonth , lambda = lambda ) ,
+        tau = 0.50 ,
+        data = DAT )
+    
+    rqss75 <- rqss(
+        T ~ qss( nMonth , lambda = lambda ) ,
+        tau = 0.75 ,
+        data = DAT )
+
+    D200 <- data.frame(
+        nMonth = seq(
+            from = min(DAT$nMonth) ,
+            to = max(DAT$nMonth) ,
+            length.out = 200 ))
+
+    Estimates <- data.frame(
+        q25 = predict.rqss( rqss25 , newdata = D200 , interval = 'confidence') ,
+        q50 = predict.rqss( rqss50 , newdata = D200 , interval = 'confidence') ,
+        q75 = predict.rqss( rqss75 , newdata = D200 , interval = 'confidence') ,
+        nMonth = D200$nMonth )
+
+
     op <- par( las = 1 , mar = c( 5 , 4 , 4, 2) + 0.1 )
 
     plot(
-        T ~ Month ,
+        T ~ nMonth ,
         data = DAT ,
         type = "n" ,
         ylim = c(-1 , ymax) ,
@@ -82,56 +113,90 @@ TimeGAM <- function(
         xlab = "Måned" ,
         ylab = "Ventetid (dager)" )
 
+    segments(
+        x0 = Estimates$nMonth ,
+        y0 = Estimates$q25.ylower ,
+        x1 = Estimates$nMonth ,
+        y1 = Estimates$q25.yupper ,
+        lwd = 2 ,
+        col = "#4A8A0044")
+
+    segments(
+        x0 = Estimates$nMonth ,
+        y0 = Estimates$q50.ylower ,
+        x1 = Estimates$nMonth ,
+        y1 = Estimates$q50.yupper ,
+        lwd = 2 ,
+        col = "#4A8A0044")
+
+    segments(
+        x0 = Estimates$nMonth ,
+        y0 = Estimates$q75.ylower ,
+        x1 = Estimates$nMonth ,
+        y1 = Estimates$q75.yupper ,
+        lwd = 2 ,
+        col = "#4A8A0044")
+    
     points(
-        T ~ nMonth ,
+        jitter(T) ~ jitter(nMonth) ,
         data = DAT ,
         ylim = c(-1 , ymax) ,
         pch = 16 ,
-        col = "#1a1a1a11" )
-
+        col = "#1a1a1a08" )
     
-    axis(side = 1)
+    lines(
+        formula = q25.yhat ~ nMonth ,
+        lwd = 4 ,
+        col = "#4A8A00AA" ,
+        data = Estimates )
+
+    lines(
+        formula = q50.yhat ~ nMonth ,
+        lwd = 4 ,
+        col = "#4A8A00AA" ,
+        data = Estimates )
+    
+    lines(
+        formula = q75.yhat ~ nMonth ,
+        lwd = 4 ,
+        col = "#4A8A00AA" ,
+        data = Estimates )
+    
+    axis(side = 1 ,
+         at = 1:24 ,
+         label = levels(DAT$Month))
 
     axis(side = 2 ,
          at = 0:ymax)
 
-    text(x = 1:12 ,
-         y = rep(x = -0.5 , times = 12) ,
+    text(x = 1:24 ,
+         y = rep(x = -1 , times = 12) ,
+         pos = 4 ,
          labels = NTAB)
     
-    text(x = 0 ,
-         y = -0.5 ,
+    text(x = 1 ,
+         y = -1 ,
+         pos = 2 ,
          labels = "N")
         
-    abline(h = 0:15 ,
+    abline(h = 0:ymax ,
            col = "#1a1a1a11" ,
            lty = 2)
+
+    abline(v = 1:24 ,
+           col = "#1a1a1a11" ,
+           lty = 2)
+
+    rect(
+        xleft = par("usr")[1] ,
+        ybottom = 3 ,
+        xright = par("usr")[2] ,
+        ytop = par("usr")[4] ,
+        border = FALSE ,
+        col = "#FF000022")
     
-plot( 
-    rqss(
-        T ~ qss( Month , lambda = lambda ) ,
-        tau = 0.25 ,
-        data = DAT ) ,
-    rug = FALSE ,
-    add = TRUE )
-
-plot( 
-    rqss(
-        T ~ qss( Month , lambda = lambda ) ,
-        tau = 0.50 ,
-        data = DAT ) ,
-    rug = FALSE ,
-    add = TRUE )
-
-plot( 
-    rqss(
-        T ~ qss( Month , lambda = lambda ) ,
-        tau = 0.75 ,
-        data = DAT ) ,
-    rug = FALSE ,
-    add = TRUE )
-
-par(op)}
+    par(op)
+    }
 
 @
 
