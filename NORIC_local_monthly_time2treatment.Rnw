@@ -27,6 +27,8 @@ require( quantreg )
 require( Hmisc )
 require( xtable )
 
+source( "../qTimeGAM.R")
+
 Tquantil <- function( x , probs )
     round(
         quantile( x = x , na.rm = TRUE , probs = probs ) ,
@@ -49,91 +51,6 @@ describe <- function(X){
         return(DTAB)}
 @ 
 
-
-<<TimeGAM,include=FALSE,eval=FALSE>>=
-
-TimeGAM <- function(
-    x = "DaysFromIndexAdmissionToProcedure" ,
-    data = NSTEMI ,
-    ymax = 10 ,
-    lambda = 0.8 ) {
-
-    DAT <- na.exclude(
-        data.frame(
-            T = data[,paste(x)] ,
-            Day = data$Day ,
-            Month = data$Month ,
-            nMonth = (Day/30.5+1) ))
-
-    NTAB <- as.numeric(
-        table(
-            as.numeric(DAT$Month)))
-
-    op <- par( las = 1 , mar = c( 5 , 4 , 4, 2) + 0.1 )
-
-    plot(
-        T ~ Month ,
-        data = DAT ,
-        type = "n" ,
-        ylim = c(-1 , ymax) ,
-        bty = "n" ,
-        axes = FALSE ,
-        main = "" ,
-        xlab = "Måned" ,
-        ylab = "Ventetid (dager)" )
-
-    points(
-        T ~ nMonth ,
-        data = DAT ,
-        ylim = c(-1 , ymax) ,
-        pch = 16 ,
-        col = "#1a1a1a11" )
-
-    
-    axis(side = 1)
-
-    axis(side = 2 ,
-         at = 0:ymax)
-
-    text(x = 1:12 ,
-         y = rep(x = -0.5 , times = 12) ,
-         labels = NTAB)
-    
-    text(x = 0 ,
-         y = -0.5 ,
-         labels = "N")
-        
-    abline(h = 0:15 ,
-           col = "#1a1a1a11" ,
-           lty = 2)
-    
-plot( 
-    rqss(
-        T ~ qss( Month , lambda = lambda ) ,
-        tau = 0.25 ,
-        data = DAT ) ,
-    rug = FALSE ,
-    add = TRUE )
-
-plot( 
-    rqss(
-        T ~ qss( Month , lambda = lambda ) ,
-        tau = 0.50 ,
-        data = DAT ) ,
-    rug = FALSE ,
-    add = TRUE )
-
-plot( 
-    rqss(
-        T ~ qss( Month , lambda = lambda ) ,
-        tau = 0.75 ,
-        data = DAT ) ,
-    rug = FALSE ,
-    add = TRUE )
-
-par(op)}
-
-@ 
 
 
 
@@ -165,7 +82,7 @@ AP <- DBI::dbGetQuery(
 
 # clean up and close
 con <- DBI::dbDisconnect(con)
-con <- NULL
+rm(con)
 @ 
 
 
@@ -552,7 +469,7 @@ Hmisc::latex(
 
 
 \begin{frame}[fragile]
-<<BoxplotT2TbyPdate,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter ved Haukeland universitetssykehus">>=
+<<BoxplotT2TbyPdateHUS,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter ved Haukeland universitetssykehus">>=
 
 boxplot(
     DaysFromIndexAdmissionToProcedure ~ Month ,
@@ -574,14 +491,14 @@ abline(
 
 
 \begin{frame}[fragile]
-<<BoxplotT2TbyPdateDirekte,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter direkte innlagt ved Haukeland universitetssykehus">>=
+<<BoxplotT2TbyPdateDirekteHUS,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter \\emph{direkte innlagt} ved Haukeland universitetssykehus">>=
 
 boxplot(
     DaysFromIndexAdmissionToProcedure ~ Month ,
     data = HUSNSTEMI ,
     subset = HenvisningsStatus == "Direkte innlagt" ,
     varwidth = TRUE ,
-    col = "#84848484" ,
+    col = "#84848433" ,
     ylim = c(0,12) ,
     ylab = "Dager" ,
     xlab = "Måned")
@@ -597,14 +514,15 @@ abline(
 
 
 \begin{frame}[fragile]
-<<BoxplotT2TbyPdateOverflyttet,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter \\emph{overflyttet} til Haukeland universitetssykehus">>=
+<<BoxplotT2TbyPdateOverflyttetHUS,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter \\emph{overflyttet} til Haukeland universitetssykehus">>=
 # 1.168
+
 boxplot(
     DaysFromIndexAdmissionToProcedure ~ Month ,
     data = HUSNSTEMI ,
     subset = HenvisningsStatus == "Overflyttet" ,
     varwidth = TRUE ,
-    col = "#84848484" ,
+    col = "#84848433" ,
     ylim = c(0,12) ,
     ylab = "Dager" ,
     xlab = "Måned")
@@ -613,6 +531,17 @@ abline(
     h = 3 ,
     lwd = 2 ,
     col = "#FF000055")
+
+@ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<GAMplotT2TbyPdateHUS,echo=FALSE,fig.height=10,fig.width=16.2,out.width="4in",fig.cap="Dager fra indeks innleggelse til prosedyre etter prosedyremåned for NSTEMI pasienter ved Haukeland universitetssykehus. Grønne linjer representerer 25-, 50- og 75-prosentiler av ventedager for pasienter estimert med en additive kvantil regresjons modell. Grønn skygge rundt linjene viser 95\\% konfidens intervall.">>=
+
+qTimeGAM(
+    data = HUSNSTEMI )
 
 @ 
 \end{frame}
