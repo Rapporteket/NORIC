@@ -27,7 +27,6 @@ require( quantreg )
 require( Hmisc )
 require( xtable )
 
-source( "../qTimeGAM.R")
 
 Tquantil <- function( x , probs )
     round(
@@ -51,7 +50,90 @@ describe <- function(X){
         return(DTAB)}
 @ 
 
+<<TimeGAM,include=FALSE,eval=FALSE>>=
 
+TimeGAM <- function(
+    x = "DaysFromIndexAdmissionToProcedure" ,
+    data = NSTEMI ,
+    ymax = 10 ,
+    lambda = 0.8 ) {
+
+    DAT <- na.exclude(
+        data.frame(
+            T = data[,paste(x)] ,
+            Day = data$Day ,
+            Month = data$Month ,
+            nMonth = (Day/30.5+1) ))
+
+    NTAB <- as.numeric(
+        table(
+            as.numeric(DAT$Month)))
+
+    op <- par( las = 1 , mar = c( 5 , 4 , 4, 2) + 0.1 )
+
+    plot(
+        T ~ Month ,
+        data = DAT ,
+        type = "n" ,
+        ylim = c(-1 , ymax) ,
+        bty = "n" ,
+        axes = FALSE ,
+        main = "" ,
+        xlab = "Måned" ,
+        ylab = "Ventetid (dager)" )
+
+    points(
+        T ~ nMonth ,
+        data = DAT ,
+        ylim = c(-1 , ymax) ,
+        pch = 16 ,
+        col = "#1a1a1a11" )
+
+    
+    axis(side = 1)
+
+    axis(side = 2 ,
+         at = 0:ymax)
+
+    text(x = 1:12 ,
+         y = rep(x = -0.5 , times = 12) ,
+         labels = NTAB)
+    
+    text(x = 0 ,
+         y = -0.5 ,
+         labels = "N")
+        
+    abline(h = 0:15 ,
+           col = "#1a1a1a11" ,
+           lty = 2)
+    
+plot( 
+    rqss(
+        T ~ qss( Month , lambda = lambda ) ,
+        tau = 0.25 ,
+        data = DAT ) ,
+    rug = FALSE ,
+    add = TRUE )
+
+plot( 
+    rqss(
+        T ~ qss( Month , lambda = lambda ) ,
+        tau = 0.50 ,
+        data = DAT ) ,
+    rug = FALSE ,
+    add = TRUE )
+
+plot( 
+    rqss(
+        T ~ qss( Month , lambda = lambda ) ,
+        tau = 0.75 ,
+        data = DAT ) ,
+    rug = FALSE ,
+    add = TRUE )
+
+par(op)}
+
+@
 
 
 
