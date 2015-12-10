@@ -26,7 +26,8 @@ require( ggplot2 )
 require( quantreg )
 require( Hmisc )
 require( xtable )
-
+require( Matrix )
+require( MatrixModels )
 
 Tquantil <- function( x , probs )
     round(
@@ -51,7 +52,7 @@ describe <- function(X){
 @ 
 
 
-<<qTimeGAM,include=FALSE,eval=FALSE>>=
+<<qTimeGAM,include=FALSE,eval=TRUE>>=
 
 qTimeGAM <- function(
     x = "DaysFromIndexAdmissionToProcedure" ,
