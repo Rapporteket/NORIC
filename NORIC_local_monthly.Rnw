@@ -90,7 +90,7 @@ AP <- DBI::dbGetQuery(
 <<SOPrepare,include=FALSE>>=
 
 SO$RegDate <- as.Date(
-    SO$OpprettetDato)
+    SO$HovedDato)
 
 SO$Year <- as.numeric(
     format(
@@ -249,7 +249,7 @@ AP $ Month <- as.factor(
 \section{Hastegrad}
 
 \begin{frame}[fragile]
-<<FigNHendelsesType,fig.cap="Antall primær prosedyrer etter hastegrad og måned",echo=FALSE,fig.width=8,fig.height=4,out.width="\\textwidth">>=
+<<FigNHendelsesType,fig.cap="Antall prosedyrer etter hastegrad og måned",echo=FALSE,fig.width=8,fig.height=4,out.width="\\textwidth">>=
 ggplot(
     data = AP ,
     mapping = aes(
@@ -270,9 +270,8 @@ print.xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + HendelsesType ,
-                subset = is.na( PrimaerForlopsID ) ,
                 data = AP)) ,
-        caption = "Antall registrerte primær prosedyrer etter hastegrad og måned" ,
+        caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
         digits = 0) ,
     booktabs = TRUE )
 @   
@@ -286,10 +285,9 @@ print.xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + HendelsesType ,
-                subset = is.na( PrimaerForlopsID ) ,
                 data = AP) ,
             margin = 1) ,
-        caption = "Prosent andel primær prosedyrer etter hastegrad og måned" ,
+        caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
         digits = 1) ,
     booktabs = TRUE )
 @   
@@ -301,7 +299,7 @@ print.xtable(
 \section{Prosedyre type}
 
 \begin{frame}[fragile]
-<<FigNProsedyreType,fig.cap="Antall primær prosedyrer etter type og PCI senter",echo=FALSE,fig.width=8,fig.height=4,out.width="\\textwidth">>=
+<<FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",echo=FALSE,fig.width=8,fig.height=4,out.width="\\textwidth">>=
 ggplot(
     data = AP ,
     mapping = aes(
@@ -322,9 +320,8 @@ print.xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + ProsedyreType ,
-                subset = is.na( PrimaerForlopsID ) ,
                 data = AP)) ,
-        caption = "Antall primær prosedyrer etter prosedyretype og PCI senter" ,
+        caption = "Antall prosedyrer etter prosedyretype og måned" ,
         digits = 0) ,
     booktabs = TRUE )
 @   
@@ -338,10 +335,9 @@ print.xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + ProsedyreType ,
-                subset = is.na( PrimaerForlopsID ) ,
                 data = AP) ,
             margin = 1) ,
-        caption = "Prosentandel primær prosedyrer etter prosedyretype og måned" ,
+        caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
         digits = 1) ,
     booktabs = TRUE )
 @   
@@ -353,7 +349,7 @@ print.xtable(
 \section{Indikasjon}
 
 \begin{frame}[fragile]
-<<FigNIndikasjon,fig.cap="Antall primær prosedyrer etter indikasjon og PCI senter",echo=FALSE,fig.width=12,fig.height=6,out.width="\\textwidth">>=
+<<FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",echo=FALSE,fig.width=12,fig.height=6,out.width="\\textwidth">>=
 ggplot(
     data = AP ,
     mapping = aes(
@@ -372,9 +368,8 @@ print.xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + Indikasjon2 ,
-                subset = is.na( PrimaerForlopsID ) ,
                 data = AP)) ,
-        caption = "Antall primær prosedyrer etter indikasjon og måned" ,
+        caption = "Antall prosedyrer etter indikasjon og måned" ,
         digits = 0) ,
     booktabs = TRUE )
 @   
@@ -388,10 +383,9 @@ print.xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + Indikasjon2 ,
-                subset = is.na( PrimaerForlopsID ) ,
                 data = AP) ,
             margin = 1) ,
-        caption = "Prosentandel primær prosedyrer etter indikasjon og måned" ,
+        caption = "Prosentandel prosedyrer etter indikasjon og måned" ,
         digits = 1) ,
     booktabs = TRUE )
 @   
@@ -400,11 +394,77 @@ print.xtable(
 
 
 
-\section{FFR}
+
+\section{Annen diagnostikk}
+
+
+\begin{frame}[fragile]
+  \frametitle{Annen diagnostikk ved angiografi/PCI}
+
+<<TabNTillegg, echo = FALSE , results = 'asis'>>=
+nFFR <- xtabs(
+    formula = ~ Month + as.numeric(FFR=="Ja") ,
+    data = AP ,
+    exclude = 0)
+
+rFFR <- round( 100 * prop.table(
+    xtabs(
+        formula = ~ Month + as.numeric(FFR=="Ja") ,
+        data = AP ,
+        exclude = NULL ,
+        na.action = na.pass ) ,
+    margin = 1 )[,2] , 1)
+
+
+nIVUS <- xtabs(
+    formula = ~ Month + as.numeric(IVUS=="Ja") ,
+    data = AP ,
+    exclude = 0)
+
+rIVUS <- round( 100 * prop.table(
+    xtabs(
+        formula = ~ Month + as.numeric(IVUS=="Ja") ,
+        data = AP ,
+        exclude = NULL ,
+        na.action = na.pass ) ,
+    margin = 1 )[,2] , 1)
+
+
+nOCT <- xtabs(
+    formula = ~ Month + as.numeric(OCT=="Ja") ,
+    data = AP ,
+    exclude = 0)
+
+rOCT <- round( 100 * prop.table(
+    xtabs(
+        formula = ~ Month + as.numeric(OCT=="Ja") ,
+        data = AP ,
+        exclude = NULL ,
+        na.action = na.pass ) ,
+    margin = 1 )[,2] , 1)
+
+TabTillegg <- cbind(
+    paste(nFFR , " (",rFFR,")" , sep = "") ,
+    paste(nIVUS , " (",rIVUS,")" , sep = "") ,
+    paste(nOCT , " (",rOCT,")" , sep = ""))
+
+attr(TabTillegg , "dimnames")[[1]] <- levels( AP $ Month )
+attr(TabTillegg , "dimnames")[[2]] <- c("FFR","IVUS","OCT")
+
+print(
+    xtable(
+        x = TabTillegg ,
+        caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned") ,
+    scalebox = 0.8 ,
+    booktabs = TRUE )
+@ 
+\end{frame}
+
+
 
 \begin{frame}[fragile]
   \frametitle{FFR}
-<<TabNTillegg, echo = FALSE , results = 'asis'>>=
+<<TabFFR, echo = FALSE , results = 'asis'>>=
 nFFR <- xtabs(
     formula = ~ Month + as.numeric(FFR=="Ja") ,
     data = AP ,
@@ -419,15 +479,15 @@ rFFR <- 100 * prop.table(
         na.action = na.pass ) ,
     margin = 1 )[,2]
 
-TabTillegg <- cbind(
+TabFFR <- cbind(
     nFFR ,
     rFFR )
 
-attr(TabTillegg , "dimnames")[[2]] <- c("Antall FFR" , "Prosentandel FFR")
+attr(TabFFR , "dimnames")[[2]] <- c("Antall FFR" , "Prosentandel FFR")
 
 print(
     xtable(
-        x = TabTillegg ,
+        x = TabFFR ,
         digits = c(0,0,1) ,
         caption = "Totalt antall og prosent FFR av gjennomførte prosedyrer etter måned") ,
     booktabs = TRUE )

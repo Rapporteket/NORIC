@@ -14,7 +14,7 @@
 
 
 <<loadlibs,include=FALSE>>=
-# knitr::knit2pdf("NORIC_local_monthly.Rnw")
+# knitr::knit2pdf("NORIC_local_monthly_stent.Rnw")
 require(xtable)          # LaTeX tables
 require(car)             # recoding variables
 require(RColorBrewer)    # intellingent colour palettes
@@ -265,7 +265,7 @@ print(
                     data = SegmentStent ) ,
                 margin = 1 ) ,
             margin = 1) ,
-        digits = 1 , caption = "Prosent stenttyper etter måned") ,
+        digits = 1 , caption = "Prosentandel stenter etter typer og måned") ,
     booktabs = TRUE ,
     rotate.colnames = FALSE)
 @
@@ -274,7 +274,7 @@ print(
 
 
 \begin{frame}[fragile]
-<<Histogram_Nstent_per_Prosedyre,fig.cap="Antall stenter per prosedyre",fig.width=12,fig.height=8,out.width="4in",echo=FALSE>>=
+<<Histogram_Nstent_per_Prosedyre,fig.cap="Antall stenter etter prosedyre",fig.width=12,fig.height=8,out.width="4in",echo=FALSE>>=
 
 op <- par(
     las = 1 ,
@@ -310,7 +310,7 @@ print(
             xtabs(
                 formula = ~ Stentnavn2 +YearQuarter ,
                 data = SegmentStent )) ,
-        digits = 0 , caption = "Antall stenter etter merke per kvartal") ,
+        digits = 0 , caption = "Antall stenter etter merke og kvartal") ,
     booktabs = TRUE ,
     rotate.colnames = TRUE,
     scalebox = 0.95)
@@ -330,7 +330,7 @@ print(
                     data = SegmentStent ) ,
                 margin = 2 ) ,
             margin = 2) ,
-        digits = 1 , caption = "Prosent stentermerke per kvartal") ,
+        digits = 1 , caption = "Prosentandel stent etter merke og kvartal") ,
     booktabs = TRUE ,
     rotate.colnames = TRUE,
     scalebox = 0.95)
@@ -353,7 +353,7 @@ print(
                 data = SegmentStent ) ,
             margin = 1) ,
         margin = 1:2)[,,2] ,
-        digits = 1 , caption = "Prosent andel stent type per indikasjon og måned") ,
+        digits = 1 , caption = "Prosentandel stent etter type, indikasjon og måned") ,
     booktabs = TRUE ,
     rotate.colnames = TRUE)
 @
