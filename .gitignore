@@ -7,6 +7,7 @@
 
 # RStudio files
 .Rproj.user/
+noric.Rproj
 
 # knitr figures
 figure/
@@ -37,3 +38,4 @@ vignettes/*.pdf
 # Example code in package build process
 *-Ex.R
 
+.Rproj.user
