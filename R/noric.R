@@ -27,6 +27,7 @@
 #' \code{system.file("some_nice_logo.pdf", package = "noric")}
 #'
 #' @examples
+#' help(noric)
 #' 
 #' @docType package
 #' @name noric
