@@ -42,5 +42,6 @@ Artwork is accessed in the same way as for the noweb-files, \emph{e.g}
 }
 \examples{
 help(noric)
+registryName <- NORICmakeRegistryName("noricStaging", "123456")
 }
 
