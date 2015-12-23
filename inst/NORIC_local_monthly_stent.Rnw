@@ -63,26 +63,10 @@ if (!exists("con")) {
 
 <<GetData,include=FALSE>>=
 
-SegmentStent <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "select * from SegmentStent")
-
-names(SegmentStent) <- gsub("DAto","Dato",names(SegmentStent))
-
-AngioPCI <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "
-SELECT
-   A.ForlopsID ,
-   A.ProsedyreType ,
-   A.ProsedyreDato ,
-   SUM(S.ForlopsID>0) AS Nstents
-FROM
-   AngioPCIVar A
-   LEFT JOIN SegmentStent S on A.ForlopsID=S.ForlopsID
-WHERE A.ProsedyreType  != 'Angio'
-GROUP BY ForlopsID;"
-)
+baseName <- "noricStaging"
+registryName <- NORICmakeRegistryName(baseName, reshID)
+SegmentStent <- NORICloadRegDataStent(registryName)
+AngioPCI <- NORICloadRegDataAngioPCI(registryName)
 
 
 AngioPCI$Nstents[ is.na(AngioPCI$Nstents) ] <- 0
