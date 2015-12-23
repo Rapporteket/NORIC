@@ -11,7 +11,9 @@
 \usepackage{booktabs}
 \usepackage{rotating}
 
-
+<<"knitrSettings", include=FALSE, echo=FALSE, eval=TRUE>>=
+knitr::opts_knit$set(root.dir='./')
+@
 
 <<DefineFunc,include=FALSE>>=
 brew <- function(
