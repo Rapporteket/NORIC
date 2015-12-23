@@ -3,13 +3,12 @@
 #' Provides a dataframe for stents from NORIC staging db. To be used in
 #' NORIC_local_monthly_stent.Rnw and maybe others
 #'
-#' @param reshID String providing the current reshID
+#' @param registryName String providing the current registryName
 #' @return RegData data frame
 #' @export
 
-NORICloadRegDataStent <- function(reshID=reshID) {
+NORICloadRegDataStent <- function(registryName) {
   
-  registryName <- NORICmakeRegistryName()
   dbType <- "mysql"
   
   query <- "
