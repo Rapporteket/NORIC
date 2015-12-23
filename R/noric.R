@@ -28,6 +28,7 @@
 #'
 #' @examples
 #' help(noric)
+#' registryName <- NORICmakeRegistryName("noricStaging", "123456")
 #' 
 #' @docType package
 #' @name noric
