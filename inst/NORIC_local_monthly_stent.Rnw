@@ -13,15 +13,6 @@
 
 
 
-<<loadlibs,include=FALSE>>=
-# knitr::knit2pdf("NORIC_local_monthly_stent.Rnw")
-require(xtable)          # LaTeX tables
-require(car)             # recoding variables
-require(RColorBrewer)    # intellingent colour palettes
-require( ggplot2 )
-@ 
-
-
 <<DefineFunc,include=FALSE>>=
 brew <- function(
     N = 3 ,
