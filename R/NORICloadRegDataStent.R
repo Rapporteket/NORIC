@@ -13,6 +13,32 @@ NORICloadRegDataStent <- function(registryName) {
   
   query <- "
 SELECT
+  *
+FROM
+  SegmentStent;
+"
+  
+  RegData <- rapbase::LoadRegData(registryName, query, dbType)
+  
+  return(RegData)
+}
+
+
+#' Provide dataframe for AngioPCI
+#'
+#' Provides a dataframe for AngioPCI from NORIC staging db. To be used in
+#' NORIC_local_monthly_stent.Rnw and maybe others
+#'
+#' @param registryName String providing the current registryName
+#' @return RegData data frame
+#' @export
+
+NORICloadRegDataAngioPCI <- function(registryName) {
+  
+  dbType <- "mysql"
+  
+  query <- "
+SELECT
    A.ForlopsID ,
    A.ProsedyreType ,
    A.ProsedyreDato ,
