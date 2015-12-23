@@ -14,7 +14,9 @@ Depends: R (>= 3.0.2), rapbase
 License: file LICENSE
 LazyData: true
 Imports:
+  car,
+  ggplot2,
   knitr,
+  RColorBrewer,
   xtable
-Suggests: knitr
 VignetteBuilder: knitr
