@@ -4,7 +4,8 @@
 #' should be distributed openly, hence it must not hold any restricted
 #' or sensitive information.
 #' 
-#' 
+#' Resulting data can be saved by:
+#' save([data_frame_name], file="[filename].rda")
 #' 
 
 
@@ -28,6 +29,25 @@ makeSegmentStentSampleData <- function(baseName, reshID) {
 
 makeAngioPCISampleData <- function(baseName, reshID) {
   
+  registryName <- NORICmakeRegistryName(baseName, reshID)
+  query <- "
+SELECT
+   A.ForlopsID ,
+   A.ProsedyreType ,
+   A.ProsedyreDato ,
+   SUM(S.ForlopsID>0) AS Nstents
+FROM
+   AngioPCIVar A
+   LEFT JOIN SegmentStent S on A.ForlopsID=S.ForlopsID
+WHERE A.ProsedyreType  != 'Angio'
+GROUP BY ForlopsID;
+  "
+  dbType<-"mysql"
+  AngioPCI <- LoadRegData(registryName, query, dbType)
+  
+  # remove/change data
+  # no need for it here?
   
   return(AngioPCI)
+
 }
