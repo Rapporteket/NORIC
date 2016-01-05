@@ -1,4 +1,4 @@
-#' Sample data generator
+#' Sample data generator for SegmentStent
 #' 
 #' Functions to generate sample data for development purposes. These data
 #' should be distributed openly, hence it must not hold any restricted
@@ -7,6 +7,10 @@
 #' Resulting data can be saved by:
 #' save([data_frame_name], file="[filename].rda")
 #' 
+#' @param baseName String giving the prefix base of the name
+#' @param reshID String providing the current reshID. At Rapporteket, reshID
+#'  should already be present in the current R session
+#' @return SegmentStent a data frame holding the data set
 
 
 makeSegmentStentSampleData <- function(baseName, reshID) {
@@ -26,6 +30,20 @@ makeSegmentStentSampleData <- function(baseName, reshID) {
   return(SegmentStent)
   
 }
+
+#' Sample data generator for AngioPCI 
+#' 
+#' Functions to generate sample data for development purposes. These data
+#' should be distributed openly, hence it must not hold any restricted
+#' or sensitive information.
+#' 
+#' Resulting data can be saved by:
+#' save([data_frame_name], file="[filename].rda")
+#' 
+#' @param baseName String giving the prefix base of the name
+#' @param reshID String providing the current reshID. At Rapporteket, reshID
+#'  should already be present in the current R session
+#' @return SegmentStent a data frame holding the data set
 
 makeAngioPCISampleData <- function(baseName, reshID) {
   
