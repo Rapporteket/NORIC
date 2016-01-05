@@ -12,6 +12,9 @@
 # knitr figures
 figure/
 
+# any data present until verified othervise
+/data
+
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
