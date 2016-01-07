@@ -18,7 +18,7 @@ makeSegmentStentSampleData <- function(baseName, reshID) {
   registryName <- NORICmakeRegistryName(baseName, reshID)
   query <- "select * from SegmentStent"
   dbType<-"mysql"
-  SegmentStent <- LoadRegData(registryName, query, dbType)
+  SegmentStent <- rapbase::LoadRegData(registryName, query, dbType)
   
   # remove/change data
   nRows <- length(SegmentStent[,1])
@@ -61,7 +61,7 @@ WHERE A.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
   "
   dbType<-"mysql"
-  AngioPCI <- LoadRegData(registryName, query, dbType)
+  AngioPCI <- rapbase::LoadRegData(registryName, query, dbType)
   
   # remove/change data
   # no need for it here?
