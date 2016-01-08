@@ -39,3 +39,6 @@ vignettes/*.pdf
 *-Ex.R
 
 .Rproj.user
+
+# local .yml configurations
+*.yml
