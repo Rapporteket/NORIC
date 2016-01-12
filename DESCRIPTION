@@ -16,6 +16,7 @@ LazyData: true
 Imports:
   car,
   ggplot2,
+  Hmisc,
   knitr,
   RColorBrewer,
   xtable
