@@ -201,13 +201,9 @@ qTimeGAM <- function(
 
 @
 
-<<GetSampleData, include=FALSE, eval=TRUE>>=
-data(AngioPCIVar, package="noric")
-AP <- AngioPCIVar
-@
 
 
-<<DBconnect,include=FALSE, eval=FALSE>>=
+<<DBconnect,include=FALSE>>=
 
 if (!exists("con")) {
     conf <- yaml::yaml.load_file(
@@ -225,7 +221,7 @@ if (!exists("con")) {
 @ 
 
 
-<<getData,include=FALSE, eval=FALSE>>=
+<<getData,include=FALSE>>=
 
 AP <- DBI::dbGetQuery(
     conn = con , 
@@ -240,7 +236,7 @@ rm(con)
 
 
 <<RecodeVars,include=FALSE>>=
-AP <- AngioPCIVar
+
 AP$Sykehusnavn <- gsub( "Ã¸" , "ø" , AP$Sykehusnavn )
 AP$Sykehusnavn <- gsub( "Ã¥" , "å" , AP$Sykehusnavn )
 
@@ -324,8 +320,8 @@ AP <- AP[ - which(
 AP <- AP[ - which(
     AP$DaysFromIndexAdmissionToProcedure > 100 ),]
 
-#AP <- AP[ - which(
-#    AP$DaysFromPCIcenterAdmissionToProcedure > 100 ),]
+AP <- AP[ - which(
+    AP$DaysFromPCIcenterAdmissionToProcedure > 100 ),]
 @ 
 
 
