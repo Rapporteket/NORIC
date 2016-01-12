@@ -29,6 +29,7 @@
 #' @examples
 #' help(noric)
 #' registryName <- NORICmakeRegistryName("noricStaging", "123456")
+#' data(AngioPCI)
 #' 
 #' @docType package
 #' @name noric
