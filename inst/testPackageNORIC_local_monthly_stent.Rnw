@@ -1,0 +1,376 @@
+
+\documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
+\usetheme{Hannover}
+\usecolortheme{seagull}
+
+%\usepackage[absolute,overlay]{textpos}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english, norsk]{babel}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{rotating}
+
+
+
+
+
+<<DefineFunc,include=FALSE>>=
+brew <- function(
+    N = 3 ,
+    alpha = "AA" ) paste(
+        RColorBrewer::brewer.pal(
+            n = N , 
+            name = if(N<9) "Dark2" else "Set3" ) ,
+        alpha ,
+        sep = "")
+@ 
+
+
+
+<<DBconnect,include=FALSE, eval=FALSE>>=
+
+if (!exists("reshID")) {reshID <- "102966"} # for local testing
+if (!exists("con")) {
+    conf <- yaml::yaml.load_file(
+        input = "../dbConfig.yml" )[[
+            paste(
+                "noricStaging" ,
+                reshID ,
+                sep = "")
+            ]]
+    con <- DBI::dbConnect(
+        drv = RMySQL::MySQL() ,
+        dbname = unlist( conf["name"] ) ,
+        host = unlist( conf["host"]) ,
+        user = unlist( conf["user"]) ,
+        password = unlist( conf["pass"])
+        )
+    options( stringsAsFactors = FALSE )
+    DBI::dbSendQuery( con , "SET NAMES utf8;" )}
+
+@ 
+
+
+
+
+<<GetData,include=FALSE>>=
+data(SegmentStent, package="noric")
+data(AngioPCI, package="noric")
+SS <- SegmentStent
+AP <- AngioPCI
+
+
+AP$Nstents[ is.na(AP$Nstents) ] <- 0
+
+
+SS$StentType <- factor(SS$StentType)
+
+SS$Indikasjon <- car::recode( SS$Indikasjon ,"
+   'Stabil koronarsykdom '                    ='SAP';
+   'UAP'                                      ='UAP';
+   'NSTEMI'                                   ='NSTEMI';
+   'STEMI'                                    ='STEMI';
+   'STEMI > 24h'                              ='STEMI';
+   'STEMI/Rescue PCI'                         ='STEMI';
+   ''                                         = NA;
+   else                                       ='Annet'
+")
+ 
+SS$Indikasjon <- factor( SS$Indikasjon , levels = c(
+'SAP',
+'UAP',
+'NSTEMI',
+'STEMI',
+'Annet'))
+
+
+   # simplify Xience stent names
+SS$Stentnavn2 <- factor(gsub(
+    pattern = ".+Xience.+" ,
+    replacement = "Xience" ,
+    x = SS$Stentnavn))
+
+SS$ProsedyreDato <- as.Date(
+    x = SS$ProsedyreDato ,
+    format = "%Y-%m-%d")
+
+   ### restrict dataset to current and last year
+ind.stent <- which( as.numeric( format( SS$ProsedyreDato , "%Y" )) >= as.numeric( format( Sys.time() , "%Y" )) - 1)
+SS <- SS[ind.stent,]
+
+SS$Month <- as.numeric(
+    format( 
+        x = SS$ProsedyreDato , 
+        format = "%m" ))
+
+SS$Quarter <- as.numeric(
+    cut(
+        x = SS$Month ,
+        breaks = 0:4*3))
+
+SS$Year <- as.numeric(
+    format( 
+        x = SS$ProsedyreDato ,
+        format = "%y" ))
+
+SS$YearMonth <- factor(
+    format(
+        x = SS$ProsedyreDato ,
+        format = "%y-%m"))
+
+SS$YearQuarter <- factor(
+    paste(
+        SS$Year ,
+        SS$Quarter ,
+        sep = "/"))
+
+
+
+AP$ProsedyreDato <- as.Date(
+    x = AP$ProsedyreDato ,
+    format = "%Y-%m-%d")
+
+   ### restrict dataset to current and last year
+#ind.mce <- which( as.numeric( format( AP$ProsedyreDato , "%Y" )) >= as.numeric( format( Sys.time() , "%Y" )) - 1)
+#AP <- AP[ind.mce,]
+                       
+AP$Month <- as.numeric(
+    format( 
+        x = AP$ProsedyreDato , 
+        format = "%m" ))
+
+AP$Quarter <- as.numeric(
+    cut(
+        x = AP$Month ,
+        breaks = 0:4*3))
+                         
+AP$Year <- as.numeric(
+    format( 
+        x = AP$ProsedyreDato ,
+        format = "%y" ))
+
+AP$YearMonth <- factor(
+    format(
+        x = AP$ProsedyreDato ,
+        format = "%y-%m"))
+
+AP$YearQuarter <- factor(
+    paste(
+        AP$Year ,
+        AP$Quarter ,
+        sep = "/"))
+
+@ 
+
+
+
+<<PrintTitle,echo=FALSE,results='asis'>>=
+cat("\\title{NORIC" , unlist( conf ["disp"]) , "\\\\Stentbruk}\n\n")
+cat("\\date{" , date() , "}\n\n")
+@ 
+
+\begin{document}
+\begin{tiny}
+  
+\maketitle
+
+
+
+\begin{frame}[fragile]
+  
+<<N_stents_StentType_YearMonth,fig.cap="Antall stenter etter type og måned",fig.width=12,fig.height=8,out.width="4in",echo=FALSE>>=
+
+op <- par(
+    mfcol = c (1,1) ,
+    xpd = NA ,
+    mar = c(5.1,4.1,4.1,13.1) ,
+    bg = "#EEEEEE")
+
+pal <- brew( length(levels(SS$StentType)))
+
+barplot(
+    xtabs(
+        formula = ~ StentType + YearMonth ,
+        data = SS ) , 
+    las = 1 ,
+    xlab = "Måned" ,
+    ylab = "Antall" ,
+    col = pal ,
+    space = 0.2 ,
+    border = FALSE)
+
+legend(
+    "right" ,
+    inset = -.28 ,
+    bty = "n" ,
+    horiz = FALSE ,
+    fill = pal,
+    legend = levels(SS$StentType) ,
+    cex = 1)
+@
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<Antall_stenter_etter_type_og_maned,echo=FALSE,results='asis'>>=
+print(
+    xtable::xtable(
+        addmargins(
+            xtabs(
+                formula = ~ YearMonth + StentType ,
+                data = SS )) ,
+        digits = 0 , caption = "Antall stenter etter type og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = FALSE)
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<Prosent_stenttyper_etter_maned,echo = FALSE , results='asis'>>=
+print(
+    xtable::xtable(
+        100 * prop.table(
+            addmargins(
+                xtabs(
+                    formula = ~ YearMonth + StentType ,
+                    data = SS ) ,
+                margin = 1 ) ,
+            margin = 1) ,
+        digits = 1 , caption = "Prosentandel stenter etter typer og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = FALSE)
+@
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+<<Antall_prosedyrer_etter_type_og_maned,echo=FALSE,results='asis'>>=
+print(
+    xtable::xtable(
+        addmargins(
+            xtabs(
+                formula = ~ YearMonth + ProsedyreType ,
+                data = SS )) ,
+        digits = 0 , caption = "Antall segmenter etter prosedyretype og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = FALSE)
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<Prosent_prosedyretyper_etter_maned,echo = FALSE , results='asis'>>=
+print(
+    xtable::xtable(
+        100 * prop.table(
+            addmargins(
+                xtabs(
+                    formula = ~ YearMonth + ProsedyreType ,
+                    data = SS ) ,
+                margin = 1 ) ,
+            margin = 1) ,
+        digits = 1 , caption = "Prosentandel segmenter etter prosedyretype og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = FALSE)
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<Barplot_Nstent_per_Prosedyre,fig.cap="Antall stenter per prosedyre",fig.width=12,fig.height=8,out.width="4in",echo=FALSE>>=
+
+op <- par(
+    las = 1 ,
+    mar = c(5 , 6 , 1 , 1 )+0.1)
+
+TabNStent <- xtabs(
+    formula = ~ Nstents ,
+    data = AP ,
+    subset = Nstents > 0)
+
+barplot(
+    TabNStent ,
+    ylab = "Antall prosedyrer" ,
+    border = NA ,
+    col = "#B3B3B388" )
+
+S <- summary(AP$Nstents)
+
+legend(
+    "topright" ,
+    bty = "n" ,
+    legend = paste(attr(S,"names"), ": " , S , sep = ""))
+
+@ 
+
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+<<Antall_stenter_etter_merke_per_kvartal,echo=FALSE,results='asis'>>=
+print(
+    xtable::xtable(
+        addmargins(
+            xtabs(
+                formula = ~ Stentnavn2 +YearQuarter ,
+                data = SS )) ,
+        digits = 0 , caption = "Antall stenter etter merke og kvartal") ,
+    booktabs = TRUE ,
+    rotate.colnames = TRUE,
+    scalebox = 0.95)
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<Prosent_stentermerke_per_kvartal,echo=FALSE,results='asis'>>=
+print(
+    xtable::xtable(
+        100 * prop.table(
+            addmargins(
+                xtabs(
+                    formula = ~ Stentnavn2 + YearQuarter ,
+                    data = SS ) ,
+                margin = 2 ) ,
+            margin = 2) ,
+        digits = 1 , caption = "Prosentandel stent etter merke og kvartal") ,
+    booktabs = TRUE ,
+    rotate.colnames = TRUE,
+    scalebox = 0.95)
+@
+\end{frame}
+
+\end{tiny}
+\end{document}
+
+
+
+
+\begin{frame}[fragile]
+<<TabRStentType,echo=FALSE,results='asis'>>=
+print(
+    xtable::xtable(
+    100*prop.table(
+        addmargins(
+            xtabs(
+                formula = ~ YearMonth + Indikasjon + StentType,
+                data = SS ) ,
+            margin = 1) ,
+        margin = 1:2)[,,2] ,
+        digits = 1 , caption = "Prosentandel stent etter type, indikasjon og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = TRUE)
+@
+\end{frame}
