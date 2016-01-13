@@ -26,7 +26,7 @@ require( ggplot2 )
 brew <- function(
     N = 3 ,
     alpha = "AA" ) paste(
-        brewer.pal(
+        RColorBrewer::brewer.pal(
             n = N , 
             name = if(N<9) "Dark2" else "Set3" ) ,
         alpha ,
@@ -240,7 +240,7 @@ legend(
 \begin{frame}[fragile]
 <<Antall_stenter_etter_type_og_maned,echo=FALSE,results='asis'>>=
 print(
-    xtable(
+    xtable::xtable(
         addmargins(
             xtabs(
                 formula = ~ YearMonth + StentType ,
@@ -256,7 +256,7 @@ print(
 \begin{frame}[fragile]
 <<Prosent_stenttyper_etter_maned,echo = FALSE , results='asis'>>=
 print(
-    xtable(
+    xtable::xtable(
         100 * prop.table(
             addmargins(
                 xtabs(
@@ -276,7 +276,7 @@ print(
 \begin{frame}[fragile]
 <<Antall_prosedyrer_etter_type_og_maned,echo=FALSE,results='asis'>>=
 print(
-    xtable(
+    xtable::xtable(
         addmargins(
             xtabs(
                 formula = ~ YearMonth + ProsedyreType ,
@@ -292,7 +292,7 @@ print(
 \begin{frame}[fragile]
 <<Prosent_prosedyretyper_etter_maned,echo = FALSE , results='asis'>>=
 print(
-    xtable(
+    xtable::xtable(
         100 * prop.table(
             addmargins(
                 xtabs(
@@ -343,7 +343,7 @@ legend(
 \begin{frame}[fragile]
 <<Antall_stenter_etter_merke_per_kvartal,echo=FALSE,results='asis'>>=
 print(
-    xtable(
+    xtable::xtable(
         addmargins(
             xtabs(
                 formula = ~ Stentnavn2 +YearQuarter ,
@@ -360,7 +360,7 @@ print(
 \begin{frame}[fragile]
 <<Prosent_stentermerke_per_kvartal,echo=FALSE,results='asis'>>=
 print(
-    xtable(
+    xtable::xtable(
         100 * prop.table(
             addmargins(
                 xtabs(
@@ -384,7 +384,7 @@ print(
 \begin{frame}[fragile]
 <<TabRStentType,echo=FALSE,results='asis'>>=
 print(
-    xtable(
+    xtable::xtable(
     100*prop.table(
         addmargins(
             xtabs(
