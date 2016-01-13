@@ -158,7 +158,7 @@ if (length(i.out)>0) AP <- AP[-i.out,]
 
 
 <<APdaterecodes,include=FALSE>>=
-AP$Year <- as.numeric(
+AP $ Year <- as.numeric(
     format(
         x = AP $ ProsedyreDato ,
         format = "%Y"))
