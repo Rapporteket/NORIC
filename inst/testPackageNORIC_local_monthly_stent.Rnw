@@ -13,20 +13,6 @@
 
 
 
-<<loadlibs,include=FALSE>>=
-# knitr::knit2pdf("NORIC_local_monthly_stent.Rnw")
-require(xtable)          # LaTeX tables
-require(car)             # recoding variables
-require(RColorBrewer)    # intellingent colour palettes
-require( ggplot2 )
-@ 
-
-
-<<SKDEcol,include=FALSE>>=
-colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
-colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
-colKontrast <- "#FF7260"
-@ 
 
 
 <<DefineFunc,include=FALSE>>=
@@ -42,7 +28,7 @@ brew <- function(
 
 
 
-<<DBconnect,include=FALSE>>=
+<<DBconnect,include=FALSE, eval=FALSE>>=
 
 if (!exists("reshID")) {reshID <- "102966"} # for local testing
 if (!exists("con")) {
@@ -69,33 +55,15 @@ if (!exists("con")) {
 
 
 <<GetData,include=FALSE>>=
-
-
-SS <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM SegmentStent")
-
-AP <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "
-SELECT
-   A.ForlopsID ,
-   A.ProsedyreType ,
-   A.ProsedyreDato ,
-   SUM(S.ForlopsID>0) AS Nstents
-FROM
-   AngioPCIVar A
-   LEFT JOIN SegmentStent S on A.ForlopsID=S.ForlopsID and S.StentType <> ''
-WHERE A.ProsedyreType  != 'Angio'
-GROUP BY ForlopsID;"
-)
-
+data(SegmentStent, package="noric")
+data(AngioPCI, package="noric")
+SS <- SegmentStent
+AP <- AngioPCI
 
 
 AP$Nstents[ is.na(AP$Nstents) ] <- 0
 
-SS$StentType[SS$StentType==""] <- NA
-SS$StentType[SS$StentType=="Annet"] <- "BVS"
+
 SS$StentType <- factor(SS$StentType)
 
 SS$Indikasjon <- car::recode( SS$Indikasjon ,"
@@ -115,20 +83,6 @@ SS$Indikasjon <- factor( SS$Indikasjon , levels = c(
 'NSTEMI',
 'STEMI',
 'Annet'))
-
-
-SS$ProsedyreType2 <- car::recode( SS$ProsedyreType , "
-    'Direktestent' = 'Stent' ;
-    'Ballong + Stent' = 'Stent' ;
-    'Medikamentell ballong+ Stent' = 'Stent' ;
-
-    'Ballongdilatasjon' = 'POBA' ;
-
-    'Wireforsøk' = 'Wireforsøk' ;
-
-    'Rotablator' = 'Rotablator' ;
-
-    else = 'Annet'")
 
 
    # simplify Xience stent names
@@ -178,8 +132,8 @@ AP$ProsedyreDato <- as.Date(
     format = "%Y-%m-%d")
 
    ### restrict dataset to current and last year
-ind.mce <- which( as.numeric( format( AP$ProsedyreDato , "%Y" )) >= as.numeric( format( Sys.time() , "%Y" )) - 1)
-AP <- AP[ind.mce,]
+#ind.mce <- which( as.numeric( format( AP$ProsedyreDato , "%Y" )) >= as.numeric( format( Sys.time() , "%Y" )) - 1)
+#AP <- AP[ind.mce,]
                        
 AP$Month <- as.numeric(
     format( 
@@ -233,12 +187,11 @@ op <- par(
     mar = c(5.1,4.1,4.1,13.1) ,
     bg = "#EEEEEE")
 
-pal <- colPrimary[c(1,3,5)]
+pal <- brew( length(levels(SS$StentType)))
 
 barplot(
     xtabs(
         formula = ~ StentType + YearMonth ,
-        subset = StentType != "" ,
         data = SS ) , 
     las = 1 ,
     xlab = "Måned" ,
@@ -303,7 +256,7 @@ print(
     xtable::xtable(
         addmargins(
             xtabs(
-                formula = ~ YearMonth + ProsedyreType2 ,
+                formula = ~ YearMonth + ProsedyreType ,
                 data = SS )) ,
         digits = 0 , caption = "Antall segmenter etter prosedyretype og måned") ,
     booktabs = TRUE ,
@@ -315,20 +268,18 @@ print(
 
 \begin{frame}[fragile]
 <<Prosent_prosedyretyper_etter_maned,echo = FALSE , results='asis'>>=
-
 print(
     xtable::xtable(
         100 * prop.table(
             addmargins(
                 xtabs(
-                    formula = ~ YearMonth + ProsedyreType2 ,
+                    formula = ~ YearMonth + ProsedyreType ,
                     data = SS ) ,
                 margin = 1 ) ,
             margin = 1) ,
         digits = 1 , caption = "Prosentandel segmenter etter prosedyretype og måned") ,
     booktabs = TRUE ,
     rotate.colnames = FALSE)
-
 @
 \end{frame}
 
@@ -338,11 +289,8 @@ print(
 <<Barplot_Nstent_per_Prosedyre,fig.cap="Antall stenter per prosedyre",fig.width=12,fig.height=8,out.width="4in",echo=FALSE>>=
 
 op <- par(
-    mfcol = c (1,1) ,
-    xpd = NA ,
-    mar = c(5.1,4.1,4.1,13.1) ,
-    bg = "#EEEEEE")
-
+    las = 1 ,
+    mar = c(5 , 6 , 1 , 1 )+0.1)
 
 TabNStent <- xtabs(
     formula = ~ Nstents ,
@@ -353,18 +301,19 @@ barplot(
     TabNStent ,
     ylab = "Antall prosedyrer" ,
     border = NA ,
-    col = colPrimary[3] )
+    col = "#B3B3B388" )
 
-S <- round( summary(AP$Nstents[which(AP$Nstents>0)]) , 1 )
+S <- summary(AP$Nstents)
 
 legend(
-    "right" ,
-    inset = -.28 ,
+    "topright" ,
     bty = "n" ,
     legend = paste(attr(S,"names"), ": " , S , sep = ""))
 
 @ 
+
 \end{frame}
+
 
 
 
@@ -387,7 +336,6 @@ print(
 
 \begin{frame}[fragile]
 <<Prosent_stentermerke_per_kvartal,echo=FALSE,results='asis'>>=
-
 print(
     xtable::xtable(
         100 * prop.table(
@@ -401,7 +349,6 @@ print(
     booktabs = TRUE ,
     rotate.colnames = TRUE,
     scalebox = 0.95)
-
 @
 \end{frame}
 
