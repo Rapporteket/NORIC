@@ -360,7 +360,7 @@ barplot(
     las = 1 ,
     xlab = "Måned" ,
     ylab = "Antall" ,
-    col = colPrimary ,
+    col = colPrimary[6:1] ,
     space = 0.2 ,
     border = FALSE)
 
@@ -369,8 +369,8 @@ legend(
     inset = -.28 ,
     bty = "n" ,
     horiz = FALSE ,
-    fill = colPrimary[6:1] ,
-    legend = unique(AP$Indikasjon2)[6:1] ,
+    fill = colPrimary ,
+    legend = levels(AP$Indikasjon2)[6:1] ,
     cex = 1)
 
 @
