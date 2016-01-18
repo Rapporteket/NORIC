@@ -18,23 +18,6 @@ require( ggplot2 )
 
 
 <<DefineFunc,include=FALSE>>=
-
-describe <- function(X){
-    DTAB <- c(
-        as.character(sum(!is.na(X))) ,
-        round( mean( X , na.rm = TRUE ) , digits = 1 ) ,
-        min( X , na.rm = TRUE ) ,
-        max( X , na.rm = TRUE ) ,
-        Tquantil( X , 0.100 ) ,
-        Tquantil( X , 0.250 ) ,
-        Tquantil( X , 0.500 ) ,
-        Tquantil( X , 0.750 ) ,
-        Tquantil( X , 0.900 ))
-        attr( DTAB , "names") <- c(
-            "N" , "Mean", "Minimum", "Maximum",
-            "10%", "25%", "50%", "75%", "90%")
-        return(DTAB)}
-
 interleaveEveryOtherEmpty <- function(v){
         ind <- seq(2, length(v), by=2)
         v[ind] <- ""
@@ -124,30 +107,6 @@ AP $ AnkomstPCIDato <- as.Date(
 
 AP $ ProsedyreDato <- as.Date(
     x = AP $ ProsedyreDato)
-
-@ 
-
-
-<<CalcDays,include=FALSE>>=
-
-AP $ DaysFromIndexAdmissionToProcedure <- as.numeric(
-    AP $ ProsedyreDato - AP $ InnleggelseHenvisendeSykehusDato )
-
-AP $ DaysFromPCIcenterAdmissionToProcedure <- as.numeric(
-    AP $ ProsedyreDato - AP $ AnkomstPCIDato )
-
-@ 
-
-
-<<TnegNA,include=FALSE>>=
-
-i.out <- which(
-    (AP $ DaysFromIndexAdmissionToProcedure < 0) |
-    (AP $ DaysFromIndexAdmissionToProcedure > 100) |
-    (AP $ DaysFromPCIcenterAdmissionToProcedure < 0 ) |
-    (AP $ DaysFromPCIcenterAdmissionToProcedure > 100 ))
-
-if (length(i.out)>0) AP <- AP[-i.out,]
 
 @ 
 
