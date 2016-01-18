@@ -178,8 +178,8 @@ AP$ProsedyreDato <- as.Date(
     format = "%Y-%m-%d")
 
    ### restrict dataset to current and last year
-#ind.mce <- which( as.numeric( format( AP$ProsedyreDato , "%Y" )) >= as.numeric( format( Sys.time() , "%Y" )) - 1)
-#AP <- AP[ind.mce,]
+ind.mce <- which( as.numeric( format( AP$ProsedyreDato , "%Y" )) >= as.numeric( format( Sys.time() , "%Y" )) - 1)
+AP <- AP[ind.mce,]
                        
 AP$Month <- as.numeric(
     format( 

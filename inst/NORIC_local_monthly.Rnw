@@ -19,11 +19,6 @@ require( ggplot2 )
 
 <<DefineFunc,include=FALSE>>=
 
-Tquantil <- function( x , probs )
-    round(
-        quantile( x = x , na.rm = TRUE , probs = probs ) ,
-        digits = 1)
-
 describe <- function(X){
     DTAB <- c(
         as.character(sum(!is.na(X))) ,
