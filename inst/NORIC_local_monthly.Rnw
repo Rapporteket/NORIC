@@ -32,17 +32,6 @@ require( ggplot2 )
 @ 
 
 
-<<DefineFunc,include=FALSE>>=
-interleaveEveryOtherEmpty <- function(v){
-        ind <- seq(2, length(v), by=2)
-        v[ind] <- ""
-        everyOtherEmpty <- v
-        return(everyOtherEmpty)
-        }
-@ 
-
-
-
 <<DBconnect,include=FALSE>>=
 
 if (!exists("reshID")) {reshID <- "102966"} # for local testing
@@ -233,7 +222,9 @@ legend(
     bty = "n" ,
     horiz = FALSE ,
     fill = pal[3:1],
-    legend = unique(AP$HendelsesType)[3:1] ,
+    legend = sort(
+        unique(AP$HendelsesType) , 
+        decreasing = T) ,
     cex = 1)
 
 @
@@ -302,7 +293,9 @@ legend(
     bty = "n" ,
     horiz = FALSE ,
     fill = pal[3:1],
-    legend = unique(AP$ProsedyreType)[3:1] ,
+    legend = sort(
+        unique(AP$ProsedyreType) ,
+        decreasing = TRUE ),
     cex = 1)
 
 @
