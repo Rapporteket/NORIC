@@ -466,6 +466,7 @@ print(
         caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned") ,
     scalebox = 0.8 ,
     booktabs = TRUE )
+
 @ 
 \end{frame}
 
@@ -482,7 +483,6 @@ nFFR <- xtabs(
 rFFR <- 100 * prop.table(
     xtabs(
         formula = ~ Month + as.numeric(FFR=="Ja") ,
-        subset = is.na( PrimaerForlopsID ) ,
         data = AP ,
         exclude = NULL ,
         na.action = na.pass ) ,
