@@ -170,7 +170,10 @@ NSTEMI $ Month <- as.factor(
 
 AP <- subset(
     x = AP ,
-    subset = nMonth > max( nMonth , na.rm = TRUE ) - 24 )
+    subset = nMonth >= max( nMonth , na.rm = TRUE ) - 24 )
+
+ # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
+if (AP$Sykehusnavn %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Year >= 2015 ) , ]
 
 AP $ Month <- as.factor(
     format(
