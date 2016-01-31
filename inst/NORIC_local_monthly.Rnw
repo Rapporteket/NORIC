@@ -414,51 +414,104 @@ print.xtable(
   \frametitle{Annen diagnostikk ved angiografi/PCI}
 
 <<TabNTillegg,  results = 'asis'>>=
-nFFR <- xtabs(
-    formula = ~ Month + as.numeric(FFR=="Ja") ,
-    data = AP ,
-    exclude = 0)
 
-rFFR <- round( 100 * prop.table(
-    xtabs(
-        formula = ~ Month + as.numeric(FFR=="Ja") ,
-        data = AP ,
-        exclude = NULL ,
-        na.action = na.pass ) ,
-    margin = 1 )[,2] , 1)
+nFFR <- table(
+    AP$Month ,
+    factor(
+        AP$FFR ,
+        levels = c("Ja","Nei","")))
 
+nFFRja <- sprintf(
+    "%3.0f" ,
+    nFFR[ , 
+         which(colnames(nFFR)=="Ja")
+         ] )
 
-nIVUS <- xtabs(
-    formula = ~ Month + as.numeric(IVUS=="Ja") ,
-    data = AP ,
-    exclude = 0)
+rFFR <- round(
+    100 * prop.table(
+              nFFR ,
+              margin = 1 ) ,
+    digits = 1 )
 
-rIVUS <- round( 100 * prop.table(
-    xtabs(
-        formula = ~ Month + as.numeric(IVUS=="Ja") ,
-        data = AP ,
-        exclude = NULL ,
-        na.action = na.pass ) ,
-    margin = 1 )[,2] , 1)
+rFFRja <- sprintf(
+    "%4.1f" ,
+    rFFR[ , 
+         which(colnames(rFFR)=="Ja")
+         ] )
 
 
-nOCT <- xtabs(
-    formula = ~ Month + as.numeric(OCT=="Ja") ,
-    data = AP ,
-    exclude = 0)
+nIVUS <- table(
+    AP$Month ,
+    factor(
+        AP$IVUS ,
+        levels = c("Ja","Nei","")))
 
-rOCT <- round( 100 * prop.table(
-    xtabs(
-        formula = ~ Month + as.numeric(OCT=="Ja") ,
-        data = AP ,
-        exclude = NULL ,
-        na.action = na.pass ) ,
-    margin = 1 )[,2] , 1)
+nIVUSja <- sprintf(
+    "%3.0f" ,
+    nIVUS[ , 
+         which(colnames(nIVUS)=="Ja")
+         ] )
+
+rIVUS <- round(
+    100 * prop.table(
+              nIVUS ,
+              margin = 1 ) ,
+    digits = 1 )
+
+rIVUSja <- sprintf(
+    "%4.1f" ,
+    rIVUS[ , 
+         which(colnames(rIVUS)=="Ja")
+         ] )
+
+
+
+nOCT <- table(
+    AP$Month ,
+    factor(
+        AP$OCT ,
+        levels = c("Ja","Nei","")))
+
+nOCTja <- sprintf(
+    "%3.0f" ,
+    nOCT[ , 
+         which(colnames(nOCT)=="Ja")
+         ] )
+
+rOCT <- round(
+    100 * prop.table(
+              nOCT ,
+              margin = 1 ) ,
+    digits = 1 )
+
+rOCTja <- sprintf(
+    "%4.1f" ,
+    rOCT[ , 
+         which(colnames(rOCT)=="Ja")
+         ] )
+
+
 
 TabTillegg <- cbind(
-    paste(nFFR , " (",rFFR,")" , sep = "") ,
-    paste(nIVUS , " (",rIVUS,")" , sep = "") ,
-    paste(nOCT , " (",rOCT,")" , sep = ""))
+    paste(
+        nFFRja ,
+        " (",
+        rFFRja ,
+        ")" ,
+        sep = "") ,
+    paste(
+        nIVUSja ,
+        " (",
+        rIVUSja ,
+        ")" ,
+        sep = "") ,
+    paste(
+        nOCTja ,
+        " (",
+        rOCTja ,
+        ")" ,
+        sep = ""))
+
 
 attr(TabTillegg , "dimnames")[[1]] <- levels( AP $ Month )
 attr(TabTillegg , "dimnames")[[2]] <- c("FFR","IVUS","OCT")
@@ -466,6 +519,7 @@ attr(TabTillegg , "dimnames")[[2]] <- c("FFR","IVUS","OCT")
 print(
     xtable(
         x = TabTillegg ,
+        align = c("r","r","r","r") ,
         caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned") ,
     scalebox = 0.8 ,
     booktabs = TRUE )
@@ -478,22 +532,10 @@ print(
 \begin{frame}[fragile]
   \frametitle{FFR}
 <<TabFFR,  results = 'asis'>>=
-nFFR <- xtabs(
-    formula = ~ Month + as.numeric(FFR=="Ja") ,
-    data = AP ,
-    exclude = 0)
-
-rFFR <- 100 * prop.table(
-    xtabs(
-        formula = ~ Month + as.numeric(FFR=="Ja") ,
-        data = AP ,
-        exclude = NULL ,
-        na.action = na.pass ) ,
-    margin = 1 )[,2]
 
 TabFFR <- cbind(
-    nFFR ,
-    rFFR )
+    nFFRja ,
+    rFFRja )
 
 attr(TabFFR , "dimnames")[[2]] <- c("Antall FFR" , "Prosentandel FFR")
 
@@ -501,6 +543,7 @@ print(
     xtable(
         x = TabFFR ,
         digits = c(0,0,1) ,
+        align = c("r","r","r") ,
         caption = "Totalt antall og prosent FFR av gjennomførte prosedyrer etter måned") ,
     booktabs = TRUE )
 @ 
@@ -515,23 +558,30 @@ print(
   
 <<SOtab1,results='asis'>>=
 
-Totalt <- xtabs(
-    formula = ~ Month ,
-    subset = Skjemanavn == "AngioPCI" ,
-    data = SO)
+nSOA <- with(
+    SO[ which( SO$Skjemanavn == "AngioPCI" ) , ] ,
+    table(
+        Month ,
+        factor(
+            SkjemaStatus,
+            levels=c(0,-1,1) ,
+            labels = c("Tomt","Begynt","Ferdigstilt"))))
 
-Komplett <- xtabs(
-    formula = ~ Month ,
-    subset = (Skjemanavn == "AngioPCI") & (SkjemaStatus == 1) ,
-    data = SO)
+rSOA <- round(
+    100 * prop.table(
+              nSOA ,
+              margin = 1 ) ,
+    digits = 1 )
 
-Prosent <- 100 * Komplett / Totalt
-
-TAB <- cbind( Totalt, Komplett, Prosent )
+TABkompletthet <- cbind(
+    rowSums(nSOA) ,
+    nSOA[ , which( colnames(nSOA)=="Ferdigstilt" ) ] ,
+    rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] )
+colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
 print.xtable(
     x = xtable(
-        x = TAB ,
+        x = TABkompletthet ,
         caption = "Antall hoved registreringsskjemaer etter måned" ,
         digits = c(0,0,0,1)) ,
     booktabs = TRUE )
