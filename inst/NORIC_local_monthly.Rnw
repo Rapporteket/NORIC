@@ -15,7 +15,6 @@ require(knitr)
 opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
 # knit2pdf("NORIC_local_monthly.Rnw")
-
 @ 
 
 <<SKDEcol,include=FALSE>>=
@@ -33,6 +32,7 @@ require( ggplot2 )
 
 
 <<DBconnect,include=FALSE>>=
+# Feiring: 106944
 
 if (!exists("reshID")) {reshID <- "102966"} # for local testing
 if (!exists("con")) {
@@ -79,7 +79,7 @@ SO$nMonth <- as.numeric(
 SO <- subset(
     x = SO ,
     subset =
-        (nMonth > max(nMonth) - 24) &
+        (nMonth > max( nMonth , na.rm = TRUE ) - 24) &
         (RegDate < Sys.Date()))    
 
 
