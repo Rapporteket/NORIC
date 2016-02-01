@@ -78,10 +78,13 @@ SO$nMonth <- as.numeric(
 
 SO <- subset(
     x = SO ,
-    subset = nMonth > max(nMonth) - 24 )
+    subset =
+        (nMonth > max(nMonth) - 24) &
+        (RegDate < Sys.Date()))    
+
 
   # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
-if (SO$Sykehusnavn %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ]
+if ( SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ]
 
 SO$Month <- as.factor(
     format(
@@ -176,7 +179,7 @@ AP <- subset(
     subset = nMonth >= max( nMonth , na.rm = TRUE ) - 24 )
 
  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
-if (AP$Sykehusnavn %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Year >= 2015 ) , ]
+if (AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Year >= 2015 ) , ]
 
 AP $ Month <- as.factor(
     format(
