@@ -80,6 +80,9 @@ SO <- subset(
     x = SO ,
     subset = nMonth > max(nMonth) - 24 )
 
+  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
+if (SO$Sykehusnavn %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ]
+
 SO$Month <- as.factor(
     format(
         SO$RegDate ,
