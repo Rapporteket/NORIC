@@ -543,7 +543,7 @@ TabFFR <- cbind(
     nFFRja ,
     rFFRja )
 
-attr(TabTillegg , "dimnames")[[1]] <- levels( AP $ Month )
+attr(TabFFR , "dimnames")[[1]] <- levels( AP $ Month )
 attr(TabFFR , "dimnames")[[2]] <- c("Antall FFR" , "Prosentandel FFR")
 
 print(
