@@ -423,9 +423,10 @@ print.xtable(
 
 nFFR <- table(
     AP$Month ,
-    factor(
-        AP$FFR ,
-        levels = c("Ja","Nei","")))
+    addNA(
+        factor(
+            AP$FFR ,
+            levels = c("Ja","Nei",""))))
 
 nFFRja <- sprintf(
     "%3.0f" ,
@@ -448,9 +449,10 @@ rFFRja <- sprintf(
 
 nIVUS <- table(
     AP$Month ,
-    factor(
-        AP$IVUS ,
-        levels = c("Ja","Nei","")))
+    addNA(
+        factor(
+            AP$IVUS ,
+            levels = c("Ja","Nei",""))))
 
 nIVUSja <- sprintf(
     "%3.0f" ,
@@ -474,9 +476,10 @@ rIVUSja <- sprintf(
 
 nOCT <- table(
     AP$Month ,
-    factor(
-        AP$OCT ,
-        levels = c("Ja","Nei","")))
+    addNA(
+        factor(
+            AP$OCT ,
+            levels = c("Ja","Nei",""))))
 
 nOCTja <- sprintf(
     "%3.0f" ,
