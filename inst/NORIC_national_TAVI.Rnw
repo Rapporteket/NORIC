@@ -1,0 +1,534 @@
+\documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
+
+\usetheme{Hannover}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{rotating}
+\usepackage{graphicx}
+
+
+
+<<Config,include=FALSE>>=
+
+require( knitr )
+require( Hmisc )
+require( xtable)
+
+opts_chunk$set(out.width="\\textwidth",warnings=FALSE,echo=FALSE)
+options(stringsAsFactors=FALSE , width = "130")
+
+colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
+colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
+colKontrast <- "#FF7260"
+
+# Test: knit2pdf( "NORIC_national_TAVI.Rnw" )
+
+@ 
+
+
+<<defFunc,include=FALSE>>=
+
+barSHn <- function(TAB) {
+
+    STRATA <- dimnames(TAB)[[1]]
+    
+    PAL <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")[1:length(STRATA)]
+
+    par(
+        mar = c(3,5,2,10) ,
+        xpd = NA ,
+        las = 1)
+
+    xBarplot <- barplot(
+        TAB ,
+        ylab = "Antall" ,
+        col = PAL )
+
+    legend(
+        x = par("usr")[2] ,
+        y = par("usr")[4]*.7 ,
+        bty = "n" ,
+        legend = STRATA ,
+        fill = PAL)}
+
+
+barSHr <- function(TABn,TABr=NULL) {
+    
+    STRATA <- dimnames(TABn)[[1]]
+    
+    PAL <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")[1:length(STRATA)]
+
+    if (is.null(TABr)) TABr <- round(
+        100 * prop.table(
+                  TABn ,
+                  margin = 1 ),
+        digits = 1)
+
+    par(
+        mar = c(3,5,2,10) ,
+        xpd = NA ,
+        las = 1)
+
+    xBarplot <- barplot(
+        TABr ,
+        beside = TRUE ,
+        ylab = "%" ,
+        col = PAL )
+
+    lapply(
+        X = 1:length(STRATA) ,
+        FUN = function(X) text(
+                              x = xBarplot[X,] ,
+                              y = TABr[X,] ,
+                              pos = 3 ,
+                              col = PAL[X] ,
+                                  labels = TABn[X,])) -> DoNotPrint
+                              
+    legend(
+        x = par("usr")[2] ,
+        y = par("usr")[4]*.7 ,
+        bty = "n" ,
+        legend = STRATA ,
+        fill = colPrimary )
+    
+}
+
+@ 
+
+<<getData,include=FALSE>>=
+
+if (!exists("con")) {
+    conf <- yaml::yaml.load_file(
+        input = "../dbConfig.yml" )[["noricStagingNasjonal"]]
+    con <- DBI::dbConnect(
+        drv = RMySQL::MySQL() ,
+        dbname = unlist( conf["name"] ) ,
+        host = unlist( conf["host"]) ,
+        user = unlist( conf["user"]) ,
+        password = unlist( conf["pass"])
+        )
+    options( stringsAsFactors = FALSE )
+    DBI::dbGetQuery( con , "SET NAMES utf8;" )}
+
+A <- DBI::dbGetQuery(
+    conn = con , 
+    statement = "SELECT * FROM AortaklaffVar")
+
+A <- subset(
+    x = A ,
+    subset = (
+        ProsedyreDato >= as.Date("2015-01-01")) & (
+            Sykehusnavn %in% c("Haukeland","Rikshospitalet")))
+
+# clean up and close
+con <- DBI::dbDisconnect(con)
+rm(con)
+
+@ 
+
+
+
+<<RecodeVars,include=FALSE>>=
+
+A$Sykehusnavn <- gsub( "Ã¸" , "ø" , A$Sykehusnavn )
+A$Sykehusnavn <- gsub( "Ã¥" , "å" , A$Sykehusnavn )
+A$Sykehusnavn <- factor(A$Sykehusnavn)
+
+A$BeslutningsDato <- as.Date(A$BeslutningsDato)
+A$Dodsdato <- as.Date(A$Dodsdato)
+A$ProsedyreDato <- as.Date(A$ProsedyreDato)
+A$UtskrDato <- as.Date(A$UtskrDato)
+A$HovedDato <- as.Date(A$HovedDato)
+
+
+A$Year <- as.numeric(
+    format(
+        x = A$ProsedyreDato ,
+        format = "%Y"))
+A$Month <- as.factor(
+    format(
+        x = A$ProsedyreDato ,
+        format = "%y-%m"))
+
+@ 
+
+
+
+
+\title{NORIC TAVI}
+\date{}
+
+
+\begin{document}
+\begin{tiny}
+
+\maketitle
+
+
+
+\begin{frame}[fragile]
+<<FigNMonthHosp,fig.cap="Antall TAVI prosedyrer etter sykehus og måned",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+TabNMonthHosp <- xtabs(
+        formula = ~ Sykehusnavn + Month ,
+        data = A)
+
+barSHn(TabNMonthHosp)
+
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<TabNMonthHosp,results='asis'>>=
+
+print.xtable(
+    x = xtable(
+        x = addmargins(
+            t( TabNMonthHosp )) ,
+        caption = "Antall registrerte TAVI prosedyrer etter sykehus og måned" ,
+        digits = 0) ,
+    booktabs = TRUE )
+
+@   
+\end{frame}
+
+
+
+
+\section{Alder}
+
+\begin{frame}[fragile]
+<<FigNRAgeHosp,fig.cap="Prosentandel TAVI prosedyrer per aldersgrupper etter sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+A$AgeCat <- cut(
+    x = A$PasientAlder ,
+    include.lowest = TRUE ,
+    breaks = c(0,70,75,80,85,90,200) ,
+    labels = c("<70","70-74","75-79","80-84","85-89","90+")
+    )
+
+
+TabNAgeHosp <- xtabs(
+    formula = ~ Sykehusnavn + AgeCat ,
+    data = A)
+
+TabRAgeHosp <- round(
+    100 * prop.table(
+              TabNAgeHosp ,
+              margin = 1 ),
+    digits = 1)
+
+barSHr(TabNAgeHosp)
+
+@
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<FigNAgeHosp,fig.cap="Antall TAVI prosedyrer etter aldersgrupper og sykehus",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+barSHn(TabNAgeHosp)
+
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<TabNAgeHosp,results='asis'>>=
+
+print.xtable(
+    xtable(
+        addmargins( t( TabNAgeHosp )) ,
+        caption = "Antall TAVI prosedyrer etter sykehus og aldersgruppe" ,
+        digits = 0 ) ,
+    booktabs = TRUE
+)
+
+@ 
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<TabRAgeHosp,results='asis'>>=
+
+print.xtable(
+    xtable(
+        t( TabRAgeHosp ) ,
+        caption = "Prosentandel TAVI prosedyrer per aldersgruppe etter sykehus" ,
+        digits = 1) ,
+    booktabs = TRUE )
+
+@ 
+
+\end{frame}
+
+
+
+
+\section{NYHA}
+
+\begin{frame}[fragile]
+<<FigNRNYHAHosp,fig.cap="Prosentandel TAVI prosedyrer per NYHA-klasse etter sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+A$NYHA[A$NYHA=="Ukjent"] <- NA
+A$NYHA <- factor(A$NYHA)
+
+TabNNYHAHosp <- xtabs(
+    formula = ~  Sykehusnavn + NYHA ,
+    data = A )
+
+TabRNYHAHosp <- round(
+    100 * prop.table(
+              TabNNYHAHosp ,
+              margin = 1 ),
+    digits = 1)
+
+barSHr(TabNNYHAHosp)
+
+@
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<FigNNYHAHosp,fig.cap="Antall TAVI prosedyrer etter aldersgrupper og sykehus",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+barSHn(TabNNYHAHosp)
+
+@
+\end{frame}
+
+
+\begin{frame}[fragile]
+<<TabNNYHA,results='asis'>>=
+
+print.xtable(
+    xtable(
+        addmargins(t(TabNNYHAHosp)) ,
+        caption = "Antall TAVI prosedyrer etter NYHA-klasse og sykehus" ,
+        digits = 0 ) ,
+    booktabs = TRUE
+)
+
+@ 
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<TabRNYHA,results='asis'>>=
+
+print.xtable(
+    xtable(
+        t( TabRNYHAHosp ) ,
+        caption = "Prosentandel TAVI prosedyrer per NYHA-klasse etter sykehus" ,
+        digits = 1) ,
+    booktabs = TRUE )
+
+@ 
+
+\end{frame}
+
+
+
+
+\section{Type}
+
+\begin{frame}[fragile]
+<<FigNRTypeKlaffeproteseHosp,fig.cap="Prosentandel TAVI prosedyrer per type klaffeprotese etter sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+A$TypeKlaffeprotese[A$TypeKlaffeprotese==""] <- NA
+A$TypeKlaffeprotese <- factor(A$TypeKlaffeprotese)
+
+TabNTypeKlaffeproteseHosp <- xtabs(
+    formula = ~  Sykehusnavn + TypeKlaffeprotese ,
+    data = A )
+
+TabRTypeKlaffeproteseHosp <- round(
+    100 * prop.table(
+              TabNTypeKlaffeproteseHosp ,
+              margin = 1 ),
+    digits = 1)
+
+barSHr(TabNTypeKlaffeproteseHosp)
+
+@
+\end{frame}
+
+
+
+
+\section{Tilgang}
+
+\begin{frame}[fragile]
+<<FigNROperativTilgangHosp,fig.cap="Prosentandel TAVI prosedyrer etter operativ tilgang per sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+A$OperativTilgang <- factor(A$OperativTilgang)
+
+TabNOperativTilgangHosp <- xtabs(
+    formula = ~  Sykehusnavn + OperativTilgang ,
+    data = A )
+
+TabROperativTilgangHosp <- round(
+    100 * prop.table(
+              TabNOperativTilgangHosp ,
+              margin = 1 ),
+    digits = 1)
+
+barSHr(TabNOperativTilgangHosp)
+
+@
+\end{frame}
+
+
+
+\section{Anestesi}
+
+\begin{frame}[fragile]
+<<FigNRAnestesiHosp,fig.cap="Prosentandel TAVI prosedyrer etter anestesi metode per sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+A$Anestesi[A$Anestesi %in% c("Ukjent","") ] <- NA
+A$Anestesi <- factor(A$Anestesi)
+
+TabNAnestesiHosp <- xtabs(
+    formula = ~  Sykehusnavn + Anestesi ,
+    data = A )
+
+TabRAnestesiHosp <- round(
+    100 * prop.table(
+              TabNAnestesiHosp ,
+              margin = 1 ),
+    digits = 1)
+
+barSHr(TabNAnestesiHosp)
+
+@
+\end{frame}
+
+
+
+\section{Hastegrad}
+
+\begin{frame}[fragile]
+<<FigNRHastegradHosp,fig.cap="Prosentandel TAVI prosedyrer etter hastegrad per sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+A$Hastegrad <- factor(A$Hastegrad)
+
+TabNHastegradHosp <- xtabs(
+    formula = ~  Sykehusnavn + Hastegrad ,
+    data = A )
+
+TabRHastegradHosp <- round(
+    100 * prop.table(
+              TabNHastegradHosp ,
+              margin = 1 ),
+    digits = 1)
+
+barSHr(TabNHastegradHosp)
+
+@
+\end{frame}
+
+
+
+
+
+\section{Diabetes}
+
+\begin{frame}[fragile]
+<<FigNRDiabetesHosp,fig.cap="Prosentandel TAVI prosedyrer per Diabetes etter sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+A$Diabetes <- factor(A$Diabetes=="Ja",labels=c("Non-diabetes","Diabetes"))
+
+TabNDiabetesHosp <- xtabs(
+    formula = ~  Sykehusnavn + Diabetes ,
+    data = A )
+
+TabRDiabetesHosp <- round(
+    100 * prop.table(
+              TabNDiabetesHosp ,
+              margin = 1 ),
+    digits = 1)
+
+barSHr(TabNDiabetesHosp)
+
+@
+\end{frame}
+
+
+
+
+\section{Tidl. sykdom}
+
+\begin{frame}[fragile]
+<<FigNRTidlSykdHosp,fig.cap="Prosentandel TAVI prosedyrer per tidligere sykdom etter sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+TabNTidlSykdHosp <- cbind(
+    table( A$Sykehusnavn , A$TidlPCI)[,1] ,
+    table( A$Sykehusnavn , A$TidlACB)[,1] ,
+    table( A$Sykehusnavn , A$TidlHjerteoperasjon)[,1] ,
+    table( A$Sykehusnavn , A$TidlHjerneslag)[,1] ,
+    table( A$Sykehusnavn , A$TidlAVR)[,1] ,
+    table( A$Sykehusnavn , A$TidlBAV)[,1] ,
+    table( A$Sykehusnavn , A$TidlMitralplastikk)[,1] ,
+    table( A$Sykehusnavn , A$TidlMVR)[,1] ,
+    table( A$Sykehusnavn , A$TidlAnnet)[,1])
+colnames(TabNTidlSykdHosp) <- c(
+    "PCI" ,
+    "ACB" ,
+    "Hjerteop." ,
+    "Slag" ,
+    "AVR" ,
+    "BAV" ,
+    "Mitr.pl." ,
+    "MVR" ,
+    "Annet")
+
+TabRTidlSykdHosp <- round(
+    100 * TabNTidlSykdHosp / as.numeric( table( A$Sykehusnavn ) ) ,
+    digits = 1)
+
+barSHr(
+    TABn = TabNTidlSykdHosp ,
+    TABr = TabRTidlSykdHosp )
+
+@
+\end{frame}
+
+
+\end{tiny}
+\end{document}
+
+
+
+\section{XX}
+
+\begin{frame}[fragile]
+<<FigNRXXHosp,fig.cap="Prosentandel TAVI prosedyrer per XX etter sykehus (totalt antall over stolpene)",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+A$XX <- factor(A$XX)
+
+TabNXXHosp <- xtabs(
+    formula = ~  Sykehusnavn + XX ,
+    data = A )
+
+TabRXXHosp <- round(
+    100 * prop.table(
+              TabNXXHosp ,
+              margin = 1 ),
+    digits = 1)
+
+barSHr(TabNXXHosp)
+
+@
+\end{frame}
+

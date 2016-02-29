@@ -1,0 +1,224 @@
+
+R version 3.2.3 (2015-12-10) -- "Wooden Christmas-Tree"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> options(STERM='iESS', str.dendrogram.last="'", editor='emacsclient', show.error.locations=TRUE)
+> require(knitr)
+Loading required package: knitr
+> opts_chunk$set(warnings=FALSE,echo=FALSE)
+> options(stringsAsFactors=FALSE , width = "130")
+> 
+> knit2pdf("NORIC_local_monthly.Rnw")
+
+
+
+processing file: NORIC_local_monthly.Rnw
+  |..                                                               |   2%
+  ordinary text without R code
+
+  |...                                                              |   5%
+label: knitrOptions (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |.....                                                            |   7%
+  ordinary text without R code
+
+  |......                                                           |  10%
+label: SKDEcol (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |........                                                         |  12%
+  ordinary text without R code
+
+  |..........                                                       |  15%
+label: loadlibs (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |...........                                                      |  17%
+  ordinary text without R code
+
+  |.............                                                    |  20%
+label: DBconnect (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |..............                                                   |  22%
+  ordinary text without R code
+
+  |................                                                 |  24%
+label: SOPrepare (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |.................                                                |  27%
+  ordinary text without R code
+
+  |...................                                              |  29%
+label: APprepare (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |.....................                                            |  32%
+  ordinary text without R code
+
+  |......................                                           |  34%
+label: APdaterecodes (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |........................                                         |  37%
+  ordinary text without R code
+
+  |.........................                                        |  39%
+label: subsetting (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |...........................                                      |  41%
+   inline R code fragments
+
+  |.............................                                    |  44%
+label: FigNHendelsesType (with options) 
+List of 4
+ $ fig.cap   : chr "Antall prosedyrer etter hastegrad og måned"
+ $ fig.width : num 8
+ $ fig.height: num 4
+ $ out.width : chr "\\textwidth"
+
+  |..............................                                   |  46%
+  ordinary text without R code
+
+  |................................                                 |  49%
+label: TabNHendelsesType (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |.................................                                |  51%
+  ordinary text without R code
+
+  |...................................                              |  54%
+label: TabRHendelsesType (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |....................................                             |  56%
+  ordinary text without R code
+
+  |......................................                           |  59%
+label: FigNProsedyreType (with options) 
+List of 4
+ $ fig.cap   : chr "Antall prosedyrer etter type og måned"
+ $ fig.width : num 8
+ $ fig.height: num 4
+ $ out.width : chr "\\textwidth"
+
+  |........................................                         |  61%
+  ordinary text without R code
+
+  |.........................................                        |  63%
+label: TabNProsedyreType (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |...........................................                      |  66%
+  ordinary text without R code
+
+  |............................................                     |  68%
+label: TabRProsedyreType (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |..............................................                   |  71%
+  ordinary text without R code
+
+  |................................................                 |  73%
+label: FigNIndikasjon (with options) 
+List of 4
+ $ fig.cap   : chr "Antall prosedyrer etter indikasjon og måned"
+ $ fig.width : num 12
+ $ fig.height: num 6
+ $ out.width : chr "\\textwidth"
+
+  |.................................................                |  76%
+  ordinary text without R code
+
+  |...................................................              |  78%
+label: TabNIndikasjon (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |....................................................             |  80%
+  ordinary text without R code
+
+  |......................................................           |  83%
+label: TabRIndikasjon (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |.......................................................          |  85%
+  ordinary text without R code
+
+  |.........................................................        |  88%
+label: TabNTillegg (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |...........................................................      |  90%
+  ordinary text without R code
+
+  |............................................................     |  93%
+label: TabFFR (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |..............................................................   |  95%
+  ordinary text without R code
+
+  |...............................................................  |  98%
+label: SOtab1 (with options) 
+List of 1
+ $ results: chr "asis"
+
+  |.................................................................| 100%
+  ordinary text without R code
+
+
+output file: NORIC_local_monthly.tex
+
+[1] "NORIC_local_monthly.pdf"
+> 
+> str(SO)
+'data.frame':	10114 obs. of  14 variables:
+ $ ForlopsID     : num  3236 3237 3240 3241 3242 ...
+ $ SkjemaStatus  : num  1 1 1 1 1 1 1 1 1 1 ...
+ $ AvdRESH       : num  102966 102966 102966 102966 102966 ...
+ $ HovedDato     : chr  "2013-09-01" "2013-09-02" "2013-09-02" "2013-09-02" ...
+ $ OpprettetAv   : chr  "eeer" "epac" "calisl" "jhrs" ...
+ $ OpprettetDato : chr  "01.Sep.2013" "02.Sep.2013" "02.Sep.2013" "02.Sep.2013" ...
+ $ SistLagretAv  : chr  "marieh" "marieh" "marieh" "marieh" ...
+ $ SistLagretDato: chr  "11.Dec.2013" "16.Dec.2013" "16.Dec.2013" "17.Dec.2013" ...
+ $ Skjemanavn    : chr  "AngioPCI" "AngioPCI" "AngioPCI" "AngioPCI" ...
+ $ Sykehusnavn   : chr  "Haukeland" "Haukeland" "Haukeland" "Haukeland" ...
+ $ RegDate       : Date, format: "2013-09-01" "2013-09-02" "2013-09-02" "2013-09-02" ...
+ $ Year          : num  2013 2013 2013 2013 2013 ...
+ $ nMonth        : num  9 9 9 9 9 9 9 9 9 9 ...
+ $ Month         : Factor w/ 24 levels "13/09","13/10",..: 1 1 1 1 1 1 1 1 1 1 ...
+> 
