@@ -33,6 +33,8 @@ vignettes/*.pdf
 *.sav
 *.doc
 *.docx
+*.pdf
+
 
 # Rdata files
 *.Rdata
