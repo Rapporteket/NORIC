@@ -9,13 +9,38 @@
 \usepackage{rotating}
 
 
+  %  Tilbakemelding/forespørsel fra de ulike sykehusene angående månedsrapport/Rapporteket.
+
+
+  %  Ullevål:
+  %  Ønsker tall for FFR, OCT, Rotablator, Impella, Høyre kat, IVUS, ECMO, trombeaspirasjon.
+  %  Ønsker å få rapport tilsendt ukentlig (status for automatisk utsendelse?)
+  %  Ber om å få endret navn fra hjertemedisinsk sengepost til Seksjon for kardiologisk intervensjon, Ullevål (Siren har laget sak på dette).
+
+
+  %  Feiring:
+  %  Ønsker søk som viser strategivalg hos
+  %    1) trekarsyke med prox LAD/ve. hovedstamme
+  %    2) singel ve hovedstamme hos pasienter som IKKE tidligere er bypassoperert.
+
+
+  %  Sørlandet:
+  %  FFR
+  %  iFR,
+  %  IABP,
+  %  Temporær PM
+  %  Perikardiocentese.
+
+
 <<knitrOptions,include=FALSE>>=
 
 require(knitr)
 opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
 # knit2pdf("NORIC_local_monthly.Rnw")
+
 @ 
+
 
 <<SKDEcol,include=FALSE>>=
 colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
