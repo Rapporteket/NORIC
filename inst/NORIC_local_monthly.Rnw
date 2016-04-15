@@ -37,7 +37,7 @@
 require(knitr)
 opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
-# knit2pdf("NORIC_local_monthly.Rnw")
+# knitr::knit2pdf("NORIC_local_monthly.Rnw")
 
 @ 
 
