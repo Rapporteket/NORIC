@@ -63,14 +63,12 @@ if (!exists("con")) {
 
 <<GetData,include=FALSE>>=
 
+baseName <- "noricStaging"
+registryName <- NORICmakeRegistryName(baseName, reshID)
+dbType <- "mysql"
 
-SS <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM SegmentStent")
-
-AP <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "
+SSQuery <- "SELECT * FROM SegmentStent"
+APQuery <- "
 SELECT
    A.ForlopsID ,
    A.ProsedyreType ,
@@ -80,9 +78,11 @@ FROM
    AngioPCIVar A
    LEFT JOIN SegmentStent S on A.ForlopsID=S.ForlopsID and S.StentType <> ''
 WHERE A.ProsedyreType  != 'Angio'
-GROUP BY ForlopsID;"
-)
+GROUP BY ForlopsID;
+"
 
+SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
+AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
 
 
 AP$Nstents[ is.na(AP$Nstents) ] <- 0
