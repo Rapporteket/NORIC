@@ -205,7 +205,7 @@ AP$YearQuarter <- factor(
 
 
 <<PrintTitle,echo=FALSE,results='asis'>>=
-cat("\\title{NORIC" , unlist( conf ["disp"]) , "\\\\Stentbruk}\n\n")
+cat("\\title{NORIC" , reshID , "\\\\Stentbruk}\n\n")
 cat("\\date{" , date() , "}\n\n")
 @ 
 
