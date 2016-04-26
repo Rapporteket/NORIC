@@ -243,7 +243,7 @@ legend(
     \frametitle{Hastegrad}
     
 <<TabNHendelsesType,  results = 'asis'>>=
-print.xtable(
+xtable::print.xtable(
     x = xtable(
         x = addmargins(
             xtabs(
@@ -261,7 +261,7 @@ print.xtable(
     \frametitle{Hastegrad}
 
 <<TabRHendelsesType,  results = 'asis'>>=
-print.xtable(
+xtable::print.xtable(
     x = xtable(
         100 * prop.table(
             xtabs(
@@ -321,7 +321,7 @@ legend(
   \frametitle{Prosedyre type}
   
 <<TabNProsedyreType,  results = 'asis'>>=
-print.xtable(
+xtable::print.xtable(
     x = xtable(
         x = addmargins(
             xtabs(
@@ -338,7 +338,7 @@ print.xtable(
   \frametitle{Prosedyre type}
   
 <<TabRProsedyreType,  results = 'asis'>>=
-print.xtable(
+xtable::print.xtable(
     x = xtable(
         100 * prop.table(
             xtabs(
@@ -395,7 +395,7 @@ legend(
     \frametitle{Indikasjon}
 
 <<TabNIndikasjon,  results = 'asis'>>=
-print.xtable(
+xtable::print.xtable(
     x = xtable(
         x = addmargins(
             xtabs(
@@ -412,7 +412,7 @@ print.xtable(
     \frametitle{Indikasjon}
 
 <<TabRIndikasjon,  results = 'asis'>>=
-print.xtable(
+xtable::print.xtable(
     x = xtable(
         100 * prop.table(
             xtabs(
@@ -553,7 +553,7 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 \resizebox{\textwidth}{!}{
 <<PrintTableTillegg,results='asis'>>=
 
-latex(
+Hmisc::latex(
     object = TabTillegg ,
     booktabs = TRUE,
     table.env = FALSE ,
@@ -600,7 +600,7 @@ TABkompletthet <- cbind(
     rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-print.xtable(
+xtable::print.xtable(
     x = xtable(
         x = TABkompletthet ,
         caption = "Antall hoved registreringsskjemaer etter måned" ,
