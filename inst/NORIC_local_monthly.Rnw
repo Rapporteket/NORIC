@@ -29,8 +29,6 @@
 #require(knitr)
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
-# knitr::knit2pdf("NORIC_local_monthly.Rnw")
-
 @ 
 
 
@@ -41,14 +39,7 @@ colKontrast <- "#FF7260"
 @ 
 
 
-<<loadlibs,include=FALSE>>=
-#require( Hmisc )
-#require( xtable)
-#require( ggplot2 )
-@ 
-
 <<GetData,include=FALSE>>=
-
 baseName <- "noricStaging"
 registryName <- NORICmakeRegistryName(baseName, reshID)
 dbType <- "mysql"
@@ -58,7 +49,6 @@ APQuery <- "SELECT * FROM AngioPCIVar"
 
 SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
 AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-
 @
 
 
