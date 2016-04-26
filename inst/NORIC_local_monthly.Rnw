@@ -187,7 +187,7 @@ AP $ Month <- as.factor(
 
 
 
-\title[AngioPCI\\\Sexpr{conf$disp}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{conf$disp}}
+\title[AngioPCI\\\Sexpr{reshID}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{reshID}}
 \date{}
 
 
