@@ -26,7 +26,7 @@
 
 <<knitrOptions,include=FALSE>>=
 
-require(knitr)
+#require(knitr)
 opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
 # knitr::knit2pdf("NORIC_local_monthly.Rnw")
@@ -42,9 +42,9 @@ colKontrast <- "#FF7260"
 
 
 <<loadlibs,include=FALSE>>=
-require( Hmisc )
-require( xtable)
-require( ggplot2 )
+#require( Hmisc )
+#require( xtable)
+#require( ggplot2 )
 @ 
 
 
