@@ -64,11 +64,6 @@ AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
 
 
 <<SOPrepare,include=FALSE>>=
-
-SO <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM SkjemaOversikt")
-
 SO$RegDate <- as.Date(
     SO$HovedDato)
 
@@ -104,11 +99,6 @@ SO$Month <- as.factor(
 
 
 <<APprepare,include=FALSE>>=
-
-AP <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM AngioPCIVar")
-
 AP$FodselsDato <- as.Date( AP$FodselsDato)
 
 AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
