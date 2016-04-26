@@ -244,7 +244,7 @@ legend(
     
 <<TabNHendelsesType,  results = 'asis'>>=
 xtable::print.xtable(
-    x = xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + HendelsesType ,
@@ -262,7 +262,7 @@ xtable::print.xtable(
 
 <<TabRHendelsesType,  results = 'asis'>>=
 xtable::print.xtable(
-    x = xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + HendelsesType ,
@@ -322,7 +322,7 @@ legend(
   
 <<TabNProsedyreType,  results = 'asis'>>=
 xtable::print.xtable(
-    x = xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + ProsedyreType ,
@@ -339,7 +339,7 @@ xtable::print.xtable(
   
 <<TabRProsedyreType,  results = 'asis'>>=
 xtable::print.xtable(
-    x = xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + ProsedyreType ,
@@ -396,7 +396,7 @@ legend(
 
 <<TabNIndikasjon,  results = 'asis'>>=
 xtable::print.xtable(
-    x = xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + Indikasjon2 ,
@@ -413,7 +413,7 @@ xtable::print.xtable(
 
 <<TabRIndikasjon,  results = 'asis'>>=
 xtable::print.xtable(
-    x = xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + Indikasjon2 ,
@@ -601,7 +601,7 @@ TABkompletthet <- cbind(
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
 xtable::print.xtable(
-    x = xtable(
+    x = xtable::xtable(
         x = TABkompletthet ,
         caption = "Antall hoved registreringsskjemaer etter måned" ,
         digits = c(0,0,0,1)) ,
