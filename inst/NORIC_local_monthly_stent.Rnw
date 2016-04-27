@@ -46,6 +46,7 @@ SELECT
    A.ForlopsID ,
    A.ProsedyreType ,
    A.ProsedyreDato ,
+   A.Sykehusnavn ,
    SUM(S.ForlopsID>0) AS Nstents
 FROM
    AngioPCIVar A
