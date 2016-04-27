@@ -176,10 +176,12 @@ AP$YearQuarter <- factor(
 
 @ 
 
-
+<<getHospitalNameFromData, include=FALSE>>=
+hospitalName <- AP$Sykehusnavn[1]
+@
 
 <<PrintTitle,echo=FALSE,results='asis'>>=
-cat("\\title{NORIC" , reshID , "\\\\Stentbruk}\n\n")
+cat("\\title{NORIC" , hospitalName , "\\\\Stentbruk}\n\n")
 cat("\\date{" , date() , "}\n\n")
 @ 
 
