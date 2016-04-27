@@ -175,9 +175,11 @@ AP $ Month <- as.factor(
 
 @ 
 
+<<getHospitalNameFromData, include=FALSE>>=
+hospitalName <- AP$Sykehusnavn[1]
+@
 
-
-\title[AngioPCI\\\Sexpr{reshID}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{reshID}}
+\title[AngioPCI\\\Sexpr{hospitalName}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{hospitalName}}
 \date{}
 
 
