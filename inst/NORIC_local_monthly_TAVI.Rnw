@@ -42,36 +42,8 @@ SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
 AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
 @
 
-<<DBconnect,include=FALSE>>=
-# Feiring: 106944
-
-if (!exists("reshID")) {reshID <- "102966"} # for local testing
-if (!exists("con")) {
-    conf <- yaml::yaml.load_file(
-        input = "../dbConfig.yml" )[[
-            paste(
-                "noricStaging" ,
-                reshID ,
-                sep = "")
-            ]]
-    con <- DBI::dbConnect(
-        drv = RMySQL::MySQL() ,
-        dbname = unlist( conf["name"] ) ,
-        host = unlist( conf["host"]) ,
-        user = unlist( conf["user"]) ,
-        password = unlist( conf["pass"])
-        )
-    options( stringsAsFactors = FALSE )
-    DBI::dbGetQuery( con , "SET NAMES utf8;" )}
-
-@ 
-
 
 <<SOPrepare,include=FALSE>>=
-
-SO <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM SkjemaOversikt")
 
 SO$RegDate <- as.Date(
     SO$HovedDato)
@@ -108,10 +80,6 @@ SO$Month <- as.factor(
 
 
 <<APprepare,include=FALSE>>=
-
-AP <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM AngioPCIVar")
 
 AP$FodselsDato <- as.Date( AP$FodselsDato)
 
