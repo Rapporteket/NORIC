@@ -30,6 +30,17 @@ require( xtable)
 require( ggplot2 )
 @ 
 
+<<GetData,include=FALSE>>=
+baseName <- "noricStaging"
+registryName <- NORICmakeRegistryName(baseName, reshID)
+dbType <- "mysql"
+
+SOQuery <- "SELECT * FROM SkjemaOversikt"
+APQuery <- "SELECT * FROM AngioPCIVar"
+
+SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
+AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+@
 
 <<DBconnect,include=FALSE>>=
 # Feiring: 106944
