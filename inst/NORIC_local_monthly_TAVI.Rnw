@@ -12,8 +12,8 @@
 <<knitrOptions,include=FALSE>>=
 
 require(knitr)
-opts_chunk$set(warnings=FALSE,echo=FALSE)
-options(stringsAsFactors=FALSE , width = "130")
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::options(stringsAsFactors=FALSE , width = "130")
 # knit2pdf("NORIC_local_monthly_TAVI.Rnw")
 @ 
 
@@ -23,12 +23,6 @@ colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
 @ 
 
-
-<<loadlibs,include=FALSE>>=
-require( Hmisc )
-require( xtable)
-require( ggplot2 )
-@ 
 
 <<GetData,include=FALSE>>=
 baseName <- "noricStaging"
@@ -223,8 +217,8 @@ legend(
 
 \begin{frame}[fragile]
 <<TabNHendelsesType,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + HendelsesType ,
@@ -238,8 +232,8 @@ print.xtable(
 
 \begin{frame}[fragile]
 <<TabRHendelsesType,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + HendelsesType ,
@@ -294,8 +288,8 @@ legend(
 
 \begin{frame}[fragile]
 <<TabNProsedyreType,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + ProsedyreType ,
@@ -309,8 +303,8 @@ print.xtable(
 
 \begin{frame}[fragile]
 <<TabRProsedyreType,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + ProsedyreType ,
@@ -362,8 +356,8 @@ legend(
 
 \begin{frame}[fragile]
 <<TabNIndikasjon,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + Indikasjon2 ,
@@ -377,8 +371,8 @@ print.xtable(
 
 \begin{frame}[fragile]
 <<TabRIndikasjon,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + Indikasjon2 ,
@@ -507,7 +501,7 @@ attr(TabTillegg , "dimnames")[[1]] <- levels( AP $ Month )
 attr(TabTillegg , "dimnames")[[2]] <- c("FFR","IVUS","OCT")
 
 print(
-    xtable(
+    xtable::xtable(
         x = TabTillegg ,
         align = c("r","r","r","r") ,
         caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned") ,
@@ -531,7 +525,7 @@ attr(TabFFR , "dimnames")[[1]] <- levels( AP $ Month )
 attr(TabFFR , "dimnames")[[2]] <- c("Antall FFR" , "Prosentandel FFR")
 
 print(
-    xtable(
+    xtable::xtable(
         x = TabFFR ,
         digits = c(0,0,1) ,
         align = c("r","r","r") ,
@@ -570,8 +564,8 @@ TABkompletthet <- cbind(
     rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         x = TABkompletthet ,
         caption = "Antall hoved registreringsskjemaer etter måned" ,
         digits = c(0,0,0,1)) ,
