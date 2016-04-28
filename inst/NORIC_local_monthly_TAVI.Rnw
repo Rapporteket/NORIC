@@ -10,7 +10,6 @@
 
 
 <<knitrOptions,include=FALSE>>=
-
 require(knitr)
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
