@@ -1,3 +1,5 @@
+
+
 \documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
 \usetheme{Hannover}
 
@@ -9,39 +11,34 @@
 \usepackage{rotating}
 
 
-  %  Tilbakemelding/forespørsel fra de ulike sykehusene angående månedsrapport/Rapporteket.
-
-  %  Ullevål:
-  %  Ønsker tall for FFR, OCT, Rotablator, Impella, Høyre kat, IVUS, ECMO, trombeaspirasjon.
-
-  %  Sørlandet:
-  %  FFR
-  %  iFR,
-  %  IABP,
-  %  Temporær PM
-  %  Perikardiocentese.
-
-
-
-
 <<knitrOptions,include=FALSE>>=
 
-#require(knitr)
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
+
 @ 
 
 
 <<SKDEcol,include=FALSE>>=
+
 colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
+
 @ 
 
 
 <<GetData,include=FALSE>>=
-baseName <- "noricStaging"
-registryName <- NORICmakeRegistryName(baseName, reshID)
+
+# assuming that if reshID does *not*exist
+#  it is a testrun on localhost
+if ( !exists( "reshID" ) ) {
+    registryName <- "rapbase"
+} else {
+    baseName <- "noricStaging"
+    registryName <- noric::NORICmakeRegistryName(baseName, reshID)
+}
+
 dbType <- "mysql"
 
 SOQuery <- "SELECT * FROM SkjemaOversikt"
@@ -49,11 +46,13 @@ APQuery <- "SELECT * FROM AngioPCIVar"
 
 SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
 AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+
 @
 
 
 
 <<SOPrepare,include=FALSE>>=
+
 SO$RegDate <- as.Date(
     SO$HovedDato)
 
@@ -89,6 +88,7 @@ SO$Month <- as.factor(
 
 
 <<APprepare,include=FALSE>>=
+
 AP$FodselsDato <- as.Date( AP$FodselsDato)
 
 AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
@@ -470,16 +470,17 @@ PrintTabTilleggCol <- function(VAR){
 
 TilleggVars <- c(
     "FFR",
+    "Doppler",
     "IVUS",
     "OCT",
     "IFR",
+    "NIRS",
+    "HoyreHjerteKat",
+    "Perikardiocentese",
     "Pacemaker",
     "Aortaballongpumpe",
-    "Doppler" ,
     "Impella",
-    "HoyreHjerteKat",
     "Trombectomy",
-    "Perikardiocentese",
     "ECMO",
     "AnnenDiag")
 
@@ -497,16 +498,17 @@ AP$IngenTillegg[IndexMinEnTillegg] <- "Nei"
 
 TabTillegg <- cbind(
     PrintTabTilleggCol("FFR") ,
+    PrintTabTilleggCol("Doppler" ) ,
     PrintTabTilleggCol("IVUS") ,
     PrintTabTilleggCol("OCT") ,
     PrintTabTilleggCol("IFR") ,
+    PrintTabTilleggCol("NIRS") ,
+    PrintTabTilleggCol("HoyreHjerteKat") ,
+    PrintTabTilleggCol("Perikardiocentese") ,
     PrintTabTilleggCol("Pacemaker") ,
     PrintTabTilleggCol("Aortaballongpumpe") ,
-    PrintTabTilleggCol("Doppler" ) ,
     PrintTabTilleggCol("Impella") ,
-    PrintTabTilleggCol("HoyreHjerteKat") ,
     PrintTabTilleggCol("Trombectomy") ,
-    PrintTabTilleggCol("Perikardiocentese") ,
     PrintTabTilleggCol("ECMO") ,
     PrintTabTilleggCol("AnnenDiag") ,
     PrintTabTilleggCol("IngenTillegg")
@@ -514,16 +516,17 @@ TabTillegg <- cbind(
 
 TilleggLabels <- c(
     "FFR",
+    "Doppler" ,
     "IVUS",
     "OCT",
     "IFR",
+    "NIRS",
+    "Høyre kat.",
+    "Perikardiocentese",
     "PM",
     "IABP",
-    "Doppler" ,
     "Impella",
-    "Høyre kat.",
     "Trombectomy",
-    "Perikardiocentese",
     "ECMO",
     "Annen",
     "Ingen")
@@ -536,17 +539,72 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 @ 
 
 
+
 \begin{frame}[fragile]
-  \frametitle{Annen diagnostikk ved angiografi/PCI}
+  \frametitle{Annen diagnostikk ved angiografi}
 
 \begin{table}[!tbp]
 \caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
 \centering
-\resizebox{\textwidth}{!}{
-<<PrintTableTillegg,results='asis'>>=
+
+<<PrintTableTillegg1,results='asis'>>=
 
 Hmisc::latex(
-    object = TabTillegg ,
+    object = TabTillegg[,1:6] ,
+    booktabs = TRUE,
+    table.env = FALSE ,
+    col.just = rep("r",length(colnames(TabTillegg))) ,
+    center = "none" ,
+    title = "",
+    file = "")
+
+@
+
+\end{table}
+\end{frame}
+  
+  
+
+
+\begin{frame}[fragile]
+  \frametitle{Tilleggsprosedyrer}
+
+\begin{table}[!tbp]
+\caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
+\centering
+
+<<PrintTableTillegg2,results='asis'>>=
+
+Hmisc::latex(
+    object = TabTillegg[,7:8] ,
+    booktabs = TRUE,
+    table.env = FALSE ,
+    col.just = rep("r",length(colnames(TabTillegg))) ,
+    center = "none" ,
+    title = "",
+    file = "")
+
+@
+
+\end{table}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Adjuvant terapi}
+
+\begin{table}[!tbp]
+\caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
+\centering
+
+\resizebox{\textwidth}{!}{
+
+<<PrintTableTillegg3,results='asis'>>=
+
+Hmisc::latex(
+    object = TabTillegg[,9:15] ,
     booktabs = TRUE,
     table.env = FALSE ,
     col.just = rep("r",length(colnames(TabTillegg))) ,
@@ -557,10 +615,7 @@ Hmisc::latex(
 @
 }
 \end{table}
-
 \end{frame}
-  
-  
 
 
 
