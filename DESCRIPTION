@@ -1,6 +1,6 @@
 Package: noric
 Title: Provide R resources for NORIC at Rapporteket
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: c(
   person("Seifert", "Reinhard", email = "reinhard.seifert@currerius.com",
   role = c("cre", "aut")),
