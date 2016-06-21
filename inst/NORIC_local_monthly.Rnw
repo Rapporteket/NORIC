@@ -16,6 +16,14 @@
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
 
+## START to be deleted
+# In future, rapbase will take care of the following:
+# make sure processing takes place "here" (sessions getwd())
+knitr::opts_knit$set(root.dir='./')
+# make sure we do not make figure folder
+knitr::opts_chunk$set(fig.path='')
+## END to be deleted
+
 @ 
 
 
