@@ -12,14 +12,21 @@
 \usepackage{rotating}
 
 
+<<knitrOptions,include=FALSE>>=
 
-<<loadlibs,include=FALSE>>=
-# knitr::knit2pdf("NORIC_local_monthly_stent.Rnw")
-require(xtable)          # LaTeX tables
-require(car)             # recoding variables
-require(RColorBrewer)    # intellingent colour palettes
-require( ggplot2 )
-@ 
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+options(stringsAsFactors=FALSE , width = "130")
+
+## START to be deleted
+# In future, rapbase will take care of the following:
+# make sure processing takes place "here" (sessions getwd())
+knitr::opts_knit$set(root.dir='./')
+# make sure we do not make figure folder
+knitr::opts_chunk$set(fig.path='')
+## END to be deleted
+
+@
+
 
 
 <<SKDEcol,include=FALSE>>=
@@ -41,55 +48,29 @@ brew <- function(
 @ 
 
 
-
-<<DBconnect,include=FALSE>>=
-
-if (!exists("reshID")) {reshID <- "102966"} # for local testing
-if (!exists("con")) {
-    conf <- yaml::yaml.load_file(
-        input = "../dbConfig.yml" )[[
-            paste(
-                "noricStaging" ,
-                reshID ,
-                sep = "")
-            ]]
-    con <- DBI::dbConnect(
-        drv = RMySQL::MySQL() ,
-        dbname = unlist( conf["name"] ) ,
-        host = unlist( conf["host"]) ,
-        user = unlist( conf["user"]) ,
-        password = unlist( conf["pass"])
-        )
-    options( stringsAsFactors = FALSE )
-    DBI::dbSendQuery( con , "SET NAMES utf8;" )}
-
-@ 
-
-
-
-
 <<GetData,include=FALSE>>=
 
+baseName <- "noricStaging"
+registryName <- NORICmakeRegistryName(baseName, reshID)
+dbType <- "mysql"
 
-SS <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM SegmentStent")
-
-AP <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "
+SSQuery <- "SELECT * FROM SegmentStent"
+APQuery <- "
 SELECT
    A.ForlopsID ,
    A.ProsedyreType ,
    A.ProsedyreDato ,
+   A.Sykehusnavn ,
    SUM(S.ForlopsID>0) AS Nstents
 FROM
    AngioPCIVar A
    LEFT JOIN SegmentStent S on A.ForlopsID=S.ForlopsID and S.StentType <> ''
 WHERE A.ProsedyreType  != 'Angio'
-GROUP BY ForlopsID;"
-)
+GROUP BY ForlopsID;
+"
 
+SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
+AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
 
 
 AP$Nstents[ is.na(AP$Nstents) ] <- 0
@@ -209,10 +190,12 @@ AP$YearQuarter <- factor(
 
 @ 
 
-
+<<getHospitalNameFromData, include=FALSE>>=
+hospitalName <- AP$Sykehusnavn[1]
+@
 
 <<PrintTitle,echo=FALSE,results='asis'>>=
-cat("\\title{NORIC" , unlist( conf ["disp"]) , "\\\\Stentbruk}\n\n")
+cat("\\title{NORIC" , hospitalName , "\\\\Stentbruk}\n\n")
 cat("\\date{" , date() , "}\n\n")
 @ 
 

@@ -10,11 +10,18 @@
 
 
 <<knitrOptions,include=FALSE>>=
-
-require(knitr)
-opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
 # knit2pdf("NORIC_local_monthly_TAVI.Rnw")
+
+## START to be deleted
+# In future, rapbase will take care of the following:
+# make sure processing takes place "here" (sessions getwd())
+knitr::opts_knit$set(root.dir='./')
+# make sure we do not make figure folder
+knitr::opts_chunk$set(fig.path='')
+## END to be deleted
+
 @ 
 
 <<SKDEcol,include=FALSE>>=
@@ -24,43 +31,20 @@ colKontrast <- "#FF7260"
 @ 
 
 
-<<loadlibs,include=FALSE>>=
-require( Hmisc )
-require( xtable)
-require( ggplot2 )
-@ 
+<<GetData,include=FALSE>>=
+baseName <- "noricStaging"
+registryName <- NORICmakeRegistryName(baseName, reshID)
+dbType <- "mysql"
 
+SOQuery <- "SELECT * FROM SkjemaOversikt"
+APQuery <- "SELECT * FROM AngioPCIVar"
 
-<<DBconnect,include=FALSE>>=
-# Feiring: 106944
-
-if (!exists("reshID")) {reshID <- "102966"} # for local testing
-if (!exists("con")) {
-    conf <- yaml::yaml.load_file(
-        input = "../dbConfig.yml" )[[
-            paste(
-                "noricStaging" ,
-                reshID ,
-                sep = "")
-            ]]
-    con <- DBI::dbConnect(
-        drv = RMySQL::MySQL() ,
-        dbname = unlist( conf["name"] ) ,
-        host = unlist( conf["host"]) ,
-        user = unlist( conf["user"]) ,
-        password = unlist( conf["pass"])
-        )
-    options( stringsAsFactors = FALSE )
-    DBI::dbGetQuery( con , "SET NAMES utf8;" )}
-
-@ 
+SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
+AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+@
 
 
 <<SOPrepare,include=FALSE>>=
-
-SO <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM SkjemaOversikt")
 
 SO$RegDate <- as.Date(
     SO$HovedDato)
@@ -97,10 +81,6 @@ SO$Month <- as.factor(
 
 
 <<APprepare,include=FALSE>>=
-
-AP <- DBI::dbGetQuery(
-    conn = con , 
-    statement = "SELECT * FROM AngioPCIVar")
 
 AP$FodselsDato <- as.Date( AP$FodselsDato)
 
@@ -188,9 +168,11 @@ AP $ Month <- as.factor(
 
 @ 
 
+<<getHospitalNameFromData, include=FALSE>>=
+hospitalName <- AP$Sykehusnavn[1]
+@
 
-
-\title[AngioPCI\\\Sexpr{conf$disp}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{conf$disp}}
+\title[AngioPCI\\\Sexpr{hospitalName}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{hospitalName}}
 \date{}
 
 
@@ -242,8 +224,8 @@ legend(
 
 \begin{frame}[fragile]
 <<TabNHendelsesType,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + HendelsesType ,
@@ -257,8 +239,8 @@ print.xtable(
 
 \begin{frame}[fragile]
 <<TabRHendelsesType,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + HendelsesType ,
@@ -313,8 +295,8 @@ legend(
 
 \begin{frame}[fragile]
 <<TabNProsedyreType,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + ProsedyreType ,
@@ -328,8 +310,8 @@ print.xtable(
 
 \begin{frame}[fragile]
 <<TabRProsedyreType,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + ProsedyreType ,
@@ -381,8 +363,8 @@ legend(
 
 \begin{frame}[fragile]
 <<TabNIndikasjon,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         x = addmargins(
             xtabs(
                 formula = ~ Month + Indikasjon2 ,
@@ -396,8 +378,8 @@ print.xtable(
 
 \begin{frame}[fragile]
 <<TabRIndikasjon,  results = 'asis'>>=
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         100 * prop.table(
             xtabs(
                 formula = ~ Month + Indikasjon2 ,
@@ -526,7 +508,7 @@ attr(TabTillegg , "dimnames")[[1]] <- levels( AP $ Month )
 attr(TabTillegg , "dimnames")[[2]] <- c("FFR","IVUS","OCT")
 
 print(
-    xtable(
+    xtable::xtable(
         x = TabTillegg ,
         align = c("r","r","r","r") ,
         caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned") ,
@@ -550,7 +532,7 @@ attr(TabFFR , "dimnames")[[1]] <- levels( AP $ Month )
 attr(TabFFR , "dimnames")[[2]] <- c("Antall FFR" , "Prosentandel FFR")
 
 print(
-    xtable(
+    xtable::xtable(
         x = TabFFR ,
         digits = c(0,0,1) ,
         align = c("r","r","r") ,
@@ -589,8 +571,8 @@ TABkompletthet <- cbind(
     rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-print.xtable(
-    x = xtable(
+xtable::print.xtable(
+    x = xtable::xtable(
         x = TABkompletthet ,
         caption = "Antall hoved registreringsskjemaer etter måned" ,
         digits = c(0,0,0,1)) ,
