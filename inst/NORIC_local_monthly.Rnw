@@ -40,20 +40,18 @@ colKontrast <- "#FF7260"
 
 # assuming that if reshID does *not*exist
 #  it is a testrun on localhost
-if ( !exists( "reshID" ) ) {
-    registryName <- "rapbase"
-} else {
+if ( exists( "reshID" ) ) {
     baseName <- "noricStaging"
     registryName <- noric::NORICmakeRegistryName(baseName, reshID)
+    dbType <- "mysql"
+    SOQuery <- "SELECT * FROM SkjemaOversikt"
+    APQuery <- "SELECT * FROM AngioPCIVar"
+    SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
+    AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+} else {
+    load("noric_staging.Rd")
 }
 
-dbType <- "mysql"
-
-SOQuery <- "SELECT * FROM SkjemaOversikt"
-APQuery <- "SELECT * FROM AngioPCIVar"
-
-SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
-AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
 
 @
 
@@ -627,10 +625,16 @@ Hmisc::latex(
 
 
 
+\section{Andre Prosedyrer}
+
+
+
+
+
 \section{Kompletthet}
 
-
 \begin{frame}[fragile]
+  \frametitle{Kompletthet angio/PCI skjemaer}
   
 <<SOtab1,results='asis'>>=
 
@@ -664,6 +668,47 @@ xtable::print.xtable(
 
 @   
 \end{frame}
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Kompletthet utskrivelses skjemaer}
+  
+<<SOtab2,results='asis'>>=
+
+nSOU <- with(
+    SO[ which( SO$Skjemanavn == "Utskrivelse" ) , ] ,
+    table(
+        Month ,
+        factor(
+            SkjemaStatus,
+            levels=c(0,-1,1) ,
+            labels = c("Tomt","Begynt","Ferdigstilt"))))
+
+rSOU <- round(
+    100 * prop.table(
+              nSOU ,
+              margin = 1 ) ,
+    digits = 1 )
+
+TABkompletthet <- cbind(
+    rowSums(nSOU) ,
+    nSOU[ , which( colnames(nSOU)=="Ferdigstilt" ) ] ,
+    rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
+colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
+
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = TABkompletthet ,
+        caption = "Antall utskrivelsesskjemaer etter måned" ,
+        digits = c(0,0,0,1)) ,
+    booktabs = TRUE )
+
+@   
+\end{frame}
+
+
+
 
 
 \end{tiny}
