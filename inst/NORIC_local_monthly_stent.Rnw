@@ -388,6 +388,47 @@ print(
 @
 \end{frame}
 
+
+
+
+\begin{frame}[fragile]
+<<NstentNameMonth,echo=FALSE,results='asis'>>=
+print(
+    xtable::xtable(
+        addmargins(
+            xtabs(
+                formula = ~ Stentnavn2 +YearMonth ,
+                data = SS )) ,
+        digits = 0 , caption = "Antall stenter etter merke og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = TRUE,
+    scalebox = 0.95)
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<RstentNameMonth,echo=FALSE,results='asis'>>=
+
+print(
+    xtable::xtable(
+        100 * prop.table(
+            addmargins(
+                xtabs(
+                    formula = ~ Stentnavn2 + YearMonth ,
+                    data = SS ) ,
+                margin = 2 ) ,
+            margin = 2) ,
+        digits = 1 , caption = "Prosentandel stent etter merke og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = TRUE,
+    scalebox = 0.95)
+
+@
+\end{frame}
+
+
 \end{tiny}
 \end{document}
 
