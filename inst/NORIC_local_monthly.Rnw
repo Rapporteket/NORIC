@@ -49,9 +49,57 @@ if ( exists( "reshID" ) ) {
     SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
     AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
 } else {
-    load("noric_staging.Rd")
+    if( !exists( "AP" ) ) load("noric_staging.Rd")
 }
 
+
+@
+
+
+
+<<AnPPrepare,include=FALSE>>=
+AnP$Year <- as.numeric(
+    format(
+        x = AnP $ ProsedyreDato ,
+        format = "%Y"))
+
+AnP$nMonth <- as.numeric(
+    as.factor(
+        format(
+            AnP$ProsedyreDato ,
+            format = "%y/%m")))
+
+AnP $ Day <- as.numeric(
+    AnP $ ProsedyreDato - min( AnP $ ProsedyreDato , na.rm = TRUE ) )
+
+AnP <- subset(
+    x = AnP ,
+    subset = nMonth >= max( nMonth , na.rm = TRUE ) - 24 )
+
+AnP $ Month <- as.factor(
+    format(
+        x = AnP $ ProsedyreDato ,
+        format = "%y/%m"))
+
+AnP$AnnenProsType <- factor(
+    x = AnP$AnnenProsType ,
+    levels = c(
+        "Høyre hjertekateterisering" ,
+        "Temporær pacemaker" ,
+        "Perikardiocentese" ,
+        "Ventilfilming" ,
+        "Lukking av ASD/PFO" ,
+        "Lukking av venstre aurikkel" ,
+        "Impella") ,
+    labels = c(
+        "Høyre kat." ,
+        "Temp. pm" ,
+        "Perikardiocentese" ,
+        "Ventilfilming" ,
+        "Lukking ASD/PFO" ,
+        "Lukking v. aurikkel" ,
+        "Impella")
+    )
 
 @
 
@@ -135,7 +183,7 @@ AP $ Indikasjon2 <- factor(
 
 
 
-<<APdaterecodes,include=FALSE>>=
+<<Daterecodes,include=FALSE>>=
 
 AP$Year <- as.numeric(
     format(
@@ -348,6 +396,46 @@ xtable::print.xtable(
     booktabs = TRUE )
 @   
 \end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Andre prosedyrer}
+  
+<<TabNAndreProsedyrer,  results = 'asis'>>=
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Month + AnnenProsType ,
+                data = AnP)) ,
+        caption = "Antall prosedyrer etter prosedyretype og måned" ,
+        digits = 0) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Andre prosedyrer}
+  
+<<TabRAndreProsedyrer,  results = 'asis'>>=
+xtable::print.xtable(
+    x = xtable::xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Month + AnnenProsType ,
+                data = AnP) ,
+            margin = 1) ,
+        caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
+        digits = 1) ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
 
 
 
@@ -622,12 +710,6 @@ Hmisc::latex(
 }
 \end{table}
 \end{frame}
-
-
-
-\section{Andre Prosedyrer}
-
-
 
 
 
