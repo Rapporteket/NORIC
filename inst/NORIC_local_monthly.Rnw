@@ -46,8 +46,10 @@ if ( exists( "reshID" ) ) {
     dbType <- "mysql"
     SOQuery <- "SELECT * FROM SkjemaOversikt"
     APQuery <- "SELECT * FROM AngioPCIVar"
+    AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
     SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
     AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+    AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
 } else {
     if( !exists( "AP" ) ) load("noric_staging.Rd")
 }
