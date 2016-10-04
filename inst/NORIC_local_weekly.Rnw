@@ -173,7 +173,6 @@ NSTEMI $ Month <- as.factor(
         x = NSTEMI $ ProsedyreDato ,
         format = "%y/%m"))
 
-
 AP <- subset(
     x = AP ,
     subset = nMonth >= max( nMonth , na.rm = TRUE ) - 24 )

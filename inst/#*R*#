@@ -1,0 +1,402 @@
+WARNING: unknown option '--no-print'
+
+
+R version 3.2.3 (2015-12-10) -- "Wooden Christmas-Tree"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> options(STERM='iESS', str.dendrogram.last="'", editor='emacsclient', show.error.locations=TRUE)
+> load("../data/noric_staging.Rd")
+> ls()
+[1] "AnP"  "AP"   "con"  "dblt" "dbq"  "dbsa" "FO"   "SO"   "SS"  
+> table(AP$Sykehusnavn)
+
+       Feiring      Haukeland Rikshospitalet      Sørlandet       St.Olavs            SUS        Ullevål            UNN 
+          4557           9798           5743           5481           7371           4278           9203           8560 
+> AP <- subset( AP , Sykehusnavn = "Ullevål" )
+> #    SS <- subset( AP , Sykehusnavn = "Ullevål" )
+> #    SO <- subset( AP , Sykehusnavn = "Ullevål" )
+> SS <- subset( AP , Sykehusnavn = "Ullevål" )
+> SO <- subset( AP , Sykehusnavn = "Ullevål" )
+> ls()
+[1] "AnP"  "AP"   "con"  "dblt" "dbq"  "dbsa" "FO"   "SO"   "SS"  
+> load("../data/noric_staging.Rd")
+>     AP <- subset( AP , Sykehusnavn = "Ullevål" )
+>     SS <- subset( SS , Sykehusnavn = "Ullevål" )
+>     SO <- subset( SO , Sykehusnavn = "Ullevål" )
+>     FO <- subset( FO , Sykehusnavn = "Ullevål" )
+>     AnP <- subset( AnP , Sykehusnavn = "Ullevål" )
+> table(FO$Sykehusnavn)
+
+Haukeland 
+       67 
+> table(SO$Sykehusnavn)
+
+Akershus universitetssykehus HF                         Feiring                       Haukeland                  Rikshospitalet 
+                            902                            6890                           18849                            8695 
+                   S\xf8rlandet                        St. Olav                             SUS                      Ullev\xe5l 
+                           6974                            9419                            5324                           11497 
+                            UNN 
+                          10514 
+> table(AP$Sykehusnavn)
+
+       Feiring      Haukeland Rikshospitalet      Sørlandet       St.Olavs            SUS        Ullevål            UNN 
+          4557           9798           5743           5481           7371           4278           9203           8560 
+> 
+> load("../data/noric_staging.Rd")
+>     AP <- subset( AP , Sykehusnavn = "Ullevål" )
+> table(SO$Sykehusnavn)
+
+          Ahus        Feiring      Haukeland Rikshospitalet      Sørlandet       St.Olavs            SUS        Ullevål            UNN 
+          3359          27335          51577          33465          26112          36603          20718          43529          39402 
+> SO <- subset( SO , Sykehusnavn = "Ullevål" )
+> table(SO$Sykehusnavn)
+
+          Ahus        Feiring      Haukeland Rikshospitalet      Sørlandet       St.Olavs            SUS        Ullevål            UNN 
+          3359          27335          51577          33465          26112          36603          20718          43529          39402 
+> SO <- subset( SO , Sykehusnavn = "Ullevål" )
+> unique(SO$Sykehusnavn)
+
+          Ahus        Feiring      Haukeland Rikshospitalet      Sørlandet       St.Olavs            SUS        Ullevål            UNN 
+          3359          27335          51577          33465          26112          36603          20718          43529          39402 
+> unique(SO$Sykehusnavn)
+[1] "Ullevål"        "UNN"            "Haukeland"      "St.Olavs"       "Feiring"        "SUS"            "Rikshospitalet" "Sørlandet"     
+[9] "Ahus"          
+> str(subset(SO , Sykehusnavn="Ullevål"))
+'data.frame':	282100 obs. of  11 variables:
+ $ ForlopsID     : num  9400 1 1 1 1 1 2 2 2 2 ...
+ $ SkjemaRekkeflg: int  50 3 3 3 3 3 3 3 3 3 ...
+ $ SkjemaStatus  : int  1 0 1 0 1 0 0 1 1 1 ...
+ $ AvdRESH       : int  109880 101619 102966 104284 106944 109880 101619 102966 106944 109880 ...
+ $ HovedDato     : Date, format: "2014-07-17" "2013-05-02" "2013-01-24" "2013-11-20" ...
+ $ OpprettetAv   : chr  "lismjo" "akr1809unn" "srot" "kabona" ...
+ $ OpprettetDato : Date, format: "2015-12-17" "2013-05-02" "2013-01-24" "2013-11-20" ...
+ $ SistLagretAv  : chr  "lismjo" "akr1809unn" "marieh" "kabona" ...
+ $ SistLagretDato: Date, format: "2015-12-17" "2013-05-03" "2013-10-07" "2013-12-22" ...
+ $ Skjemanavn    : chr  "Andre pros" "AngioPCI" "AngioPCI" "AngioPCI" ...
+ $ Sykehusnavn   : chr  "Ullevål" "UNN" "Haukeland" "St.Olavs" ...
+> str(SO)
+'data.frame':	282100 obs. of  11 variables:
+ $ ForlopsID     : num  9400 1 1 1 1 1 2 2 2 2 ...
+ $ SkjemaRekkeflg: int  50 3 3 3 3 3 3 3 3 3 ...
+ $ SkjemaStatus  : int  1 0 1 0 1 0 0 1 1 1 ...
+ $ AvdRESH       : int  109880 101619 102966 104284 106944 109880 101619 102966 106944 109880 ...
+ $ HovedDato     : Date, format: "2014-07-17" "2013-05-02" "2013-01-24" "2013-11-20" ...
+ $ OpprettetAv   : chr  "lismjo" "akr1809unn" "srot" "kabona" ...
+ $ OpprettetDato : Date, format: "2015-12-17" "2013-05-02" "2013-01-24" "2013-11-20" ...
+ $ SistLagretAv  : chr  "lismjo" "akr1809unn" "marieh" "kabona" ...
+ $ SistLagretDato: Date, format: "2015-12-17" "2013-05-03" "2013-10-07" "2013-12-22" ...
+ $ Skjemanavn    : chr  "Andre pros" "AngioPCI" "AngioPCI" "AngioPCI" ...
+ $ Sykehusnavn   : chr  "Ullevål" "UNN" "Haukeland" "St.Olavs" ...
+> AP <- subset( AP , Sykehusnavn == "Ullevål" )
+>     SO <- subset( SO , Sykehusnavn == "Ullevål" )
+> str(SO)
+'data.frame':	43529 obs. of  11 variables:
+ $ ForlopsID     : num  9400 1 2 4 5 6 7 8 9 10 ...
+ $ SkjemaRekkeflg: int  50 3 3 3 3 3 3 3 3 3 ...
+ $ SkjemaStatus  : int  1 0 1 0 0 1 0 1 1 1 ...
+ $ AvdRESH       : int  109880 109880 109880 109880 109880 109880 109880 109880 109880 109880 ...
+ $ HovedDato     : Date, format: "2014-07-17" "2013-11-26" "2013-11-26" "2013-12-03" ...
+ $ OpprettetAv   : chr  "lismjo" "anderop" "uxsaml" "uxeifo" ...
+ $ OpprettetDato : Date, format: "2015-12-17" "2013-11-26" "2013-11-26" "2013-12-03" ...
+ $ SistLagretAv  : chr  "lismjo" "anderop" "uxsaml" "uxeifo" ...
+ $ SistLagretDato: Date, format: "2015-12-17" "2013-11-26" "2015-05-19" "2013-12-03" ...
+ $ Skjemanavn    : chr  "Andre pros" "AngioPCI" "AngioPCI" "AngioPCI" ...
+ $ Sykehusnavn   : chr  "Ullevål" "Ullevål" "Ullevål" "Ullevål" ...
+> SO$RegDate <- as.Date(
++     SO$HovedDato)
+> 
+> SO$Year <- as.numeric(
++     format(
++         x = SO$RegDate ,
++         format = "%Y"))
+> 
+> SO$nMonth <- as.numeric(
++     as.factor(
++         format(
++             x = SO$RegDate ,
++             format = "%y/%m")))
+> 
+> SO <- subset(
++     x = SO ,
++     subset =
++         (nMonth > max( nMonth , na.rm = TRUE ) - 24) &
++         (RegDate < Sys.Date()))    
+> 
+> 
+>   # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
+> if ( SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ]
+> 
+> SO$Month <- as.factor(
++     format(
++         SO$RegDate ,
++         format = "%y/%m"))
+> AP$FodselsDato <- as.Date( AP$FodselsDato)
+> 
+> AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
+> 
+> AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato)
+> 
+> AP$ProsedyreDato <- as.Date( AP$ProsedyreDato)
+> 
+> AP$Sykehusnavn <- factor( AP$Sykehusnavn )
+> 
+> AP $ AdmissionType <- car::recode(
++     var = AP $ OverflyttetFra ,
++     recodes = "
++         'Annet sykehus'='Referred';
++         '' = NA;
++         'Annen  avdeling på sykehuset' = NA;
++         'Nei, direkte inn til dette sykehus' = 'Directly admitted';
++         'Omdirigert ambulanse' = 'Directly admitted';
++         ")
+> 
+> AP $ Indikasjon2 <- factor(
++     car::recode(
++         var = AP $ Indikasjon ,
++         recodes = "
++             'Stabil koronarsykdom '='SAP';
++             'UAP'='UAP';
++             'NSTEMI'='NSTEMI';
++             'STEMI'='STEMI';
++             'Hjertestans ved STEMI'='STEMI';
++             'STEMI > 24h'='STEMI';
++             'STEMI/Rescue PCI'='STEMI';
++             ' Uklare brystsmerter'='Uklare brystsmerter';
++             else='Annet';
++             ") ,
++     levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
+> AP$Week <- as.numeric(
++     format(
++         x = AP $ ProsedyreDato ,
++         format = "%W"))
+> table(AP$Week,AP$ProsedyreType)
+    
+     Angio Angio + PCI PCI
+  0     27          32   2
+  1    116          66  13
+  2    121          70  11
+  3    131          61  11
+  4    126          77  12
+  5    117          59  18
+  6    129          61   9
+  7     81          51   6
+  8    109          65   7
+  9    122          73  14
+  10   118          70  10
+  11   116          55  15
+  12   127          60  12
+  13   100          53  10
+  14   101          60   6
+  15    79          64   6
+  16    93          69  12
+  17    96          57   6
+  18   116          74  17
+  19   110          72  10
+  20   106          65   9
+  21    93          72   9
+  22   115          76  23
+  23   125          61   8
+  24   142          67  23
+  25    84          70  11
+  26    90          55   5
+  27    80          55  12
+  28    87          46   7
+  29    62          52   6
+  30    78          52   7
+  31    93          50   8
+  32    72          70  10
+  33   108          69   8
+  34    91          65  12
+  35   103          65  11
+  36   117          61   9
+  37   121          65   9
+  38   112          70   4
+  39   113          57  12
+  40   110          67   9
+  41   103          44  10
+  42    82          62  12
+  43    97          64   8
+  44   104          47  17
+  45   113          61  12
+  46   110          66  10
+  47   101          68  15
+  48   123          58  13
+  49   120          61  11
+  50   113          72  13
+  51    67          61   7
+  52    28          30   5
+> load("../data/noric_staging.Rd")
+>     AP <- subset( AP , Sykehusnavn == "Ullevål" )
+>     SO <- subset( SO , Sykehusnavn == "Ullevål" )
+> SO$RegDate <- as.Date(
++     SO$HovedDato)
+> 
+> SO$Year <- as.numeric(
++     format(
++         x = SO$RegDate ,
++         format = "%Y"))
+> 
+> SO$nMonth <- as.numeric(
++     as.factor(
++         format(
++             x = SO$RegDate ,
++             format = "%y/%m")))
+> 
+> SO <- subset(
++     x = SO ,
++     subset =
++         (nMonth > max( nMonth , na.rm = TRUE ) - 24) &
++         (RegDate < Sys.Date()))    
+> 
+> 
+>   # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
+> if ( SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ]
+> 
+> SO$Month <- as.factor(
++     format(
++         SO$RegDate ,
++         format = "%y/%m"))
+> AP$FodselsDato <- as.Date( AP$FodselsDato)
+> 
+> AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
+> 
+> AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato)
+> 
+> AP$ProsedyreDato <- as.Date( AP$ProsedyreDato)
+> 
+> AP$Sykehusnavn <- factor( AP$Sykehusnavn )
+> 
+> AP $ AdmissionType <- car::recode(
++     var = AP $ OverflyttetFra ,
++     recodes = "
++         'Annet sykehus'='Referred';
++         '' = NA;
++         'Annen  avdeling på sykehuset' = NA;
++         'Nei, direkte inn til dette sykehus' = 'Directly admitted';
++         'Omdirigert ambulanse' = 'Directly admitted';
++         ")
+> 
+> AP $ Indikasjon2 <- factor(
++     car::recode(
++         var = AP $ Indikasjon ,
++         recodes = "
++             'Stabil koronarsykdom '='SAP';
++             'UAP'='UAP';
++             'NSTEMI'='NSTEMI';
++             'STEMI'='STEMI';
++             'Hjertestans ved STEMI'='STEMI';
++             'STEMI > 24h'='STEMI';
++             'STEMI/Rescue PCI'='STEMI';
++             ' Uklare brystsmerter'='Uklare brystsmerter';
++             else='Annet';
++             ") ,
++     levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
+> AP$Year <- as.numeric(
++     format(
++         x = AP $ ProsedyreDato ,
++         format = "%Y"))
+> 
+> AP$Week <- as.numeric(
++     format(
++         x = AP $ ProsedyreDato ,
++         format = "%W"))
+> 
+> 
+> AP$nMonth <- as.numeric(
++     as.factor(
++         format(
++             AP$ProsedyreDato ,
++             format = "%y/%m")))
+> 
+> AP $ Day <- as.numeric(
++     AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
+> summary(AP$Year)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   2013    2014    2014    2014    2015    2015 
+> summary(AP$Week)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.00   12.00   25.00   25.55   39.00   52.00 
+> table(AP$Week,AP$Year)
+      
+         0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32
+  2013   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+  2014  37 102 107  95 110  94 102  79  85  99 100  94 101 100  86  58  79  80  94 107  96  95 103  94 101  74  65  80  77  72  66  72  74
+  2015  24  93  95 108 105 100  97  59  96 110  98  92  98  63  81  91  95  79 113  85  84  79 111 100 131  91  85  67  63  48  71  79  78
+      
+        33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52
+  2013   0   0   0   0   0   0   0   0   0   0   0   0   0   0   2   3   7  15   4   0
+  2014  95 101 107 101 107  92  78  96  69  81  89  88  97 100  87 106  92  94  44  29
+  2015  90  67  72  86  88  94 104  90  88  75  80  80  89  86  95  85  93  89  87  34
+> 
+> table(AP$Week,AP$Year)
+    
+     2013 2014 2015
+  0     0   37   24
+  1     0  102   93
+  2     0  107   95
+  3     0   95  108
+  4     0  110  105
+  5     0   94  100
+  6     0  102   97
+  7     0   79   59
+  8     0   85   96
+  9     0   99  110
+  10    0  100   98
+  11    0   94   92
+  12    0  101   98
+  13    0  100   63
+  14    0   86   81
+  15    0   58   91
+  16    0   79   95
+  17    0   80   79
+  18    0   94  113
+  19    0  107   85
+  20    0   96   84
+  21    0   95   79
+  22    0  103  111
+  23    0   94  100
+  24    0  101  131
+  25    0   74   91
+  26    0   65   85
+  27    0   80   67
+  28    0   77   63
+  29    0   72   48
+  30    0   66   71
+  31    0   72   79
+  32    0   74   78
+  33    0   95   90
+  34    0  101   67
+  35    0  107   72
+  36    0  101   86
+  37    0  107   88
+  38    0   92   94
+  39    0   78  104
+  40    0   96   90
+  41    0   69   88
+  42    0   81   75
+  43    0   89   80
+  44    0   88   80
+  45    0   97   89
+  46    0  100   86
+  47    2   87   95
+  48    3  106   85
+  49    7   92   93
+  50   15   94   89
+  51    4   44   87
+  52    0   29   34
+> 

@@ -36,12 +36,13 @@ brew <- function(
 
 <<GetData,include=FALSE>>=
 
-baseName <- "noricStaging"
-registryName <- NORICmakeRegistryName(baseName, reshID)
-dbType <- "mysql"
+if (exists("reshID")){
+    baseName <- "noricStaging"
+    registryName <- NORICmakeRegistryName(baseName, reshID)
+    dbType <- "mysql"
 
-SSQuery <- "SELECT * FROM SegmentStent"
-APQuery <- "
+    SSQuery <- "SELECT * FROM SegmentStent"
+    APQuery <- "
 SELECT
    A.ForlopsID ,
    A.ProsedyreType ,
@@ -55,8 +56,11 @@ WHERE A.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
 "
 
-SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
-AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+    SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
+    AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+} else {
+    load("../data/noric_staging.Rd")
+}
 
 
 AP$Nstents[ is.na(AP$Nstents) ] <- 0
