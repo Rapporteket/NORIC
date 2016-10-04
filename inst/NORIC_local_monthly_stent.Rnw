@@ -1,3 +1,4 @@
+% knitr::knit2pdf("NORIC_local_monthly_stent.Rnw")
 
 \documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
 \usetheme{Hannover}
@@ -13,6 +14,7 @@
 
 
 <<knitrOptions,include=FALSE>>=
+
 
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
