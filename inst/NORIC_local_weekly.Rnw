@@ -30,8 +30,7 @@ colKontrast <- "#FF7260"
 
 <<GetData,include=FALSE>>=
 
-# assuming that if reshID does *not*exist
-#  it is a testrun on localhost
+# assuming a testrun on localhost if reshID does not exist
 if ( exists( "reshID" ) ) {
     baseName <- "noricStaging"
     registryName <- noric::NORICmakeRegistryName(baseName, reshID)
@@ -45,7 +44,9 @@ if ( exists( "reshID" ) ) {
 
 } else {
     load("../data/noric_staging.Rd")
-    AP <- subset( AP , Sykehusnavn == "Ullevål" )
+    AP <- subset(
+        x = AP ,
+        subset = (Sykehusnavn == "Ullevål") )
     SO <- subset( SO , Sykehusnavn == "Ullevål" )
 #    SS <- subset( SS , Sykehusnavn = "Ullevål" )
 #    FO <- subset( FO , Sykehusnavn = "Ullevål" )
@@ -68,6 +69,11 @@ SO$Year <- as.numeric(
         x = SO$RegDate ,
         format = "%Y"))
 
+SO$Week <- as.numeric(
+    format(
+        x = SO$RegDate ,
+        format = "%W"))
+
 SO$nMonth <- as.numeric(
     as.factor(
         format(
@@ -76,9 +82,7 @@ SO$nMonth <- as.numeric(
 
 SO <- subset(
     x = SO ,
-    subset =
-        (nMonth > max( nMonth , na.rm = TRUE ) - 24) &
-        (RegDate < Sys.Date()))    
+    subset = (Year == format( Sys.Date() , format = "%Y" )))
 
 
   # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
@@ -148,7 +152,6 @@ AP$Week <- as.numeric(
         x = AP $ ProsedyreDato ,
         format = "%W"))
 
-
 AP$nMonth <- as.numeric(
     as.factor(
         format(
@@ -164,6 +167,10 @@ AP $ Day <- as.numeric(
 
 <<subsetting,include=FALSE>>=
 
+AP <- subset(
+    x = AP ,
+    subset = (Year == as.numeric(format( Sys.Date() , format = "%Y" ))))
+
 NSTEMI <- subset(
     x = AP ,
     subset = (Indikasjon == "NSTEMI"))
@@ -171,11 +178,8 @@ NSTEMI <- subset(
 NSTEMI $ Month <- as.factor(
     format(
         x = NSTEMI $ ProsedyreDato ,
-        format = "%y/%m"))
+        format = "%m"))
 
-AP <- subset(
-    x = AP ,
-    subset = nMonth >= max( nMonth , na.rm = TRUE ) - 24 )
 
  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
 if (AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Year >= 2015 ) , ]
@@ -183,7 +187,7 @@ if (AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Y
 AP $ Month <- as.factor(
     format(
         x = AP $ ProsedyreDato ,
-        format = "%y/%m"))
+        format = "%m"))
 
 @ 
 
@@ -204,7 +208,7 @@ AP $ Month <- as.factor(
 
 \begin{frame}[fragile]
   \frametitle{Hastegrad}
-<<FigNHendelsesType,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=8,fig.height=4,out.width="\\textwidth">>=
+<<FigNHendelsesType,fig.cap="Antall prosedyrer etter hastegrad og uke",fig.width=8,fig.height=4,out.width="\\textwidth">>=
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -215,10 +219,10 @@ op <- par(
 
 barplot(
     xtabs(
-        formula = ~ HendelsesType + Month ,
+        formula = ~ HendelsesType + Week ,
         data = AP) ,
     las = 1 ,
-    xlab = "Måned" ,
+    xlab = "Uke" ,
     ylab = "Antall" ,
     col = pal ,
     space = 0.2 ,
@@ -248,9 +252,9 @@ xtable::print.xtable(
     x = xtable::xtable(
         x = addmargins(
             xtabs(
-                formula = ~ Month + HendelsesType ,
+                formula = ~ Week + HendelsesType ,
                 data = AP)) ,
-        caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
+        caption = "Antall registrerte prosedyrer etter hastegrad og uke" ,
         digits = 0) ,
     booktabs = TRUE )
 @   
@@ -266,10 +270,10 @@ xtable::print.xtable(
     x = xtable::xtable(
         100 * prop.table(
             xtabs(
-                formula = ~ Month + HendelsesType ,
+                formula = ~ Week + HendelsesType ,
                 data = AP) ,
             margin = 1) ,
-        caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
+        caption = "Prosentandel prosedyrer etter hastegrad og uke" ,
         digits = 1) ,
     booktabs = TRUE )
 @   
@@ -283,7 +287,7 @@ xtable::print.xtable(
 \begin{frame}[fragile]
   \frametitle{Prosedyre type}
   
-<<FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",fig.width=8,fig.height=4,out.width="\\textwidth">>=
+<<FigNProsedyreType,fig.cap="Antall prosedyrer etter type og uke",fig.width=8,fig.height=4,out.width="\\textwidth">>=
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -294,7 +298,7 @@ op <- par(
 
 barplot(
     xtabs(
-        formula = ~ ProsedyreType + Month ,
+        formula = ~ ProsedyreType + Week ,
         data = AP) ,
     las = 1 ,
     xlab = "Måned" ,
@@ -326,9 +330,9 @@ xtable::print.xtable(
     x = xtable::xtable(
         x = addmargins(
             xtabs(
-                formula = ~ Month + ProsedyreType ,
+                formula = ~ Week + ProsedyreType ,
                 data = AP)) ,
-        caption = "Antall prosedyrer etter prosedyretype og måned" ,
+        caption = "Antall prosedyrer etter prosedyretype og uke" ,
         digits = 0) ,
     booktabs = TRUE )
 @   
@@ -343,10 +347,10 @@ xtable::print.xtable(
     x = xtable::xtable(
         100 * prop.table(
             xtabs(
-                formula = ~ Month + ProsedyreType ,
+                formula = ~ Week + ProsedyreType ,
                 data = AP) ,
             margin = 1) ,
-        caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
+        caption = "Prosentandel prosedyrer etter prosedyretype og uke" ,
         digits = 1) ,
     booktabs = TRUE )
 @   
@@ -360,7 +364,7 @@ xtable::print.xtable(
 \begin{frame}[fragile]
   \frametitle{Indikasjon}
 
-<<FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6,out.width="\\textwidth">>=
+<<FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og uke",fig.width=12,fig.height=6,out.width="\\textwidth">>=
 
 op <- par(
     mfcol = c (1,1) ,
@@ -370,7 +374,7 @@ op <- par(
 
 barplot(
     xtabs(
-        formula = ~ Indikasjon2 + Month ,
+        formula = ~ Indikasjon2 + Week ,
         data = AP) ,
     las = 1 ,
     xlab = "Måned" ,
@@ -400,9 +404,9 @@ xtable::print.xtable(
     x = xtable::xtable(
         x = addmargins(
             xtabs(
-                formula = ~ Month + Indikasjon2 ,
+                formula = ~ Week + Indikasjon2 ,
                 data = AP)) ,
-        caption = "Antall prosedyrer etter indikasjon og måned" ,
+        caption = "Antall prosedyrer etter indikasjon og uke" ,
         digits = 0) ,
     booktabs = TRUE )
 @   
@@ -417,10 +421,10 @@ xtable::print.xtable(
     x = xtable::xtable(
         100 * prop.table(
             xtabs(
-                formula = ~ Month + Indikasjon2 ,
+                formula = ~ Week + Indikasjon2 ,
                 data = AP) ,
             margin = 1) ,
-        caption = "Prosentandel prosedyrer etter indikasjon og måned" ,
+        caption = "Prosentandel prosedyrer etter indikasjon og uke" ,
         digits = 1) ,
     booktabs = TRUE )
 @   
@@ -440,7 +444,7 @@ PrintTabTilleggCol <- function(VAR){
 
     nVAR <- addmargins(
         table(
-            AP$Month ,
+            AP$Week ,
             addNA(
                 factor(
                     AP[,VAR] ,
@@ -471,7 +475,8 @@ PrintTabTilleggCol <- function(VAR){
             " (",
             rVARja ,
             ")" ,
-            sep = ""))
+            sep = "")
+    )
     
 }
 
@@ -507,21 +512,39 @@ AP$IngenTillegg[IndexMinEnTillegg] <- "Nei"
 
 TabTillegg <- cbind(
     PrintTabTilleggCol("FFR") ,
-    PrintTabTilleggCol("Doppler" ) ,
+#    PrintTabTilleggCol("Doppler" ) ,
     PrintTabTilleggCol("IVUS") ,
     PrintTabTilleggCol("OCT") ,
     PrintTabTilleggCol("IFR") ,
-    PrintTabTilleggCol("NIRS") ,
-    PrintTabTilleggCol("HoyreHjerteKat") ,
-    PrintTabTilleggCol("Perikardiocentese") ,
-    PrintTabTilleggCol("Pacemaker") ,
-    PrintTabTilleggCol("Aortaballongpumpe") ,
-    PrintTabTilleggCol("Impella") ,
-    PrintTabTilleggCol("Trombectomy") ,
-    PrintTabTilleggCol("ECMO") ,
-    PrintTabTilleggCol("AnnenDiag") ,
+#    PrintTabTilleggCol("NIRS") ,
+#    PrintTabTilleggCol("HoyreHjerteKat") ,
+#    PrintTabTilleggCol("Perikardiocentese") ,
+#    PrintTabTilleggCol("Pacemaker") ,
+#    PrintTabTilleggCol("Aortaballongpumpe") ,
+#    PrintTabTilleggCol("Impella") ,
+#    PrintTabTilleggCol("Trombectomy") ,
+#    PrintTabTilleggCol("ECMO") ,
+#    PrintTabTilleggCol("AnnenDiag") ,
     PrintTabTilleggCol("IngenTillegg")
     )
+
+#TilleggLabels <- c(
+#    "FFR",
+#    "Doppler" ,
+#    "IVUS",
+#    "OCT",
+#    "IFR",
+#    "NIRS",
+#    "Høyre kat.",
+#    "Perikardiocentese",
+#    "PM",
+#    "IABP",
+#    "Impella",
+#    "Trombectomy",
+#    "ECMO",
+#    "Annen",
+#    "Ingen")
+
 
 TilleggLabels <- c(
     "FFR",
@@ -541,8 +564,8 @@ TilleggLabels <- c(
     "Ingen")
 
 # AdjuvantTerapi
-
-rownames( TabTillegg ) <- c( levels( AP $ Month ) , "Totalt" )
+TabTillegg <- as.data.frame(TabTillegg)
+rownames( TabTillegg ) <- c( sort( AP $ Week ) , "Totalt" )
 colnames( TabTillegg ) <- c( TilleggLabels )
 
 @ 
@@ -553,7 +576,7 @@ colnames( TabTillegg ) <- c( TilleggLabels )
   \frametitle{Annen diagnostikk ved angiografi}
 
 \begin{table}[!tbp]
-\caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
+\caption{Totalt antall (prosent) tilleggsprosedyrer etter uke}
 \centering
 
 <<PrintTableTillegg1,results='asis'>>=
@@ -579,7 +602,7 @@ Hmisc::latex(
   \frametitle{Tilleggsprosedyrer}
 
 \begin{table}[!tbp]
-\caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
+\caption{Totalt antall (prosent) tilleggsprosedyrer etter uke}
 \centering
 
 <<PrintTableTillegg2,results='asis'>>=
@@ -605,7 +628,7 @@ Hmisc::latex(
   \frametitle{Adjuvant terapi}
 
 \begin{table}[!tbp]
-\caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
+\caption{Totalt antall (prosent) tilleggsprosedyrer etter uke}
 \centering
 
 \resizebox{\textwidth}{!}{
@@ -638,7 +661,7 @@ Hmisc::latex(
 nSOA <- with(
     SO[ which( SO$Skjemanavn == "AngioPCI" ) , ] ,
     table(
-        Month ,
+        Week ,
         factor(
             SkjemaStatus,
             levels=c(0,-1,1) ,
@@ -659,7 +682,7 @@ colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 xtable::print.xtable(
     x = xtable::xtable(
         x = TABkompletthet ,
-        caption = "Antall hoved registreringsskjemaer etter måned" ,
+        caption = "Antall hoved registreringsskjemaer etter uke" ,
         digits = c(0,0,0,1)) ,
     booktabs = TRUE )
 
