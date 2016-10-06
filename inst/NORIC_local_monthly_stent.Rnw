@@ -1,3 +1,4 @@
+% knitr::knit2pdf("NORIC_local_monthly_stent.Rnw")
 
 \documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
 \usetheme{Hannover}
@@ -12,6 +13,21 @@
 \usepackage{rotating}
 
 
+<<knitrOptions,include=FALSE>>=
+
+
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+options(stringsAsFactors=FALSE , width = "130")
+
+## START to be deleted
+# In future, rapbase will take care of the following:
+# make sure processing takes place "here" (sessions getwd())
+knitr::opts_knit$set(root.dir='./')
+# make sure we do not make figure folder
+knitr::opts_chunk$set(fig.path='')
+## END to be deleted
+
+@
 
 
 
@@ -377,6 +393,47 @@ print(
 
 @
 \end{frame}
+
+
+
+
+\begin{frame}[fragile]
+<<NstentNameMonth,echo=FALSE,results='asis'>>=
+print(
+    xtable::xtable(
+        addmargins(
+            xtabs(
+                formula = ~ Stentnavn2 +YearMonth ,
+                data = SS )) ,
+        digits = 0 , caption = "Antall stenter etter merke og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = TRUE,
+    scalebox = 0.95)
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+<<RstentNameMonth,echo=FALSE,results='asis'>>=
+
+print(
+    xtable::xtable(
+        100 * prop.table(
+            addmargins(
+                xtabs(
+                    formula = ~ Stentnavn2 + YearMonth ,
+                    data = SS ) ,
+                margin = 2 ) ,
+            margin = 2) ,
+        digits = 1 , caption = "Prosentandel stent etter merke og måned") ,
+    booktabs = TRUE ,
+    rotate.colnames = TRUE,
+    scalebox = 0.95)
+
+@
+\end{frame}
+
 
 \end{tiny}
 \end{document}

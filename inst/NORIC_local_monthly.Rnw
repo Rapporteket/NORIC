@@ -16,6 +16,14 @@
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
 
+## START to be deleted
+# In future, rapbase will take care of the following:
+# make sure processing takes place "here" (sessions getwd())
+knitr::opts_knit$set(root.dir='./')
+# make sure we do not make figure folder
+knitr::opts_chunk$set(fig.path='')
+## END to be deleted
+
 @ 
 
 
@@ -36,23 +44,64 @@ if ( exists( "reshID" ) ) {
     baseName <- "noricStaging"
     registryName <- noric::NORICmakeRegistryName(baseName, reshID)
     dbType <- "mysql"
-
     SOQuery <- "SELECT * FROM SkjemaOversikt"
     APQuery <- "SELECT * FROM AngioPCIVar"
-
+    AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
     SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
     AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-
+    AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
 } else {
-    load("../data/noric_staging.Rd")
-    AP <- subset( AP , Sykehusnavn == "Ullevål" )
-    SO <- subset( SO , Sykehusnavn == "Ullevål" )
-#    SS <- subset( SS , Sykehusnavn = "Ullevål" )
-#    FO <- subset( FO , Sykehusnavn = "Ullevål" )
-#    AnP <- subset( AnP , Sykehusnavn = "Ullevål" )
-    
+    if( !exists( "AP" ) ) load("../data/noric_staging.Rd")
 }
 
+@
+
+
+
+<<AnPPrepare,include=FALSE>>=
+AnP$Year <- as.numeric(
+    format(
+        x = AnP $ ProsedyreDato ,
+        format = "%Y"))
+
+AnP$nMonth <- as.numeric(
+    as.factor(
+        format(
+            AnP$ProsedyreDato ,
+            format = "%y/%m")))
+
+AnP $ Day <- as.numeric(
+    AnP $ ProsedyreDato - min( AnP $ ProsedyreDato , na.rm = TRUE ) )
+
+AnP <- subset(
+    x = AnP ,
+    subset = nMonth >= max( nMonth , na.rm = TRUE ) - 24 )
+
+AnP $ Month <- as.factor(
+    format(
+        x = AnP $ ProsedyreDato ,
+        format = "%y/%m"))
+
+AnP$AnnenProsType <- factor(
+    x = AnP$AnnenProsType ,
+    levels = c(
+        "Høyre hjertekateterisering" ,
+        "Temporær pacemaker" ,
+        "Perikardiocentese" ,
+        "Ventilfilming" ,
+        "Lukking av ASD/PFO" ,
+        "Lukking av venstre aurikkel" ,
+        "Impella") ,
+    labels = c(
+        "Høyre kat." ,
+        "Temp. pm" ,
+        "Perikardiocentese" ,
+        "Ventilfilming" ,
+        "Lukking ASD/PFO" ,
+        "Lukking v. aurikkel" ,
+        "Impella")
+    )
+>>>>>>> master
 
 @
 
@@ -136,7 +185,7 @@ AP $ Indikasjon2 <- factor(
 
 
 
-<<APdaterecodes,include=FALSE>>=
+<<Daterecodes,include=FALSE>>=
 
 AP$Year <- as.numeric(
     format(
@@ -352,6 +401,50 @@ xtable::print.xtable(
     booktabs = TRUE )
 @   
 \end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Andre prosedyrer}
+  
+<<TabNAndreProsedyrer,  results = 'asis'>>=
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Month + AnnenProsType ,
+                data = AnP)) ,
+        caption = "Antall prosedyrer etter prosedyretype og måned" ,
+        digits = 0) ,
+    rotate.colnames = TRUE ,
+#    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Andre prosedyrer}
+  
+<<TabRAndreProsedyrer,  results = 'asis'>>=
+xtable::print.xtable(
+    x = xtable::xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Month + AnnenProsType ,
+                data = AnP) ,
+            margin = 1) ,
+        caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
+        digits = 1) ,
+    rotate.colnames = TRUE ,
+#    scalebox = 0.8 ,
+    booktabs = TRUE )
+@   
+\end{frame}
+
+
 
 
 
@@ -631,8 +724,8 @@ Hmisc::latex(
 
 \section{Kompletthet}
 
-
 \begin{frame}[fragile]
+  \frametitle{Kompletthet angio/PCI skjemaer}
   
 <<SOtab1,results='asis'>>=
 
@@ -666,6 +759,47 @@ xtable::print.xtable(
 
 @   
 \end{frame}
+
+
+
+\begin{frame}[fragile]
+  \frametitle{Kompletthet utskrivelses skjemaer}
+  
+<<SOtab2,results='asis'>>=
+
+nSOU <- with(
+    SO[ which( SO$Skjemanavn == "Utskrivelse" ) , ] ,
+    table(
+        Month ,
+        factor(
+            SkjemaStatus,
+            levels=c(0,-1,1) ,
+            labels = c("Tomt","Begynt","Ferdigstilt"))))
+
+rSOU <- round(
+    100 * prop.table(
+              nSOU ,
+              margin = 1 ) ,
+    digits = 1 )
+
+TABkompletthet <- cbind(
+    rowSums(nSOU) ,
+    nSOU[ , which( colnames(nSOU)=="Ferdigstilt" ) ] ,
+    rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
+colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
+
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = TABkompletthet ,
+        caption = "Antall utskrivelsesskjemaer etter måned" ,
+        digits = c(0,0,0,1)) ,
+    booktabs = TRUE )
+
+@   
+\end{frame}
+
+
+
 
 
 \end{tiny}
