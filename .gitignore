@@ -29,6 +29,13 @@ vignettes/*.pdf
 *.toc
 *.vrb
 
+# intermediate markdown files
+*.html
+*.htm
+*.md
+*.png
+*.svg
+
 # SPSS, word,..
 *.sav
 *.doc

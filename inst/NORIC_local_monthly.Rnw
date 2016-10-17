@@ -1,4 +1,4 @@
-
+% knitr::knit2pdf("NORIC_local_monthly.Rnw")
 
 \documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
 \usetheme{Hannover}
@@ -58,7 +58,8 @@ if ( exists( "reshID" ) ) {
 
 
 
-<<AnPPrepare,include=FALSE>>=
+<<AnPPrepare,include=FALSE,eval=FALSE>>=
+
 AnP$Year <- as.numeric(
     format(
         x = AnP $ ProsedyreDato ,
@@ -101,7 +102,6 @@ AnP$AnnenProsType <- factor(
         "Lukking v. aurikkel" ,
         "Impella")
     )
->>>>>>> master
 
 @
 
@@ -797,7 +797,6 @@ xtable::print.xtable(
 
 @   
 \end{frame}
-
 
 
 

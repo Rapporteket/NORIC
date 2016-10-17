@@ -158,6 +158,24 @@ SS$YearQuarter <- factor(
         SS$Quarter ,
         sep = "/"))
 
+## add stentbruk to AP
+StentN <- as.data.frame(
+    with(
+        SS[ which(SS$StentType!=""),] ,
+        table( ID )) ,
+    stringsAsFactors=FALSE )
+StentN$ID <- as.numeric(StentN$ID)
+names(StentN) <- c("ID","N.stent")
+
+AP <- merge(
+    x = AP ,
+    y = StentN ,
+    all.x = TRUE ,
+    by = "ID" )
+
+AP$N.stent[ which( is.na( AP$N.stent)) ] <- 0
+
+
 
 
 AP$ProsedyreDato <- as.Date(
