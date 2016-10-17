@@ -1,38 +1,30 @@
 
+<!--begin.rcode
 
-```{r,knitrOptions,include=FALSE}
-# knitr::knit2html("NORIC_local_monthly_NSTEMI_treatment_delay.Rmd")
+# knitr::knit("NORIC_local_monthly_NSTEMI_treatment_delay.Rhtml")
+
+knitr::opts_knit$set(root.dir='./')
 
 knitr::opts_chunk$set(
+	fig.width=16 ,
+	fig.height=8 ,
     fig.path = '' ,
     warnings = FALSE ,
-    errors = FALSE ,
-    messages = FALSE ,
     echo = FALSE ,
+    dpi = 300 ,
     dev="svg")
 
 options(
     stringsAsFactors=FALSE ,
     width = "130")
 
-
-## START to be deleted
-# In future, rapbase will take care of the following:
-# make sure processing takes place "here" (sessions getwd())
-knitr::opts_knit$set(root.dir='./')
-## END to be deleted
-
-``` 
-
-
-
-```{r,Prepare,include=FALSE}
-
+# Load required libraries
 require(mgcv)
 require(ggplot2)
 require(quantreg)
 require(Hmisc)
-require(htmlTable)
+
+
 
 # SKDE colors
 colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
@@ -140,76 +132,38 @@ NSTEMI <- subset(
     x = AP ,
     subset = (Indikasjon == "NSTEMI"))
 
+end.rcode-->
 
-``` 
 
 
+<html>
+
+<head>
+<title>Ventetider ved NSTEMI</title>
+</head>
+  
+<body>
 
 <div align="center" style="bold">
 <h1>Ventetider ved NSTEMI</h1>
 Norsk register for invasiv kardiologi
 <br>
-NORIC `r AP$Sykehusnavn[1]`
+NORIC <!--rinline AP$Sykehusnavn[1] -->
 <br>
-`r format( Sys.time() , format = "%d.%m.%Y")`
+<!--rinline format( Sys.time() , format = "%d.%m.%Y") -->
+
 </div> 
 
 
-## Innhold
-- alle NSTEMI prosedyrer
-- kun pasienter som er direkte innlagt i PCI sykehuset
-- kun pasienter som er henvist fra et annet sykehys
+<!--begin.rcode
+end.rcode-->
 
-## Antall NSTEMI per måned og henvisnings status
-```{r,TabNNSTEMIHenvisningsStatus,results="as.is"}
+<!--rinline  -->
 
-TabNNSTEMIHenvisningsStatus <- addmargins(
-    table(
-        NSTEMI$Month ,
-        NSTEMI$HenvisningsStatus
-    )
-)
 
-htmlTable(TabNNSTEMIHenvisningsStatus)
+<h2>Prosentandel NSTEMI i ventetidkategorier over tid - direkte innlagt i PCI sykehus"</h2>
 
-```
-
-```{r,Fig-N-HenvisningsStatus,fig.width=16,fig.height=8}
-pal <- colPrimary[c(1,3,5)]
-
-op <- par(
-    mfcol = c (1,1) ,
-    xpd = NA ,
-    mar = c(5.1,4.1,4.1,13.1) ,
-    bg = "#EEEEEE")
-
-barplot(
-    xtabs(
-        formula = ~ HenvisningsStatus + Month ,
-        data = NSTEMI) ,
-    las = 1 ,
-    xlab = "Måned" ,
-    ylab = "Antall" ,
-    col = pal ,
-    space = 0.2 ,
-    border = FALSE)
-
-legend(
-    "right" ,
-    inset = -.28 ,
-    bty = "n" ,
-    horiz = FALSE ,
-    fill = pal[3:1],
-    legend = sort(
-        unique(AP$HenvisningsStatus) , 
-        decreasing = T) ,
-    cex = 1)
-
-```
-
-## Prosentandel NSTEMI i ventetidkategorier over tid - direkte innlagt i PCI sykehus"
-
-```{r,Fig-R-NSTEMI-Delay,fig.width=16,fig.height=8}
+<!--begin.rcode
 
 pal <- c( "#A8A8A8" , RColorBrewer::brewer.pal(3,"RdYlGn") )[4:1]
 DelayLevels <- c( levels(NSTEMI$DelayFromIndexAdmissionToProcedure ) , "Mangler")
@@ -264,15 +218,14 @@ legend(
     legend = DelayLevels[4:1],
     fill = pal[4:1] )
 
-
-```
-
+end.rcode-->
 
 
+<h2>Prosentandel NSTEMI i ventetidkategorier over tid - overflyttet til PCI sykehus
+<!--begin.rcode
+end.rcode-->
 
-## Prosentandel NSTEMI i ventetidkategorier over tid - overflyttet til PCI sykehus
-
-```{r,Fig-R-NSTEMI-Delay-Transferred,fig.width=16,fig.height=8}
+```{r,Fig-R-NSTEMI-Delay-Transferred,fig.width=10,fig.height=4}
 
 pal <- c( "#A8A8A8" , RColorBrewer::brewer.pal(3,"RdYlGn") )[4:1]
 DelayLevels <- c( levels(NSTEMI$DelayFromIndexAdmissionToProcedure ) , "Mangler")
@@ -332,9 +285,11 @@ legend(
 ```
 
 
-## Prosentandel NSTEMI i ventetidkategorier over tid - direkte innlagt i PCI sykehus
+<h2>Prosentandel NSTEMI i ventetidkategorier over tid - direkte innlagt i PCI sykehus
+<!--begin.rcode
+end.rcode-->
 
-```{r,Fig-R-NSTEMI-Delay-Direct,fig.width=16,fig.height=8}
+```{r,Fig-R-NSTEMI-Delay-Direct,fig.width=10,fig.height=4}
 
 pal <- c( "#A8A8A8" , RColorBrewer::brewer.pal(3,"RdYlGn") )[4:1]
 DelayLevels <- c( levels(NSTEMI$DelayFromIndexAdmissionToProcedure ) , "Mangler")
@@ -395,10 +350,19 @@ legend(
 
 
 
-## Dager fra første innleggelse til prosdyre ved NSTEMI - direkte innlagt på PCI sykehus
-Boxplottet viser 25-, 50- (=median) og 75-persentilene av dager fra førstegangs innleggelse til prosdyre for alle NSTEMI pasienter fra `r format( min(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")` som er direkte innlagt ved `r AP$Sykehusnavn[1]`.
+	    <h2>Dager fra første innleggelse til prosdyre ved NSTEMI - direkte innlagt på PCI sykehus</
+													h2>
+Boxplottet viser 25-, 50- (=median) og 75-persentilene av dager fra førstegangs innleggelse til prosdyre for alle NSTEMI pasienter fra
+<!--begin.rcode
+format( min(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")
+end.rcode-->
+som er direkte innlagt ved
+<!--begin.rcode
+AP$Sykehusnavn[1]
+end.rcode-->
+.
 
-```{r,Fig-Boxplot-NSTEMI-Delay-Direct,fig.pos='!h',fig.width=10,fig.height=4}
+<!--begin.rcode
 
 ggplot(
     data = subset(
@@ -420,14 +384,12 @@ ggplot(
     scale_x_discrete( name = "Måned" , labels = gsub( "20..-" , "" , levels(NSTEMI$Month)) )+
     geom_vline(xintercept = 0:3*12+.5)
 
-
-```
-
+end.rcode-->
 
 
 
 
-```{r}
+<!--begin.rcode
 
 fit.rqss <- function( tau , lambda )
     quantreg::rqss(
@@ -537,4 +499,5 @@ legend(
     col = c("#A0C0F0AA","#A0A0A0AA") ,
     legend = c("Number of NSTEMI per month (right scale)" , "25-, 50-, 75-Percentile (left scale)" ))
 
-```
+end.rcode-->
+
