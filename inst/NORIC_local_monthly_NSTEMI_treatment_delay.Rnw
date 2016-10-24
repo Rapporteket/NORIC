@@ -1,0 +1,496 @@
+% knitr::knit2pdf("NORIC_local_monthly_NSTEMI_treatment_delay.Rnw")
+
+\documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
+\usetheme{Hannover}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english, norsk]{babel}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{rotating}
+
+
+<<knitrOptions,include=FALSE>>=
+
+knitr::opts_knit$set(root.dir='./')
+
+knitr::opts_chunk$set(
+    fig.path = '' ,
+    warnings = FALSE ,
+    errors = FALSE ,
+    messages = FALSE ,
+    echo = FALSE )
+
+options(
+    stringsAsFactors = FALSE ,
+    width = "130")
+
+
+# load functions
+require(mgcv)
+require(quantreg)
+require(Hmisc)
+require(xtable)
+
+
+############ Begin Define Functions #######################
+
+Tquantil <- function( x , probs )
+    round(
+        quantile( x = x , na.rm = TRUE , probs = probs ) ,
+        digits = 1)
+
+describe <- function(X){
+    DTAB <- c(
+        as.character(sum(!is.na(X))) ,
+        Tquantil( X , 0.250 ) ,
+        Tquantil( X , 0.500 ) ,
+        Tquantil( X , 0.750 ))
+        attr( DTAB , "names") <- c(
+            "N" , "25%", "50%", "75%")
+        return(DTAB)}
+
+
+plotDelay <- function( days , data){
+
+
+    AP$DelayFromIndexAdmissionToProcedure <- cut(
+        x = AP$DaysFromIndexAdmissionToProcedure ,
+        breaks = c(0,1,3,50) ,
+        labels = c("0-24","25-72",">72") ,
+        include.lowest = TRUE
+    )
+
+    pal <- c( "#A8A8A8" , RColorBrewer::brewer.pal(3,"RdYlGn") )[4:1]
+    DelayLevels <- c( levels(NSTEMI$DelayFromIndexAdmissionToProcedure ) , "Mangler")
+
+    TabNDelayDirect <- xtabs(
+        formula = ~ addNA(DelayFromIndexAdmissionToProcedure) + Month ,
+        subset = HenvisningsStatus == "Direkte" ,
+        data = NSTEMI)
+
+    TabRDelayDirect <- 100 * prop.table(
+                                 x = TabNDelayDirect ,
+                                 margin = 2 )
+
+par(
+    mar = c(2,3,1,8) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRDelayDirect ,
+    beside = FALSE ,
+    horiz = FALSE ,
+    axisnames = TRUE ,
+    xlab = "Måned" ,
+    col = pal )
+
+text(
+    x = xBarplot ,
+    y = TabRDelayDirect[1,] ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelayDirect[1,])
+
+text(
+    x = xBarplot ,
+    y = colSums(TabRDelayDirect[1:2,]) ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelayDirect[2,])
+
+text(
+    x = xBarplot ,
+    y = colSums(TabRDelayDirect[1:3,]) ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelayDirect[3,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    title = "Timer" ,
+    legend = DelayLevels[4:1],
+    fill = pal[4:1] )
+
+    }
+
+############ End Define Functions #######################
+
+    
+############ SKDE colors ################################
+colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
+colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
+colKontrast <- "#FF7260"
+############ SKDE colors ################################
+
+
+    
+############ Load Data ##################################
+if ( exists( "reshID" ) ) {
+    baseName <- "noricStaging"
+    registryName <- noric::NORICmakeRegistryName(baseName, reshID)
+    AP <- rapbase::LoadRegData(
+        registryName = registryName ,
+        query = "SELECT * FROM AngioPCIVar" ,
+        dbType = "mysql")
+} else {
+#    load("../data/noric_staging.Rd")
+    load("/home/r/Documents/NORIC/data/Rdata/APtime-2016-10-24.Rd")
+    AP <- subset( APtime , Sykehusnavn == "Haukeland" )
+}
+############ Load Data ##################################
+
+
+AP$HenvisningsStatus <- car::recode(
+    var = AP$OverflyttetFra ,
+    recodes = "
+        'Annet sykehus'='Overflyttet';
+        'Nei, direkte inn til dette sykehus' = 'Direkte';
+        'Omdirigert ambulanse' = 'Direkte';
+        else = NA
+        ")
+
+AP$Indikasjon2 <- factor(
+    car::recode(
+        var = AP$Indikasjon ,
+        recodes = "
+            'Stabil koronarsykdom '='SAP';
+            'UAP'='UAP';
+            'NSTEMI'='NSTEMI';
+            'STEMI'='STEMI';
+            'Hjertestans ved STEMI'='STEMI';
+            'STEMI > 24h'='STEMI';
+            'STEMI/Rescue PCI'='STEMI';
+            ' Uklare brystsmerter'='Uklare brystsmerter';
+            else='Annet';
+            ") ,
+    levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
+
+
+AP$ProsedyreDato <- as.Date( AP$ProsedyreDato)
+
+AP$Year <- as.numeric(
+    format(
+        x = AP$ProsedyreDato ,
+        format = "%Y"))
+
+AP$nMonth <- as.numeric(
+    as.factor(
+        format(
+            AP$ProsedyreDato ,
+            format = "%m")))
+
+AP$Day <- as.numeric(
+         AP$ProsedyreDato - min( AP$ProsedyreDato , na.rm = TRUE ) )
+
+AP$Month <- as.factor(
+    format(
+        x = AP$ProsedyreDato ,
+        format = "%Y-%m"))
+
+AP$Week <- format(
+    x = AP$ProsedyreDato ,
+    format = "%Y-%W")
+
+
+
+AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
+
+AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato)
+
+i.direkte <- which(AP$HenvisningsStatus == "Direkte")
+AP$InnleggelseHenvisendeSykehusDato[ i.direkte ] <- AP$AnkomstPCIDato[ i.direkte ]
+
+AP$DaysFromIndexAdmissionToProcedure <- as.numeric( AP$ProsedyreDato - AP$InnleggelseHenvisendeSykehusDato )
+AP$DaysFromIndexAdmissionToProcedure[ which( AP$DaysFromIndexAdmissionToProcedure < 0 ) ] <- NA
+AP$DaysFromIndexAdmissionToProcedure[ which( AP$DaysFromIndexAdmissionToProcedure > 50 ) ] <- NA
+
+# AP[ 1:10 , c("DaysFromIndexAdmissionToProcedure","ProsedyreDato","InnleggelseHenvisendeSykehusDato","AnkomstPCIDato","HenvisningsStatus")]
+
+AP$DaysFromPCIcenterAdmissionToProcedure <- as.numeric( AP$ProsedyreDato - AP$AnkomstPCIDato )
+AP$DaysFromPCIcenterAdmissionToProcedure[ which( AP$DaysFromPCIcenterAdmissionToProcedure < 0 ) ] <- NA
+AP$DaysFromPCIcenterAdmissionToProcedure[ which( AP$DaysFromPCIcenterAdmissionToProcedure > 50 ) ] <- NA
+
+AP$DaysFromIndexAdmissionToPCIcenter <- as.numeric(AP$AnkomstPCIDato - AP$InnleggelseHenvisendeSykehusDato )
+AP$DaysFromIndexAdmissionToPCIcenter[ which( AP$DaysFromIndexAdmissionToPCIcenter < 0 ) ] <- NA
+AP$DaysFromIndexAdmissionToPCIcenter[ which( AP$DaysFromIndexAdmissionToPCIcenter > 50 ) ] <- NA
+
+
+AP$DelayFromIndexAdmissionToProcedure <- cut(
+    x = AP$DaysFromIndexAdmissionToProcedure ,
+    breaks = c(0,1,3,50) ,
+    labels = c("0-24","25-72",">72") ,
+    include.lowest = TRUE
+)
+
+
+## Subsetting only NSTEMI
+NSTEMI <- subset(
+    x = AP ,
+    subset = (Indikasjon == "NSTEMI"))
+
+FromDate <- format( min(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")
+ToDate <- format( max(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")
+
+@ 
+
+
+\title[NSTEMI\\\Sexpr{AP$Sykehusnavn[1]}]{Norsk register for invasiv kardiologi (NORIC)\\ \Sexpr{AP$Sykehusnavn[1]}\\Ventetider ved NSTEMI\\ \Sexpr{paste( FromDate , "--" , ToDate )} }
+
+
+\begin{document}
+\begin{tiny}
+  
+\maketitle
+
+
+
+\section{Oversikt}
+
+\begin{frame}[fragile]
+  \frametitle{NSTEMI}
+<<Fig-N-HenvisningsStatus,fig.cap="Antall NSTEMI per måned og henvisnings status",fig.width=8,fig.height=4,out.width="\\textwidth">>=
+
+pal <- colPrimary[c(1,3,5)]
+
+op <- par(
+    mfcol = c (1,1) ,
+    xpd = NA ,
+    mar = c(2,3,1,8) ,
+    bg = "#EEEEEE")
+
+barplot(
+    xtabs(
+        formula = ~ HenvisningsStatus + Month ,
+        data = NSTEMI) ,
+    las = 1 ,
+    xlab = "Måned" ,
+    ylab = "Antall" ,
+    col = pal ,
+    space = 0.2 ,
+    border = FALSE)
+
+legend(
+    "right" ,
+    inset = -.28 ,
+    bty = "n" ,
+    horiz = FALSE ,
+    fill = pal[3:1],
+    legend = sort(
+        unique(AP$HenvisningsStatus) , 
+        decreasing = T) ,
+    cex = 1)
+
+@
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+    \frametitle{NSTEMI}
+    
+<<Tab-N-HenvisningsStatus,  results = 'asis'>>=
+showN <- 18
+
+TabN.HenvisningsStatus <- addmargins(
+    table(
+        NSTEMI$Month ,
+        NSTEMI$HenvisningsStatus
+    )
+)
+
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = tail( TabN.HenvisningsStatus , n = showN+1 ) ,
+        caption = paste(
+            "Antall NSTEMI per måned og henvisnings status - siste" ,
+            showN ,
+            "måneder er vist") ,
+        digits = 0) ,
+    booktabs = TRUE )
+
+@   
+\end{frame}
+
+
+
+
+\section{Ventetid ved NSTEMI}
+
+
+\begin{frame}[fragile]
+    \frametitle{NSTEMI - alle pasienter}
+
+<<TabVentetid,  results = 'asis'>>=
+
+showN <- 18
+
+TABV <- as.data.frame(
+    lapply(
+        X = split(
+            x = NSTEMI$DaysFromIndexAdmissionToProcedure ,
+            f = list( NSTEMI$Month , NSTEMI$HenvisningsStatus ) ) ,
+        FUN = describe))
+  
+TABVD <- TABV[,1:(ncol(TABV)/2)]
+names(TABVD) <- sort(unique( NSTEMI$Month ))
+TABVH <- TABV[,(ncol(TABV)/2+1):ncol(TABV)]
+names(TABVH) <- sort(unique( NSTEMI$Month ))
+
+TabVentetid <- as.matrix(
+    rbind(
+        TABVD ,
+        TABVH))
+
+rownames(TabVentetid) <- c("N","25%","50%","75%","N","25%","50%","75%")
+
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = tail( t(TabVentetid) , n = showN) ,
+        caption = "Ventetid i dager for all NSTEMI prosedyrer uansett henvisningsstatus" ,
+        digits = 0) ,
+    booktabs = TRUE )
+
+@ 
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+    \frametitle{NSTEMI - alle pasienter}
+
+<<Fig-R-NSTEMI-Delay,fig.cap="Prosentandel NSTEMI i ventetidkategorier over tid",fig.width=14,fig.height=7,out.width="\\textwidth">>=
+
+pal <- c( "#A8A8A8" , RColorBrewer::brewer.pal(3,"RdYlGn") )[4:1]
+DelayLevels <- c( levels(NSTEMI$DelayFromIndexAdmissionToProcedure ) , "Mangler")
+
+TabNDelay <- xtabs(
+    formula = ~ addNA(DelayFromIndexAdmissionToProcedure) + Month ,
+    data = NSTEMI)
+
+TabRDelay <- 100 * prop.table(
+                        x = TabNDelay ,
+                        margin = 2 )
+
+par(
+    mar = c(2,3,1,8) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRDelay ,
+    beside = FALSE ,
+    horiz = FALSE ,
+    axisnames = TRUE ,
+    xlab = "Måned" ,
+    col = pal )
+
+text(
+    x = xBarplot ,
+    y = TabRDelay[1,] ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[1,])
+
+text(
+    x = xBarplot ,
+    y = colSums(TabRDelay[1:2,]) ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[2,])
+
+text(
+    x = xBarplot ,
+    y = colSums(TabRDelay[1:3,]) ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[3,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    title = "Timer" ,
+    legend = DelayLevels[4:1],
+    fill = pal[4:1] )
+
+@ 
+\end{frame}
+
+
+\begin{frame}[fragile]
+    \frametitle{Ventetid}
+
+<<Fig-R-NSTEMI-Delay-cropped,fig.cap="Prosentandel NSTEMI i ventetidkategorier over tid. Manglende registreringer og de siste to måneder er ekskludert.",fig.width=14,fig.height=7,out.width="\\textwidth">>=
+
+pal <- RColorBrewer::brewer.pal(3,"RdYlGn")[3:1]
+DelayLevels <- levels(NSTEMI$DelayFromIndexAdmissionToProcedure )
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + Month ,
+    data = NSTEMI)[ , 1:(length(levels(NSTEMI$Month))-2)]
+    
+
+TabRDelay <- 100 * prop.table(
+                        x = TabNDelay ,
+                        margin = 2 )
+
+par(
+    mar = c(2,3,1,8) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRDelay ,
+    beside = FALSE ,
+    horiz = FALSE ,
+    axisnames = TRUE ,
+    xlab = "Måned" ,
+    col = pal )
+
+text(
+    x = xBarplot ,
+    y = TabRDelay[1,] ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[1,])
+
+text(
+    x = xBarplot ,
+    y = colSums(TabRDelay[1:2,]) ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[2,])
+
+text(
+    x = xBarplot ,
+    y = colSums(TabRDelay[1:3,]) ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[3,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    title = "Timer" ,
+    legend = DelayLevels[3:1],
+    fill = pal[3:1] )
+
+@ 
+
+\end{frame}
+
+\end{tiny}
+\end{document}
+
+
+<<Fig,fig.cap="",fig.width=8,fig.height=4,out.width="\\textwidth">>=
+@ 
+
+<<Tab,results='asis'>>=
+@ 

@@ -71,7 +71,6 @@ FROM
 WHERE A.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
 "
-
     SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
     AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
 } else {

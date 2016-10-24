@@ -25,21 +25,107 @@ knitr::opts_knit$set(root.dir='./')
 
 # load functions
 require(mgcv)
-require(ggplot2)
 require(quantreg)
 require(Hmisc)
 require(htmlTable)
 
 
-# SKDE colors
+############ Begin Define Functions #######################
+
+Tquantil <- function( x , probs )
+    round(
+        quantile( x = x , na.rm = TRUE , probs = probs ) ,
+        digits = 1)
+
+describe <- function(X){
+    DTAB <- c(
+        as.character(sum(!is.na(X))) ,
+        Tquantil( X , 0.250 ) ,
+        Tquantil( X , 0.500 ) ,
+        Tquantil( X , 0.750 ))
+        attr( DTAB , "names") <- c(
+            "N" , "25%", "50%", "75%")
+        return(DTAB)}
+
+
+plotDelay <- function( days , data){
+
+
+    AP$DelayFromIndexAdmissionToProcedure <- cut(
+        x = AP$DaysFromIndexAdmissionToProcedure ,
+        breaks = c(0,1,3,50) ,
+        labels = c("0-24","25-72",">72") ,
+        include.lowest = TRUE
+    )
+
+    pal <- c( "#A8A8A8" , RColorBrewer::brewer.pal(3,"RdYlGn") )[4:1]
+    DelayLevels <- c( levels(NSTEMI$DelayFromIndexAdmissionToProcedure ) , "Mangler")
+
+    TabNDelayDirect <- xtabs(
+        formula = ~ addNA(DelayFromIndexAdmissionToProcedure) + Month ,
+        subset = HenvisningsStatus == "Direkte" ,
+        data = NSTEMI)
+
+    TabRDelayDirect <- 100 * prop.table(
+                                 x = TabNDelayDirect ,
+                                 margin = 2 )
+
+par(
+    mar = c(3,10,2,10) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRDelayDirect ,
+    beside = FALSE ,
+    horiz = FALSE ,
+    axisnames = TRUE ,
+    xlab = "Måned" ,
+    col = pal )
+
+text(
+    x = xBarplot ,
+    y = TabRDelayDirect[1,] ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelayDirect[1,])
+
+text(
+    x = xBarplot ,
+    y = colSums(TabRDelayDirect[1:2,]) ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelayDirect[2,])
+
+text(
+    x = xBarplot ,
+    y = colSums(TabRDelayDirect[1:3,]) ,
+    pos = 1 ,
+    col = "#000000AA" ,
+    labels = TabNDelayDirect[3,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    title = "Timer" ,
+    legend = DelayLevels[4:1],
+    fill = pal[4:1] )
+
+    }
+
+############ End Define Functions #######################
+
+    
+############ SKDE colors ################################
 colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
+############ SKDE colors ################################
 
 
-# assuming that if reshID does *not*exist
-#  it is a testrun on localhost
-
+    
+############ Load Data ##################################
 if ( exists( "reshID" ) ) {
     baseName <- "noricStaging"
     registryName <- noric::NORICmakeRegistryName(baseName, reshID)
@@ -48,9 +134,11 @@ if ( exists( "reshID" ) ) {
         query = "SELECT * FROM AngioPCIVar" ,
         dbType = "mysql")
 } else {
-    load("../data/noric_staging.Rd")
+#    load("../data/noric_staging.Rd")
+    load("/home/r/Documents/NORIC/data/Rdata/AngioPCIVar.Rd")
     AP <- subset( AP , Sykehusnavn == "Haukeland" )
 }
+############ Load Data ##################################
 
 
 AP$HenvisningsStatus <- car::recode(
@@ -122,14 +210,15 @@ AP$DaysFromPCIcenterAdmissionToProcedure <- as.numeric( AP$ProsedyreDato - AP$An
 AP$DaysFromIndexAdmissionToProcedure[ which( AP$DaysFromIndexAdmissionToProcedure < 0 ) ] <- NA
 AP$DaysFromIndexAdmissionToProcedure[ which( AP$DaysFromIndexAdmissionToProcedure > 50 ) ] <- NA
 
-AP$DelayFromIndexAdmissionToProcedure <- cut(
-    x = AP$DaysFromIndexAdmissionToProcedure ,
-    breaks = c(0,1,3,50) ,
-    labels = c("0-24","25-72",">72") ,
-    include.lowest = TRUE
-    )
 
 AP$DaysFromIndexAdmissionToPCIcenter <- as.numeric(AP$AnkomstPCIDato - AP$InnleggelseHenvisendeSykehusDato )
+
+    AP$DelayFromIndexAdmissionToProcedure <- cut(
+        x = AP$DaysFromIndexAdmissionToProcedure ,
+        breaks = c(0,1,3,50) ,
+        labels = c("0-24","25-72",">72") ,
+        include.lowest = TRUE
+    )
 
 
 
@@ -169,11 +258,12 @@ NORIC `r AP$Sykehusnavn[1]`
 <br><br>
 
 
+
 ## Oversikt
 
 <p>Tabell: Antall NSTEMI per måned og henvisnings status</p>
 
-```{r,TabNNSTEMIHenvisningsStatus,results="as.is"}
+```{r,Tab-N-NSTEMI-HenvisningsStatus,results="as.is"}
 
 TabNNSTEMIHenvisningsStatus <- addmargins(
     table(
@@ -230,6 +320,34 @@ legend(
 ## Ventetid for NSTEMI
 
 Ventetid i dager for all NSTEMI prosedyrer uansett henvisningsstatus.
+
+```{r,TabVentetid}
+
+TABV <- as.data.frame(
+    lapply(
+        X = split(
+            x = NSTEMI$DaysFromIndexAdmissionToProcedure ,
+            f = list( NSTEMI$Month , NSTEMI$HenvisningsStatus ) ) ,
+        FUN = describe))
+
+TABVD <- TABV[,1:34]
+names(TABVD) <- sort(unique( NSTEMI$Month ))
+TABVH <- TABV[,35:68]
+names(TABVH) <- sort(unique( NSTEMI$Month ))
+
+
+TabVentetid <- as.matrix(
+    rbind(
+        TABVD ,
+        TABVH))
+
+rownames(TabVentetid) <- c("N","25%","50%","75%","N","25%","50%","75%")
+
+
+htmlTable(t(TabVentetid))
+
+```
+
 
 
 <p align="center">Figur: Prosentandel NSTEMI i ventetidkategorier over tid</p>
@@ -292,42 +410,13 @@ legend(
 ```
 
 
-<br><br><br>
-
-
-<p align="center">Figur: Boxplottet viser 25-, 50- (=median) og 75-persentilene av dager fra førstegangs innleggelse til prosdyre for alle NSTEMI pasienter fra `r FromDate` ved `r AP$Sykehusnavn[1]`.</p>
-
-```{r,Fig-Boxplot-NSTEMI-Delay,fig.width=16,fig.height=8}
-
-ggplot(
-    data = NSTEMI ,
-    mapping = aes(
-        x = Month ,
-        y = DaysFromIndexAdmissionToProcedure
-    )
-)+
-    geom_boxplot(
-        alpha = 0.7 ,
-        varwidth = TRUE ,
-        outlier.colour = NA ,
-        coef = 0 ,
-        na.rm = TRUE 
-    )+
-    scale_y_continuous( name = "Dager" , limits = c(0,7 ))+
-    scale_x_discrete( name = "Måned" , labels = gsub( "20..-" , "" , levels(NSTEMI$Month)) )+
-    geom_vline(xintercept = 0:3*12+.5)
-
-
-```
-
-
 
 
 <br><br><br>
 
-<p align="center">Figur: Smoothing spline for 25-, 50- (=median) og 75-persentilene av dager fra førstegangs innleggelse til prosdyre for alle NSTEMI pasienter fra `r FromDate` til `r ToDate` som er direkte innlagt ved `r AP$Sykehusnavn[1]`. Viser litt det samme som boxplot, bare at måneder er ikke sammenslått, men prosedyredato er kontinuerlig på x-aksen.</p>
+<p align="center">Figur: Smoothing spline for 25-, 50- (=median) og 75-persentilene av dager fra førstegangs innleggelse til prosdyre for alle NSTEMI pasienter fra `r FromDate` til `r ToDate` ved `r AP$Sykehusnavn[1]`. Viser litt det samme som boxplot, bare at måneder er ikke sammenslått, men prosedyredato er kontinuerlig på x-aksen.</p>
 
-```{r}
+```{r,include=FALSE}
 
 fit.rqss <- function( tau , lambda )
     quantreg::rqss(
@@ -429,8 +518,10 @@ lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.25 , lambda = 30 )) , df = 
 
 
 
+
 <hline>
 <br><br><br><br><br><br>
+
 
 ## Overflyttet til PCI sykehus
 
@@ -499,6 +590,119 @@ legend(
 <br><br><br>
 
 
+
+<br><br><br>
+
+<p align="center">Figur: Smoothing spline for 25-, 50- (=median) og 75-persentilene av dager fra førstegangs innleggelse til prosdyre for alle NSTEMI pasienter fra `r FromDate` til `r ToDate` som er overflyttet til `r AP$Sykehusnavn[1]` fra andre sykehus. Viser litt det samme som boxplot, bare at måneder er ikke sammenslått, men prosedyredato er kontinuerlig på x-aksen.</p>
+
+```{r,include=FALSE}
+
+fit.rqss <- function( tau , lambda )
+    quantreg::rqss(
+        DaysFromIndexAdmissionToProcedure ~ qss(
+            x = Day ,
+            lambda = lambda ) ,
+        tau = tau ,
+        data = na.exclude(
+            NSTEMI[
+                which( NSTEMI$HenvisningsStatus == "Overflyttet" )
+                  ,
+                   c(
+                       "DaysFromIndexAdmissionToProcedure" ,
+                       "Day" )]))
+
+
+get.qss <- function(model){
+    fit <- model$qss$Day$xyz
+    fit[,2] <- fit[,2] + model$coef[1]
+    return(fit)
+}
+
+par( mar = c(5,4,2,4) , las = 1)
+
+NofMonth <- length(levels(NSTEMI$Month))
+maxDays <- 8
+
+ # create a monthly count of NSTEMI
+NbyM <- data.frame(
+    m = 365/NofMonth * ( 2*1:NofMonth - 1 ) ,
+    n = as.numeric( table( NSTEMI$Month )))
+
+ # rescale the counts to the [0,13] (ylim of main plot)
+NbyM$nRescaled <- (NbyM$n)/6
+
+
+plot(
+    0 ,
+    xlim = range( NSTEMI$Day) ,
+    ylim = c(0,maxDays) ,
+    type = "n" ,
+    bty = "n" ,
+    xlab = "Month of Procedure" ,
+    ylab = "Days from Index Admission to Procedure" ,
+    main = "" ,
+    axes = FALSE)
+
+axis(
+    side = 1 ,
+    tick = FALSE ,
+    at = 30.5*(1:NofMonth-1) ,
+    labels = gsub( "20..-" , "" , levels(NSTEMI$Month)))
+
+axis(
+    side = 2 )
+
+segments(
+    x0 = 365/12*0:NofMonth ,
+    y0 = 0 ,
+    x1 = 365/12*0:NofMonth ,
+    y1 = maxDays ,
+    lty = 3 ,
+    lwd = 0.8 ,
+    col = "#80808080")
+
+abline(
+    h = 0:maxDays ,
+    lty = 3 ,
+    lwd = 0.8 ,
+    col = "#80808080")
+
+abline(
+    h = 3 ,
+    v = 365*0:3 ,
+    lty = 3 ,
+    lwd = 2 ,
+    col = "#80808080")
+
+
+points(
+    jitter(DaysFromIndexAdmissionToProcedure) ~ Day ,
+    data = NSTEMI ,
+    subset = HenvisningsStatus=="Overflyttet" ,
+    pch = 16 ,
+    col = "#A0A0A030")
+
+
+lines(pspline::sm.spline( NbyM$m , NbyM$nRescaled , df = 4) , lwd = 5 , col = "#FFFFFFAA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.75 , lambda = 50)) , df = 8 ) , lwd = 5 , col = "#FFFFFFAA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.50 , lambda = 50)) , df = 8 ) , lwd = 5 , col = "#FFFFFFAA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.25 , lambda = 50)) , df = 8 ) , lwd = 5 , col = "#FFFFFFAA")
+
+
+lines(pspline::sm.spline( NbyM$m , NbyM$nRescaled , df = 4) , lwd = 3 , col = "#A0C0F0AA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.75 , lambda = 30 )) , df = 8 ) , lwd = 3 , col = "#A0A0A0AA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.50 , lambda = 30 )) , df = 8 ) , lwd = 3 , col = "#A0A0A0AA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.25 , lambda = 30 )) , df = 8 ) , lwd = 3 , col = "#A0A0A0AA")
+
+```
+
+
+
+
+
+
+
+
 ## Direkte innlagt i PCI sykehus
 
 <p align="center">Figur: Prosentandel NSTEMI i ventetidkategorier over tid for pasienter direkte innlagt i PCI sykehus</p>
@@ -563,33 +767,113 @@ legend(
 ```
 
 
+
 <br><br><br>
 
 
-<p align="center">Figur: Boxplottet viser 25-, 50- (=median) og 75-persentilene av dager fra førstegangs innleggelse til prosdyre for alle NSTEMI pasienter fra `r FromDate` til `r ToDate` som er direkte innlagt ved `r AP$Sykehusnavn[1]`.</p>
 
-```{r,Fig-Boxplot-NSTEMI-Delay-Direct,fig.width=16,fig.height=8}
+<p align="center">Figur: Smoothing spline for 25-, 50- (=median) og 75-persentilene av dager fra førstegangs innleggelse til prosdyre for NSTEMI pasienter fra `r FromDate` til `r ToDate` som er direkte innlagt ved `r AP$Sykehusnavn[1]`. Viser litt det samme som boxplot, bare at måneder er ikke sammenslått, men prosedyredato er kontinuerlig på x-aksen.</p>
 
-ggplot(
-    data = subset(
-        NSTEMI ,
-        HenvisningsStatus = "Direkte") ,
-    mapping = aes(
-        x = Month ,
-        y = DaysFromIndexAdmissionToProcedure
-    )
-)+
-    geom_boxplot(
-        alpha = 0.7 ,
-        varwidth = TRUE ,
-        outlier.colour = NA ,
-        coef = 0 ,
-        na.rm = TRUE 
-    )+
-    scale_y_continuous( name = "Dager" , limits = c(0,7 ))+
-    scale_x_discrete( name = "Måned" , labels = gsub( "20..-" , "" , levels(NSTEMI$Month)) )+
-    geom_vline(xintercept = 0:3*12+.5)
+```{r,include=FALSE}
 
+
+fit.rqss <- function( tau , lambda )
+    quantreg::rqss(
+        DaysFromIndexAdmissionToProcedure ~ qss(
+            x = Day ,
+            lambda = lambda ) ,
+        tau = tau ,
+        data = na.exclude(
+            NSTEMI[
+                which( NSTEMI$HenvisningsStatus == "Direkte" )
+                  ,
+                   c(
+                       "DaysFromIndexAdmissionToProcedure" ,
+                       "Day" )]))
+
+
+get.qss <- function(model){
+    fit <- model$qss$Day$xyz
+    fit[,2] <- fit[,2] + model$coef[1]
+    return(fit)
+}
+
+par( mar = c(5,4,2,4) , las = 1)
+
+NofMonth <- length(levels(NSTEMI$Month))
+maxDays <- 8
+
+ # create a monthly count of NSTEMI
+NbyM <- data.frame(
+    m = 365/NofMonth * ( 2*1:NofMonth - 1 ) ,
+    n = as.numeric( table( NSTEMI$Month )))
+
+ # rescale the counts to the [0,13] (ylim of main plot)
+NbyM$nRescaled <- (NbyM$n)/6
+
+
+plot(
+    0 ,
+    xlim = range( NSTEMI$Day) ,
+    ylim = c(0,maxDays) ,
+    type = "n" ,
+    bty = "n" ,
+    xlab = "Month of Procedure" ,
+    ylab = "Days from Index Admission to Procedure" ,
+    main = "" ,
+    axes = FALSE)
+
+axis(
+    side = 1 ,
+    tick = FALSE ,
+    at = 30.5*(1:NofMonth-1) ,
+    labels = gsub( "20..-" , "" , levels(NSTEMI$Month)))
+
+axis(
+    side = 2 )
+
+segments(
+    x0 = 365/12*0:NofMonth ,
+    y0 = 0 ,
+    x1 = 365/12*0:NofMonth ,
+    y1 = maxDays ,
+    lty = 3 ,
+    lwd = 0.8 ,
+    col = "#80808080")
+
+abline(
+    h = 0:maxDays ,
+    lty = 3 ,
+    lwd = 0.8 ,
+    col = "#80808080")
+
+abline(
+    h = 3 ,
+    v = 365*0:3 ,
+    lty = 3 ,
+    lwd = 2 ,
+    col = "#80808080")
+
+
+points(
+    jitter(DaysFromIndexAdmissionToProcedure) ~ Day ,
+    data = NSTEMI ,
+    subset = HenvisningsStatus=="Direkte" ,
+    pch = 16 ,
+    col = "#A0A0A030")
+
+
+lines(pspline::sm.spline( NbyM$m , NbyM$nRescaled , df = 4) , lwd = 5 , col = "#FFFFFFAA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.75 , lambda = 50)) , df = 8 ) , lwd = 5 , col = "#FFFFFFAA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.50 , lambda = 50)) , df = 8 ) , lwd = 5 , col = "#FFFFFFAA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.25 , lambda = 50)) , df = 8 ) , lwd = 5 , col = "#FFFFFFAA")
+
+
+lines(pspline::sm.spline( NbyM$m , NbyM$nRescaled , df = 4) , lwd = 3 , col = "#A0C0F0AA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.75 , lambda = 30 )) , df = 8 ) , lwd = 3 , col = "#A0A0A0AA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.50 , lambda = 30 )) , df = 8 ) , lwd = 3 , col = "#A0A0A0AA")
+lines( pspline::sm.spline(get.qss( fit.rqss( tau = 0.25 , lambda = 30 )) , df = 8 ) , lwd = 3 , col = "#A0A0A0AA")
 
 ```
+
 
