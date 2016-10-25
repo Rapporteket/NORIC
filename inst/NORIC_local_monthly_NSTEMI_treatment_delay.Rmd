@@ -50,7 +50,6 @@ describe <- function(X){
 
 plotDelay <- function( days , data){
 
-
     AP$DelayFromIndexAdmissionToProcedure <- cut(
         x = AP$DaysFromIndexAdmissionToProcedure ,
         breaks = c(0,1,3,50) ,
@@ -70,49 +69,49 @@ plotDelay <- function( days , data){
                                  x = TabNDelayDirect ,
                                  margin = 2 )
 
-par(
-    mar = c(3,10,2,10) ,
-    xpd = NA ,
-    las = 1)
+    par(
+        mar = c(3,10,2,10) ,
+        xpd = NA ,
+        las = 1)
 
-xBarplot <- barplot(
-    TabRDelayDirect ,
-    beside = FALSE ,
-    horiz = FALSE ,
-    axisnames = TRUE ,
-    xlab = "Måned" ,
-    col = pal )
+    xBarplot <- barplot(
+        TabRDelayDirect ,
+        beside = FALSE ,
+        horiz = FALSE ,
+        axisnames = TRUE ,
+        xlab = "Måned" ,
+        col = pal )
 
-text(
-    x = xBarplot ,
-    y = TabRDelayDirect[1,] ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelayDirect[1,])
+    text(
+        x = xBarplot ,
+        y = TabRDelayDirect[1,] ,
+        pos = 1 ,
+        col = "#000000AA" ,
+        labels = TabNDelayDirect[1,])
 
-text(
-    x = xBarplot ,
-    y = colSums(TabRDelayDirect[1:2,]) ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelayDirect[2,])
+    text(
+        x = xBarplot ,
+        y = colSums(TabRDelayDirect[1:2,]) ,
+        pos = 1 ,
+        col = "#000000AA" ,
+        labels = TabNDelayDirect[2,])
 
-text(
-    x = xBarplot ,
-    y = colSums(TabRDelayDirect[1:3,]) ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelayDirect[3,])
+    text(
+        x = xBarplot ,
+        y = colSums(TabRDelayDirect[1:3,]) ,
+        pos = 1 ,
+        col = "#000000AA" ,
+        labels = TabNDelayDirect[3,])
 
-legend(
-    x = par("usr")[2] ,
-    y = par("usr")[4]*.7 ,
-    bty = "n" ,
-    title = "Timer" ,
-    legend = DelayLevels[4:1],
-    fill = pal[4:1] )
-
-    }
+    legend(
+        x = par("usr")[2] ,
+        y = par("usr")[4]*.7 ,
+        bty = "n" ,
+        title = "Timer" ,
+        legend = DelayLevels[4:1],
+        fill = pal[4:1] )
+    
+}
 
 ############ End Define Functions #######################
 

@@ -41,6 +41,9 @@ vignettes/*.pdf
 *.doc
 *.docx
 *.pdf
+*.bmp
+*.svg
+*.tiff
 
 
 # Rdata files
