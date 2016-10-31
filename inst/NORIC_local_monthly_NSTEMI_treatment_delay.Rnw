@@ -37,7 +37,8 @@ require(xtable)
 
 
 ############ Begin Define Functions #######################
-# construct a closure to create a quantile function
+
+# construct a closure to create rounded quantiles 
 qntl <- function(probs) function(x) round( quantile( x , na.rm = TRUE , probs ) , digits = 1 )
 
 # create the desired quantile functions
@@ -47,79 +48,63 @@ DescriptionFunctions <- c(
     list( N = function(x) sum(!is.na(x)) ) ,
     lapply( ThisQuantiles , qntl )
     )
-    
-describe <- function(x) unlist(lapply( DescriptionFunctions , function(f) f(x)) )
-    
 
-
-barplotDelay <- function( days , data ){
-    
-    D <- data[ ,c( days , "Month" )]
-    names(D) <- c("Days","Month")
-    
-
-    D$Delay <- cut(
-        x = D$Days ,
-        breaks = c(0,1,3,50) ,
-        labels = c("0-24","25-72",">72") ,
-        include.lowest = TRUE
+DescriptionFunctions <- c(
+    list(
+        N = function(x) sum(!is.na(x)) 
+    ) ,
+    lapply(
+        c(0.25,0.50,0.75) ,
+        function(p) function(x) round( quantile( x , na.rm = TRUE , probs = p ) , digits = 1 ))
     )
-    
 
-    pal <- RColorBrewer::brewer.pal(3,"RdYlGn")[3:1]
-    
 
-    TabN <- xtabs(
-        formula = ~ Delay + Month ,
-        data = D)
-    
+describe <- function(x) unlist(lapply( DescriptionFunctions , function(f) f(x)) )
+
+
+BarplotTable <- function( TabN , sort.level = 0 ){
+    pal <- RColorBrewer::brewer.pal(
+                             n = nrow( TabN ) ,
+                             name = "Blues" )
+    par(
+        mar = c(2,3,1,12) ,
+        xpd = NA ,
+        las = 1)
     TabR <- 100 * prop.table(
                       x = TabN ,
                       margin = 2 )
-
-    par(
-        mar = c(2,3,1,8) ,
-        xpd = NA ,
-        las = 1)
-
-    
+    AnnotateN <- function(row) text(
+                                   x = xBarplot ,
+                                   y = if( row == 1 ) TabR[ 1 ,] else colSums(TabR[ 1:row ,]) ,
+                                   pos = 1 ,
+                                   col = "#000000AA" ,
+                                   labels = TabN[ row ,])
+    if (sort.level %in% (1:nrow(TabR))) {
+        col.index <- order( TabR[ sort.level , ] )
+        TabN <- TabN[ , col.index ]
+        TabR <- TabR[ , col.index ]
+    }
     xBarplot <- barplot(
         TabR ,
         beside = FALSE ,
         horiz = FALSE ,
         axisnames = TRUE ,
-        xlab = "Måned" ,
+        xlab = "" ,
         col = pal )
-
-    text(
-        x = xBarplot ,
-        y = TabR[1,] ,
-        pos = 1 ,
-        col = "#000000AA" ,
-        labels = TabN[1,])
-    
-    text(
-        x = xBarplot ,
-        y = colSums(TabR[1:2,]) ,
-        pos = 1 ,
-        col = "#000000AA" ,
-        labels = TabN[2,])
-
-    text(
-        x = xBarplot ,
-        y = colSums(TabR[1:3,]) ,
-        pos = 1 ,
-        col = "#000000AA" ,
-        labels = TabN[3,])
-
+    lapply(
+        1 : nrow( TabR ) ,
+        AnnotateN
+    )
     legend(
         x = par("usr")[2] ,
         y = par("usr")[4]*.7 ,
         bty = "n" ,
         title = "Timer" ,
-        legend = levels(D$Delay)[3:1],
-        fill = pal[3:1] )
-    }
+        legend = rownames(TabN)[ nrow(TabN):1 ],
+        fill = pal[ nrow(TabN):1 ] )
+}
+
+
 
 ############ End Define Functions #######################
 
@@ -239,7 +224,7 @@ NSTEMI <- subset(
 
 FromDate <- format( min(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")
 ToDate <- format( max(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")
-
+ReportYear <- max( AP$Year , na.rm = TRUE )
 @ 
 
 
@@ -298,18 +283,19 @@ legend(
     \frametitle{NSTEMI}
     
 <<Tab-N-HenvisningsStatus,  results = 'asis'>>=
-showN <- 18
 
-TabN.HenvisningsStatus <- addmargins(
-    table(
-        NSTEMI$Month ,
-        NSTEMI$HenvisningsStatus
-    )
-)
+TabN.HenvisningsStatus <- tail(
+    addmargins(
+        table(
+            NSTEMI$Month ,
+            NSTEMI$HenvisningsStatus
+        )
+    ) ,
+    n = 18 )
 
 xtable::print.xtable(
     x = xtable::xtable(
-        x = tail( TabN.HenvisningsStatus , n = showN+1 ) ,
+        x = TabN.HenvisningsStatus ,
         caption = paste(
             "Antall NSTEMI per måned og henvisnings status - siste" ,
             showN ,
@@ -324,40 +310,63 @@ xtable::print.xtable(
 
 
 \section{Ventetid ved NSTEMI}
+\begin{frame}
+  \begin{Huge}
+    Ventetid ved NSTEMI
+  \end{Huge}
+  Antall dager fra førstegangs innleggelse etter symptom start til prosedyre
+\end{frame}
 
 
 \begin{frame}[fragile]
-    \frametitle{NSTEMI - alle pasienter}
+    \frametitle{overflyttet + direkte}
+    \framesubtitle{dager fra 1. innleggelse til prosedyre}
 
 <<TabVentetid,  results = 'asis'>>=
 
-showN <- 18
+DelayPerMonth <- function(
+                                 days = "DaysFromIndexAdmissionToProcedure" ,
+                                 status = "Alle" ,
+                                 data = NSTEMI
+                                 ) {
+    i.status <- if (status %in% c("Direkte" , "Overflyttet")) {
+                    which( data$HenvisningsStatus == status ) 
+                } else {
+                    TRUE
+                }
+    LIST <- lapply(
+        X = with(
+            data = data[ i.status , ] ,
+            expr = split(
+                x = get(days) ,
+                f = Month )
+        ) ,
+        FUN = describe
+    )
+    TAB <- t( as.data.frame( LIST ))
+    rownames(TAB) = levels( data$Month )
+    return(TAB)
+}
 
-TABV <- as.data.frame(
-    lapply(
-        X = split(
-            x = NSTEMI$DaysFromIndexAdmissionToProcedure ,
-            f = list( NSTEMI$Month , NSTEMI$HenvisningsStatus ) ) ,
-        FUN = describe))
-  
-TABVD <- TABV[,1:(ncol(TABV)/2)]
-names(TABVD) <- sort(unique( NSTEMI$Month ))
-TABVH <- TABV[,(ncol(TABV)/2+1):ncol(TABV)]
-names(TABVH) <- sort(unique( NSTEMI$Month ))
-
-TabVentetid <- as.matrix(
-    rbind(
-        TABVD ,
-        TABVH))
-
-rownames(TabVentetid) <- c("N","25%","50%","75%","N","25%","50%","75%")
-
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = tail( t(TabVentetid) , n = showN) ,
-        caption = "Ventetid i dager for all NSTEMI prosedyrer uansett henvisningsstatus" ,
-        digits = 0) ,
-    booktabs = TRUE )
+TabDelay <- tail(
+    cbind(
+        DelayPerMonth(status = "Direkte") ,
+        DelayPerMonth(status = "Overflyttet")
+    ) ,
+    n = 18 )
+ 
+Hmisc::latex(
+    object = TabDelay ,
+    cgroup = c("Direkte","Overflyttet") ,
+    n.cgroup = c(4,4) ,
+    booktabs = TRUE,
+    table.env = TRUE ,
+    col.just = rep("r",length(colnames(TabDelay))) ,
+    center = "none" ,
+    caption = "Ventetid i dager for NSTEMI prosedyrer etter henvisningsstatus over de siste 18 måneder" ,
+    title = "",
+    file = "")
+           
 
 @ 
 \end{frame}
@@ -365,125 +374,63 @@ xtable::print.xtable(
 
 
 \begin{frame}[fragile]
-    \frametitle{NSTEMI - alle pasienter}
+    \frametitle{overflyttet + direkte}
+    \framesubtitle{dager fra 1. innleggelse til prosedyre}
 
 <<Fig-R-NSTEMI-Delay,fig.cap="Prosentandel NSTEMI i ventetidkategorier over tid",fig.width=14,fig.height=7,out.width="\\textwidth">>=
 
-pal <- c( "#A8A8A8" , RColorBrewer::brewer.pal(3,"RdYlGn") )[4:1]
-DelayLevels <- c( levels(NSTEMI$DelayFromIndexAdmissionToProcedure ) , "Mangler")
+# pal <- c( "#A8A8A8" , RColorBrewer::brewer.pal(3,"RdYlGn") )[4:1]
 
 TabNDelay <- xtabs(
     formula = ~ addNA(DelayFromIndexAdmissionToProcedure) + Month ,
     data = NSTEMI)
 
-TabRDelay <- 100 * prop.table(
-                        x = TabNDelay ,
-                        margin = 2 )
+rownames(TabNDelay)[4] <- "Mangler"
 
-par(
-    mar = c(2,3,1,8) ,
-    xpd = NA ,
-    las = 1)
-
-xBarplot <- barplot(
-    TabRDelay ,
-    beside = FALSE ,
-    horiz = FALSE ,
-    axisnames = TRUE ,
-    xlab = "Måned" ,
-    col = pal )
-
-text(
-    x = xBarplot ,
-    y = TabRDelay[1,] ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelay[1,])
-
-text(
-    x = xBarplot ,
-    y = colSums(TabRDelay[1:2,]) ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelay[2,])
-
-text(
-    x = xBarplot ,
-    y = colSums(TabRDelay[1:3,]) ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelay[3,])
-
-legend(
-    x = par("usr")[2] ,
-    y = par("usr")[4]*.7 ,
-    bty = "n" ,
-    title = "Timer" ,
-    legend = DelayLevels[4:1],
-    fill = pal[4:1] )
+BarplotTable( TabNDelay )
 
 @ 
 \end{frame}
 
 
+
 \begin{frame}[fragile]
-    \frametitle{Ventetid}
+    \frametitle{overflyttet + direkte}
+    \framesubtitle{dager fra 1. innleggelse til prosedyre}
 
 <<Fig-R-NSTEMI-Delay-cropped,fig.cap="Prosentandel NSTEMI i ventetidkategorier over tid. Manglende registreringer og de siste to måneder er ekskludert.",fig.width=14,fig.height=7,out.width="\\textwidth">>=
-
-pal <- RColorBrewer::brewer.pal(3,"RdYlGn")[3:1]
-DelayLevels <- levels(NSTEMI$DelayFromIndexAdmissionToProcedure )
 
 TabNDelay <- xtabs(
     formula = ~ DelayFromIndexAdmissionToProcedure + Month ,
     data = NSTEMI)[ , 1:(length(levels(NSTEMI$Month))-2)]
-    
 
-TabRDelay <- 100 * prop.table(
-                        x = TabNDelay ,
-                        margin = 2 )
+BarplotTable( TabNDelay )
 
-par(
-    mar = c(2,3,1,8) ,
-    xpd = NA ,
-    las = 1)
+@ 
 
-xBarplot <- barplot(
-    TabRDelay ,
-    beside = FALSE ,
-    horiz = FALSE ,
-    axisnames = TRUE ,
-    xlab = "Måned" ,
-    col = pal )
+\end{frame}
 
-text(
-    x = xBarplot ,
-    y = TabRDelay[1,] ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelay[1,])
 
-text(
-    x = xBarplot ,
-    y = colSums(TabRDelay[1:2,]) ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelay[2,])
 
-text(
-    x = xBarplot ,
-    y = colSums(TabRDelay[1:3,]) ,
-    pos = 1 ,
-    col = "#000000AA" ,
-    labels = TabNDelay[3,])
 
-legend(
-    x = par("usr")[2] ,
-    y = par("usr")[4]*.7 ,
-    bty = "n" ,
-    title = "Timer" ,
-    legend = DelayLevels[3:1],
-    fill = pal[3:1] )
+\subsection{Overflyttet}
+
+\begin{frame}[fragile]
+    \frametitle{overflyttet}
+    \framesubtitle{dager fra 1. innleggelse til prosedyre}
+
+<<Fig-R-NSTEMI-Delay-transferred-cropped,fig.cap="Prosentandel NSTEMI i ventetidkategorier over tid for overflyttede pasienter. Manglende registreringer og de siste to måneder er ekskludert.",fig.width=14,fig.height=7,out.width="\\textwidth">>=
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + Month ,
+    subset = HenvisningsStatus == "Overflyttet" ,
+    data = NSTEMI)
+
+# exclude the last two months
+TabNDelay <- TabNDelay[ , 1:(ncol(TabNDelay)-2)]
+
+BarplotTable( TabNDelay )
+
 
 @ 
 
@@ -492,17 +439,22 @@ legend(
 
 
 \begin{frame}[fragile]
-    \frametitle{Ventetid}
+    \frametitle{overflyttet}
+    \framesubtitle{dager fra 1. innleggelse til prosedyre}
 
-<<Fig-R-NSTEMI-Delay-Sykehus,fig.cap="Prosentandel NSTEMI i ventetidkategorier per henvisende sykehus. Manglende registreringer er ekskludert. Tall fra 1.1.2013 til oktober 2016",fig.width=10,fig.height=5,out.width="\\textwidth">>=
+<<Fig-R-NSTEMI-Delay-Sykehus,fig.cap="Prosentandel NSTEMI i ventetidkategorier per henvisende sykehus. Manglende registreringer og overflyttinger fra Stavanger universitetssykehus er ekskludert. Tall fra 1.1.2013 til oktober 2016",fig.width=10,fig.height=5,out.width="\\textwidth">>=
 
 pal <- RColorBrewer::brewer.pal(3,"RdYlGn")[3:1]
-DelayLevels <- levels(NSTEMI$DelayFromIndexAdmissionToProcedure )
+
+Dtmp <- subset(
+    x = NSTEMI ,
+    subset = (OverflyttetFraSykehus %in% c( "Haraldsplass sykehus", "Voss sjukehus", "Haugesund sykehus", "Stord sykehus", "Førde sentralsjukehus", "Lærdal sjukehus", "Odda sykehus", "Nordfjordeid sjukehus")) & (Year %in% 2013:2016 ) ,
+    select = c(DelayFromIndexAdmissionToProcedure,OverflyttetFraSykehus) 
+    )
 
 TabNDelay <- xtabs(
     formula = ~ DelayFromIndexAdmissionToProcedure + OverflyttetFraSykehus ,
-    subset = OverflyttetFraSykehus %in% c( "Haraldsplass sykehus", "Voss sjukehus", "Haugesund sykehus", "Stavanger Universitetssykshus", "Stord sykehus", "Førde sentralsjukehus", "Lærdal sjukehus", "Odda sykehus", "Nordfjordeid sjukehus") ,
-    data = NSTEMI)
+    data = Dtmp)
 
 TabRDelay <- 100 * prop.table(
                         x = TabNDelay ,
@@ -552,7 +504,83 @@ legend(
     y = par("usr")[4]*.7 ,
     bty = "n" ,
     title = "Timer" ,
-    legend = DelayLevels[3:1],
+    legend = levels(Dtmp$DelayFromIndexAdmissionToProcedure )[3:1],
+    fill = pal[3:1] )
+
+
+@ 
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+    \frametitle{overflyttet}
+    \framesubtitle{dager fra 1. innleggelse til prosedyre}
+
+<<Fig-R-NSTEMI-Delay-Sykehus-ReportYear,fig.cap="Prosentandel NSTEMI i ventetidkategorier per henvisende sykehus. Manglende registreringer og overflyttinger fra Stavanger universitetssykehus er ekskludert. Data for inneværende året.",fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+pal <- RColorBrewer::brewer.pal(3,"RdYlGn")[3:1]
+
+Dtmp <- subset(
+    x = NSTEMI ,
+    subset = (OverflyttetFraSykehus %in% c( "Haraldsplass sykehus", "Voss sjukehus", "Haugesund sykehus", "Stord sykehus", "Førde sentralsjukehus", "Lærdal sjukehus", "Odda sykehus", "Nordfjordeid sjukehus")) & (Year == ReportYear ) ,
+    select = c(DelayFromIndexAdmissionToProcedure,OverflyttetFraSykehus) 
+    )
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + OverflyttetFraSykehus ,
+    data = Dtmp)
+
+TabRDelay <- 100 * prop.table(
+                        x = TabNDelay ,
+                        margin = 2 )
+
+TabOrder <- order(TabRDelay[3,] , decreasing = TRUE )
+
+TabNDelay <- TabNDelay[ , TabOrder]
+TabRDelay <- TabRDelay[ , TabOrder]
+
+par(
+    mar = c(2,14,1,8) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRDelay ,
+    beside = FALSE ,
+    horiz = TRUE ,
+    axisnames = TRUE ,
+    xlab = "%" ,
+    col = pal )
+
+text(
+    x = TabRDelay[1,] ,
+    y = xBarplot ,
+    pos = 2 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[1,])
+
+text(
+    x = colSums(TabRDelay[1:2,]) ,
+    y = xBarplot ,
+    pos = 2 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[2,])
+
+text(
+    x = colSums(TabRDelay[1:3,]) ,
+    y = xBarplot ,
+    pos = 2 ,
+    col = "#000000AA" ,
+    labels = TabNDelay[3,])
+
+legend(
+    x = par("usr")[2] ,
+    y = par("usr")[4]*.7 ,
+    bty = "n" ,
+    title = "Timer" ,
+    legend = levels(Dtmp$DelayFromIndexAdmissionToProcedure )[3:1],
     fill = pal[3:1] )
 
 
