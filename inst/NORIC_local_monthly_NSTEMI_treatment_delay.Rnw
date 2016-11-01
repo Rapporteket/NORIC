@@ -62,6 +62,98 @@ DescriptionFunctions <- c(
 describe <- function(x) unlist(lapply( DescriptionFunctions , function(f) f(x)) )
 
 
+qgam <- function( tau , lambda )
+    rqss(
+        DaysFromIndexAdmissionToProcedure ~ qss(
+            x = Day ,
+            lambda = lambda ) ,
+        tau = tau ,
+        data = na.exclude(
+            NSTEMI[
+                  ,
+                   c(
+                       "DaysFromIndexAdmissionToProcedure" ,
+                       "Day" )]))
+
+
+get.qss <- function(model){
+    fit <- model$qss$Day$xyz
+    fit[,2] <- fit[,2] + model$coef[1]
+    return(fit)}
+
+
+plot.qgam <- function(model){
+    par( mar = c(5,4,2,4) , las = 1)
+
+    plot(
+        0 ,
+        xlim = c(0,730) ,
+        ylim = c(0,13) ,
+        type = "n" ,
+        bty = "n" ,
+        xlab = "Month of Procedure" ,
+        ylab = "Days from Index Admission to Procedure" ,
+        main = "" ,
+        axes = FALSE)
+        
+    axis(
+        side = 1 ,
+        tick = FALSE ,
+        at = 365/24*( 2*1:24 - 1 ) ,
+        labels = c(1:12,1:12) )
+    
+    axis(
+        side = 2 )
+    
+    segments(
+        x0 = 365/12*0:24 ,
+        y0 = 0 ,
+        x1 = 365/12*0:24 ,
+        y1 = 8 ,
+        lty = 3 ,
+        lwd = 0.8 ,
+        col = "#80808080")
+    
+    abline(
+        h = 0:8 ,
+        lty = 3 ,
+        lwd = 0.8 ,
+        col = "#80808080")
+    
+    abline(
+        h = 3 ,
+        v = c(0,365,730) ,
+        lty = 3 ,
+        lwd = 2 ,
+        col = "#80808080")
+    
+    
+    points(
+        jitter(DaysFromIndexAdmissionToProcedure) ~ Day ,
+        data = NSTEMI ,
+        pch = 16 ,
+        col = "#A0A0A030")
+    
+    
+    lines( sm.spline(get.qss( fit.rqss( tau = 0.75 , lambda = 50)) , df = 18 ) , lwd = 5 , col = "#FFFFFFAA")
+    lines( sm.spline(get.qss( fit.rqss( tau = 0.50 , lambda = 50)) , df = 18 ) , lwd = 5 , col = "#FFFFFFAA")
+    lines( sm.spline(get.qss( fit.rqss( tau = 0.25 , lambda = 50)) , df = 18 ) , lwd = 5 , col = "#FFFFFFAA")
+    
+    
+    lines( sm.spline(get.qss( fit.rqss( tau = 0.75 , lambda = 30 )) , df = 18 ) , lwd = 3 , col = "#A0A0A0AA")
+    lines( sm.spline(get.qss( fit.rqss( tau = 0.50 , lambda = 30 )) , df = 18 ) , lwd = 3 , col = "#A0A0A0AA")
+    lines( sm.spline(get.qss( fit.rqss( tau = 0.25 , lambda = 30 )) , df = 18 ) , lwd = 3 , col = "#A0A0A0AA")
+    
+    legend(
+        x = 400 ,
+        y = 13 ,
+        bty = "n" ,
+        lwd = 5 ,
+        col = c("#A0C0F0AA","#A0A0A0AA") ,
+        legend = c("Number of NSTEMI per month (right scale)" , "25-, 50-, 75-Percentile (left scale)" ))
+}
+
+
 BarplotTable <- function( TabN , sort.level = 0 ){
     pal <- RColorBrewer::brewer.pal(
                              n = nrow( TabN ) ,
