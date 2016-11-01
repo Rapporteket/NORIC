@@ -47,35 +47,56 @@ brew <- function(
             name = if(N<9) "Dark2" else "Set3" ) ,
         alpha ,
         sep = "")
+
+PrettyTabN <- function( TabN ) {
+    TabR <- round(
+        100*prop.table(
+                TabN ,
+                margin = 2 ) ,
+        digits = 1 )
+    N <- sprintf( "%3.0f" , TabN )
+    R <- sprintf( "%4.1f" , TabR )
+    T <- paste( R , " (" , N , ")" , sep = "" )
+    Tab <- matrix(
+        data = T ,
+        ncol = ncol(TabN) ,
+        byrow = FALSE )
+    rownames(Tab) <- rownames(TabN)
+    colnames(Tab) <- colnames(TabN)
+    return(Tab)
+}
+
 @ 
 
 
 <<GetData,include=FALSE>>=
 
-if (exists("reshID")){
-    baseName <- "noricStaging"
-    registryName <- NORICmakeRegistryName(baseName, reshID)
-    dbType <- "mysql"
+baseName <- "noricStaging"
+registryName <- if (exists("reshID")){
+                    NORICmakeRegistryName(baseName, reshID)
+                } else {
+                    "rapbase"
+                }
 
-    SSQuery <- "SELECT * FROM SegmentStent"
-    APQuery <- "
+dbType <- "mysql"
+
+SSQuery <- "SELECT * FROM SegmentStent"
+SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
+
+APQuery <- "
 SELECT
    A.ForlopsID ,
-   A.ProsedyreType ,
-   A.ProsedyreDato ,
-   A.Sykehusnavn ,
+   min(A.Sykehusnavn) AS Sykehusnavn ,
+   min(A.ProsedyreDato) AS ProsedyreDato ,
    SUM(S.ForlopsID>0) AS Nstents
-FROM
-   AngioPCIVar A
-   LEFT JOIN SegmentStent S on A.ForlopsID=S.ForlopsID and S.StentType <> ''
+FROM AngioPCIVar A
+LEFT JOIN SegmentStent S
+ON A.ForlopsID=S.ForlopsID AND S.StentType <> ''
 WHERE A.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
 "
-    SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
-    AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-} else {
-    load("../data/noric_staging.Rd")
-}
+
+AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
 
 
 AP$Nstents[ is.na(AP$Nstents) ] <- 0
@@ -127,10 +148,6 @@ SS$ProsedyreDato <- as.Date(
     x = SS$ProsedyreDato ,
     format = "%Y-%m-%d")
 
-   ### restrict dataset to current and last year
-ind.stent <- which( as.numeric( format( SS$ProsedyreDato , "%Y" )) >= as.numeric( format( Sys.time() , "%Y" )) - 1)
-SS <- SS[ind.stent,]
-
 SS$Month <- as.numeric(
     format( 
         x = SS$ProsedyreDato , 
@@ -157,33 +174,10 @@ SS$YearQuarter <- factor(
         SS$Quarter ,
         sep = "/"))
 
-## add stentbruk to AP
-StentN <- as.data.frame(
-    with(
-        SS[ which(SS$StentType!=""),] ,
-        table( ID )) ,
-    stringsAsFactors=FALSE )
-StentN$ID <- as.numeric(StentN$ID)
-names(StentN) <- c("ID","N.stent")
-
-AP <- merge(
-    x = AP ,
-    y = StentN ,
-    all.x = TRUE ,
-    by = "ID" )
-
-AP$N.stent[ which( is.na( AP$N.stent)) ] <- 0
-
-
-
 
 AP$ProsedyreDato <- as.Date(
     x = AP$ProsedyreDato ,
     format = "%Y-%m-%d")
-
-   ### restrict dataset to current and last year
-ind.mce <- which( as.numeric( format( AP$ProsedyreDato , "%Y" )) >= as.numeric( format( Sys.time() , "%Y" )) - 1)
-AP <- AP[ind.mce,]
                        
 AP$Month <- as.numeric(
     format( 
