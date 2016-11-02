@@ -187,6 +187,10 @@ AP $ Indikasjon2 <- factor(
             ") ,
     levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
 
+
+AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
+AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
+
 @ 
 
 
@@ -407,53 +411,6 @@ xtable::print.xtable(
     booktabs = TRUE )
 @   
 \end{frame}
-
-
-
-
-
-\begin{frame}[fragile]
-  \frametitle{Andre prosedyrer}
-  
-<<TabNAndreProsedyrer,  results = 'asis'>>=
-
-TabNAndreProsedyrer <- addmargins(
-    xtabs(
-        formula = ~ Month + AnnenProsType ,
-        data = AnP))
-
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = TabNAndreProsedyrer ,
-        caption = "Antall prosedyrer etter prosedyretype og måned" ,
-        digits = 0) ,
-    rotate.colnames = TRUE ,
-#    scalebox = 0.8 ,
-    booktabs = TRUE )
-
-@   
-\end{frame}
-
-
-\begin{frame}[fragile]
-  \frametitle{Andre prosedyrer}
-  
-<<TabRAndreProsedyrer,  results = 'asis'>>=
-
-xtable::print.xtable(
-    x = xtable::xtable(
-        100 * prop.table(
-                  TabNAndreProsedyrer ,
-                  margin = 1) ,
-        caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
-        digits = 1) ,
-    rotate.colnames = TRUE ,
-#    scalebox = 0.8 ,
-    booktabs = TRUE )
-
-@   
-\end{frame}
-
 
 
 
@@ -729,6 +686,55 @@ Hmisc::latex(
 }
 \end{table}
 \end{frame}
+
+
+
+
+\section{Andre prosedyrer}
+
+\begin{frame}[fragile]
+  \frametitle{Andre prosedyrer}
+  
+<<TabNAndreProsedyrer,  results = 'asis'>>=
+
+TabNAndreProsedyrer <- addmargins(
+    xtabs(
+        formula = ~ Month + AnnenProsType ,
+        data = AnP))
+
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = TabNAndreProsedyrer ,
+        caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" ,
+        digits = 0) ,
+    rotate.colnames = TRUE ,
+#    scalebox = 0.8 ,
+    booktabs = TRUE )
+
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Andre prosedyrer}
+  
+<<TabRAndreProsedyrer,  results = 'asis'>>=
+
+xtable::print.xtable(
+    x = xtable::xtable(
+        100 * prop.table(
+                  TabNAndreProsedyrer ,
+                  margin = 1) ,
+        caption = "Prosentandel andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" ,
+        digits = 1) ,
+    rotate.colnames = TRUE ,
+#    scalebox = 0.8 ,
+    booktabs = TRUE )
+
+@   
+\end{frame}
+
+
 
 
 
