@@ -314,9 +314,10 @@ NSTEMI <- subset(
     x = AP ,
     subset = (Indikasjon == "NSTEMI"))
 
-FromDate <- format( min(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")
-ToDate <- format( max(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")
-ReportYear <- max( AP$Year , na.rm = TRUE )
+FromDate <- format( min(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y") # earliest record in the dataset
+ToDate <- format( max(NSTEMI$ProsedyreDato,na.rm=TRUE) , format = "%d.%m.%Y")   # latest record in the dataset
+ReportYear <- max( AP$Year , na.rm = TRUE ) # This year
+showN <- 18 # how many months in the long tables?
 @ 
 
 
@@ -383,7 +384,7 @@ TabN.HenvisningsStatus <- tail(
             NSTEMI$HenvisningsStatus
         )
     ) ,
-    n = 18 )
+    n = showN+1 )
 
 xtable::print.xtable(
     x = xtable::xtable(
@@ -445,7 +446,7 @@ TabDelay <- tail(
         DelayPerMonth(status = "Direkte") ,
         DelayPerMonth(status = "Overflyttet")
     ) ,
-    n = 18 )
+    n = showN )
  
 Hmisc::latex(
     object = TabDelay ,
@@ -455,7 +456,7 @@ Hmisc::latex(
     table.env = TRUE ,
     col.just = rep("r",length(colnames(TabDelay))) ,
     center = "none" ,
-    caption = "Ventetid i dager for NSTEMI prosedyrer etter henvisningsstatus over de siste 18 måneder" ,
+    caption = paste("Ventetid i dager for NSTEMI prosedyrer etter henvisningsstatus over de siste" , showN , "måneder") ,
     title = "",
     file = "")
            
