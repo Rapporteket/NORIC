@@ -38,27 +38,33 @@ colKontrast <- "#FF7260"
 
 <<GetData,include=FALSE>>=
 
-# assuming that if reshID does *not*exist
-#  it is a testrun on localhost
-if ( exists( "reshID" ) ) {
-    baseName <- "noricStaging"
-    registryName <- noric::NORICmakeRegistryName(baseName, reshID)
-    dbType <- "mysql"
-    SOQuery <- "SELECT * FROM SkjemaOversikt"
-    APQuery <- "SELECT * FROM AngioPCIVar"
-    AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
-    SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
-    AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-    AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
-} else {
-    if( !exists( "AP" ) ) load("../data/noric_staging.Rd")
-}
+baseName <- "noricStaging"
+
+registryName <- if (exists( "reshID" )) {
+                    noric::NORICmakeRegistryName(
+                               baseName = baseName ,
+                               reshID = reshID
+                           )
+                } else {
+                    "rapbase"
+                }
+
+dbType <- "mysql"
+SOQuery <- "SELECT * FROM SkjemaOversikt"
+APQuery <- "SELECT * FROM AngioPCIVar"
+AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
+
+SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
+AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
 
 @
 
 
 
-<<AnPPrepare,include=FALSE,eval=FALSE>>=
+<<AnPPrepare,include=FALSE>>=
+
+AnP$ProsedyreDato <- as.Date( AnP$ProsedyreDato)
 
 AnP$Year <- as.numeric(
     format(
@@ -69,7 +75,7 @@ AnP$nMonth <- as.numeric(
     as.factor(
         format(
             AnP$ProsedyreDato ,
-            format = "%y/%m")))
+            format = "%y-%m")))
 
 AnP $ Day <- as.numeric(
     AnP $ ProsedyreDato - min( AnP $ ProsedyreDato , na.rm = TRUE ) )
@@ -81,7 +87,7 @@ AnP <- subset(
 AnP $ Month <- as.factor(
     format(
         x = AnP $ ProsedyreDato ,
-        format = "%y/%m"))
+        format = "%y-%m"))
 
 AnP$AnnenProsType <- factor(
     x = AnP$AnnenProsType ,
@@ -121,7 +127,7 @@ SO$nMonth <- as.numeric(
     as.factor(
         format(
             x = SO$RegDate ,
-            format = "%y/%m")))
+            format = "%y-%m")))
 
 SO <- subset(
     x = SO ,
@@ -136,7 +142,7 @@ if ( SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$
 SO$Month <- as.factor(
     format(
         SO$RegDate ,
-        format = "%y/%m"))
+        format = "%y-%m"))
 
 @ 
 
@@ -181,6 +187,10 @@ AP $ Indikasjon2 <- factor(
             ") ,
     levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
 
+
+AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
+AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
+
 @ 
 
 
@@ -202,7 +212,7 @@ AP$nMonth <- as.numeric(
     as.factor(
         format(
             AP$ProsedyreDato ,
-            format = "%y/%m")))
+            format = "%y-%m")))
 
 AP $ Day <- as.numeric(
     AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
@@ -220,7 +230,7 @@ NSTEMI <- subset(
 NSTEMI $ Month <- as.factor(
     format(
         x = NSTEMI $ ProsedyreDato ,
-        format = "%y/%m"))
+        format = "%y-%m"))
 
 
 AP <- subset(
@@ -233,7 +243,7 @@ if (AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Y
 AP $ Month <- as.factor(
     format(
         x = AP $ ProsedyreDato ,
-        format = "%y/%m"))
+        format = "%y-%m"))
 
 @ 
 
@@ -401,49 +411,6 @@ xtable::print.xtable(
     booktabs = TRUE )
 @   
 \end{frame}
-
-
-
-
-
-\begin{frame}[fragile]
-  \frametitle{Andre prosedyrer}
-  
-<<TabNAndreProsedyrer,  results = 'asis'>>=
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = addmargins(
-            xtabs(
-                formula = ~ Month + AnnenProsType ,
-                data = AnP)) ,
-        caption = "Antall prosedyrer etter prosedyretype og måned" ,
-        digits = 0) ,
-    rotate.colnames = TRUE ,
-#    scalebox = 0.8 ,
-    booktabs = TRUE )
-@   
-\end{frame}
-
-
-\begin{frame}[fragile]
-  \frametitle{Andre prosedyrer}
-  
-<<TabRAndreProsedyrer,  results = 'asis'>>=
-xtable::print.xtable(
-    x = xtable::xtable(
-        100 * prop.table(
-            xtabs(
-                formula = ~ Month + AnnenProsType ,
-                data = AnP) ,
-            margin = 1) ,
-        caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
-        digits = 1) ,
-    rotate.colnames = TRUE ,
-#    scalebox = 0.8 ,
-    booktabs = TRUE )
-@   
-\end{frame}
-
 
 
 
@@ -719,6 +686,55 @@ Hmisc::latex(
 }
 \end{table}
 \end{frame}
+
+
+
+
+\section{Andre prosedyrer}
+
+\begin{frame}[fragile]
+  \frametitle{Andre prosedyrer}
+  
+<<TabNAndreProsedyrer,  results = 'asis'>>=
+
+TabNAndreProsedyrer <- addmargins(
+    xtabs(
+        formula = ~ Month + AnnenProsType ,
+        data = AnP))
+
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = TabNAndreProsedyrer ,
+        caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" ,
+        digits = 0) ,
+    rotate.colnames = TRUE ,
+#    scalebox = 0.8 ,
+    booktabs = TRUE )
+
+@   
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Andre prosedyrer}
+  
+<<TabRAndreProsedyrer,  results = 'asis'>>=
+
+xtable::print.xtable(
+    x = xtable::xtable(
+        100 * prop.table(
+                  TabNAndreProsedyrer ,
+                  margin = 1) ,
+        caption = "Prosentandel andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" ,
+        digits = 1) ,
+    rotate.colnames = TRUE ,
+#    scalebox = 0.8 ,
+    booktabs = TRUE )
+
+@   
+\end{frame}
+
+
 
 
 
