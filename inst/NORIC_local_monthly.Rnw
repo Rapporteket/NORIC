@@ -175,14 +175,14 @@ AP $ Indikasjon2 <- factor(
     car::recode(
         var = AP $ Indikasjon ,
         recodes = "
-            'Stabil koronarsykdom '='SAP';
+            'Stabil koronarsykdom'='SAP';
             'UAP'='UAP';
             'NSTEMI'='NSTEMI';
             'STEMI'='STEMI';
             'Hjertestans ved STEMI'='STEMI';
             'STEMI > 24h'='STEMI';
             'STEMI/Rescue PCI'='STEMI';
-            ' Uklare brystsmerter'='Uklare brystsmerter';
+            'Uklare brystsmerter'='Uklare brystsmerter';
             else='Annet';
             ") ,
     levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
