@@ -560,6 +560,7 @@ BarplotTable( TabNDelay )
 
 
 
+
 \begin{frame}[fragile]
     \frametitle{overflyttet + direkte}
     \framesubtitle{dager fra 1. innleggelse til prosedyre}
@@ -569,6 +570,26 @@ BarplotTable( TabNDelay )
 TabNDelay <- xtabs(
     formula = ~ DelayFromIndexAdmissionToProcedure + Month ,
     data = NSTEMI)[ , 1:(length(levels(NSTEMI$Month))-2)]
+
+BarplotTable( TabNDelay )
+
+@ 
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+    \frametitle{overflyttet + direkte}
+    \framesubtitle{dager fra 1. innleggelse til prosedyre}
+
+<<Fig-R-NSTEMI-Delay-Weekday,fig.cap="Prosentandel NSTEMI i ventetidkategorier per ukedag. Manglende registreringer og de siste to måneder er ekskludert.",fig.width=14,fig.height=7,out.width="\\textwidth">>=
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    data = NSTEMI)
 
 BarplotTable( TabNDelay )
 
