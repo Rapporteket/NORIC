@@ -359,7 +359,8 @@ AP$Week <- format(
     format = "%Y-%W")
 
 AP$WeekDay <- format(
-    x = AP$ProsedyreDato ,
+#    x = AP$ProsedyreDato ,
+    x = AP$InnleggelseHenvisendeSykehusDato ,
     format = "%a")
 
 AP$WeekDay <- car::recode(
@@ -581,25 +582,6 @@ BarplotTable( TabNDelay )
 
 
 
-\begin{frame}[fragile]
-    \frametitle{overflyttet + direkte}
-    \framesubtitle{dager fra 1. innleggelse til prosedyre}
-
-<<Fig-R-NSTEMI-Delay-Weekday,fig.cap="Prosentandel NSTEMI i ventetidkategorier per ukedag. Manglende registreringer og de siste to måneder er ekskludert.",fig.width=14,fig.height=7,out.width="\\textwidth">>=
-
-TabNDelay <- xtabs(
-    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
-    data = NSTEMI)
-
-BarplotTable( TabNDelay )
-
-@ 
-
-\end{frame}
-
-
-
-
 \subsection{Overflyttet}
 
 \begin{frame}[fragile]
@@ -618,6 +600,27 @@ TabNDelay <- TabNDelay[ , 1:(ncol(TabNDelay)-2)]
 
 BarplotTable( TabNDelay )
 
+
+@ 
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+    \frametitle{overflyttet}
+    \framesubtitle{dager fra 1. innleggelse til prosedyre}
+
+<<Fig-R-NSTEMI-transferred-Delay-Weekday,fig.cap="Prosentandel NSTEMI i ventetidkategorier per ukedag av innleggelse i henvisende sykehus.",fig.width=14,fig.height=7,out.width="\\textwidth">>=
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = HenvisningsStatus == "Overflyttet" ,
+    data = NSTEMI)
+
+BarplotTable( TabNDelay )
 
 @ 
 
