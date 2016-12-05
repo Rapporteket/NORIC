@@ -358,6 +358,16 @@ AP$Week <- format(
     x = AP$ProsedyreDato ,
     format = "%Y-%W")
 
+
+AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
+
+AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato)
+
+i.direkte <- which(AP$HenvisningsStatus == "Direkte")
+AP$InnleggelseHenvisendeSykehusDato[ i.direkte ] <- AP$AnkomstPCIDato[ i.direkte ]
+
+
+## Day of the week of first hopsitalisation after symptom onset
 AP$WeekDay <- format(
 #    x = AP$ProsedyreDato ,
     x = AP$InnleggelseHenvisendeSykehusDato ,
@@ -376,14 +386,6 @@ AP$WeekDay <- car::recode(
         'Sat' = 'Lør' ;
         'Sun' = 'Søn'
         ")
-
-
-AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
-
-AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato)
-
-i.direkte <- which(AP$HenvisningsStatus == "Direkte")
-AP$InnleggelseHenvisendeSykehusDato[ i.direkte ] <- AP$AnkomstPCIDato[ i.direkte ]
 
 AP$DaysFromIndexAdmissionToProcedure <- as.numeric( AP$ProsedyreDato - AP$InnleggelseHenvisendeSykehusDato )
 AP$DaysFromIndexAdmissionToProcedure[ which( AP$DaysFromIndexAdmissionToProcedure < 0 ) ] <- NA
@@ -625,6 +627,97 @@ BarplotTable( TabNDelay )
 @ 
 
 \end{frame}
+
+
+
+\begin{frame}[fragile]
+    \frametitle{dager fra indeks innleggelse til prosedyre}
+
+<<Fig-R-NSTEMI-Delay-Weekday-by-status-year,fig.cap="Prosentandel NSTEMI i ventetidkategorier per ukedag av innleggelse i henvisende sykehus.",fig.width=14,fig.height=7,out.width="\\textwidth">>=
+
+par( mfrow = c(2,3) )
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = HenvisningsStatus  ==  "Direkte" & ( Year == 2014 ) ,
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2014\nDirekte" , cex = 5 , pos = 3 , col ="#84848488")
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = HenvisningsStatus  ==  "Direkte" & (Year == 2015 ) ,
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2015\nDirekte" , cex = 5 , pos = 3 , col ="#84848488")
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = HenvisningsStatus  ==  "Direkte" & (Year == 2016 ),
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2016\nDirekte" , cex = 5 , pos = 3 , col ="#84848488")
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = HenvisningsStatus  ==  "Overflyttet" & (Year == 2014 ),
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2014\nOverflyttet" , cex = 5 , pos = 3 , col ="#84848488")
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = HenvisningsStatus  ==  "Overflyttet" & (Year == 2015 ),
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2015\nOverflyttet" , cex = 5 , pos = 3 , col ="#84848488")
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = (HenvisningsStatus  ==  "Overflyttet") & (Year == 2016 ) ,
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2016\nOverflyttet" , cex = 5 , pos = 3 , col ="#84848488")
+
+@ 
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+    \frametitle{dager fra indeks innleggelse til prosedyre}
+
+<<Fig-R-NSTEMI-Delay-Weekday-by-year,fig.cap="Prosentandel NSTEMI i ventetidkategorier per ukedag av index innleggelse (alle NSTEMI, både henvist og direkte innlagt i PCI sykehus.",fig.width=14,fig.height=7,out.width="\\textwidth">>=
+
+par( mfrow = c(1,3) )
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = ( Year == 2014 ) ,
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2014" , cex = 5 , pos = 3 , col ="#84848488")
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset = (Year == 2015 ) ,
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2015" , cex = 5 , pos = 3 , col ="#84848488")
+
+TabNDelay <- xtabs(
+    formula = ~ DelayFromIndexAdmissionToProcedure + WeekDay ,
+    subset =  (Year == 2016 ),
+    data = NSTEMI)
+BarplotTable( TabNDelay )
+text( 4 , 0 , "2016" , cex = 5 , pos = 3 , col ="#84848488")
+
+@ 
+
+\end{frame}
+
+
 
 
 
