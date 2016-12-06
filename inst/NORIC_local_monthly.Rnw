@@ -736,11 +736,12 @@ xtable::print.xtable(
 
 
 \clearpage
-\section{Komplikasjoner}
+\section{Komplikasjon}
 
 
 \begin{frame}[fragile]
   \frametitle{Lab}
+  \framesubtitle{ \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
   
 <<FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
 
@@ -824,6 +825,7 @@ text(
 
 \begin{frame}[fragile]
   \frametitle{Avdeling}
+  \framesubtitle{ \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
 
 <<FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
 
