@@ -262,7 +262,7 @@ AP $ Month <- as.factor(
 
 \begin{frame}[fragile]
   \frametitle{Hastegrad}
-<<FigNHendelsesType,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=8,fig.height=4,out.width="\\textwidth">>=
+<<FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=8,fig.height=4,out.width="\\textwidth">>=
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -273,7 +273,7 @@ op <- par(
 
 barplot(
     xtabs(
-        formula = ~ HendelsesType + Month ,
+        formula = ~ Hastegrad + Month ,
         data = AP) ,
     las = 1 ,
     xlab = "Måned" ,
@@ -289,7 +289,7 @@ legend(
     horiz = FALSE ,
     fill = pal[3:1],
     legend = sort(
-        unique(AP$HendelsesType) , 
+        unique(AP$Hastegrad) , 
         decreasing = T) ,
     cex = 1)
 
@@ -306,7 +306,7 @@ xtable::print.xtable(
     x = xtable::xtable(
         x = addmargins(
             xtabs(
-                formula = ~ Month + HendelsesType ,
+                formula = ~ Month + Hastegrad ,
                 data = AP)) ,
         caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
         digits = 0) ,
@@ -324,7 +324,7 @@ xtable::print.xtable(
     x = xtable::xtable(
         100 * prop.table(
             xtabs(
-                formula = ~ Month + HendelsesType ,
+                formula = ~ Month + Hastegrad ,
                 data = AP) ,
             margin = 1) ,
         caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
