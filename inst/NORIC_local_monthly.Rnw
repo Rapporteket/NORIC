@@ -734,10 +734,6 @@ xtable::print.xtable(
 
 
 
-
-<<<<<<< HEAD
-=======
-\clearpage
 \section{Komplikasjon}
 
 
@@ -953,7 +949,6 @@ barplot( AvdKomplikasjoner$R )
 
 
 
->>>>>>> dev
 \section{Kompletthet}
 
 \begin{frame}[fragile]
