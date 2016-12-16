@@ -776,7 +776,9 @@ LabKomplikasjoner <- data.frame(
         "Død"
     )
 )
-    
+
+LabKomplikasjoner$Levels <- lapply( LabKomplikasjoner$VarName , function(X) paste0( sort( unique( AP[,X] )) , collapse = "," ))
+
 LabKomplikasjoner$N <- unlist(
     lapply(
         X = LabKomplikasjoner$VarName ,
@@ -785,7 +787,6 @@ LabKomplikasjoner$N <- unlist(
                               )
         )
     )
-
 
 LabKomplikasjoner$R <- round(
     100 * LabKomplikasjoner$N / dim(AP)[1] ,
@@ -797,6 +798,7 @@ LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 
 print( LabKomplikasjoner )
 
+
 @   
   
 \end{frame}
@@ -806,36 +808,33 @@ print( LabKomplikasjoner )
   \frametitle{Komplikasjon}
   \framesubtitle{på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
   
-<<FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+<<FigLabKompl,eval=FALSE,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
 
-barplot( LabKomplikasjoner$R )
+pal <- RColorBrewer::brewer.pal(4,"Blues")
+palk <- c(
+    rep(
+        x = pal[3] ,
+        times = length(TabRLabKompl)-1) ,
+    pal[4])
 
-## the plot crashes with an error
-#  pal <- RColorBrewer::brewer.pal(4,"Blues")
-#  palk <- c(
-#      rep(
-#          x = pal[3] ,
-#          times = length(TabRLabKompl)-1) ,
-#      pal[4])
-#  
-#  par(
-#      mar = c(4,15,2,2) ,
-#      xpd = NA ,
-#      las = 1)
-#  
-#  xBarplot <- barplot(
-#      TabRLabKompl ,
-#      xlab = "Andel (%)" ,
-#      horiz = TRUE ,
-#      border = FALSE ,
-#      col = palk )
-#  
-#  text(
-#      x = TabRLabKompl ,
-#      y = xBarplot ,
-#      pos = 4 ,
-#      col = "#000000AA" ,
-#      labels = TabNLabKompl)
+par(
+    mar = c(4,15,2,2) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRLabKompl ,
+    xlab = "Andel (%)" ,
+    horiz = TRUE ,
+    border = FALSE ,
+    col = palk )
+
+text(
+    x = TabRLabKompl ,
+    y = xBarplot ,
+    pos = 4 ,
+    col = "#000000AA" ,
+    labels = TabNLabKompl)
 
 @   
 
@@ -880,7 +879,9 @@ AvdKomplikasjoner <- data.frame(
         "Død"
     )
 )
-    
+
+AvdKomplikasjoner$Levels <- unlist( lapply( AvdKomplikasjoner$VarName , function(X) paste0( sort( unique( AP[,X] )) , collapse = "," )))
+
 AvdKomplikasjoner$N <- unlist(
     lapply(
         X = AvdKomplikasjoner$VarName ,
@@ -912,35 +913,33 @@ print( AvdKomplikasjoner )
   \frametitle{Komplikasjon}
   \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
 
-<<FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+<<FigAvdKompl,eval=FALSE,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
 
-barplot( AvdKomplikasjoner$R )
+pal <- RColorBrewer::brewer.pal(4,"Blues")
+palk <- c(
+    rep(
+        x = pal[3] ,
+        times = length(TabRAvdKompl)-1) ,
+    pal[4])
 
-#  pal <- RColorBrewer::brewer.pal(4,"Blues")
-#  palk <- c(
-#      rep(
-#          x = pal[3] ,
-#          times = length(TabRAvdKompl)-1) ,
-#      pal[4])
-#  
-#  par(
-#      mar = c(4,15,2,2) ,
-#      xpd = NA ,
-#      las = 1)
-#  
-#  xBarplot <- barplot(
-#      TabRAvdKompl ,
-#      xlab = "Andel (%)" ,
-#      horiz = TRUE ,
-#      border = FALSE ,
-#      col = palk )
-#  
-#  text(
-#      x = TabRAvdKompl ,
-#      y = xBarplot ,
-#      pos = 4 ,
-#      col = "#000000AA" ,
-#      labels = TabNAvdKompl)
+par(
+    mar = c(4,15,2,2) ,
+    xpd = NA ,
+    las = 1)
+
+xBarplot <- barplot(
+    TabRAvdKompl ,
+    xlab = "Andel (%)" ,
+    horiz = TRUE ,
+    border = FALSE ,
+    col = palk )
+
+text(
+    x = TabRAvdKompl ,
+    y = xBarplot ,
+    pos = 4 ,
+    col = "#000000AA" ,
+    labels = TabNAvdKompl)
  
 @ 
 
