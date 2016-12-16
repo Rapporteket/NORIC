@@ -734,13 +734,14 @@ xtable::print.xtable(
 
 
 
+
 \section{Komplikasjon}
 
 
 \begin{frame}[fragile]
   \frametitle{Komplikasjon}
   \framesubtitle{ på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
-<<TabLabKompl>>=
+<<TabLabKompl,results='asis'>>=
 
 LabKomplikasjoner <- data.frame(
     VarName = c(
@@ -759,7 +760,7 @@ LabKomplikasjoner <- data.frame(
         "LabKompAnnenAlv" ,
         "LabKompDod"
     ) ,
-    Label = c(
+    Komplikasjon = c(
         "Alle komplikasjoner" ,
         "Allergisk reaksjon lett/moderat" ,
         "Allergisk reaksjon alvorlig" ,
@@ -777,27 +778,32 @@ LabKomplikasjoner <- data.frame(
     )
 )
 
-LabKomplikasjoner$Levels <- lapply( LabKomplikasjoner$VarName , function(X) paste0( sort( unique( AP[,X] )) , collapse = "," ))
-
-LabKomplikasjoner$N <- unlist(
+LabKomplikasjoner$Antall <- unlist(
     lapply(
         X = LabKomplikasjoner$VarName ,
         FUN = function(X) try(
-                              sum( AP[,X] == "Ja" )
+                              sum( AP[,X] == "Ja" , na.rm = TRUE )
                               )
         )
     )
 
-LabKomplikasjoner$R <- round(
-    100 * LabKomplikasjoner$N / dim(AP)[1] ,
+LabKomplikasjoner$Prosent <- round(
+    100 * LabKomplikasjoner$Antall / dim(AP)[1] ,
     digits = 1 )
 
-i.labkomp <- order(LabKomplikasjoner$R)
+i.labkomp <- order(LabKomplikasjoner$Prosent)
 
 LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 
-print( LabKomplikasjoner )
-
+Hmisc::latex(
+    object = LabKomplikasjoner[,-1] ,
+    booktabs = TRUE,
+    table.env = FALSE ,
+    col.just = c("l","r","r") ,
+    rowname = NULL ,
+    center = "none" ,
+    title = "",
+    file = "")
 
 @   
   
@@ -808,33 +814,27 @@ print( LabKomplikasjoner )
   \frametitle{Komplikasjon}
   \framesubtitle{på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
   
-<<FigLabKompl,eval=FALSE,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
-
-pal <- RColorBrewer::brewer.pal(4,"Blues")
-palk <- c(
-    rep(
-        x = pal[3] ,
-        times = length(TabRLabKompl)-1) ,
-    pal[4])
+<<FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
 
 par(
     mar = c(4,15,2,2) ,
     xpd = NA ,
     las = 1)
 
+lk <- LabKomplikasjoner[,4]; names(lk) <- LabKomplikasjoner[,2]
+
 xBarplot <- barplot(
-    TabRLabKompl ,
+    lk ,
     xlab = "Andel (%)" ,
     horiz = TRUE ,
-    border = FALSE ,
-    col = palk )
+    border = FALSE )
 
 text(
-    x = TabRLabKompl ,
+    x = LabKomplikasjoner[,4] ,
     y = xBarplot ,
     pos = 4 ,
     col = "#000000AA" ,
-    labels = TabNLabKompl)
+    labels = LabKomplikasjoner[,3])
 
 @   
 
@@ -847,7 +847,7 @@ text(
   \frametitle{Komplikasjon}
   \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
 
-<<TabAvdKompl>>=
+<<TabAvdKompl,results='asis'>>=
 
 AvdKomplikasjoner <- data.frame(
     VarName = c(
@@ -864,7 +864,7 @@ AvdKomplikasjoner <- data.frame(
         "AvdKompAnnenAlvorlig" ,
         "AvdKompDod"
     ) ,
-    Label = c(
+    Komplikasjon = c(
         "Alle komplikasjoner" ,
         "Allergisk senkomplikasjon" ,
         "Noen form for blodning" ,
@@ -880,27 +880,32 @@ AvdKomplikasjoner <- data.frame(
     )
 )
 
-AvdKomplikasjoner$Levels <- unlist( lapply( AvdKomplikasjoner$VarName , function(X) paste0( sort( unique( AP[,X] )) , collapse = "," )))
-
-AvdKomplikasjoner$N <- unlist(
+AvdKomplikasjoner$Antall <- unlist(
     lapply(
         X = AvdKomplikasjoner$VarName ,
         FUN = function(X) try(
-                              sum( AP[,X] == "Ja" )
+                              sum( AP[,X] == "Ja" , na.rm = TRUE )
                               )
         )
     )
 
-
-AvdKomplikasjoner$R <- round(
-    100 * AvdKomplikasjoner$N / dim(AP)[1] ,
+AvdKomplikasjoner$Prosent <- round(
+    100 * AvdKomplikasjoner$Antall / dim(AP)[1] ,
     digits = 1 )
 
-i.R <- order(AvdKomplikasjoner$R)
+i.labkomp <- order(AvdKomplikasjoner$Prosent)
 
-AvdKomplikasjoner <- AvdKomplikasjoner[i.R,]
+AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp,]
 
-print( AvdKomplikasjoner )
+Hmisc::latex(
+    object = AvdKomplikasjoner[,-1] ,
+    booktabs = TRUE,
+    table.env = FALSE ,
+    rowname = NULL ,
+    col.just = c("l","r","r") ,
+    center = "none" ,
+    title = "",
+    file = "")
 
 @   
   
@@ -913,33 +918,28 @@ print( AvdKomplikasjoner )
   \frametitle{Komplikasjon}
   \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
 
-<<FigAvdKompl,eval=FALSE,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
-
-pal <- RColorBrewer::brewer.pal(4,"Blues")
-palk <- c(
-    rep(
-        x = pal[3] ,
-        times = length(TabRAvdKompl)-1) ,
-    pal[4])
+<<FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
 
 par(
     mar = c(4,15,2,2) ,
     xpd = NA ,
     las = 1)
 
+ak <- AvdKomplikasjoner[,4]; names(ak) <- AvdKomplikasjoner[,2]
+
 xBarplot <- barplot(
-    TabRAvdKompl ,
+    ak ,
     xlab = "Andel (%)" ,
     horiz = TRUE ,
-    border = FALSE ,
-    col = palk )
+    border = FALSE
+    )
 
 text(
-    x = TabRAvdKompl ,
+    x = AvdKomplikasjoner[,4] ,
     y = xBarplot ,
     pos = 4 ,
     col = "#000000AA" ,
-    labels = TabNAvdKompl)
+    labels = AvdKomplikasjoner[,3])
  
 @ 
 
