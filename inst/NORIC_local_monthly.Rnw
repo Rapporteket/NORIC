@@ -713,27 +713,6 @@ xtable::print.xtable(
 \end{frame}
 
 
-\begin{frame}[fragile]
-  \frametitle{Andre prosedyrer}
-  
-<<TabRAndreProsedyrer,  results = 'asis'>>=
-
-xtable::print.xtable(
-    x = xtable::xtable(
-        100 * prop.table(
-                  TabNAndreProsedyrer ,
-                  margin = 1) ,
-        caption = "Prosentandel andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" ,
-        digits = 1) ,
-    rotate.colnames = TRUE ,
-#    scalebox = 0.8 ,
-    booktabs = TRUE )
-
-@   
-\end{frame}
-
-
-
 
 \section{Komplikasjon}
 
