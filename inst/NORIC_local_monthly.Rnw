@@ -780,7 +780,7 @@ Hmisc::latex(
     table.env = FALSE ,
     col.just = c("l","r","r") ,
     rowname = NULL ,
-    center = "none" ,
+#    center = "none" ,
     title = "",
     file = "")
 
@@ -882,7 +882,7 @@ Hmisc::latex(
     table.env = FALSE ,
     rowname = NULL ,
     col.just = c("l","r","r") ,
-    center = "none" ,
+#    center = "none" ,
     title = "",
     file = "")
 
