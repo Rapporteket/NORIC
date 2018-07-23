@@ -1,0 +1,971 @@
+<<knitrOptions,include=FALSE>>=
+
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+options(stringsAsFactors=FALSE , width = "130")
+
+@ 
+
+
+<<SKDEcol,include=FALSE>>=
+
+colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
+colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
+colKontrast <- "#FF7260"
+
+@ 
+
+
+<!-- <<GetData,include=FALSE>>= -->
+
+<!-- baseName <- "noricStaging" -->
+
+<!-- registryName <- if (exists( "reshID" )) { -->
+<!--                     noric::NORICmakeRegistryName( -->
+<!--                                baseName = baseName , -->
+<!--                                reshID = reshID -->
+<!--                            ) -->
+<!--                 } else { -->
+<!--                     "rapbase" -->
+<!--                 } -->
+
+<!-- dbType <- "mysql" -->
+<!-- SOQuery <- "SELECT * FROM SkjemaOversikt" -->
+<!-- APQuery <- "SELECT * FROM AngioPCIVar" -->
+<!-- AnPQuery <- "SELECT * FROM AndreProsedyrerVar" -->
+
+<!-- SO <- rapbase::LoadRegData(registryName, SOQuery, dbType) -->
+<!-- AP <- rapbase::LoadRegData(registryName, APQuery, dbType) -->
+<!-- AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType) -->
+
+<!-- showN <- 12 # how many months are displayed -->
+<!-- @ -->
+
+
+
+<!-- <<AnPPrepare,include=FALSE>>= -->
+
+<!-- AnP$ProsedyreDato <- as.Date( AnP$ProsedyreDato) -->
+
+<!-- AnP$Year <- as.numeric( -->
+<!--     format( -->
+<!--         x = AnP $ ProsedyreDato , -->
+<!--         format = "%Y")) -->
+
+<!-- AnP$nMonth <- as.numeric( -->
+<!--     as.factor( -->
+<!--         format( -->
+<!--             AnP$ProsedyreDato , -->
+<!--             format = "%y-%m"))) -->
+
+<!-- AnP $ Day <- as.numeric( -->
+<!--     AnP $ ProsedyreDato - min( AnP $ ProsedyreDato , na.rm = TRUE ) ) -->
+
+<!-- AnP <- subset( -->
+<!--     x = AnP , -->
+<!--     subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN ) -->
+
+<!-- AnP $ Month <- as.factor( -->
+<!--     format( -->
+<!--         x = AnP $ ProsedyreDato , -->
+<!--         format = "%y-%m")) -->
+
+<!-- AnP$AnnenProsType <- factor( -->
+<!--     x = AnP$AnnenProsType , -->
+<!--     levels = c( -->
+<!--         "Høyre hjertekateterisering" , -->
+<!--         "Temporær pacemaker" , -->
+<!--         "Perikardiocentese" , -->
+<!--         "Ventilfilming" , -->
+<!--         "Lukking av ASD/PFO" , -->
+<!--         "Lukking av venstre aurikkel" , -->
+<!--         "Impella") , -->
+<!--     labels = c( -->
+<!--         "Høyre kat." , -->
+<!--         "Temp. pm" , -->
+<!--         "Perikardiocentese" , -->
+<!--         "Ventilfilming" , -->
+<!--         "Lukking ASD/PFO" , -->
+<!--         "Lukking v. aurikkel" , -->
+<!--         "Impella") -->
+<!--     ) -->
+
+<!-- @ -->
+
+
+
+<!-- <<SOPrepare,include=FALSE>>= -->
+
+<!-- SO$RegDate <- as.Date( -->
+<!--     SO$HovedDato) -->
+
+<!-- SO$Year <- as.numeric( -->
+<!--     format( -->
+<!--         x = SO$RegDate , -->
+<!--         format = "%Y")) -->
+
+<!-- SO$nMonth <- as.numeric( -->
+<!--     as.factor( -->
+<!--         format( -->
+<!--             x = SO$RegDate , -->
+<!--             format = "%y-%m"))) -->
+
+<!-- SO <- subset( -->
+<!--     x = SO , -->
+<!--     subset = -->
+<!--         (nMonth > max( nMonth , na.rm = TRUE ) - showN) & -->
+<!--         (RegDate < Sys.Date()))     -->
+
+
+<!--   # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015 -->
+<!-- if ( SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ] -->
+
+<!-- SO$Month <- as.factor( -->
+<!--     format( -->
+<!--         SO$RegDate , -->
+<!--         format = "%y-%m")) -->
+
+<!-- @  -->
+
+
+
+
+<!-- <<APprepare,include=FALSE>>= -->
+
+<!-- AP$FodselsDato <- as.Date( AP$FodselsDato) -->
+
+<!-- AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato) -->
+
+<!-- AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato) -->
+
+<!-- AP$ProsedyreDato <- as.Date( AP$ProsedyreDato) -->
+
+<!-- AP$Sykehusnavn <- factor( AP$Sykehusnavn ) -->
+
+<!-- AP $ AdmissionType <- car::recode( -->
+<!--     var = AP $ OverflyttetFra , -->
+<!--     recodes = " -->
+<!--         'Annet sykehus'='Referred'; -->
+<!--         '' = NA; -->
+<!--         'Annen  avdeling på sykehuset' = NA; -->
+<!--         'Nei, direkte inn til dette sykehus' = 'Directly admitted'; -->
+<!--         'Omdirigert ambulanse' = 'Directly admitted'; -->
+<!--         ") -->
+
+<!-- AP $ Indikasjon2 <- factor( -->
+<!--     car::recode( -->
+<!--         var = AP $ Indikasjon , -->
+<!--         recodes = " -->
+<!--             'Stabil koronarsykdom'='SAP'; -->
+<!--             'UAP'='UAP'; -->
+<!--             'NSTEMI'='NSTEMI'; -->
+<!--             'STEMI'='STEMI'; -->
+<!--             'Hjertestans ved STEMI'='STEMI'; -->
+<!--             'STEMI > 24h'='STEMI'; -->
+<!--             'STEMI/Rescue PCI'='STEMI'; -->
+<!--             'Uklare brystsmerter'='Uklare brystsmerter'; -->
+<!--             else='Annet'; -->
+<!--             ") , -->
+<!--     levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") ) -->
+
+
+<!-- AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA -->
+<!-- AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos") -->
+
+<!-- @  -->
+
+
+
+<!-- <<Daterecodes,include=FALSE>>= -->
+
+<!-- AP$Year <- as.numeric( -->
+<!--     format( -->
+<!--         x = AP $ ProsedyreDato , -->
+<!--         format = "%Y")) -->
+
+<!-- AP$Week <- as.numeric( -->
+<!--     format( -->
+<!--         x = AP $ ProsedyreDato , -->
+<!--         format = "%W")) -->
+
+
+<!-- AP$nMonth <- as.numeric( -->
+<!--     as.factor( -->
+<!--         format( -->
+<!--             AP$ProsedyreDato , -->
+<!--             format = "%y-%m"))) -->
+
+<!-- AP $ Day <- as.numeric( -->
+<!--     AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) ) -->
+
+<!-- @  -->
+
+
+
+<!-- <<subsetting,include=FALSE>>= -->
+
+<!-- NSTEMI <- subset( -->
+<!--     x = AP , -->
+<!--     subset = (Indikasjon == "NSTEMI")) -->
+
+<!-- NSTEMI $ Month <- as.factor( -->
+<!--     format( -->
+<!--         x = NSTEMI $ ProsedyreDato , -->
+<!--         format = "%y-%m")) -->
+
+
+<!-- AP <- subset( -->
+<!--     x = AP , -->
+<!--     subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN ) -->
+
+<!--  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015 -->
+<!-- if (AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Year >= 2015 ) , ] -->
+
+<!-- AP $ Month <- as.factor( -->
+<!--     format( -->
+<!--         x = AP $ ProsedyreDato , -->
+<!--         format = "%y-%m")) -->
+
+<!-- @  -->
+
+
+<!-- \title[Angio/PCI\\\Sexpr{AP$Sykehusnavn[1]}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{AP$Sykehusnavn[1]}} -->
+
+
+<!-- \begin{document} -->
+<!-- \begin{tiny} -->
+
+<!-- \maketitle -->
+
+
+<!-- \section{Hastegrad} -->
+
+# Hastegrad
+
+## Hastegrad
+<!-- <<FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=8,fig.height=4,out.width="\\textwidth">>= -->
+<!-- pal <- colPrimary[c(1,3,5)] -->
+
+<!-- op <- par( -->
+<!--     mfcol = c (1,1) , -->
+<!--     xpd = NA , -->
+<!--     mar = c(5.1,4.1,4.1,13.1) , -->
+<!--     bg = "#EEEEEE") -->
+
+<!-- barplot( -->
+<!--     xtabs( -->
+<!--         formula = ~ Hastegrad + Month , -->
+<!--         data = AP) , -->
+<!--     las = 1 , -->
+<!--     xlab = "Måned" , -->
+<!--     ylab = "Antall" , -->
+<!--     col = pal , -->
+<!--     space = 0.2 , -->
+<!--     border = FALSE) -->
+
+<!-- legend( -->
+<!--     "right" , -->
+<!--     inset = -.28 , -->
+<!--     bty = "n" , -->
+<!--     horiz = FALSE , -->
+<!--     fill = pal[3:1], -->
+<!--     legend = sort( -->
+<!--         unique(AP$Hastegrad) ,  -->
+<!--         decreasing = T) , -->
+<!--     cex = 1) -->
+
+<!-- @ -->
+<!-- \end{frame} -->
+
+
+
+## Hastegrad
+
+<!-- <<TabNHastegrad,  results = 'asis'>>= -->
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         x = addmargins( -->
+<!--             xtabs( -->
+<!--                 formula = ~ Month + Hastegrad , -->
+<!--                 data = AP)) , -->
+<!--         caption = "Antall registrerte prosedyrer etter hastegrad og måned" , -->
+<!--         digits = 0) , -->
+<!--     booktabs = TRUE ) -->
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+
+## Hastegrad
+<!-- <<TabRHastegrad,  results = 'asis'>>= -->
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         100 * prop.table( -->
+<!--             xtabs( -->
+<!--                 formula = ~ Month + Hastegrad , -->
+<!--                 data = AP) , -->
+<!--             margin = 1) , -->
+<!--         caption = "Prosentandel prosedyrer etter hastegrad og måned" , -->
+<!--         digits = 1) , -->
+<!--     booktabs = TRUE ) -->
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+
+
+# Prosedyre type
+
+## Prosedyre type
+
+<!-- <<FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",fig.width=8,fig.height=4,out.width="\\textwidth">>= -->
+<!-- pal <- colPrimary[c(1,3,5)] -->
+
+<!-- op <- par( -->
+<!--     mfcol = c (1,1) , -->
+<!--     xpd = NA , -->
+<!--     mar = c(5.1,4.1,4.1,13.1) , -->
+<!--     bg = "#EEEEEE") -->
+
+<!-- barplot( -->
+<!--     xtabs( -->
+<!--         formula = ~ ProsedyreType + Month , -->
+<!--         data = AP) , -->
+<!--     las = 1 , -->
+<!--     xlab = "Måned" , -->
+<!--     ylab = "Antall" , -->
+<!--     col = pal , -->
+<!--     space = 0.2 , -->
+<!--     border = FALSE) -->
+
+<!-- legend( -->
+<!--     "right" , -->
+<!--     inset = -.28 , -->
+<!--     bty = "n" , -->
+<!--     horiz = FALSE , -->
+<!--     fill = pal[3:1], -->
+<!--     legend = sort( -->
+<!--         unique(AP$ProsedyreType) , -->
+<!--         decreasing = TRUE ), -->
+<!--     cex = 1) -->
+
+<!-- @ -->
+<!-- \end{frame} -->
+
+
+## Prosedyre type
+
+<!-- <<TabNProsedyreType,  results = 'asis'>>= -->
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         x = addmargins( -->
+<!--             xtabs( -->
+<!--                 formula = ~ Month + ProsedyreType , -->
+<!--                 data = AP)) , -->
+<!--         caption = "Antall prosedyrer etter prosedyretype og måned" , -->
+<!--         digits = 0) , -->
+<!--     booktabs = TRUE ) -->
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+## Prosedyre type
+
+<!-- <<TabRProsedyreType,  results = 'asis'>>= -->
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         100 * prop.table( -->
+<!--             xtabs( -->
+<!--                 formula = ~ Month + ProsedyreType , -->
+<!--                 data = AP) , -->
+<!--             margin = 1) , -->
+<!--         caption = "Prosentandel prosedyrer etter prosedyretype og måned" , -->
+<!--         digits = 1) , -->
+<!--     booktabs = TRUE ) -->
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+
+
+
+# Indikasjon
+
+## Indikasjon
+
+<!-- <<FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6,out.width="\\textwidth">>= -->
+
+<!-- op <- par( -->
+<!--     mfcol = c (1,1) , -->
+<!--     xpd = NA , -->
+<!--     mar = c(5.1,4.1,4.1,13.1) , -->
+<!--     bg = "#EEEEEE") -->
+
+<!-- barplot( -->
+<!--     xtabs( -->
+<!--         formula = ~ Indikasjon2 + Month , -->
+<!--         data = AP) , -->
+<!--     las = 1 , -->
+<!--     xlab = "Måned" , -->
+<!--     ylab = "Antall" , -->
+<!--     col = colPrimary[6:1] , -->
+<!--     space = 0.2 , -->
+<!--     border = FALSE) -->
+
+<!-- legend( -->
+<!--     "right" , -->
+<!--     inset = -.28 , -->
+<!--     bty = "n" , -->
+<!--     horiz = FALSE , -->
+<!--     fill = colPrimary , -->
+<!--     legend = levels(AP$Indikasjon2)[6:1] , -->
+<!--     cex = 1) -->
+
+<!-- @ -->
+<!-- \end{frame} -->
+
+
+## Indikasjon
+
+<!-- <<TabNIndikasjon,  results = 'asis'>>= -->
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         x = addmargins( -->
+<!--             xtabs( -->
+<!--                 formula = ~ Month + Indikasjon2 , -->
+<!--                 data = AP)) , -->
+<!--         caption = "Antall prosedyrer etter indikasjon og måned" , -->
+<!--         digits = 0) , -->
+<!--     booktabs = TRUE ) -->
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+## Indikasjon
+
+<!-- <<TabRIndikasjon,  results = 'asis'>>= -->
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         100 * prop.table( -->
+<!--             xtabs( -->
+<!--                 formula = ~ Month + Indikasjon2 , -->
+<!--                 data = AP) , -->
+<!--             margin = 1) , -->
+<!--         caption = "Prosentandel prosedyrer etter indikasjon og måned" , -->
+<!--         digits = 1) , -->
+<!--     booktabs = TRUE ) -->
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+
+
+
+#Annen diagnostikk
+
+
+
+<!-- <<TabTillegg,include=FALSE>>= -->
+
+<!-- PrintTabTilleggCol <- function(VAR){ -->
+
+<!--     nVAR <- addmargins( -->
+<!--         table( -->
+<!--             AP$Month , -->
+<!--             addNA( -->
+<!--                 factor( -->
+<!--                     AP[,VAR] , -->
+<!--                     levels = c("Ja","Nei","")))) , -->
+<!--         margin = 1 ) -->
+
+<!--     nVARja <- sprintf( -->
+<!--         "%3.0f" , -->
+<!--         nVAR[ ,  -->
+<!--              which(colnames(nVAR)=="Ja") -->
+<!--              ] ) -->
+
+<!--     rVAR <- round( -->
+<!--         100 * prop.table( -->
+<!--                   nVAR , -->
+<!--                   margin = 1 ) , -->
+<!--         digits = 1 ) -->
+
+<!--     rVARja <- sprintf( -->
+<!--         "%4.1f" , -->
+<!--         rVAR[ ,  -->
+<!--              which(colnames(rVAR)=="Ja") -->
+<!--              ] ) -->
+
+<!--     return( -->
+<!--         paste( -->
+<!--             nVARja , -->
+<!--             " (", -->
+<!--             rVARja , -->
+<!--             ")" , -->
+<!--             sep = "")) -->
+
+<!-- } -->
+
+<!-- #  Rotablator,trombeaspirasjon, IABP , -->
+
+<!-- TilleggVars <- c( -->
+<!--     "FFR", -->
+<!--     "Doppler", -->
+<!--     "IVUS", -->
+<!--     "OCT", -->
+<!--     "IFR", -->
+<!--     "NIRS", -->
+<!--     "HoyreHjerteKat", -->
+<!--     "Perikardiocentese", -->
+<!--     "Pacemaker", -->
+<!--     "Aortaballongpumpe", -->
+<!--     "Impella", -->
+<!--     "Trombectomy", -->
+<!--     "ECMO", -->
+<!--     "AnnenDiag") -->
+
+<!-- IndexMinEnTillegg <- unique( -->
+<!--     unlist( -->
+<!--         lapply( -->
+<!--             X = TilleggVars , -->
+<!--             FUN = function(X) which( AP[,X] == "Ja" ) -->
+<!--         ) -->
+<!--     ) -->
+<!-- ) -->
+
+<!-- AP$IngenTillegg <- "Ja" -->
+<!-- AP$IngenTillegg[IndexMinEnTillegg] <- "Nei" -->
+
+<!-- TabTillegg <- cbind( -->
+<!--     PrintTabTilleggCol("FFR") , -->
+<!--     PrintTabTilleggCol("Doppler" ) , -->
+<!--     PrintTabTilleggCol("IVUS") , -->
+<!--     PrintTabTilleggCol("OCT") , -->
+<!--     PrintTabTilleggCol("IFR") , -->
+<!--     PrintTabTilleggCol("NIRS") , -->
+<!--     PrintTabTilleggCol("HoyreHjerteKat") , -->
+<!--     PrintTabTilleggCol("Perikardiocentese") , -->
+<!--     PrintTabTilleggCol("Pacemaker") , -->
+<!--     PrintTabTilleggCol("Aortaballongpumpe") , -->
+<!--     PrintTabTilleggCol("Impella") , -->
+<!--     PrintTabTilleggCol("Trombectomy") , -->
+<!--     PrintTabTilleggCol("ECMO") , -->
+<!--     PrintTabTilleggCol("AnnenDiag") , -->
+<!--     PrintTabTilleggCol("IngenTillegg") -->
+<!--     ) -->
+
+<!-- TilleggLabels <- c( -->
+<!--     "FFR", -->
+<!--     "Doppler" , -->
+<!--     "IVUS", -->
+<!--     "OCT", -->
+<!--     "IFR", -->
+<!--     "NIRS", -->
+<!--     "Høyre kat.", -->
+<!--     "Perikardiocentese", -->
+<!--     "PM", -->
+<!--     "IABP", -->
+<!--     "Impella", -->
+<!--     "Trombectomy", -->
+<!--     "ECMO", -->
+<!--     "Annen", -->
+<!--     "Ingen") -->
+
+<!-- # AdjuvantTerapi -->
+
+<!-- rownames( TabTillegg ) <- c( levels( AP $ Month ) , "Totalt" ) -->
+<!-- colnames( TabTillegg ) <- c( TilleggLabels ) -->
+
+<!-- @  -->
+
+
+
+## Annen diagnostikk ved angiografi
+
+<!-- \begin{table}[!tbp] -->
+<!-- \caption{Totalt antall (prosent) tilleggsprosedyrer etter måned} -->
+<!-- \centering -->
+
+<!-- <<PrintTableTillegg1,results='asis'>>= -->
+
+<!-- Hmisc::latex( -->
+<!--     object = TabTillegg[,1:6] , -->
+<!--     booktabs = TRUE, -->
+<!--     table.env = FALSE , -->
+<!--     col.just = rep("r",length(colnames(TabTillegg))) , -->
+<!--     center = "none" , -->
+<!--     title = "", -->
+<!--     file = "") -->
+
+<!-- @ -->
+
+<!-- \end{table} -->
+<!-- \end{frame} -->
+  
+  
+
+
+## Tilleggsprosedyrer
+
+<!-- \begin{table}[!tbp] -->
+<!-- \caption{Totalt antall (prosent) tilleggsprosedyrer etter måned} -->
+<!-- \centering -->
+
+<!-- <<PrintTableTillegg2,results='asis'>>= -->
+
+<!-- Hmisc::latex( -->
+<!--     object = TabTillegg[,7:8] , -->
+<!--     booktabs = TRUE, -->
+<!--     table.env = FALSE , -->
+<!--     col.just = rep("r",length(colnames(TabTillegg))) , -->
+<!--     center = "none" , -->
+<!--     title = "", -->
+<!--     file = "") -->
+
+<!-- @ -->
+
+<!-- \end{table} -->
+<!-- \end{frame} -->
+
+
+
+
+## Adjuvant terapi
+
+<!-- \begin{table}[!tbp] -->
+<!-- \caption{Totalt antall (prosent) tilleggsprosedyrer etter måned} -->
+<!-- \centering -->
+
+<!-- \resizebox{\textwidth}{!}{ -->
+
+<!-- <<PrintTableTillegg3,results='asis'>>= -->
+
+<!-- Hmisc::latex( -->
+<!--     object = TabTillegg[,9:15] , -->
+<!--     booktabs = TRUE, -->
+<!--     table.env = FALSE , -->
+<!--     col.just = rep("r",length(colnames(TabTillegg))) , -->
+<!--     center = "none" , -->
+<!--     title = "", -->
+<!--     file = "") -->
+
+<!-- @ -->
+<!-- } -->
+<!-- \end{table} -->
+<!-- \end{frame} -->
+
+
+
+
+# Andre prosedyrer
+
+## Andre prosedyrer
+
+<!-- <<TabNAndreProsedyrer,  results = 'asis'>>= -->
+
+<!-- TabNAndreProsedyrer <- addmargins( -->
+<!--     xtabs( -->
+<!--         formula = ~ Month + AnnenProsType , -->
+<!--         data = AnP)) -->
+
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         x = TabNAndreProsedyrer , -->
+<!--         caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" , -->
+<!--         digits = 0) , -->
+<!--     rotate.colnames = TRUE , -->
+<!-- #    scalebox = 0.8 , -->
+<!--     booktabs = TRUE ) -->
+
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+
+# Komplikasjon
+
+
+## Komplikasjon
+<!--   \framesubtitle{ på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}} -->
+<!-- <<TabLabKompl,results='asis'>>= -->
+
+<!-- LabKomplikasjoner <- data.frame( -->
+<!--     VarName = c( -->
+<!--         "LabKomplikasjon" , -->
+<!--         "LabKompAllergiskLettModerat" , -->
+<!--         "LabKompAllergiskAlvorlig" , -->
+<!--         "LabKompBehkrevendeArytmi" , -->
+<!--         "LabKompHemodynamisk" , -->
+<!--         "LabKompNeurologisk" , -->
+<!--         "LabKompVaskulaerIkkeKoronar" , -->
+<!--         "LabKompMistetStent" , -->
+<!--         "LabKompVedvarSidegrensokkl" , -->
+<!--         "LabKompPerforasjon" , -->
+<!--         "LabKompTamponade" , -->
+<!--         "LabKompAkuttACBOperasjon" , -->
+<!--         "LabKompAnnenAlv" , -->
+<!--         "LabKompDod" -->
+<!--     ) , -->
+<!--     Komplikasjon = c( -->
+<!--         "Alle komplikasjoner" , -->
+<!--         "Allergisk reaksjon lett/moderat" , -->
+<!--         "Allergisk reaksjon alvorlig" , -->
+<!--         "Behandlingskrevende arytmi" , -->
+<!--         "Hemodynamisk" , -->
+<!--         "Neurologisk" , -->
+<!--         "Vaskulaer (men ikke koronar)" , -->
+<!--         "Mistet stent" , -->
+<!--         "Vedvarende sidegrensokklusjon" , -->
+<!--         "Perforasjon" , -->
+<!--         "Tamponade" , -->
+<!--         "Akutt ACB-operasjon fra lab" , -->
+<!--         "Annen alvorlig" , -->
+<!--         "Død" -->
+<!--     ) -->
+<!-- ) -->
+
+<!-- LabKomplikasjoner$Antall <- unlist( -->
+<!--     lapply( -->
+<!--         X = LabKomplikasjoner$VarName , -->
+<!--         FUN = function(X) try( -->
+<!--                               sum( AP[,X] == "Ja" , na.rm = TRUE ) -->
+<!--                               ) -->
+<!--         ) -->
+<!--     ) -->
+
+<!-- LabKomplikasjoner$Prosent <- round( -->
+<!--     100 * LabKomplikasjoner$Antall / dim(AP)[1] , -->
+<!--     digits = 1 ) -->
+
+<!-- i.labkomp <- order(LabKomplikasjoner$Prosent) -->
+
+<!-- LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,] -->
+
+<!-- Hmisc::latex( -->
+<!--     object = LabKomplikasjoner[,-1] , -->
+<!--     booktabs = TRUE, -->
+<!--     table.env = FALSE , -->
+<!--     col.just = c("l","r","r") , -->
+<!--     rowname = NULL , -->
+<!-- #    center = "none" , -->
+<!--     title = "", -->
+<!--     file = "") -->
+
+<!-- @    -->
+
+<!-- \end{frame} -->
+
+
+## Komplikasjon
+<!--   \framesubtitle{på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}} -->
+
+<!-- <<FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>= -->
+
+<!-- par( -->
+<!--     mar = c(4,15,2,2) , -->
+<!--     xpd = NA , -->
+<!--     las = 1) -->
+
+<!-- lk <- LabKomplikasjoner[,4]; names(lk) <- LabKomplikasjoner[,2] -->
+
+<!-- xBarplot <- barplot( -->
+<!--     lk , -->
+<!--     xlab = "Andel (%)" , -->
+<!--     horiz = TRUE , -->
+<!--     border = FALSE ) -->
+
+<!-- text( -->
+<!--     x = LabKomplikasjoner[,4] , -->
+<!--     y = xBarplot , -->
+<!--     pos = 4 , -->
+<!--     col = "#000000AA" , -->
+<!--     labels = LabKomplikasjoner[,3]) -->
+
+<!-- @    -->
+
+<!-- \end{frame} -->
+
+
+
+
+## Komplikasjon
+<!--   \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}} -->
+
+<!-- <<TabAvdKompl,results='asis'>>= -->
+
+<!-- AvdKomplikasjoner <- data.frame( -->
+<!--     VarName = c( -->
+<!--         "AvdKomp" , -->
+<!--         "AvdKompAllergisk" , -->
+<!--         "AvdKompBlodning" , -->
+<!--         "AvdKompVaskulaer" , -->
+<!--         "AvdKompNeurologiskKomp" , -->
+<!--         "AvdKompNyNyreinsuffisiens" , -->
+<!--         "AvdKompTamponade" , -->
+<!--         "AvdKompPCI" , -->
+<!--         "AvdKompACB" , -->
+<!--         "AvdKompHjerteinfarkt" , -->
+<!--         "AvdKompAnnenAlvorlig" , -->
+<!--         "AvdKompDod" -->
+<!--     ) , -->
+<!--     Komplikasjon = c( -->
+<!--         "Alle komplikasjoner" , -->
+<!--         "Allergisk senkomplikasjon" , -->
+<!--         "Noen form for blodning" , -->
+<!--         "Vaskulaer (men ikke koronare kar)" , -->
+<!--         "Neurologisk" , -->
+<!--         "Nytilkommet nyreinsuffisiens" , -->
+<!--         "Tamponade" , -->
+<!--         "Re-PCI (behandlet segment)" , -->
+<!--         "ACB-operasjon (ikke fra lab)" , -->
+<!--         "Hjerteinfarkt" , -->
+<!--         "Annen alvorlig" , -->
+<!--         "Død" -->
+<!--     ) -->
+<!-- ) -->
+
+<!-- AvdKomplikasjoner$Antall <- unlist( -->
+<!--     lapply( -->
+<!--         X = AvdKomplikasjoner$VarName , -->
+<!--         FUN = function(X) try( -->
+<!--                               sum( AP[,X] == "Ja" , na.rm = TRUE ) -->
+<!--                               ) -->
+<!--         ) -->
+<!--     ) -->
+
+<!-- AvdKomplikasjoner$Prosent <- round( -->
+<!--     100 * AvdKomplikasjoner$Antall / dim(AP)[1] , -->
+<!--     digits = 1 ) -->
+
+<!-- i.labkomp <- order(AvdKomplikasjoner$Prosent) -->
+
+<!-- AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp,] -->
+
+<!-- Hmisc::latex( -->
+<!--     object = AvdKomplikasjoner[,-1] , -->
+<!--     booktabs = TRUE, -->
+<!--     table.env = FALSE , -->
+<!--     rowname = NULL , -->
+<!--     col.just = c("l","r","r") , -->
+<!-- #    center = "none" , -->
+<!--     title = "", -->
+<!--     file = "") -->
+
+<!-- @    -->
+
+<!-- \end{frame} -->
+
+
+
+
+##Komplikasjon
+<!--   \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}} -->
+
+<!-- <<FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>= -->
+
+<!-- par( -->
+<!--     mar = c(4,15,2,2) , -->
+<!--     xpd = NA , -->
+<!--     las = 1) -->
+
+<!-- ak <- AvdKomplikasjoner[,4]; names(ak) <- AvdKomplikasjoner[,2] -->
+
+<!-- xBarplot <- barplot( -->
+<!--     ak , -->
+<!--     xlab = "Andel (%)" , -->
+<!--     horiz = TRUE , -->
+<!--     border = FALSE -->
+<!--     ) -->
+
+<!-- text( -->
+<!--     x = AvdKomplikasjoner[,4] , -->
+<!--     y = xBarplot , -->
+<!--     pos = 4 , -->
+<!--     col = "#000000AA" , -->
+<!--     labels = AvdKomplikasjoner[,3]) -->
+
+<!-- @  -->
+
+<!-- \end{frame} -->
+
+
+
+
+# Kompletthet
+
+## Kompletthet angio/PCI skjemaer
+
+<!-- <<SOtab1,results='asis'>>= -->
+
+<!-- nSOA <- with( -->
+<!--     SO[ which( SO$Skjemanavn == "AngioPCI" ) , ] , -->
+<!--     table( -->
+<!--         Month , -->
+<!--         factor( -->
+<!--             SkjemaStatus, -->
+<!--             levels=c(0,-1,1) , -->
+<!--             labels = c("Tomt","Begynt","Ferdigstilt")))) -->
+
+<!-- rSOA <- round( -->
+<!--     100 * prop.table( -->
+<!--               nSOA , -->
+<!--               margin = 1 ) , -->
+<!--     digits = 1 ) -->
+
+<!-- TABkompletthet <- cbind( -->
+<!--     rowSums(nSOA) , -->
+<!--     nSOA[ , which( colnames(nSOA)=="Ferdigstilt" ) ] , -->
+<!--     rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] ) -->
+<!-- colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent") -->
+
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         x = TABkompletthet , -->
+<!--         caption = "Antall hoved registreringsskjemaer etter måned" , -->
+<!--         digits = c(0,0,0,1)) , -->
+<!--     booktabs = TRUE ) -->
+
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+
+## Kompletthet utskrivelses skjemaer
+
+<!-- <<SOtab2,results='asis'>>= -->
+
+<!-- nSOU <- with( -->
+<!--     SO[ which( SO$Skjemanavn == "Utskrivelse" ) , ] , -->
+<!--     table( -->
+<!--         Month , -->
+<!--         factor( -->
+<!--             SkjemaStatus, -->
+<!--             levels=c(0,-1,1) , -->
+<!--             labels = c("Tomt","Begynt","Ferdigstilt")))) -->
+
+<!-- rSOU <- round( -->
+<!--     100 * prop.table( -->
+<!--               nSOU , -->
+<!--               margin = 1 ) , -->
+<!--     digits = 1 ) -->
+
+<!-- TABkompletthet <- cbind( -->
+<!--     rowSums(nSOU) , -->
+<!--     nSOU[ , which( colnames(nSOU)=="Ferdigstilt" ) ] , -->
+<!--     rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] ) -->
+<!-- colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent") -->
+
+<!-- xtable::print.xtable( -->
+<!--     x = xtable::xtable( -->
+<!--         x = TABkompletthet , -->
+<!--         caption = "Antall utskrivelsesskjemaer etter måned" , -->
+<!--         digits = c(0,0,0,1)) , -->
+<!--     booktabs = TRUE ) -->
+
+<!-- @    -->
+<!-- \end{frame} -->
+
+
+
+
+<!-- \end{tiny} -->
+<!-- \end{document} -->
