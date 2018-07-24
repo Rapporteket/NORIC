@@ -10,7 +10,12 @@
 library(shiny)
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
+  
+  # will data be passed along to knit?
+  output$reshID <- renderPrint({
+    rapbase::getShinyUserReshId(session, testCase = TRUE)
+  })
   
   output$distPlot1 <- renderPlot({
     

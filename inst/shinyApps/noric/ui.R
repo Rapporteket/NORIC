@@ -32,6 +32,7 @@ shinyUI(
           )
         ),
         mainPanel(
+          verbatimTextOutput("reshID"),
           plotOutput(
             "distPlot1"
           )

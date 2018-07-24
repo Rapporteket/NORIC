@@ -15,32 +15,35 @@ colKontrast <- "#FF7260"
 ``` 
 
 
-<!-- ```{r GetData,include=FALSE} -->
+```{r GetData,include=FALSE}
 
-<!-- baseName <- "noricStaging" -->
+baseName <- "noricStaging"
 
-<!-- registryName <- if (exists( "reshID" )) { -->
-<!--                     noric::NORICmakeRegistryName( -->
-<!--                                baseName = baseName , -->
-<!--                                reshID = reshID -->
-<!--                            ) -->
-<!--                 } else { -->
-<!--                     "rapbase" -->
-<!--                 } -->
+registryName <- if (exists( "reshID" )) {
+                    noric::NORICmakeRegistryName(
+                               baseName = baseName ,
+                               reshID = reshID
+                           )
+                } else {
+                    "rapbase"
+                }
 
-<!-- dbType <- "mysql" -->
-<!-- SOQuery <- "SELECT * FROM SkjemaOversikt" -->
-<!-- APQuery <- "SELECT * FROM AngioPCIVar" -->
-<!-- AnPQuery <- "SELECT * FROM AndreProsedyrerVar" -->
+# dbType <- "mysql"
+# SOQuery <- "SELECT * FROM SkjemaOversikt"
+# APQuery <- "SELECT * FROM AngioPCIVar"
+# AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
+# 
+# SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
+# AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+# AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
+# 
+# showN <- 12 # how many months are displayed
+```
 
-<!-- SO <- rapbase::LoadRegData(registryName, SOQuery, dbType) -->
-<!-- AP <- rapbase::LoadRegData(registryName, APQuery, dbType) -->
-<!-- AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType) -->
+<!-- Hello! This is `r registryName`. -->
 
-<!-- showN <- 12 # how many months are displayed -->
-<!-- ``` -->
-
-
+<!-- We currently have a `r dim(SO)` dataset. -->
+<!-- Happy? -->
 
 <!-- ```{r AnPPrepare,include=FALSE} -->
 
