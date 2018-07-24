@@ -30,11 +30,14 @@ shinyServer(function(input, output, session) {
   
   output$prosedyrer <- renderUI({
     shiny::HTML(
-      markdown::markdownToHTML(
-        knitr::knit(
-          system.file("NORIC_local_monthly.Rmd", package="noric")
-        ),
-        options = c("fragment_only")
+      # markdown::markdownToHTML(
+      #   knitr::knit(
+      #     system.file("NORIC_local_monthly.Rmd", package="noric")
+      #   ),
+      #   options = c("fragment_only")
+      # )
+      rmarkdown::render(
+        system.file("NORIC_local_monthly.Rmd", package="noric")
       )
     )
   })
