@@ -47,239 +47,234 @@ Hello! This is `r registryName`.
 We currently have a `r dim(SO)` dataset.
 Happy?
 
-<!-- ```{r AnPPrepare,include=FALSE} -->
+```{r AnPPrepare,include=FALSE}
 
-<!-- AnP$ProsedyreDato <- as.Date( AnP$ProsedyreDato) -->
+AnP$ProsedyreDato <- as.Date( AnP$ProsedyreDato)
 
-<!-- AnP$Year <- as.numeric( -->
-<!--     format( -->
-<!--         x = AnP $ ProsedyreDato , -->
-<!--         format = "%Y")) -->
+AnP$Year <- as.numeric(
+    format(
+        x = AnP $ ProsedyreDato ,
+        format = "%Y"))
 
-<!-- AnP$nMonth <- as.numeric( -->
-<!--     as.factor( -->
-<!--         format( -->
-<!--             AnP$ProsedyreDato , -->
-<!--             format = "%y-%m"))) -->
+AnP$nMonth <- as.numeric(
+    as.factor(
+        format(
+            AnP$ProsedyreDato ,
+            format = "%y-%m")))
 
-<!-- AnP $ Day <- as.numeric( -->
-<!--     AnP $ ProsedyreDato - min( AnP $ ProsedyreDato , na.rm = TRUE ) ) -->
+AnP $ Day <- as.numeric(
+    AnP $ ProsedyreDato - min( AnP $ ProsedyreDato , na.rm = TRUE ) )
 
-<!-- AnP <- subset( -->
-<!--     x = AnP , -->
-<!--     subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN ) -->
+AnP <- subset(
+    x = AnP ,
+    subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN )
 
-<!-- AnP $ Month <- as.factor( -->
-<!--     format( -->
-<!--         x = AnP $ ProsedyreDato , -->
-<!--         format = "%y-%m")) -->
+AnP $ Month <- as.factor(
+    format(
+        x = AnP $ ProsedyreDato ,
+        format = "%y-%m"))
 
-<!-- AnP$AnnenProsType <- factor( -->
-<!--     x = AnP$AnnenProsType , -->
-<!--     levels = c( -->
-<!--         "Høyre hjertekateterisering" , -->
-<!--         "Temporær pacemaker" , -->
-<!--         "Perikardiocentese" , -->
-<!--         "Ventilfilming" , -->
-<!--         "Lukking av ASD/PFO" , -->
-<!--         "Lukking av venstre aurikkel" , -->
-<!--         "Impella") , -->
-<!--     labels = c( -->
-<!--         "Høyre kat." , -->
-<!--         "Temp. pm" , -->
-<!--         "Perikardiocentese" , -->
-<!--         "Ventilfilming" , -->
-<!--         "Lukking ASD/PFO" , -->
-<!--         "Lukking v. aurikkel" , -->
-<!--         "Impella") -->
-<!--     ) -->
+AnP$AnnenProsType <- factor(
+    x = AnP$AnnenProsType ,
+    levels = c(
+        "Høyre hjertekateterisering" ,
+        "Temporær pacemaker" ,
+        "Perikardiocentese" ,
+        "Ventilfilming" ,
+        "Lukking av ASD/PFO" ,
+        "Lukking av venstre aurikkel" ,
+        "Impella") ,
+    labels = c(
+        "Høyre kat." ,
+        "Temp. pm" ,
+        "Perikardiocentese" ,
+        "Ventilfilming" ,
+        "Lukking ASD/PFO" ,
+        "Lukking v. aurikkel" ,
+        "Impella")
+    )
 
-<!-- ``` -->
-
-
-
-<!-- ```{r SOPrepare,include=FALSE} -->
-
-<!-- SO$RegDate <- as.Date( -->
-<!--     SO$HovedDato) -->
-
-<!-- SO$Year <- as.numeric( -->
-<!--     format( -->
-<!--         x = SO$RegDate , -->
-<!--         format = "%Y")) -->
-
-<!-- SO$nMonth <- as.numeric( -->
-<!--     as.factor( -->
-<!--         format( -->
-<!--             x = SO$RegDate , -->
-<!--             format = "%y-%m"))) -->
-
-<!-- SO <- subset( -->
-<!--     x = SO , -->
-<!--     subset = -->
-<!--         (nMonth > max( nMonth , na.rm = TRUE ) - showN) & -->
-<!--         (RegDate < Sys.Date()))     -->
-
-
-<!--   # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015 -->
-<!-- if ( SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ] -->
-
-<!-- SO$Month <- as.factor( -->
-<!--     format( -->
-<!--         SO$RegDate , -->
-<!--         format = "%y-%m")) -->
-
-<!-- ```  -->
+```
 
 
 
+```{r SOPrepare,include=FALSE}
 
-<!-- ```{r APprepare,include=FALSE} -->
+SO$RegDate <- as.Date(
+    SO$HovedDato)
 
-<!-- AP$FodselsDato <- as.Date( AP$FodselsDato) -->
+SO$Year <- as.numeric(
+    format(
+        x = SO$RegDate ,
+        format = "%Y"))
 
-<!-- AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato) -->
+SO$nMonth <- as.numeric(
+    as.factor(
+        format(
+            x = SO$RegDate ,
+            format = "%y-%m")))
 
-<!-- AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato) -->
-
-<!-- AP$ProsedyreDato <- as.Date( AP$ProsedyreDato) -->
-
-<!-- AP$Sykehusnavn <- factor( AP$Sykehusnavn ) -->
-
-<!-- AP $ AdmissionType <- car::recode( -->
-<!--     var = AP $ OverflyttetFra , -->
-<!--     recodes = " -->
-<!--         'Annet sykehus'='Referred'; -->
-<!--         '' = NA; -->
-<!--         'Annen  avdeling på sykehuset' = NA; -->
-<!--         'Nei, direkte inn til dette sykehus' = 'Directly admitted'; -->
-<!--         'Omdirigert ambulanse' = 'Directly admitted'; -->
-<!--         ") -->
-
-<!-- AP $ Indikasjon2 <- factor( -->
-<!--     car::recode( -->
-<!--         var = AP $ Indikasjon , -->
-<!--         recodes = " -->
-<!--             'Stabil koronarsykdom'='SAP'; -->
-<!--             'UAP'='UAP'; -->
-<!--             'NSTEMI'='NSTEMI'; -->
-<!--             'STEMI'='STEMI'; -->
-<!--             'Hjertestans ved STEMI'='STEMI'; -->
-<!--             'STEMI > 24h'='STEMI'; -->
-<!--             'STEMI/Rescue PCI'='STEMI'; -->
-<!--             'Uklare brystsmerter'='Uklare brystsmerter'; -->
-<!--             else='Annet'; -->
-<!--             ") , -->
-<!--     levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") ) -->
+SO <- subset(
+    x = SO ,
+    subset =
+        (nMonth > max( nMonth , na.rm = TRUE ) - showN) &
+        (RegDate < Sys.Date()))
 
 
-<!-- AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA -->
-<!-- AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos") -->
+  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
+if ( SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ]
 
-<!-- ```  -->
+SO$Month <- as.factor(
+    format(
+        SO$RegDate ,
+        format = "%y-%m"))
+
+```
 
 
 
-<!-- ```{r Daterecodes,include=FALSE} -->
 
-<!-- AP$Year <- as.numeric( -->
-<!--     format( -->
-<!--         x = AP $ ProsedyreDato , -->
-<!--         format = "%Y")) -->
+```{r APprepare,include=FALSE}
 
-<!-- AP$Week <- as.numeric( -->
-<!--     format( -->
-<!--         x = AP $ ProsedyreDato , -->
-<!--         format = "%W")) -->
+AP$FodselsDato <- as.Date( AP$FodselsDato)
+
+AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
+
+AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato)
+
+AP$ProsedyreDato <- as.Date( AP$ProsedyreDato)
+
+AP$Sykehusnavn <- factor( AP$Sykehusnavn )
+
+AP $ AdmissionType <- car::recode(
+    var = AP $ OverflyttetFra ,
+    recodes = "
+        'Annet sykehus'='Referred';
+        '' = NA;
+        'Annen  avdeling på sykehuset' = NA;
+        'Nei, direkte inn til dette sykehus' = 'Directly admitted';
+        'Omdirigert ambulanse' = 'Directly admitted';
+        ")
+
+AP $ Indikasjon2 <- factor(
+    car::recode(
+        var = AP $ Indikasjon ,
+        recodes = "
+            'Stabil koronarsykdom'='SAP';
+            'UAP'='UAP';
+            'NSTEMI'='NSTEMI';
+            'STEMI'='STEMI';
+            'Hjertestans ved STEMI'='STEMI';
+            'STEMI > 24h'='STEMI';
+            'STEMI/Rescue PCI'='STEMI';
+            'Uklare brystsmerter'='Uklare brystsmerter';
+            else='Annet';
+            ") ,
+    levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
 
 
-<!-- AP$nMonth <- as.numeric( -->
-<!--     as.factor( -->
-<!--         format( -->
-<!--             AP$ProsedyreDato , -->
-<!--             format = "%y-%m"))) -->
+AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
+AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
 
-<!-- AP $ Day <- as.numeric( -->
-<!--     AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) ) -->
-
-<!-- ```  -->
+```
 
 
 
-<!-- ```{r subsetting,include=FALSE} -->
+```{r Daterecodes,include=FALSE}
 
-<!-- NSTEMI <- subset( -->
-<!--     x = AP , -->
-<!--     subset = (Indikasjon == "NSTEMI")) -->
+AP$Year <- as.numeric(
+    format(
+        x = AP $ ProsedyreDato ,
+        format = "%Y"))
 
-<!-- NSTEMI $ Month <- as.factor( -->
-<!--     format( -->
-<!--         x = NSTEMI $ ProsedyreDato , -->
-<!--         format = "%y-%m")) -->
+AP$Week <- as.numeric(
+    format(
+        x = AP $ ProsedyreDato ,
+        format = "%W"))
 
 
-<!-- AP <- subset( -->
-<!--     x = AP , -->
-<!--     subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN ) -->
+AP$nMonth <- as.numeric(
+    as.factor(
+        format(
+            AP$ProsedyreDato ,
+            format = "%y-%m")))
 
-<!--  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015 -->
-<!-- if (AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Year >= 2015 ) , ] -->
+AP $ Day <- as.numeric(
+    AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
 
-<!-- AP $ Month <- as.factor( -->
-<!--     format( -->
-<!--         x = AP $ ProsedyreDato , -->
-<!--         format = "%y-%m")) -->
+```
 
-<!-- ```  -->
+
+
+```{r subsetting,include=FALSE}
+
+NSTEMI <- subset(
+    x = AP ,
+    subset = (Indikasjon == "NSTEMI"))
+
+NSTEMI $ Month <- as.factor(
+    format(
+        x = NSTEMI $ ProsedyreDato ,
+        format = "%y-%m"))
+
+
+AP <- subset(
+    x = AP ,
+    subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN )
+
+ # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
+if (AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Year >= 2015 ) , ]
+
+AP $ Month <- as.factor(
+    format(
+        x = AP $ ProsedyreDato ,
+        format = "%y-%m"))
+
+```
 
 
 <!-- \title[Angio/PCI\\\Sexpr{AP$Sykehusnavn[1]}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{AP$Sykehusnavn[1]}} -->
 
-
-<!-- \begin{document} -->
-<!-- \begin{tiny} -->
-
-<!-- \maketitle -->
-
-
-<!-- \section{Hastegrad} -->
+Norsk register for invasiv kardiologi (NORIC)
+Månedsrapport Angio/PCI
+`r AP$Sykehusnavn[1]`
 
 # Hastegrad
 
 ## Hastegrad
-<!-- ```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=8,fig.height=4,out.width="\\textwidth"} -->
-<!-- pal <- colPrimary[c(1,3,5)] -->
+```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=8,fig.height=4,out.width="\\textwidth"}
+pal <- colPrimary[c(1,3,5)]
 
-<!-- op <- par( -->
-<!--     mfcol = c (1,1) , -->
-<!--     xpd = NA , -->
-<!--     mar = c(5.1,4.1,4.1,13.1) , -->
-<!--     bg = "#EEEEEE") -->
+op <- par(
+    mfcol = c (1,1) ,
+    xpd = NA ,
+    mar = c(5.1,4.1,4.1,13.1) ,
+    bg = "#EEEEEE")
 
-<!-- barplot( -->
-<!--     xtabs( -->
-<!--         formula = ~ Hastegrad + Month , -->
-<!--         data = AP) , -->
-<!--     las = 1 , -->
-<!--     xlab = "Måned" , -->
-<!--     ylab = "Antall" , -->
-<!--     col = pal , -->
-<!--     space = 0.2 , -->
-<!--     border = FALSE) -->
+barplot(
+    xtabs(
+        formula = ~ Hastegrad + Month ,
+        data = AP) ,
+    las = 1 ,
+    xlab = "Måned" ,
+    ylab = "Antall" ,
+    col = pal ,
+    space = 0.2 ,
+    border = FALSE)
 
-<!-- legend( -->
-<!--     "right" , -->
-<!--     inset = -.28 , -->
-<!--     bty = "n" , -->
-<!--     horiz = FALSE , -->
-<!--     fill = pal[3:1], -->
-<!--     legend = sort( -->
-<!--         unique(AP$Hastegrad) ,  -->
-<!--         decreasing = T) , -->
-<!--     cex = 1) -->
+legend(
+    "right" ,
+    inset = -.28 ,
+    bty = "n" ,
+    horiz = FALSE ,
+    fill = pal[3:1],
+    legend = sort(
+        unique(AP$Hastegrad) ,
+        decreasing = T) ,
+    cex = 1)
 
-<!-- ``` -->
-<!-- \end{frame} -->
+```
+
 
 
 
