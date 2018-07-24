@@ -1,4 +1,8 @@
 ```{r knitrOptions,include=FALSE}
+# make sure to use a temporary directory AND absolute paths, e.g. that figs
+# can be found also when deployed at a server. See below link for explanation
+# https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
+knitr::opts_knit(base.dir=tempdir(), base.url=tempdir())
 
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
