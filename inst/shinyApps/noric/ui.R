@@ -18,7 +18,7 @@ shinyUI(
     #titlePanel("NORIC"),
     
     tabPanel(
-      "tab1",
+      "Stentbruk",
       
       # Sidebar with a slider input for number of bins
       sidebarLayout(
@@ -39,7 +39,7 @@ shinyUI(
       )
     ),
     tabPanel(
-      "tab2",
+      "Prosedyrer",
       sidebarLayout(
         sidebarPanel(
           radioButtons('format', 'Document format', c('PDF', 'HTML5', 'Word'),
@@ -47,7 +47,7 @@ shinyUI(
           downloadButton('downloadReport')
         ),
         mainPanel(
-          uiOutput("markdown")
+          uiOutput("prosedyrer")
         )
       )
     )
