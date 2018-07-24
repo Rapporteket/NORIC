@@ -20,5 +20,6 @@ Imports:
   Hmisc,
   knitr,
   RColorBrewer,
+  revealjs,
   xtable
 VignetteBuilder: knitr
