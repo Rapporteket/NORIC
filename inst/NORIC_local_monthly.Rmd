@@ -2,7 +2,10 @@
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
 # https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
-knitr::opts_knit$set(base.dir=tempdir(), base.url=tempdir())
+# Also make sure we use tempdir() as working directory so we do not clutter
+# the package of the hosting shiny app
+workDir <- tempdir()
+knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
 
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE , width = "130")
