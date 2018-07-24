@@ -23,8 +23,14 @@ shinyServer(function(input, output) {
     
   })
   
-  output$markdown <- renderUI({
-    shiny::HTML(markdown::markdownToHTML(knitr::knit("testNoric.Rmd")))
+  output$prosedyrer <- renderUI({
+    shiny::HTML(
+      markdown::markdownToHTML(
+        knitr::knit(
+          system.file("NORIC_local_monthly.Rmd", package="noric")
+        )
+      )
+    )
   })
   
   output$downloadReport <- downloadHandler(
@@ -35,7 +41,9 @@ shinyServer(function(input, output) {
     },
     
     content = function(file) {
-      src <- normalizePath('testNoric.Rmd')
+      #src <- normalizePath('testNoric.Rmd')
+      src <- normalizePath(system.file("NORIC_local_monthly.Rmd",
+                                       package="noric"))
       
       # temporarily switch to the temp dir, in case you do not have write
       # permission to the current working directory
