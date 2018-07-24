@@ -40,7 +40,7 @@ registryName <- if (exists( "reshID" )) {
 # showN <- 12 # how many months are displayed
 ```
 
-<!-- Hello! This is `r registryName`. -->
+Hello! This is `r registryName`.
 
 <!-- We currently have a `r dim(SO)` dataset. -->
 <!-- Happy? -->
