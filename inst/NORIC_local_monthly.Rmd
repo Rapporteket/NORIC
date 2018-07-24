@@ -19,6 +19,8 @@ colKontrast <- "#FF7260"
 
 baseName <- "noricStaging"
 
+reshID <- rapbase::getShinyUserReshId(session, testCase = TRUE)
+
 registryName <- if (exists( "reshID" )) {
                     noric::NORICmakeRegistryName(
                                baseName = baseName ,
@@ -43,7 +45,7 @@ registryName <- if (exists( "reshID" )) {
 Hello! This is `r registryName`.
 
 <!-- We currently have a `r dim(data.frame())` dataset. -->
-<!-- Happy? -->
+Happy?
 
 <!-- ```{r AnPPrepare,include=FALSE} -->
 
