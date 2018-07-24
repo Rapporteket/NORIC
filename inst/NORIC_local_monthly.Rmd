@@ -42,7 +42,7 @@ registryName <- if (exists( "reshID" )) {
 
 Hello! This is `r registryName`.
 
-<!-- We currently have a `r dim(SO)` dataset. -->
+<!-- We currently have a `r dim(data.frame())` dataset. -->
 <!-- Happy? -->
 
 <!-- ```{r AnPPrepare,include=FALSE} -->
