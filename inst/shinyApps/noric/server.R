@@ -28,7 +28,8 @@ shinyServer(function(input, output) {
       markdown::markdownToHTML(
         knitr::knit(
           system.file("NORIC_local_monthly.Rmd", package="noric")
-        )
+        ),
+        options = c("fragment_only")
       )
     )
   })
