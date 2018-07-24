@@ -30,21 +30,21 @@ registryName <- if (exists( "reshID" )) {
                     "rapbase"
                 }
 
-# dbType <- "mysql"
-# SOQuery <- "SELECT * FROM SkjemaOversikt"
-# APQuery <- "SELECT * FROM AngioPCIVar"
-# AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
-# 
-# SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
-# AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-# AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
-# 
-# showN <- 12 # how many months are displayed
+dbType <- "mysql"
+SOQuery <- "SELECT * FROM SkjemaOversikt"
+APQuery <- "SELECT * FROM AngioPCIVar"
+AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
+
+SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
+AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
+
+showN <- 12 # how many months are displayed
 ```
 
 Hello! This is `r registryName`.
 
-<!-- We currently have a `r dim(data.frame())` dataset. -->
+We currently have a `r dim(SO)` dataset.
 Happy?
 
 <!-- ```{r AnPPrepare,include=FALSE} -->
