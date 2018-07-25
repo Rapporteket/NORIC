@@ -36,7 +36,7 @@ shinyServer(function(input, output, session) {
           system.file("NORIC_local_monthly.Rmd", package="noric")
         )
       )
-    ))
+    ), width="100%")
   })
   
   output$downloadReport <- downloadHandler(
