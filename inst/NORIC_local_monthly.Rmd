@@ -290,7 +290,7 @@ legend(
 
 
 ## Hastegrad
-```{r TabNHastegrad, results='asis'}
+```{r TabNHastegrad, results='asis', eval=FALSE}
 xtable::print.xtable(
     x = xtable::xtable(
         x = addmargins(
@@ -309,19 +309,18 @@ knitr::kable(addmargins(xtabs(formula = ~ Month + Hastegrad, data = AP)),
 ```
 
 ## Hastegrad
-<!-- ```{r TabRHastegrad,  results = 'asis'} -->
-<!-- xtable::print.xtable( -->
-<!--     x = xtable::xtable( -->
-<!--         100 * prop.table( -->
-<!--             xtabs( -->
-<!--                 formula = ~ Month + Hastegrad , -->
-<!--                 data = AP) , -->
-<!--             margin = 1) , -->
-<!--         caption = "Prosentandel prosedyrer etter hastegrad og måned" , -->
-<!--         digits = 1) , -->
-<!--     booktabs = TRUE ) -->
-<!-- ```    -->
-<!-- \end{frame} -->
+```{r TabRHastegrad,  results = 'asis'}
+knitr::kable(
+    xtable::xtable(
+        100 * prop.table(
+            xtabs(
+                formula = ~ Month + Hastegrad ,
+                data = AP) ,
+            margin = 1) ,
+        caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
+        digits = 1)
+    )
+```
 
 
 
