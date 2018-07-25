@@ -249,7 +249,7 @@ Månedsrapport Angio/PCI
 # Hastegrad
 
 ## Hastegrad
-```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=8,fig.height=4,out.width="\\textwidth", eval=TRUE}
+```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned", eval=TRUE}
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
