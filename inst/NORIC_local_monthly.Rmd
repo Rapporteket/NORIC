@@ -708,19 +708,20 @@ xtable::print.xtable(
 
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
-  )
-
-xtable::print.xtable(
-  x = xtable::xtable(
-    x = TabNAndreProsedyrer,
-    caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned",
-    digits = 0),
-  booktabs = TRUE,
-  type = 'html',
-  html.table.attributes = 'border=0') %>% 
-  knitr::kable() %>% 
-  kableExtra::kable_styling("striped", full_width = F) %>% 
-  kableExtra::row_spec(0, angle = -90)
+)
+kableExtra::row_spec(
+  kableExtra::kable_styling(
+    knitr::kable(
+      xtable::print.xtable(
+        x = xtable::xtable(
+          x = TabNAndreProsedyrer,
+          caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned",
+          digits = 0),
+        booktabs = TRUE,
+        type = 'html',
+        html.table.attributes = 'border=0') 
+    ), "striped", full_width = F
+  ), 0, angle = -90)
 
 ```
 
