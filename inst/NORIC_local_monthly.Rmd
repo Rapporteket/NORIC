@@ -380,6 +380,7 @@ xtable::print.xtable(
 ```
 
 
+## Prosedyre type
 
 ```{r TabRProsedyreType,  results = 'asis'}
 xtable::print.xtable(
