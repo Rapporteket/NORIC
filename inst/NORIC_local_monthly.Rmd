@@ -647,6 +647,18 @@ xtable::print.xtable(
 <!-- \end{table} -->
 <!-- \end{frame} -->
 
+```{r TabTilleggsProsedyre2,  results = 'asis'}
+# can the above be reproduced?
+xtable::print.xtable(
+    x = xtable::xtable(
+          TabTillegg[,7:8],
+        caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+        align = rep("r", 3)
+        ),
+    booktabs = TRUE,
+    type = 'html',
+    html.table.attributes = 'border=0')
+```
 
 
 
@@ -674,32 +686,43 @@ xtable::print.xtable(
 <!-- \end{table} -->
 <!-- \end{frame} -->
 
-
+```{r TabTilleggsProsedyre3,  results = 'asis'}
+# can the above be reproduced?
+xtable::print.xtable(
+    x = xtable::xtable(
+          TabTillegg[,9:15],
+        caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+        align = rep("r", 8)
+        ),
+    booktabs = TRUE,
+    type = 'html',
+    html.table.attributes = 'border=0')
+```
 
 
 # Andre prosedyrer
 
 ## Andre prosedyrer
 
-<!-- ```{r TabNAndreProsedyrer,  results = 'asis'} -->
+```{r TabNAndreProsedyrer,  results = 'asis'}
 
-<!-- TabNAndreProsedyrer <- addmargins( -->
-<!--     xtabs( -->
-<!--         formula = ~ Month + AnnenProsType , -->
-<!--         data = AnP)) -->
+TabNAndreProsedyrer <- addmargins(
+    xtabs(
+        formula = ~ Month + AnnenProsType ,
+        data = AnP))
 
-<!-- xtable::print.xtable( -->
-<!--     x = xtable::xtable( -->
-<!--         x = TabNAndreProsedyrer , -->
-<!--         caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" , -->
-<!--         digits = 0) , -->
-<!--     rotate.colnames = TRUE , -->
-<!-- #    scalebox = 0.8 , -->
-<!--     booktabs = TRUE ) -->
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = TabNAndreProsedyrer ,
+        caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" ,
+        digits = 0) ,
+    rotate.colnames = TRUE ,
+#    scalebox = 0.8 ,
+    booktabs = TRUE,
+    type = 'html',
+    html.table.attributes = 'border=0')
 
-<!-- ```    -->
-<!-- \end{frame} -->
-
+```
 
 
 # Komplikasjon
