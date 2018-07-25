@@ -290,7 +290,7 @@ legend(
 
 
 ## Hastegrad
-```{r TabNHastegrad, results='asis', eval=FALSE}
+```{r TabNHastegrad, results='asis', eval=TRUE}
 xtable::print.xtable(
     x = xtable::xtable(
         x = addmargins(
@@ -303,6 +303,7 @@ xtable::print.xtable(
     type = 'html')
 ```
 
+## Hastegrad
 ```{r TabNHastegradAlt, results='asis'}
 knitr::kable(addmargins(xtabs(formula = ~ Month + Hastegrad, data = AP)),
              caption = "Antall registrerte prosedyrer etter hastegrad og måned")
