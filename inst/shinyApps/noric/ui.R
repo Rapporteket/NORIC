@@ -48,7 +48,7 @@ shinyUI(
           downloadButton('downloadReport')
         ),
         mainPanel(
-          uiOutput("prosedyrer")
+          htmlOutput("prosedyrer")
         )
       )
     )

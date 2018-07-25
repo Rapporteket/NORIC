@@ -33,8 +33,7 @@ shinyServer(function(input, output, session) {
       markdown::markdownToHTML(
         knitr::knit(
           system.file("NORIC_local_monthly.Rmd", package="noric")
-        ),
-        options = c("skip_html")
+        )
       )
     )
   })
