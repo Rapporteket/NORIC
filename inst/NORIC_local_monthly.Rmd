@@ -616,7 +616,8 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 xtable::print.xtable(
     x = xtable::xtable(
           TabTillegg[,1:6],
-        caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned"
+        caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+        align = rep("r",length(colnames(TabTillegg)))
         ),
     booktabs = TRUE,
     type = 'html',
