@@ -8,7 +8,7 @@ workDir <- tempdir()
 knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
 
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
-options(stringsAsFactors=FALSE , width = "130")
+options(stringsAsFactors=FALSE)
 
 ``` 
 
