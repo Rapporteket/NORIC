@@ -304,7 +304,8 @@ xtable::print.xtable(
 ```
 
 ```{r TabNHastegradAlt, results='asis'}
-knitr::kable(table(AP$Month, AP$Hastegrad), caption = "Antall registrerte prosedyrer etter hastegrad og måned")
+knitr::kable(xtabs(formula = ~ Month + Hastegrad, data = AP),
+             caption = "Antall registrerte prosedyrer etter hastegrad og måned")
 ```
 
 ## Hastegrad
