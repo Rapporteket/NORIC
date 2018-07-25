@@ -33,7 +33,7 @@ shinyServer(function(input, output, session) {
       markdown::markdownToHTML(
         knitr::knit(
           system.file("NORIC_local_monthly.Rmd", package="noric")
-        ), options = 'fragment_only'
+        ), options = c('fragment_only', 'base64_images')
       )
     )
   })
