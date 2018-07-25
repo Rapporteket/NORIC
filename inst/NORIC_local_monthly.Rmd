@@ -290,7 +290,7 @@ legend(
 
 
 ## Hastegrad
-```{r TabNHastegrad}
+```{r TabNHastegrad, results='asis'}
 xtable::print.xtable(
     x = xtable::xtable(
         x = addmargins(
@@ -303,6 +303,9 @@ xtable::print.xtable(
     type = 'html')
 ```
 
+```{r TabNHastegradAlt, results='asis'}
+knitr::kable(table(AP$Month, AP$Hastegrad), caption = "Antall registrerte prosedyrer etter hastegrad og måned")
+```
 
 ## Hastegrad
 <!-- ```{r TabRHastegrad,  results = 'asis'} -->
