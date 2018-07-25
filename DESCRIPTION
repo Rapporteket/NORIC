@@ -18,6 +18,7 @@ Imports:
   car,
   ggplot2,
   Hmisc,
+  kableExtra,
   knitr,
   RColorBrewer,
   revealjs,
