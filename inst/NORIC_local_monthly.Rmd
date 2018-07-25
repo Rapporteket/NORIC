@@ -615,7 +615,7 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 # can the above be reproduced?
 xtable::print.xtable(
     x = xtable::xtable(
-          table(TabTillegg[,1:6]),
+          TabTillegg[,1:6],
         caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned"
         ),
     booktabs = TRUE,
