@@ -795,9 +795,10 @@ LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 #     title = "",
 #     file = "")
 
+df <- LabKomplikasjoner[,-1]
 xtable::print.xtable(
   x = xtable::xtable(
-    LabKomplikasjoner[,-1], align = c("l","r","r", "r")
+    df, align = c("l","r","r", "r")
     ),
     booktabs = TRUE,
     type = 'html',
@@ -805,7 +806,6 @@ xtable::print.xtable(
 
 ```
 
-\end{frame}
 
 
 ## Komplikasjon
