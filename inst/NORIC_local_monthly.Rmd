@@ -22,7 +22,7 @@ colKontrast <- "#FF7260"
 ``` 
 
 
-```{r GetData, include=FALSE}
+```{r GetData, include=FALSE, cache=TRUE}
 
 baseName <- "noricStaging"
 
