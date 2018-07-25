@@ -29,13 +29,13 @@ shinyServer(function(input, output, session) {
   })
   
   output$prosedyrer <- renderUI({
-    shiny::HTML(
+    #shiny::HTML(
       markdown::markdownToHTML(
         knitr::knit(
           system.file("NORIC_local_monthly.Rmd", package="noric")
         )
       )
-    )
+    #)
   })
   
   output$downloadReport <- downloadHandler(
