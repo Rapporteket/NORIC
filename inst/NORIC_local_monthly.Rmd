@@ -1,3 +1,9 @@
+---
+title: "Norsk register for invasiv kardiologi (NORIC): Månedsrapport Angio/PCI"
+author: "Rapporteket"
+date: `r format(Sys.time(), "%d %B, %Y")`
+---
+
 ```{r knitrOptions, include=FALSE}
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
