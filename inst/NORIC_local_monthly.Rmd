@@ -730,74 +730,82 @@ kableExtra::row_spec(
 
 
 ## Komplikasjon
-<!--   \framesubtitle{ på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}} -->
-<!-- ```{r TabLabKompl,results='asis'} -->
+### på lab `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+```{r TabLabKompl,results='asis'}
 
-<!-- LabKomplikasjoner <- data.frame( -->
-<!--     VarName = c( -->
-<!--         "LabKomplikasjon" , -->
-<!--         "LabKompAllergiskLettModerat" , -->
-<!--         "LabKompAllergiskAlvorlig" , -->
-<!--         "LabKompBehkrevendeArytmi" , -->
-<!--         "LabKompHemodynamisk" , -->
-<!--         "LabKompNeurologisk" , -->
-<!--         "LabKompVaskulaerIkkeKoronar" , -->
-<!--         "LabKompMistetStent" , -->
-<!--         "LabKompVedvarSidegrensokkl" , -->
-<!--         "LabKompPerforasjon" , -->
-<!--         "LabKompTamponade" , -->
-<!--         "LabKompAkuttACBOperasjon" , -->
-<!--         "LabKompAnnenAlv" , -->
-<!--         "LabKompDod" -->
-<!--     ) , -->
-<!--     Komplikasjon = c( -->
-<!--         "Alle komplikasjoner" , -->
-<!--         "Allergisk reaksjon lett/moderat" , -->
-<!--         "Allergisk reaksjon alvorlig" , -->
-<!--         "Behandlingskrevende arytmi" , -->
-<!--         "Hemodynamisk" , -->
-<!--         "Neurologisk" , -->
-<!--         "Vaskulaer (men ikke koronar)" , -->
-<!--         "Mistet stent" , -->
-<!--         "Vedvarende sidegrensokklusjon" , -->
-<!--         "Perforasjon" , -->
-<!--         "Tamponade" , -->
-<!--         "Akutt ACB-operasjon fra lab" , -->
-<!--         "Annen alvorlig" , -->
-<!--         "Død" -->
-<!--     ) -->
-<!-- ) -->
+LabKomplikasjoner <- data.frame(
+    VarName = c(
+        "LabKomplikasjon" ,
+        "LabKompAllergiskLettModerat" ,
+        "LabKompAllergiskAlvorlig" ,
+        "LabKompBehkrevendeArytmi" ,
+        "LabKompHemodynamisk" ,
+        "LabKompNeurologisk" ,
+        "LabKompVaskulaerIkkeKoronar" ,
+        "LabKompMistetStent" ,
+        "LabKompVedvarSidegrensokkl" ,
+        "LabKompPerforasjon" ,
+        "LabKompTamponade" ,
+        "LabKompAkuttACBOperasjon" ,
+        "LabKompAnnenAlv" ,
+        "LabKompDod"
+    ) ,
+    Komplikasjon = c(
+        "Alle komplikasjoner" ,
+        "Allergisk reaksjon lett/moderat" ,
+        "Allergisk reaksjon alvorlig" ,
+        "Behandlingskrevende arytmi" ,
+        "Hemodynamisk" ,
+        "Neurologisk" ,
+        "Vaskulaer (men ikke koronar)" ,
+        "Mistet stent" ,
+        "Vedvarende sidegrensokklusjon" ,
+        "Perforasjon" ,
+        "Tamponade" ,
+        "Akutt ACB-operasjon fra lab" ,
+        "Annen alvorlig" ,
+        "Død"
+    )
+)
 
-<!-- LabKomplikasjoner$Antall <- unlist( -->
-<!--     lapply( -->
-<!--         X = LabKomplikasjoner$VarName , -->
-<!--         FUN = function(X) try( -->
-<!--                               sum( AP[,X] == "Ja" , na.rm = TRUE ) -->
-<!--                               ) -->
-<!--         ) -->
-<!--     ) -->
+LabKomplikasjoner$Antall <- unlist(
+    lapply(
+        X = LabKomplikasjoner$VarName ,
+        FUN = function(X) try(
+                              sum( AP[,X] == "Ja" , na.rm = TRUE )
+                              )
+        )
+    )
 
-<!-- LabKomplikasjoner$Prosent <- round( -->
-<!--     100 * LabKomplikasjoner$Antall / dim(AP)[1] , -->
-<!--     digits = 1 ) -->
+LabKomplikasjoner$Prosent <- round(
+    100 * LabKomplikasjoner$Antall / dim(AP)[1] ,
+    digits = 1 )
 
-<!-- i.labkomp <- order(LabKomplikasjoner$Prosent) -->
+i.labkomp <- order(LabKomplikasjoner$Prosent)
 
-<!-- LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,] -->
+LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 
-<!-- Hmisc::latex( -->
-<!--     object = LabKomplikasjoner[,-1] , -->
-<!--     booktabs = TRUE, -->
-<!--     table.env = FALSE , -->
-<!--     col.just = c("l","r","r") , -->
-<!--     rowname = NULL , -->
-<!-- #    center = "none" , -->
-<!--     title = "", -->
-<!--     file = "") -->
+# Hmisc::latex(
+#     object = LabKomplikasjoner[,-1] ,
+#     booktabs = TRUE,
+#     table.env = FALSE ,
+#     col.just = c("l","r","r") ,
+#     rowname = NULL ,
+# #    center = "none" ,
+#     title = "",
+#     file = "")
 
-<!-- ```    -->
+xtable::print.xtable(
+  x = xtable::xtable(
+    LabKomplikasjoner[,-1], align = c("l","r","r")
+    ),
+    booktabs = TRUE,
+    type = 'html',
+    html.table.attributes = 'border=0')
 
-<!-- \end{frame} -->
+```
+
+\end{frame}
 
 
 ## Komplikasjon
