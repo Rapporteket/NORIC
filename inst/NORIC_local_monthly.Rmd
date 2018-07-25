@@ -289,23 +289,18 @@ legend(
 ```
 
 
-
-
 ## Hastegrad
-
-<!-- ```{r TabNHastegrad,  results = 'asis'} -->
-<!-- xtable::print.xtable( -->
-<!--     x = xtable::xtable( -->
-<!--         x = addmargins( -->
-<!--             xtabs( -->
-<!--                 formula = ~ Month + Hastegrad , -->
-<!--                 data = AP)) , -->
-<!--         caption = "Antall registrerte prosedyrer etter hastegrad og måned" , -->
-<!--         digits = 0) , -->
-<!--     booktabs = TRUE ) -->
-<!-- ```    -->
-<!-- \end{frame} -->
-
+```{r TabNHastegrad,  results = 'asis'}
+xtable::print.xtable(
+    x = xtable::xtable(
+        x = addmargins(
+            xtabs(
+                formula = ~ Month + Hastegrad ,
+                data = AP)) ,
+        caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
+        digits = 0) ,
+    booktabs = TRUE )
+```
 
 
 ## Hastegrad
