@@ -797,7 +797,7 @@ LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 
 xtable::print.xtable(
   x = xtable::xtable(
-    LabKomplikasjoner[,-1], align = c("l","r","r")
+    LabKomplikasjoner[,-1], align = c("l","r","r", "r")
     ),
     booktabs = TRUE,
     type = 'html',
