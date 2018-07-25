@@ -704,7 +704,7 @@ xtable::print.xtable(
 
 ## Andre prosedyrer
 
-```{r TabNAndreProsedyrer,  results = 'asis'}
+```{r TabNAndreProsedyrer,  results = 'asis', eval=FALSE}
 
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
