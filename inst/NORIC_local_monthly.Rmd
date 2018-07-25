@@ -311,7 +311,7 @@ knitr::kable(addmargins(xtabs(formula = ~ Month + Hastegrad, data = AP)),
 
 ## Hastegrad
 ```{r TabRHastegrad,  results = 'asis'}
-knitr::kable(
+xtable::print.xtable(
     xtable::xtable(
         100 * prop.table(
             xtabs(
@@ -319,7 +319,10 @@ knitr::kable(
                 data = AP) ,
             margin = 1) ,
         caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
-        digits = 1)
+        digits = 1),
+    booktabs = TRUE,
+    type = 'html',
+    html.table.attributes = 'border=0'
     )
 ```
 
