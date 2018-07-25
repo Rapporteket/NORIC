@@ -799,10 +799,12 @@ df <- LabKomplikasjoner[,-1]
 xtable::print.xtable(
   x = xtable::xtable(
     df, align = c("l","r","r", "r")
-    ),
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0')
+  ),
+  booktabs = TRUE,
+  type = 'html',
+  html.table.attributes = 'border=0',
+  include.rownames = FALSE
+)
 
 ```
 
