@@ -299,7 +299,8 @@ xtable::print.xtable(
                 data = AP)) ,
         caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
         digits = 0) ,
-    booktabs = TRUE )
+    booktabs = TRUE ,
+    type = 'html')
 ```
 
 
