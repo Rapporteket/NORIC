@@ -48,7 +48,9 @@ shinyUI(
           downloadButton('downloadReport')
         ),
         mainPanel(
-          htmlOutput("prosedyrer")
+          tags$iframe(
+            htmlOutput("prosedyrer")
+          )
         )
       )
     )
