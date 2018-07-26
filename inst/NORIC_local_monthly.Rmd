@@ -318,19 +318,6 @@ kable(tab, caption = "Prosentandel prosedyrer etter hastegrad og måned",
       digits = 1) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
-# xtable::print.xtable(
-    # xtable::xtable(
-    #     100 * prop.table(
-    #         xtabs(
-    #             formula = ~ Month + Hastegrad ,
-    #             data = AP) ,
-    #         margin = 1) ,
-    #     caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
-    #     digits = 1),
-    # booktabs = TRUE,
-    # type = 'html',
-    # html.table.attributes = 'border=0'
-    # )
 ```
 
 
@@ -384,17 +371,6 @@ xtabs(formula = ~ Month + ProsedyreType, data = AP) %>%
         digits = 0) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
-# xtable::print.xtable(
-#     x = xtable::xtable(
-#         x = addmargins(
-#             xtabs(
-#                 formula = ~ Month + ProsedyreType ,
-#                 data = AP)) ,
-#         caption = "Antall prosedyrer etter prosedyretype og måned" ,
-#         digits = 0) ,
-#     booktabs = TRUE,
-#     type = 'html',
-    # html.table.attributes = 'border=0')
 ```
 
 
@@ -408,18 +384,6 @@ kable(tab, caption = "Prosentandel prosedyrer etter prosedyretype og måned",
       digits = 1) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
-# xtable::print.xtable(
-#     x = xtable::xtable(
-#         100 * prop.table(
-#             xtabs(
-#                 formula = ~ Month + ProsedyreType ,
-#                 data = AP) ,
-#             margin = 1) ,
-#         caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
-#         digits = 1) ,
-#     booktabs = TRUE,
-#     type = 'html',
-    # html.table.attributes = 'border=0')
 ```
 
 
@@ -464,17 +428,12 @@ legend(
 
 
 ```{r TabNIndikasjon,  results = 'asis'}
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = addmargins(
-            xtabs(
-                formula = ~ Month + Indikasjon2 ,
-                data = AP)) ,
-        caption = "Antall prosedyrer etter indikasjon og måned" ,
-        digits = 0) ,
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0')
+xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
+  addmargins() %>% 
+  kable(., caption = "Antall prosedyrer etter indikasjon og måned" ,
+        digits = 0) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
 ```
 
 
@@ -482,18 +441,12 @@ xtable::print.xtable(
 
 
 ```{r TabRIndikasjon,  results = 'asis'}
-xtable::print.xtable(
-    x = xtable::xtable(
-        100 * prop.table(
-            xtabs(
-                formula = ~ Month + Indikasjon2 ,
-                data = AP) ,
-            margin = 1) ,
-        caption = "Prosentandel prosedyrer etter indikasjon og måned" ,
-        digits = 1) ,
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0')
+tab <- xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
+  prop.table(., margin = 1) * 100
+kable(tab, caption = "Prosentandel prosedyrer etter indikasjon og måned" ,
+      digits = 1) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
 ```
 
 
@@ -640,16 +593,22 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 <!-- \end{frame} -->
   
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
+kable(TabTillegg[,1:6],
+      caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+      align = rep("r", 7)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
+
 # can the above be reproduced?
-xtable::print.xtable(
-    x = xtable::xtable(
-          TabTillegg[,1:6],
-        caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-        align = rep("r", 7)
-        ),
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0')
+# xtable::print.xtable(
+#     x = xtable::xtable(
+#           TabTillegg[,1:6],
+#         caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+#         align = rep("r", 7)
+#         ),
+#     booktabs = TRUE,
+#     type = 'html',
+    # html.table.attributes = 'border=0')
 ```
 
 
@@ -677,16 +636,11 @@ xtable::print.xtable(
 <!-- \end{frame} -->
 
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
-# can the above be reproduced?
-xtable::print.xtable(
-    x = xtable::xtable(
-          TabTillegg[,7:8],
-        caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-        align = rep("r", 3)
-        ),
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0')
+kable(TabTillegg[,7:8],
+      caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+      align = rep("r", 3)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
 ```
 
 
@@ -717,16 +671,11 @@ xtable::print.xtable(
 <!-- \end{frame} -->
 
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
-# can the above be reproduced?
-xtable::print.xtable(
-    x = xtable::xtable(
-          TabTillegg[,9:15],
-        caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-        align = rep("r", 8)
-        ),
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0')
+kable(TabTillegg[,9:15],
+      caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+      align = rep("r", 8)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
 ```
 
 
@@ -743,24 +692,10 @@ TabNAndreProsedyrer <- addmargins(
 )
 
 kable(TabNAndreProsedyrer) %>% 
-  kable_styling(bootstrap_options = "striped", full_width = F) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F) %>% 
   row_spec(row = 0, font_size = 8, angle = -90, align = "c") %>% 
-  column_spec(column = 1:(dim(TabNAndreProsedyrer)[2]+1), width = "4em")
-# kableExtra::row_spec(
-#   kableExtra::kable_styling(
-#     knitr::kable(
-#       TabNAndreProsedyrer
-#       # xtable::print.xtable(
-#       #   x = xtable::xtable(
-#       #     x = TabNAndreProsedyrer,
-#       #     caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned",
-#       #     digits = 0),
-#       #   booktabs = TRUE,
-#       #   type = 'html',
-#       #   html.table.attributes = 'border=0')
-#     ), "striped", full_width = F
-#   ), row = 0, angle = -90)
-
+  column_spec(column = 1:(dim(TabNAndreProsedyrer)[2]+1), width = "3em")
 ```
 
 
@@ -835,15 +770,18 @@ LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 #     file = "")
 
 df <- LabKomplikasjoner[,-1]
-xtable::print.xtable(
-  x = xtable::xtable(
-    df, align = c("l","r","r", "r")
-  ),
-  booktabs = TRUE,
-  type = 'html',
-  html.table.attributes = 'border=0',
-  include.rownames = FALSE
-)
+kable(df, align = c("l","r","r", "r")) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
+# xtable::print.xtable(
+#   x = xtable::xtable(
+#     df, align = c("l","r","r", "r")
+#   ),
+#   booktabs = TRUE,
+#   type = 'html',
+#   html.table.attributes = 'border=0',
+#   include.rownames = FALSE
+# )
 
 ```
 
