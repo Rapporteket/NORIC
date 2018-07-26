@@ -2,7 +2,6 @@
 title: "Norsk register for invasiv kardiologi (NORIC): Månedsrapport Angio/PCI"
 author: "Rapporteket"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
-always_allow_html: yes
 ---
 
 ```{r knitrOptions, include=FALSE}
@@ -567,26 +566,6 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 ## Annen diagnostikk ved angiografi
 
 
-<!-- \begin{table}[!tbp] -->
-<!-- \caption{Totalt antall (prosent) tilleggsprosedyrer etter måned} -->
-<!-- \centering -->
-
-<!-- ```{r PrintTableTillegg1,results='asis'} -->
-
-<!-- Hmisc::latex( -->
-<!--     object = TabTillegg[,1:6] , -->
-<!--     booktabs = TRUE, -->
-<!--     table.env = FALSE , -->
-<!--     col.just = rep("r",length(colnames(TabTillegg))) , -->
-<!--     center = "none" , -->
-<!--     title = "", -->
-<!--     file = "") -->
-
-<!-- ``` -->
-
-<!-- \end{table} -->
-<!-- \end{frame} -->
-  
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
 kable(TabTillegg[,1:6],
       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
@@ -610,26 +589,6 @@ kable(TabTillegg[,1:6],
 ## Tilleggsprosedyrer
 
 
-<!-- \begin{table}[!tbp] -->
-<!-- \caption{Totalt antall (prosent) tilleggsprosedyrer etter måned} -->
-<!-- \centering -->
-
-<!-- ```{r PrintTableTillegg2,results='asis'} -->
-
-<!-- Hmisc::latex( -->
-<!--     object = TabTillegg[,7:8] , -->
-<!--     booktabs = TRUE, -->
-<!--     table.env = FALSE , -->
-<!--     col.just = rep("r",length(colnames(TabTillegg))) , -->
-<!--     center = "none" , -->
-<!--     title = "", -->
-<!--     file = "") -->
-
-<!-- ``` -->
-
-<!-- \end{table} -->
-<!-- \end{frame} -->
-
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 kable(TabTillegg[,7:8],
       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
@@ -642,28 +601,6 @@ kable(TabTillegg[,7:8],
 
 ## Adjuvant terapi
 
-
-<!-- \begin{table}[!tbp] -->
-<!-- \caption{Totalt antall (prosent) tilleggsprosedyrer etter måned} -->
-<!-- \centering -->
-
-<!-- \resizebox{\textwidth}{!}{ -->
-
-<!-- ```{r PrintTableTillegg3,results='asis'} -->
-
-<!-- Hmisc::latex( -->
-<!--     object = TabTillegg[,9:15] , -->
-<!--     booktabs = TRUE, -->
-<!--     table.env = FALSE , -->
-<!--     col.just = rep("r",length(colnames(TabTillegg))) , -->
-<!--     center = "none" , -->
-<!--     title = "", -->
-<!--     file = "") -->
-
-<!-- ``` -->
-<!-- } -->
-<!-- \end{table} -->
-<!-- \end{frame} -->
 
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 kable(TabTillegg[,9:15],
@@ -851,16 +788,6 @@ AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp,]
 kable(AvdKomplikasjoner[,-1], row.names = F, align = c("l","r","r")) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
-# Hmisc::latex(
-#     object = AvdKomplikasjoner[,-1] ,
-#     booktabs = TRUE,
-#     table.env = FALSE ,
-#     rowname = NULL ,
-#     col.just = c("l","r","r") ,
-# #    center = "none" ,
-#     title = "",
-#     file = "")
-
 ```
 
 
@@ -932,14 +859,6 @@ kable(TABkompletthet,
       digits = c(0,0,0,1)) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
-
-# xtable::print.xtable(
-#     x = xtable::xtable(
-#         x = TABkompletthet ,
-#         caption = "Antall hoved registreringsskjemaer etter måned" ,
-#         digits = c(0,0,0,1)) ,
-#     booktabs = TRUE )
-
 ```
 
 
@@ -975,12 +894,4 @@ kable(TABkompletthet,
       digits = c(0,0,0,1)) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
-# 
-# xtable::print.xtable(
-#     x = xtable::xtable(
-#         x = TABkompletthet ,
-#         caption = "Antall utskrivelsesskjemaer etter måned" ,
-#         digits = c(0,0,0,1)) ,
-#     booktabs = TRUE )
-
 ```
