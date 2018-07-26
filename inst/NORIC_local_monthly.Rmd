@@ -736,7 +736,7 @@ TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
 )
 
-kkable(TabNAndreProsedyrer) %>% 
+kable(TabNAndreProsedyrer) %>% 
   kable_styling(bootstrap_options = "striped", full_width = F) %>% 
   row_spec(row = 0, angle = -90) %>% 
   column_spec(column = 0, width = "5em")
