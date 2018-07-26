@@ -6,6 +6,8 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 
 ```{r knitrOptions, include=FALSE}
 library(magrittr)
+library(knitr)
+library(kableExtra)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
@@ -714,20 +716,25 @@ xtable::print.xtable(
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
 )
-kableExtra::row_spec(
-  kableExtra::kable_styling(
-    knitr::kable(
-      TabNAndreProsedyrer
-      # xtable::print.xtable(
-      #   x = xtable::xtable(
-      #     x = TabNAndreProsedyrer,
-      #     caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned",
-      #     digits = 0),
-      #   booktabs = TRUE,
-      #   type = 'html',
-      #   html.table.attributes = 'border=0')
-    ), "striped", full_width = F
-  ), 0, angle = -90)
+
+kkable(TabNAndreProsedyrer) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F) %>% 
+  row_spec(row = 0, angle = -90) %>% 
+  column_spec(column = 0, width = "5em")
+# kableExtra::row_spec(
+#   kableExtra::kable_styling(
+#     knitr::kable(
+#       TabNAndreProsedyrer
+#       # xtable::print.xtable(
+#       #   x = xtable::xtable(
+#       #     x = TabNAndreProsedyrer,
+#       #     caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned",
+#       #     digits = 0),
+#       #   booktabs = TRUE,
+#       #   type = 'html',
+#       #   html.table.attributes = 'border=0')
+#     ), "striped", full_width = F
+#   ), row = 0, angle = -90)
 
 ```
 
