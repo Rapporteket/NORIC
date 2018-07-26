@@ -261,7 +261,7 @@ Månedsrapport Angio/PCI
 
 
 
-```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned", eval=TRUE}
+```{r FigNHastegrad, fig.cap="Antall prosedyrer etter hastegrad og måned", fig.width=8,fig.height=4,out.width="\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -299,27 +299,12 @@ legend(
 
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
-# tab <- addmargins(
-#   xtabs(formula = ~ Month + Hastegrad, data = AP)
-# )
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   addmargins() %>% 
   kable(., caption = "Antall registrerte prosedyrer etter hastegrad og måned",
         digits = 0) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
-# 
-# xtable::print.xtable(
-#     x = xtable::xtable(
-#         x = addmargins(
-#             xtabs(
-#                 formula = ~ Month + Hastegrad ,
-#                 data = AP)) ,
-#         caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
-#         digits = 0) ,
-#     booktabs = TRUE ,
-#     type = 'html',
-#     html.table.attributes = 'border=0')
 ```
 
 
@@ -327,19 +312,25 @@ xtabs(formula = ~ Month + Hastegrad, data = AP) %>%
 
 
 ```{r TabRHastegrad,  results = 'asis'}
-xtable::print.xtable(
-    xtable::xtable(
-        100 * prop.table(
-            xtabs(
-                formula = ~ Month + Hastegrad ,
-                data = AP) ,
-            margin = 1) ,
-        caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
-        digits = 1),
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0'
-    )
+xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
+  100 * prop.table(., margin = 1) %>% 
+  kable(., caption = "Prosentandel prosedyrer etter hastegrad og måned",
+        digits = 1) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
+# xtable::print.xtable(
+    # xtable::xtable(
+    #     100 * prop.table(
+    #         xtabs(
+    #             formula = ~ Month + Hastegrad ,
+    #             data = AP) ,
+    #         margin = 1) ,
+    #     caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
+    #     digits = 1),
+    # booktabs = TRUE,
+    # type = 'html',
+    # html.table.attributes = 'border=0'
+    # )
 ```
 
 
@@ -387,17 +378,23 @@ legend(
 
 
 ```{r TabNProsedyreType,  results = 'asis'}
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = addmargins(
-            xtabs(
-                formula = ~ Month + ProsedyreType ,
-                data = AP)) ,
-        caption = "Antall prosedyrer etter prosedyretype og måned" ,
-        digits = 0) ,
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0')
+xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
+  addmargins() %>% 
+  kable(., caption = "Antall prosedyrer etter prosedyretype og måned" ,
+        digits = 0) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
+# xtable::print.xtable(
+#     x = xtable::xtable(
+#         x = addmargins(
+#             xtabs(
+#                 formula = ~ Month + ProsedyreType ,
+#                 data = AP)) ,
+#         caption = "Antall prosedyrer etter prosedyretype og måned" ,
+#         digits = 0) ,
+#     booktabs = TRUE,
+#     type = 'html',
+    # html.table.attributes = 'border=0')
 ```
 
 
@@ -405,18 +402,24 @@ xtable::print.xtable(
 
 
 ```{r TabRProsedyreType,  results = 'asis'}
-xtable::print.xtable(
-    x = xtable::xtable(
-        100 * prop.table(
-            xtabs(
-                formula = ~ Month + ProsedyreType ,
-                data = AP) ,
-            margin = 1) ,
-        caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
-        digits = 1) ,
-    booktabs = TRUE,
-    type = 'html',
-    html.table.attributes = 'border=0')
+xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
+  100 * prop.table(., margin = 1) %>% 
+  kable(., caption = "Prosentandel prosedyrer etter prosedyretype og måned",
+        digits = 1) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
+# xtable::print.xtable(
+#     x = xtable::xtable(
+#         100 * prop.table(
+#             xtabs(
+#                 formula = ~ Month + ProsedyreType ,
+#                 data = AP) ,
+#             margin = 1) ,
+#         caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
+#         digits = 1) ,
+#     booktabs = TRUE,
+#     type = 'html',
+    # html.table.attributes = 'border=0')
 ```
 
 
@@ -426,10 +429,7 @@ xtable::print.xtable(
 # Indikasjon
 
 
-## Indikasjon
-
-
-```{r FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6,out.width="\\textwidth"}
+```{r FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=8,fig.height=6,out.width="\\textwidth"}
 
 op <- par(
     mfcol = c (1,1) ,
