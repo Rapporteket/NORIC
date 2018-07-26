@@ -738,8 +738,8 @@ TabNAndreProsedyrer <- addmargins(
 
 kable(TabNAndreProsedyrer) %>% 
   kable_styling(bootstrap_options = "striped", full_width = F) %>% 
-  row_spec(row = 0, angle = -90) %>% 
-  column_spec(column = dim(TabNAndreProsedyrer)[2], width = "5em")
+  row_spec(row = 0, angle = -90, align = "l") %>% 
+  column_spec(column = 1:dim(TabNAndreProsedyrer)[2], width = "4em")
 # kableExtra::row_spec(
 #   kableExtra::kable_styling(
 #     knitr::kable(
