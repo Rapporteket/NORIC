@@ -299,13 +299,15 @@ legend(
 
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
-tab <- addmargins(
-  xtabs(formula = ~ Month + Hastegrad, data = AP)
-)
-
-kable(tab, caption = "Antall registrerte prosedyrer etter hastegrad og måned",
-      digits = 0) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+# tab <- addmargins(
+#   xtabs(formula = ~ Month + Hastegrad, data = AP)
+# )
+xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
+  addmargins() %>% 
+  kable(., caption = "Antall registrerte prosedyrer etter hastegrad og måned",
+        digits = 0) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
 # 
 # xtable::print.xtable(
 #     x = xtable::xtable(
