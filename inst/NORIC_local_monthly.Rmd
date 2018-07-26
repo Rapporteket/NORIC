@@ -299,17 +299,24 @@ legend(
 
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = addmargins(
-            xtabs(
-                formula = ~ Month + Hastegrad ,
-                data = AP)) ,
-        caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
-        digits = 0) ,
-    booktabs = TRUE ,
-    type = 'html',
-    html.table.attributes = 'border=0')
+tab <- addmargins(
+  xtabs(formula = ~ Month + Hastegrad, data = AP)
+)
+
+kable(tab, caption = "Antall registrerte prosedyrer etter hastegrad og måned",
+      digits = 0)
+# 
+# xtable::print.xtable(
+#     x = xtable::xtable(
+#         x = addmargins(
+#             xtabs(
+#                 formula = ~ Month + Hastegrad ,
+#                 data = AP)) ,
+#         caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
+#         digits = 0) ,
+#     booktabs = TRUE ,
+#     type = 'html',
+#     html.table.attributes = 'border=0')
 ```
 
 
