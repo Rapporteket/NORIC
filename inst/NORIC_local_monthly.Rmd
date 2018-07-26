@@ -313,7 +313,7 @@ xtabs(formula = ~ Month + Hastegrad, data = AP) %>%
 
 ```{r TabRHastegrad,  results = 'asis'}
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
-  100 * prop.table(., margin = 1) %>% 
+  prop.table(., margin = 1) * 100 %>% 
   kable(., caption = "Prosentandel prosedyrer etter hastegrad og måned",
         digits = 1) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
@@ -403,7 +403,7 @@ xtabs(formula = ~ Month + ProsedyreType, data = AP) %>%
 
 ```{r TabRProsedyreType,  results = 'asis'}
 xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
-  100 * prop.table(., margin = 1) %>% 
+  prop.table(., margin = 1) * 100 %>% 
   kable(., caption = "Prosentandel prosedyrer etter prosedyretype og måned",
         digits = 1) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
@@ -429,7 +429,7 @@ xtabs(formula = ~ Month + ProsedyreType, data = AP) %>%
 # Indikasjon
 
 
-```{r FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=8,fig.height=6,out.width="\\textwidth"}
+```{r FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6,out.width="\\textwidth"}
 
 op <- par(
     mfcol = c (1,1) ,
