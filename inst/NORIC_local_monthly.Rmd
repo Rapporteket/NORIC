@@ -2,7 +2,7 @@
 title: "Norsk register for invasiv kardiologi (NORIC): Månedsrapport Angio/PCI"
 author: "Rapporteket"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
-allways_allow_html: yes
+always_allow_html: yes
 ---
 
 ```{r knitrOptions, include=FALSE}
