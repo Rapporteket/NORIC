@@ -41,7 +41,7 @@ shinyServer(function(input, output, session) {
   output$downloadReport <- downloadHandler(
     filename = function() {
       paste('my-report', sep = '.', switch(
-        input$format, PDF = 'pdf', HTML5 = 'html', Word = 'docx'
+        input$format, PDF = 'pdf', HTML = 'html', PRES = 'html'
       ))
     },
     
@@ -60,7 +60,7 @@ shinyServer(function(input, output, session) {
       out <- render('testNoric.Rmd', switch(
         input$format,
         #PDF = pdf_document(), HTML = html_document(), Word = word_document()
-        PDF = pdf_document(), HTML5 = revealjs::revealjs_presentation(), Word = word_document()
+        PDF = pdf_document(), HTML = html_document(), PRES = revealjs::revealjs_presentation()
       ))
       file.rename(out, file)
     }
