@@ -759,30 +759,10 @@ i.labkomp <- order(LabKomplikasjoner$Prosent)
 
 LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 
-# Hmisc::latex(
-#     object = LabKomplikasjoner[,-1] ,
-#     booktabs = TRUE,
-#     table.env = FALSE ,
-#     col.just = c("l","r","r") ,
-#     rowname = NULL ,
-# #    center = "none" ,
-#     title = "",
-#     file = "")
-
 df <- LabKomplikasjoner[,-1]
-kable(df, align = c("l","r","r", "r")) %>% 
+kable(df, align = c("l","r","r", "r"), row.names = F) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
-# xtable::print.xtable(
-#   x = xtable::xtable(
-#     df, align = c("l","r","r", "r")
-#   ),
-#   booktabs = TRUE,
-#   type = 'html',
-#   html.table.attributes = 'border=0',
-#   include.rownames = FALSE
-# )
-
 ```
 
 
@@ -821,107 +801,104 @@ text(
 
 ## Komplikasjon
 
+### på avdelingen `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
 
-<!--   \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}} -->
+```{r TabAvdKompl,results='asis'}
 
-<!-- ```{r TabAvdKompl,results='asis'} -->
+AvdKomplikasjoner <- data.frame(
+    VarName = c(
+        "AvdKomp" ,
+        "AvdKompAllergisk" ,
+        "AvdKompBlodning" ,
+        "AvdKompVaskulaer" ,
+        "AvdKompNeurologiskKomp" ,
+        "AvdKompNyNyreinsuffisiens" ,
+        "AvdKompTamponade" ,
+        "AvdKompPCI" ,
+        "AvdKompACB" ,
+        "AvdKompHjerteinfarkt" ,
+        "AvdKompAnnenAlvorlig" ,
+        "AvdKompDod"
+    ) ,
+    Komplikasjon = c(
+        "Alle komplikasjoner" ,
+        "Allergisk senkomplikasjon" ,
+        "Noen form for blodning" ,
+        "Vaskulaer (men ikke koronare kar)" ,
+        "Neurologisk" ,
+        "Nytilkommet nyreinsuffisiens" ,
+        "Tamponade" ,
+        "Re-PCI (behandlet segment)" ,
+        "ACB-operasjon (ikke fra lab)" ,
+        "Hjerteinfarkt" ,
+        "Annen alvorlig" ,
+        "Død"
+    )
+)
 
-<!-- AvdKomplikasjoner <- data.frame( -->
-<!--     VarName = c( -->
-<!--         "AvdKomp" , -->
-<!--         "AvdKompAllergisk" , -->
-<!--         "AvdKompBlodning" , -->
-<!--         "AvdKompVaskulaer" , -->
-<!--         "AvdKompNeurologiskKomp" , -->
-<!--         "AvdKompNyNyreinsuffisiens" , -->
-<!--         "AvdKompTamponade" , -->
-<!--         "AvdKompPCI" , -->
-<!--         "AvdKompACB" , -->
-<!--         "AvdKompHjerteinfarkt" , -->
-<!--         "AvdKompAnnenAlvorlig" , -->
-<!--         "AvdKompDod" -->
-<!--     ) , -->
-<!--     Komplikasjon = c( -->
-<!--         "Alle komplikasjoner" , -->
-<!--         "Allergisk senkomplikasjon" , -->
-<!--         "Noen form for blodning" , -->
-<!--         "Vaskulaer (men ikke koronare kar)" , -->
-<!--         "Neurologisk" , -->
-<!--         "Nytilkommet nyreinsuffisiens" , -->
-<!--         "Tamponade" , -->
-<!--         "Re-PCI (behandlet segment)" , -->
-<!--         "ACB-operasjon (ikke fra lab)" , -->
-<!--         "Hjerteinfarkt" , -->
-<!--         "Annen alvorlig" , -->
-<!--         "Død" -->
-<!--     ) -->
-<!-- ) -->
+AvdKomplikasjoner$Antall <- unlist(
+    lapply(
+        X = AvdKomplikasjoner$VarName ,
+        FUN = function(X) try(
+                              sum( AP[,X] == "Ja" , na.rm = TRUE )
+                              )
+        )
+    )
 
-<!-- AvdKomplikasjoner$Antall <- unlist( -->
-<!--     lapply( -->
-<!--         X = AvdKomplikasjoner$VarName , -->
-<!--         FUN = function(X) try( -->
-<!--                               sum( AP[,X] == "Ja" , na.rm = TRUE ) -->
-<!--                               ) -->
-<!--         ) -->
-<!--     ) -->
+AvdKomplikasjoner$Prosent <- round(
+    100 * AvdKomplikasjoner$Antall / dim(AP)[1] ,
+    digits = 1 )
 
-<!-- AvdKomplikasjoner$Prosent <- round( -->
-<!--     100 * AvdKomplikasjoner$Antall / dim(AP)[1] , -->
-<!--     digits = 1 ) -->
+i.labkomp <- order(AvdKomplikasjoner$Prosent)
 
-<!-- i.labkomp <- order(AvdKomplikasjoner$Prosent) -->
+AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp,]
 
-<!-- AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp,] -->
+kable(AvdKomplikasjoner[,-1], row.names = F, align = c("l","r","r")) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
+# Hmisc::latex(
+#     object = AvdKomplikasjoner[,-1] ,
+#     booktabs = TRUE,
+#     table.env = FALSE ,
+#     rowname = NULL ,
+#     col.just = c("l","r","r") ,
+# #    center = "none" ,
+#     title = "",
+#     file = "")
 
-<!-- Hmisc::latex( -->
-<!--     object = AvdKomplikasjoner[,-1] , -->
-<!--     booktabs = TRUE, -->
-<!--     table.env = FALSE , -->
-<!--     rowname = NULL , -->
-<!--     col.just = c("l","r","r") , -->
-<!-- #    center = "none" , -->
-<!--     title = "", -->
-<!--     file = "") -->
-
-<!-- ```    -->
-
-<!-- \end{frame} -->
+```
 
 
 
 
 ## Komplikasjon
 
+### på avdelingen `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
 
-<!--   \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}} -->
+```{r FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth"}
 
-<!-- ```{r FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth"} -->
+par(
+    mar = c(4,15,2,2) ,
+    xpd = NA ,
+    las = 1)
 
-<!-- par( -->
-<!--     mar = c(4,15,2,2) , -->
-<!--     xpd = NA , -->
-<!--     las = 1) -->
+ak <- AvdKomplikasjoner[,4]; names(ak) <- AvdKomplikasjoner[,2]
 
-<!-- ak <- AvdKomplikasjoner[,4]; names(ak) <- AvdKomplikasjoner[,2] -->
+xBarplot <- barplot(
+    ak ,
+    xlab = "Andel (%)" ,
+    horiz = TRUE ,
+    border = FALSE
+    )
 
-<!-- xBarplot <- barplot( -->
-<!--     ak , -->
-<!--     xlab = "Andel (%)" , -->
-<!--     horiz = TRUE , -->
-<!--     border = FALSE -->
-<!--     ) -->
+text(
+    x = AvdKomplikasjoner[,4] ,
+    y = xBarplot ,
+    pos = 4 ,
+    col = "#000000AA" ,
+    labels = AvdKomplikasjoner[,3])
 
-<!-- text( -->
-<!--     x = AvdKomplikasjoner[,4] , -->
-<!--     y = xBarplot , -->
-<!--     pos = 4 , -->
-<!--     col = "#000000AA" , -->
-<!--     labels = AvdKomplikasjoner[,3]) -->
-
-<!-- ```  -->
-
-<!-- \end{frame} -->
+```
 
 
 
@@ -932,79 +909,83 @@ text(
 ## Kompletthet angio/PCI skjemaer
 
 
-<!-- ```{r SOtab1,results='asis'} -->
+```{r SOtab1,results='asis'}
 
-<!-- nSOA <- with( -->
-<!--     SO[ which( SO$Skjemanavn == "AngioPCI" ) , ] , -->
-<!--     table( -->
-<!--         Month , -->
-<!--         factor( -->
-<!--             SkjemaStatus, -->
-<!--             levels=c(0,-1,1) , -->
-<!--             labels = c("Tomt","Begynt","Ferdigstilt")))) -->
+nSOA <- with(
+    SO[ which( SO$Skjemanavn == "AngioPCI" ) , ] ,
+    table(
+        Month ,
+        factor(
+            SkjemaStatus,
+            levels=c(0,-1,1) ,
+            labels = c("Tomt","Begynt","Ferdigstilt"))))
 
-<!-- rSOA <- round( -->
-<!--     100 * prop.table( -->
-<!--               nSOA , -->
-<!--               margin = 1 ) , -->
-<!--     digits = 1 ) -->
+rSOA <- round(
+    100 * prop.table(
+              nSOA ,
+              margin = 1 ) ,
+    digits = 1 )
 
-<!-- TABkompletthet <- cbind( -->
-<!--     rowSums(nSOA) , -->
-<!--     nSOA[ , which( colnames(nSOA)=="Ferdigstilt" ) ] , -->
-<!--     rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] ) -->
-<!-- colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent") -->
+TABkompletthet <- cbind(
+    rowSums(nSOA) ,
+    nSOA[ , which( colnames(nSOA)=="Ferdigstilt" ) ] ,
+    rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] )
+colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-<!-- xtable::print.xtable( -->
-<!--     x = xtable::xtable( -->
-<!--         x = TABkompletthet , -->
-<!--         caption = "Antall hoved registreringsskjemaer etter måned" , -->
-<!--         digits = c(0,0,0,1)) , -->
-<!--     booktabs = TRUE ) -->
+kable(TABkompletthet,
+      caption = "Antall hoved registreringsskjemaer etter måned",
+      digits = c(0,0,0,1)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
 
-<!-- ```    -->
-<!-- \end{frame} -->
+# xtable::print.xtable(
+#     x = xtable::xtable(
+#         x = TABkompletthet ,
+#         caption = "Antall hoved registreringsskjemaer etter måned" ,
+#         digits = c(0,0,0,1)) ,
+#     booktabs = TRUE )
+
+```
 
 
 
 ## Kompletthet utskrivelses skjemaer
 
 
-<!-- ```{r SOtab2,results='asis'} -->
+```{r SOtab2,results='asis'}
 
-<!-- nSOU <- with( -->
-<!--     SO[ which( SO$Skjemanavn == "Utskrivelse" ) , ] , -->
-<!--     table( -->
-<!--         Month , -->
-<!--         factor( -->
-<!--             SkjemaStatus, -->
-<!--             levels=c(0,-1,1) , -->
-<!--             labels = c("Tomt","Begynt","Ferdigstilt")))) -->
+nSOU <- with(
+    SO[ which( SO$Skjemanavn == "Utskrivelse" ) , ] ,
+    table(
+        Month ,
+        factor(
+            SkjemaStatus,
+            levels=c(0,-1,1) ,
+            labels = c("Tomt","Begynt","Ferdigstilt"))))
 
-<!-- rSOU <- round( -->
-<!--     100 * prop.table( -->
-<!--               nSOU , -->
-<!--               margin = 1 ) , -->
-<!--     digits = 1 ) -->
+rSOU <- round(
+    100 * prop.table(
+              nSOU ,
+              margin = 1 ) ,
+    digits = 1 )
 
-<!-- TABkompletthet <- cbind( -->
-<!--     rowSums(nSOU) , -->
-<!--     nSOU[ , which( colnames(nSOU)=="Ferdigstilt" ) ] , -->
-<!--     rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] ) -->
-<!-- colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent") -->
+TABkompletthet <- cbind(
+    rowSums(nSOU) ,
+    nSOU[ , which( colnames(nSOU)=="Ferdigstilt" ) ] ,
+    rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
+colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-<!-- xtable::print.xtable( -->
-<!--     x = xtable::xtable( -->
-<!--         x = TABkompletthet , -->
-<!--         caption = "Antall utskrivelsesskjemaer etter måned" , -->
-<!--         digits = c(0,0,0,1)) , -->
-<!--     booktabs = TRUE ) -->
+kable(TABkompletthet,
+      caption = "Antall utskrivelsesskjemaer etter måned",
+      digits = c(0,0,0,1)) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F)
+# 
+# xtable::print.xtable(
+#     x = xtable::xtable(
+#         x = TABkompletthet ,
+#         caption = "Antall utskrivelsesskjemaer etter måned" ,
+#         digits = c(0,0,0,1)) ,
+#     booktabs = TRUE )
 
-<!-- ```    -->
-<!-- \end{frame} -->
-
-
-
-
-<!-- \end{tiny} -->
-<!-- \end{document} -->
+```
