@@ -704,7 +704,7 @@ xtable::print.xtable(
 
 ## Andre prosedyrer
 
-```{r TabNAndreProsedyrer,  results = 'asis', eval=FALSE}
+```{r TabNAndreProsedyrer,  results = 'asis', eval=TRUE}
 
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
@@ -811,33 +811,32 @@ xtable::print.xtable(
 
 
 ## Komplikasjon
-<!--   \framesubtitle{på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}} -->
+### på lab `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+  \framesubtitle{på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
 
-<!-- ```{r FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth"} -->
+```{r FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth"}
 
-<!-- par( -->
-<!--     mar = c(4,15,2,2) , -->
-<!--     xpd = NA , -->
-<!--     las = 1) -->
+par(
+    mar = c(4,15,2,2) ,
+    xpd = NA ,
+    las = 1)
 
-<!-- lk <- LabKomplikasjoner[,4]; names(lk) <- LabKomplikasjoner[,2] -->
+lk <- LabKomplikasjoner[,4]; names(lk) <- LabKomplikasjoner[,2]
 
-<!-- xBarplot <- barplot( -->
-<!--     lk , -->
-<!--     xlab = "Andel (%)" , -->
-<!--     horiz = TRUE , -->
-<!--     border = FALSE ) -->
+xBarplot <- barplot(
+    lk ,
+    xlab = "Andel (%)" ,
+    horiz = TRUE ,
+    border = FALSE )
 
-<!-- text( -->
-<!--     x = LabKomplikasjoner[,4] , -->
-<!--     y = xBarplot , -->
-<!--     pos = 4 , -->
-<!--     col = "#000000AA" , -->
-<!--     labels = LabKomplikasjoner[,3]) -->
+text(
+    x = LabKomplikasjoner[,4] ,
+    y = xBarplot ,
+    pos = 4 ,
+    col = "#000000AA" ,
+    labels = LabKomplikasjoner[,3])
 
-<!-- ```    -->
-
-<!-- \end{frame} -->
+```
 
 
 
