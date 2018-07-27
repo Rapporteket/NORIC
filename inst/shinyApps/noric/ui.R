@@ -43,9 +43,9 @@ shinyUI(
       "Prosedyrer",
       sidebarLayout(
         sidebarPanel(
-          radioButtons('format', 'Document format', c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
+          radioButtons('format', 'Format for nedlasting', c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
                        inline = FALSE),
-          downloadButton('downloadReport')
+          downloadButton('downloadReport', 'Last ned')
         ),
         mainPanel(
           htmlOutput("prosedyrer", inline = TRUE)
