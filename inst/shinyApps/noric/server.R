@@ -65,7 +65,7 @@ shinyServer(function(input, output, session) {
         #PDF = pdf_document(), HTML = html_document(), Word = word_document()
         PDF = pdf_document(),
         HTML = html_document(),
-        BEAMER = beamer_document(),
+        BEAMER = beamer_presentation(theme = "Hannover"),
         REVEAL = revealjs::revealjs_presentation()
       ), params = list(tableFormat=switch(
         input$format,
