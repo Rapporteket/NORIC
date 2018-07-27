@@ -17,7 +17,8 @@ library(magrittr)
 library(knitr)
 library(kableExtra)
 
-# handle both html and latex (pdf) output
+# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
+# for each kable call
 # inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
 options(knitr.table.format = params$tableFormat)
 
