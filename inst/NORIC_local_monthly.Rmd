@@ -1,9 +1,13 @@
 ---
-title: "Norsk register for invasiv kardiologi (NORIC): Månedsrapport Angio/PCI"
-author: "Rapporteket"
+#title: "Norsk register for invasiv kardiologi (NORIC): Månedsrapport Angio/PCI"
+#author: "Rapporteket"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 always_allow_html: yes
 params:
+  title:
+    "Emty tite"
+  author:
+    "Anon author"
   tableFormat:
     value
 header-includes:
@@ -258,10 +262,18 @@ AP $ Month <- as.factor(
 
 ```
 
+```{r setTitleAndAuthor, echo=FALSE}
 
-Norsk register for invasiv kardiologi (NORIC)  
-Månedsrapport Angio/PCI  
-`r AP$Sykehusnavn[1]`
+params$title <- paste("Norsk register for invasiv kardiologi (NORIC)",
+                      "Månedsrapport Angio/PCI", AP$Sykehusnavn[1]) 
+params$author <- "Rapporteket"
+```
+
+
+---
+title: "`r params$title`"
+author: '`r params$author`'
+---
 
 
 # Hastegrad
