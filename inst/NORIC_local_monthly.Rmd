@@ -258,7 +258,7 @@ AP $ Month <- as.factor(
 
 ```
 
-```{r setTitleAndAuthor, echo=FALSE, eval=FALSE}
+```{r setTitleAndAuthor, echo=FALSE, eval=TRUE}
 
 params$title <- paste("Norsk register for invasiv kardiologi (NORIC)",
                       "Månedsrapport Angio/PCI", AP$Sykehusnavn[1]) 
