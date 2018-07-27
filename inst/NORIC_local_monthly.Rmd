@@ -1,18 +1,3 @@
----
-#title: "Norsk register for invasiv kardiologi (NORIC): Månedsrapport Angio/PCI"
-#author: "Rapporteket"
-date: '`r format(Sys.time(), "%d %B, %Y")`'
-always_allow_html: yes
-params:
-  title: "Emty tite"
-  author: "Anon author"
-  tableFormat:
-    value
-header-includes:
-  - \usepackage[english, norsk]{babel}
-  - \usepackage{booktabs}
-  - \usepackage{rotating}
----
 
 ```{r knitrOptions, include=FALSE}
 library(magrittr)
@@ -269,6 +254,17 @@ params$author <- "Rapporteket"
 
   
 ---
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+always_allow_html: yes
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  tableFormat:
+    value
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
 title: '`r params$title`'
 author: '`r params$author`'
 ---
