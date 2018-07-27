@@ -1,3 +1,16 @@
+---
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+always_allow_html: yes
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  tableFormat:
+    value
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
+---
 
 ```{r knitrOptions, include=FALSE}
 library(magrittr)
@@ -245,7 +258,7 @@ AP $ Month <- as.factor(
 
 ```
 
-```{r setTitleAndAuthor, echo=FALSE}
+```{r setTitleAndAuthor, echo=FALSE, eval=FALSE}
 
 params$title <- paste("Norsk register for invasiv kardiologi (NORIC)",
                       "Månedsrapport Angio/PCI", AP$Sykehusnavn[1]) 
@@ -254,20 +267,9 @@ params$author <- "Rapporteket"
 
   
 ---
-date: '`r format(Sys.time(), "%d %B, %Y")`'
-always_allow_html: yes
-params:
-  title: "Emty tite"
-  author: "Anon author"
-  tableFormat:
-    value
-header-includes:
-  - \usepackage[english, norsk]{babel}
-  - \usepackage{booktabs}
-  - \usepackage{rotating}
 title: '`r params$title`'
 author: '`r params$author`'
----
+...
   
 
 # Hastegrad
