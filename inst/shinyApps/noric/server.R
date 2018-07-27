@@ -60,7 +60,10 @@ shinyServer(function(input, output, session) {
       out <- render('testNoric.Rmd', switch(
         input$format,
         #PDF = pdf_document(), HTML = html_document(), Word = word_document()
-        PDF = pdf_document(), HTML = html_document(), PRES = revealjs::revealjs_presentation()
+        PDF = pdf_document(),
+        HTML = html_document(),
+        BEAMER = beamer_document(),
+        REVEAL = revealjs::revealjs_presentation()
       ))
       file.rename(out, file)
     }

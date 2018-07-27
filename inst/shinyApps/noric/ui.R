@@ -43,8 +43,8 @@ shinyUI(
       "Prosedyrer",
       sidebarLayout(
         sidebarPanel(
-          radioButtons('format', 'Document format', c('PDF', 'HTML', 'PRES'),
-                       inline = TRUE),
+          radioButtons('format', 'Document format', c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
+                       inline = FALSE),
           downloadButton('downloadReport')
         ),
         mainPanel(
