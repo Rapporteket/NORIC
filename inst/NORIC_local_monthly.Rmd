@@ -305,7 +305,7 @@ cap <- "Antall registrerte prosedyrer etter hastegrad og måned"
 tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   addmargins()
 if (params$tableFormat == "latex") {
-  kable(., caption = cap, digits = 0, booktabs = TRUE) %>% 
+  kable(tab, caption = cap, digits = 0, booktabs = TRUE) %>% 
   kable_styling(latex_options = c("scale_down"))
 }
 
