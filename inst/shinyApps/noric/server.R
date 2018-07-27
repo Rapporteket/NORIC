@@ -41,7 +41,8 @@ shinyServer(function(input, output, session) {
   output$downloadReport <- downloadHandler(
     filename = function() {
       paste('my-report', sep = '.', switch(
-        input$format, PDF = 'pdf', HTML = 'html', PRES = 'html'
+        input$format, PDF = 'pdf', HTML = 'html', REVEAL = 'html',
+        BEAMER = 'pdf'
       ))
     },
     
