@@ -14,6 +14,7 @@ library(knitr)
 library(kableExtra)
 
 # handle both html and latex (pdf) output
+# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
 options(knitr.table.format = params$tableFormat)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
