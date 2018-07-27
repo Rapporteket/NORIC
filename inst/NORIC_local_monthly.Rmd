@@ -7,6 +7,7 @@ params:
   tableFormat:
     value
 header-includes:
+  - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
 ---
@@ -309,7 +310,7 @@ tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>%
   addmargins()
 if (params$tableFormat == "latex") {
   kable(tab, caption = cap, digits = 0, booktabs = TRUE) %>% 
-  kable_styling(latex_options = c("scale_down"))
+  kable_styling(latex_options = c("hold_position"))
 }
 
 if (params$tableFormat == "html") {
@@ -329,7 +330,7 @@ tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>%
   prop.table(., margin = 1) * 100
 if (params$tableFormat == "latex") {
   kable(tab, caption = cap, digits = 1, booktabs = TRUE) %>% 
-    kable_styling(latex_options = c("scale_down"))
+    kable_styling(latex_options = c("hold_position"))
 }
 
 if (params$tableFormat == "html") {
