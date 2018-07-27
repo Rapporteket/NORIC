@@ -3,12 +3,18 @@ title: "Norsk register for invasiv kardiologi (NORIC): Månedsrapport Angio/PCI"
 author: "Rapporteket"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 always_allow_html: yes
+params:
+  tableFormat:
+    value
 ---
 
 ```{r knitrOptions, include=FALSE}
 library(magrittr)
 library(knitr)
 library(kableExtra)
+
+# handle both html and latex (pdf) output
+options(knitr.table.format = params$table_format)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
