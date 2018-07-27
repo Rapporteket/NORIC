@@ -73,7 +73,7 @@ shinyServer(function(input, output, session) {
         HTML = "html",
         BEAMER = "latex",
         REVEAL = "html"
-      )))
+      )), output_dir = tempdir())
       file.rename(out, file)
     }
   )
