@@ -34,7 +34,8 @@ shinyServer(function(input, output, session) {
     shiny::HTML(
       markdown::markdownToHTML(
         knitr::knit(
-          system.file("NORIC_local_monthly.Rmd", package="noric")
+          system.file("NORIC_local_monthly.Rmd", package="noric"),
+          output = tempdir()
         ), options = c('fragment_only', 'base64_images')
       )
     )
@@ -73,7 +74,7 @@ shinyServer(function(input, output, session) {
         HTML = "html",
         BEAMER = "latex",
         REVEAL = "html"
-      )))
+      )), output_dir = tempdir())
       file.rename(out, file)
     }
   )
