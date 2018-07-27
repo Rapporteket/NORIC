@@ -14,7 +14,7 @@ library(knitr)
 library(kableExtra)
 
 # handle both html and latex (pdf) output
-options(knitr.table.format = params$table_format)
+options(knitr.table.format = params$tableFormat)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
@@ -300,12 +300,19 @@ legend(
 
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
-xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
-  addmargins() %>% 
-  kable(., caption = "Antall registrerte prosedyrer etter hastegrad og måned",
-        digits = 0, booktabs = TRUE) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F, latex_options = c("scale_down"))
+cap <- "Antall registrerte prosedyrer etter hastegrad og måned"
+tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
+  addmargins()
+if (params$tableFormat == "latex") {
+  kable(., caption = cap, digits = 0, booktabs = TRUE) %>% 
+  kable_styling(latex_options = c("scale_down"))
+}
+
+if (params$tableFormat == "html") {
+  kable(tab, caption = cap, digits = 0) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = F)
+}
 ```
 
 
