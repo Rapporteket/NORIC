@@ -6,6 +6,8 @@ always_allow_html: yes
 params:
   tableFormat:
     value
+header-includes:
+  - \usepackage{booktabs}
 ---
 
 ```{r knitrOptions, include=FALSE}
