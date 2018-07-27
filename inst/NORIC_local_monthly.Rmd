@@ -297,9 +297,9 @@ legend(
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   addmargins() %>% 
   kable(., caption = "Antall registrerte prosedyrer etter hastegrad og måned",
-        digits = 0) #%>% 
-#  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                full_width = F)
+        digits = 0, booktabs = TRUE) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = F, latex_options = c("scale_down"))
 ```
 
 
