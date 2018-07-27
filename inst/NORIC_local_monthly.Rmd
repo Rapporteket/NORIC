@@ -271,10 +271,8 @@ params$author <- "Rapporteket"
 
 
 ---
-
-title: `r params$title`
-author: `r params$author`
-
+title: '`r params$title`'
+author: '`r params$author`'
 ---
 
 
