@@ -57,14 +57,19 @@ shinyServer(function(input, output, session) {
       file.copy(src, 'testNoric.Rmd', overwrite = TRUE)
       
       library(rmarkdown)
-      out <- render('testNoric.Rmd', switch(
+      out <- render('testNoric.Rmd', output_format = switch(
         input$format,
         #PDF = pdf_document(), HTML = html_document(), Word = word_document()
         PDF = pdf_document(),
         HTML = html_document(),
         BEAMER = beamer_document(),
         REVEAL = revealjs::revealjs_presentation()
-      ))
+      ), params = list(tableFormat=switch(
+        PDF = "latex",
+        HTML = "html",
+        BEAMER = "latex",
+        REVEAL = "html"
+      )))
       file.rename(out, file)
     }
   )
