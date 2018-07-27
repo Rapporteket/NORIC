@@ -29,6 +29,8 @@ shinyServer(function(input, output, session) {
   })
   
   output$prosedyrer <- renderUI({
+    # set param needed for knitting
+    params <- list(tableFormat="html")
     shiny::HTML(
       markdown::markdownToHTML(
         knitr::knit(
