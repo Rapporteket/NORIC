@@ -321,12 +321,19 @@ if (params$tableFormat == "html") {
 
 
 ```{r TabRHastegrad,  results = 'asis'}
+cap <- "Prosentandel prosedyrer etter hastegrad og måned"
 tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
-  prop.table(., margin = 1) * 100 
-kable(tab, caption = "Prosentandel prosedyrer etter hastegrad og måned",
-      digits = 1) %>% 
+  prop.table(., margin = 1) * 100
+if (params$tableFormat == "latex") {
+  kable(tab, caption = cap, digits = 1, booktabs = TRUE) %>% 
+    kable_styling(latex_options = c("scale_down"))
+}
+
+if (params$tableFormat == "html") {
+kable(tab, caption = cap, digits = 1) %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F)
+}
 ```
 
 
