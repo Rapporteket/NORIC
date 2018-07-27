@@ -8,6 +8,7 @@ params:
     value
 header-includes:
   - \usepackage{booktabs}
+  - \usepackage{rotating}
 ---
 
 ```{r knitrOptions, include=FALSE}
