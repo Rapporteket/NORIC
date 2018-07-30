@@ -5,7 +5,7 @@
 #'
 #' @param reshID string defining the resh ID
 #'
-#' @return
+#' @return string of hospital name
 #' @export
 #'
 #' @examples
