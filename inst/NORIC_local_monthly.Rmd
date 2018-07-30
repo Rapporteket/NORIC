@@ -10,8 +10,8 @@ header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
-title: !r paste("Norsk register for invasiv kardiologi (NORIC)", "Månedsrapport Angio/PCI", params$hospitalName)
-author: !r params$author
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI', params$hospitalName)`"
+author: "`r params$author`"
 ---
 
 ```{r knitrOptions, include=FALSE}
