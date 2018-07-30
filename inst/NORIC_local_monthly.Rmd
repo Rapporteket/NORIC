@@ -260,18 +260,17 @@ AP $ Month <- as.factor(
 
 ```{r makeStandardTableFunction, eval=TRUE}
 mst <- function(tab, type, cap, digs) {
-  print (
-    if (type == "latex") {
-      kable(tab, caption = cap, digits = digs, booktabs = TRUE) %>% 
-        kable_styling(latex_options = c("hold_position"))
-    }
-    
-    if (type == "html") {
-      kable(tab, caption = cap, digits = digs) %>% 
-        kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                      full_width = F)
-    }
-  )
+  if (type == "latex") {
+    k <- kable(tab, caption = cap, digits = digs, booktabs = TRUE) %>% 
+      kable_styling(latex_options = c("hold_position"))
+  }
+  
+  if (type == "html") {
+    k <- kable(tab, caption = cap, digits = digs) %>% 
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                    full_width = F)
+  }
+  print(k)
 }
 ```
 
