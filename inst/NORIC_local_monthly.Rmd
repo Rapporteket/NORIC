@@ -615,8 +615,7 @@ mst(TabTillegg[,1:6], params$tableFormat, cap, 0, align = rep("r", 7))
 
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
-mst(tab = TabTillegg[,7:8], type = params$tableFormat, cap = cap, digs = 0,
-    align = rep("r", 3))
+mst(TabTillegg[,7:8], params$tableFormat, cap = cap, 0, align = rep("r", 3))
 # kable(TabTillegg[,7:8],
 #       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
 #       align = rep("r", 3)) %>% 
