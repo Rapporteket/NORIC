@@ -259,7 +259,7 @@ AP $ Month <- as.factor(
 ```
 
 ```{r makeStandardTableFunction, eval=TRUE}
-mst <- function(tab, type, cap, digs, fs = 10) {
+mst <- function(tab, type, cap, digs, fs = 8) {
   if (type == "latex") {
     k <- kable(tab, caption = cap, digits = digs, booktabs = TRUE) %>% 
       kable_styling(latex_options = c("hold_position"), font_size = fs)
