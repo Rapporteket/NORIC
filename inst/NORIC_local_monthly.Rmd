@@ -1,3 +1,19 @@
+---
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+always_allow_html: yes
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  hospitalName: "Ukjent sykehus"
+  tableFormat: "html"
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
+title: !r paste("Norsk register for invasiv kardiologi (NORIC)", "Månedsrapport Angio/PCI", params$hospitalName)
+author: !r params$author
+---
+
 ```{r knitrOptions, include=FALSE}
 library(magrittr)
 library(knitr)
@@ -10,6 +26,11 @@ library(kableExtra)
 # the package of the hosting shiny app
 workDir <- tempdir()
 knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
+
+# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
+# for each kable call
+# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
+options(knitr.table.format = params$tableFormat)
 
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE)
@@ -237,37 +258,7 @@ AP $ Month <- as.factor(
 
 ```
 
----
-date: '`r format(Sys.time(), "%d %B, %Y")`'
-always_allow_html: yes
-params:
-  title: "Emty tite"
-  author: "Anon author"
-  tableFormat:
-    value
-header-includes:
-  - \usepackage[english, norsk]{babel}
-  - \usepackage{booktabs}
-  - \usepackage{rotating}
----
-```{r setTitleAndAuthor, echo=FALSE, eval=TRUE}
 
-params$title <- paste("Norsk register for invasiv kardiologi (NORIC)",
-                      "Månedsrapport Angio/PCI", AP$Sykehusnavn[1]) 
-params$author <- "Rapporteket"
-```
-
----
-title: "`r params$title`"
-author: "`r params$author`"
----
-
-```{r setTableFormat}
-# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
-# for each kable call
-# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
-options(knitr.table.format = params$tableFormat)
-```  
 
 # Hastegrad
 
