@@ -43,10 +43,13 @@ shinyServer(function(input, output, session) {
   
   output$downloadReport <- downloadHandler(
     filename = function() {
-      paste('my-report', sep = '.', switch(
-        input$format, PDF = 'pdf', HTML = 'html', REVEAL = 'html',
-        BEAMER = 'pdf'
-      ))
+      # add secs since epoch to provide a timestamp and pseudo-unique filename
+      paste(paste0('NORIC_local_monthly',
+                   as.character(as.numeric(as.POSIXct(Sys.time())))),
+            sep = '.', switch(
+              input$format, PDF = 'pdf', HTML = 'html', REVEAL = 'html',
+              BEAMER = 'pdf')
+            )
     },
     
     content = function(file) {
@@ -60,10 +63,10 @@ shinyServer(function(input, output, session) {
       # permission to the current working directory
       owd <- setwd(tempdir())
       on.exit(setwd(owd))
-      file.copy(src, 'testNoric.Rmd', overwrite = TRUE)
+      file.copy(src, 'tmpNoric.Rmd', overwrite = TRUE)
       
       library(rmarkdown)
-      out <- render('testNoric.Rmd', output_format = switch(
+      out <- render('tmpNoric.Rmd', output_format = switch(
         input$format,
         #PDF = pdf_document(), HTML = html_document(), Word = word_document()
         PDF = pdf_document(),
