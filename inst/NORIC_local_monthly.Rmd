@@ -412,11 +412,6 @@ tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>%
   prop.table(., margin = 1) * 100
 
 mst(tab, params$tableFormat, cap, 1)
-
-# kable(tab, caption = "Prosentandel prosedyrer etter prosedyretype og måned",
-#       digits = 1) %>% 
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                full_width = F)
 ```
 
 
@@ -462,12 +457,10 @@ legend(
 
 
 ```{r TabNIndikasjon,  results = 'asis'}
+cap = "Antall prosedyrer etter indikasjon og måned"
 xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
-  addmargins() %>% 
-  kable(., caption = "Antall prosedyrer etter indikasjon og måned" ,
-        digits = 0) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+  addmargins() %>%
+  mst(., params$tableFormat, cap, 0)
 ```
 
 
