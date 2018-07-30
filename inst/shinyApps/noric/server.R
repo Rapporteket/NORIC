@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(magrittr)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -52,7 +53,7 @@ shinyServer(function(input, output, session) {
       src <- normalizePath(system.file("NORIC_local_monthly.Rmd",
                                        package="noric"))
       hospitalName <- rapbase::getShinyUserReshId(session, TRUE) %>% 
-        getHospitalName()
+        noric::getHospitalName()
       
       # temporarily switch to the temp dir, in case you do not have write
       # permission to the current working directory
