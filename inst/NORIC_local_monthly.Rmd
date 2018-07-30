@@ -414,12 +414,16 @@ if (params$tableFormat == "html") {
 
 
 ```{r TabRProsedyreType,  results = 'asis'}
+cap = "Prosentandel prosedyrer etter prosedyretype og måned"
 tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
   prop.table(., margin = 1) * 100
-kable(tab, caption = "Prosentandel prosedyrer etter prosedyretype og måned",
-      digits = 1) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+
+mst(tab, params$tableFormat, cap, 1)
+
+# kable(tab, caption = "Prosentandel prosedyrer etter prosedyretype og måned",
+#       digits = 1) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                full_width = F)
 ```
 
 
