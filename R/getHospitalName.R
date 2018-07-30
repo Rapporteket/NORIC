@@ -20,6 +20,6 @@ getHospitalName <- function(reshID) {
   dbType <- "mysql"
   query <- "SELECT Sykehusnavn FROM AngioPCIVar LIMIT 1"
   
-  rapbase::LoadRegData(regName, dbType = dbType, query = query)[1]
+  rapbase::LoadRegData(regName, dbType = dbType, query = query)[1,1]
   
 }
