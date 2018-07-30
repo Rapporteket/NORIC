@@ -55,6 +55,7 @@ shinyServer(function(input, output, session) {
       hospitalName <- rapbase::getShinyUserReshId(session, TRUE) %>% 
         noric::getHospitalName()
       
+      
       # temporarily switch to the temp dir, in case you do not have write
       # permission to the current working directory
       owd <- setwd(tempdir())
