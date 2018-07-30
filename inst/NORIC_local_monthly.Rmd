@@ -323,18 +323,21 @@ legend(
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
 cap <- "Antall registrerte prosedyrer etter hastegrad og måned"
-tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
-  addmargins()
-if (params$tableFormat == "latex") {
-  kable(tab, caption = cap, digits = 0, booktabs = TRUE) %>% 
-  kable_styling(latex_options = c("hold_position"))
-}
+xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
+  addmargins() %>% 
+  mst(., params$tableFormat, cap, 0)
 
-if (params$tableFormat == "html") {
-  kable(tab, caption = cap, digits = 0) %>% 
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                  full_width = F)
-}
+# if (params$tableFormat == "latex") {
+#   kable(tab, caption = cap, digits = 0, booktabs = TRUE) %>% 
+#   kable_styling(latex_options = c("hold_position"))
+# }
+# 
+# if (params$tableFormat == "html") {
+#   kable(tab, caption = cap, digits = 0) %>% 
+#     kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                   full_width = F)
+# }
+
 ```
 
 
@@ -345,16 +348,20 @@ if (params$tableFormat == "html") {
 cap <- "Prosentandel prosedyrer etter hastegrad og måned"
 tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   prop.table(., margin = 1) * 100
-if (params$tableFormat == "latex") {
-  kable(tab, caption = cap, digits = 1, booktabs = TRUE) %>% 
-    kable_styling(latex_options = c("hold_position"))
-}
 
-if (params$tableFormat == "html") {
-kable(tab, caption = cap, digits = 1) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
-}
+mst(tab, params$tableFormat, cap, 1)
+
+# if (params$tableFormat == "latex") {
+#   kable(tab, caption = cap, digits = 1, booktabs = TRUE) %>% 
+#     kable_styling(latex_options = c("hold_position"))
+# }
+# 
+# if (params$tableFormat == "html") {
+# kable(tab, caption = cap, digits = 1) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
+# }
+
 ```
 
 
@@ -466,7 +473,7 @@ legend(
 cap = "Antall prosedyrer etter indikasjon og måned"
 xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
   addmargins() %>%
-  mst(., params$tableFormat, cap, 0)
+  mst(., params$tableFormat, cap, 0, lsd = TRUE)
 ```
 
 
@@ -635,7 +642,7 @@ mst(TabTillegg[,7:8], params$tableFormat, cap = cap, 0, align = rep("r", 3))
 
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
-mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8))
+mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
 # kable(TabTillegg[,9:15],
 #       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
 #       align = rep("r", 8)) %>% 
