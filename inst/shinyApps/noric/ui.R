@@ -29,7 +29,7 @@ shinyUI(
             min = 1,
             max = 50,
             value = 30
-          )
+          ), width = 2
         ),
         mainPanel(
           verbatimTextOutput("reshID"),
@@ -45,7 +45,8 @@ shinyUI(
         sidebarPanel(
           radioButtons('format', 'Format for nedlasting', c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
                        inline = FALSE),
-          downloadButton('downloadReport', 'Last ned')
+          downloadButton('downloadReport', 'Last ned'),
+          width = 2
         ),
         mainPanel(
           htmlOutput("prosedyrer", inline = TRUE)
