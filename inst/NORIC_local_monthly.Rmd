@@ -24,8 +24,8 @@ library(kableExtra)
 # https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
 # Also make sure we use tempdir() as working directory so we do not clutter
 # the package of the hosting shiny app
-workDir <- tempdir()
-knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
+#workDir <- tempdir()
+#knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
 
 # Handle both html and latex (pdf) output. Actually to avoid setting 'format'
 # for each kable call
