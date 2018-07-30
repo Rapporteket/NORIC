@@ -3,11 +3,6 @@ library(magrittr)
 library(knitr)
 library(kableExtra)
 
-# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
-# for each kable call
-# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
-options(knitr.table.format = params$tableFormat)
-
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
 # https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
@@ -216,8 +211,6 @@ AP $ Day <- as.numeric(
 
 ```
 
-
-
 ```{r subsetting,include=FALSE, eval=TRUE}
 
 NSTEMI <- subset(
@@ -244,17 +237,7 @@ AP $ Month <- as.factor(
 
 ```
 
-```{r setTitleAndAuthor, echo=FALSE, eval=TRUE}
-
-params$title <- paste("Norsk register for invasiv kardiologi (NORIC)",
-                      "Månedsrapport Angio/PCI", AP$Sykehusnavn[1]) 
-params$author <- "Rapporteket"
-```
-
-  
 ---
-title: "`r params$title`"
-author: "`r params$author`"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 always_allow_html: yes
 params:
@@ -267,7 +250,24 @@ header-includes:
   - \usepackage{booktabs}
   - \usepackage{rotating}
 ---
-  
+```{r setTitleAndAuthor, echo=FALSE, eval=TRUE}
+
+params$title <- paste("Norsk register for invasiv kardiologi (NORIC)",
+                      "Månedsrapport Angio/PCI", AP$Sykehusnavn[1]) 
+params$author <- "Rapporteket"
+```
+
+---
+title: "`r params$title`"
+author: "`r params$author`"
+---
+
+```{r setTableFormat}
+# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
+# for each kable call
+# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
+options(knitr.table.format = params$tableFormat)
+```  
 
 # Hastegrad
 
