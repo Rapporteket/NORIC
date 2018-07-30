@@ -49,9 +49,10 @@ shinyServer(function(input, output, session) {
     },
     
     content = function(file) {
-      #src <- normalizePath('testNoric.Rmd')
       src <- normalizePath(system.file("NORIC_local_monthly.Rmd",
                                        package="noric"))
+      hospitalName <- rapbase::getShinyUserReshId(session, TRUE) %>% 
+        getHospitalName()
       
       # temporarily switch to the temp dir, in case you do not have write
       # permission to the current working directory
@@ -72,8 +73,8 @@ shinyServer(function(input, output, session) {
         PDF = "latex",
         HTML = "html",
         BEAMER = "latex",
-        REVEAL = "html"
-      )), output_dir = tempdir())
+        REVEAL = "html"), hospitalName=hospitalName()
+        ), output_dir = tempdir())
       file.rename(out, file)
     }
   )
