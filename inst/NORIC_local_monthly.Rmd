@@ -259,15 +259,16 @@ AP $ Month <- as.factor(
 ```
 
 ```{r makeStandardTableFunction, eval=TRUE}
-mst <- function(tab, type, cap, digs, fs = 8) {
+mst <- function(tab, type, cap, digs, align = NULL, fs = 8) {
   if (type == "latex") {
-    k <- kable(tab, caption = cap, digits = digs, booktabs = TRUE) %>% 
+    k <- kable(tab, caption = cap, digits = digs, align = align,
+               booktabs = TRUE) %>% 
       kable_styling(latex_options = c("hold_position", "scale_down"),
                     font_size = fs)
   }
   
   if (type == "html") {
-    k <- kable(tab, caption = cap, digits = digs) %>% 
+    k <- kable(tab, caption = cap, digits = digs, align = align) %>% 
       kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                     full_width = F)
   }
@@ -469,12 +470,10 @@ xtabs(formula = ~ Month + Indikasjon2, data = AP) %>%
 
 
 ```{r TabRIndikasjon,  results = 'asis'}
+cap = "Prosentandel prosedyrer etter indikasjon og måned"
 tab <- xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
   prop.table(., margin = 1) * 100
-kable(tab, caption = "Prosentandel prosedyrer etter indikasjon og måned" ,
-      digits = 1) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+mst(tab, params$tableFormat, cap, 1)
 ```
 
 
