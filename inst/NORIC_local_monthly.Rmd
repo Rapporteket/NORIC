@@ -600,22 +600,13 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 
 
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
-kable(TabTillegg[,1:6],
-      caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-      align = rep("r", 7)) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
-
-# can the above be reproduced?
-# xtable::print.xtable(
-#     x = xtable::xtable(
-#           TabTillegg[,1:6],
-#         caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-#         align = rep("r", 7)
-#         ),
-#     booktabs = TRUE,
-#     type = 'html',
-    # html.table.attributes = 'border=0')
+cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
+mst(TabTillegg[,1:6], params$tableFormat, cap, 0, align = rep("r", 7))
+# kable(TabTillegg[,1:6],
+#       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+#       align = rep("r", 7)) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
 ```
 
 
@@ -623,11 +614,14 @@ kable(TabTillegg[,1:6],
 
 
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
-kable(TabTillegg[,7:8],
-      caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-      align = rep("r", 3)) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
+mst(TabTillegg[,7:8], params$tableFormat, cap, 0, align = rep("r", 3))
+# kable(TabTillegg[,7:8],
+#       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+#       align = rep("r", 3)) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
+
 ```
 
 
@@ -636,11 +630,14 @@ kable(TabTillegg[,7:8],
 
 
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
-kable(TabTillegg[,9:15],
-      caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-      align = rep("r", 8)) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
+mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8))
+# kable(TabTillegg[,9:15],
+#       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
+#       align = rep("r", 8)) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
+
 ```
 
 
@@ -901,11 +898,16 @@ TABkompletthet <- cbind(
     rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-kable(TABkompletthet,
-      caption = "Antall hoved registreringsskjemaer etter måned",
-      digits = c(0,0,0,1)) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+cap <- "Antall hoved registreringsskjemaer etter måned"
+mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
+    digs = c(0,0,0,1))
+
+# kable(TABkompletthet,
+#       caption = "Antall hoved registreringsskjemaer etter måned",
+#       digits = c(0,0,0,1)) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
+
 ```
 
 
@@ -936,9 +938,15 @@ TABkompletthet <- cbind(
     rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-kable(TABkompletthet,
-      caption = "Antall utskrivelsesskjemaer etter måned",
-      digits = c(0,0,0,1)) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+cap <- "Antall utskrivelsesskjemaer etter måned"
+mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
+    digs = c(0,0,0,1))
+
+
+# kable(TABkompletthet,
+#       caption = "Antall utskrivelsesskjemaer etter måned",
+#       digits = c(0,0,0,1)) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
+
 ```
