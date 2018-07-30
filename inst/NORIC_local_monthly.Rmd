@@ -398,15 +398,7 @@ legend(
 cap <- "Antall prosedyrer etter prosedyretype og måned"
 tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
   addmargins()
-if (params$tableFormat == "latex") {
-  kable(., caption =  cap, digits = 0, booktabs = TRUE) %>% 
-  kable_styling(latex_options = c("hold_position"))
-}
-if (params$tableFormat == "html") {
-  kable(., caption =  cap, digits = 0) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
-}
+mst(tab, params$tableFormat, cap, 0)
 ```
 
 
