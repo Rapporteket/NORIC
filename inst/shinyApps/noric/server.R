@@ -75,7 +75,7 @@ shinyServer(function(input, output, session) {
         PDF = "latex",
         HTML = "html",
         BEAMER = "latex",
-        REVEAL = "html"), hospitalName=hospitalName()
+        REVEAL = "html"), hospitalName=hospitalName
         ), output_dir = tempdir())
       file.rename(out, file)
     }
