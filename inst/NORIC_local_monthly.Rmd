@@ -642,7 +642,8 @@ if (params$tableFormat == 'latex'){
       digits = 0) ,
     rotate.colnames = TRUE ,
     #scalebox = 0.8 ,
-    booktabs = TRUE
+    booktabs = TRUE,
+    comment = FALSE
     )
 }
 ```
