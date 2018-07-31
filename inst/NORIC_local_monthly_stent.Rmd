@@ -145,6 +145,9 @@ registryName <- if (exists( "reshID" )) {
 
 dbType <- "mysql"
 
+SSQuery <- "SELECT * FROM SegmentStent"
+SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
+
 APQuery <- "
 SELECT
    A.ForlopsID ,
