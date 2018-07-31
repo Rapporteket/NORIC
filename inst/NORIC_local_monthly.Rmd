@@ -326,18 +326,6 @@ cap <- "Antall registrerte prosedyrer etter hastegrad og måned"
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   addmargins() %>% 
   mst(., params$tableFormat, cap, 0)
-
-# if (params$tableFormat == "latex") {
-#   kable(tab, caption = cap, digits = 0, booktabs = TRUE) %>% 
-#   kable_styling(latex_options = c("hold_position"))
-# }
-# 
-# if (params$tableFormat == "html") {
-#   kable(tab, caption = cap, digits = 0) %>% 
-#     kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                   full_width = F)
-# }
-
 ```
 
 
@@ -350,18 +338,6 @@ tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>%
   prop.table(., margin = 1) * 100
 
 mst(tab, params$tableFormat, cap, 1)
-
-# if (params$tableFormat == "latex") {
-#   kable(tab, caption = cap, digits = 1, booktabs = TRUE) %>% 
-#     kable_styling(latex_options = c("hold_position"))
-# }
-# 
-# if (params$tableFormat == "html") {
-# kable(tab, caption = cap, digits = 1) %>% 
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                 full_width = F)
-# }
-
 ```
 
 
@@ -613,11 +589,6 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
 cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
 mst(TabTillegg[,1:6], params$tableFormat, cap, 0, align = rep("r", 7))
-# kable(TabTillegg[,1:6],
-#       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-#       align = rep("r", 7)) %>% 
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                 full_width = F)
 ```
 
 
@@ -627,12 +598,6 @@ mst(TabTillegg[,1:6], params$tableFormat, cap, 0, align = rep("r", 7))
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
 mst(TabTillegg[,7:8], params$tableFormat, cap = cap, 0, align = rep("r", 3))
-# kable(TabTillegg[,7:8],
-#       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-#       align = rep("r", 3)) %>% 
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                 full_width = F)
-
 ```
 
 
@@ -643,12 +608,6 @@ mst(TabTillegg[,7:8], params$tableFormat, cap = cap, 0, align = rep("r", 3))
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
 mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
-# kable(TabTillegg[,9:15],
-#       caption = "Totalt antall (prosent) tilleggsprosedyrer etter måned",
-#       align = rep("r", 8)) %>% 
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                 full_width = F)
-
 ```
 
 
@@ -747,9 +706,12 @@ i.labkomp <- order(LabKomplikasjoner$Prosent)
 LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 
 df <- LabKomplikasjoner[,-1]
-kable(df, align = c("l","r","r", "r"), row.names = F) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+rownames(df) <- NULL
+mst(df, params$tableFormat, cap = NULL, digs = 0, align = c("l","r","r", "r"))
+# kable(df, align = c("l","r","r", "r"), row.names = F) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
+
 ```
 
 
@@ -840,9 +802,14 @@ i.labkomp <- order(AvdKomplikasjoner$Prosent)
 
 AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp,]
 
-kable(AvdKomplikasjoner[,-1], row.names = F, align = c("l","r","r")) %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F)
+df <- AvdKomplikasjoner[,-1]
+rownames(df) <- NULL
+
+mst(df, params$tableFormat, cap = NULL, digs = 0, align = c("l","r","r"))
+# kable(AvdKomplikasjoner[,-1], row.names = F, align = c("l","r","r")) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
+
 ```
 
 
