@@ -254,7 +254,7 @@ PCImedStent <- subset(
 
 ## Stent type
   
-```{r N_stents_StentType_YearMonth,fig.cap="Antall stenter etter type og måned",fig.width=12,fig.height=8,out.width="4in",echo=FALSE}
+```{r N_stents_StentType_YearMonth,fig.cap="Antall stenter etter type og måned",fig.width=12,fig.height=8,out.width="\\textwidth"}
 
 op <- par(
     mfcol = c (1,1) ,
