@@ -19,23 +19,15 @@ shinyUI(
     
     tabPanel(
       "Stentbruk",
-      
-      # Sidebar with a slider input for number of bins
       sidebarLayout(
         sidebarPanel(
-          sliderInput(
-            "bins",
-            "Number of bins:",
-            min = 1,
-            max = 50,
-            value = 30
-          ), width = 2
+          radioButtons('format', 'Format for nedlasting', c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
+                       inline = FALSE),
+          downloadButton('downloadReportStentbruk', 'Last ned'),
+          width = 2
         ),
         mainPanel(
-          verbatimTextOutput("reshID"),
-          plotOutput(
-            "distPlot1"
-          )
+          htmlOutput("stentbruk", inline = TRUE)
         )
       )
     ),
@@ -45,7 +37,7 @@ shinyUI(
         sidebarPanel(
           radioButtons('format', 'Format for nedlasting', c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
                        inline = FALSE),
-          downloadButton('downloadReport', 'Last ned'),
+          downloadButton('downloadReportProsedyrer', 'Last ned'),
           width = 2
         ),
         mainPanel(
