@@ -1,6 +1,5 @@
 ---
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
-always_allow_html: yes
 params:
   title: "Emty tite"
   author: "Anon author"
