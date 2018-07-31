@@ -626,26 +626,43 @@ TabNAndreProsedyrer <- addmargins(
 if (params$tableFormat == 'html') {
   # inject some css
   cat('<style type="text/css">
-th.rotate {
-  /* Something you can count on */
-  height: 140px;
-  white-space: nowrap;
-}
-
-th.rotate > div {
-  transform: 
-    /* Magic Numbers */
-    translate(25px, 51px)
-    /* 45 is really 360 - 45 */
-    rotate(315deg);
-  width: 30px;
-}
-th.rotate > div > span {
-  border-bottom: 1px solid #ccc;
-  padding: 5px 10px;
+.table-header-rotated {
+  border-collapse: collapse;
+  .csstransforms & td {
+    width: 30px;
+  }
+  .no-csstransforms & th {
+    padding: 5px 10px;
+  }
+  td {
+    text-align: center;
+    padding: 10px 5px;
+    border: 1px solid #ccc;
+  }
+  .csstransforms & th.rotate {
+    height: 140px;
+    white-space: nowrap;
+    // Firefox needs the extra DIV for some reason, otherwise the text disappears if you rotate 
+    > div {
+      transform: 
+        // Magic Numbers
+        translate(25px, 51px)
+        // 45 is really 360-45
+        rotate(315deg);
+      width: 30px;
+    }
+    > div > span {
+      border-bottom: 1px solid #ccc;
+      padding: 5px 10px;
+    }
+  }
+  th.row-header {
+    padding: 0 10px;
+    border-bottom: 1px solid #ccc;
+  }
 }
 </style>')
-kable(TabNAndreProsedyrer, table.attr='class="rotate"') %>% 
+kable(TabNAndreProsedyrer, table.attr='class="table-header-rotated"') %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F) #%>% 
   #row_spec(row = 0, font_size = 8, angle = -90, align = "l") %>% 
