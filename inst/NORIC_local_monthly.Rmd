@@ -35,6 +35,9 @@ options(knitr.table.format = params$tableFormat)
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 options(stringsAsFactors=FALSE)
 
+# For some reason Shiny Server does not get the server locale settings right.
+# To display dates correct, enforce locale here:
+Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
 ``` 
 
 
