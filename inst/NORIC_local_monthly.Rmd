@@ -643,7 +643,8 @@ if (params$tableFormat == 'latex'){
     rotate.colnames = TRUE ,
     #scalebox = 0.8 ,
     booktabs = TRUE,
-    comment = FALSE
+    comment = FALSE,
+    caption.placement = "top"
     )
 }
 ```
