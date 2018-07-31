@@ -449,7 +449,7 @@ legend(
 cap = "Antall prosedyrer etter indikasjon og måned"
 xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
   addmargins() %>%
-  mst(., params$tableFormat, cap, 0, lsd = TRUE)
+  mst(., params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
 ```
 
 
@@ -460,7 +460,7 @@ xtabs(formula = ~ Month + Indikasjon2, data = AP) %>%
 cap = "Prosentandel prosedyrer etter indikasjon og måned"
 tab <- xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
   prop.table(., margin = 1) * 100
-mst(tab, params$tableFormat, cap, 1)
+mst(tab, params$tableFormat, cap, 1, align = rep("r", 7))
 ```
 
 
