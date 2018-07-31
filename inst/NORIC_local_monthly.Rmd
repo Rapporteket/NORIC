@@ -624,11 +624,11 @@ TabNAndreProsedyrer <- addmargins(
 )
 
 if (params$tableFormat == 'html') {
-kable(TabNAndreProsedyrer) %>% 
+kable(TabNAndreProsedyrer, table.attr='class="th.rotate"') %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = F) %>% 
-  row_spec(row = 0, font_size = 8, angle = -90, align = "l") %>% 
-  column_spec(column = 1:(dim(TabNAndreProsedyrer)[2]+1), width = "3em")
+                full_width = F) #%>% 
+  #row_spec(row = 0, font_size = 8, angle = -90, align = "l") %>% 
+  #column_spec(column = 1:(dim(TabNAndreProsedyrer)[2]+1), width = "3em")
 }
 
 if (params$tableFormat == 'latex'){
