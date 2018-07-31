@@ -377,7 +377,7 @@ mst(PrettyTabNR( TabNProsedyreType ), params$tableFormat, cap, 0)
 ## Antall stenter per prosedyre
 ### `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`, min. 1 stent (N = `r sum(PCImedStent$Nstents>0)`)
 
-```{r Barplot_Nstent_per_Prosedyre,fig.width=12,fig.height=8,out.width="4in",echo=FALSE}
+```{r Barplot_Nstent_per_Prosedyre,fig.width=12,fig.height=8,out.width="4in"}
 
 op <- par(
     mfcol = c (1,1) ,
