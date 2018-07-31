@@ -625,7 +625,8 @@ TabNAndreProsedyrer <- addmargins(
 
 if (params$tableFormat == 'html') {
   # inject some css
-  cat("th.rotate {
+  cat("<style>
+th.rotate {
   /* Something you can count on */
   height: 140px;
   white-space: nowrap;
@@ -643,7 +644,7 @@ th.rotate > div > span {
   border-bottom: 1px solid #ccc;
   padding: 5px 10px;
 }
-      ")
+</style>")
 kable(TabNAndreProsedyrer, table.attr='class="th.rotate"') %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = F) #%>% 
