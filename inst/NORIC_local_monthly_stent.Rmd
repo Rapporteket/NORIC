@@ -103,7 +103,7 @@ PrettyTabR <- function( TabN ) {
 }
 
 
-showN <- 18
+showN <- 12
 
 ``` 
 
