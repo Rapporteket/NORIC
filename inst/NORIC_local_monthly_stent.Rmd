@@ -436,21 +436,31 @@ SSpci$Name3 <- factor(
 
 
 
-```{r TabNstentNameMonth,echo=FALSE,results='asis', eval=FALSE}
-
+```{r TabNstentNameMonth,echo=FALSE,results='asis'}
+cap <- "Antall stenter etter merke og måned"
 TabNStentMerke <- tail(
-    xtabs(
-        formula = ~ YearMonth + Name3 ,
-        data = SSpci ) ,
-    n = showN )
+  xtabs(
+    formula = ~ YearMonth + Name3 ,
+    data = SSpci ) ,
+  n = showN )
 
-print(
+if (params$tableFormat == "html") {
+  kable(TabNStentMerke, caption = cap) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = F) %>% 
+    row_spec(row = 0, font_size = 10, angle = -45)
+}
+
+if (params$tableFormat == "latex") {
+  print(
     xtable::xtable(
-        x = addmargins(TabNStentMerke) ,
-        digits = 0 , caption = "Antall stenter etter merke og måned") ,
+      x = addmargins(TabNStentMerke) ,
+      digits = 0 , caption = cap) ,
     booktabs = TRUE ,
     rotate.colnames = TRUE,
-    scalebox = 0.8)
+    scalebox = 0.8
+  )
+}
 
 ```
 
@@ -458,14 +468,24 @@ print(
 
 
 
-```{r TabRstentNameMonth,echo=FALSE,results='asis', eval=FALSE}
+```{r TabRstentNameMonth,echo=FALSE,results='asis'}
+cap <- "Prosent andel stenter etter merke og måned"
 
-print(
+if (params$tableFormat == "html") {
+  kable(PretttyTabR(TabNStentMerke), caption = cap) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = F) %>% 
+    row_spec(row = 0, font_size = 10, angle = -45)
+}
+
+if (params$tableFormat == "latex") {
+  print(
     xtable::xtable(
-        x = PrettyTabR( TabNStentMerke ) ,
-        digits = 0 , caption = "Prosent andel stenter etter merke og måned") ,
+      x = PrettyTabR( TabNStentMerke ) ,
+      digits = 0 , caption = cap) ,
     booktabs = TRUE ,
     rotate.colnames = TRUE,
     scalebox = 0.8)
+}
 
 ```
