@@ -13,7 +13,7 @@ library(shiny)
 shinyUI(
   navbarPage(
     title="NORIC",
-    theme = "bootstrap.css"
+    theme = "bootstrap.css",
     
     # Application title
     #titlePanel("NORIC"),
