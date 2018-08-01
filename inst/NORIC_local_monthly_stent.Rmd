@@ -300,7 +300,7 @@ TabNStentType <- tail(
   n = showN ) %>% 
   addmargins()
 
-mst(TabNStentType, params$tableFormat, cap, 0)
+mst(TabNStentType, params$tableFormat, cap, 0, align = rep("r", 5))
 
 # print(
 #     xtable::xtable(
@@ -320,7 +320,7 @@ cap <- "Prosentandel stenter etter typer og måned"
 tab <- addmargins(TabNStentType, margin = 1) %>% 
   prop.table(., margin = 1)
 
-mst(tab, params$tableFormat, cap, 1)
+mst(tab, params$tableFormat, cap, 1, align = rep("r", 4))
 
 # print(
 #   xtable::xtable(

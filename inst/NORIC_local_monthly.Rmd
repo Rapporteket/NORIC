@@ -327,7 +327,7 @@ legend(
 cap <- "Antall registrerte prosedyrer etter hastegrad og måned"
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   addmargins() %>% 
-  mst(., params$tableFormat, cap, 0)
+  mst(., params$tableFormat, cap, 0, align = rep("r", 5))
 ```
 
 
@@ -339,7 +339,7 @@ cap <- "Prosentandel prosedyrer etter hastegrad og måned"
 tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   prop.table(., margin = 1) * 100
 
-mst(tab, params$tableFormat, cap, 1)
+mst(tab, params$tableFormat, cap, 1, align = rep("r", 4))
 ```
 
 
@@ -882,14 +882,7 @@ colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
 cap <- "Antall hoved registreringsskjemaer etter måned"
 mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
-    digs = c(0,0,0,1))
-
-# kable(TABkompletthet,
-#       caption = "Antall hoved registreringsskjemaer etter måned",
-#       digits = c(0,0,0,1)) %>% 
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                 full_width = F)
-
+    digs = c(0,0,0,1), align = rep("r", 4))
 ```
 
 
@@ -922,13 +915,5 @@ colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
 cap <- "Antall utskrivelsesskjemaer etter måned"
 mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
-    digs = c(0,0,0,1))
-
-
-# kable(TABkompletthet,
-#       caption = "Antall utskrivelsesskjemaer etter måned",
-#       digits = c(0,0,0,1)) %>% 
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                 full_width = F)
-
+    digs = c(0,0,0,1), align = rep("r", 4))
 ```
