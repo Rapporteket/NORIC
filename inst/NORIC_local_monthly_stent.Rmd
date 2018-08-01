@@ -377,7 +377,6 @@ legend(
 ## Stent merke
 
 ```{r prepare-data-SS-pci,include=FALSE}
-
 SSpci <- subset(
     SS ,
     ProsedyreType %in% c("Ballong + Stent","Direktestent","Medikamentell ballong+ Stent")
@@ -412,19 +411,22 @@ if (params$tableFormat == "html") {
 }
 
 if (params$tableFormat == "latex") {
-  print(
+  print.xtable(
     xtable::xtable(
       x = addmargins(TabNStentMerke) ,
       digits = 0 , caption = cap) ,
     booktabs = TRUE ,
     rotate.colnames = TRUE,
+    comment = FALSE,
+    caption.placement = "top",
     scalebox = 0.8
   )
+  
 }
 
 ```
 
-
+## Stent merke
 
 ```{r TabRstentNameMonth,echo=FALSE,results='asis'}
 cap <- "Prosent andel stenter etter merke og måned"
@@ -443,6 +445,8 @@ if (params$tableFormat == "latex") {
       digits = 0 , caption = cap) ,
     booktabs = TRUE ,
     rotate.colnames = TRUE,
+    comment = FALSE,
+    caption.placement = "top",
     scalebox = 0.8)
 }
 ```
