@@ -472,7 +472,7 @@ if (params$tableFormat == "latex") {
 cap <- "Prosent andel stenter etter merke og måned"
 
 if (params$tableFormat == "html") {
-  kable(PretttyTabR(TabNStentMerke), caption = cap) %>% 
+  kable(PrettyTabR(TabNStentMerke), caption = cap) %>% 
     kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                   full_width = F) %>% 
     row_spec(row = 0, font_size = 10, angle = -45)
