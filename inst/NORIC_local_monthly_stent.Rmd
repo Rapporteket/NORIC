@@ -297,10 +297,9 @@ TabNStentType <- tail(
   xtabs(
     formula = ~ YearMonth + StentType ,
     data = SS ) ,
-  n = showN ) %>% 
-  addmargins()
+  n = showN )
 
-mst(TabNStentType, params$tableFormat, cap, 0, align = rep("r", 5))
+mst(addmargins(TabNStentType), params$tableFormat, cap, 0, align = rep("r", 5))
 
 # print(
 #     xtable::xtable(
