@@ -411,7 +411,7 @@ if (params$tableFormat == "html") {
 }
 
 if (params$tableFormat == "latex") {
-  print.xtable(
+  xtable::print.xtable(
     xtable::xtable(
       x = addmargins(TabNStentMerke) ,
       digits = 0 , caption = cap) ,
