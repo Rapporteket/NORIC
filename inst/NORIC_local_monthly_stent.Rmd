@@ -419,7 +419,7 @@ if (params$tableFormat == "latex") {
     rotate.colnames = TRUE,
     comment = FALSE,
     caption.placement = "top",
-    scalebox = 0.8
+    scalebox = 0.6
   )
   
 }
@@ -447,6 +447,6 @@ if (params$tableFormat == "latex") {
     rotate.colnames = TRUE,
     comment = FALSE,
     caption.placement = "top",
-    scalebox = 0.8)
+    scalebox = 0.6)
 }
 ```
