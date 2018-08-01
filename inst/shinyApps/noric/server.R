@@ -74,7 +74,7 @@ shinyServer(function(input, output, session) {
         HTML = html_document(),
         BEAMER = beamer_presentation(theme = "Hannover"),
         REVEAL = revealjs::revealjs_presentation(theme = "sky",
-                                                 css = "assets/bootstrap.css")
+                                                 css = "./bootstrap.css")
       ), params = list(tableFormat=switch(
         input$format,
         PDF = "latex",
