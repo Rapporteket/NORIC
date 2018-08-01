@@ -300,14 +300,6 @@ TabNStentType <- tail(
   n = showN )
 
 mst(addmargins(TabNStentType), params$tableFormat, cap, 0, align = rep("r", 5))
-
-# print(
-#     xtable::xtable(
-#         addmargins( TabNStentType ) ,
-#         digits = 0 , caption = "Antall stenter etter type og måned") ,
-#     booktabs = TRUE ,
-#     rotate.colnames = FALSE)
-
 ```
 
 
@@ -320,25 +312,7 @@ tab <- addmargins(TabNStentType, margin = 1) %>%
   prop.table(., margin = 1) * 100
 
 mst(tab, params$tableFormat, cap, 1, align = rep("r", 4))
-
-# print(
-#   xtable::xtable(
-#     100 * prop.table(
-#       addmargins(
-#         TabNStentType ,
-#         margin = 1
-#       ) ,
-#       margin = 1
-#     ) ,
-#     digits = 1 , caption = "Prosentandel stenter etter typer og måned"
-#   ) ,
-#   booktabs = TRUE ,
-#   rotate.colnames = FALSE
-# )
-
 ```
-
-
 
 
 
@@ -398,9 +372,6 @@ legend(
 
 
 
-
-
-
 # Stent merke
 
 ## Stent merke
@@ -423,7 +394,6 @@ SSpci$Name3 <- factor(
     )
 
 ``` 
-
 
 
 ```{r TabNstentNameMonth,echo=FALSE,results='asis'}
@@ -456,8 +426,6 @@ if (params$tableFormat == "latex") {
 
 
 
-
-
 ```{r TabRstentNameMonth,echo=FALSE,results='asis'}
 cap <- "Prosent andel stenter etter merke og måned"
 
@@ -477,5 +445,4 @@ if (params$tableFormat == "latex") {
     rotate.colnames = TRUE,
     scalebox = 0.8)
 }
-
 ```
