@@ -620,13 +620,13 @@ mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8), lsd = TR
 
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=TRUE}
-
+cap <- "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned"
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
 )
 
 if (params$tableFormat == 'html') {
-  kable(TabNAndreProsedyrer) %>% 
+  kable(TabNAndreProsedyrer, caption = cap) %>% 
     kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                   full_width = F) %>% 
     row_spec(row = 0, font_size = 10, angle = -45) %>% 
@@ -637,7 +637,7 @@ if (params$tableFormat == 'latex'){
   xtable::print.xtable(
     x = xtable::xtable(
       x = TabNAndreProsedyrer ,
-      caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" ,
+      caption = cap,
       digits = 0) ,
     rotate.colnames = TRUE ,
     #scalebox = 0.8 ,
