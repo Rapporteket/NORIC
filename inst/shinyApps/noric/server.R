@@ -92,10 +92,10 @@ shinyServer(function(input, output, session) {
   
   
   output$downloadReportStentbruk <- downloadHandler(
-    filename = isolate({
+    filename = function() {
       downloadFilename("NORIC_local_monthly_stent",
-                                input$formatStentbruk)}
-      ),
+                                input$formatStentbruk)
+    },
 
     content = function(file) {
       contentFile(file, "NORIC_local_monthly_stent.Rmd", "tmpNoricStent.Rmd",
