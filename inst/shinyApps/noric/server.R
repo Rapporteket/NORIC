@@ -45,7 +45,7 @@ shinyServer(function(input, output, session) {
   # filename function for re-use
   downloadFilename <- function(fileBaseName, type) {
     paste(paste0(fileBaseName,
-                 as.character(as.numeric(as.POSIXct(Sys.time())))),
+                 as.character(as.integer(as.POSIXct(Sys.time())))),
           sep = '.', switch(
             type, 
             PDF = 'pdf', HTML = 'html', REVEAL = 'html', BEAMER = 'pdf')
