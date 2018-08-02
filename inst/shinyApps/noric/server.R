@@ -104,8 +104,9 @@ shinyServer(function(input, output, session) {
   )
   
   output$downloadReportProsedyrer <- downloadHandler(
-    filename = downloadFilename("NORIC_local_monthly",
-                                input$formatProsedyrer),
+    filename = function() {
+      downloadFilename("NORIC_local_monthly", input$formatProsedyrer)
+    },
     
     content = function(file) {
       contentFile(file, "NORIC_local_monthly_stent.Rmd", "tmpNoricStent.Rmd",
