@@ -13,28 +13,42 @@ library(magrittr)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
-  output$stentbruk <- renderUI({
-    # set param needed for knitting
+  # html rendering function for re-use
+  htmlRenderRmd <- function(srcFile) {
+    # set param needed for report meta processing
     params <- list(tableFormat="html")
-    shiny::HTML(
-      markdown::markdownToHTML(
-        knitr::knit(
-          system.file("NORIC_local_monthly_stent.Rmd", package="noric")
-        ), options = c('fragment_only', 'base64_images')
-      )
-    )
+    system.file(srcFile, package="noric") %>% 
+      knitr::knit() %>% 
+      markdown::markdownToHTML(.,
+                               options = c('fragment_only',
+                                           'base64_images')) %>% 
+      shiny::HTML()
+  }
+  
+  output$stentbruk <- renderUI({
+    htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
+    # # set param needed for knitting
+    # params <- list(tableFormat="html")
+    # shiny::HTML(
+    #   markdown::markdownToHTML(
+    #     knitr::knit(
+    #       system.file("NORIC_local_monthly_stent.Rmd", package="noric")
+    #     ), options = c('fragment_only', 'base64_images')
+    #   )
+    # )
   })
   
   output$prosedyrer <- renderUI({
-    # set param needed for knitting
-    params <- list(tableFormat="html")
-    shiny::HTML(
-      markdown::markdownToHTML(
-        knitr::knit(
-          system.file("NORIC_local_monthly.Rmd", package="noric")
-        ), options = c('fragment_only', 'base64_images')
-      )
-    )
+    htmlRenderRmd("NORIC_local_monthly.Rmd")
+    # # set param needed for knitting
+    # params <- list(tableFormat="html")
+    # shiny::HTML(
+    #   markdown::markdownToHTML(
+    #     knitr::knit(
+    #       system.file("NORIC_local_monthly.Rmd", package="noric")
+    #     ), options = c('fragment_only', 'base64_images')
+    #   )
+    # )
   })
   
   # filename function for re-use
