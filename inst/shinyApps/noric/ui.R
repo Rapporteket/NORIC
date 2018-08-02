@@ -22,7 +22,9 @@ shinyUI(
       "Stentbruk",
       sidebarLayout(
         sidebarPanel(
-          radioButtons('format', 'Format for nedlasting', c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
+          radioButtons('formatStentbruk',
+                       'Format for nedlasting',
+                       c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
                        inline = FALSE),
           downloadButton('downloadReportStentbruk', 'Last ned'),
           width = 2
@@ -36,7 +38,9 @@ shinyUI(
       "Prosedyrer",
       sidebarLayout(
         sidebarPanel(
-          radioButtons('format', 'Format for nedlasting', c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
+          radioButtons('formatProsedyrer',
+                       'Format for nedlasting',
+                       c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
                        inline = FALSE),
           downloadButton('downloadReportProsedyrer', 'Last ned'),
           width = 2
