@@ -52,38 +52,70 @@ shinyServer(function(input, output, session) {
     )
   }
   
+  # render file function for re-use
+  contentFile <- function(file, srcFile, tmpFile, type) {
+    src <- normalizePath(system.file(srcFile, package="noric"))
+    hospitalName <- rapbase::getShinyUserReshId(session, TRUE) %>% 
+      noric::getHospitalName()
+    
+    # temporarily switch to the temp dir, in case we do not have write
+    # permission to the current working directory
+    owd <- setwd(tempdir())
+    on.exit(setwd(owd))
+    file.copy(src, tmpFile, overwrite = TRUE)
+    
+    library(rmarkdown)
+    out <- render(tmpFile, output_format = switch(
+      type,
+      PDF = pdf_document(),
+      HTML = html_document(),
+      BEAMER = beamer_presentation(theme = "Hannover"),
+      REVEAL = revealjs::revealjs_presentation(theme = "sky")
+    ), params = list(tableFormat=switch(
+      type,
+      PDF = "latex",
+      HTML = "html",
+      BEAMER = "latex",
+      REVEAL = "html"), hospitalName=hospitalName
+    ), output_dir = tempdir())
+    file.rename(out, file)
+  }
+  
+  
   output$downloadReportStentbruk <- downloadHandler(
     filename = downloadFilename("NORIC_local_monthly_stent", input$format),
 
     content = function(file) {
-      src <- normalizePath(system.file("NORIC_local_monthly_stent.Rmd",
-                                       package="noric"))
-      hospitalName <- rapbase::getShinyUserReshId(session, TRUE) %>% 
-        noric::getHospitalName()
-      
-      
-      # temporarily switch to the temp dir, in case you do not have write
-      # permission to the current working directory
-      owd <- setwd(tempdir())
-      on.exit(setwd(owd))
-      file.copy(src, 'tmpNoricStent.Rmd', overwrite = TRUE)
-      
-      library(rmarkdown)
-      out <- render('tmpNoricStent.Rmd', output_format = switch(
-        input$format,
-        #PDF = pdf_document(), HTML = html_document(), Word = word_document()
-        PDF = pdf_document(),
-        HTML = html_document(),
-        BEAMER = beamer_presentation(theme = "Hannover"),
-        REVEAL = revealjs::revealjs_presentation(theme = "sky")
-      ), params = list(tableFormat=switch(
-        input$format,
-        PDF = "latex",
-        HTML = "html",
-        BEAMER = "latex",
-        REVEAL = "html"), hospitalName=hospitalName
-      ), output_dir = tempdir())
-      file.rename(out, file)
+      contentFile(file, "NORIC_local_monthly_stent.Rmd", "tmpNoricStent.Rmd",
+                  input$format)
+      # src <- normalizePath(system.file("NORIC_local_monthly_stent.Rmd",
+      #                                  package="noric"))
+      # hospitalName <- rapbase::getShinyUserReshId(session, TRUE) %>% 
+      #   noric::getHospitalName()
+      # 
+      # 
+      # # temporarily switch to the temp dir, in case you do not have write
+      # # permission to the current working directory
+      # owd <- setwd(tempdir())
+      # on.exit(setwd(owd))
+      # file.copy(src, 'tmpNoricStent.Rmd', overwrite = TRUE)
+      # 
+      # library(rmarkdown)
+      # out <- render('tmpNoricStent.Rmd', output_format = switch(
+      #   input$format,
+      #   #PDF = pdf_document(), HTML = html_document(), Word = word_document()
+      #   PDF = pdf_document(),
+      #   HTML = html_document(),
+      #   BEAMER = beamer_presentation(theme = "Hannover"),
+      #   REVEAL = revealjs::revealjs_presentation(theme = "sky")
+      # ), params = list(tableFormat=switch(
+      #   input$format,
+      #   PDF = "latex",
+      #   HTML = "html",
+      #   BEAMER = "latex",
+      #   REVEAL = "html"), hospitalName=hospitalName
+      # ), output_dir = tempdir())
+      # file.rename(out, file)
     }
   )
   
