@@ -54,16 +54,7 @@ shinyServer(function(input, output, session) {
   
   output$downloadReportStentbruk <- downloadHandler(
     filename = downloadFilename("NORIC_local_monthly_stent", input$format),
-      #function() {
-      # # add secs since epoch to provide a timestamp and pseudo-unique filename
-      # paste(paste0('NORIC_local_monthly_stent',
-      #              as.character(as.numeric(as.POSIXct(Sys.time())))),
-      #       sep = '.', switch(
-      #         input$format, PDF = 'pdf', HTML = 'html', REVEAL = 'html',
-      #         BEAMER = 'pdf')
-      # )
-    #},
-    
+
     content = function(file) {
       src <- normalizePath(system.file("NORIC_local_monthly_stent.Rmd",
                                        package="noric"))
@@ -97,15 +88,7 @@ shinyServer(function(input, output, session) {
   )
   
   output$downloadReportProsedyrer <- downloadHandler(
-    filename = function() {
-      # add secs since epoch to provide a timestamp and pseudo-unique filename
-      paste(paste0('NORIC_local_monthly',
-                   as.character(as.numeric(as.POSIXct(Sys.time())))),
-            sep = '.', switch(
-              input$format, PDF = 'pdf', HTML = 'html', REVEAL = 'html',
-              BEAMER = 'pdf')
-            )
-    },
+    filename = downloadFilename("NORIC_local_monthly", input$format),
     
     content = function(file) {
       src <- normalizePath(system.file("NORIC_local_monthly.Rmd",
