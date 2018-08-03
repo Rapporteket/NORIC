@@ -93,7 +93,7 @@ shinyServer(function(input, output, session) {
     },
     
     content = function(file) {
-      contentFile(file, "NORIC_local_monthly_stent.Rmd", "tmpNoricStent.Rmd",
+      contentFile(file, "NORIC_local_monthly.Rmd", "tmpNoric.Rmd",
                   input$formatProsedyrer)
     }
   )
