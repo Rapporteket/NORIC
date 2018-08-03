@@ -450,3 +450,8 @@ if (params$tableFormat == "latex") {
     scalebox = 0.6)
 }
 ```
+
+```{r garbageCollector}
+# more prevention of memory hogging?
+gc()
+```
