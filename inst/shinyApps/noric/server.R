@@ -27,28 +27,10 @@ shinyServer(function(input, output, session) {
   
   output$stentbruk <- renderUI({
     htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
-    # # set param needed for knitting
-    # params <- list(tableFormat="html")
-    # shiny::HTML(
-    #   markdown::markdownToHTML(
-    #     knitr::knit(
-    #       system.file("NORIC_local_monthly_stent.Rmd", package="noric")
-    #     ), options = c('fragment_only', 'base64_images')
-    #   )
-    # )
   })
   
   output$prosedyrer <- renderUI({
     htmlRenderRmd("NORIC_local_monthly.Rmd")
-    # # set param needed for knitting
-    # params <- list(tableFormat="html")
-    # shiny::HTML(
-    #   markdown::markdownToHTML(
-    #     knitr::knit(
-    #       system.file("NORIC_local_monthly.Rmd", package="noric")
-    #     ), options = c('fragment_only', 'base64_images')
-    #   )
-    # )
   })
   
   # filename function for re-use
