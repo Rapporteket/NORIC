@@ -61,7 +61,8 @@ shinyServer(function(input, output, session) {
       PDF = pdf_document(),
       HTML = html_document(),
       BEAMER = beamer_presentation(theme = "Hannover"),
-      REVEAL = revealjs::revealjs_presentation(css = "bootstrap.css")
+      REVEAL = revealjs::revealjs_presentation(css = normalizePath(
+        system.file("bootstrap.css", package = "noric")))
     ), params = list(tableFormat=switch(
       type,
       PDF = "latex",
