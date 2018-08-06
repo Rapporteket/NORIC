@@ -14,9 +14,9 @@ library(magrittr)
 shinyServer(function(input, output, session) {
   
   # testing css for revealjs, we need a proxy
-  conf <- rapbase::getConfig(fileName = "rapbaseConfig.yml",
-                             packageName = "rapbase")
-  Sys.setenv(https_proxy=conf$network$proxy$http)
+  # conf <- rapbase::getConfig(fileName = "rapbaseConfig.yml",
+  #                            packageName = "rapbase")
+  # Sys.setenv(https_proxy=conf$network$proxy$http)
   
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
@@ -66,8 +66,8 @@ shinyServer(function(input, output, session) {
       PDF = pdf_document(),
       HTML = html_document(),
       BEAMER = beamer_presentation(theme = "Hannover"),
-      REVEAL = revealjs::revealjs_presentation(css = normalizePath(
-        system.file("bootstrap.css", package = "noric")))
+      REVEAL = revealjs::revealjs_presentation(theme = "sky")
+        #css = normalizePath(system.file("bootstrap.css", package = "noric")))
     ), params = list(tableFormat=switch(
       type,
       PDF = "latex",
