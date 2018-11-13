@@ -12,7 +12,8 @@ library(shiny)
 # Define UI for application that draws a histogram
 shinyUI(
   navbarPage(
-    title="NORIC",
+    title = div(img(src="Logo-B.svg", alt="Rapporteket", height=38, width=38),
+                "NORIC"),
     theme = "bootstrap.css",
     
     # Application title
