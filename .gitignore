@@ -34,7 +34,6 @@ vignettes/*.pdf
 *.htm
 *.md
 *.png
-*.svg
 
 # SPSS, word,..
 *.sav
@@ -42,7 +41,6 @@ vignettes/*.pdf
 *.docx
 *.pdf
 *.bmp
-*.svg
 *.tiff
 *.zip
 
