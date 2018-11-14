@@ -13,7 +13,7 @@ regTitle <- "NORIC"
 
 shinyUI(
   navbarPage(
-    title = div(img(src="Logo-B.svg", alt="Rapporteket", height=38, width=38),
+    title = div(img(src="Logo-B.svg", alt="Rapporteket", height="26px"),
                 regTitle),
     windowTitle = regTitle,
     theme = "bootstrap.css",
