@@ -101,7 +101,7 @@ showN <- 18
 
 baseName <- "noricStaging"
 reshID <- rapbase::getUserReshId()
-print(paste("ReshID:", reshID))
+
 registryName <- if (exists("reshID")){
                     NORICmakeRegistryName(baseName, reshID)
                 } else {
