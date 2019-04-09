@@ -53,7 +53,7 @@ colKontrast <- "#FF7260"
 
 baseName <- "noricStaging"
 
-reshID <- rapbase::getShinyUserReshId(session, testCase = TRUE)
+reshID <- rapbase::getUserReshId(session)
 
 registryName <- if (exists( "reshID" )) {
                     noric::NORICmakeRegistryName(
