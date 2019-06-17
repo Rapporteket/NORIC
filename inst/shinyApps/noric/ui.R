@@ -31,7 +31,12 @@ shinyUI(
         textOutput("callGroups"),
         textOutput("callReshId"),
         textOutput("callRole"),
-        h4(paste("test", Sys.getlocale()))
+        h4("Environment var R_RAP_INSTANCE:"),
+        textOutput("envInstance"),
+        h4("Environmental var R_RAP_CONFIG_PATH:"),
+        textOutput("envConfigPath"),
+        h4("Locale settings:"),
+        textOutput("locale")
       )
     ),
     

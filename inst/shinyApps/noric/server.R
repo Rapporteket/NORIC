@@ -30,7 +30,7 @@ shinyServer(function(input, output, session) {
       shiny::HTML()
   }
   
-  # Various calls for session data from rapbase
+  # Various calls for session data from rapbase and systemn settings
   output$callUser <- renderText({
     paste("rapbase::getUserName(session):",
           rapbase::getUserName(session))
@@ -46,6 +46,18 @@ shinyServer(function(input, output, session) {
   output$callRole <- renderText({
     paste("rapbase::getUserRole(session):",
           rapbase::getUserRole(session))
+  })
+  
+  output$envInstance <- renderText({
+    Sys.getenv("R_RAP_INSTANCE")
+  })
+  
+  output$envConfigPath <- renderText({
+    Sys.getenv("R_RAP_CONFIG_PATH")
+  })
+  
+  output$locale <- renderText({
+    Sys.getlocale()
   })
   
   output$stentbruk <- renderUI({
