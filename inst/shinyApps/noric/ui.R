@@ -23,6 +23,18 @@ shinyUI(
     # Application title
     #titlePanel("NORIC"),
     
+    tabPanel("Testpanel",
+      mainPanel(
+        # return from rapbase functions
+        h4("Test 'rapbase' functions using the session object:"),
+        textOutput("callUser"),
+        textOutput("callGroups"),
+        textOutput("callReshId"),
+        textOutput("callRole"),
+        h4(paste("test", Sys.getlocale()))
+      )
+    ),
+    
     tabPanel(
       "Stentbruk",
       sidebarLayout(

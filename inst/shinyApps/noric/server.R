@@ -30,6 +30,24 @@ shinyServer(function(input, output, session) {
       shiny::HTML()
   }
   
+  # Various calls for session data from rapbase
+  output$callUser <- renderText({
+    paste("rapbase::getUserName(session):",
+          rapbase::getUserName(session))
+  })
+  output$callGroups <- renderText({
+    paste("rapbase::getUserGroups(session):",
+          rapbase::getUserGroups(session))
+  })
+  output$callReshId <- renderText({
+    paste("rapbase::getUserReshId(session):",
+          rapbase::getUserReshId(session))
+  })
+  output$callRole <- renderText({
+    paste("rapbase::getUserRole(session):",
+          rapbase::getUserRole(session))
+  })
+  
   output$stentbruk <- renderUI({
     htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
   })
