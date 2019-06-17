@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
   # render file function for re-use
   contentFile <- function(file, srcFile, tmpFile, type) {
     src <- normalizePath(system.file(srcFile, package="noric"))
-    hospitalName <- rapbase::getShinyUserReshId(session, TRUE) %>% 
+    hospitalName <- rapbase::getUserReshId(session) %>% 
       noric::getHospitalName()
     
     # temporarily switch to the temp dir, in case we do not have write

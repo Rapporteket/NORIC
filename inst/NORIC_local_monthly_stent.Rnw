@@ -100,6 +100,8 @@ showN <- 18
 <<GetData,include=FALSE>>=
 
 baseName <- "noricStaging"
+reshID <- rapbase::getUserReshId()
+
 registryName <- if (exists("reshID")){
                     NORICmakeRegistryName(baseName, reshID)
                 } else {
@@ -222,6 +224,7 @@ cat("\\date{" , date() , "}\n\n")
 @ 
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 \begin{tiny}
   
 \maketitle

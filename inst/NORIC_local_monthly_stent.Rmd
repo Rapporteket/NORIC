@@ -132,7 +132,7 @@ mst <- function(tab, type, cap, digs, align = NULL, fs = 8, lsd = FALSE) {
 ```{r GetData,include=FALSE}
 baseName <- "noricStaging"
 
-reshID <- rapbase::getShinyUserReshId(session, testCase = TRUE)
+reshID <- rapbase::getUserReshId(session)
 
 registryName <- if (exists( "reshID" )) {
                     noric::NORICmakeRegistryName(
