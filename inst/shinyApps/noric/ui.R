@@ -10,13 +10,15 @@
 library(shiny)
 
 regTitle <- "NORIC"
+addResourcePath('rap', system.file('www', package='rapbase'))
 
 shinyUI(
   navbarPage(
-    title = div(img(src="Logo-B.svg", alt="Rapporteket", height="26px"),
+    title = div(img(class="icon", src="Logo-B.svg", alt="Rapporteket", height="26px"),
                 regTitle),
+    #title = div(class="logo navbar-right", regTitle),
     windowTitle = regTitle,
-    theme = "bootstrap.css",
+    theme = "rap/bootstrap.css",
     
     # Application title
     #titlePanel("NORIC"),
