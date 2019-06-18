@@ -47,6 +47,7 @@ shinyServer(function(input, output, session) {
     paste("rapbase::getUserRole(session):",
           rapbase::getUserRole(session))
   })
+
   output$callEmail <- renderText({
     paste("rapbase::getUserEmail(session):",
           rapbase::getUserEmail(session))
