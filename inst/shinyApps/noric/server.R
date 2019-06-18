@@ -47,6 +47,10 @@ shinyServer(function(input, output, session) {
     paste("rapbase::getUserRole(session):",
           rapbase::getUserRole(session))
   })
+  output$callEmail <- renderText({
+    paste("rapbase::getUserEmail(session):",
+          rapbase::getUserEmail(session))
+  })
   
   output$envInstance <- renderText({
     Sys.getenv("R_RAP_INSTANCE")
