@@ -32,6 +32,8 @@ shinyUI(
         textOutput("callReshId"),
         textOutput("callRole"),
         textOutput("callEmail"),
+        textOutput("callFullName"),
+        textOutput("callPhone"),
         h4("Environment var R_RAP_INSTANCE:"),
         textOutput("envInstance"),
         h4("Environmental var R_RAP_CONFIG_PATH:"),

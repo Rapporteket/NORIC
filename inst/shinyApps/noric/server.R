@@ -53,6 +53,16 @@ shinyServer(function(input, output, session) {
           rapbase::getUserEmail(session))
   })
   
+  output$callFullName <- renderText({
+    paste("rapbase::getUserFullName(session):",
+          rapbase::getUserFullName(session))
+  })
+  
+  output$callPhone <- renderText({
+    paste("rapbase::getUserPhone(session):",
+          rapbase::getUserPhone(session))
+  })
+  
   output$envInstance <- renderText({
     Sys.getenv("R_RAP_INSTANCE")
   })
