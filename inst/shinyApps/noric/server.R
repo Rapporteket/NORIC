@@ -158,17 +158,18 @@ shinyServer(function(input, output, session) {
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
     rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
-    options = list(dom = 't')
+    rownames = FALSE, options = list(dom = 't')
   )
   
   ## lag side som viser status for abonnement, også når det ikke finnes noen
   output$subscriptionContent <- renderUI({
-    userName <- rapbase::getUserName(session)
+    fullName <- "Tester Testesen" # make new function in rapbase
     if (length(rv$subscriptionTab) == 0) {
-      p(paste("Ingen aktive abonnement for", userName))
+      p(paste("Ingen aktive abonnement for", fullName))
     } else {
       tagList(
-        p(paste0("Aktive abonnement som sendes per epost til ", userName, ":")),
+        p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
+                rapbase::getUserEmail(session), ":")),
         DT::dataTableOutput("activeSubscriptions")
       )
     }
@@ -176,8 +177,9 @@ shinyServer(function(input, output, session) {
   
   ## nye abonnement
   observeEvent (input$subscribe, {
-    package <- "rapRegTemplate"
-    owner <- getUserName(session)
+    package <- "noric"
+    owner <- rapbase::getUserName(session)
+    organization <- rapbase::getUserReshId(session)
     runDayOfYear <- rapbase::makeRunDayOfYearSequence(
       interval = input$subscriptionFreq
     )
@@ -198,7 +200,8 @@ shinyServer(function(input, output, session) {
     rapbase::createAutoReport(synopsis = synopsis, package = package,
                               fun = fun, paramNames = paramNames,
                               paramValues = paramValues, owner = owner,
-                              email = email, runDayOfYear = runDayOfYear)
+                              email = email, organization = organization,
+                              runDayOfYear = runDayOfYear)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
   
