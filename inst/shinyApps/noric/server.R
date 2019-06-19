@@ -153,12 +153,13 @@ shinyServer(function(input, output, session) {
   
   ## lag side som viser status for abonnement, også når det ikke finnes noen
   output$subscriptionContent <- renderUI({
-    userName <- rapbase::getUserName(session)
+    fullName <- "Tester Testesen" # make new function in rapbase
     if (length(rv$subscriptionTab) == 0) {
-      p(paste("Ingen aktive abonnement for", userName))
+      p(paste("Ingen aktive abonnement for", fullName))
     } else {
       tagList(
-        p(paste0("Aktive abonnement som sendes per epost til ", userName, ":")),
+        p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
+                rapbase::getUserEmail(session), ":")),
         DT::dataTableOutput("activeSubscriptions")
       )
     }
@@ -166,7 +167,7 @@ shinyServer(function(input, output, session) {
   
   ## nye abonnement
   observeEvent (input$subscribe, {
-    package <- "rapRegTemplate"
+    package <- "noric"
     owner <- rapbase::getUserName(session)
     runDayOfYear <- rapbase::makeRunDayOfYearSequence(
       interval = input$subscriptionFreq
