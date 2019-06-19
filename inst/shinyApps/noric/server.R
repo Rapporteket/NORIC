@@ -167,7 +167,7 @@ shinyServer(function(input, output, session) {
   ## nye abonnement
   observeEvent (input$subscribe, {
     package <- "rapRegTemplate"
-    owner <- getUserName(session)
+    owner <- rapbase::getUserName(session)
     runDayOfYear <- rapbase::makeRunDayOfYearSequence(
       interval = input$subscriptionFreq
     )
