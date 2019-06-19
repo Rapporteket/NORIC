@@ -148,7 +148,7 @@ shinyServer(function(input, output, session) {
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
     rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
-    options = list(dom = 't')
+    rownames = FALSE, options = list(dom = 't')
   )
   
   ## lag side som viser status for abonnement, også når det ikke finnes noen
@@ -169,6 +169,7 @@ shinyServer(function(input, output, session) {
   observeEvent (input$subscribe, {
     package <- "noric"
     owner <- rapbase::getUserName(session)
+    organization <- rapbase::getUserReshId(session)
     runDayOfYear <- rapbase::makeRunDayOfYearSequence(
       interval = input$subscriptionFreq
     )
@@ -189,7 +190,8 @@ shinyServer(function(input, output, session) {
     rapbase::createAutoReport(synopsis = synopsis, package = package,
                               fun = fun, paramNames = paramNames,
                               paramValues = paramValues, owner = owner,
-                              email = email, runDayOfYear = runDayOfYear)
+                              email = email, organization = organization,
+                              runDayOfYear = runDayOfYear)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
   
