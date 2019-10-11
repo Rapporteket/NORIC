@@ -48,6 +48,17 @@ ui <- tagList(
       )
     ),
     
+    tabPanel("Pivot1",
+      sidebarLayout(
+        sidebarPanel(
+          
+        ),
+        mainPanel(
+          
+        )
+      )
+    ),
+    
     tabPanel(
       "Stentbruk",
       sidebarLayout(
