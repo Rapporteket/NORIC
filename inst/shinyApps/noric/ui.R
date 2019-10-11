@@ -56,7 +56,7 @@ ui <- tagList(
                        'Format for nedlasting',
                        c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
                        inline = FALSE),
-          downloadButton('downloadReportStentbruk', 'Last ned'),
+          downloadButton('downloadReportStentbruk', 'Hent!'),
           width = 2
         ),
         mainPanel(
@@ -76,7 +76,7 @@ ui <- tagList(
                        'Format for nedlasting',
                        c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
                        inline = FALSE),
-          downloadButton('downloadReportProsedyrer', 'Last ned'),
+          downloadButton('downloadReportProsedyrer', 'Hent!'),
           width = 2
         ),
         mainPanel(
