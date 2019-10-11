@@ -7,21 +7,26 @@
 #    http://shiny.rstudio.com/
 #
 
+library(rapbase)
 library(shiny)
+library(shinyalert)
 
-regTitle <- "NORIC"
 addResourcePath('rap', system.file('www', package='rapbase'))
+regTitle = "NORIC"
+logo <- includeHTML(system.file('www/logo.svg', package='rapbase'))
+logoCode <- paste0("var header = $('.navbar> .container-fluid');\n",
+                   "header.append('<div class=\"navbar-brand\" style=\"float:left;font-size:75%\">",
+                   logo,
+                   "</div>');\n",
+                   "console.log(header)")
+logoWidget <- tags$script(shiny::HTML(logoCode))
 
 ui <- tagList(
   navbarPage(
-    title = div(img(class="icon", src="Logo-B.svg", alt="Rapporteket", height="26px"),
+    title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
                 regTitle),
-    #title = div(class="logo navbar-right", regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
-    
-    # Application title
-    #titlePanel("NORIC"),
     
     tabPanel("Testpanel",
       mainPanel(
@@ -55,7 +60,11 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("stentbruk", inline = TRUE)
+          useShinyalert(),
+          htmlOutput("stentbruk", inline = TRUE),
+          appNavbarUserWidget(user = uiOutput("appUserName"),
+                              organization = uiOutput("appOrgName"),
+                              addUserInfo = TRUE)
         )
       )
     ),

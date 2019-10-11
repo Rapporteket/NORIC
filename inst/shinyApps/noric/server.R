@@ -13,18 +13,6 @@ library(magrittr)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
-  # html rendering function for re-use
-  htmlRenderRmd <- function(srcFile) {
-    # set param needed for report meta processing
-    params <- list(tableFormat="html")
-    system.file(srcFile, package="noric") %>% 
-      knitr::knit() %>% 
-      markdown::markdownToHTML(.,
-                               options = c('fragment_only',
-                                           'base64_images')) %>% 
-      shiny::HTML()
-  }
-  
   # Various calls for session data from rapbase and systemn settings
   output$callUser <- renderText({
     paste("rapbase::getUserName(session):",
@@ -70,13 +58,18 @@ shinyServer(function(input, output, session) {
     Sys.getlocale()
   })
   
-  output$stentbruk <- renderUI({
-    htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
-  })
+  # html rendering function for re-use
+  htmlRenderRmd <- function(srcFile) {
+    # set param needed for report meta processing
+    params <- list(tableFormat="html")
+    system.file(srcFile, package="noric") %>% 
+      knitr::knit() %>% 
+      markdown::markdownToHTML(.,
+                               options = c('fragment_only',
+                                           'base64_images')) %>% 
+      shiny::HTML()
+  }
   
-  output$prosedyrer <- renderUI({
-    htmlRenderRmd("NORIC_local_monthly.Rmd")
-  })
   
   # filename function for re-use
   downloadFilename <- function(fileBaseName, type) {
@@ -120,6 +113,26 @@ shinyServer(function(input, output, session) {
     file.rename(out, file)
   }
   
+  # widget
+  output$appUserName <- renderText(getUserFullName(session))
+  output$appOrgName <- renderText(getUserReshId(session))
+  
+  # User info in widget
+  userInfo <- rapbase::howWeDealWithPersonalData(session)
+  observeEvent(input$userInfo, {
+    shinyalert("Dette vet Rapporteket om deg:", userInfo,
+               type = "", imageUrl = "rap/logo.svg",
+               closeOnEsc = TRUE, closeOnClickOutside = TRUE,
+               html = TRUE, confirmButtonText = "Den er grei!")
+  })
+  
+  output$stentbruk <- renderUI({
+    htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
+  })
+  
+  output$prosedyrer <- renderUI({
+    htmlRenderRmd("NORIC_local_monthly.Rmd")
+  })
   
   output$downloadReportStentbruk <- downloadHandler(
     filename = function() {
