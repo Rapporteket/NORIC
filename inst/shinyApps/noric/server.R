@@ -108,8 +108,6 @@ shinyServer(function(input, output, session) {
       BEAMER = "latex",
       REVEAL = "html"), hospitalName=hospitalName
     ), output_dir = tempdir())
-    # active garbage collection to prevent memory hogging?
-    gc()
     file.rename(out, file)
   }
   

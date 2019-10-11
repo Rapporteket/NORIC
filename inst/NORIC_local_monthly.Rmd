@@ -918,7 +918,3 @@ mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
     digs = c(0,0,0,1), align = rep("r", 4))
 ```
 
-```{r garbageCollector}
-# more prevention of memory hogging?
-gc()
-```
