@@ -13,11 +13,6 @@ library(magrittr)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
-  # testing css for revealjs, we need a proxy
-  # conf <- rapbase::getConfig(fileName = "rapbaseConfig.yml",
-  #                            packageName = "rapbase")
-  # Sys.setenv(https_proxy=conf$network$proxy$http)
-  
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
     # set param needed for report meta processing
