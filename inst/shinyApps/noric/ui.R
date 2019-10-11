@@ -8,6 +8,7 @@
 #
 
 library(rapbase)
+library(rpivotTable)
 library(shiny)
 library(shinyalert)
 
@@ -54,7 +55,7 @@ ui <- tagList(
           
         ),
         mainPanel(
-          
+          rpivotTableOutput("pivot1")
         )
       )
     ),

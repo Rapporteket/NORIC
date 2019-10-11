@@ -7,6 +7,7 @@
 #    http://shiny.rstudio.com/
 #
 
+library(rpivotTable)
 library(shiny)
 library(magrittr)
 
@@ -122,6 +123,11 @@ shinyServer(function(input, output, session) {
                type = "", imageUrl = "rap/logo.svg",
                closeOnEsc = TRUE, closeOnClickOutside = TRUE,
                html = TRUE, confirmButtonText = "Den er grei!")
+  })
+  
+  output$pivot1 <- renderRpivotTable({
+    data(mtcars)
+    rpivotTable(mtcars,rows="gear", cols=c("cyl","carb"),width="100%", height="400px")
   })
   
   output$stentbruk <- renderUI({

@@ -23,5 +23,6 @@ Imports:
   magrittr,
   RColorBrewer,
   revealjs,
+  rpivotTable,
   xtable
 VignetteBuilder: knitr
