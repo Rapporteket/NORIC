@@ -12,7 +12,7 @@ library(shiny)
 regTitle <- "NORIC"
 addResourcePath('rap', system.file('www', package='rapbase'))
 
-shinyUI(
+ui <- tagList(
   navbarPage(
     title = div(img(class="icon", src="Logo-B.svg", alt="Rapporteket", height="26px"),
                 regTitle),
