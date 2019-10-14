@@ -64,6 +64,7 @@ shinyServer(function(input, output, session) {
   if (rapbase::isRapContext()) {
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- noric::getHospitalName(reshId)
+    registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
   } else {
     ### if need be, define your (local) values here
   }
@@ -137,9 +138,22 @@ shinyServer(function(input, output, session) {
                html = TRUE, confirmButtonText = "Den er grei!")
   })
   
-  output$pivot1 <- renderRpivotTable({
-    data(mtcars)
-    rpivotTable(mtcars,rows="gear", cols=c("cyl","carb"),width="100%", height="400px")
+  output$tabAnP <- renderRpivotTable({
+    AnP <- noric::getLocalAnPData(registryName)
+    rpivotTable(AnP, rows = c("Year", "Month"), cols = c("AnnenProsType"),
+                rendererName = c("Heatmap"), width="100%", height="400px")
+  })
+  
+  output$tabAP <- renderRpivotTable({
+    AP <- noric::getLocalAPData(registryName)
+    rpivotTable(AP, rows = c("Year", "Month"), cols = c("ProsedyreType"),
+                rendererName = c("Heatmap"), width = "100%", height = "400px")
+  })
+  
+  output$tabSO <- renderRpivotTable({
+    SO <- noric::getLocalSOData(registryName)
+    rpivotTable(SO, rows = c("Year", "Skjemanavn"), cols = c("OpprettetAv"),
+                rendererName = c("Heatmap"), width = "100%", height = "400px")
   })
   
   output$stentbruk <- renderUI({

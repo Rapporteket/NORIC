@@ -49,16 +49,38 @@ ui <- tagList(
       )
     ),
     
-    tabPanel("Pivot1",
-      sidebarLayout(
-        sidebarPanel(
-          
-        ),
+    tabPanel("TabAnP",
+    #   sidebarLayout(
+    #     sidebarPanel(
+    #       
+    #     ),
         mainPanel(
-          rpivotTableOutput("pivot1")
-        )
-      )
-    ),
+          rpivotTableOutput("tabAnP")
+        )),
+    #   )
+    # ),
+    
+    tabPanel("TabAP",
+    #   sidebarLayout(
+    #     sidebarPanel(
+    #       
+    #     ),
+        mainPanel(
+          rpivotTableOutput("tabAP")
+        )),
+    #   )
+    # ),
+    
+    tabPanel("TabSO",
+    #          sidebarLayout(
+    #            sidebarPanel(
+    #              
+    #            ),
+               mainPanel(
+                 rpivotTableOutput("tabSO")
+               )),
+    #          )
+    # ),
     
     tabPanel(
       "Stentbruk",
