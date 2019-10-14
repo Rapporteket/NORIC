@@ -6,10 +6,15 @@
 #' @export
 #'
 
-getLocalAPData <- function(registryName) {
+getLocalAPData <- function(registryName, ...) {
   
   dbType <- "mysql"
   APQuery <- "SELECT * FROM AngioPCIVar"
+  
+  if ("session" %in% names(list(...))) {
+    raplog::repLogger(session = list(...)[["session"]],
+                      msg = "Query data for AngioPCI pivot")
+  }
   
   AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
   

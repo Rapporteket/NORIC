@@ -6,10 +6,15 @@
 #' @export
 #'
 
-getLocalSOData <- function(registryName) {
+getLocalSOData <- function(registryName, ...) {
   
   dbType <- "mysql"
   SOQuery <- "SELECT * FROM SkjemaOversikt"
+  
+  if ("session" %in% names(list(...))) {
+    raplog::repLogger(session = list(...)[["session"]],
+                      msg = "Query data for SkjemaOversikt pivot")
+  }
   
   SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
   

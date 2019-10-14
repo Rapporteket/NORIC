@@ -6,10 +6,15 @@
 #' @export
 #'
 
-getLocalAnPData <- function(registryName) {
+getLocalAnPData <- function(registryName, ...) {
   
   dbType <- "mysql"
   AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
+  
+  if ("session" %in% names(list(...))) {
+    raplog::repLogger(session = list(...)[["session"]],
+                      msg = "Query data for AndreProsedyrer pivot")
+  }
   
   AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
   

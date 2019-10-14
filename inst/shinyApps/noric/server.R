@@ -139,19 +139,19 @@ shinyServer(function(input, output, session) {
   })
   
   output$tabAnP <- renderRpivotTable({
-    AnP <- noric::getLocalAnPData(registryName)
+    AnP <- noric::getLocalAnPData(registryName, session = session)
     rpivotTable(AnP, rows = c("Year", "Month"), cols = c("AnnenProsType"),
                 rendererName = c("Heatmap"), width="100%", height="400px")
   })
   
   output$tabAP <- renderRpivotTable({
-    AP <- noric::getLocalAPData(registryName)
+    AP <- noric::getLocalAPData(registryName, session = session)
     rpivotTable(AP, rows = c("Year", "Month"), cols = c("ProsedyreType"),
                 rendererName = c("Heatmap"), width = "100%", height = "400px")
   })
   
   output$tabSO <- renderRpivotTable({
-    SO <- noric::getLocalSOData(registryName)
+    SO <- noric::getLocalSOData(registryName, session = session)
     rpivotTable(SO, rows = c("Year", "Skjemanavn"), cols = c("OpprettetAv"),
                 rendererName = c("Heatmap"), width = "100%", height = "400px")
   })
