@@ -22,11 +22,13 @@ Imports:
   knitr,
   magrittr,
   rapbase,
+  raplog,
   RColorBrewer,
   revealjs,
   rpivotTable,
   xtable
 Remotes:
-  Rapporteket/rapbase@rel
+  Rapporteket/rapbase@rel,
+  Rapporteket/raplog
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
