@@ -59,6 +59,18 @@ shinyServer(function(input, output, session) {
     Sys.getlocale()
   })
   
+  # Parameters that will remain throughout the session
+  ## values that do depend on a Rapporteket context
+  if (rapbase::isRapContext()) {
+    reshId <- rapbase::getUserReshId(session)
+    hospitalName <- noric::getHospitalName(reshId)
+  } else {
+    ### if need be, define your (local) values here
+  }
+  
+    
+  ## other values
+  
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
     # set param needed for report meta processing
