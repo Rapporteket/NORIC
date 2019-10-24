@@ -217,9 +217,11 @@ shinyServer(function(input, output, session) {
   observeEvent (input$subscribe, {
     package <- "noric"
     owner <- rapbase::getUserName(session)
+    interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
+    intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
     organization <- rapbase::getUserReshId(session)
     runDayOfYear <- rapbase::makeRunDayOfYearSequence(
-      interval = input$subscriptionFreq
+      interval = interval
     )
     email <- rapbase::getUserEmail(session)
     if (input$subscriptionRep == "Samlerapport1") {
@@ -239,7 +241,8 @@ shinyServer(function(input, output, session) {
                               fun = fun, paramNames = paramNames,
                               paramValues = paramValues, owner = owner,
                               email = email, organization = organization,
-                              runDayOfYear = runDayOfYear)
+                              runDayOfYear = runDayOfYear, interval = interval,
+                              intervalName = intervalName)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
   

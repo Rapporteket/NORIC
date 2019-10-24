@@ -124,9 +124,12 @@ ui <- tagList(
                      selectInput("subscriptionRep", "Rapport:",
                                  c("Samlerapport1", "Samlerapport2")),
                      selectInput("subscriptionFreq", "Frekvens:",
-                                 list(Årlig="year", Kvartalsvis="quarter",
-                                       Månedlig="month", Ukentlig="week",
-                                       Daglig="DSTday"), selected = "month"),
+                                 list(Årlig="Årlig-year",
+                                       Kvartalsvis="Kvartalsvis-quarter",
+                                       Månedlig="Månedlig-month",
+                                       Ukentlig="Ukentlig-week",
+                                       Daglig="Daglig-DSTday"),
+                                 selected = "Månedlig-month"),
                      actionButton("subscribe", "Bestill!")
         ),
         mainPanel(
