@@ -122,7 +122,8 @@ ui <- tagList(
       sidebarLayout(
         sidebarPanel(width = 3,
                      selectInput("subscriptionRep", "Rapport:",
-                                 c("Samlerapport1", "Samlerapport2")),
+                                 c("Stentbruk, månedlig", "Prosedyrer, månedlig",
+                                   "Samlerapport1", "Samlerapport2")),
                      selectInput("subscriptionFreq", "Frekvens:",
                                  list(Årlig="Årlig-year",
                                        Kvartalsvis="Kvartalsvis-quarter",

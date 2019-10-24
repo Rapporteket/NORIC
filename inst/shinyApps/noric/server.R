@@ -224,6 +224,15 @@ shinyServer(function(input, output, session) {
       interval = interval
     )
     email <- rapbase::getUserEmail(session)
+    if (input$subscriptionRep == "Stentbruk, månedlig") {
+      synopsis <- paste("NORIC: månedlig stentbruk (rutinemessig tilsendt fra",
+                        "Rapporteket)")
+      fun <- "subscriptionLocalMonthlyStent"
+      paramNames <- c("reshId", "registryName", "author", "hospitalName",
+                      "tableFormat")
+      paramValues <- c(reshId, registryName, rapbase::getUserFullName(session),
+                       hospitalName, "latex")
+    }
     if (input$subscriptionRep == "Samlerapport1") {
       synopsis <- "Automatisk samlerapport1"
       fun <- "samlerapport1Fun"
