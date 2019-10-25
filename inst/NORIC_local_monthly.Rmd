@@ -5,6 +5,8 @@ params:
   author: "Anon author"
   hospitalName: "Ukjent sykehus"
   tableFormat: "html"
+  reshId: "999999"
+  registryName: "rapbase"
 header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
@@ -50,19 +52,6 @@ colKontrast <- "#FF7260"
 
 
 ```{r GetData, include=FALSE, cache=TRUE}
-
-baseName <- "noricStaging"
-
-reshID <- rapbase::getUserReshId(session)
-
-registryName <- if (exists( "reshID" )) {
-                    noric::NORICmakeRegistryName(
-                               baseName = baseName ,
-                               reshID = reshID
-                           )
-                } else {
-                    "rapbase"
-                }
 
 dbType <- "mysql"
 SOQuery <- "SELECT * FROM SkjemaOversikt"
