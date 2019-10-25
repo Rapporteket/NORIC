@@ -230,26 +230,21 @@ shinyServer(function(input, output, session) {
       interval = interval
     )
     email <- rapbase::getUserEmail(session)
+    if (input$subscriptionRep == "Prosedyrer, månedlig") {
+      synopsis <- "NORIC/Rapporteket: prosedyrer, månedlig"
+      baseName <- "NORIC_local_monthly"
+    }
     if (input$subscriptionRep == "Stentbruk, månedlig") {
-      synopsis <- "NORIC/Rapporteket: månedlig stentbruk"
-      fun <- "subscriptionLocalMonthlyStent"
-      paramNames <- c("reshId", "registryName", "author", "hospitalName",
-                      "type")
-      paramValues <- c(reshId, registryName, author, hospitalName, "pdf")
+      synopsis <- "NORIC/Rapporteket: stentbruk, månedlig"
+      baseName <- "NORIC_local_monthly_stent"
     }
-    if (input$subscriptionRep == "Samlerapport1") {
-      synopsis <- "Automatisk samlerapport1"
-      fun <- "samlerapport1Fun"
-      paramNames <- c("p1", "p2")
-      paramValues <- c("Alder", 1)
-      
-    }
-    if (input$subscriptionRep == "Samlerapport2") {
-      synopsis <- "Automatisk samlerapport2"
-      fun <- "samlerapport2Fun"
-      paramNames <- c("p1", "p2")
-      paramValues <- c("BMI", 2)
-    }
+    fun <- "subscriptionLocalMonthlyReps"
+    paramNames <- c("baseName", "reshId", "registryName", "author", "hospitalName",
+                    "type")
+    paramValues <- c(baseName, reshId, registryName, author, hospitalName,
+                     input$subscriptionFileFormat)
+    
+
     rapbase::createAutoReport(synopsis = synopsis, package = package,
                               fun = fun, paramNames = paramNames,
                               paramValues = paramValues, owner = owner,
