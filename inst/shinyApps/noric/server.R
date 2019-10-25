@@ -65,7 +65,8 @@ shinyServer(function(input, output, session) {
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- noric::getHospitalName(reshId)
     registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
-    author <- paste0(rapbase::getUserFullName(), "/", "Rapporteket")
+    userFullName <- rapbase::getUserFullName(session)
+    author <- paste0(userFullName, "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
   }
@@ -124,15 +125,15 @@ shinyServer(function(input, output, session) {
       REVEAL = "html"),
       hospitalName=hospitalName,
       author=author,
-      reshId,
-      registryName,
+      reshId=reshId,
+      registryName=registryName
     ), output_dir = tempdir())
     file.rename(out, file)
   }
   
   # widget
-  output$appUserName <- renderText(getUserFullName(session))
-  output$appOrgName <- renderText(getUserReshId(session))
+  output$appUserName <- renderText(userFullName)
+  output$appOrgName <- renderText(reshId)
   
   # User info in widget
   userInfo <- rapbase::howWeDealWithPersonalData(session)
@@ -234,8 +235,7 @@ shinyServer(function(input, output, session) {
       fun <- "subscriptionLocalMonthlyStent"
       paramNames <- c("reshId", "registryName", "author", "hospitalName",
                       "tableFormat")
-      paramValues <- c(reshId, registryName, rapbase::getUserFullName(session),
-                       hospitalName, "latex")
+      paramValues <- c(reshId, registryName, author, hospitalName, "latex")
     }
     if (input$subscriptionRep == "Samlerapport1") {
       synopsis <- "Automatisk samlerapport1"
