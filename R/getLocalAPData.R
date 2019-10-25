@@ -18,7 +18,7 @@ getLocalAPData <- function(registryName, ...) {
   
   AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
   
-  showN <- 12 # how many months are displayed
+  showN <- 36 # how many months are displayed
   
   AP$FodselsDato <- as.Date( AP$FodselsDato)
   
