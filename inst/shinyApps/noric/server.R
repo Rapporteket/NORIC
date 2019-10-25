@@ -234,8 +234,8 @@ shinyServer(function(input, output, session) {
       synopsis <- "NORIC/Rapporteket: månedlig stentbruk"
       fun <- "subscriptionLocalMonthlyStent"
       paramNames <- c("reshId", "registryName", "author", "hospitalName",
-                      "tableFormat")
-      paramValues <- c(reshId, registryName, author, hospitalName, "latex")
+                      "type")
+      paramValues <- c(reshId, registryName, author, hospitalName, "pdf")
     }
     if (input$subscriptionRep == "Samlerapport1") {
       synopsis <- "Automatisk samlerapport1"
