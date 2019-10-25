@@ -60,7 +60,7 @@ shinyServer(function(input, output, session) {
   })
   
   # Parameters that will remain throughout the session
-  ## values that do depend on a Rapporteket context
+  ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- noric::getHospitalName(reshId)
@@ -98,8 +98,8 @@ shinyServer(function(input, output, session) {
   # render file function for re-use
   contentFile <- function(file, srcFile, tmpFile, type) {
     src <- normalizePath(system.file(srcFile, package="noric"))
-    hospitalName <- rapbase::getUserReshId(session) %>% 
-      noric::getHospitalName()
+    #hospitalName <- rapbase::getUserReshId(session) %>% 
+    #  noric::getHospitalName()
     
     # temporarily switch to the temp dir, in case we do not have write
     # permission to the current working directory
@@ -225,8 +225,7 @@ shinyServer(function(input, output, session) {
     )
     email <- rapbase::getUserEmail(session)
     if (input$subscriptionRep == "Stentbruk, månedlig") {
-      synopsis <- paste("NORIC: månedlig stentbruk (rutinemessig tilsendt fra",
-                        "Rapporteket)")
+      synopsis <- "NORIC/Rapporteket: månedlig stentbruk"
       fun <- "subscriptionLocalMonthlyStent"
       paramNames <- c("reshId", "registryName", "author", "hospitalName",
                       "tableFormat")
