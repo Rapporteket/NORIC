@@ -123,7 +123,9 @@ shinyServer(function(input, output, session) {
       BEAMER = "latex",
       REVEAL = "html"),
       hospitalName=hospitalName,
-      author=author
+      author=author,
+      reshId,
+      registryName,
     ), output_dir = tempdir())
     file.rename(out, file)
   }
