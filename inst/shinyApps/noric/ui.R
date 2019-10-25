@@ -122,8 +122,7 @@ ui <- tagList(
       sidebarLayout(
         sidebarPanel(width = 3,
                      selectInput("subscriptionRep", "Rapport:",
-                                 c("Stentbruk, månedlig", "Prosedyrer, månedlig",
-                                   "Samlerapport1", "Samlerapport2")),
+                                 c("Stentbruk, månedlig", "Prosedyrer, månedlig")),
                      selectInput("subscriptionFreq", "Frekvens:",
                                  list(Årlig="Årlig-year",
                                        Kvartalsvis="Kvartalsvis-quarter",
@@ -131,6 +130,8 @@ ui <- tagList(
                                        Ukentlig="Ukentlig-week",
                                        Daglig="Daglig-DSTday"),
                                  selected = "Månedlig-month"),
+                     selectInput("subscriptionFileFormat", "Format:",
+                                 c("html", "pdf")),
                      actionButton("subscribe", "Bestill!")
         ),
         mainPanel(
