@@ -65,6 +65,7 @@ shinyServer(function(input, output, session) {
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- noric::getHospitalName(reshId)
     registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
+    author <- paste0(rapbase::getUserFullName(), "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
   }
@@ -120,7 +121,9 @@ shinyServer(function(input, output, session) {
       PDF = "latex",
       HTML = "html",
       BEAMER = "latex",
-      REVEAL = "html"), hospitalName=hospitalName
+      REVEAL = "html"),
+      hospitalName=hospitalName,
+      author=author
     ), output_dir = tempdir())
     file.rename(out, file)
   }
