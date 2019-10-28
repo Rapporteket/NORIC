@@ -19,6 +19,9 @@
 subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
                                          author, hospitalName, type) {
   
+  raplog::subLogger(author = author, registryName = registryName,
+                    reshId = reshId)
+  
   sourceFile <- system.file(paste0(baseName, ".Rmd"), package = "noric")
   tableFormat <- switch (type,
     pdf = "latex",
