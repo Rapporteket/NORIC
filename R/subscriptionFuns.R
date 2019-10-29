@@ -1,17 +1,22 @@
 #' Provide reports according to subscription
 #' 
 #' When called, typically through a chain of events initiated by a chron
-#' process this is the function that actually produces the report to be
-#' shipet off to the recipient
+#' process, this is the function that actually produces the report to be
+#' shiped off to the recipient. The actual call to this function is made
+#' through do.call and has the effect of providing the parameters as class
+#' \emph{list}. Hence, values must be extracted by list operations 
 #'
-#' @param baseName String vector with name of Rmd template for the report.
-#' Must be provided without the file extention (\emph{i.e.} ".Rmd")
-#' @param reshId String vector with the organization id of the subscriber 
-#' @param registryName String vector naming the regisry
-#' @param author String providing name of the subscriber
-#' @param hospitalName String vector with a (human readable) org name
-#' @param type String vector defining report file format, currently one of
-#' "pdf" or "html"
+#' @param baseName Single element list with value of Rmd template for the report.
+#' Value must be provided without the file extention (\emph{i.e.} ".Rmd")
+#' @param reshId Single element list with the organization id of the subscriber
+#' as its value 
+#' @param registryName Single element list which value is the regisry name
+#' @param author Single element list holding the name of the subscriber as its
+#' value
+#' @param hospitalName Single element list with a (human readable) org name as
+#' its value
+#' @param type Single element list which value defining report file format,
+#' currently one of "pdf" or "html"
 #'
 #' @return Full path of file produced
 #' @export
@@ -22,13 +27,14 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
   raplog::subLogger(author = author, registryName = registryName,
                     reshId = reshId)
   
-  sourceFile <- system.file(paste0(baseName, ".Rmd"), package = "noric")
-  tableFormat <- switch (type,
+  sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
+  tableFormat <- switch (type[[1]],
     pdf = "latex",
     html = "html"
   )
   
-  outFile <- tempfile(pattern = baseName, fileext = paste0(".", type))
+  outFile <- tempfile(pattern = baseName[[1]], fileext = paste0(".", type[[1]]))
+  print(outFile)
   
   rmarkdown::render(input = sourceFile,
                     output_format = switch(
@@ -37,11 +43,8 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
                       html = html_document()
                     ),
                     output_file = outFile,
-                    params = list(reshId=reshId,
-                                  registryName=registryName,
-                                  author=author,
-                                  hospitalName=hospitalName,
-                                  tableFormat=tableFormat),
+                    params = c(reshId,registryName,author,hospitalName,
+                               list(tableFormat=tableFormat)),
                     clean = TRUE,
                     intermediates_dir = tempdir())
   
