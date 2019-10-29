@@ -34,7 +34,6 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
   )
   
   outFile <- tempfile(pattern = baseName[[1]], fileext = paste0(".", type[[1]]))
-  print(outFile)
   
   rmarkdown::render(input = sourceFile,
                     output_format = switch(
