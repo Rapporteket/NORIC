@@ -77,7 +77,11 @@ shinyServer(function(input, output, session) {
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
     # set param needed for report meta processing
-    params <- list(tableFormat="html")
+    params <- list(author=author,
+                   hospitalName=hospitalName,
+                   tableFormat="html",
+                   reshId=reshId,
+                   registryName=registryName)
     system.file(srcFile, package="noric") %>% 
       knitr::knit() %>% 
       markdown::markdownToHTML(.,

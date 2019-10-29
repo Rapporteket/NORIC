@@ -58,9 +58,9 @@ SOQuery <- "SELECT * FROM SkjemaOversikt"
 APQuery <- "SELECT * FROM AngioPCIVar"
 AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
 
-SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
-AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
+SO <- rapbase::LoadRegData(params$registryName, SOQuery, dbType)
+AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
+AnP <- rapbase::LoadRegData(params$registryName, AnPQuery, dbType)
 
 showN <- 12 # how many months are displayed
 ```
