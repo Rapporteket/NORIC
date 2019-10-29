@@ -148,6 +148,42 @@ shinyServer(function(input, output, session) {
                html = TRUE, confirmButtonText = "Den er grei!")
   })
   
+  
+  # Krysstabell
+  
+  rvals <- reactiveValues()
+  rvals$showPivot <- FALSE
+  
+  observeEvent(input$pivotStatusAction, {
+    if (rvals$showPivot) {
+      rvals$showPivot <- FALSE
+    } else {
+      rvals$showPivot <- TRUE
+    }
+  })
+  
+  output$pivotControl <- renderUI({
+    selectInput(inputId = "test1", label = NULL, choices = c("Are", "Bere"))
+  })
+  
+  output$pivotAction <- renderUI({
+    if (rvals$showPivot) {
+      actionButton("pivotStatusAction", "Avslutt!")
+    } else {
+      actionButton("pivotStatusAction", "Start!")
+    }
+  })
+  
+  output$pivotData <- renderUI({
+    if (rvals$showPivot) {
+      selectInput("test2", "Test2:", c("er", "lur"))
+    } else {
+      renderText("Velg data over")
+    }
+  })
+  
+  
+  
   output$tabAnP <- renderRpivotTable({
     AnP <- noric::getLocalAnPData(registryName, session = session)
     rpivotTable(AnP, rows = c("Year", "Month"), cols = c("AnnenProsType"),

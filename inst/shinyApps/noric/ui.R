@@ -49,6 +49,16 @@ ui <- tagList(
       )
     ),
     
+    tabPanel("Krysstabell",
+      fluidRow(
+        column(6, uiOutput("pivotControl")),
+        column(6, uiOutput("pivotAction"))
+      ),
+      fluidRow(
+        column(12, uiOutput("pivotData"))
+      )
+    ),
+    
     tabPanel("TabAnP",
     #   sidebarLayout(
     #     sidebarPanel(
