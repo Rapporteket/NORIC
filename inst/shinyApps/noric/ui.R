@@ -51,46 +51,30 @@ ui <- tagList(
     
     tabPanel("Krysstabell",
       fluidRow(
-        column(6, uiOutput("pivotControl")),
-        column(6, uiOutput("pivotAction"))
+        column(6, uiOutput("pivotAction")),
+        column(6, uiOutput("pivotControl"))
       ),
       fluidRow(
-        column(12, uiOutput("pivotData"))
+        column(12, rpivotTableOutput("pivotData"))
       )
     ),
     
-    tabPanel("TabAnP",
-    #   sidebarLayout(
-    #     sidebarPanel(
-    #       
-    #     ),
-        mainPanel(
-          rpivotTableOutput("tabAnP")
-        )),
-    #   )
-    # ),
     
-    tabPanel("TabAP",
-    #   sidebarLayout(
-    #     sidebarPanel(
-    #       
-    #     ),
-        mainPanel(
-          rpivotTableOutput("tabAP")
-        )),
-    #   )
-    # ),
-    
-    tabPanel("TabSO",
-    #          sidebarLayout(
-    #            sidebarPanel(
-    #              
-    #            ),
-               mainPanel(
-                 rpivotTableOutput("tabSO")
-               )),
-    #          )
-    # ),
+    ## suggesting replacement by the above
+    # tabPanel("TabAnP",
+    #          mainPanel(
+    #            rpivotTableOutput("tabAnP")
+    #          )),
+    # 
+    # tabPanel("TabAP",
+    #          mainPanel(
+    #            rpivotTableOutput("tabAP")
+    #          )),
+    # 
+    # tabPanel("TabSO",
+    #          mainPanel(
+    #            rpivotTableOutput("tabSO")
+    #          )),
     
     tabPanel(
       "Stentbruk",

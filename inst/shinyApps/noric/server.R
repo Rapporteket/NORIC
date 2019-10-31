@@ -150,7 +150,6 @@ shinyServer(function(input, output, session) {
   
   
   # Krysstabell
-  
   rvals <- reactiveValues()
   rvals$showPivot <- FALSE
   
@@ -163,44 +162,73 @@ shinyServer(function(input, output, session) {
   })
   
   output$pivotControl <- renderUI({
-    selectInput(inputId = "test1", label = NULL, choices = c("Are", "Bere"))
+    if (rvals$showPivot) {
+      print("Her skal det stå navn på datasettet")
+    } else {
+      selectInput(inputId = "pDataSelected", label = NULL,
+                  choices = list(`Valg og bruk av data...` = "info",
+                                 `Andre prosedyrer` = "AnP",
+                                 `Angio PCI` = "AP",
+                                 `Skjemaoversikt` = "SO"))
+    }
   })
   
   output$pivotAction <- renderUI({
     if (rvals$showPivot) {
       actionButton("pivotStatusAction", "Avslutt!")
     } else {
-      actionButton("pivotStatusAction", "Start!")
+      if (length(input$pDataSelected) == 0 || input$pDataSelected == "info") {
+        p("Ingen data valgt")
+      } else {
+        actionButton("pivotStatusAction", "Last data!")
+      }
     }
   })
   
-  output$pivotData <- renderUI({
+  
+  output$pivotData <- renderRpivotTable({
     if (rvals$showPivot) {
-      selectInput("test2", "Test2:", c("er", "lur"))
+      if (input$pDataSelected == "AnP") {
+        pDat <- noric::getLocalAnPData(registryName, session = session)
+        dispRows <- c("Year", "Month")
+        dispCols <- c("AnnenProsType")
+      }
+      if (input$pDataSelected == "AP") {
+        pDat <- noric::getLocalAPData(registryName, session = session)
+        dispRows <- c("Year", "Month")
+        dispCols <- c("ProsedyreType")
+      }
+      if (input$pDataSelected == "SO") {
+        pDat <- noric::getLocalSOData(registryName, session = session)
+        dispRows <- c("Year", "Skjemanavn")
+        dispCols <- c("OpprettetAv")
+      }
+      rpivotTable(pDat, rows = dispRows, cols = dispCols,
+                  rendererName = c("Heatmap"), width="100%", height="400px")
     } else {
-      renderText("Velg data over")
+      rpivotTable(data.frame())
     }
   })
   
-  
-  
-  output$tabAnP <- renderRpivotTable({
-    AnP <- noric::getLocalAnPData(registryName, session = session)
-    rpivotTable(AnP, rows = c("Year", "Month"), cols = c("AnnenProsType"),
-                rendererName = c("Heatmap"), width="100%", height="400px")
-  })
-  
-  output$tabAP <- renderRpivotTable({
-    AP <- noric::getLocalAPData(registryName, session = session)
-    rpivotTable(AP, rows = c("Year", "Month"), cols = c("ProsedyreType"),
-                rendererName = c("Heatmap"), width = "100%", height = "400px")
-  })
-  
-  output$tabSO <- renderRpivotTable({
-    SO <- noric::getLocalSOData(registryName, session = session)
-    rpivotTable(SO, rows = c("Year", "Skjemanavn"), cols = c("OpprettetAv"),
-                rendererName = c("Heatmap"), width = "100%", height = "400px")
-  })
+
+  ## Suggest replaced by the above
+  # output$tabAnP <- renderRpivotTable({
+  #   AnP <- noric::getLocalAnPData(registryName, session = session)
+  #   rpivotTable(AnP, rows = c("Year", "Month"), cols = c("AnnenProsType"),
+  #               rendererName = c("Heatmap"), width="100%", height="400px")
+  # })
+  # 
+  # output$tabAP <- renderRpivotTable({
+  #   AP <- noric::getLocalAPData(registryName, session = session)
+  #   rpivotTable(AP, rows = c("Year", "Month"), cols = c("ProsedyreType"),
+  #               rendererName = c("Heatmap"), width = "100%", height = "400px")
+  # })
+  # 
+  # output$tabSO <- renderRpivotTable({
+  #   SO <- noric::getLocalSOData(registryName, session = session)
+  #   rpivotTable(SO, rows = c("Year", "Skjemanavn"), cols = c("OpprettetAv"),
+  #               rendererName = c("Heatmap"), width = "100%", height = "400px")
+  # })
   
   output$stentbruk <- renderUI({
     htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
