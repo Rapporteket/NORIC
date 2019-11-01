@@ -35,9 +35,10 @@ getLocalAnPData <- function(registryName, ...) {
   
   # Endre Sykehusnavn til kortere versjoner:
   AnP %<>%
-    dplyr::mutate(Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-           Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-           Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+    dplyr::mutate(
+      Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
+      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
     )
   
   
@@ -99,6 +100,27 @@ getLocalAnPData <- function(registryName, ...) {
       PasientKjonn = factor(PasientKjonn, levels = c( "Mann", "Kvinne"), ordered = TRUE),
       Sykehusnavn = as.ordered( Sykehusnavn )
       
+    )
+  
+  
+  AnP %<>%
+    dplyr::mutate( 
+      # Div. tidsvariabler:
+      #
+      # Kalenderår for ProsedyreDato:
+      year = as.ordered( lubridate::year( ProsedyreDato )),
+      aar = year,
+      # Måned:
+      # (månedsnr er tosifret; 01, 02, ....)
+      maaned_nr = as.ordered( sprintf(fmt = "%02d", lubridate::month( ProsedyreDato ) )),
+      maaned = as.ordered( paste0( year, "-", maaned_nr) ),
+      # Kvartal:
+      kvartal = lubridate::quarter( ProsedyreDato, with_year = TRUE ),
+      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
+      kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
+      # Uketall:
+      uke = as.ordered( sprintf(fmt = "%02d", lubridate::isoweek( ProsedyreDato ) ))
+      # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
     )
   
   
