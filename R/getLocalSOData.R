@@ -18,37 +18,95 @@ getLocalSOData <- function(registryName, ...) {
   
   SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
   
-  showN <- 12 # how many months are displayed
   
-  SO$RegDate <- as.Date(
-    SO$HovedDato)
+  # Packages:
+  require(dplyr)
+  require(magrittr)
+  require(lubridate)
   
-  SO$Year <- as.numeric(
-    format(
-      x = SO$RegDate ,
-      format = "%Y"))
+
   
-  SO$nMonth <- as.numeric(
-    as.factor(
-      format(
-        x = SO$RegDate ,
-        format = "%y-%m")))
-  
-  SO <- subset(
-    x = SO ,
-    subset =
-      (nMonth > max( nMonth , na.rm = TRUE ) - showN) &
-      (RegDate < Sys.Date()))
+  # Gjor datoer om til dato-objekt:
+  SO %<>%
+    mutate(
+      OpprettetDato = lubridate::ymd( OpprettetDato )
+      ,SistLagretDato = lubridate::ymd( SistLagretDato )
+      ,HovedDato = lubridate::ymd( HovedDato )
+    )
   
   
-  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
-  if ( SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [ which( SO$Year >= 2015 ) , ]
+  # Endre Sykehusnavn til kortere versjoner:
+  SO %<>%
+    mutate(
+      Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
+      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+    )
   
-  SO$Month <- as.factor(
-    format(
-      SO$RegDate ,
-      format = "%y-%m"))
   
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
+  # "tøyseregistreringer")
+  SO %<>%
+    dplyr::filter(
+      (
+        (Sykehusnavn=="HUS") & ( as.Date(HovedDato) >= "2013-01-01")
+      ) | (
+        (Sykehusnavn=="UNN") & ( as.Date(HovedDato) >= "2013-05-01" )
+      ) | (
+        (Sykehusnavn=="Ullevål") & ( as.Date(HovedDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="St.Olavs") & ( as.Date(HovedDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="St.Olav") & ( as.Date(HovedDato) >= "2014-01-01" ) # N.B. Grunnet krøll med navnet til St. Olavs
+      ) | (
+        (Sykehusnavn=="Sørlandet") & ( as.Date(HovedDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="SUS") & ( as.Date(HovedDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="Rikshospitalet") & ( as.Date(HovedDato) >= "2015-01-01" )
+      ) | (
+        (Sykehusnavn=="Feiring") & ( as.Date(HovedDato) >= "2015-01-01" )
+      ) | (
+        (Sykehusnavn=="Ahus") & ( as.Date(HovedDato) >= "2016-01-01" )
+      ))
+  
+  
+  # Gjøre kategoriske variabler om til factor:
+  SO %<>%
+    mutate(
+      Skjemanavn = as.ordered( Skjemanavn ),
+      Sykehusnavn = as.ordered( Sykehusnavn )
+    )
+  
+  
+  # Utledete variabler:
+  SO %<>%
+    mutate(
+      # Ferdigstilt, 1= ja, -1 & 0 = nei
+      ferdigstilt = as.ordered( ifelse(SkjemaStatus == 1
+                                       , yes = "Ferdigstilt"
+                                       , no = "Ikke ferdigstilt")
+                                ),
+      # Div. tidsvariabler:
+      #
+      # Kalenderår for ProsedyreDato:
+      year = as.ordered( lubridate::year( HovedDato )),
+      aar = year,
+      # Måned:
+      # (månedsnr er tosifret; 01, 02, ....)
+      maaned_nr = as.ordered( sprintf(fmt = "%02d", lubridate::month( HovedDato ) )),
+      maaned = as.ordered( paste0( year, "-", maaned_nr) ),
+      # Kvartal:
+      kvartal = lubridate::quarter( HovedDato, with_year = TRUE ),
+      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
+      kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
+      # Uketall:
+      uke = as.ordered( sprintf(fmt = "%02d", lubridate::isoweek( HovedDato ) ))
+      # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
+    ) 
+  
+  
+
   SO
 
   }
