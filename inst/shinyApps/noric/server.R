@@ -161,15 +161,18 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  ## Data sets available
+  dataSets <- list(`Valg og bruk av data...` = "info",
+                   `Andre prosedyrer` = "AnP",
+                   `Angio PCI` = "AP",
+                   `Skjemaoversikt` = "SO")
+  
   output$pivotControl <- renderUI({
     if (rvals$showPivot) {
-      print("Her skal det stå navn på datasettet")
+      h4(paste("Datasett:", names(dataSets)[dataSets == input$pDataSelected]))
     } else {
       selectInput(inputId = "pDataSelected", label = NULL,
-                  choices = list(`Valg og bruk av data...` = "info",
-                                 `Andre prosedyrer` = "AnP",
-                                 `Angio PCI` = "AP",
-                                 `Skjemaoversikt` = "SO"))
+                  choices = dataSets)
     }
   })
   
@@ -184,7 +187,6 @@ shinyServer(function(input, output, session) {
       }
     }
   })
-  
   
   output$pivotData <- renderRpivotTable({
     if (rvals$showPivot) {
