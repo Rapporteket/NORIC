@@ -1,8 +1,8 @@
-#' getLocalAPData provides local reg data from AngioPCIVar
+#' getLocalSSData provides local reg data from SegmentStent
 #'
 #' @param registryName 
 #'
-#' @return Data frame representing the table AndreProsedyrerVar
+#' @return Data frame representing the table SegmentStent
 #' @export
 #'
 

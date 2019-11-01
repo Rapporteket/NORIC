@@ -1,8 +1,8 @@
-#' getLocalAPData provides local reg data from AngioPCIVar
+#' getLocalSOData provides local reg data from SkjemaOversikt
 #'
 #' @param registryName 
 #'
-#' @return Data frame representing the table AndreProsedyrerVar
+#' @return Data frame representing the table SkjemaOversikt
 #' @export
 #'
 
