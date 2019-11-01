@@ -18,6 +18,12 @@ getLocalAPData <- function(registryName, ...) {
   
   AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
   
+  # Packages:
+  require(dplyr)
+  require(magrittr)
+  require(lubridate)
+  
+  
   # Klokkeslett med "01.01.70 " som prefix fikses:
   AP %<>%
     mutate(
@@ -31,97 +37,112 @@ getLocalAPData <- function(registryName, ...) {
       BeslEKGTid = gsub( "01.01.70 " , "" , BeslEKGTid ) ,
       TrombolyseTid = gsub( "01.01.70 " , "" , TrombolyseTid ))
   
+  
   # Gjor ProsedyreDato om til dato-objekt:
-  AngioPCIVar %<>%
+  AP %<>%
     mutate(
-      ProsedyreDato = lubridate::ymd( ProsedyreDato )
+      AnkomstPCIDato = lubridate::ymd( AnkomstPCIDato )
+      ,ApningKarDato = lubridate::ymd( ApningKarDato )
+      ,AvdodDato = lubridate::ymd( AvdodDato )
+      ,BeslEKGDato = lubridate::ymd( BeslEKGDato )
+      ,BesUtlEKGDato = lubridate::ymd( BesUtlEKGDato )
+      ,FodselsDato = lubridate::ymd( FodselsDato )
+      ,HovedDato = lubridate::ymd( HovedDato )
+      ,InnleggelseHenvisendeSykehusDato = lubridate::ymd( InnleggelseHenvisendeSykehusDato )
+      ,PasientRegDato = lubridate::ymd( PasientRegDato )
+      ,ProsedyreDato = lubridate::ymd( ProsedyreDato )
+      ,SymptomDato = lubridate::ymd( SymptomDato )
+      ,SymptomdebutDato = lubridate::ymd( SymptomdebutDato )
+      ,TrombolyseDato = lubridate::ymd( TrombolyseDato )
+      ,UtskrevetDodsdato = lubridate::ymd( UtskrevetDodsdato )
+      ,Utskrivningsdato = lubridate::ymd( Utskrivningsdato )
     )
   
+  
+  # Endre Sykehusnavn til kortere versjoner:
+  AP %<>%
+    mutate(
+      Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
+      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+    )
+  
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
+  # "tøyseregistreringer")
+  AP %<>%
+    dplyr::filter(
+      (
+        (Sykehusnavn=="HUS") & ( as.Date(ProsedyreDato) >= "2013-01-01") # Unødvendig å bruke as.Date(), slette senere?
+      ) | (
+        (Sykehusnavn=="UNN") & ( as.Date(ProsedyreDato) >= "2013-05-01" )
+      ) | (
+        (Sykehusnavn=="Ullevål") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="St.Olavs") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="Sørlandet") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="SUS") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="Rikshospitalet") & ( as.Date(ProsedyreDato) >= "2015-01-01" )
+      ) | (
+        (Sykehusnavn=="Feiring") & ( as.Date(ProsedyreDato) >= "2015-01-01" )
+      ) | (
+        (Sykehusnavn=="Ahus") & ( as.Date(ProsedyreDato) >= "2016-01-01" )
+      ))
+  
+  
+  # Gjøre kategoriske variabler om til factor:
+  # (ikke fullstendig, må legget til mer etter hvert)
+  AP %<>%
+    mutate(
+      ForlopsType2 = factor( ForlopsType2,
+                             levels = c(
+                               "Akutt"
+                               , "Subakutt"
+                               , "Planlagt"
+                             ),
+                             ordered = TRUE ),
+      Indikasjon = as.factor( Indikasjon ),
+      Kjonn = factor(Kjonn, levels = c( "Mann", "Kvinne"), ordered = TRUE),
+      OverflyttetFra = as.factor( OverflyttetFra ),
+      ProsedyreType = factor( ProsedyreType,
+                              levels = c(
+                                "Angio"
+                                ,"Angio + PCI"
+                                ,"PCI"
+                              ),
+                              ordered = TRUE ),
+      Sykehusnavn = as.factor( Sykehusnavn )
+      
+    )
+  
+  
+  # Utledete variabler:
+  AP %<>% 
+    mutate( 
+      # Div. tidsvariabler:
+      #
+      # Kalenderår for ProsedyreDato:
+      year = as.ordered( lubridate::year( ProsedyreDato )),
+      aar = year,
+      # Måned:
+      # (månedsnr er tosifret; 01, 02, ....)
+      maaned_nr = as.ordered( sprintf(fmt = "%02d", lubridate::month( ProsedyreDato ) )),
+      maaned = as.ordered( paste0( year, "-", maaned_nr) ),
+      # Kvartal:
+      kvartal = lubridate::quarter( ProsedyreDato, with_year = TRUE ),
+      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
+      kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
+      # Uketall:
+      uke = as.ordered( sprintf(fmt = "%02d", lubridate::isoweek( ProsedyreDato ) ))
+      # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
+    )
+  
+  
 
-  
-  AP$FodselsDato <- as.Date( AP$FodselsDato)
-  
-  AP$InnleggelseHenvisendeSykehusDato <- as.Date( AP$InnleggelseHenvisendeSykehusDato)
-  
-  AP$AnkomstPCIDato <- as.Date( AP$AnkomstPCIDato)
-  
-  AP$ProsedyreDato <- as.Date( AP$ProsedyreDato)
-  
-  AP$Sykehusnavn <- factor( AP$Sykehusnavn )
-  
-  AP $ AdmissionType <- car::recode(
-    var = AP $ OverflyttetFra ,
-    recodes = "
-        'Annet sykehus'='Referred';
-        '' = NA;
-        'Annen  avdeling på sykehuset' = NA;
-        'Nei, direkte inn til dette sykehus' = 'Directly admitted';
-        'Omdirigert ambulanse' = 'Directly admitted';
-        ")
-  
-  AP $ Indikasjon2 <- factor(
-    car::recode(
-      var = AP $ Indikasjon ,
-      recodes = "
-            'Stabil koronarsykdom'='SAP';
-            'UAP'='UAP';
-            'NSTEMI'='NSTEMI';
-            'STEMI'='STEMI';
-            'Hjertestans ved STEMI'='STEMI';
-            'STEMI > 24h'='STEMI';
-            'STEMI/Rescue PCI'='STEMI';
-            'Uklare brystsmerter'='Uklare brystsmerter';
-            else='Annet';
-            ") ,
-    levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet") )
-  
-  
-  AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
-  AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
-  
-  AP$Year <- as.numeric(
-    format(
-      x = AP $ ProsedyreDato ,
-      format = "%Y"))
-  
-  AP$Week <- as.numeric(
-    format(
-      x = AP $ ProsedyreDato ,
-      format = "%W"))
-  
-  
-  AP$nMonth <- as.numeric(
-    as.factor(
-      format(
-        AP$ProsedyreDato ,
-        format = "%y-%m")))
-  
-  AP $ Day <- as.numeric(
-    AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
-  
-  NSTEMI <- subset(
-    x = AP ,
-    subset = (Indikasjon == "NSTEMI"))
-  
-  NSTEMI $ Month <- as.factor(
-    format(
-      x = NSTEMI $ ProsedyreDato ,
-      format = "%y-%m"))
-  
-  
-  AP <- subset(
-    x = AP ,
-    subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN )
-  
-  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
-  if (AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP [ which( AP$Year >= 2015 ) , ]
-  
-  AP $ Month <- as.factor(
-    format(
-      x = AP $ ProsedyreDato ,
-      format = "%y-%m"))
-  
-  
+
+
   AP
 
   }
