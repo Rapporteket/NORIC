@@ -183,7 +183,28 @@ FROM SegmentStent;
     )
   
   
+  # Utledet variabel - ant_stent_ila_forlop = antall stenter satt inn ila ett forløp
   
+  ant_stent <- SS  %>%
+    dplyr::group_by(Sykehusnavn) %>%
+    dplyr::count( ForlopsID, wt = !is.na( StentType ) )
+  
+  # Har nå en df med Sykehusnavn, ForlopsID og n = antall rader tilhørende et
+  # forløp hvor StentType er oppgitt (!is.na() == TRUE når det er satt inn stent)
+
+  # Endrer navn på "n":
+  names( ant_stent )[3] <- "ant_stent_ila_forlop"
+  
+  # Legger "ant_stent_ila_forlop" SS vha en left join:
+  SS %<>% 
+    dplyr::left_join(., ant_stent
+                     , by = c("Sykehusnavn", "ForlopsID" ) 
+                     ) %>% 
+    arrange( Sykehusnavn, ForlopsID)
+  
+  # For hver rad blir det oppgitt antall stenter som ble satt inn ila det
+  # forløpet (ett forløp på ett sykehus kan ha flere rader hvor hver rad oppgir det totale
+  # antallet)
   
   
   SS
