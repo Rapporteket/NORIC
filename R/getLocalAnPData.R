@@ -9,7 +9,20 @@
 getLocalAnPData <- function(registryName, ...) {
   
   dbType <- "mysql"
-  AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
+  AnPQuery <- "
+SELECT
+  FO.HovedDato,
+  FO.Sykehusnavn,
+  FO.ForlopsType1,
+  FO.ForlopsType2,
+  FO.PasientKjonn,
+  AnP.*
+FROM
+  AndreProsedyrerVar AnP
+LEFT JOIN
+  ForlopsOversikt FO
+ON
+  AnP.ForlopsID=FO.ForlopsID AND AnP.AvdRESH=FO.AvdRESH;"
   
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]],
