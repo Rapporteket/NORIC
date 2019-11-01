@@ -6,7 +6,7 @@
 #' @export
 #'
 
-getLocalAPData <- function(registryName, ...) {
+getLocalSSData <- function(registryName, ...) {
   
   dbType <- "mysql"
   SSQuery <-"
