@@ -162,7 +162,7 @@ shinyServer(function(input, output, session) {
   })
   
   ## Data sets available
-  dataSets <- list(`Valg og bruk av data...` = "info",
+  dataSets <- list(`Bruk og valg av data...` = "info",
                    `Andre prosedyrer` = "AnP",
                    `Angio PCI` = "AP",
                    `Skjemaoversikt` = "SO")
@@ -212,6 +212,9 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  output$dataSetInfo <- renderUI({
+    p("Her skal det inn noe om dataettet når det velges (men ikke etter lastet)")
+  })
 
   ## Suggest replaced by the above
   # output$tabAnP <- renderRpivotTable({
