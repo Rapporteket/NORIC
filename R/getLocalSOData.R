@@ -37,7 +37,7 @@ getLocalSOData <- function(registryName, ...) {
   
   # Endre Sykehusnavn til kortere versjoner:
   SO %<>%
-    mutate(
+    dplyr::mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
@@ -73,7 +73,7 @@ getLocalSOData <- function(registryName, ...) {
   
   # Gjøre kategoriske variabler om til factor:
   SO %<>%
-    mutate(
+    dplyr::mutate(
       Skjemanavn = as.ordered( Skjemanavn ),
       Sykehusnavn = as.ordered( Sykehusnavn )
     )
@@ -81,7 +81,7 @@ getLocalSOData <- function(registryName, ...) {
   
   # Utledete variabler:
   SO %<>%
-    mutate(
+    dplyr::mutate(
       # Ferdigstilt, 1= ja, -1 & 0 = nei
       ferdigstilt = as.ordered( ifelse(SkjemaStatus == 1
                                        , yes = "Ferdigstilt"

@@ -26,7 +26,7 @@ getLocalAPData <- function(registryName, ...) {
   
   # Klokkeslett med "01.01.70 " som prefix fikses:
   AP %<>%
-    mutate(
+    dplyr::mutate(
       ProsedyreTid = gsub( "01.01.70 " , "" , ProsedyreTid ) ,
       SymptomTid = gsub( "01.01.70 " , "" , SymptomTid ) ,
       BesUtlEKGTid = gsub( "01.01.70 " , "" , BesUtlEKGTid ) ,
@@ -41,7 +41,7 @@ getLocalAPData <- function(registryName, ...) {
   
   # Gjor datoer om til dato-objekt:
   AP %<>%
-    mutate(
+    dplyr::mutate(
       AnkomstPCIDato = lubridate::ymd( AnkomstPCIDato )
       ,ApningKarDato = lubridate::ymd( ApningKarDato )
       ,AvdodDato = lubridate::ymd( AvdodDato )
@@ -62,7 +62,7 @@ getLocalAPData <- function(registryName, ...) {
   
   # Endre Sykehusnavn til kortere versjoner:
   AP %<>%
-    mutate(
+    dplyr::mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
@@ -96,7 +96,7 @@ getLocalAPData <- function(registryName, ...) {
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legget til mer etter hvert)
   AP %<>%
-    mutate(
+    dplyr::mutate(
       ForlopsType2 = factor( ForlopsType2,
                              levels = c(
                                "Akutt"
@@ -121,7 +121,7 @@ getLocalAPData <- function(registryName, ...) {
   
   # Utledete variabler:
   AP %<>% 
-    mutate( 
+    dplyr::mutate( 
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:

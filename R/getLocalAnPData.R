@@ -18,52 +18,89 @@ getLocalAnPData <- function(registryName, ...) {
   
   AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
   
-  showN <- 12 # how many months are displayed
+
+  # Klokkeslett med "01.01.70 " som prefix fikses:
+  AnP %<>%
+    dplyr::mutate(
+      ProsedyreTid = gsub( "01.01.70 " , "" , ProsedyreTid )
+    )
   
-  AnP$ProsedyreDato <- as.Date( AnP$ProsedyreDato)
+  # Gjor datoer om til dato-objekt:
+  AnP %<>%
+    dplyr::mutate(
+      ProsedyreDato = lubridate::ymd( ProsedyreDato ),
+      HovedDato = lubridate::ymd( HovedDato )
+    )
   
-  AnP$Year <- as.numeric(
-    format(
-      x = AnP $ ProsedyreDato ,
-      format = "%Y"))
   
-  AnP$nMonth <- as.numeric(
-    as.factor(
-      format(
-        AnP$ProsedyreDato ,
-        format = "%y-%m")))
+  # Endre Sykehusnavn til kortere versjoner:
+  AnP %<>%
+    dplyr::mutate(Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+           Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
+           Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+    )
   
-  AnP $ Day <- as.numeric(
-    AnP $ ProsedyreDato - min( AnP $ ProsedyreDato , na.rm = TRUE ) )
   
-  AnP <- subset(
-    x = AnP ,
-    subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN )
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
+  # "tøyseregistreringer")
+  AnP %<>%
+    dplyr::filter(
+      (
+        (Sykehusnavn=="HUS") & ( as.Date(ProsedyreDato) >= "2013-01-01")
+      ) | (
+        (Sykehusnavn=="UNN") & ( as.Date(ProsedyreDato) >= "2013-05-01" )
+      ) | (
+        (Sykehusnavn=="Ullevål") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="St.Olavs") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="Sørlandet") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="SUS") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+      ) | (
+        (Sykehusnavn=="Rikshospitalet") & ( as.Date(ProsedyreDato) >= "2015-01-01" )
+      ) | (
+        (Sykehusnavn=="Feiring") & ( as.Date(ProsedyreDato) >= "2015-01-01" )
+      ) | (
+        (Sykehusnavn=="Ahus") & ( as.Date(ProsedyreDato) >= "2016-01-01" )
+      ))
   
-  AnP $ Month <- as.factor(
-    format(
-      x = AnP $ ProsedyreDato ,
-      format = "%y-%m"))
   
-  AnP$AnnenProsType <- factor(
-    x = AnP$AnnenProsType ,
-    levels = c(
-      "Høyre hjertekateterisering" ,
-      "Temporær pacemaker" ,
-      "Perikardiocentese" ,
-      "Ventilfilming" ,
-      "Lukking av ASD/PFO" ,
-      "Lukking av venstre aurikkel" ,
-      "Impella") ,
-    labels = c(
-      "Høyre kat." ,
-      "Temp. pm" ,
-      "Perikardiocentese" ,
-      "Ventilfilming" ,
-      "Lukking ASD/PFO" ,
-      "Lukking v. aurikkel" ,
-      "Impella")
-  )
+  
+  # Gjøre kategoriske variabler om til factor:
+  # (ikke fullstendig, må legget til mer etter hvert)
+  AnP %<>%
+    dplyr::mutate(
+      AnnenProsType = factor( AnnenProsType,
+                                levels = c(
+                                  "Aortaballongpumpe"           
+                                  ,"ECMO"                        
+                                  ,"Høyre hjertekateterisering"  
+                                  ,"Impella"                    
+                                  ,"Lukking av ASD/PFO"          
+                                  ,"Lukking av venstre aurikkel" 
+                                  ,"Perikardiocentese"           
+                                  ,"PTSMA"                      
+                                  ,"Temporær pacemaker"          
+                                  ,"Ventilfilming"
+                                  # ,"Ikke registrert" 
+                                ),
+                                ordered = TRUE
+      ),
+      ForlopsType1 = as.factor( ForlopsType1 ),
+      # (Hastegrad finnes ikke i AndreProsedyrerVar)
+      ForlopsType2 = factor( ForlopsType2,
+                             levels = c(
+                               "Akutt"
+                               , "Subakutt"
+                               , "Planlagt"
+                             ),
+                             ordered = TRUE ),
+      PasientKjonn = factor(PasientKjonn, levels = c( "Mann", "Kvinne"), ordered = TRUE),
+      Sykehusnavn = as.ordered( Sykehusnavn )
+      
+    )
+  
   
   AnP
 
