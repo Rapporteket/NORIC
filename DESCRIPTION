@@ -20,6 +20,7 @@ Imports:
   Hmisc,
   kableExtra,
   knitr,
+  lubridate,
   magrittr,
   rapbase,
   raplog,
