@@ -35,10 +35,11 @@ getLocalAPData <- function(registryName, ...) {
       InnleggelseHenvisendeSykehusTid = gsub( "01.01.70 " , "" , InnleggelseHenvisendeSykehusTid ) ,
       SymptomdebutTid = gsub( "01.01.70 " , "" , SymptomdebutTid ) ,
       BeslEKGTid = gsub( "01.01.70 " , "" , BeslEKGTid ) ,
-      TrombolyseTid = gsub( "01.01.70 " , "" , TrombolyseTid ))
+      TrombolyseTid = gsub( "01.01.70 " , "" , TrombolyseTid )
+      )
   
   
-  # Gjor ProsedyreDato om til dato-objekt:
+  # Gjor datoer om til dato-objekt:
   AP %<>%
     mutate(
       AnkomstPCIDato = lubridate::ymd( AnkomstPCIDato )
@@ -113,7 +114,7 @@ getLocalAPData <- function(registryName, ...) {
                                 ,"PCI"
                               ),
                               ordered = TRUE ),
-      Sykehusnavn = as.factor( Sykehusnavn )
+      Sykehusnavn = as.ordered( Sykehusnavn )
       
     )
   
