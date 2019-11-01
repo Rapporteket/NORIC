@@ -181,12 +181,33 @@ shinyServer(function(input, output, session) {
       actionButton("pivotStatusAction", "Avslutt!")
     } else {
       if (length(input$pDataSelected) == 0 || input$pDataSelected == "info") {
-        p("Ingen data valgt")
+        NULL
       } else {
         actionButton("pivotStatusAction", "Last data!")
       }
     }
   })
+  
+  output$dataSetInfo <- renderUI({
+    if (rvals$showPivot) {
+      NULL
+    } else {
+      ## take care of initial state (empty input)
+      if (length(input$pDataSelected) == 0) {
+        pDataSelected <- "info"
+      } else {
+        pDataSelected <- input$pDataSelected
+      }
+      switch (pDataSelected,
+              "info" = p(paste("Velg et datasett i menyen over.",
+                               "Store datasett vil ta tid å laste.")),
+              "AnP" = p("Info om datasettet 'Andre prosedyrer'"),
+              "AP" = p("Info om datasettet 'Angio PCI'"),
+              "SO" = p("Info om datasettet 'Skjemaoversikt")
+      )
+    }
+  })
+  
   
   output$pivotData <- renderRpivotTable({
     if (rvals$showPivot) {
@@ -212,10 +233,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  output$dataSetInfo <- renderUI({
-    p("Her skal det inn noe om dataettet når det velges (men ikke etter lastet)")
-  })
-
+  
   ## Suggest replaced by the above
   # output$tabAnP <- renderRpivotTable({
   #   AnP <- noric::getLocalAnPData(registryName, session = session)

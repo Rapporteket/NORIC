@@ -54,11 +54,9 @@ ui <- tagList(
         column(6, uiOutput("pivotAction")),
         column(6, uiOutput("pivotControl"))
       ),
+      uiOutput("dataSetInfo"),
       fluidRow(
         column(12, rpivotTableOutput("pivotData"))
-      ),
-      fluidRow(
-        column(12, uiOutput("dataSetInfo"))
       )
     ),
     
