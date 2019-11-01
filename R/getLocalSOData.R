@@ -18,12 +18,6 @@ getLocalSOData <- function(registryName, ...) {
   
   SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
   
-  
-  # Packages:
-  require(dplyr)
-  require(magrittr)
-  require(lubridate)
-  
 
   
   # Gjor datoer om til dato-objekt:

@@ -9,7 +9,18 @@
 getLocalAPData <- function(registryName, ...) {
   
   dbType <- "mysql"
-  APQuery <- "SELECT * FROM AngioPCIVar"
+  APQuery <-"
+SELECT
+  SO.HovedDato,
+  AP.Hastegrad AS ForlopsType2,
+  AP.*
+FROM
+  AngioPCIVar AP
+LEFT JOIN
+  SkjemaOversikt SO
+ON
+  AP.ForlopsID=SO.ForlopsID AND AP.AvdRESH=SO.AvdRESH;
+"
   
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]],
@@ -17,11 +28,7 @@ getLocalAPData <- function(registryName, ...) {
   }
   
   AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-  
-  # Packages:
-  require(dplyr)
-  require(magrittr)
-  require(lubridate)
+
   
   
   # Klokkeslett med "01.01.70 " som prefix fikses:
