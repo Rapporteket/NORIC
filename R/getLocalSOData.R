@@ -22,7 +22,7 @@ getLocalSOData <- function(registryName, ...) {
   
   # Gjor datoer om til dato-objekt:
   SO %<>%
-    mutate(
+    dplyr::mutate(
       OpprettetDato = lubridate::ymd( OpprettetDato )
       ,SistLagretDato = lubridate::ymd( SistLagretDato )
       ,HovedDato = lubridate::ymd( HovedDato )
