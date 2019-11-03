@@ -230,8 +230,8 @@ shinyServer(function(input, output, session) {
       }
       if (input$pDataSelected == "SS") {
         pDat <- noric::getLocalSSData(registryName, session = session)
-        dispRows <- c("Year", "Skjemanavn")
-        dispCols <- c("OpprettetAv")
+        dispRows <- c("aar", "kvartal")
+        dispCols <- c("StentType")
       }
       rpivotTable(pDat, rows = dispRows, cols = dispCols,
                   rendererName = c("Heatmap"), width="100%", height="400px")
