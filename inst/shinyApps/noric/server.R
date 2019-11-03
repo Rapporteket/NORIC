@@ -215,12 +215,12 @@ shinyServer(function(input, output, session) {
     if (rvals$showPivot) {
       if (input$pDataSelected == "AnP") {
         pDat <- noric::getLocalAnPData(registryName, session = session)
-        dispRows <- c("Year", "Month")
+        dispRows <- c("aar", "kvartal")
         dispCols <- c("AnnenProsType")
       }
       if (input$pDataSelected == "AP") {
         pDat <- noric::getLocalAPData(registryName, session = session)
-        dispRows <- c("Year", "Month")
+        dispRows <- c("aar", "kvartal")
         dispCols <- c("ProsedyreType")
       }
       if (input$pDataSelected == "SO") {
