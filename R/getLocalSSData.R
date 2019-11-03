@@ -200,7 +200,7 @@ FROM SegmentStent;
     dplyr::left_join(., ant_stent
                      , by = c("Sykehusnavn", "ForlopsID" ) 
                      ) %>% 
-    arrange( Sykehusnavn, ForlopsID)
+    dplyr::arrange( Sykehusnavn, ForlopsID)
   
   # For hver rad blir det oppgitt antall stenter som ble satt inn ila det
   # forløpet (ett forløp på ett sykehus kan ha flere rader hvor hver rad oppgir det totale
