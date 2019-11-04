@@ -3,6 +3,9 @@
 #' @param registryName 
 #'
 #' @return Data frame representing the table CTAngioVar
+#' 
+#' @importFrom dplyr filter mutate mutate_all select
+#' @importFrom tidyselect starts_with
 #' @export
 #'
 
@@ -36,7 +39,7 @@ ON
   
   # Gjor datoer om til dato-objekt:
   CT %<>%
-    dplyr::mutate(
+    mutate(
       AvdodDato = lubridate::ymd( AvdodDato )
       ,FodselsDato = lubridate::ymd( FodselsDato )
       ,HovedDato = lubridate::ymd( HovedDato )
@@ -47,7 +50,7 @@ ON
   
   # Endre Sykehusnavn til kortere versjoner:
   CT %<>%
-    dplyr::mutate(
+    mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
@@ -57,7 +60,7 @@ ON
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   CT %<>%
-    dplyr::filter(
+    filter(
       (
         (Sykehusnavn=="HUS") & ( as.Date(UndersokDato) >= "2013-01-01") # Unødvendig å bruke as.Date(), slette senere?
       ) | (
@@ -82,7 +85,7 @@ ON
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legget til mer etter hvert)
   CT %<>%
-    dplyr::mutate(
+    mutate(
       Avdod = factor( Avdod,
                              levels = c(
                                "Ja"
@@ -160,7 +163,7 @@ ON
   
   # Utledete variabler:
   CT %<>% 
-    dplyr::mutate( 
+    mutate( 
       # Div. tidsvariabler:
       #
       # Kalenderår for UndersokDato:
@@ -181,7 +184,7 @@ ON
   
   # Utledete variabler - opptelling av funnkoder i de 20 segmentene (ikke graft)
   CT %<>% 
-    dplyr::mutate( 
+    mutate( 
       # Opptelling av registrerte funnkoder i segmentene:
       ant_NA = (select(., starts_with("SEGMENT") ) %>% is.na() %>% rowSums() ), 
       ant_0 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list( ~( . == 0)) ) %>% rowSums(., na.rm = TRUE) ),

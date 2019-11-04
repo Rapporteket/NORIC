@@ -27,6 +27,7 @@ Imports:
   RColorBrewer,
   revealjs,
   rpivotTable,
+  tidyselect,
   xtable
 Remotes:
   Rapporteket/rapbase@rel,
