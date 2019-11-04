@@ -25,7 +25,7 @@ FROM
 LEFT JOIN
   ForlopsOversikt FO
 ON
-  CT.ForlopsID=FO.ForlopsID AND CT.AvdRESH=FO.AvdRESH;;
+  CT.ForlopsID=FO.ForlopsID AND CT.AvdRESH=FO.AvdRESH;
 "
   
   if ("session" %in% names(list(...))) {
