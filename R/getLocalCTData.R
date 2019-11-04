@@ -10,8 +10,19 @@ getLocalCTData <- function(registryName, ...) {
   
   dbType <- "mysql"
   CTQuery <-"
-SELECT *
-FROM CTAngioVar;
+SELECT
+  FO.HovedDato,
+  FO.Sykehusnavn,
+  FO.ForlopsType1,
+  FO.ForlopsType2,
+  FO.PasientKjonn,
+  CT.*
+FROM
+  CTAngioVar CT
+LEFT JOIN
+  ForlopsOversikt FO
+ON
+  CT.ForlopsID=FO.ForlopsID AND CT.AvdRESH=FO.AvdRESH;;
 "
   
   if ("session" %in% names(list(...))) {
@@ -170,7 +181,7 @@ FROM CTAngioVar;
   
   # Utledete variabler - opptelling av funnkoder i de 20 segmentene (ikke graft)
   CT %<>% 
-    mutate( 
+    dplyr::mutate( 
       # Opptelling av registrerte funnkoder i segmentene:
       ant_NA = (select(., starts_with("SEGMENT") ) %>% is.na() %>% rowSums() ), 
       ant_0 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list( ~( . == 0)) ) %>% rowSums(., na.rm = TRUE) ),
