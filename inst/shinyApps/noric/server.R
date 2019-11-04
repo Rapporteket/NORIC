@@ -166,7 +166,9 @@ shinyServer(function(input, output, session) {
                    `Andre prosedyrer` = "AnP",
                    `Angio PCI` = "AP",
                    `Skjemaoversikt` = "SO",
-                   `Segment stent` = "SS")
+                   `Segment stent` = "SS",
+                   `CT Angio` = "CT")
+  
   
   output$pivotControl <- renderUI({
     if (rvals$showPivot) {
@@ -204,8 +206,9 @@ shinyServer(function(input, output, session) {
                                "Store datasett vil ta tid å laste.")),
               "AnP" = p("Info om datasettet 'Andre prosedyrer'"),
               "AP" = p("Info om datasettet 'Angio PCI'"),
-              "SO" = p("Info om datasettet 'Skjemaoversikt"),
-              "SS" = p("Info om datasettet 'Segment stent")
+              "SO" = p("Info om datasettet 'Skjemaoversikt'"),
+              "SS" = p("Info om datasettet 'Segment stent'"),
+              "CT" = p("Info om datasettet 'CT Angio'")
       )
     }
   })
@@ -230,6 +233,11 @@ shinyServer(function(input, output, session) {
       }
       if (input$pDataSelected == "SS") {
         pDat <- noric::getLocalSSData(registryName, session = session)
+        dispRows <- c("aar", "kvartal")
+        dispCols <- c("StentType")
+      }
+      if (input$pDataSelected == "CT") {
+        pDat <- noric::getLocalCTData(registryName, session = session)
         dispRows <- c("aar", "kvartal")
         dispCols <- c("StentType")
       }
