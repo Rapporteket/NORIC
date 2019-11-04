@@ -99,8 +99,6 @@ getLocalSOData <- function(registryName, ...) {
       # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
     ) 
   
-  
-
   SO
 
   }
