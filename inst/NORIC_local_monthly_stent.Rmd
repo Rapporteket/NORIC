@@ -5,11 +5,13 @@ params:
   author: "Anon author"
   hospitalName: "Ukjent sykehus"
   tableFormat: "html"
+  reshId: "999999"
+  registryName: "rapbase"
 header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
-title: "`r paste('NORIC', params$hospitalName, 'Stentbruk')`"
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Stentbruk', params$hospitalName)`"
 author: "`r params$author`"
 ---
 
