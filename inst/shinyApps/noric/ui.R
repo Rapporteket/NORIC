@@ -60,6 +60,18 @@ ui <- tagList(
       )
     ),
     
+    tabPanel("Utforsker",
+             fluidRow(
+               column(6, uiOutput("selectDataSet")),
+               column(6, uiOutput("selectVars"))
+             ),
+             fluidRow(
+               column(12, uiOutput("togglePivotSurvey"))
+             ),
+             fluidRow(
+               column(12, rpivotTableOutput("pivotSurvey"))
+             )
+    ),
     
     ## suggesting replacement by the above
     # tabPanel("TabAnP",

@@ -149,8 +149,9 @@ shinyServer(function(input, output, session) {
   })
   
   
-  # Krysstabell
+  # Krysstabell -- alternativ 1
   rvals <- reactiveValues()
+  #rvals <- list()
   rvals$showPivot <- FALSE
   
   observeEvent(input$pivotStatusAction, {
@@ -160,6 +161,7 @@ shinyServer(function(input, output, session) {
       rvals$showPivot <- TRUE
     }
   })
+  
   
   ## Data sets available
   dataSets <- list(`Bruk og valg av data...` = "info",
@@ -248,6 +250,77 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  
+  # Krysstabell -- alternativ 2
+  
+  ## reactive vals
+  rvals$showPivotTable <- FALSE
+  rvals$togglePivotingText <- "Last valgte data!"
+  rvals$selectedDataSet <- "info"
+  rvals$selectedVars <- ""
+  
+  ## observers
+  observeEvent(input$togglePivoting, {
+    if (rvals$showPivotTable) {
+      rvals$showPivotTable <- FALSE
+      rvals$togglePivotingText <- "Last valgte data!"
+      # persist last choice
+      rvals$selectedDataSet <- input$selectedDataSet
+      rvals$selectedVars <- input$selectedVars
+    } else {
+      rvals$showPivotTable <- TRUE
+      rvals$togglePivotingText <- "Endre valg av data!"
+    }
+  })
+  
+  observeEvent(input$selectedDataSet, {
+    rvals$selectedVars <- ""
+  })
+
+  dat <- reactive({
+    noric::getPivotDataSet(setId = input$selectedDataSet, registryName,
+                           session)
+  })
+  
+  ## outputs
+  output$selectDataSet <- renderUI({
+    if (rvals$showPivotTable) {
+      NULL
+    } else {
+      selectInput(inputId = "selectedDataSet", label = "Velg datasett:",
+                  choices = dataSets, selected = rvals$selectedDataSet)
+    }
+  })
+  
+  output$selectVars <- renderUI({
+    if (length(input$selectedDataSet) == 0 | rvals$showPivotTable |
+        input$selectedDataSet == "info") {
+        #rvals$showPivotTable |
+        #input$selectedDataSet == "info") {
+      NULL
+    } else {
+      selectInput(inputId = "selectedVars", label = "Velg variabler:",
+                  choices = names(dat()), multiple = TRUE,
+                  selected = rvals$selectedVars)
+    }
+  })
+  
+  output$togglePivotSurvey <- renderUI({
+    if (length(input$selectedVars) == 0) {
+      NULL
+    } else {
+      actionButton(inputId = "togglePivoting",
+                   label = rvals$togglePivotingText)
+    }
+  })
+  
+  output$pivotSurvey <- renderRpivotTable({
+    if (rvals$showPivotTable) {
+      rpivotTable(dat()[input$selectedVars])
+    } else {
+      rpivotTable(data.frame())
+    }
+  })
   
   ## Suggest replaced by the above
   # output$tabAnP <- renderRpivotTable({
