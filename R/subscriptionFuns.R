@@ -25,7 +25,8 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
                                          author, hospitalName, type) {
   
   raplog::subLogger(author = author, registryName = registryName,
-                    reshId = reshId)
+                    reshId = reshId,
+                    msg = "Subscription report: stent/prosedyre")
   
   sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
   tableFormat <- switch (type[[1]],
