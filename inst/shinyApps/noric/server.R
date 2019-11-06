@@ -7,9 +7,10 @@
 #    http://shiny.rstudio.com/
 #
 
+library(magrittr)
 library(rpivotTable)
 library(shiny)
-library(magrittr)
+
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -149,9 +150,9 @@ shinyServer(function(input, output, session) {
   })
   
   
-  # Krysstabell -- alternativ 1
+  
   rvals <- reactiveValues()
-  #rvals <- list()
+  # Krysstabell -- alternativ 1
   rvals$showPivot <- FALSE
   
   observeEvent(input$pivotStatusAction, {
