@@ -73,7 +73,10 @@ ui <- tagList(
                column(12, uiOutput("togglePivotSurvey"))
              ),
              fluidRow(
-               column(12, rpivotTableOutput("pivotSurvey") %>% withSpinner())
+               column(12, rpivotTableOutput("pivotSurvey") %>%
+                        withSpinner(color = "#18bc9c",
+                                    color.background = "#ffffff",
+                                    type = 2))
              )
     ),
     
@@ -106,7 +109,9 @@ ui <- tagList(
         ),
         mainPanel(
           useShinyalert(),
-          htmlOutput("stentbruk", inline = TRUE) %>% withSpinner(),
+          htmlOutput("stentbruk", inline = TRUE) %>%
+            withSpinner(color = "#18bc9c",color.background = "#ffffff",
+                        type = 2),
           appNavbarUserWidget(user = uiOutput("appUserName"),
                               organization = uiOutput("appOrgName"),
                               addUserInfo = TRUE)
@@ -125,7 +130,9 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer", inline = TRUE) %>% withSpinner()
+          htmlOutput("prosedyrer", inline = TRUE) %>%
+            withSpinner(color = "#18bc9c",color.background = "#ffffff",
+                        type = 2)
         )
       )
     ),
