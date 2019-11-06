@@ -27,6 +27,9 @@ Imports:
   RColorBrewer,
   revealjs,
   rpivotTable,
+  shiny,
+  shinyalert,
+  shinycssloaders,
   tidyselect,
   xtable
 Remotes:

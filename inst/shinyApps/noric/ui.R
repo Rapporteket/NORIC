@@ -7,10 +7,14 @@
 #    http://shiny.rstudio.com/
 #
 
+library(magrittr)
 library(rapbase)
 library(rpivotTable)
 library(shiny)
 library(shinyalert)
+library(shinycssloaders)
+
+
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NORIC"
@@ -69,7 +73,7 @@ ui <- tagList(
                column(12, uiOutput("togglePivotSurvey"))
              ),
              fluidRow(
-               column(12, rpivotTableOutput("pivotSurvey"))
+               column(12, rpivotTableOutput("pivotSurvey") %>% withSpinner())
              )
     ),
     
@@ -102,7 +106,7 @@ ui <- tagList(
         ),
         mainPanel(
           useShinyalert(),
-          htmlOutput("stentbruk", inline = TRUE),
+          htmlOutput("stentbruk", inline = TRUE) %>% withSpinner(),
           appNavbarUserWidget(user = uiOutput("appUserName"),
                               organization = uiOutput("appOrgName"),
                               addUserInfo = TRUE)
@@ -121,7 +125,7 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer", inline = TRUE)
+          htmlOutput("prosedyrer", inline = TRUE) %>% withSpinner()
         )
       )
     ),
