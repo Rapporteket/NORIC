@@ -1,3 +1,8 @@
+<!-- badges: start -->
+[![Travis build status](https://travis-ci.org/Rapporteket/NORIC.svg?branch=shinyfy)](https://travis-ci.org/Rapporteket/NORIC)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/Rapporteket/NORIC?branch=shinyfy&svg=true)](https://ci.appveyor.com/project/Rapporteket/NORIC)
+<!-- badges: end -->
+
 # NORIC
 Report generating scripts in R/knitr for the Norwegian Registry for Invasive Cardiology
 
@@ -38,4 +43,4 @@ system the package is being installed on
 ## Develop
 Contributors submit their code to the rel (release) branch which is
 subject to testing at Rapporteket. Upon acceptance rel will me merged to
-the master branch and tagged
+the master branch and tagged.
