@@ -2,6 +2,7 @@
 [![Travis build status](https://travis-ci.org/Rapporteket/NORIC.svg?branch=shinyfy)](https://travis-ci.org/Rapporteket/NORIC)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/Rapporteket/NORIC?branch=shinyfy&svg=true)](https://ci.appveyor.com/project/Rapporteket/NORIC)
 [![Codecov test coverage](https://codecov.io/gh/Rapporteket/NORIC/branch/master/graph/badge.svg)](https://codecov.io/gh/Rapporteket/NORIC?branch=master)
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 <!-- badges: end -->
 
 # NORIC
