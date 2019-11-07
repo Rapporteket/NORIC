@@ -32,7 +32,6 @@ vignettes/*.pdf
 # intermediate markdown files
 *.html
 *.htm
-*.md
 *.png
 
 # SPSS, word,..
@@ -55,5 +54,3 @@ vignettes/*.pdf
 
 .Rproj.user
 
-# local .yml configurations
-*.yml
