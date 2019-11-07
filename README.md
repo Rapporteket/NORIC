@@ -44,3 +44,8 @@ system the package is being installed on
 Contributors submit their code to the rel (release) branch which is
 subject to testing at Rapporteket. Upon acceptance rel will me merged to
 the master branch and tagged.
+
+## Ethics
+Please note that the 'noric' project is released with a
+[Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this
+project, you agree to abide by its terms.
