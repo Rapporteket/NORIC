@@ -294,11 +294,8 @@ shinyServer(function(input, output, session) {
   })
   
   output$selectVars <- renderUI({
-    if (length(input$selectedDataSet) == 0 | rvals$showPivotTable |
-        input$selectedDataSet == "info") {
-        #rvals$showPivotTable |
-        #input$selectedDataSet == "info") {
-      NULL
+    if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
+      h4(paste("Valgt datasett:", names(dataSets)[dataSets == input$selectedDataSet]))
     } else {
       selectInput(inputId = "selectedVars", label = "Velg variabler:",
                   choices = names(dat()), multiple = TRUE,
