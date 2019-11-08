@@ -67,6 +67,7 @@ shinyServer(function(input, output, session) {
     hospitalName <- noric::getHospitalName(reshId)
     registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
     userFullName <- rapbase::getUserFullName(session)
+    userRole <- rapbase::getUserRole(session)
     author <- paste0(userFullName, "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
@@ -138,7 +139,7 @@ shinyServer(function(input, output, session) {
   
   # widget
   output$appUserName <- renderText(userFullName)
-  output$appOrgName <- renderText(reshId)
+  output$appOrgName <- renderText(paste(reshId, userRole, sep = ", "))
   
   # User info in widget
   userInfo <- rapbase::howWeDealWithPersonalData(session)
@@ -146,7 +147,7 @@ shinyServer(function(input, output, session) {
     shinyalert("Dette vet Rapporteket om deg:", userInfo,
                type = "", imageUrl = "rap/logo.svg",
                closeOnEsc = TRUE, closeOnClickOutside = TRUE,
-               html = TRUE, confirmButtonText = "Den er grei!")
+               html = TRUE, confirmButtonText = rapbase::noOptOutOk())
   })
   
   
