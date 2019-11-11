@@ -1,12 +1,18 @@
 #' getLocalSOData provides local reg data from SkjemaOversikt
 #'
-#' @param registryName 
+#' @param registryName String providing the registry name
+#' @param ... Optional arguments to be passed to the function
+#'
+#' @importFrom magrittr %>% %<>%
 #'
 #' @return Data frame representing the table SkjemaOversikt
 #' @export
 #'
 
 getLocalSOData <- function(registryName, ...) {
+  
+  # declare 'dot'
+  . <- ""
   
   dbType <- "mysql"
   SOQuery <- "SELECT * FROM SkjemaOversikt"

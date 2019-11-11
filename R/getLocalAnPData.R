@@ -1,12 +1,18 @@
 #' getLocalAnPData provides local reg data from AndreProsedyrerVar
 #'
-#' @param registryName 
+#' @param registryName String providing the registry name
+#' @param ... Optional arguments to be passed to the function
+#'
+#' @importFrom magrittr %>% %<>%
 #'
 #' @return Data frame representing the table AndreProsedyrerVar
 #' @export
 #'
 
 getLocalAnPData <- function(registryName, ...) {
+  
+  # declare 'dot'
+  . <- ""
   
   dbType <- "mysql"
   AnPQuery <- "

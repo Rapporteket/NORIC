@@ -1,15 +1,21 @@
 #' getLocalCTData provides local reg data from CTAngioVar
 #'
-#' @param registryName 
+#' @param registryName String providing the registry name
+#' @param ... Optional arguments to be passed to the function
 #'
 #' @return Data frame representing the table CTAngioVar
 #' 
+#' @importFrom magrittr %>% %<>%
 #' @importFrom dplyr filter mutate mutate_all select
 #' @importFrom tidyselect starts_with
+#' 
 #' @export
 #'
 
 getLocalCTData <- function(registryName, ...) {
+  
+  # declare 'dot'
+  . <- ""
   
   dbType <- "mysql"
   CTQuery <-"

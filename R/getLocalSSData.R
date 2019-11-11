@@ -1,12 +1,18 @@
 #' getLocalSSData provides local reg data from SegmentStent
 #'
-#' @param registryName 
+#' @param registryName String providing the registry name
+#' @param ... Optional arguments to be passed to the function
+#'
+#' @importFrom magrittr %>% %<>%
 #'
 #' @return Data frame representing the table SegmentStent
 #' @export
 #'
 
 getLocalSSData <- function(registryName, ...) {
+  
+  # declare 'dot'
+  . <- ""
   
   dbType <- "mysql"
   SSQuery <-"
