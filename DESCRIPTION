@@ -5,26 +5,27 @@ Authors@R: c(
   person(family = "Seifert",
          given = "Reinhard",
          email = "reinhard.seifert@currerius.com",
-         role = c("cre", "aut")),
+         role = c("aut")),
   person(given = "Ellisif",
          family = "Nygaard",
          role = c("aut", "cre"),
          email = "ellisif.nygaard@helse-vest.no"),
   person(given = "Are",
          family = "Edvardsen",
-         role = c("aut", "cre"),
+         role = c("aut"),
          email = "biorakel@gmail.com",
          comment = c(ORCID = "0000-0002-5210-3656"))
   )
 Description: An implemetation of all R related resources for NORIC at
   Rapporteket, including R-functions for analysis and plotting, noweb-files and
   even artwork needed for producing R-dependent reports.
-Depends: R (>= 3.0.2)
+Depends: R (>= 3.5.0)
 License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
   car,
+  dplyr,
   ggplot2,
   Hmisc,
   kableExtra,
