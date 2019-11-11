@@ -39,8 +39,8 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
   rmarkdown::render(input = sourceFile,
                     output_format = switch(
                       type,
-                      pdf = pdf_document(),
-                      html = html_document()
+                      pdf = pdf_document,
+                      html = html_document
                     ),
                     output_file = outFile,
                     params = c(reshId,registryName,author,hospitalName,
