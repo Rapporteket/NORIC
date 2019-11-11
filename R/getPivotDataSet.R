@@ -1,8 +1,8 @@
 #' Title
 #'
-#' @param setId 
-#' @param registryName 
-#' @param session 
+#' @param setId String definig name of data set to be returned
+#' @param registryName String naming the registry data
+#' @param session List shiny session object
 #'
 #' @return data frame
 #' @export
