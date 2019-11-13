@@ -18,13 +18,6 @@ library(shinycssloaders)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NORIC"
-logo <- includeHTML(system.file('www/logo.svg', package='rapbase'))
-logoCode <- paste0("var header = $('.navbar> .container-fluid');\n",
-                   "header.append('<div class=\"navbar-brand\" style=\"float:left;font-size:75%\">",
-                   logo,
-                   "</div>');\n",
-                   "console.log(header)")
-logoWidget <- tags$script(shiny::HTML(logoCode))
 
 ui <- tagList(
   navbarPage(
