@@ -114,7 +114,8 @@ ui <- tagList(
                         type = 2),
           appNavbarUserWidget(user = uiOutput("appUserName"),
                               organization = uiOutput("appOrgName"),
-                              addUserInfo = TRUE)
+                              addUserInfo = TRUE),
+          tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))
         )
       )
     ),
