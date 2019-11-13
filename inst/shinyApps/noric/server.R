@@ -65,9 +65,13 @@ shinyServer(function(input, output, session) {
   if (rapbase::isRapContext()) {
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- noric::getHospitalName(reshId)
-    registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
+    localRegistryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
+    nationalRegistryName <-
+      noric::NORICmakeRegistryName(baseName = "noricStaging",
+                                   reshID = reshId, role = userRole,
+                                   localRegistry = FALSE)
     author <- paste0(userFullName, "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
@@ -83,7 +87,7 @@ shinyServer(function(input, output, session) {
                    hospitalName=hospitalName,
                    tableFormat="html",
                    reshId=reshId,
-                   registryName=registryName)
+                   registryName=localRegistryName)
     system.file(srcFile, package="noric") %>% 
       knitr::knit() %>% 
       markdown::markdownToHTML(.,
@@ -132,7 +136,7 @@ shinyServer(function(input, output, session) {
       hospitalName=hospitalName,
       author=author,
       reshId=reshId,
-      registryName=registryName
+      registryName=localRegistryName
     ), output_dir = tempdir())
     file.rename(out, file)
   }
@@ -280,7 +284,7 @@ shinyServer(function(input, output, session) {
   })
 
   dat <- reactive({
-    noric::getPivotDataSet(setId = input$selectedDataSet, registryName,
+    noric::getPivotDataSet(setId = input$selectedDataSet, nationalRegistryName,
                            session)
   })
   
@@ -323,19 +327,19 @@ shinyServer(function(input, output, session) {
   
   ## Suggest replaced by the above
   # output$tabAnP <- renderRpivotTable({
-  #   AnP <- noric::getLocalAnPData(registryName, session = session)
+  #   AnP <- noric::getLocalAnPData(localRegistryName, session = session)
   #   rpivotTable(AnP, rows = c("Year", "Month"), cols = c("AnnenProsType"),
   #               rendererName = c("Heatmap"), width="100%", height="400px")
   # })
   # 
   # output$tabAP <- renderRpivotTable({
-  #   AP <- noric::getLocalAPData(registryName, session = session)
+  #   AP <- noric::getLocalAPData(localRegistryName, session = session)
   #   rpivotTable(AP, rows = c("Year", "Month"), cols = c("ProsedyreType"),
   #               rendererName = c("Heatmap"), width = "100%", height = "400px")
   # })
   # 
   # output$tabSO <- renderRpivotTable({
-  #   SO <- noric::getLocalSOData(registryName, session = session)
+  #   SO <- noric::getLocalSOData(localRegistryName, session = session)
   #   rpivotTable(SO, rows = c("Year", "Skjemanavn"), cols = c("OpprettetAv"),
   #               rendererName = c("Heatmap"), width = "100%", height = "400px")
   # })
@@ -419,7 +423,7 @@ shinyServer(function(input, output, session) {
     fun <- "subscriptionLocalMonthlyReps"
     paramNames <- c("baseName", "reshId", "registryName", "author", "hospitalName",
                     "type")
-    paramValues <- c(baseName, reshId, registryName, author, hospitalName,
+    paramValues <- c(baseName, reshId, localRegistryName, author, hospitalName,
                      input$subscriptionFileFormat)
     
 
