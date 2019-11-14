@@ -8,6 +8,7 @@
 #' @importFrom magrittr %>% %<>%
 #' @importFrom dplyr filter mutate mutate_all select
 #' @importFrom tidyselect starts_with
+#' @importFrom lubridate ymd year month quarter isoweek
 #' 
 #' @export
 #'
@@ -46,11 +47,11 @@ ON
   # Gjor datoer om til dato-objekt:
   CT %<>%
     mutate(
-      AvdodDato = lubridate::ymd( AvdodDato )
-      ,FodselsDato = lubridate::ymd( FodselsDato )
-      ,HovedDato = lubridate::ymd( HovedDato )
-      ,PasientRegDato = lubridate::ymd( PasientRegDato )
-      ,UndersokDato = lubridate::ymd( UndersokDato )
+      AvdodDato = ymd( AvdodDato )
+      ,FodselsDato = ymd( FodselsDato )
+      ,HovedDato = ymd( HovedDato )
+      ,PasientRegDato = ymd( PasientRegDato )
+      ,UndersokDato = ymd( UndersokDato )
     )
   
   
@@ -173,18 +174,18 @@ ON
       # Div. tidsvariabler:
       #
       # Kalenderår for UndersokDato:
-      year = as.ordered( lubridate::year( UndersokDato )),
+      year = as.ordered( year( UndersokDato )),
       aar = year,
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr = as.ordered( sprintf(fmt = "%02d", lubridate::month( UndersokDato ) )),
+      maaned_nr = as.ordered( sprintf(fmt = "%02d", month( UndersokDato ) )),
       maaned = as.ordered( paste0( year, "-", maaned_nr) ),
       # Kvartal:
-      kvartal = lubridate::quarter( UndersokDato, with_year = TRUE ),
+      kvartal = quarter( UndersokDato, with_year = TRUE ),
       # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
       kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", lubridate::isoweek( UndersokDato ) ))
+      uke = as.ordered( sprintf(fmt = "%02d", isoweek( UndersokDato ) ))
       # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
     )
   

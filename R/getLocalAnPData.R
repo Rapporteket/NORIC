@@ -4,6 +4,8 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
+#' @importFrom dplyr filter mutate mutate_all select
+#' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table AndreProsedyrerVar
 #' @export
@@ -40,21 +42,21 @@ ON
 
   # Klokkeslett med "01.01.70 " som prefix fikses:
   AnP %<>%
-    dplyr::mutate(
+    mutate(
       ProsedyreTid = gsub( "01.01.70 " , "" , ProsedyreTid )
     )
   
   # Gjor datoer om til dato-objekt:
   AnP %<>%
-    dplyr::mutate(
-      ProsedyreDato = lubridate::ymd( ProsedyreDato ),
-      HovedDato = lubridate::ymd( HovedDato )
+    mutate(
+      ProsedyreDato = ymd( ProsedyreDato ),
+      HovedDato = ymd( HovedDato )
     )
   
   
   # Endre Sykehusnavn til kortere versjoner:
   AnP %<>%
-    dplyr::mutate(
+    mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
@@ -64,7 +66,7 @@ ON
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   AnP %<>%
-    dplyr::filter(
+    filter(
       (
         (Sykehusnavn=="HUS") & ( as.Date(ProsedyreDato) >= "2013-01-01")
       ) | (
@@ -90,7 +92,7 @@ ON
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legget til mer etter hvert)
   AnP %<>%
-    dplyr::mutate(
+    mutate(
       AnnenProsType = factor( AnnenProsType,
                                 levels = c(
                                   "Aortaballongpumpe"           
@@ -123,22 +125,22 @@ ON
   
   
   AnP %<>%
-    dplyr::mutate( 
+    mutate( 
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:
-      year = as.ordered( lubridate::year( ProsedyreDato )),
+      year = as.ordered( year( ProsedyreDato )),
       aar = year,
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr = as.ordered( sprintf(fmt = "%02d", lubridate::month( ProsedyreDato ) )),
+      maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) )),
       maaned = as.ordered( paste0( year, "-", maaned_nr) ),
       # Kvartal:
-      kvartal = lubridate::quarter( ProsedyreDato, with_year = TRUE ),
+      kvartal = quarter( ProsedyreDato, with_year = TRUE ),
       # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
       kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", lubridate::isoweek( ProsedyreDato ) ))
+      uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
       # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
     )
   
