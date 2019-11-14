@@ -4,6 +4,8 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
+#' @importFrom dplyr filter mutate mutate_all select
+#' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table SkjemaOversikt
 #' @export
@@ -28,16 +30,16 @@ getLocalSOData <- function(registryName, ...) {
   
   # Gjor datoer om til dato-objekt:
   SO %<>%
-    dplyr::mutate(
-      OpprettetDato = lubridate::ymd( OpprettetDato )
-      ,SistLagretDato = lubridate::ymd( SistLagretDato )
-      ,HovedDato = lubridate::ymd( HovedDato )
+    mutate(
+      OpprettetDato = ymd( OpprettetDato )
+      ,SistLagretDato = ymd( SistLagretDato )
+      ,HovedDato = ymd( HovedDato )
     )
   
   
   # Endre Sykehusnavn til kortere versjoner:
   SO %<>%
-    dplyr::mutate(
+    mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
@@ -47,7 +49,7 @@ getLocalSOData <- function(registryName, ...) {
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   SO %<>%
-    dplyr::filter(
+    filter(
       (
         (Sykehusnavn=="HUS") & ( as.Date(HovedDato) >= "2013-01-01")
       ) | (
@@ -73,7 +75,7 @@ getLocalSOData <- function(registryName, ...) {
   
   # Gjøre kategoriske variabler om til factor:
   SO %<>%
-    dplyr::mutate(
+    mutate(
       Skjemanavn = as.ordered( Skjemanavn ),
       Sykehusnavn = as.ordered( Sykehusnavn )
     )
@@ -81,7 +83,7 @@ getLocalSOData <- function(registryName, ...) {
   
   # Utledete variabler:
   SO %<>%
-    dplyr::mutate(
+    mutate(
       # Ferdigstilt, 1= ja, -1 & 0 = nei
       ferdigstilt = as.ordered( ifelse(SkjemaStatus == 1
                                        , yes = "Ferdigstilt"
@@ -90,19 +92,29 @@ getLocalSOData <- function(registryName, ...) {
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:
-      year = as.ordered( lubridate::year( HovedDato )),
+      year = as.ordered( year( HovedDato )),
       aar = year,
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr = as.ordered( sprintf(fmt = "%02d", lubridate::month( HovedDato ) )),
+      maaned_nr = as.ordered( sprintf(fmt = "%02d", month( HovedDato ) )),
       maaned = as.ordered( paste0( year, "-", maaned_nr) ),
       # Kvartal:
-      kvartal = lubridate::quarter( HovedDato, with_year = TRUE ),
+      kvartal = quarter( HovedDato, with_year = TRUE ),
       # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
       kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", lubridate::isoweek( HovedDato ) ))
-      # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
+      uke = as.ordered( sprintf(fmt = "%02d", isoweek( HovedDato ) )),
+      
+      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
+      aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
+                        yes = paste0( as.integer(year(HovedDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
+                        no = paste0(aar, "-", uke )
+      ),
+      aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
+                        yes = paste0( as.integer(year(HovedDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
+                        no = aar_uke
+      ),
+      aar_uke = as.ordered( aar_uke )
     ) 
   
   SO

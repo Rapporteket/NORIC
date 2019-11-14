@@ -4,8 +4,10 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
+#' @importFrom dplyr filter mutate mutate_all select
+#' @importFrom lubridate ymd year month quarter isoweek
 #'
-#' @return Data frame representing the table AndreProsedyrerVar
+#' @return Data frame representing the table AngioPCIVar
 #' @export
 #'
 
@@ -39,7 +41,7 @@ ON
   
   # Klokkeslett med "01.01.70 " som prefix fikses:
   AP %<>%
-    dplyr::mutate(
+    mutate(
       ProsedyreTid = gsub( "01.01.70 " , "" , ProsedyreTid ) ,
       SymptomTid = gsub( "01.01.70 " , "" , SymptomTid ) ,
       BesUtlEKGTid = gsub( "01.01.70 " , "" , BesUtlEKGTid ) ,
@@ -54,28 +56,28 @@ ON
   
   # Gjor datoer om til dato-objekt:
   AP %<>%
-    dplyr::mutate(
-      AnkomstPCIDato = lubridate::ymd( AnkomstPCIDato )
-      ,ApningKarDato = lubridate::ymd( ApningKarDato )
-      ,AvdodDato = lubridate::ymd( AvdodDato )
-      ,BeslEKGDato = lubridate::ymd( BeslEKGDato )
-      ,BesUtlEKGDato = lubridate::ymd( BesUtlEKGDato )
-      ,FodselsDato = lubridate::ymd( FodselsDato )
-      ,HovedDato = lubridate::ymd( HovedDato )
-      ,InnleggelseHenvisendeSykehusDato = lubridate::ymd( InnleggelseHenvisendeSykehusDato )
-      ,PasientRegDato = lubridate::ymd( PasientRegDato )
-      ,ProsedyreDato = lubridate::ymd( ProsedyreDato )
-      ,SymptomDato = lubridate::ymd( SymptomDato )
-      ,SymptomdebutDato = lubridate::ymd( SymptomdebutDato )
-      ,TrombolyseDato = lubridate::ymd( TrombolyseDato )
-      ,UtskrevetDodsdato = lubridate::ymd( UtskrevetDodsdato )
-      ,Utskrivningsdato = lubridate::ymd( Utskrivningsdato )
+    mutate(
+      AnkomstPCIDato = ymd( AnkomstPCIDato )
+      ,ApningKarDato = ymd( ApningKarDato )
+      ,AvdodDato = ymd( AvdodDato )
+      ,BeslEKGDato = ymd( BeslEKGDato )
+      ,BesUtlEKGDato = ymd( BesUtlEKGDato )
+      ,FodselsDato = ymd( FodselsDato )
+      ,HovedDato = ymd( HovedDato )
+      ,InnleggelseHenvisendeSykehusDato = ymd( InnleggelseHenvisendeSykehusDato )
+      ,PasientRegDato = ymd( PasientRegDato )
+      ,ProsedyreDato = ymd( ProsedyreDato )
+      ,SymptomDato = ymd( SymptomDato )
+      ,SymptomdebutDato = ymd( SymptomdebutDato )
+      ,TrombolyseDato = ymd( TrombolyseDato )
+      ,UtskrevetDodsdato = ymd( UtskrevetDodsdato )
+      ,Utskrivningsdato = ymd( Utskrivningsdato )
     )
   
   
   # Endre Sykehusnavn til kortere versjoner:
   AP %<>%
-    dplyr::mutate(
+    mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
@@ -84,7 +86,7 @@ ON
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   AP %<>%
-    dplyr::filter(
+    filter(
       (
         (Sykehusnavn=="HUS") & ( as.Date(ProsedyreDato) >= "2013-01-01") # Unødvendig å bruke as.Date(), slette senere?
       ) | (
@@ -109,7 +111,7 @@ ON
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legget til mer etter hvert)
   AP %<>%
-    dplyr::mutate(
+    mutate(
       ForlopsType2 = factor( ForlopsType2,
                              levels = c(
                                "Akutt"
@@ -134,23 +136,33 @@ ON
   
   # Utledete variabler:
   AP %<>% 
-    dplyr::mutate( 
+    mutate( 
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:
-      year = as.ordered( lubridate::year( ProsedyreDato )),
+      year = as.ordered( year( ProsedyreDato )),
       aar = year,
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr = as.ordered( sprintf(fmt = "%02d", lubridate::month( ProsedyreDato ) )),
+      maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) )),
       maaned = as.ordered( paste0( year, "-", maaned_nr) ),
       # Kvartal:
-      kvartal = lubridate::quarter( ProsedyreDato, with_year = TRUE ),
+      kvartal = quarter( ProsedyreDato, with_year = TRUE ),
       # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
       kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", lubridate::isoweek( ProsedyreDato ) ))
-      # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
+      uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) )),
+
+      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
+      aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
+                        yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
+                        no = paste0(aar, "-", uke )
+      ),
+      aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
+                        yes = paste0( as.integer(year(ProsedyreDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
+                        no = aar_uke
+      ),
+      aar_uke = as.ordered( aar_uke )
     )
   
   
