@@ -155,19 +155,7 @@ shinyServer(function(input, output, session) {
   })
   
   
-  
-  rvals <- reactiveValues()
-  # Krysstabell -- alternativ 1
-  rvals$showPivot <- FALSE
-  
-  observeEvent(input$pivotStatusAction, {
-    if (rvals$showPivot) {
-      rvals$showPivot <- FALSE
-    } else {
-      rvals$showPivot <- TRUE
-    }
-  })
-  
+  # Krysstabell
   
   ## Data sets available
   dataSets <- list(`Bruk og valg av data...` = "info",
@@ -177,89 +165,8 @@ shinyServer(function(input, output, session) {
                    `Segment stent` = "SS",
                    `CT Angio` = "CT")
   
-  
-  output$pivotControl <- renderUI({
-    if (rvals$showPivot) {
-      h4(paste("Datasett:", names(dataSets)[dataSets == input$pDataSelected]))
-    } else {
-      selectInput(inputId = "pDataSelected", label = NULL,
-                  choices = dataSets)
-    }
-  })
-  
-  output$pivotAction <- renderUI({
-    if (rvals$showPivot) {
-      actionButton("pivotStatusAction", "Avslutt!")
-    } else {
-      if (length(input$pDataSelected) == 0 || input$pDataSelected == "info") {
-        NULL
-      } else {
-        actionButton("pivotStatusAction", "Last data!")
-      }
-    }
-  })
-  
-  output$dataSetInfo <- renderUI({
-    if (rvals$showPivot) {
-      NULL
-    } else {
-      ## take care of initial state (empty input)
-      if (length(input$pDataSelected) == 0) {
-        pDataSelected <- "info"
-      } else {
-        pDataSelected <- input$pDataSelected
-      }
-      switch (pDataSelected,
-              "info" = p(paste("Velg et datasett i menyen over.",
-                               "Store datasett vil ta tid å laste.")),
-              "AnP" = p("Info om datasettet 'Andre prosedyrer'"),
-              "AP" = p("Info om datasettet 'Angio PCI'"),
-              "SO" = p("Info om datasettet 'Skjemaoversikt'"),
-              "SS" = p("Info om datasettet 'Segment stent'"),
-              "CT" = p("Info om datasettet 'CT Angio'")
-      )
-    }
-  })
-  
-  
-  output$pivotData <- renderRpivotTable({
-    if (rvals$showPivot) {
-      if (input$pDataSelected == "AnP") {
-        pDat <- noric::getLocalAnPData(registryName, session = session)
-        dispRows <- c("aar", "kvartal")
-        dispCols <- c("AnnenProsType")
-      }
-      if (input$pDataSelected == "AP") {
-        pDat <- noric::getLocalAPData(registryName, session = session)
-        dispRows <- c("aar", "kvartal")
-        dispCols <- c("ProsedyreType")
-      }
-      if (input$pDataSelected == "SO") {
-        pDat <- noric::getLocalSOData(registryName, session = session)
-        dispRows <- c("aar", "kvartal")
-        dispCols <- c("Skjemanavn")
-      }
-      if (input$pDataSelected == "SS") {
-        pDat <- noric::getLocalSSData(registryName, session = session)
-        dispRows <- c("aar", "kvartal")
-        dispCols <- c("StentType")
-      }
-      if (input$pDataSelected == "CT") {
-        pDat <- noric::getLocalCTData(registryName, session = session)
-        dispRows <- c("aar", "kvartal")
-        dispCols <- c("ForlopsType2")
-      }
-      rpivotTable(pDat, rows = dispRows, cols = dispCols,
-                  rendererName = c("Heatmap"), width="100%", height="400px")
-    } else {
-      rpivotTable(data.frame())
-    }
-  })
-  
-  
-  # Krysstabell -- alternativ 2
-  
   ## reactive vals
+  rvals <- reactiveValues()
   rvals$showPivotTable <- FALSE
   rvals$togglePivotingText <- "Last valgte data!"
   rvals$selectedDataSet <- "info"
@@ -325,24 +232,6 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  ## Suggest replaced by the above
-  # output$tabAnP <- renderRpivotTable({
-  #   AnP <- noric::getLocalAnPData(localRegistryName, session = session)
-  #   rpivotTable(AnP, rows = c("Year", "Month"), cols = c("AnnenProsType"),
-  #               rendererName = c("Heatmap"), width="100%", height="400px")
-  # })
-  # 
-  # output$tabAP <- renderRpivotTable({
-  #   AP <- noric::getLocalAPData(localRegistryName, session = session)
-  #   rpivotTable(AP, rows = c("Year", "Month"), cols = c("ProsedyreType"),
-  #               rendererName = c("Heatmap"), width = "100%", height = "400px")
-  # })
-  # 
-  # output$tabSO <- renderRpivotTable({
-  #   SO <- noric::getLocalSOData(localRegistryName, session = session)
-  #   rpivotTable(SO, rows = c("Year", "Skjemanavn"), cols = c("OpprettetAv"),
-  #               rendererName = c("Heatmap"), width = "100%", height = "400px")
-  # })
   
   output$stentbruk <- renderUI({
     htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
@@ -374,6 +263,10 @@ shinyServer(function(input, output, session) {
                   input$formatProsedyrer)
     }
   )
+  
+  
+  # Datadump
+  
   
   # Abonnement
   ## rekative verdier for å holde rede på endringer som skjer mens
