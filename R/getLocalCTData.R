@@ -185,8 +185,18 @@ ON
       # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
       kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", isoweek( UndersokDato ) ))
-      # På sikt: årstall-uke, "2019-34" feks, må tenke ut en lur løsning siden en og samme uke uke kan spenne fra ett år til det neste..
+      uke = as.ordered( sprintf(fmt = "%02d", isoweek( UndersokDato ) )),
+      
+      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
+      aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
+                        yes = paste0( as.integer(year(UndersokDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
+                        no = paste0(aar, "-", uke )
+      ),
+      aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
+                        yes = paste0( as.integer(year(UndersokDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
+                        no = aar_uke
+      ),
+      aar_uke = as.ordered( aar_uke )
     )
   
   # Utledete variabler - opptelling av funnkoder i de 20 segmentene (ikke graft)
