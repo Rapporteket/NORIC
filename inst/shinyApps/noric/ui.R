@@ -7,6 +7,7 @@
 #    http://shiny.rstudio.com/
 #
 
+library(lubridate)
 library(magrittr)
 library(rapbase)
 library(rpivotTable)
@@ -46,17 +47,6 @@ ui <- tagList(
       )
     ),
     
-    tabPanel("Krysstabell",
-      fluidRow(
-        column(6, uiOutput("pivotAction")),
-        column(6, uiOutput("pivotControl"))
-      ),
-      uiOutput("dataSetInfo"),
-      fluidRow(
-        column(12, rpivotTableOutput("pivotData"))
-      )
-    ),
-    
     tabPanel("Utforsker",
              fluidRow(
                column(6, uiOutput("selectDataSet")),
@@ -72,22 +62,6 @@ ui <- tagList(
                                     type = 2))
              )
     ),
-    
-    ## suggesting replacement by the above
-    # tabPanel("TabAnP",
-    #          mainPanel(
-    #            rpivotTableOutput("tabAnP")
-    #          )),
-    # 
-    # tabPanel("TabAP",
-    #          mainPanel(
-    #            rpivotTableOutput("tabAP")
-    #          )),
-    # 
-    # tabPanel("TabSO",
-    #          mainPanel(
-    #            rpivotTableOutput("tabSO")
-    #          )),
     
     tabPanel(
       "Stentbruk",
@@ -130,6 +104,25 @@ ui <- tagList(
         )
       )
     ),
+    
+    tabPanel("Datadump",
+      sidebarLayout(
+        sidebarPanel(width = 4,
+                     selectInput("dumpDataSet", "Velg datasett:",
+                                 c("AndreProsedyrerVar",
+                                   "AngioPCIVar")),
+                     dateRangeInput("dumpDateRange", "Velg periode:",
+                                    start = ymd(Sys.Date())- years(1),
+                                    end = Sys.Date(), separator = "-"),
+                     radioButtons("dumpFormat", "Velg filformat:",
+                                  choices = c("csv", "excel")),
+                     downloadButton("dumpDownload", "Hent!")
+                     ),
+        mainPanel(
+          
+        )
+      )),
+    
     tabPanel("Abonnement",
       sidebarLayout(
         sidebarPanel(width = 3,
