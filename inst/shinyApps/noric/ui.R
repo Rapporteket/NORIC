@@ -116,7 +116,6 @@ ui <- tagList(
                                    "CTAngioVar",
                                    "ForlopsOversikt",
                                    "MitralklaffOppfVar",
-                                   "PasienterStudier",
                                    "SegmentStent",
                                    "SkjemaOversikt")),
                      dateRangeInput("dumpDateRange", "Velg periode:",
