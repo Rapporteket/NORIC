@@ -110,16 +110,26 @@ ui <- tagList(
         sidebarPanel(width = 4,
                      selectInput("dumpDataSet", "Velg datasett:",
                                  c("AndreProsedyrerVar",
-                                   "AngioPCIVar")),
+                                   "AngioPCIVar",
+                                   "AnnenDiagnostikkVar",
+                                   "AortaklaffOppfVar",
+                                   "CTAngioVar",
+                                   "ForlopsOversikt",
+                                   "MitralklaffOppfVar",
+                                   "PasienterStudier",
+                                   "SegmentStent",
+                                   "SkjemaOversikt")),
                      dateRangeInput("dumpDateRange", "Velg periode:",
                                     start = ymd(Sys.Date())- years(1),
                                     end = Sys.Date(), separator = "-"),
                      radioButtons("dumpFormat", "Velg filformat:",
-                                  choices = c("csv", "excel")),
+                                  choices = c("csv", "xlsx")),
                      downloadButton("dumpDownload", "Hent!")
                      ),
         mainPanel(
-          
+          htmlOutput("dataDumpInfo") %>% 
+            withSpinner(color = "#18bc9c",color.background = "#ffffff",
+                        type = 2)
         )
       )),
     

@@ -267,6 +267,23 @@ shinyServer(function(input, output, session) {
   
   # Datadump
   
+  output$dataDumpInfo <- renderUI({
+    p(paste("Valgt for nedlasting:", input$dumpDataSet))
+  })
+  
+  output$dumpDownload <- downloadHandler(
+    filename = function() {
+      paste0(input$dumpDataSet, strptime(Sys.Date(), format = "%Y%m%d"),
+             ".", input$dumpFormat)
+    },
+    content = function(file) {
+      rio::export(getDataDump(nationalRegistryName, input$dumpDataSet,
+                              fromDate = input$dumpDateRange[1],
+                              toDate = input$dumpDateRange[2]),
+                  file)
+    }
+  )
+  
   
   # Abonnement
   ## rekative verdier for å holde rede på endringer som skjer mens
