@@ -8,12 +8,15 @@
 #
 
 library(magrittr)
+library(raplog)
 library(rpivotTable)
 library(shiny)
 
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
+  
+  raplog::appLogger(session = session, msg = "Starting NORIC application")
   
   # Various calls for session data from rapbase and systemn settings
   output$callUser <- renderText({
