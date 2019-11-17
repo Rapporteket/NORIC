@@ -8,6 +8,7 @@
 #
 
 library(magrittr)
+library(noric)
 library(raplog)
 library(rpivotTable)
 library(shiny)
@@ -278,10 +279,10 @@ shinyServer(function(input, output, session) {
              ".", input$dumpFormat)
     },
     content = function(file) {
-      rio::export(getDataDump(nationalRegistryName, input$dumpDataSet,
-                              fromDate = input$dumpDateRange[1],
-                              toDate = input$dumpDateRange[2],
-                              session = session),
+      rio::export(noric::getDataDump(nationalRegistryName, input$dumpDataSet,
+                                     fromDate = input$dumpDateRange[1],
+                                     toDate = input$dumpDateRange[2],
+                                     session = session),
                   file)
     }
   )
