@@ -156,7 +156,6 @@ shinyServer(function(input, output, session) {
   
   
   # Krysstabell
-  
   ## Data sets available
   dataSets <- list(`Bruk og valg av data...` = "info",
                    `Andre prosedyrer` = "AnP",
@@ -266,7 +265,6 @@ shinyServer(function(input, output, session) {
   
   
   # Datadump
-  
   output$dataDumpInfo <- renderUI({
     p(paste("Valgt for nedlasting:", input$dumpDataSet))
   })
@@ -284,6 +282,25 @@ shinyServer(function(input, output, session) {
     }
   )
   
+  
+  # Metadata
+  meta <- reactive({
+    noric::describeRegistryDb(nationalRegistryName)
+  })
+
+  output$metaControl <- renderUI({
+    tabs <- names(meta())
+    selectInput("metaTab", "Velg tabell:", tabs)
+  })
+
+  output$metaDataTable <- DT::renderDataTable(
+    meta()[[input$metaTab]], rownames = FALSE,
+    options = list(lengthMenu=c(25, 50, 100, 200, 400))
+  )
+
+  output$metaData <- renderUI({
+    DT::dataTableOutput("metaDataTable")
+  })
   
   # Abonnement
   ## rekative verdier for å holde rede på endringer som skjer mens

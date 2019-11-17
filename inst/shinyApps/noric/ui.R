@@ -130,7 +130,15 @@ ui <- tagList(
             withSpinner(color = "#18bc9c",color.background = "#ffffff",
                         type = 2)
         )
-      )),
+      )
+    ),
+    
+    tabPanel("Metadata",
+      sidebarLayout(
+        sidebarPanel(uiOutput("metaControl")),
+        mainPanel(htmlOutput("metaData"))
+      )
+    ),
     
     tabPanel("Abonnement",
       sidebarLayout(
