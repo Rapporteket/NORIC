@@ -5,6 +5,7 @@
 #'
 #' @importFrom magrittr %>% %<>%
 #' @importFrom dplyr filter mutate mutate_all select group_by count left_join
+#' arrange
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table SegmentStent
