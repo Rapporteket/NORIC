@@ -277,7 +277,8 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       rio::export(getDataDump(nationalRegistryName, input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
-                              toDate = input$dumpDateRange[2]),
+                              toDate = input$dumpDateRange[2],
+                              session = session),
                   file)
     }
   )
