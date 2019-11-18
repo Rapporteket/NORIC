@@ -33,8 +33,8 @@ FROM AortaklaffVar;
                              query = "SELECT * FROM ForlopsOversikt")
   
   
-  AK <- dplyr::left_join(AK, FO, by = c("ForlopsID", "AvdRESH"),
-                         suffix = c("", ".FO"))
+  AK <- left_join(AK, FO, by = c("ForlopsID", "AvdRESH"),
+                  suffix = c("", ".FO"))
   
   
   # Klokkeslett med "01.01.70 " som prefix fikses:
