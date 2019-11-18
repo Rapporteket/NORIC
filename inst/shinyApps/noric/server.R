@@ -166,7 +166,8 @@ shinyServer(function(input, output, session) {
                    `Angio PCI` = "AP",
                    `Skjemaoversikt` = "SO",
                    `Segment stent` = "SS",
-                   `CT Angio` = "CT")
+                   `CT Angio` = "CT",
+                   `Aortaklaff` = "AK")
   
   ## reactive vals
   rvals <- reactiveValues()

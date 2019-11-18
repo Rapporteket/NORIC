@@ -4,7 +4,7 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr filter mutate mutate_all select recode
+#' @importFrom dplyr filter mutate mutate_all select recode left_join
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table AortaklaffVar
@@ -24,11 +24,17 @@ FROM AortaklaffVar;
   
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]],
-                      msg = "Query data for AngioPCI pivot")
+                      msg = "Query data for AortaklaffVar pivot")
   }
   
   AK <- rapbase::LoadRegData(registryName, AKQuery, dbType)
   
+  FO <- rapbase::LoadRegData(registryName,
+                             query = "SELECT * FROM ForlopsOversikt")
+  
+  
+  AK <- dplyr::left_join(AK, FO, by = c("ForlopsID", "AvdRESH"),
+                         suffix = c("", ".FO"))
   
   
   # Klokkeslett med "01.01.70 " som prefix fikses:

@@ -10,7 +10,7 @@
 
 getPivotDataSet <- function(setId = "", registryName, session) {
   
-  validSetId <- c("AnP", "AP", "SO", "SS", "CT")
+  validSetId <- c("AnP", "AP", "SO", "SS", "CT", "AK")
   
   if (setId %in% validSetId) {
     if (setId == "AnP") {
@@ -27,6 +27,9 @@ getPivotDataSet <- function(setId = "", registryName, session) {
     }
     if (setId == "CT") {
       dat <- noric::getLocalCTData(registryName, session = session)
+    }
+    if (setId == "AK") {
+      dat <- noric::getAKData(registryName, session = session)
     }
   } else {
     dat <- NULL
