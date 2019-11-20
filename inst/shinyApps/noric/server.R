@@ -204,8 +204,11 @@ shinyServer(function(input, output, session) {
     if (rvals$showPivotTable) {
       NULL
     } else {
-      selectInput(inputId = "selectedDataSet", label = "Velg datasett:",
-                  choices = dataSets, selected = rvals$selectedDataSet)
+      tagList(
+        selectInput(inputId = "selectedDataSet", label = "Velg datasett:",
+                    choices = dataSets, selected = rvals$selectedDataSet),
+        checkboxInput("isSelectAllVars", "Velg alle variabler")
+      )
     }
   })
   
@@ -213,9 +216,14 @@ shinyServer(function(input, output, session) {
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
       h4(paste("Valgt datasett:", names(dataSets)[dataSets == input$selectedDataSet]))
     } else {
+      if (input$isSelectAllVars) {
+        vars <- names(dat())
+      } else {
+        vars <- rvals$selectedVars
+      }
       selectInput(inputId = "selectedVars", label = "Velg variabler:",
                   choices = names(dat()), multiple = TRUE,
-                  selected = rvals$selectedVars)
+                  selected = vars)
     }
   })
   
