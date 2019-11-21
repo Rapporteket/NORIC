@@ -8,12 +8,16 @@
 #
 
 library(magrittr)
+library(noric)
+library(raplog)
 library(rpivotTable)
 library(shiny)
 
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
+  
+  raplog::appLogger(session = session, msg = "Starting NORIC application")
   
   # Various calls for session data from rapbase and systemn settings
   output$callUser <- renderText({
@@ -156,14 +160,14 @@ shinyServer(function(input, output, session) {
   
   
   # Krysstabell
-  
   ## Data sets available
   dataSets <- list(`Bruk og valg av data...` = "info",
                    `Andre prosedyrer` = "AnP",
                    `Angio PCI` = "AP",
                    `Skjemaoversikt` = "SO",
                    `Segment stent` = "SS",
-                   `CT Angio` = "CT")
+                   `CT Angio` = "CT",
+                   `Aortaklaff` = "AK")
   
   ## reactive vals
   rvals <- reactiveValues()
@@ -191,8 +195,16 @@ shinyServer(function(input, output, session) {
   })
 
   dat <- reactive({
-    noric::getPivotDataSet(setId = input$selectedDataSet, nationalRegistryName,
-                           session)
+    noric::getPivotDataSet(setId = input$selectedDataSet,
+                           registryName = nationalRegistryName,
+                           session = session)
+  })
+  
+  metaDat <- reactive({
+    noric::getPivotDataSet(setId = input$selectedDataSet,
+                           registryName = nationalRegistryName,
+                           singleRow = TRUE,
+                           session = session)
   })
   
   ## outputs
@@ -200,8 +212,11 @@ shinyServer(function(input, output, session) {
     if (rvals$showPivotTable) {
       NULL
     } else {
-      selectInput(inputId = "selectedDataSet", label = "Velg datasett:",
-                  choices = dataSets, selected = rvals$selectedDataSet)
+      tagList(
+        selectInput(inputId = "selectedDataSet", label = "Velg datasett:",
+                    choices = dataSets, selected = rvals$selectedDataSet),
+        checkboxInput("isSelectAllVars", "Velg alle variabler")
+      )
     }
   })
   
@@ -209,9 +224,14 @@ shinyServer(function(input, output, session) {
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
       h4(paste("Valgt datasett:", names(dataSets)[dataSets == input$selectedDataSet]))
     } else {
+      if (input$isSelectAllVars) {
+        vars <- names(metaDat())
+      } else {
+        vars <- rvals$selectedVars
+      }
       selectInput(inputId = "selectedVars", label = "Velg variabler:",
-                  choices = names(dat()), multiple = TRUE,
-                  selected = rvals$selectedVars)
+                  choices = names(metaDat()), multiple = TRUE,
+                  selected = vars)
     }
   })
   
@@ -266,7 +286,43 @@ shinyServer(function(input, output, session) {
   
   
   # Datadump
+  output$dataDumpInfo <- renderUI({
+    p(paste("Valgt for nedlasting:", input$dumpDataSet))
+  })
   
+  output$dumpDownload <- downloadHandler(
+    filename = function() {
+      paste0(input$dumpDataSet, strptime(Sys.Date(), format = "%Y%m%d"),
+             ".", input$dumpFormat)
+    },
+    content = function(file) {
+      rio::export(noric::getDataDump(nationalRegistryName, input$dumpDataSet,
+                                     fromDate = input$dumpDateRange[1],
+                                     toDate = input$dumpDateRange[2],
+                                     session = session),
+                  file)
+    }
+  )
+  
+  
+  # Metadata
+  meta <- reactive({
+    noric::describeRegistryDb(nationalRegistryName)
+  })
+
+  output$metaControl <- renderUI({
+    tabs <- names(meta())
+    selectInput("metaTab", "Velg tabell:", tabs)
+  })
+
+  output$metaDataTable <- DT::renderDataTable(
+    meta()[[input$metaTab]], rownames = FALSE,
+    options = list(lengthMenu=c(25, 50, 100, 200, 400))
+  )
+
+  output$metaData <- renderUI({
+    DT::dataTableOutput("metaDataTable")
+  })
   
   # Abonnement
   ## rekative verdier for å holde rede på endringer som skjer mens

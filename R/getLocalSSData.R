@@ -1,33 +1,47 @@
 #' getLocalSSData provides local reg data from SegmentStent
 #'
 #' @param registryName String providing the registry name
+#' @param singleRow Logical defining if only one row is to be returned. A
+#' relevant usecase will be when only description is needed. By default set to
+#' FALSE
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
 #' @importFrom dplyr filter mutate mutate_all select group_by count left_join
+#' arrange
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table SegmentStent
 #' @export
 #'
 
-getLocalSSData <- function(registryName, ...) {
+getLocalSSData <- function(registryName, singleRow = FALSE, ...) {
   
   # declare 'dot'
   . <- ""
   
   dbType <- "mysql"
-  SSQuery <-"
-SELECT *
-FROM SegmentStent;
+  query <-"
+SELECT
+  *
+FROM
+  SegmentStent
 "
+  
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg = "Query metadata for SegmentStent pivot"
+  } else {
+    query <- paste0(query, ";")
+    msg = "Query data for SegmentStent pivot"
+  }
   
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]],
                       msg = "Query data for SegmentStent pivot")
   }
   
-  SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
+  SS <- rapbase::LoadRegData(registryName, query, dbType)
   
   
   

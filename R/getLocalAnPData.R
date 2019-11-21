@@ -1,6 +1,9 @@
 #' getLocalAnPData provides local reg data from AndreProsedyrerVar
 #'
 #' @param registryName String providing the registry name
+#' @param singleRow Logical defining if only one row is to be returned. A
+#' relevant usecase will be when only description is needed. By default set to
+#' FALSE
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
@@ -11,13 +14,13 @@
 #' @export
 #'
 
-getLocalAnPData <- function(registryName, ...) {
+getLocalAnPData <- function(registryName, singleRow = FALSE, ...) {
   
   # declare 'dot'
   . <- ""
   
   dbType <- "mysql"
-  AnPQuery <- "
+  query <- "
 SELECT
   FO.HovedDato,
   FO.Sykehusnavn,
@@ -30,14 +33,22 @@ FROM
 LEFT JOIN
   ForlopsOversikt FO
 ON
-  AnP.ForlopsID=FO.ForlopsID AND AnP.AvdRESH=FO.AvdRESH;"
+  AnP.ForlopsID=FO.ForlopsID AND AnP.AvdRESH=FO.AvdRESH"
+  
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg = "Query metadata for AndreProsedyrer pivot"
+  } else {
+    query <- paste0(query, ";")
+    msg = "Query data for AndreProsedyrer pivot"
+  }
   
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]],
                       msg = "Query data for AndreProsedyrer pivot")
   }
   
-  AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
+  AnP <- rapbase::LoadRegData(registryName, query, dbType)
   
 
   # Klokkeslett med "01.01.70 " som prefix fikses:

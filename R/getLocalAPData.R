@@ -1,6 +1,9 @@
 #' getLocalAPData provides local reg data from AngioPCIVar
 #'
 #' @param registryName String providing the registry name
+#' @param singleRow Logical defining if only one row is to be returned. A
+#' relevant usecase will be when only description is needed. By default set to
+#' FALSE
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
@@ -11,13 +14,13 @@
 #' @export
 #'
 
-getLocalAPData <- function(registryName, ...) {
+getLocalAPData <- function(registryName, singleRow = FALSE, ...) {
   
   # declare 'dot'
   . <- ""
   
   dbType <- "mysql"
-  APQuery <-"
+  query <-"
 SELECT
   SO.HovedDato,
   AP.Hastegrad AS ForlopsType2,
@@ -27,17 +30,22 @@ FROM
 LEFT JOIN
   SkjemaOversikt SO
 ON
-  AP.ForlopsID=SO.ForlopsID AND AP.AvdRESH=SO.AvdRESH;
-"
+  AP.ForlopsID=SO.ForlopsID AND AP.AvdRESH=SO.AvdRESH"
   
-  if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = list(...)[["session"]],
-                      msg = "Query data for AngioPCI pivot")
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg = "Query metadata for AngioPCI pivot"
+  } else {
+    query <- paste0(query, ";")
+    msg = "Query data for AngioPCI pivot"
   }
   
-  AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-
+  if ("session" %in% names(list(...))) {
+    raplog::repLogger(session = list(...)[["session"]], msg = msg)
+  }
   
+  AP <- rapbase::LoadRegData(registryName, query, dbType)
+
   
   # Klokkeslett med "01.01.70 " som prefix fikses:
   AP %<>%
@@ -164,7 +172,6 @@ ON
       ),
       aar_uke = as.ordered( aar_uke )
     )
-  
   
 
 
