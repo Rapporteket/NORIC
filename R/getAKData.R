@@ -1,6 +1,9 @@
 #' getAKData provides local or national reg data from AortaklaffVar
 #'
 #' @param registryName String providing the registry name
+#' @param singleRow Logical defining if only one row is to be returned. A
+#' relevant usecase will be when only description is needed. By default set to
+#' FALSE
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
@@ -11,23 +14,32 @@
 #' @export
 #'
 
-getAKData <- function(registryName, ...) {
+getAKData <- function(registryName, singleRow = FALSE, ...) {
   
   # declare 'dot'
   . <- ""
   
   dbType <- "mysql"
-  AKQuery <-"
-SELECT *
-FROM AortaklaffVar;
+  query <-"
+SELECT
+  *
+FROM
+  AortaklaffVar
 "
   
-  if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = list(...)[["session"]],
-                      msg = "Query data for AortaklaffVar pivot")
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg = "Query metadata for AortaklaffVar pivot"
+  } else {
+    query <- paste0(query, ";")
+    msg = "Query data for AortaklaffVar pivot"
   }
   
-  AK <- rapbase::LoadRegData(registryName, AKQuery, dbType)
+  if ("session" %in% names(list(...))) {
+    raplog::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  AK <- rapbase::LoadRegData(registryName, query, dbType)
   
   FO <- rapbase::LoadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")

@@ -1,6 +1,9 @@
 #' getLocalCTData provides local reg data from CTAngioVar
 #'
 #' @param registryName String providing the registry name
+#' @param singleRow Logical defining if only one row is to be returned. A
+#' relevant usecase will be when only description is needed. By default set to
+#' FALSE
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return Data frame representing the table CTAngioVar
@@ -13,13 +16,13 @@
 #' @export
 #'
 
-getLocalCTData <- function(registryName, ...) {
+getLocalCTData <- function(registryName, singleRow = FALSE, ...) {
   
   # declare 'dot'
   . <- ""
   
   dbType <- "mysql"
-  CTQuery <-"
+  query <-"
 SELECT
   FO.HovedDato,
   FO.Sykehusnavn,
@@ -32,15 +35,21 @@ FROM
 LEFT JOIN
   ForlopsOversikt FO
 ON
-  CT.ForlopsID=FO.ForlopsID AND CT.AvdRESH=FO.AvdRESH;
-"
+  CT.ForlopsID=FO.ForlopsID AND CT.AvdRESH=FO.AvdRESH"
   
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg = "Query metadata for CTAngio pivot"
+  } else {
+    query <- paste0(query, ";")
+    msg = "Query data for CTAngio pivot"
+  }
+
   if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = list(...)[["session"]],
-                      msg = "Query data for CTAngio pivot")
+    raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  CT <- rapbase::LoadRegData(registryName, CTQuery, dbType)
+  CT <- rapbase::LoadRegData(registryName, query, dbType)
   
   
   

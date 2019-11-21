@@ -1,6 +1,9 @@
 #' getLocalSOData provides local reg data from SkjemaOversikt
 #'
 #' @param registryName String providing the registry name
+#' @param singleRow Logical defining if only one row is to be returned. A
+#' relevant usecase will be when only description is needed. By default set to
+#' FALSE
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
@@ -11,20 +14,27 @@
 #' @export
 #'
 
-getLocalSOData <- function(registryName, ...) {
+getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
   
   # declare 'dot'
   . <- ""
   
   dbType <- "mysql"
-  SOQuery <- "SELECT * FROM SkjemaOversikt"
+  query <- "SELECT * FROM SkjemaOversikt"
   
-  if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = list(...)[["session"]],
-                      msg = "Query data for SkjemaOversikt pivot")
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg = "Query metadata for SkjemaOversikt pivot"
+  } else {
+    query <- paste0(query, ";")
+    msg = "Query data for SkjemaOversikt pivot"
   }
   
-  SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
+  if ("session" %in% names(list(...))) {
+    raplog::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  SO <- rapbase::LoadRegData(registryName, query, dbType)
   
 
   

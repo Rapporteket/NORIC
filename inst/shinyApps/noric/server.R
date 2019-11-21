@@ -195,8 +195,16 @@ shinyServer(function(input, output, session) {
   })
 
   dat <- reactive({
-    noric::getPivotDataSet(setId = input$selectedDataSet, nationalRegistryName,
-                           session)
+    noric::getPivotDataSet(setId = input$selectedDataSet,
+                           registryName = nationalRegistryName,
+                           session = session)
+  })
+  
+  metaDat <- reactive({
+    noric::getPivotDataSet(setId = input$selectedDataSet,
+                           registryName = nationalRegistryName,
+                           singleRow = TRUE,
+                           session = session)
   })
   
   ## outputs
@@ -217,12 +225,12 @@ shinyServer(function(input, output, session) {
       h4(paste("Valgt datasett:", names(dataSets)[dataSets == input$selectedDataSet]))
     } else {
       if (input$isSelectAllVars) {
-        vars <- names(dat())
+        vars <- names(metaDat())
       } else {
         vars <- rvals$selectedVars
       }
       selectInput(inputId = "selectedVars", label = "Velg variabler:",
-                  choices = names(dat()), multiple = TRUE,
+                  choices = names(metaDat()), multiple = TRUE,
                   selected = vars)
     }
   })
