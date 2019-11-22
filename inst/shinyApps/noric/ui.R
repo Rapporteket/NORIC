@@ -120,7 +120,8 @@ ui <- tagList(
                                    "SkjemaOversikt")),
                      dateRangeInput("dumpDateRange", "Velg periode:",
                                     start = ymd(Sys.Date())- years(1),
-                                    end = Sys.Date(), separator = "-"),
+                                    end = Sys.Date(), separator = "-",
+                                    weekstart = 1),
                      radioButtons("dumpFormat", "Velg filformat:",
                                   choices = c("csv", "xlsx")),
                      downloadButton("dumpDownload", "Hent!")
