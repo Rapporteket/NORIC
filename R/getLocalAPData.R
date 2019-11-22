@@ -117,7 +117,7 @@ ON
   
   
   # Gjøre kategoriske variabler om til factor:
-  # (ikke fullstendig, må legget til mer etter hvert)
+  # (ikke fullstendig, må legge til mer etter hvert)
   AP %<>%
     mutate(
       ForlopsType2 = factor( ForlopsType2,
@@ -128,7 +128,15 @@ ON
                              ),
                              ordered = TRUE ),
       Indikasjon = as.factor( Indikasjon ),
-      Kjonn = factor(Kjonn, levels = c( "Mann", "Kvinne"), ordered = TRUE),
+      Kjonn = factor(Kjonn, 
+                     levels = c( 
+                       "Mann"
+                       , "Kvinne"
+                       , NA
+                       )
+                     ,ordered = TRUE
+                     ,exclude = NULL # inkluderer NA i levels
+                     ),
       OverflyttetFra = as.factor( OverflyttetFra ),
       ProsedyreType = factor( ProsedyreType,
                               levels = c(
