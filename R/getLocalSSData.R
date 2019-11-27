@@ -37,8 +37,7 @@ FROM
   }
   
   if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = list(...)[["session"]],
-                      msg = "Query data for SegmentStent pivot")
+    raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
   SS <- rapbase::LoadRegData(registryName, query, dbType)
