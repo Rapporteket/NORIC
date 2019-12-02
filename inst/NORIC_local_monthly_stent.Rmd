@@ -1,44 +1,57 @@
-% knitr::knit2pdf("NORIC_local_monthly_stent.Rnw")
+---
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  hospitalName: "Ukjent sykehus"
+  tableFormat: "html"
+  reshId: "999999"
+  registryName: "rapbase"
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Stentbruk', params$hospitalName)`"
+author: "`r params$author`"
+---
 
-\documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
-\usetheme{Hannover}
-\usecolortheme{seagull}
+```{r knitrOptions, include=FALSE}
+library(magrittr)
+library(knitr)
+library(kableExtra)
 
-%\usepackage[absolute,overlay]{textpos}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[english, norsk]{babel}
-\usepackage{xspace}
-\usepackage{booktabs}
-\usepackage{rotating}
+# make sure to use a temporary directory AND absolute paths, e.g. that figs
+# can be found also when deployed at a server. See below link for explanation
+# https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
+# Also make sure we use tempdir() as working directory so we do not clutter
+# the package of the hosting shiny app
+#workDir <- tempdir()
+#knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
 
-
-<<knitrOptions,include=FALSE>>=
-
+# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
+# for each kable call
+# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
+options(knitr.table.format = params$tableFormat)
 
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
-options(stringsAsFactors=FALSE , width = "130")
+options(stringsAsFactors=FALSE)
 
-## START to be deleted
-# In future, rapbase will take care of the following:
-# make sure processing takes place "here" (sessions getwd())
-knitr::opts_knit$set(root.dir='./')
-# make sure we do not make figure folder
-knitr::opts_chunk$set(fig.path='')
-## END to be deleted
-
-@
+# For some reason Shiny Server does not get the server locale settings right.
+# To display dates correct, enforce locale here:
+Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
+``` 
 
 
+```{r SKDEcol, include=FALSE}
 
-<<SKDEcol,include=FALSE>>=
 colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
-@ 
+
+``` 
 
 
-<<DefineFunc,include=FALSE>>=
+```{r DefineFunc,include=FALSE}
 
 brew <- function(
     N = 3 ,
@@ -92,24 +105,38 @@ PrettyTabR <- function( TabN ) {
 }
 
 
-showN <- 18
+showN <- 12
 
-@ 
+``` 
 
+```{r makeStandardTableFunction, eval=TRUE}
+mst <- function(tab, type, cap, digs, align = NULL, fs = 8, lsd = FALSE) {
+  if (type == "latex") {
+    if (lsd) {
+      lo <- c("hold_position", "scale_down")
+    } else {
+      lo <- c("hold_position")
+    }
+    k <- kable(tab, caption = cap, digits = digs, align = align,
+               booktabs = TRUE) %>% 
+      kable_styling(latex_options = lo, font_size = fs)
+  }
+  
+  if (type == "html") {
+    k <- kable(tab, caption = cap, digits = digs, align = align) %>% 
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                    full_width = F)
+  }
+  print(k)
+}
+```
 
-<<GetData,include=FALSE>>=
-
-baseName <- "noricStaging"
-registryName <- if (exists("reshID")){
-                    NORICmakeRegistryName(baseName, reshID)
-                } else {
-                    "rapbase"
-                }
+```{r GetData,include=FALSE}
 
 dbType <- "mysql"
 
 SSQuery <- "SELECT * FROM SegmentStent"
-SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
+SS <- rapbase::LoadRegData(params$registryName, SSQuery, dbType)
 
 APQuery <- "
 SELECT
@@ -124,7 +151,7 @@ WHERE A.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
 "
 
-AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 
 
 AP$Nstents[ is.na(AP$Nstents) ] <- 0
@@ -210,29 +237,14 @@ PCImedStent <- subset(
     AP ,
     Nstents > 0
     )
-@ 
+``` 
 
-<<getHospitalNameFromData, include=FALSE>>=
-hospitalName <- AP$Sykehusnavn[1]
-@
 
-<<PrintTitle,echo=FALSE,results='asis'>>=
-cat("\\title{NORIC" , hospitalName , "\\\\Stentbruk}\n\n")
-cat("\\date{" , date() , "}\n\n")
-@ 
+# Stent type
 
-\begin{document}
-\begin{tiny}
+## Stent type
   
-\maketitle
-
-
-
-\section{Stent type}
-
-\begin{frame}[fragile]
-  
-<<N_stents_StentType_YearMonth,fig.cap="Antall stenter etter type og måned",fig.width=12,fig.height=8,out.width="4in",echo=FALSE>>=
+```{r N_stents_StentType_YearMonth,fig.cap="Antall stenter etter type og måned",fig.width=12,fig.height=8,out.width="\\textwidth"}
 
 op <- par(
     mfcol = c (1,1) ,
@@ -262,90 +274,64 @@ legend(
     fill = pal,
     legend = levels(SS$StentType) ,
     cex = 1)
-@
-
-\end{frame}
+```
 
 
 
-\begin{frame}[fragile]
-<<Antall_stenter_etter_type_og_maned,echo=FALSE,results='asis'>>=
+## Stent type
 
+
+```{r Antall_stenter_etter_type_og_maned,echo=FALSE,results='asis'}
+cap <- "Antall stenter etter type og måned"
 TabNStentType <- tail(
-    xtabs(
-        formula = ~ YearMonth + StentType ,
-        data = SS ) ,
-    n = showN )
+  xtabs(
+    formula = ~ YearMonth + StentType ,
+    data = SS ) ,
+  n = showN )
 
-print(
-    xtable::xtable(
-        addmargins( TabNStentType ) ,
-        digits = 0 , caption = "Antall stenter etter type og måned") ,
-    booktabs = TRUE ,
-    rotate.colnames = FALSE)
-
-@
-\end{frame}
+mst(addmargins(TabNStentType), params$tableFormat, cap, 0, align = rep("r", 5))
+```
 
 
+## Stent type
 
-\begin{frame}[fragile]
-<<Prosent_stenttyper_etter_maned,echo = FALSE , results='asis'>>=
 
-print(
-    xtable::xtable(
-        100 * prop.table(
-            addmargins(
-                TabNStentType ,
-                margin = 1
-            ) ,
-            margin = 1
-            ) ,
-        digits = 1 , caption = "Prosentandel stenter etter typer og måned"
-        ) ,
-    booktabs = TRUE ,
-    rotate.colnames = FALSE
-)
+```{r Prosent_stenttyper_etter_maned,echo = FALSE , results='asis'}
+cap <- "Prosentandel stenter etter typer og måned"
+tab <- addmargins(TabNStentType, margin = 1) %>% 
+  prop.table(., margin = 1) * 100
 
-@
-\end{frame}
+mst(tab, params$tableFormat, cap, 1, align = rep("r", 4))
+```
 
 
 
+# Prosedyre type
 
-\section{Prosedyre type}
+## Prosedyre type
 
-\begin{frame}[fragile]
-<<TabNRProsedyreType,echo=FALSE,results='asis'>>=
-
+```{r TabNRProsedyreType,echo=FALSE,results='asis'}
+cap <- "Prosent (antall) behandlete segmenter etter prosedyretype og måned"
 TabNProsedyreType <- tail(
-    xtabs(
-        formula = ~ YearMonth + ProsedyreType2 ,
-        data = SS
-    ) ,
-    n = showN+1
+  xtabs(
+    formula = ~ YearMonth + ProsedyreType2 ,
+    data = SS
+  ) ,
+  n = showN+1
 )
 
-print(
-    xtable::xtable(
-                x = PrettyTabNR( TabNProsedyreType ) ,
-                digits = 0 , caption = "Prosent (antall) behandlete segmenter etter prosedyretype og måned"
-               ) ,
-    booktabs = TRUE ,
-    rotate.colnames = FALSE)
-
-@
-\end{frame}
+mst(PrettyTabNR( TabNProsedyreType ), params$tableFormat, cap, 0,
+    align = rep("r", 7))
+```
 
 
 
+# Stenter per prosedyre
 
-\section{Stenter per prosedyre}
+## Antall stenter per prosedyre
+### `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`, min. 1 stent (N = `r sum(PCImedStent$Nstents>0)`)
 
-\begin{frame}[fragile]
-  \frametitle{Antall stenter per prosedyre}
-  \framesubtitle{ \Sexpr{ paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ") }, min. 1 stent (N = \Sexpr{ sum(PCImedStent$Nstents>0) })}
-<<Barplot_Nstent_per_Prosedyre,fig.width=12,fig.height=8,out.width="4in",echo=FALSE>>=
+```{r Barplot_Nstent_per_Prosedyre,fig.width=12,fig.height=8}
 
 op <- par(
     mfcol = c (1,1) ,
@@ -372,17 +358,15 @@ legend(
     bty = "n" ,
     legend = paste(attr(S,"names"), ": " , S , sep = ""))
 
-@ 
-\end{frame}
+``` 
 
 
 
+# Stent merke
 
+## Stent merke
 
-\section{Stent merke}
-
-<<prepare-data-SS-pci,include=FALSE>>=
-
+```{r prepare-data-SS-pci,include=FALSE}
 SSpci <- subset(
     SS ,
     ProsedyreType %in% c("Ballong + Stent","Direktestent","Medikamentell ballong+ Stent")
@@ -398,47 +382,61 @@ SSpci$Name3 <- factor(
     levels = names(Nname)
     )
 
-@ 
+``` 
 
 
-\begin{frame}[fragile]
-<<TabNstentNameMonth,echo=FALSE,results='asis'>>=
-
+```{r TabNstentNameMonth,echo=FALSE,results='asis'}
+cap <- "Antall stenter etter merke og måned"
 TabNStentMerke <- tail(
-    xtabs(
-        formula = ~ YearMonth + Name3 ,
-        data = SSpci ) ,
-    n = showN )
+  xtabs(
+    formula = ~ YearMonth + Name3 ,
+    data = SSpci ) ,
+  n = showN )
 
-print(
+if (params$tableFormat == "html") {
+  kable(addmargins(TabNStentMerke), caption = cap) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = F) %>% 
+    row_spec(row = 0, font_size = 10, angle = -45)
+}
+
+if (params$tableFormat == "latex") {
+  print(
     xtable::xtable(
-        x = addmargins(TabNStentMerke) ,
-        digits = 0 , caption = "Antall stenter etter merke og måned") ,
+      x = addmargins(TabNStentMerke) ,
+      digits = 0 , caption = cap) ,
     booktabs = TRUE ,
     rotate.colnames = TRUE,
-    scalebox = 0.8)
+    comment = FALSE,
+    caption.placement = "top",
+    scalebox = 0.6
+  )
+  
+}
 
-@
-\end{frame}
+```
 
+## Stent merke
 
+```{r TabRstentNameMonth,echo=FALSE,results='asis'}
+cap <- "Prosent andel stenter etter merke og måned"
 
-\begin{frame}[fragile]
-<<TabRstentNameMonth,echo=FALSE,results='asis'>>=
+if (params$tableFormat == "html") {
+  kable(PrettyTabR(TabNStentMerke), caption = cap) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = F) %>% 
+    row_spec(row = 0, font_size = 10, angle = -45)
+}
 
-print(
+if (params$tableFormat == "latex") {
+  print(
     xtable::xtable(
-        x = PrettyTabR( TabNStentMerke ) ,
-        digits = 0 , caption = "Prosent andel stenter etter merke og måned") ,
+      x = PrettyTabR( TabNStentMerke ) ,
+      digits = 0 , caption = cap) ,
     booktabs = TRUE ,
     rotate.colnames = TRUE,
-    scalebox = 0.8)
-
-@
-\end{frame}
-
-
-
-\end{tiny}
-\end{document}
-
+    comment = FALSE,
+    caption.placement = "top",
+    scalebox = 0.6)
+}
+```

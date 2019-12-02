@@ -12,8 +12,6 @@
 # knitr figures
 figure/
 
-# any data present until verified othervise
-/data
 
 # produced vignettes
 vignettes/*.html
@@ -32,9 +30,7 @@ vignettes/*.pdf
 # intermediate markdown files
 *.html
 *.htm
-*.md
 *.png
-*.svg
 
 # SPSS, word,..
 *.sav
@@ -42,7 +38,6 @@ vignettes/*.pdf
 *.docx
 *.pdf
 *.bmp
-*.svg
 *.tiff
 *.zip
 
@@ -57,5 +52,3 @@ vignettes/*.pdf
 
 .Rproj.user
 
-# local .yml configurations
-*.yml
