@@ -24,8 +24,8 @@
 subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
                                          author, hospitalName, type) {
   
-  raplog::subLogger(author = author, registryName = registryName,
-                    reshId = reshId,
+  raplog::subLogger(author = author[[1]], registryName = registryName[[1]],
+                    reshId = reshId[[1]],
                     msg = "Subscription report: stent/prosedyre")
   
   sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
@@ -38,9 +38,9 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
   
   rmarkdown::render(input = sourceFile,
                     output_format = switch(
-                      type,
-                      pdf = pdf_document,
-                      html = html_document
+                      type[[1]],
+                      pdf = "pdf_document",
+                      html = "html_document"
                     ),
                     output_file = outFile,
                     params = c(reshId,registryName,author,hospitalName,

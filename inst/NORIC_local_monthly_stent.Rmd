@@ -132,23 +132,11 @@ mst <- function(tab, type, cap, digs, align = NULL, fs = 8, lsd = FALSE) {
 ```
 
 ```{r GetData,include=FALSE}
-baseName <- "noricStaging"
-
-reshID <- rapbase::getUserReshId(session)
-
-registryName <- if (exists( "reshID" )) {
-                    noric::NORICmakeRegistryName(
-                               baseName = baseName ,
-                               reshID = reshID
-                           )
-                } else {
-                    "rapbase"
-                }
 
 dbType <- "mysql"
 
 SSQuery <- "SELECT * FROM SegmentStent"
-SS <- rapbase::LoadRegData(registryName, SSQuery, dbType)
+SS <- rapbase::LoadRegData(params$registryName, SSQuery, dbType)
 
 APQuery <- "
 SELECT
@@ -163,7 +151,7 @@ WHERE A.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
 "
 
-AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
+AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 
 
 AP$Nstents[ is.na(AP$Nstents) ] <- 0
