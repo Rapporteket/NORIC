@@ -104,6 +104,25 @@ ui <- tagList(
         )
       )
     ),
+    tabPanel(
+      "Prosedyrer2",
+      sidebarLayout(
+        sidebarPanel(
+          radioButtons('formatProsedyrer2',
+                       'Format for nedlasting',
+                       c('PDF', 'HTML'),
+                       inline = FALSE),
+          downloadButton('downloadReportProsedyrer2', 'Hent!'),
+          width = 2
+        ),
+        mainPanel(
+          htmlOutput("prosedyrer2", inline = TRUE) %>%
+            withSpinner(color = "#18bc9c",color.background = "#ffffff",
+                        type = 2)
+        )
+      )
+    ),
+    
     
     tabPanel("Datadump",
       sidebarLayout(
