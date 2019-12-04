@@ -253,11 +253,17 @@ shinyServer(function(input, output, session) {
   })
   
   
+  # Samlerapporter
   output$stentbruk <- renderUI({
     htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
   })
   
   output$prosedyrer <- renderUI({
+    htmlRenderRmd("NORIC_local_monthly.Rmd")
+  })
+  
+  # render of report-to-be
+  output$prosedyrer2 <- renderUI({
     htmlRenderRmd("NORIC_local_monthly.Rmd")
   })
   
@@ -281,6 +287,18 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       contentFile(file, "NORIC_local_monthly.Rmd", "tmpNoric.Rmd",
                   input$formatProsedyrer)
+    }
+  )
+  
+  # download of report-to-be
+  output$downloadReportProsedyrer2 <- downloadHandler(
+    filename = function() {
+      downloadFilename("NORIC_local_monthly", input$formatProsedyrer2)
+    },
+    
+    content = function(file) {
+      contentFile(file, "NORIC_local_monthly.Rmd", "tmpNoric2.Rmd",
+                  input$formatProsedyrer2)
     }
   )
   
