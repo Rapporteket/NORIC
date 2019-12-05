@@ -17,6 +17,17 @@ ui <- tagList(
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
     
+    tabPanel("Start",
+      useShinyalert(),
+      mainPanel(width = 12,
+        htmlOutput("veiledning", inline = TRUE),
+        appNavbarUserWidget(user = uiOutput("appUserName"),
+                           organization = uiOutput("appOrgName"),
+                           addUserInfo = TRUE),
+        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))
+      )
+    ),
+    
     tabPanel("Utforsker",
              fluidRow(
                column(6, uiOutput("selectDataSet")),
@@ -45,14 +56,9 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          useShinyalert(),
           htmlOutput("stentbruk", inline = TRUE) %>%
             withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2),
-          appNavbarUserWidget(user = uiOutput("appUserName"),
-                              organization = uiOutput("appOrgName"),
-                              addUserInfo = TRUE),
-          tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))
+                        type = 2)
         )
       )
     ),

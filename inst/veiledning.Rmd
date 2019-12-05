@@ -1,0 +1,29 @@
+---
+title: "Veiledning"
+author: "NORIC"
+date: '`r format(Sys.time(), "%d. %B %Y")`'
+---
+
+## Rapporteket for NORIC
+_Generell, overodnet informasjon..._
+
+### Utforsker
+_Informasjon om og bruk av krysstabeller kommer her..._
+
+### Månedsrapporter
+_Informasjon om og bruk av månedsrapport kommer her..._
+
+#### Stentbruk
+_Mer spesifikk informasjon..._
+
+#### Prosedyrer
+_Mer spesifikk informasjon..._
+
+### Datadump
+_Kan/bør muligens sløyfes_
+
+### Metadata
+_Kan/bør muligens sløyfes_
+
+### Abonnement
+_Beskrivelse av innhold og bruk, eksempelvis..._

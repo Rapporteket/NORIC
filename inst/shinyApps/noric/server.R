@@ -99,6 +99,10 @@ shinyServer(function(input, output, session) {
                html = TRUE, confirmButtonText = rapbase::noOptOutOk())
   })
   
+  # Start
+  output$veiledning <- renderUI({
+    htmlRenderRmd("veiledning.Rmd")
+  })
   
   # Krysstabell
   ## Data sets available
