@@ -1,12 +1,3 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(lubridate)
 library(magrittr)
 library(rapbase)
@@ -14,7 +5,6 @@ library(rpivotTable)
 library(shiny)
 library(shinyalert)
 library(shinycssloaders)
-
 
 
 addResourcePath('rap', system.file('www', package='rapbase'))
@@ -26,26 +16,6 @@ ui <- tagList(
                 regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
-    
-    tabPanel("Testpanel",
-      mainPanel(
-        # return from rapbase functions
-        h4("Test 'rapbase' functions using the session object:"),
-        textOutput("callUser"),
-        textOutput("callGroups"),
-        textOutput("callReshId"),
-        textOutput("callRole"),
-        textOutput("callEmail"),
-        textOutput("callFullName"),
-        textOutput("callPhone"),
-        h4("Environment var R_RAP_INSTANCE:"),
-        textOutput("envInstance"),
-        h4("Environmental var R_RAP_CONFIG_PATH:"),
-        textOutput("envConfigPath"),
-        h4("Locale settings:"),
-        textOutput("locale")
-      )
-    ),
     
     tabPanel("Utforsker",
              fluidRow(
