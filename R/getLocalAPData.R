@@ -7,7 +7,7 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr filter mutate mutate_all select
+#' @importFrom dplyr filter mutate mutate_all select left_join rename
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table AngioPCIVar
@@ -20,18 +20,20 @@ getLocalAPData <- function(registryName, singleRow = FALSE, ...) {
   . <- ""
   
   dbType <- "mysql"
-  query <-"
-SELECT
-  SO.HovedDato,
-  AP.Hastegrad AS ForlopsType2,
-  AP.*
-FROM
-  AngioPCIVar AP
-LEFT JOIN
-  SkjemaOversikt SO
-ON
-  AP.ForlopsID=SO.ForlopsID AND AP.AvdRESH=SO.AvdRESH"
-  
+#   query <-"
+# SELECT
+#   SO.HovedDato,
+#   AP.Hastegrad AS ForlopsType2,
+#   AP.*
+# FROM
+#   AngioPCIVar AP
+# LEFT JOIN
+#   SkjemaOversikt SO
+# ON
+#   AP.ForlopsID=SO.ForlopsID AND AP.AvdRESH=SO.AvdRESH"
+
+  query <- "SELECT * FROM AngioPCIVar"
+    
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg = "Query metadata for AngioPCI pivot"
@@ -45,7 +47,12 @@ ON
   }
   
   AP <- rapbase::LoadRegData(registryName, query, dbType)
+  AP <- rename(AP, ForlopsType2 = Hastegrad)
 
+  SO <- rapbase::LoadRegData(registryName, "SELECT * FROM SkjemaOversikt")
+  
+  AP <- left_join(AP, SO, by = c("ForlopsID", "AvdRESH"),
+                  suffix = c("", ".SO"))
   
   # Klokkeslett med "01.01.70 " som prefix fikses:
   AP %<>%
