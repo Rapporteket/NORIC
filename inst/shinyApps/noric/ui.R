@@ -118,7 +118,7 @@ ui <- tagList(
                                     end = Sys.Date(), separator = "-",
                                     weekstart = 1),
                      radioButtons("dumpFormat", "Velg filformat:",
-                                  choices = c("csv", "xlsx")),
+                                  choices = c("csv", "xlsx-csv")),
                      downloadButton("dumpDownload", "Hent!")
                      ),
         mainPanel(

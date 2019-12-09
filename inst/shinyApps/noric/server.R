@@ -1,6 +1,7 @@
 library(magrittr)
 library(noric)
 library(raplog)
+library(readr)
 library(rpivotTable)
 library(shiny)
 
@@ -84,6 +85,18 @@ shinyServer(function(input, output, session) {
       registryName=localRegistryName
     ), output_dir = tempdir())
     file.rename(out, file)
+  }
+  
+  contentDump <- function(file, type) {
+    d <- noric::getDataDump(nationalRegistryName,input$dumpDataSet,
+                            fromDate = input$dumpDateRange[1],
+                            toDate = input$dumpDateRange[2],
+                            session = session)
+    if (type == "xlsx-csv") {
+      readr::write_excel_csv(d, file)
+    } else {
+      readr::write_csv(d, file)
+    }
   }
   
   # widget
@@ -255,15 +268,11 @@ shinyServer(function(input, output, session) {
   
   output$dumpDownload <- downloadHandler(
     filename = function() {
-      paste0(input$dumpDataSet, strptime(Sys.Date(), format = "%Y%m%d"),
-             ".", input$dumpFormat)
+      basename(tempfile(pattern = input$dumpDataSet,
+                        fileext = ".csv"))
     },
     content = function(file) {
-      rio::export(noric::getDataDump(nationalRegistryName, input$dumpDataSet,
-                                     fromDate = input$dumpDateRange[1],
-                                     toDate = input$dumpDateRange[2],
-                                     session = session),
-                  file)
+      contentDump(file, input$dumpFormat)
     }
   )
   
