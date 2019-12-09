@@ -26,9 +26,6 @@ shinyServer(function(input, output, session) {
     ### if need be, define your (local) values here
   }
   
-    
-  ## other values
-  
   # While waiting for finer grain defs, hide tabs when not role SC
   if (userRole != "SC") {
     hideTab(inputId = "tabs", target = "Datadump")
