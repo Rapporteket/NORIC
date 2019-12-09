@@ -16,6 +16,7 @@ ui <- tagList(
                 regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
+    id = "tabs",
     
     tabPanel("Start",
       useShinyalert(),

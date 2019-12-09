@@ -29,6 +29,12 @@ shinyServer(function(input, output, session) {
     
   ## other values
   
+  # While waiting for finer grain defs, hide tabs when not role SC
+  if (userRole != "SC") {
+    hideTab(inputId = "tabs", target = "Datadump")
+    hideTab(inputId = "tabs", target = "Prosedyrer2")
+  }
+  
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
     # set param needed for report meta processing
