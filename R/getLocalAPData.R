@@ -49,7 +49,15 @@ getLocalAPData <- function(registryName, singleRow = FALSE, ...) {
   AP <- rapbase::LoadRegData(registryName, query, dbType)
   AP <- rename(AP, ForlopsType2 = Hastegrad)
 
-  SO <- rapbase::LoadRegData(registryName, "SELECT * FROM SkjemaOversikt")
+  query <- "
+SELECT DISTINCT
+  HovedDato,
+  ForlopsID,
+  AvdRESH
+FROM
+  SkjemaOversikt;"
+  
+  SO <- rapbase::LoadRegData(registryName, query)
   
   AP <- left_join(AP, SO, by = c("ForlopsID", "AvdRESH"),
                   suffix = c("", ".SO"))
