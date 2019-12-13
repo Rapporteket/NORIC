@@ -28,7 +28,9 @@ shinyServer(function(input, output, session) {
   
   # While waiting for finer grain defs, hide tabs when not role SC
   if (userRole != "SC") {
+    hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
+    hideTab(inputId = "tabs", target = "Metadata")
     hideTab(inputId = "tabs", target = "Prosedyrer2")
   }
   
