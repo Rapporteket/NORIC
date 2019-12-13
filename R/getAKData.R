@@ -45,6 +45,29 @@ FROM
                              query = "SELECT * FROM ForlopsOversikt")
   
   
+  # Velger relevante variabler fra FO som skal legges til tabellen:
+  FO %<>% 
+    select(
+      # Nøkler:
+      AvdRESH
+      ,ForlopsID
+      # Variablene som legges til:
+      ,Sykehusnavn
+      ,PasientID
+      ,FodselsDato
+      ,Kommune
+      ,KommuneNr
+      ,Fylke
+      ,Fylkenr
+      ,PasientKjonn
+      ,PasientAlder
+      ,ForlopsType1
+      ,ForlopsType2
+      ,KobletForlopsID
+      ,HovedDato
+    )
+  
+  
   AK <- left_join(AK, FO, by = c("ForlopsID", "AvdRESH"),
                   suffix = c("", ".FO"))
   
@@ -62,6 +85,8 @@ FROM
     mutate(
       BeslutningsDato = ymd( BeslutningsDato )
       ,Dodsdato = ymd( Dodsdato )
+      ,FodselsDato = ymd( FodselsDato )
+      ,HovedDato = ymd( HovedDato )
       ,ProsedyreDato = ymd( ProsedyreDato )
       ,UtskrDato = ymd( UtskrDato )
     )

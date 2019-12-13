@@ -9,7 +9,7 @@
 #' @return Data frame representing the table CTAngioVar
 #' 
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr filter mutate mutate_all select
+#' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom tidyselect starts_with
 #' @importFrom lubridate ymd year month quarter isoweek
 #' 
@@ -23,19 +23,9 @@ getLocalCTData <- function(registryName, singleRow = FALSE, ...) {
   
   dbType <- "mysql"
   query <-"
-SELECT
-  FO.HovedDato,
-  FO.Sykehusnavn,
-  FO.ForlopsType1,
-  FO.ForlopsType2,
-  FO.PasientKjonn,
-  CT.*
-FROM
-  CTAngioVar CT
-LEFT JOIN
-  ForlopsOversikt FO
-ON
-  CT.ForlopsID=FO.ForlopsID AND CT.AvdRESH=FO.AvdRESH"
+SELECT *
+FROM CTAngioVar
+  "
   
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -51,7 +41,33 @@ ON
   
   CT <- rapbase::LoadRegData(registryName, query, dbType)
   
+  FO <- rapbase::LoadRegData(registryName,
+                             query = "SELECT * FROM ForlopsOversikt")
   
+  # Velger relevante variabler fra FO som skal legges til tabellen:
+  FO %<>% 
+    select(
+      # Nøkler:
+      AvdRESH
+      ,ForlopsID
+      ,PasientID
+      # Variablene som legges til:
+      ,Sykehusnavn
+      # ,FodselsDato # Finnes per d.d. i CT
+      ,Kommune
+      ,KommuneNr
+      ,Fylke
+      ,Fylkenr
+      ,PasientKjonn
+      ,PasientAlder
+      ,ForlopsType1
+      ,ForlopsType2
+      ,KobletForlopsID
+      ,HovedDato
+    )
+  
+  CT <- left_join(CT, FO, by = c("ForlopsID", "AvdRESH", "PasientID"),
+                   suffix = c("", ".FO"))
   
   # Gjor datoer om til dato-objekt:
   CT %<>%

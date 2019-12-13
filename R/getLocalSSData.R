@@ -42,12 +42,39 @@ FROM
   
   SS <- rapbase::LoadRegData(registryName, query, dbType)
   
+  FO <- rapbase::LoadRegData(registryName,
+                             query = "SELECT * FROM ForlopsOversikt")
   
+  # Velger relevante variabler fra FO som skal legges til tabellen:
+  FO %<>% 
+    select(
+      # Nøkler:
+      AvdRESH
+      ,ForlopsID
+      ,Sykehusnavn
+      # Variablene som legges til:
+      ,PasientID
+      # ,FodselsDato # Finnes per d.d. i SS
+      ,Kommune
+      ,KommuneNr
+      ,Fylke
+      ,Fylkenr
+      # ,PasientKjonn # Finnes per d.d. i SS
+      ,PasientAlder
+      ,ForlopsType1
+      ,ForlopsType2
+      ,KobletForlopsID
+      ,HovedDato
+    )
+  
+  SS <- left_join(SS, FO, by = c("ForlopsID", "AvdRESH", "Sykehusnavn"),
+                  suffix = c("", ".FO"))
   
   # Gjor datoer om til dato-objekt:
   SS %<>%
     mutate(
       FodselsDato = ymd( FodselsDato )
+      ,HovedDato = ymd( HovedDato )
       ,ProsedyreDato = ymd( ProsedyreDato )
     )
   

@@ -7,7 +7,7 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr filter mutate mutate_all select
+#' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table AndreProsedyrerVar
@@ -21,19 +21,9 @@ getLocalAnPData <- function(registryName, singleRow = FALSE, ...) {
   
   dbType <- "mysql"
   query <- "
-SELECT
-  FO.HovedDato,
-  FO.Sykehusnavn,
-  FO.ForlopsType1,
-  FO.ForlopsType2,
-  FO.PasientKjonn,
-  AnP.*
-FROM
-  AndreProsedyrerVar AnP
-LEFT JOIN
-  ForlopsOversikt FO
-ON
-  AnP.ForlopsID=FO.ForlopsID AND AnP.AvdRESH=FO.AvdRESH"
+SELECT *
+FROM AndreProsedyrerVar
+  "
   
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -49,6 +39,35 @@ ON
   
   AnP <- rapbase::LoadRegData(registryName, query, dbType)
   
+  FO <- rapbase::LoadRegData(registryName,
+                             query = "SELECT * FROM ForlopsOversikt")
+  
+  
+  # Velger relevante variabler fra FO som skal legges til tabellen:
+  FO %<>% 
+    select(
+      # Nøkler:
+      AvdRESH
+      ,ForlopsID
+      # Variablene som legges til:
+      ,Sykehusnavn
+      ,PasientID
+      ,FodselsDato
+      ,Kommune
+      ,KommuneNr
+      ,Fylke
+      ,Fylkenr
+      ,PasientKjonn
+      ,PasientAlder
+      ,ForlopsType1
+      ,ForlopsType2
+      ,KobletForlopsID
+      ,HovedDato
+    )
+  
+  AnP <- left_join(AnP, FO, by = c("ForlopsID", "AvdRESH"),
+                  suffix = c("", ".FO"))
+  
 
   # Klokkeslett med "01.01.70 " som prefix fikses:
   AnP %<>%
@@ -59,8 +78,9 @@ ON
   # Gjor datoer om til dato-objekt:
   AnP %<>%
     mutate(
-      ProsedyreDato = ymd( ProsedyreDato ),
-      HovedDato = ymd( HovedDato )
+      FodselsDato = ymd( FodselsDato )
+      ,HovedDato = ymd( HovedDato )
+      ,ProsedyreDato = ymd( ProsedyreDato )
     )
   
   
