@@ -31,6 +31,8 @@ vignettes/*.pdf
 *.html
 *.htm
 *.png
+inst/shinyApps/noric/*.md
+inst/shinyApps/noric/cache
 
 # SPSS, word,..
 *.sav

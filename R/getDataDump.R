@@ -26,6 +26,12 @@ WHERE
   so.HovedDato >= '", fromDate, "' AND so.HovedDato <= '", toDate, "';"
                   )
   
+  # special case when dumping these two tables
+  if (tableName %in% c("SkjemaOversikt", "ForlopsOversikt")) {
+    query <- paste0("SELECT * FROM ", tableName, " WHERE HovedDato >= '",
+                    fromDate, "' AND HovedDato <= '", toDate, "';")
+  }
+  
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]],
                       msg = paste("NORIC data dump:\n", query))

@@ -1,69 +1,14 @@
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(magrittr)
 library(noric)
 library(raplog)
+library(readr)
 library(rpivotTable)
 library(shiny)
 
-
-# Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
   raplog::appLogger(session = session, msg = "Starting NORIC application")
-  
-  # Various calls for session data from rapbase and systemn settings
-  output$callUser <- renderText({
-    paste("rapbase::getUserName(session):",
-          rapbase::getUserName(session))
-  })
-  output$callGroups <- renderText({
-    paste("rapbase::getUserGroups(session):",
-          rapbase::getUserGroups(session))
-  })
-  output$callReshId <- renderText({
-    paste("rapbase::getUserReshId(session):",
-          rapbase::getUserReshId(session))
-  })
-  output$callRole <- renderText({
-    paste("rapbase::getUserRole(session):",
-          rapbase::getUserRole(session))
-  })
 
-  output$callEmail <- renderText({
-    paste("rapbase::getUserEmail(session):",
-          rapbase::getUserEmail(session))
-  })
-  
-  output$callFullName <- renderText({
-    paste("rapbase::getUserFullName(session):",
-          rapbase::getUserFullName(session))
-  })
-  
-  output$callPhone <- renderText({
-    paste("rapbase::getUserPhone(session):",
-          rapbase::getUserPhone(session))
-  })
-  
-  output$envInstance <- renderText({
-    Sys.getenv("R_RAP_INSTANCE")
-  })
-  
-  output$envConfigPath <- renderText({
-    Sys.getenv("R_RAP_CONFIG_PATH")
-  })
-  
-  output$locale <- renderText({
-    Sys.getlocale()
-  })
-  
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
@@ -81,8 +26,13 @@ shinyServer(function(input, output, session) {
     ### if need be, define your (local) values here
   }
   
-    
-  ## other values
+  # While waiting for finer grain defs, hide tabs when not role SC
+  if (userRole != "SC") {
+    hideTab(inputId = "tabs", target = "Utforsker")
+    hideTab(inputId = "tabs", target = "Datadump")
+    hideTab(inputId = "tabs", target = "Metadata")
+    hideTab(inputId = "tabs", target = "Prosedyrer2")
+  }
   
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
@@ -114,9 +64,6 @@ shinyServer(function(input, output, session) {
   # render file function for re-use
   contentFile <- function(file, srcFile, tmpFile, type) {
     src <- normalizePath(system.file(srcFile, package="noric"))
-    #hospitalName <- rapbase::getUserReshId(session) %>% 
-    #  noric::getHospitalName()
-    
     # temporarily switch to the temp dir, in case we do not have write
     # permission to the current working directory
     owd <- setwd(tempdir())
@@ -145,6 +92,18 @@ shinyServer(function(input, output, session) {
     file.rename(out, file)
   }
   
+  contentDump <- function(file, type) {
+    d <- noric::getDataDump(nationalRegistryName,input$dumpDataSet,
+                            fromDate = input$dumpDateRange[1],
+                            toDate = input$dumpDateRange[2],
+                            session = session)
+    if (type == "xlsx-csv") {
+      readr::write_excel_csv(d, file)
+    } else {
+      readr::write_csv(d, file)
+    }
+  }
+  
   # widget
   output$appUserName <- renderText(userFullName)
   output$appOrgName <- renderText(paste(reshId, userRole, sep = ", "))
@@ -158,6 +117,10 @@ shinyServer(function(input, output, session) {
                html = TRUE, confirmButtonText = rapbase::noOptOutOk())
   })
   
+  # Start
+  output$veiledning <- renderUI({
+    htmlRenderRmd("veiledning.Rmd")
+  })
   
   # Krysstabell
   ## Data sets available
@@ -310,15 +273,11 @@ shinyServer(function(input, output, session) {
   
   output$dumpDownload <- downloadHandler(
     filename = function() {
-      paste0(input$dumpDataSet, strptime(Sys.Date(), format = "%Y%m%d"),
-             ".", input$dumpFormat)
+      basename(tempfile(pattern = input$dumpDataSet,
+                        fileext = ".csv"))
     },
     content = function(file) {
-      rio::export(noric::getDataDump(nationalRegistryName, input$dumpDataSet,
-                                     fromDate = input$dumpDateRange[1],
-                                     toDate = input$dumpDateRange[2],
-                                     session = session),
-                  file)
+      contentDump(file, input$dumpFormat)
     }
   )
   

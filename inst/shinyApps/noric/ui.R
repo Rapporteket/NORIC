@@ -1,12 +1,3 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(lubridate)
 library(magrittr)
 library(rapbase)
@@ -14,7 +5,6 @@ library(rpivotTable)
 library(shiny)
 library(shinyalert)
 library(shinycssloaders)
-
 
 
 addResourcePath('rap', system.file('www', package='rapbase'))
@@ -26,24 +16,16 @@ ui <- tagList(
                 regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
+    id = "tabs",
     
-    tabPanel("Testpanel",
-      mainPanel(
-        # return from rapbase functions
-        h4("Test 'rapbase' functions using the session object:"),
-        textOutput("callUser"),
-        textOutput("callGroups"),
-        textOutput("callReshId"),
-        textOutput("callRole"),
-        textOutput("callEmail"),
-        textOutput("callFullName"),
-        textOutput("callPhone"),
-        h4("Environment var R_RAP_INSTANCE:"),
-        textOutput("envInstance"),
-        h4("Environmental var R_RAP_CONFIG_PATH:"),
-        textOutput("envConfigPath"),
-        h4("Locale settings:"),
-        textOutput("locale")
+    tabPanel("Start",
+      useShinyalert(),
+      mainPanel(width = 12,
+        htmlOutput("veiledning", inline = TRUE),
+        appNavbarUserWidget(user = uiOutput("appUserName"),
+                           organization = uiOutput("appOrgName"),
+                           addUserInfo = TRUE),
+        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))
       )
     ),
     
@@ -75,14 +57,9 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          useShinyalert(),
           htmlOutput("stentbruk", inline = TRUE) %>%
             withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2),
-          appNavbarUserWidget(user = uiOutput("appUserName"),
-                              organization = uiOutput("appOrgName"),
-                              addUserInfo = TRUE),
-          tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))
+                        type = 2)
         )
       )
     ),
@@ -142,7 +119,7 @@ ui <- tagList(
                                     end = Sys.Date(), separator = "-",
                                     weekstart = 1),
                      radioButtons("dumpFormat", "Velg filformat:",
-                                  choices = c("csv", "xlsx")),
+                                  choices = c("csv", "xlsx-csv")),
                      downloadButton("dumpDownload", "Hent!")
                      ),
         mainPanel(

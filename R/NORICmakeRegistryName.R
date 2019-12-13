@@ -25,7 +25,8 @@ NORICmakeRegistryName <- function(baseName, reshID=reshID, role = "LU",
         role == conf$reg$noric$nationalAccess$userRole) {
       return(paste0(baseName, conf$reg$noric$nationalAccess$nameKey))
     } else {
-      warning("Someting is fishy! Falling back to local registry name")
+      warning(paste("Requested access is beyond current privilege.",
+                    "Falling back to local registry name"))
       return(paste0(baseName, reshID))
     }
   }
