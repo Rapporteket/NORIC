@@ -42,7 +42,7 @@ FROM ForlopsOversikt
   FO <- rapbase::LoadRegData(registryName, query, dbType)
   
   
-    # Gjor datoer om til dato-objekt:
+  # Gjor datoer om til dato-objekt:
   FO %<>%
     mutate(
       AvdodDato = ymd( AvdodDato )

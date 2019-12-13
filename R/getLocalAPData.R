@@ -7,7 +7,7 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr filter mutate mutate_all select
+#' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table AngioPCIVar
@@ -21,16 +21,9 @@ getLocalAPData <- function(registryName, singleRow = FALSE, ...) {
   
   dbType <- "mysql"
   query <-"
-SELECT
-  SO.HovedDato,
-  AP.Hastegrad AS ForlopsType2,
-  AP.*
-FROM
-  AngioPCIVar AP
-LEFT JOIN
-  SkjemaOversikt SO
-ON
-  AP.ForlopsID=SO.ForlopsID AND AP.AvdRESH=SO.AvdRESH"
+SELECT *
+FROM AngioPCIVar
+  "
   
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -45,7 +38,44 @@ ON
   }
   
   AP <- rapbase::LoadRegData(registryName, query, dbType)
+  
+  FO <- rapbase::LoadRegData(registryName,
+                             query = "SELECT * FROM ForlopsOversikt")
 
+  
+  # Velger relevante variabler fra FO som skal legges til tabellen:
+  FO %<>% 
+    select(
+      # Nøkler:
+      AvdRESH
+      ,Sykehusnavn
+      ,PasientID
+      ,ForlopsID
+      # FodselsDato # Finnes per dags dato i AP fra før
+      # Variablene som legges til:
+      ,Kommune
+      ,KommuneNr
+      ,Fylke
+      ,Fylkenr
+      # ,PasientKjonn # Finnes per dags dato i AP (heter ikke PasientKjonn, men Kjonn)
+      ,PasientAlder
+      ,ForlopsType1
+      ,ForlopsType2
+      ,KobletForlopsID
+      ,HovedDato
+    )
+  
+  # Legger til variabler fra FO til AP:
+  AP %>%
+    left_join( . , FO
+               , by = c( 
+                 "AvdRESH"
+                 ,"Sykehusnavn"
+                 ,"PasientID"
+                 ,"ForlopsID"
+               ) 
+    ) 
+  
   
   # Klokkeslett med "01.01.70 " som prefix fikses:
   AP %<>%
