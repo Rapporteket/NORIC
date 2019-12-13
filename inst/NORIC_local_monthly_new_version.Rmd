@@ -1,0 +1,916 @@
+---
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI for ', params$hospitalName ) `"
+author: "`r params$author`"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{rotating}
+params:
+  author: Anon author
+  hospitalName: HUS
+  tableFormat: html
+  title: Emty tite
+output:
+  pdf_document: 
+    toc: true
+    number_sections: true
+    df_print: kable
+    keep_tex: true
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+```{r library_and_packages, include=FALSE}
+
+# (Helse Bergen-spesifikt)
+
+# Get the current users home and name
+USER <- Sys.getenv("USERNAME")
+ThePath <- paste( "C:/Users" , USER , "rpakker" , sep = "/" )
+
+.libPaths( ThePath )
+# dir( ThePath )
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#       INSTALLERE OG LASTE PACKAGES
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+# Vektor med packages:
+package_vec <- c( 
+                  "dplyr"
+                  ,"feather"
+                  ,"forcats"
+                  ,"janitor"
+                  ,"kableExtra"
+                  ,"knitr"
+                  ,"lubridate"
+                  ,"magrittr"
+                  ,"markdown"
+                  ,"tidyr"
+                  ,"tidyverse"
+                  ,"xtable"
+                  )
+
+# Laster packages med easypackages:
+library("easypackages", lib.loc="C:/Users/ellnyg/rpakker")
+easypackages::libraries(package_vec)
+
+```
+
+```{r source_functions, include=FALSE}
+
+`%not_in%` <- purrr::negate(`%in%`)
+
+# Funksjon som genererer tabell: 
+source( "H:/NORIC/R/generer_tabell.R", encoding = "UTF-8" )
+
+# Theme-funkjsoner:
+source( "H:/NORIC/R/eget_theme_01.R", encoding = "UTF-8" )
+
+```
+
+```{r knitr_options, include=FALSE}
+
+output_type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+
+knitr::opts_chunk$set(
+  echo=FALSE
+  , warning=FALSE
+  , message=FALSE
+  , fig.width=12
+  , fig.asp=0.5
+  # , dpi = 150
+  # , dpi = 50
+  # , dev.args = list(type = "cairo")
+  ,cache=FALSE
+  # ,cache=TRUE
+)
+
+
+# Hvis HTML output => knitr bruker cairo device + spesifiserer oppløsning (dpi):
+if (knitr::opts_knit$get("rmarkdown.pandoc.to") == "html") {
+  knitr::opts_chunk$set(dpi = 100, dev.args = list(type = "cairo"))
+}
+# Hvis Word output => knitr bruker cairo device + spesifiserer oppløsning (dpi)
+if (knitr::opts_knit$get("rmarkdown.pandoc.to") == "docx") {
+  knitr::opts_chunk$set(dpi = 100, dev.args = list(type = "cairo"))
+}
+# # Hvis PDF output => knitr
+# if (knitr::opts_knit$get("rmarkdown.pandoc.to") != "latex") {
+#   knitr::opts_chunk$set(dpi = 300, dev.args = list(type = "cairo"))
+# }
+
+``` 
+  
+```{r source_parameters_colour_etc, include=FALSE, eval=TRUE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#    BLÅFARGER
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# R-fil med diverse parametre som font-størrelse, farger, o.l.: 
+source( "H:/NORIC/R/farger_figurer_etc.R", encoding = "UTF-8" )
+
+``` 
+  
+```{r data_import, include=FALSE}
+
+# (Helse Bergen-spesifikt)
+ap_filbane <- "\\\\ihelse.net/Kvalitetsregister/hbe/Norsk register for invasiv kardiologi/Rapporteket/Datadump/2019-09-19 Datadumper fra TEST/AP_2019-10-31.feather"
+
+anp_filbane <- "\\\\ihelse.net/Kvalitetsregister/hbe/Norsk register for invasiv kardiologi/Rapporteket/Datadump/2019-09-19 Datadumper fra TEST/Lastet ned 20191016/AnP_2019-10-16.feather"
+
+so_filbane <- "\\\\ihelse.net/Kvalitetsregister/hbe/Norsk register for invasiv kardiologi/Rapporteket/Datadump/2019-09-19 Datadumper fra TEST/Lastet ned 20191016/SO_2019-10-16.feather"
+
+
+
+AP <- feather::read_feather( ap_filbane ) %>% 
+  # Kun data fra brukeren sitt sykehus:
+  filter( Sykehusnavn == params$hospitalName )
+  # filter( Sykehusnavn == !! rlang::sym( params$hospitalName ) )
+  # filter( Sykehusnavn == "HUS" ) 
+
+AnP <- feather::read_feather( anp_filbane ) %>% 
+  # Kun data fra brukeren sitt sykehus:
+  filter( Sykehusnavn == params$hospitalName )
+  # filter( Sykehusnavn == !! rlang::sym( params$hospitalName ) )
+  # filter( Sykehusnavn == "HUS" ) 
+
+  
+SO <- feather::read_feather( so_filbane ) %>% 
+  # Kun data fra brukeren sitt sykehus:
+  filter( Sykehusnavn == params$hospitalName )
+  # filter( Sykehusnavn == !! rlang::sym( params$hospitalName ) )
+  # filter( Sykehusnavn == "HUS" ) 
+
+showN <- 12 # how many months are displayed
+
+```
+
+```{r AnP_prep,include=FALSE, eval=TRUE}
+
+
+# TIDSFILTER:
+
+AnP %<>% 
+  filter(
+    # ProsedyreDato skal være slik at vi får data fra de showN siste månedene, hvor
+    # måneden vi befinner oss i ( måneden til max(ProsedyreDato) ) regnes som en måned.
+    # (dvs hvis showN = 12 og max(ProsedyreDato) = 12.05.2019, så skal ProsedyreDato være
+    # f.o.m. 01.06.2018, slik at vi får data for 2018-06, 2018-07, ...., 2019-05)
+    ProsedyreDato >= ymd( paste0(
+      # Den første dagen fra inneværende måned...
+      substr( max( ProsedyreDato, na.rm = TRUE ), start = 1, stop = 8), "01") ) 
+    # ...og deretter (showN - 1) måneder tilbake i tid.
+    - base::months( showN - 1 )
+  )
+
+# Skal tilsvare følgende Reinh.-kode{
+# AnP <- subset(
+#     x = AnP ,
+#     subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN )
+# }
+
+
+
+# Factors:
+AnP %<>% 
+  mutate(
+    # annenprostype_f = replace_na( AnnenProsType, replace = "Ikke registrert"),
+    annenprostype_f = factor( AnnenProsType,
+                            levels = c(
+                               "Aortaballongpumpe"           
+                               ,"ECMO"                        
+                               ,"Høyre hjertekateterisering"  
+                               ,"Impella"                    
+                               ,"Lukking av ASD/PFO"          
+                               ,"Lukking av venstre aurikkel" 
+                               ,"Perikardiocentese"           
+                               ,"PTSMA"                      
+                               ,"Temporær pacemaker"          
+                               ,"Ventilfilming"
+                               # ,"Ikke registrert" 
+                               ),
+                            labels = c(
+                               "Aortaballongpumpe"           
+                               ,"ECMO"                        
+                               ,"Høyre hjerte-\nkateterisering"
+                               # ,"Høyre hjertekateterisering"  
+                               ,"Impella"                    
+                               ,"Lukking\nASD/PFO"          
+                               ,"Lukking av\nv. aurikkel"
+                               # ,"Lukking\nav v. aurikkel"
+                               # ,"Lukking av venstre aurikkel" 
+                               # ,"Perikardiocentese"           
+                               ,"Perikardio-\ncentese"           
+                               ,"PTSMA"                      
+                               ,"Temporær\npacemaker"
+                               # ,"Temporær pacemaker"          
+                               # ,"Ventilfilming"
+                               ,"Ventil-\nfilming"
+                               # ,"Ikke\nregistrert"
+                               ),
+                            ordered = TRUE
+    )
+  )
+
+
+```
+  
+```{r AP_prep,include=FALSE, eval=TRUE}
+
+
+# TIDSFILTER:
+
+AP %<>% 
+  filter(
+    # ProsedyreDato skal være slik at vi får data fra de showN siste månedene, hvor
+    # måneden vi befinner oss i ( måneden til max(ProsedyreDato) ) regnes som en måned.
+    # (dvs hvis showN = 12 og max(ProsedyreDato) = 12.05.2019, så skal ProsedyreDato være
+    # f.o.m. 01.06.2018, slik at vi får data for 2018-06, 2018-07, ...., 2019-05)
+    ProsedyreDato >= ymd( paste0(
+      # Den første dagen fra inneværende måned...
+      substr( max( ProsedyreDato, na.rm = TRUE ), start = 1, stop = 8), "01") ) 
+    # ...og deretter (showN - 1) måneder tilbake i tid.
+    - base::months( showN - 1 )
+  )
+
+# Skal tilsvare følgende Reinh.-kode{
+# AnP <- subset(
+#     x = AnP ,
+#     subset = nMonth >= max( nMonth , na.rm = TRUE ) - showN )
+# }
+
+
+
+# Factors:
+# Faktor - riktig rekkefølge på levels ihht figur fastsettes:
+AP %<>% 
+  mutate(
+    #
+    # HASTEGRAD
+    Hastegrad = factor(
+      Hastegrad,
+      levels = c("Akutt", "Subakutt", "Planlagt"),
+      # labels = c( ),
+      ordered = TRUE ),
+    #
+    # INDIKASJON
+    indikasjon1 = tidyr::replace_na( Indikasjon, replace = "Ikke registrert"),
+    indikasjon1 = dplyr::recode(indikasjon1,
+                               'Stabil koronarsykdom' = 'SAP',
+                               'UAP' = 'UAP',
+                               'NSTEMI' = 'NSTEMI',
+                               'Riskovurdering etter vellykket trombolyse' = 'STEMI',
+                               'STEMI' = 'STEMI',
+                               'Hjertestans ved STEMI' = 'STEMI',
+                               'STEMI > 24h' = 'STEMI',
+                               'STEMI/Rescue PCI' = 'STEMI',
+                               'Uklare brystsmerter' = 'Uklare brystsmerter',
+                               'Ikke registrert' = "Ikke registrert",
+                               .default = 'Annet'
+    ),
+    indikasjon1 = factor( indikasjon1,
+                                levels=c(
+                                  "Uklare brystsmerter"
+                                  ,"SAP"
+                                  ,"UAP"
+                                  ,"NSTEMI"
+                                  ,"STEMI"
+                                  ,"Annet"
+                                  ,"Ikke registrert"
+                                ),
+                          labels = c(
+                                  "Uklare\nbrystsmerter"
+                                  ,"SAP"
+                                  ,"UAP"
+                                  ,"NSTEMI"
+                                  ,"STEMI"
+                                  ,"Annet"
+                                  ,"Ikke\nregistrert"
+                                ),
+                                ordered = TRUE
+    )
+    
+  )
+
+
+
+# Ukenummer:
+AP %<>%
+  mutate(
+    # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
+    aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
+                      yes = paste0( as.integer(lubridate::year(ProsedyreDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
+                      no = paste0(aar, "-", uke )
+    ),
+    aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
+                      yes = paste0( as.integer(lubridate::year(ProsedyreDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
+                      no = aar_uke
+    ),
+    aar_uke = as.ordered( aar_uke )
+  )
+
+
+```
+  
+# Datagrunnlag
+  
+Bruker data fra AngioPCIVar-datadumpen t.o.m. `r AP %>% pull(ProsedyreDato) %>% max()`.  <br>
+  
+Bruker data fra AndreProsedyrerVar-datadumpen t.o.m. `r AnP %>% pull(ProsedyreDato) %>% max()`.
+
+<br> <br> <br>
+  
+# Hastegrad
+
+## Hastegrad
+
+```{r tab_hastegrad_x_mnd}
+
+# # Bare frekvens: 
+# 
+# tab_tittel <- paste0( "Antall registrerte prosedyrer etter hastegrad og måned")
+# 
+# tab <- AP %>% 
+#   count( maaned, Hastegrad ) %>% 
+#   spread( Hastegrad, value = n, fill = 0) 
+# 
+# 
+# tab %<>%
+#   rename( `Måned` = maaned ) %>% 
+#   # Legger til totaler:
+#   janitor::adorn_totals( "col", name = "Sum") %>% 
+#   janitor::adorn_totals( "row", name = "Sum") %>%
+#   # 
+#   generer_tabell( tabell = .
+#                   ,dokument_type = output_type
+#                   ,prosenter_i_parantes = FALSE
+#                   ,flextable_med_prosent = FALSE
+#                   ,tabell_tittel = tab_tittel
+#                   ,full_vidde = TRUE
+#                   # HTML:
+#                   ,html_font_storrelse = storrelse_tabell_tekst
+#                   ,html_kol_alignment = c("l", rep("r", ncol(tab) - 1) )
+#                   ,html_page_position = "left"
+#                   ,html_bootstrap_options = c("striped", "hover", "responsive")
+#                   ,html_halver_celle_padding = FALSE
+#                   # PDF:
+#                   ,pdf_latex_options = c( "striped", "hold_position")
+#                   ,pdf_page_position = "center"
+#                   # WORD:
+#                   ,word_font_storrelse = storrelse_tabell_tekst
+#                   ,word_extra_horizontal_padding = 0
+#                   ,word_navn_prosent_kolonner = NULL # c( "navn på kolonner )
+# ) 
+# 
+# tab
+
+
+# Frekvens med prosentandel i parantes:
+
+tab_tittel <- paste0( "Antall og prosentandel prosedyrer etter hastegrad og måned")
+  
+tab <- AP %>% 
+  count( maaned, Hastegrad ) %>% 
+  spread( Hastegrad, value = n, fill = 0) 
+
+
+tab %<>%
+  rename( `Måned` = maaned ) %>% 
+  # Legger til totaler:
+  # janitor::adorn_totals( "col", name = "Sum") %>% 
+  janitor::adorn_totals( "row", name = "Sum") %>%
+  # 
+  generer_tabell( tabell = .
+                  ,dokument_type = output_type
+                  # ,dokument_type = "latex"
+                  ,prosenter_i_parantes = TRUE
+                  ,prosenter_i_parantes_navn_total_rad = "Sum"
+                  ,flextable_med_prosent = FALSE
+                  ,tabell_tittel = tab_tittel
+                  ,full_vidde = TRUE
+                  # HTML:
+                  ,html_font_storrelse = storrelse_tabell_tekst
+                  ,html_kol_alignment = c("l", rep("r", ncol(tab) - 1) )
+                  ,html_page_position = "left"
+                  ,html_bootstrap_options = c("striped", "hover", "responsive")
+                  ,html_halver_celle_padding = FALSE
+                  # PDF:
+                  ,pdf_latex_options = c( "striped", "HOLD_position")
+                  ,pdf_page_position = "center"
+                  # WORD:
+                  ,word_font_storrelse = storrelse_tabell_tekst - 2
+                  ,word_extra_horizontal_padding = 0
+                  ,word_navn_prosent_kolonner = NULL # c( "navn på kolonner )
+) 
+
+tab
+
+
+```
+             
+             
+             
+```{r fig_Hastegrad_uke, fig.cap=paste0( "Antall prosedyrer per uke, stratifisert etter hastegrad"), fig.width=16}
+
+# Per uke:
+fig_df <- AP %>%
+  # mutate(
+  #   # aar_mnd_uke = paste0( aar, "-", uke),
+  #   # Sorterer uke etter median ProsedyreDato for hver uke.
+  #   uke_ordered = fct_reorder(uke, ProsedyreDato) 
+  # ) %>%
+  count( aar_uke, Hastegrad, name = "Antall" )
+
+plot <- fig_df %>%
+  select( aar_uke, Hastegrad, Antall ) %>%
+  ggplot( aes(x = aar_uke, y = Antall , color = Hastegrad, group = Hastegrad) ) +
+  geom_point(
+    size = 3
+  ) +
+  geom_line()
+
+
+plot %>% 
+  eget_theme_01( plot = . 
+                 , x_akse_font_storrelse = storrelse_theme - 12
+                 ,y_akse_font_storrelse = storrelse_theme - 10
+                 , legend_font_storrelse = storrelse_legend - 6
+                 , legend_reverser_rekkefolge = FALSE
+  ) +
+   scale_color_brewer( 
+    palette = "Set2"
+    # palette = "PuBuGn"
+    , direction = -1 # reverserer rekkefølgen på fargene
+    ) +
+    theme(
+      axis.text.x = element_text( 
+        # size = x_akse_font_storrelse
+        # , angle = 90
+        vjust = 0.5
+        # , face = "bold"
+        )
+      )
+
+
+#+# Tall inne i søylene:
+  # geom_bar( 
+  #   position = position_stack()
+  #   , color = "black" # bar borders
+  #   , size = 0.1
+  #   , width = 0.75
+  # ) #+# Tall inne i søylene:
+  # geom_text( 
+  #   aes(label=..count..)
+  #   , stat='count'
+  #   # , hjust = -0.05 # Flytter tallene til høyre
+  #   ,position=position_stack( vjust = 0.5 )
+  #   ,  size = storrelse_geom_text - 1 )
+
+
+
+```
+          
+  
+    
+   
+  
+   
+                 
+# Prosedyretype  
+  
+## Prosedyretype  
+  
+  
+```{r tab_prosedyretype_x_mnd}
+
+# Frekvens med prosentandel i parantes:
+
+tab_tittel <- paste0( "Antall og prosentandel prosedyrer etter prosedyretyper og måned")
+  
+tab <- AP %>% 
+  count( maaned, ProsedyreType ) %>% 
+  spread( ProsedyreType, value = n, fill = 0) 
+
+
+tab %<>%
+  rename( `Måned` = maaned ) %>% 
+  # Legger til totaler:
+  # janitor::adorn_totals( "col", name = "Sum") %>% 
+  janitor::adorn_totals( "row", name = "Sum") %>%
+  # 
+  generer_tabell( tabell = .
+                  ,dokument_type = output_type
+                  # ,dokument_type = "latex"
+                  ,prosenter_i_parantes = TRUE
+                  ,prosenter_i_parantes_navn_total_rad = "Sum"
+                  ,flextable_med_prosent = FALSE
+                  ,tabell_tittel = tab_tittel
+                  ,full_vidde = TRUE
+                  # HTML:
+                  ,html_font_storrelse = storrelse_tabell_tekst
+                  ,html_kol_alignment = c("l", rep("r", ncol(tab) - 1) )
+                  ,html_page_position = "left"
+                  ,html_bootstrap_options = c("striped", "hover", "responsive")
+                  ,html_halver_celle_padding = FALSE
+                  # PDF:
+                  ,pdf_latex_options = c( "striped", "HOLD_position")
+                  ,pdf_page_position = "center"
+                  # WORD:
+                  ,word_font_storrelse = storrelse_tabell_tekst
+                  ,word_extra_horizontal_padding = 0
+                  ,word_navn_prosent_kolonner = NULL # c( "navn på kolonner )
+) 
+
+tab
+
+```
+  
+  
+Den første uken (helt til venstre) i figuren kan inneholde få prosedyrer da datagrunnlaget inneholder data f.o.m. `r AP %>% pull(ProsedyreDato) %>% min()`. 
+  
+  
+```{r fig_prosedyretype_uke, fig.cap=paste0( "Antall prosedyrer per uke, stratifisert etter prosedyretype"), fig.width=16}
+
+# Per uke:
+fig_df <- AP %>%
+  # mutate(
+  #   # aar_mnd_uke = paste0( aar, "-", uke),
+  #   # Sorterer uke etter median ProsedyreDato for hver uke.
+  #   uke_ordered = fct_reorder(uke, ProsedyreDato) 
+  # ) %>%
+  count( aar_uke, ProsedyreType, name = "Antall" )
+
+plot <- fig_df %>%
+  select( aar_uke, ProsedyreType, Antall ) %>%
+  ggplot( aes(x = aar_uke, y = Antall , color = ProsedyreType, group = ProsedyreType) ) +
+  geom_point(
+    size = 3
+  ) +
+  geom_line()
+
+
+plot %>% 
+  eget_theme_01( plot = . 
+                 , x_akse_font_storrelse = storrelse_theme - 12
+                 ,y_akse_font_storrelse = storrelse_theme - 10
+                 , legend_font_storrelse = storrelse_legend - 6
+                 , legend_reverser_rekkefolge = FALSE
+  ) +
+   scale_color_brewer( 
+    palette = "Set2"
+    # palette = "PuBuGn"
+    , direction = -1 # reverserer rekkefølgen på fargene
+    ) +
+    theme(
+      axis.text.x = element_text( 
+        # size = x_akse_font_storrelse
+        # , angle = 90
+        vjust = 0.5
+        # , face = "bold"
+        )
+      )
+
+
+```
+    
+    
+# Indikasjon
+
+## Indikasjon
+  
+**Gruppering av Indikasjon**
+   
+    
+* Ikke registrert = Indikasjon mangler
+* Annet = 
+  * AMI- mekanisk komplikasjon
+  * Annet
+  * Aortaneurysme/disseksjon
+  * Arytmiutredning
+  * Donorutredning
+  * Forskning og utvikling
+  * Hjertestans uten STEMI
+  * Hjertesvikt/kardiomyopati
+  * Komplettering av tidligere PCI
+  * Kontroll etter transplantasjon
+  * Mistenkt komplikasjon ved ACB-operasjon
+  * Mistenkt komplikasjon ved Angio/PCI
+  * Stum ischemi
+  * Vitieutredning
+* STEMI = 
+  * Hjertestans ved STEMI
+  * Riskovurdering etter vellykket trombolyse
+  * STEMI
+  * STEMI > 24h
+  * STEMI/Rescue PCI
+* NSTEMI = NSTEMI
+* UAP = UAP
+* SAP = Stabil koronarsykdom
+* Uklare brystsmerter = Uklare brystsmerter
+  
+  
+```{r tab_indikasjon_x_mnd}
+
+# Frekvens med prosentandel i parantes:
+
+tab_tittel <- paste0( "Antall og prosentandel prosedyrer etter indikasjon og måned")
+  
+tab <- AP %>% 
+  count( maaned, indikasjon1 ) %>% 
+  spread( indikasjon1, value = n, fill = 0) 
+
+
+tab %<>%
+  rename( `Måned` = maaned ) %>%
+  # Legger til totaler:
+  # janitor::adorn_totals( "col", name = "Sum") %>%
+  janitor::adorn_totals( "row", name = "Sum") %>%
+  #
+  generer_tabell( tabell = .
+                  ,dokument_type = output_type
+                  # ,dokument_type = "latex"
+                  ,prosenter_i_parantes = TRUE
+                  ,prosenter_i_parantes_navn_total_rad = "Sum"
+                  ,flextable_med_prosent = FALSE
+                  ,tabell_tittel = tab_tittel
+                  ,full_vidde = TRUE
+                  # HTML:
+                  ,html_font_storrelse = storrelse_tabell_tekst
+                  ,html_kol_alignment = c("l", rep("r", ncol(tab) - 1) )
+                  ,html_page_position = "left"
+                  ,html_bootstrap_options = c("striped", "hover", "responsive")
+                  ,html_halver_celle_padding = FALSE
+                  # PDF:
+                  ,pdf_latex_options = c( "striped", "HOLD_position", "scale_down")
+                  ,pdf_page_position = "center"
+                  # WORD:
+                  ,word_font_storrelse = storrelse_tabell_tekst
+                  ,word_extra_horizontal_padding = 0
+                  ,word_navn_prosent_kolonner = NULL # c( "navn på kolonner )
+)
+
+tab
+
+```
+  
+  
+```{r fig_indikasjon_mnd, fig.cap=paste0( "Antall prosedyrer etter indikasjon og måned. Ekskludert forløp hvor indikasjon ikke er registrert."), fig.width=14, include=FALSE}
+
+plot <- AP %>% 
+  # Tar bort forløp hvor Indikasjon mangler:
+  filter( !is.na( Indikasjon ) ) %>% 
+  # Reverserer rekkefølgen på levels:
+  mutate(
+    indikasjon1 = forcats::fct_rev(indikasjon1)
+  ) %>% 
+  select( maaned, indikasjon1 ) %>% 
+  ggplot( aes( x = maaned, fill = indikasjon1 ) ) +
+  geom_bar( 
+    position = position_stack()
+    , color = "black" # bar borders
+    , size = 0.1
+    , width = 0.75
+  ) +# Tall inne i søylene:
+  geom_text( 
+    aes(label=..count..)
+    , stat='count'
+    # , hjust = -0.05 # Flytter tallene til høyre
+    ,position=position_stack( vjust = 0.5 )
+    ,  size = storrelse_geom_text - 1 )
+
+plot %>% 
+  eget_theme_01( plot = . 
+                 , x_akse_font_storrelse = storrelse_theme - 4
+                 , legend_font_storrelse = storrelse_legend - 6
+                 , legend_reverser_rekkefolge = TRUE
+  ) +
+  scale_fill_brewer( 
+    palette = "PuBuGn"
+    # , direction = -1 # reverserer rekkefølgen på fargene
+  ) +
+  guides(
+    fill = guide_legend(
+      # Størrelse på legend keys:
+      override.aes = list( 
+        # color = "transparent"
+        size = 0.1
+      )
+    )
+  )
+
+
+```
+  
+# Annen diagnostikk
+  
+```{r tab_annendiagnostikk_x_mnd}
+
+tabell_tittel <- "Antall (prosent) tilleggsprosedyrer per måned (prosentandel av det totale antallet angio/PCI-prosedyrer.)"
+
+tab <- AP %>% 
+  select(
+    ProsedyreDato
+    , ForlopsID
+    , Sykehusnavn
+    , maaned
+    , FFR
+    ,IFR
+    # ,Doppler
+    ,IVUS
+    ,OCT
+    ,NIRS
+  ) %>% 
+  tidyr::gather(key = "annen_diagnostikk", value = "ja_nei", FFR:NIRS) %>% 
+  mutate(
+    ja_nei = tidyr::replace_na( ja_nei, replace = "Ikke registrert"),
+    annen_diagnostikk = factor( annen_diagnostikk,
+                                levels = c(
+                                  "FFR"
+                                  ,"IFR"
+                                  ,"IVUS"
+                                  ,"OCT"
+                                  ,"NIRS"
+                                  ),
+                                labels = c(
+                                  "FFR"
+                                  ,"IFR"
+                                  ,"IVUS"
+                                  ,"OCT"
+                                  ,"NIRS"
+                                  ),
+                                ordered = TRUE
+                                  )
+  ) %>% 
+  group_by( maaned, annen_diagnostikk ) %>% 
+  count( ja_nei) %>% 
+  tidyr::spread( ja_nei, n, fill = 0 ) %>% 
+  mutate(
+    sum = `Ikke registrert` + Ja + Nei,
+    andel_annen_diagostikk = format( round( Ja / sum * 100, 1), nsmall = 1)
+  ) 
+  
+# Hvis latex-tabell
+if( output_type == "latex" ){
+  tab %<>% 
+    mutate(
+      antall_prosent_i_parantes = paste0( Ja, " (", andel_annen_diagostikk, "\\%)")
+    )
+}
+# Hvis html:
+if( output_type == "html" ){
+  tab %<>% 
+    mutate(
+      antall_prosent_i_parantes = paste0( Ja, " (", andel_annen_diagostikk, "%)")
+    )
+}
+
+tab %<>% 
+  select( maaned, annen_diagnostikk, antall_prosent_i_parantes, `Totalt ant. prosedyrer` = sum) %>% 
+  tidyr::spread( annen_diagnostikk, antall_prosent_i_parantes) %>% 
+  select(
+    `Måned` = maaned
+    ,FFR
+    ,IFR
+    ,IVUS
+    ,OCT
+    ,NIRS
+    ,`Totalt ant. prosedyrer`
+  )
+  
+
+tab %>% 
+  kable( caption = tabell_tittel
+             , format = "latex" # PDF-format
+             , booktabs = TRUE # PDF-format
+             , escape = FALSE
+             , align = NULL 
+             # ,col.names = kolonnenavn
+             ) %>%
+      kableExtra::kable_styling(
+        latex_options = c( "striped", "hold_position", "scale_down")
+        # ,full_width = full_vidde # NB! full_width = TRUE gjør at "striped" ikke virker! 
+        ,full_width = FALSE # må derfor droppe full_width for alle pdf-tabeller midlertidig
+        ,position = "center"
+        ,font_size = storrelse_tabell_tekst - 2 
+        # ,stripe_color = "blue" # Kan endre fargen på stripene om ønskelig... 
+      )
+
+
+```
+
+```
+```
+
+
+<br> <br> <br>
+  
+# Andre prosedyrer
+  
+Basert utelukkende på datadumpen "AndreProsedyrerVar" (dvs. at disse statistikkene kun inkluderer prosedyrer fra "Andre Prosedyrer"-modulen og derfor telles ikke høyre hjertekateterisering, ventilfilming og perikardiocentese som er registrert i Angio/PCI-modulen).
+  
+<br>
+  
+```{r tab_AnP_mnd_x_prostype}
+
+tab_tittel <- paste0( "Antall andre prosedyrer de siste ", showN, " månedene")
+
+tab <- AnP %>% 
+  count( maaned, annenprostype_f ) %>% 
+  spread( annenprostype_f, value = n, fill = 0) 
+
+
+tab %<>%
+  rename( `Måned` = maaned ) %>% 
+  # Legger til totaler:
+  janitor::adorn_totals( "col", name = "Sum") %>% 
+  janitor::adorn_totals( "row", name = "Sum") %>%
+  # 
+  generer_tabell( tabell = .
+                  ,dokument_type = output_type
+                  ,prosenter_i_parantes = FALSE
+                  ,flextable_med_prosent = FALSE
+                  ,tabell_tittel = tab_tittel
+                  ,full_vidde = TRUE
+                  # HTML:
+                  ,html_font_storrelse = storrelse_tabell_tekst
+                  ,html_kol_alignment = c("l", rep("r", ncol(tab) - 1) )
+                  ,html_page_position = "left"
+                  ,html_bootstrap_options = c("striped", "hover", "responsive")
+                  ,html_halver_celle_padding = FALSE
+                  # PDF:
+                  ,pdf_latex_options = c( "striped", "hold_position", "scale_down")
+                  # WORD:
+                  ,word_font_storrelse = storrelse_tabell_tekst
+                  ,word_extra_horizontal_padding = 0
+                  ,word_navn_prosent_kolonner = NULL # c( "navn på kolonner )
+) 
+
+if(output_type == "html"){
+  tab %<>% 
+    row_spec(0, align = "c") %>% 
+    column_spec( 1 , width_min = "2cm") %>% 
+    column_spec( 6 , width_min = "3cm")
+}
+
+tab
+
+
+
+
+
+```
+  
+<br> <br> <br>
+  
+```{r fig_AnP_mnd_prostype, fig.cap=paste0( "Antall andre prosedyrer de siste ", showN, " månedene"), fig.width=14, include=FALSE}
+
+plot <- AnP %>% 
+  select( maaned, annenprostype_f ) %>% 
+  ggplot( aes(x = maaned, fill = annenprostype_f) ) +
+  geom_bar( 
+    position = position_stack()
+    , color = "black" # bar borders
+    , size = 0.1
+    , width = 0.75
+  ) +# Tall inne i søylene:
+  geom_text( 
+    aes(label=..count..)
+    , stat='count'
+    # , hjust = -0.05 # Flytter tallene til høyre
+    ,position=position_stack( vjust = 0.5 )
+    ,  size = storrelse_geom_text - 1 )
+
+plot %>% 
+  eget_theme_01( plot = . 
+                 , x_akse_font_storrelse = storrelse_theme - 4
+                 , legend_font_storrelse = storrelse_legend - 6
+                 , legend_reverser_rekkefolge = FALSE
+  ) +
+  scale_fill_brewer( 
+    palette = "PuBuGn"
+    # , direction = -1 # reverserer rekkefølgen på fargene
+    ) +
+     guides(
+      fill = guide_legend(
+        # Størrelse på legend keys:
+        override.aes = list( 
+          # color = "transparent"
+          size = 0.1
+          )
+    )
+    )
+
+
+```
+  
+```
+```
+
+
+
