@@ -66,15 +66,12 @@ FROM AngioPCIVar
     )
   
   # Legger til variabler fra FO til AP:
-  AP %>%
-    left_join( . , FO
-               , by = c( 
-                 "AvdRESH"
-                 ,"Sykehusnavn"
-                 ,"PasientID"
-                 ,"ForlopsID"
-               ) 
-    ) 
+  AP <- left_join(AP, FO, by = c("AvdRESH"
+                                 ,"Sykehusnavn"
+                                 ,"PasientID"
+                                 ,"ForlopsID") 
+  ) 
+  
   
   
   # Klokkeslett med "01.01.70 " som prefix fikses:
