@@ -1,0 +1,8 @@
+---
+title: "Veiledning"
+author: "NORIC"
+date: '`r format(Sys.time(), "%d. %B %Y")`'
+---
+
+## Rapporteket for NORIC
+Her vil det komme beskrivelse av innhold og enkel veiledning i bruk av Rapporteket for NORIC.

@@ -1,4 +1,4 @@
-' All R resources neede for NORIC at Rapporteket
+#' All R resources neede for NORIC at Rapporteket
 #'
 #' An implemetation of all R related resources for NORIC at
 #' Rapporteket, including R-functions for analysis and plotting,

@@ -1,69 +1,72 @@
-% knitr::knit2pdf("NORIC_local_monthly.Rnw")
+---
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  hospitalName: "Ukjent sykehus"
+  tableFormat: "html"
+  reshId: "999999"
+  registryName: "rapbase"
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI', params$hospitalName)`"
+author: "`r params$author`"
+---
 
-\documentclass[presentation,xcolor=pdftex,dvipsnames,table]{beamer}
-\usetheme{Hannover}
+```{r knitrOptions, include=FALSE}
+library(magrittr)
+library(knitr)
+library(kableExtra)
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[english, norsk]{babel}
-\usepackage{xspace}
-\usepackage{booktabs}
-\usepackage{rotating}
+# make sure to use a temporary directory AND absolute paths, e.g. that figs
+# can be found also when deployed at a server. See below link for explanation
+# https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
+# Also make sure we use tempdir() as working directory so we do not clutter
+# the package of the hosting shiny app
+#workDir <- tempdir()
+#knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
 
-
-<<knitrOptions,include=FALSE>>=
+# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
+# for each kable call
+# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
+options(knitr.table.format = params$tableFormat)
 
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
-options(stringsAsFactors=FALSE , width = "130")
+options(stringsAsFactors=FALSE)
 
-## START to be deleted
-# In future, rapbase will take care of the following:
-# make sure processing takes place "here" (sessions getwd())
-knitr::opts_knit$set(root.dir='./')
-# make sure we do not make figure folder
-knitr::opts_chunk$set(fig.path='')
-## END to be deleted
-
-@ 
+# For some reason Shiny Server does not get the server locale settings right.
+# To display dates correct, enforce locale here:
+Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
+``` 
 
 
-<<SKDEcol,include=FALSE>>=
+```{r SKDEcol, include=FALSE}
 
 colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
 
-@ 
+``` 
 
 
-<<GetData,include=FALSE>>=
-
-baseName <- "noricStaging"
-
-registryName <- if (exists( "reshID" )) {
-                    noric::NORICmakeRegistryName(
-                               baseName = baseName ,
-                               reshID = reshID
-                           )
-                } else {
-                    "rapbase"
-                }
+```{r GetData, include=FALSE, cache=TRUE}
 
 dbType <- "mysql"
 SOQuery <- "SELECT * FROM SkjemaOversikt"
 APQuery <- "SELECT * FROM AngioPCIVar"
 AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
 
-SO <- rapbase::LoadRegData(registryName, SOQuery, dbType)
-AP <- rapbase::LoadRegData(registryName, APQuery, dbType)
-AnP <- rapbase::LoadRegData(registryName, AnPQuery, dbType)
+SO <- rapbase::LoadRegData(params$registryName, SOQuery, dbType)
+AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
+AnP <- rapbase::LoadRegData(params$registryName, AnPQuery, dbType)
 
 showN <- 12 # how many months are displayed
-@
+```
 
 
-
-<<AnPPrepare,include=FALSE>>=
+```{r AnPPrepare,include=FALSE, eval=TRUE}
 
 AnP$ProsedyreDato <- as.Date( AnP$ProsedyreDato)
 
@@ -110,11 +113,11 @@ AnP$AnnenProsType <- factor(
         "Impella")
     )
 
-@
+```
 
 
 
-<<SOPrepare,include=FALSE>>=
+```{r SOPrepare,include=FALSE, eval=TRUE}
 
 SO$RegDate <- as.Date(
     SO$HovedDato)
@@ -134,7 +137,7 @@ SO <- subset(
     x = SO ,
     subset =
         (nMonth > max( nMonth , na.rm = TRUE ) - showN) &
-        (RegDate < Sys.Date()))    
+        (RegDate < Sys.Date()))
 
 
   # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
@@ -145,12 +148,12 @@ SO$Month <- as.factor(
         SO$RegDate ,
         format = "%y-%m"))
 
-@ 
+```
 
 
 
 
-<<APprepare,include=FALSE>>=
+```{r APprepare,include=FALSE, eval=TRUE}
 
 AP$FodselsDato <- as.Date( AP$FodselsDato)
 
@@ -192,11 +195,11 @@ AP $ Indikasjon2 <- factor(
 AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
 AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
 
-@ 
+```
 
 
 
-<<Daterecodes,include=FALSE>>=
+```{r Daterecodes,include=FALSE, eval=TRUE}
 
 AP$Year <- as.numeric(
     format(
@@ -218,11 +221,9 @@ AP$nMonth <- as.numeric(
 AP $ Day <- as.numeric(
     AP $ ProsedyreDato - min( AP $ ProsedyreDato , na.rm = TRUE ) )
 
-@ 
+```
 
-
-
-<<subsetting,include=FALSE>>=
+```{r subsetting,include=FALSE, eval=TRUE}
 
 NSTEMI <- subset(
     x = AP ,
@@ -246,23 +247,35 @@ AP $ Month <- as.factor(
         x = AP $ ProsedyreDato ,
         format = "%y-%m"))
 
-@ 
+```
 
-
-\title[Angio/PCI\\\Sexpr{AP$Sykehusnavn[1]}]{Norsk register for invasiv kardiologi (NORIC)\\Månedsrapport Angio/PCI\\ \Sexpr{AP$Sykehusnavn[1]}}
-
-
-\begin{document}
-\begin{tiny}
+```{r makeStandardTableFunction, eval=TRUE}
+mst <- function(tab, type, cap, digs, align = NULL, fs = 8, lsd = FALSE) {
+  if (type == "latex") {
+    if (lsd) {
+      lo <- c("hold_position", "scale_down")
+    } else {
+      lo <- c("hold_position")
+    }
+    k <- kable(tab, caption = cap, digits = digs, align = align,
+               booktabs = TRUE) %>% 
+      kable_styling(latex_options = lo, font_size = fs)
+  }
   
-\maketitle
+  if (type == "html") {
+    k <- kable(tab, caption = cap, digits = digs, align = align) %>% 
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                    full_width = F)
+  }
+  print(k)
+}
+```
 
+# Hastegrad
 
-\section{Hastegrad}
+## Hastegrad
 
-\begin{frame}[fragile]
-  \frametitle{Hastegrad}
-<<FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=8,fig.height=4,out.width="\\textwidth">>=
+```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=10,fig.height=5,fig.pos='!h',out.width="\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -289,59 +302,43 @@ legend(
     horiz = FALSE ,
     fill = pal[3:1],
     legend = sort(
-        unique(AP$Hastegrad) , 
+        unique(AP$Hastegrad) ,
         decreasing = T) ,
     cex = 1)
 
-@
-\end{frame}
+```
 
 
-
-\begin{frame}[fragile]
-    \frametitle{Hastegrad}
-    
-<<TabNHastegrad,  results = 'asis'>>=
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = addmargins(
-            xtabs(
-                formula = ~ Month + Hastegrad ,
-                data = AP)) ,
-        caption = "Antall registrerte prosedyrer etter hastegrad og måned" ,
-        digits = 0) ,
-    booktabs = TRUE )
-@   
-\end{frame}
+## Hastegrad
 
 
+```{r TabNHastegrad, results='asis', eval=TRUE}
+cap <- "Antall registrerte prosedyrer etter hastegrad og måned"
+xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
+  addmargins() %>% 
+  mst(., params$tableFormat, cap, 0, align = rep("r", 5))
+```
 
-\begin{frame}[fragile]
-    \frametitle{Hastegrad}
 
-<<TabRHastegrad,  results = 'asis'>>=
-xtable::print.xtable(
-    x = xtable::xtable(
-        100 * prop.table(
-            xtabs(
-                formula = ~ Month + Hastegrad ,
-                data = AP) ,
-            margin = 1) ,
-        caption = "Prosentandel prosedyrer etter hastegrad og måned" ,
-        digits = 1) ,
-    booktabs = TRUE )
-@   
-\end{frame}
+## Hastegrad
+
+
+```{r TabRHastegrad,  results = 'asis'}
+cap <- "Prosentandel prosedyrer etter hastegrad og måned"
+tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
+  prop.table(., margin = 1) * 100
+
+mst(tab, params$tableFormat, cap, 1, align = rep("r", 4))
+```
 
 
 
 
-\section{Prosedyre type}
+# Prosedyre type
 
-\begin{frame}[fragile]
-  \frametitle{Prosedyre type}
-  
-<<FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",fig.width=8,fig.height=4,out.width="\\textwidth">>=
+## Prosedyre type
+
+```{r FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",fig.width=8,fig.height=4,out.width="\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -372,54 +369,40 @@ legend(
         decreasing = TRUE ),
     cex = 1)
 
-@
-\end{frame}
+```
 
 
-\begin{frame}[fragile]
-  \frametitle{Prosedyre type}
-  
-<<TabNProsedyreType,  results = 'asis'>>=
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = addmargins(
-            xtabs(
-                formula = ~ Month + ProsedyreType ,
-                data = AP)) ,
-        caption = "Antall prosedyrer etter prosedyretype og måned" ,
-        digits = 0) ,
-    booktabs = TRUE )
-@   
-\end{frame}
+## Prosedyre type
 
 
-\begin{frame}[fragile]
-  \frametitle{Prosedyre type}
-  
-<<TabRProsedyreType,  results = 'asis'>>=
-xtable::print.xtable(
-    x = xtable::xtable(
-        100 * prop.table(
-            xtabs(
-                formula = ~ Month + ProsedyreType ,
-                data = AP) ,
-            margin = 1) ,
-        caption = "Prosentandel prosedyrer etter prosedyretype og måned" ,
-        digits = 1) ,
-    booktabs = TRUE )
-@   
-\end{frame}
+```{r TabNProsedyreType,  results = 'asis'}
+cap <- "Antall prosedyrer etter prosedyretype og måned"
+tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
+  addmargins()
+mst(tab, params$tableFormat, cap, 0)
+```
+
+
+## Prosedyre type
+
+
+```{r TabRProsedyreType,  results = 'asis'}
+cap = "Prosentandel prosedyrer etter prosedyretype og måned"
+tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
+  prop.table(., margin = 1) * 100
+
+mst(tab, params$tableFormat, cap, 1)
+```
 
 
 
 
 
-\section{Indikasjon}
+# Indikasjon
 
-\begin{frame}[fragile]
-  \frametitle{Indikasjon}
+## Indikasjon
 
-<<FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6,out.width="\\textwidth">>=
+```{r FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6,out.width="\\textwidth"}
 
 op <- par(
     mfcol = c (1,1) ,
@@ -447,54 +430,37 @@ legend(
     legend = levels(AP$Indikasjon2)[6:1] ,
     cex = 1)
 
-@
-\end{frame}
+```
 
 
-\begin{frame}[fragile]
-    \frametitle{Indikasjon}
-
-<<TabNIndikasjon,  results = 'asis'>>=
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = addmargins(
-            xtabs(
-                formula = ~ Month + Indikasjon2 ,
-                data = AP)) ,
-        caption = "Antall prosedyrer etter indikasjon og måned" ,
-        digits = 0) ,
-    booktabs = TRUE )
-@   
-\end{frame}
+## Indikasjon
 
 
-\begin{frame}[fragile]
-    \frametitle{Indikasjon}
+```{r TabNIndikasjon,  results = 'asis'}
+cap = "Antall prosedyrer etter indikasjon og måned"
+xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
+  addmargins() %>%
+  mst(., params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
+```
 
-<<TabRIndikasjon,  results = 'asis'>>=
-xtable::print.xtable(
-    x = xtable::xtable(
-        100 * prop.table(
-            xtabs(
-                formula = ~ Month + Indikasjon2 ,
-                data = AP) ,
-            margin = 1) ,
-        caption = "Prosentandel prosedyrer etter indikasjon og måned" ,
-        digits = 1) ,
-    booktabs = TRUE )
-@   
-\end{frame}
+
+## Indikasjon
+
+
+```{r TabRIndikasjon,  results = 'asis'}
+cap = "Prosentandel prosedyrer etter indikasjon og måned"
+tab <- xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
+  prop.table(., margin = 1) * 100
+mst(tab, params$tableFormat, cap, 1, align = rep("r", 7))
+```
 
 
 
+# Annen diagnostikk
 
 
-\section{Annen diagnostikk}
+```{r TabTillegg,include=FALSE}
 
-
-
-<<TabTillegg,include=FALSE>>=
- 
 PrintTabTilleggCol <- function(VAR){
 
     nVAR <- addmargins(
@@ -508,7 +474,7 @@ PrintTabTilleggCol <- function(VAR){
 
     nVARja <- sprintf(
         "%3.0f" ,
-        nVAR[ , 
+        nVAR[ ,
              which(colnames(nVAR)=="Ja")
              ] )
 
@@ -520,10 +486,10 @@ PrintTabTilleggCol <- function(VAR){
 
     rVARja <- sprintf(
         "%4.1f" ,
-        rVAR[ , 
+        rVAR[ ,
              which(colnames(rVAR)=="Ja")
              ] )
-    
+
     return(
         paste(
             nVARja ,
@@ -531,7 +497,7 @@ PrintTabTilleggCol <- function(VAR){
             rVARja ,
             ")" ,
             sep = ""))
-    
+
 }
 
 #  Rotablator,trombeaspirasjon, IABP ,
@@ -604,123 +570,81 @@ TilleggLabels <- c(
 rownames( TabTillegg ) <- c( levels( AP $ Month ) , "Totalt" )
 colnames( TabTillegg ) <- c( TilleggLabels )
 
-@ 
+```
 
 
 
-\begin{frame}[fragile]
-  \frametitle{Annen diagnostikk ved angiografi}
-
-\begin{table}[!tbp]
-\caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
-\centering
-
-<<PrintTableTillegg1,results='asis'>>=
-
-Hmisc::latex(
-    object = TabTillegg[,1:6] ,
-    booktabs = TRUE,
-    table.env = FALSE ,
-    col.just = rep("r",length(colnames(TabTillegg))) ,
-    center = "none" ,
-    title = "",
-    file = "")
-
-@
-
-\end{table}
-\end{frame}
-  
-  
+## Annen diagnostikk ved angiografi
 
 
-\begin{frame}[fragile]
-  \frametitle{Tilleggsprosedyrer}
+```{r TabTilleggsProsedyre1,  results = 'asis'}
+cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
+mst(TabTillegg[,1:6], params$tableFormat, cap, 0, align = rep("r", 7))
+```
 
-\begin{table}[!tbp]
-\caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
-\centering
 
-<<PrintTableTillegg2,results='asis'>>=
+## Tilleggsprosedyrer
 
-Hmisc::latex(
-    object = TabTillegg[,7:8] ,
-    booktabs = TRUE,
-    table.env = FALSE ,
-    col.just = rep("r",length(colnames(TabTillegg))) ,
-    center = "none" ,
-    title = "",
-    file = "")
 
-@
-
-\end{table}
-\end{frame}
+```{r TabTilleggsProsedyre2,  results = 'asis'}
+cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
+mst(TabTillegg[,7:8], params$tableFormat, cap = cap, 0, align = rep("r", 3))
+```
 
 
 
-
-\begin{frame}[fragile]
-  \frametitle{Adjuvant terapi}
-
-\begin{table}[!tbp]
-\caption{Totalt antall (prosent) tilleggsprosedyrer etter måned}
-\centering
-
-\resizebox{\textwidth}{!}{
-
-<<PrintTableTillegg3,results='asis'>>=
-
-Hmisc::latex(
-    object = TabTillegg[,9:15] ,
-    booktabs = TRUE,
-    table.env = FALSE ,
-    col.just = rep("r",length(colnames(TabTillegg))) ,
-    center = "none" ,
-    title = "",
-    file = "")
-
-@
-}
-\end{table}
-\end{frame}
+## Adjuvant terapi
 
 
+```{r TabTilleggsProsedyre3,  results = 'asis'}
+cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
+mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
+```
 
 
-\section{Andre prosedyrer}
+# Andre prosedyrer
 
-\begin{frame}[fragile]
-  \frametitle{Andre prosedyrer}
-  
-<<TabNAndreProsedyrer,  results = 'asis'>>=
 
+## Andre prosedyrer
+
+
+```{r TabNAndreProsedyrer,  results = 'asis', eval=TRUE}
+cap <- "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned"
 TabNAndreProsedyrer <- addmargins(
-    xtabs(
-        formula = ~ Month + AnnenProsType ,
-        data = AnP))
+  xtabs(formula = ~ Month + AnnenProsType, data = AnP)
+)
 
-xtable::print.xtable(
+if (params$tableFormat == 'html') {
+  kable(TabNAndreProsedyrer, caption = cap) %>% 
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = F) %>% 
+    row_spec(row = 0, font_size = 10, angle = -45) %>% 
+    column_spec(column = 1:(dim(TabNAndreProsedyrer)[2]+1), width = "3em")
+}
+
+if (params$tableFormat == 'latex'){
+  xtable::print.xtable(
     x = xtable::xtable(
-        x = TabNAndreProsedyrer ,
-        caption = "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned" ,
-        digits = 0) ,
+      x = TabNAndreProsedyrer ,
+      caption = cap,
+      digits = 0) ,
     rotate.colnames = TRUE ,
-#    scalebox = 0.8 ,
-    booktabs = TRUE )
-
-@   
-\end{frame}
-
-
-
-\section{Komplikasjon}
+    #scalebox = 0.8 ,
+    booktabs = TRUE,
+    comment = FALSE,
+    caption.placement = "top"
+    )
+}
+```
 
 
-\begin{frame}[fragile]
-  \frametitle{Komplikasjon}
-  \framesubtitle{ på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
-<<TabLabKompl,results='asis'>>=
+# Komplikasjon
+
+## Komplikasjon
+
+### på lab `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+
+```{r TabLabKompl,results='asis'}
 
 LabKomplikasjoner <- data.frame(
     VarName = c(
@@ -774,26 +698,23 @@ i.labkomp <- order(LabKomplikasjoner$Prosent)
 
 LabKomplikasjoner <- LabKomplikasjoner[i.labkomp,]
 
-Hmisc::latex(
-    object = LabKomplikasjoner[,-1] ,
-    booktabs = TRUE,
-    table.env = FALSE ,
-    col.just = c("l","r","r") ,
-    rowname = NULL ,
-#    center = "none" ,
-    title = "",
-    file = "")
+df <- LabKomplikasjoner[,-1]
+rownames(df) <- NULL
+mst(df, params$tableFormat, cap = NULL, digs = 0, align = c("l","r","r", "r"))
+# kable(df, align = c("l","r","r", "r"), row.names = F) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
 
-@   
-  
-\end{frame}
+```
 
 
-\begin{frame}[fragile]
-  \frametitle{Komplikasjon}
-  \framesubtitle{på lab \Sexpr{ paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
-  
-<<FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+
+## Komplikasjon
+
+### på lab `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+
+
+```{r FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth"}
 
 par(
     mar = c(4,15,2,2) ,
@@ -815,18 +736,16 @@ text(
     col = "#000000AA" ,
     labels = LabKomplikasjoner[,3])
 
-@   
-
-\end{frame}
+```
 
 
 
 
-\begin{frame}[fragile]
-  \frametitle{Komplikasjon}
-  \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
+## Komplikasjon
 
-<<TabAvdKompl,results='asis'>>=
+### på avdelingen `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+
+```{r TabAvdKompl,results='asis'}
 
 AvdKomplikasjoner <- data.frame(
     VarName = c(
@@ -876,28 +795,24 @@ i.labkomp <- order(AvdKomplikasjoner$Prosent)
 
 AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp,]
 
-Hmisc::latex(
-    object = AvdKomplikasjoner[,-1] ,
-    booktabs = TRUE,
-    table.env = FALSE ,
-    rowname = NULL ,
-    col.just = c("l","r","r") ,
-#    center = "none" ,
-    title = "",
-    file = "")
+df <- AvdKomplikasjoner[,-1]
+rownames(df) <- NULL
 
-@   
-  
-\end{frame}
+mst(df, params$tableFormat, cap = NULL, digs = 0, align = c("l","r","r"))
+# kable(AvdKomplikasjoner[,-1], row.names = F, align = c("l","r","r")) %>% 
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+#                 full_width = F)
+
+```
 
 
 
 
-\begin{frame}[fragile]
-  \frametitle{Komplikasjon}
-  \framesubtitle{på avdelingen \Sexpr{paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )}}
+## Komplikasjon
 
-<<FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth">>=
+### på avdelingen `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+
+```{r FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth"}
 
 par(
     mar = c(4,15,2,2) ,
@@ -919,20 +834,19 @@ text(
     pos = 4 ,
     col = "#000000AA" ,
     labels = AvdKomplikasjoner[,3])
- 
-@ 
 
-\end{frame}
+```
 
 
 
 
-\section{Kompletthet}
+# Kompletthet
 
-\begin{frame}[fragile]
-  \frametitle{Kompletthet angio/PCI skjemaer}
-  
-<<SOtab1,results='asis'>>=
+
+## Kompletthet angio/PCI skjemaer
+
+
+```{r SOtab1,results='asis'}
 
 nSOA <- with(
     SO[ which( SO$Skjemanavn == "AngioPCI" ) , ] ,
@@ -955,22 +869,17 @@ TABkompletthet <- cbind(
     rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = TABkompletthet ,
-        caption = "Antall hoved registreringsskjemaer etter måned" ,
-        digits = c(0,0,0,1)) ,
-    booktabs = TRUE )
-
-@   
-\end{frame}
+cap <- "Antall hoved registreringsskjemaer etter måned"
+mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
+    digs = c(0,0,0,1), align = rep("r", 4))
+```
 
 
 
-\begin{frame}[fragile]
-  \frametitle{Kompletthet utskrivelses skjemaer}
-  
-<<SOtab2,results='asis'>>=
+## Kompletthet utskrivelses skjemaer
+
+
+```{r SOtab2,results='asis'}
 
 nSOU <- with(
     SO[ which( SO$Skjemanavn == "Utskrivelse" ) , ] ,
@@ -993,18 +902,8 @@ TABkompletthet <- cbind(
     rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-xtable::print.xtable(
-    x = xtable::xtable(
-        x = TABkompletthet ,
-        caption = "Antall utskrivelsesskjemaer etter måned" ,
-        digits = c(0,0,0,1)) ,
-    booktabs = TRUE )
+cap <- "Antall utskrivelsesskjemaer etter måned"
+mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
+    digs = c(0,0,0,1), align = rep("r", 4))
+```
 
-@   
-\end{frame}
-
-
-
-
-\end{tiny}
-\end{document}
