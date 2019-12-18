@@ -45,7 +45,8 @@ Imports:
   xtable
 Remotes:
   Rapporteket/rapbase,
-  Rapporteket/raplog
+  Rapporteket/raplog,
+  andrewsali/shinycssloaders
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 Suggests: 
