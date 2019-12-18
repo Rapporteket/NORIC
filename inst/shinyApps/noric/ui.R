@@ -58,8 +58,9 @@ ui <- tagList(
         ),
         mainPanel(
           htmlOutput("stentbruk", inline = TRUE) %>%
-            withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2)
+            shinycssloaders::withSpinner(color = "#18bc9c",
+                                         color.background = "#ffffff",
+                                         type = 2)
         )
       )
     ),
@@ -76,8 +77,9 @@ ui <- tagList(
         ),
         mainPanel(
           htmlOutput("prosedyrer", inline = TRUE) %>%
-            withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2)
+            shinycssloaders::withSpinner(color = "#18bc9c",
+                                         color.background = "#ffffff",
+                                         type = 2)
         )
       )
     ),
@@ -94,8 +96,9 @@ ui <- tagList(
         ),
         mainPanel(
           htmlOutput("prosedyrer2", inline = TRUE) %>%
-            withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2)
+            shinycssloaders::withSpinner(color = "#18bc9c",
+                                         color.background = "#ffffff",
+                                         type = 2)
         )
       )
     ),
