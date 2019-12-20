@@ -25,7 +25,8 @@ ui <- tagList(
         appNavbarUserWidget(user = uiOutput("appUserName"),
                            organization = uiOutput("appOrgName"),
                            addUserInfo = TRUE),
-        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))
+        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
+        tags$head(tags$script(src = "spinner.js"))
       )
     ),
     
