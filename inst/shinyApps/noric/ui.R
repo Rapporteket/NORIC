@@ -25,9 +25,7 @@ ui <- tagList(
         appNavbarUserWidget(user = uiOutput("appUserName"),
                            organization = uiOutput("appOrgName"),
                            addUserInfo = TRUE),
-        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
-        tags$head(includeScript("www/spinner.js"))
-        #tags$head(tags$script(src = "spinner.js"))
+        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))
       )
     ),
     
@@ -41,11 +39,11 @@ ui <- tagList(
              ),
              fluidRow(
                column(12,
-                      rpivotTableOutput("pivotSurvey") %>%
-                        shinycssloaders::withSpinner(
-                          color = "#18bc9c",
-                          color.background = "#ffffff",
-                          type = 2)
+                      rpivotTableOutput("pivotSurvey") #%>%
+                        # shinycssloaders::withSpinner(
+                        #   color = "#18bc9c",
+                        #   color.background = "#ffffff",
+                        #   type = 2)
                       )
              )
     ),
@@ -62,10 +60,10 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("stentbruk", inline = TRUE) %>%
-            shinycssloaders::withSpinner(color = "#18bc9c",
-                                         color.background = "#ffffff",
-                                         type = 2)
+          htmlOutput("stentbruk", inline = TRUE) #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
         )
       )
     ),
@@ -81,10 +79,10 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer", inline = TRUE) %>%
-            shinycssloaders::withSpinner(color = "#18bc9c",
-                                         color.background = "#ffffff",
-                                         type = 2)
+          htmlOutput("prosedyrer", inline = TRUE) #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
         )
       )
     ),
@@ -100,10 +98,10 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer2", inline = TRUE) %>%
-            shinycssloaders::withSpinner(color = "#18bc9c",
-                                         color.background = "#ffffff",
-                                         type = 2)
+          htmlOutput("prosedyrer2", inline = TRUE) #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
         )
       )
     ),
@@ -131,9 +129,9 @@ ui <- tagList(
                      downloadButton("dumpDownload", "Hent!")
                      ),
         mainPanel(
-          htmlOutput("dataDumpInfo") %>% 
-            shinycssloaders::withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2)
+          htmlOutput("dataDumpInfo") #%>% 
+            # shinycssloaders::withSpinner(color = "#18bc9c",color.background = "#ffffff",
+            #             type = 2)
         )
       )
     ),
