@@ -17,7 +17,6 @@ ui <- tagList(
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
     id = "tabs",
-    includeScript("www/spinner.js"),
     
     tabPanel("Start",
       useShinyalert(),
@@ -26,7 +25,8 @@ ui <- tagList(
         appNavbarUserWidget(user = uiOutput("appUserName"),
                            organization = uiOutput("appOrgName"),
                            addUserInfo = TRUE),
-        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))#,
+        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
+        tags$head(includeScript("www/spinner.js"))
         #tags$head(tags$script(src = "spinner.js"))
       )
     ),
