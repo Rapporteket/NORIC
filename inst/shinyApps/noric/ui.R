@@ -60,10 +60,10 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("stentbruk", inline = TRUE) %>%
-            shinycssloaders::withSpinner(color = "#18bc9c",
-                                         color.background = "#ffffff",
-                                         type = 2)
+          htmlOutput("stentbruk", inline = TRUE) #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
         )
       )
     ),
