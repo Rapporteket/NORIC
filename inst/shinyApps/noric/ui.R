@@ -38,10 +38,13 @@ ui <- tagList(
                column(12, uiOutput("togglePivotSurvey"))
              ),
              fluidRow(
-               column(12, rpivotTableOutput("pivotSurvey") %>%
-                        withSpinner(color = "#18bc9c",
-                                    color.background = "#ffffff",
-                                    type = 2))
+               column(12,
+                      rpivotTableOutput("pivotSurvey") %>%
+                        shinycssloaders::withSpinner(
+                          color = "#18bc9c",
+                          color.background = "#ffffff",
+                          type = 2)
+                      )
              )
     ),
     
@@ -127,7 +130,7 @@ ui <- tagList(
                      ),
         mainPanel(
           htmlOutput("dataDumpInfo") %>% 
-            withSpinner(color = "#18bc9c",color.background = "#ffffff",
+            shinycssloaders::withSpinner(color = "#18bc9c",color.background = "#ffffff",
                         type = 2)
         )
       )
