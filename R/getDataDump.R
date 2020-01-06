@@ -23,12 +23,12 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                         , "SegmentStent") 
   ){
     query <- paste0("
-    SELECT
-    p.*
-    FROM 
-    ", tableName, " p 
-    WHERE 
-    p.ProsedyreDato >= '", fromDate, "' AND p.ProsedyreDato <= '", toDate, "';"
+SELECT
+  *
+FROM 
+  ", tableName, " 
+WHERE 
+  ProsedyreDato >= '", fromDate, "' AND ProsedyreDato <= '", toDate, "';"
     )
   }
   
@@ -39,9 +39,12 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                         , "ForlopsOversikt")
   ){
     query <- paste0("
-    SELECT * 
-    FROM ", tableName, " 
-    WHERE HovedDato >= '", fromDate, "' AND HovedDato <= '", toDate, "';")
+SELECT
+  * 
+FROM
+  ", tableName, " 
+WHERE
+  HovedDato >= '", fromDate, "' AND HovedDato <= '", toDate, "';")
   }
   
   
@@ -50,12 +53,12 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   if( tableName %in% c( "CTAngioVar" ) 
   ){
     query <- paste0("
-    SELECT
-    p.*
-    FROM 
-    ", tableName, " p 
-    WHERE 
-    p.UndersokDato >= '", fromDate, "' AND p.UndersokDato <= '", toDate, "';"
+SELECT
+  *
+FROM 
+  ", tableName, "
+WHERE 
+  UndersokDato >= '", fromDate, "' AND UndersokDato <= '", toDate, "';"
     )
   }
   
