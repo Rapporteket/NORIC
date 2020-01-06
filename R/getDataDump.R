@@ -89,7 +89,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     # nøkler. Derfor får hver tabell sin egen if-setning:
     
     
-    # AnP
+    # AnP ----
     if( tableName %in% c( "AndreProsedyrerVar" )){
       
       FO %<>% 
@@ -118,7 +118,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                        )
     }
     
-    # AK
+    # AK ----
     if( tableName %in% c( "AortaklaffVar" )){
       
       FO %<>% 
@@ -148,7 +148,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     }
     
     
-    # AP
+    # AP ----
     if( tableName %in% c( "AngioPCIVar" ) ){
       
       FO %<>% 
@@ -181,7 +181,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     }
     
     
-    # CT
+    # CT ----
     if( tableName %in% c( "CTAngioVar" ) ){
       
       FO %<>% 
@@ -189,8 +189,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
           # Nøkler:
           AvdRESH
           ,ForlopsID
-          ,PasientID
           # Variablene som legges til:
+          ,PasientID
           ,Sykehusnavn
           # ,FodselsDato # Finnes per d.d. i CT
           ,Kommune
@@ -206,15 +206,14 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID"
-                                       , "AvdRESH"
-                                       , "PasientID"),
+                                       , "AvdRESH"),
                       suffix = c("", ".FO") # usikker som denne linjen trengs, slette senere?
                       )
     }
     
     
     
-    # SS
+    # SS ----
     if( tableName %in% c( "SegmentStent" ) ){
       
       FO %<>% 
