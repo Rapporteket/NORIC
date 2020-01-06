@@ -113,6 +113,7 @@ ui <- tagList(
                      selectInput("dumpDataSet", "Velg datasett:",
                                  c("AndreProsedyrerVar",
                                    "AngioPCIVar",
+                                   "AortaklaffVar",
                                    "CTAngioVar",
                                    "ForlopsOversikt",
                                    "SegmentStent",
