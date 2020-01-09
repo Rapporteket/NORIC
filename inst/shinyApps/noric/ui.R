@@ -38,10 +38,13 @@ ui <- tagList(
                column(12, uiOutput("togglePivotSurvey"))
              ),
              fluidRow(
-               column(12, rpivotTableOutput("pivotSurvey") %>%
-                        withSpinner(color = "#18bc9c",
-                                    color.background = "#ffffff",
-                                    type = 2))
+               column(12,
+                      rpivotTableOutput("pivotSurvey") #%>%
+                        # shinycssloaders::withSpinner(
+                        #   color = "#18bc9c",
+                        #   color.background = "#ffffff",
+                        #   type = 2)
+                      )
              )
     ),
     
@@ -57,9 +60,10 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("stentbruk", inline = TRUE) %>%
-            withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2)
+          htmlOutput("stentbruk", inline = TRUE) #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
         )
       )
     ),
@@ -75,9 +79,10 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer", inline = TRUE) %>%
-            withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2)
+          htmlOutput("prosedyrer", inline = TRUE) #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
         )
       )
     ),
@@ -93,9 +98,10 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer2", inline = TRUE) %>%
-            withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2)
+          htmlOutput("prosedyrer2", inline = TRUE) #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
         )
       )
     ),
@@ -107,11 +113,9 @@ ui <- tagList(
                      selectInput("dumpDataSet", "Velg datasett:",
                                  c("AndreProsedyrerVar",
                                    "AngioPCIVar",
-                                   "AnnenDiagnostikkVar",
-                                   "AortaklaffOppfVar",
+                                   "AortaklaffVar",
                                    "CTAngioVar",
                                    "ForlopsOversikt",
-                                   "MitralklaffOppfVar",
                                    "SegmentStent",
                                    "SkjemaOversikt")),
                      dateRangeInput("dumpDateRange", "Velg periode:",
@@ -123,9 +127,9 @@ ui <- tagList(
                      downloadButton("dumpDownload", "Hent!")
                      ),
         mainPanel(
-          htmlOutput("dataDumpInfo") %>% 
-            withSpinner(color = "#18bc9c",color.background = "#ffffff",
-                        type = 2)
+          htmlOutput("dataDumpInfo") #%>% 
+            # shinycssloaders::withSpinner(color = "#18bc9c",color.background = "#ffffff",
+            #             type = 2)
         )
       )
     ),

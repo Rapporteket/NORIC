@@ -50,8 +50,8 @@ FROM CTAngioVar
       # Nøkler:
       AvdRESH
       ,ForlopsID
-      ,PasientID
       # Variablene som legges til:
+      ,PasientID # NB. CT har denne variabelen i test, men ikke i QA 
       ,Sykehusnavn
       # ,FodselsDato # Finnes per d.d. i CT
       ,Kommune
@@ -66,7 +66,10 @@ FROM CTAngioVar
       ,HovedDato
     )
   
-  CT <- left_join(CT, FO, by = c("ForlopsID", "AvdRESH", "PasientID"),
+  CT <- left_join(CT, FO, by = c( "ForlopsID"
+                                  , "AvdRESH"
+                                  # , "PasientID"
+                                  ),
                    suffix = c("", ".FO"))
   
   # Gjor datoer om til dato-objekt:
