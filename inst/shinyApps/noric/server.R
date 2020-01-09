@@ -98,9 +98,9 @@ shinyServer(function(input, output, session) {
                             toDate = input$dumpDateRange[2],
                             session = session)
     if (type == "xlsx-csv") {
-      readr::write_excel_csv(d, file)
+      readr::write_excel_csv2(d, file)
     } else {
-      readr::write_csv(d, file)
+      readr::write_csv2(d, file)
     }
   }
   
