@@ -122,7 +122,7 @@ shinyServer(function(input, output, session) {
     htmlRenderRmd("veiledning.Rmd")
   })
   
-  # Krysstabell
+  # Krysstabell/Utforsker
   ## Data sets available
   dataSets <- list(`Bruk og valg av data...` = "info",
                    `Andre prosedyrer` = "AnP",
