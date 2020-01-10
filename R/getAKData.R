@@ -113,10 +113,18 @@ FROM
   
   
   # Gjøre kategoriske variabler om til factor:
-  # (ikke fullstendig, må legget til mer etter hvert)
+  # (ikke fullstendig, må legge til mer etter hvert)
   AK %<>%
     mutate(
-      Aortaforkalk = factor( Aortaforkalk,
+      
+      Aktiviteter = addNA( Aktiviteter, ifany = TRUE )
+      ,AndrePlatehemmereVedUtskrivelse = addNA( AndrePlatehemmereVedUtskrivelse , ifany = TRUE )
+      ,Anestesi = addNA( Anestesi , ifany = TRUE )
+      ,AngstDepresjon = addNA( AngstDepresjon , ifany = TRUE )
+      ,AnnenAlvorligSykdom = addNA( AnnenAlvorligSykdom , ifany = TRUE )
+      ,AntikoagulantiaVedUtskrivelse = addNA( AntikoagulantiaVedUtskrivelse , ifany = TRUE )
+      
+      ,Aortaforkalk = factor( Aortaforkalk,
                               levels = c(
                                 "Nei"
                                 ,"Mild"
@@ -127,9 +135,30 @@ FROM
                               )
                               ,exclude = NULL # inkluderer NA i levels
                               ,ordered = TRUE
-      ),
+      )
       
-      CanadianClass = factor( CanadianClass,
+      ,ASAVedUtskrivelse = addNA( ASAVedUtskrivelse , ifany = TRUE )
+      ,Atrieflimmer = addNA( Atrieflimmer , ifany = TRUE )
+      ,AvdKompAnnenKomp = addNA( AvdKompAnnenKomp , ifany = TRUE )
+      ,AvdKompAtrieflimmer = addNA( AvdKompAtrieflimmer , ifany = TRUE )
+      ,AvdKompBlodning = addNA( AvdKompBlodning , ifany = TRUE )
+      ,AvdKompBlodningGrad = addNA( AvdKompBlodningGrad , ifany = TRUE )
+      ,AvdKompDialyse = addNA( AvdKompDialyse , ifany = TRUE )
+      ,AvdKompDod = addNA( AvdKompDod , ifany = TRUE )
+      ,AvdKompHjerneslag = addNA( AvdKompHjerneslag , ifany = TRUE )
+      ,AvdKompHjerneslagGrad = addNA( AvdKompHjerneslagGrad , ifany = TRUE )
+      ,AvdKompHjerteinfarkt = addNA( AvdKompHjerteinfarkt , ifany = TRUE )
+      ,AvdKompInfeksjon = addNA( AvdKompInfeksjon , ifany = TRUE )
+      ,AvdKomplikasjon = addNA( AvdKomplikasjon , ifany = TRUE )
+      ,AvdKompPacemaker = addNA( AvdKompPacemaker , ifany = TRUE )
+      ,AvdKompTamponade = addNA( AvdKompTamponade , ifany = TRUE )
+      ,AvdKompTIA = addNA( AvdKompTIA , ifany = TRUE )
+      ,AvdKompVaskular = addNA( AvdKompVaskular , ifany = TRUE )
+      
+      ,BasisRegStatus = addNA( BasisRegStatus , ifany = TRUE )
+      ,BehHypertoni = addNA( BehHypertoni , ifany = TRUE )
+      
+      ,CanadianClass = factor( CanadianClass,
                               levels = c(
                                 "Ikke angina/brystsmerter"
                                 ,"I"
@@ -141,32 +170,59 @@ FROM
                               )
                               ,exclude = NULL # inkluderer NA i levels
                               ,ordered = TRUE
-      ),
+      )
       
-      Frailty = factor( Frailty,
+      ,Diabetes = addNA( Diabetes , ifany = TRUE )
+      ,DialyseFoerOp = addNA( DialyseFoerOp , ifany = TRUE )
+      ,ErCTForetatt = addNA( ErCTForetatt , ifany = TRUE )
+      ,ForlopsType1 = addNA( ForlopsType1 , ifany = TRUE )
+      
+      ,ForlopsType2 = factor( ForlopsType2,
                               levels = c(
-                                "Robust"
-                                ,"Intermediær"
-                                ,"Skrøpelig"
-                                ,"Ukjent"
-                                ,NA
-                              )
-                              ,exclude = NULL # inkluderer NA i levels
-                              ,ordered = TRUE
-      ),
+                                "Akutt"
+                                , "Subakutt"
+                                , "Planlagt"
+                              ),
+                              ordered = TRUE )
       
-      Hastegrad = factor( Hastegrad,
-                          levels = c(
-                            "Elektiv"
-                            , "Haster"
-                            , "Akutt"
-                            , "Under pågående HLR"
-                            ,NA
-                          )
-                          ,exclude = NULL # inkluderer NA i levels
-                          ,ordered = TRUE ),
+      ,Frailty = factor( Frailty,
+                         levels = c(
+                           "Robust"
+                           ,"Intermediær"
+                           ,"Skrøpelig"
+                           ,"Ukjent"
+                           ,NA
+                         )
+                         ,exclude = NULL # inkluderer NA i levels
+                         ,ordered = TRUE
+      )
       
-      Indikasjon = factor( Indikasjon,
+      ,Gangtest = addNA( Gangtest , ifany = TRUE )
+      ,Gripestyrke = addNA( Gripestyrke , ifany = TRUE )
+      
+      ,Hastegrad = factor( Hastegrad,
+                           levels = c(
+                             "Elektiv"
+                             , "Haster"
+                             , "Akutt"
+                             , "Under pågående HLR"
+                             ,NA
+                           )
+                           ,exclude = NULL # inkluderer NA i levels
+                           ,ordered = TRUE )
+      
+      
+      ,Hygiene = factor( Hygiene,
+                         levels = c(
+                           "En (1)"
+                           , "To (2)"
+                           , "Tre (3)"
+                           ,NA
+                         )
+                         ,exclude = NULL # inkluderer NA i levels
+                         ,ordered = TRUE )
+      
+      ,Indikasjon = factor( Indikasjon,
                            levels = c(
                              "Stenose"
                              ,"Stenose og insuffisiens"
@@ -175,72 +231,133 @@ FROM
                            )
                            ,exclude = NULL # inkluderer NA i levels
                            ,ordered = TRUE
-      ),
-      
-      klaffetype = dplyr::recode(TypeKlaffeprotese,
-                                 "CoreValve" = "CoreValve",
-                                 "CoreValve Evolut R" = "CoreValve",
-                                 "CoreValve Evolut PRO" = "CoreValve",
-                                 "Edwards" = "Edwards",
-                                 "Edwards SAPIEN 3" = "Edwards",
-                                 "Edwards SAPIEN 3 Ultra" = "Edwards",
-                                 "Edwards SAPIEN XT" = "Edwards",
-                                 .default = "Annet"
-      ),
-      
-      dager_mellom_prosedyre_og_utskr = as.numeric( difftime(  UtskrDato, ProsedyreDato, units = "days" ) ),
-      
-      NYHAKlasse = factor( NYHAKlasse,
-                           levels = c(
-                             "I"
-                             ,"II"
-                             ,"III"
-                             ,"IV"
-                             ,"Ukjent"
-                             ,NA
-                           )
-                           ,exclude = NULL # inkluderer NA i levels
-                           ,ordered = TRUE
-      ),
-      
-      
-      OperativTilgang = factor( OperativTilgang,
-                           levels = c(
-                             "A.subclavia"
-                             ,"Direkte aorta"
-                             ,"Transapical"
-                             ,"Transfemoral"
-                             ,NA
-                           )
-                           ,exclude = NULL # inkluderer NA i levels
-                           ,ordered = TRUE
       )
       
+      ,InfarktSiste90d = factor( InfarktSiste90d,
+                                 levels = c(
+                                   "Ja"
+                                   ,"Nei"
+                                   ,NA
+                                 )
+                                 ,exclude = NULL # inkluderer NA i levels
+                                 ,ordered = TRUE
+      )
       
+      ,Insulin = addNA( Insulin , ifany = TRUE )
+      ,Karlukning = addNA( Karlukning , ifany = TRUE )
+      ,KlaffearealIkkeBeregnet = addNA( KlaffearealIkkeBeregnet , ifany = TRUE )
+      ,KlaffIKlaff = addNA( KlaffIKlaff , ifany = TRUE )
+      ,KOLS = addNA( KOLS , ifany = TRUE )
+      ,Kommune = addNA( Kommune , ifany = TRUE )
+      ,Kontrastmiddel = addNA( Kontrastmiddel , ifany = TRUE )
+      ,KritiskPreopTilstand = addNA( KritiskPreopTilstand , ifany = TRUE )
+      
+      ,LabKompAkuttKlaff = addNA( LabKompAkuttKlaff , ifany = TRUE )
+      ,LabKompAkuttVaskular = addNA( LabKompAkuttVaskular , ifany = TRUE )
+      ,LabKompAnestesi = addNA( LabKompAnestesi , ifany = TRUE )
+      ,LabKompAnnenKomp = addNA( LabKompAnnenKomp , ifany = TRUE )
+      ,LabKompArytmi = addNA( LabKompArytmi , ifany = TRUE )
+      ,LabKompBlodning = addNA( LabKompBlodning , ifany = TRUE )
+      ,LabKompDod = addNA( LabKompDod , ifany = TRUE )
+      ,LabKompEmboli = addNA( LabKompEmboli , ifany = TRUE )
+      ,LabKompHLMaskin = addNA( LabKompHLMaskin , ifany = TRUE )
+      ,LabKomplikasjon = addNA( LabKomplikasjon , ifany = TRUE )
+      ,LabKompNeurologi = addNA( LabKompNeurologi , ifany = TRUE )
+      ,LabKompOkklusjon = addNA( LabKompOkklusjon , ifany = TRUE )
+      ,LabKompProtese = addNA( LabKompProtese , ifany = TRUE )
+      ,LabKompTamponade = addNA( LabKompTamponade , ifany = TRUE )
+      ,LabKompVaskular = addNA( LabKompVaskular , ifany = TRUE )
+      ,Labnr = addNA( Labnr , ifany = TRUE )
+      
+      ,Malignitet = addNA( Malignitet , ifany = TRUE )
+      ,Mitralisinsuffisiens = addNA( Mitralisinsuffisiens , ifany = TRUE )
+      ,Mobilitet = addNA( Mobilitet , ifany = TRUE )
+      
+      ,NYHAKlasse = factor( NYHAKlasse,
+                            levels = c(
+                              "I"
+                              ,"II"
+                              ,"III"
+                              ,"IV"
+                              ,"Ukjent"
+                              ,NA
+                            )
+                            ,exclude = NULL # inkluderer NA i levels
+                            ,ordered = TRUE
+      )
+      
+      ,OperativTilgang = factor( OperativTilgang,
+                                 levels = c(
+                                   "A.subclavia"
+                                   ,"Direkte aorta"
+                                   ,"Transapical"
+                                   ,"Transfemoral"
+                                   ,NA
+                                 )
+                                 ,exclude = NULL # inkluderer NA i levels
+                                 ,ordered = TRUE
+      )
+      
+      ,Pacemaker = addNA( Pacemaker , ifany = TRUE )
+      ,ParavalvularLekkasje = addNA( ParavalvularLekkasje , ifany = TRUE )
       
       ,PasientKjonn = factor(PasientKjonn,
-                            levels = c( "Mann", "Kvinne")
-                            ,exclude = NULL # inkluderer NA i levels
-                            , ordered = TRUE
-                            )
+                             levels = c( "Mann", "Kvinne")
+                             ,exclude = NULL # inkluderer NA i levels
+                             , ordered = TRUE
+      )
       
-      ,Kommune = addNA( Kommune, ifany = TRUE)
-
+      ,PeriferKarsykdom = addNA( PeriferKarsykdom , ifany = TRUE )
+      ,PerkKlaffPgaPasient = addNA( PerkKlaffPgaPasient , ifany = TRUE )
+      ,PerkKlaffPgaRisiko = addNA( PerkKlaffPgaRisiko , ifany = TRUE )
+      ,PerkKlaffPgaRisikoACB = addNA( PerkKlaffPgaRisikoACB , ifany = TRUE )
+      ,PerkKlaffPgaRisikoAlder = addNA( PerkKlaffPgaRisikoAlder , ifany = TRUE )
+      ,PerkKlaffPgaRisikoSpesiell = addNA( PerkKlaffPgaRisikoSpesiell , ifany = TRUE )
+      ,PerkKlaffPgaRisikoSpiro = addNA( PerkKlaffPgaRisikoSpiro , ifany = TRUE )
+      ,Porselenaorta = addNA( Porselenaorta , ifany = TRUE )
+      
+      ,PostAortainsuffisiens = addNA( PostAortainsuffisiens , ifany = TRUE )
+      ,Postdilatasjon = addNA( Postdilatasjon , ifany = TRUE )
+      ,PostMitralisinsuffisiens = addNA( PostMitralisinsuffisiens , ifany = TRUE )
+      
+      ,PostVenstreVentrikkelFunksjon = factor( PostVenstreVentrikkelFunksjon,
+                                               levels = c(
+                                                 "Normal"
+                                                 ,"Lett nedsatt: EF 40 - 49% "
+                                                 ,"Moderat nedsatt: EF 30 - 39%"
+                                                 ,"Betydelig nedsatt: EF 21 - 29%"
+                                                 ,"Alvorlig nedsatt: EF <= 20%"
+                                                 ,"Ukjent"
+                                                 ,NA
+                                               )
+                                               ,exclude = NULL # inkluderer NA i levels
+                                               ,ordered = TRUE
+      )
+      
+      ,PreAortainsuffisiens = addNA( PreAortainsuffisiens , ifany = TRUE )
+      ,Predilatasjon = addNA( Predilatasjon , ifany = TRUE )
+      ,PreMitralisinsuffisiens = addNA( PreMitralisinsuffisiens , ifany = TRUE )
+      
       ,PreVenstreVentrikkelFunksjon = factor( PreVenstreVentrikkelFunksjon,
-                              levels = c(
-                                "Normal"
-                                ,"Lett nedsatt: EF 40 - 49% "
-                                ,"Moderat nedsatt: EF 30 - 39%"
-                                ,"Betydelig nedsatt: EF 21 - 29%"
-                                ,"Alvorlig nedsatt: EF <= 20%"
-                                ,"Ukjent"
-                                ,NA
-                              )
-                              ,exclude = NULL # inkluderer NA i levels
-                              ,ordered = TRUE
-                              ),
+                                              levels = c(
+                                                "Normal"
+                                                ,"Lett nedsatt: EF 40 - 49% "
+                                                ,"Moderat nedsatt: EF 30 - 39%"
+                                                ,"Betydelig nedsatt: EF 21 - 29%"
+                                                ,"Alvorlig nedsatt: EF <= 20%"
+                                                ,"Ukjent"
+                                                ,NA
+                                              )
+                                              ,exclude = NULL # inkluderer NA i levels
+                                              ,ordered = TRUE
+      )
       
-      Royker = factor(Royker, 
+
+      ,ProtectionDevice = addNA( ProtectionDevice , ifany = TRUE )
+      ,RapidPacing = addNA( RapidPacing , ifany = TRUE )
+      ,RedusertMobilitet = addNA( RedusertMobilitet , ifany = TRUE )
+      
+      ,Royker = factor(Royker, 
                        levels = c( 
                          "Aldri røykt"
                          , "Eks-røyker >1 mnd"
@@ -250,52 +367,96 @@ FROM
                        )
                        ,exclude = NULL # inkluderer NA i levels
                        ,ordered = TRUE
-      ),
+      )
       
-      ScreeningBeslutning = factor(ScreeningBeslutning, 
-                       levels = c( 
-                         "TAVI"
-                         , "BAV"
-                         , "TAVI + PCI"
-                         , NA
-                       )
-                       ,exclude = NULL # inkluderer NA i levels
-                       ,ordered = TRUE
-      ),
+      ,ScreeningBeslutning = factor(ScreeningBeslutning, 
+                                    levels = c( 
+                                      "TAVI"
+                                      , "BAV"
+                                      , "TAVI + PCI"
+                                      , NA
+                                    )
+                                    ,exclude = NULL # inkluderer NA i levels
+                                    ,ordered = TRUE
+      )
       
-      Sykehusnavn = as.ordered( Sykehusnavn )
+      ,SkjemaStatus = addNA( SkjemaStatus , ifany = TRUE )
+      ,SmerterUbehag = addNA( SmerterUbehag , ifany = TRUE )
+      ,Steroidbehandling = addNA( Steroidbehandling , ifany = TRUE )
+      ,Stralebehandling = addNA( Stralebehandling , ifany = TRUE )
+      ,Sykehusnavn = as.ordered( Sykehusnavn )
+      
+      ,Thoraxdeformitet = addNA( Thoraxdeformitet , ifany = TRUE )
+      ,TidlACB = addNA( TidlACB , ifany = TRUE )
+      ,TidlAnnet = addNA( TidlAnnet , ifany = TRUE )
+      ,TidlAVR = addNA( TidlAVR , ifany = TRUE )
+      ,TidlHjerneslag = addNA( TidlHjerneslag , ifany = TRUE )
+      ,TidlHjerteoperasjon = addNA( TidlHjerteoperasjon , ifany = TRUE )
+      ,TidlMitralplastikk = addNA( TidlMitralplastikk , ifany = TRUE )
+      ,TidlMVR = addNA( TidlMVR , ifany = TRUE )
+      ,TidlPCI = addNA( TidlPCI , ifany = TRUE )
+      ,UgunstigAnatomi = addNA( UgunstigAnatomi , ifany = TRUE )
+      
+      ,UtskrevetTil = factor(UtskrevetTil, 
+                             levels = c( 
+                               "Hjem"           
+                               ,"Rehabilitering" 
+                               ,"Annet sykehus"
+                               ,"Sykehjem"
+                               , NA
+                             )
+                             ,exclude = NULL # inkluderer NA i levels
+                             ,ordered = TRUE
+      )
+      
+      ,VellykketProsedyre = addNA( VellykketProsedyre , ifany = TRUE )
       
     )
+  
   
   
   # Utledete variabler:
   AK %<>% 
     mutate( 
+      
+      dager_mellom_prosedyre_og_utskr = as.numeric( difftime(  UtskrDato, ProsedyreDato, units = "days" ) )
+      
+      ,klaffetype = dplyr::recode(TypeKlaffeprotese,
+                                  "CoreValve" = "CoreValve",
+                                  "CoreValve Evolut R" = "CoreValve",
+                                  "CoreValve Evolut PRO" = "CoreValve",
+                                  "Edwards" = "Edwards",
+                                  "Edwards SAPIEN 3" = "Edwards",
+                                  "Edwards SAPIEN 3 Ultra" = "Edwards",
+                                  "Edwards SAPIEN XT" = "Edwards",
+                                  .default = "Annet"
+      )
+      
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:
-      year = as.ordered( year( ProsedyreDato )),
-      aar = year,
+      ,year = as.ordered( year( ProsedyreDato ))
+      ,aar = year
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) )),
-      maaned = as.ordered( paste0( year, "-", maaned_nr) ),
+      ,maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) ))
+      ,maaned = as.ordered( paste0( year, "-", maaned_nr) )
       # Kvartal:
-      kvartal = quarter( ProsedyreDato, with_year = TRUE ),
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
-      kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
+      ,kvartal = quarter( ProsedyreDato, with_year = TRUE )
+      # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
+      ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) )),
+      ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
       # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
+      ,aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
                         yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
                         no = paste0(aar, "-", uke )
-      ),
-      aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
+      )
+      ,aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
                         yes = paste0( as.integer(year(ProsedyreDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
                         no = aar_uke
-      ),
-      aar_uke = as.ordered( aar_uke )
+      )
+      ,aar_uke = as.ordered( aar_uke )
       )
   
   
