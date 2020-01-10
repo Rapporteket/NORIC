@@ -214,17 +214,19 @@ FROM
                            )
                            ,exclude = NULL # inkluderer NA i levels
                            ,ordered = TRUE
-      ),
+      )
       
       
       
-      # PasientKjonn = factor(PasientKjonn, 
-      #                       levels = c( "Mann", "Kvinne")
-      #                       ,exclude = NULL # inkluderer NA i levels
-      #                       , ordered = TRUE),
-      # Kommune = as.factor( Kommune ),
+      ,PasientKjonn = factor(PasientKjonn,
+                            levels = c( "Mann", "Kvinne")
+                            ,exclude = NULL # inkluderer NA i levels
+                            , ordered = TRUE
+                            )
+      
+      ,Kommune = addNA( Kommune, ifany = TRUE)
 
-      PreVenstreVentrikkelFunksjon = factor( PreVenstreVentrikkelFunksjon,
+      ,PreVenstreVentrikkelFunksjon = factor( PreVenstreVentrikkelFunksjon,
                               levels = c(
                                 "Normal"
                                 ,"Lett nedsatt: EF 40 - 49% "
