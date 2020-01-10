@@ -162,6 +162,19 @@ FROM AortaklaffOppfVar
       ,ParavalvularLekkasje = as.ordered( ParavalvularLekkasje )
       ,Mitralinsuffisiens = as.ordered( Mitralinsuffisiens )
       ,Komplikasjoner = as.ordered( Komplikasjoner )
+      
+      ,UtskrevetTil = factor(UtskrevetTil, 
+                             levels = c( 
+                               "Hjem"           
+                               ,"Rehabilitering" 
+                               ,"Annet sykehus"
+                               ,"Sykehjem"
+                               , NA
+                             )
+                             ,exclude = NULL # inkluderer NA i levels
+                             ,ordered = TRUE
+      )
+      
     )
   
   
