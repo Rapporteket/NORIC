@@ -51,7 +51,6 @@ FROM
       # Nøkler:
       AvdRESH
       ,ForlopsID
-      
       # Variablene som legges til:
       ,Sykehusnavn
       ,PasientID
@@ -131,6 +130,7 @@ FROM
       ,AntikoagulantiaVedUtskrivelse = addNA( AntikoagulantiaVedUtskrivelse , ifany = TRUE )
       ,ASAVedUtskrivelse = addNA( ASAVedUtskrivelse , ifany = TRUE )
       ,Atrieflimmer = addNA( Atrieflimmer , ifany = TRUE )
+      
       ,AvdKompAnnenKomp = addNA( AvdKompAnnenKomp , ifany = TRUE )
       ,AvdKompAtrieflimmer = addNA( AvdKompAtrieflimmer , ifany = TRUE )
       ,AvdKompBlodning = addNA( AvdKompBlodning , ifany = TRUE )
@@ -231,8 +231,8 @@ FROM
       ,LabKompPacemaker = addNA( LabKompPacemaker , ifany = TRUE )
       ,LabKompTamponade = addNA( LabKompTamponade , ifany = TRUE )
       ,LabKompVaskular = addNA( LabKompVaskular , ifany = TRUE )
-      ,Labnr = addNA( Labnr , ifany = TRUE )
       
+      ,Labnr = addNA( Labnr , ifany = TRUE )
       ,Malignitet = addNA( Malignitet , ifany = TRUE )
       ,Mobilitet = addNA( Mobilitet , ifany = TRUE )
       
@@ -271,7 +271,6 @@ FROM
       ,PostReversFlow = addNA( PostReversFlow , ifany = TRUE )
       ,PostTricuspidal = addNA( PostTricuspidal , ifany = TRUE )
       ,PostVContracta = addNA( PostVContracta , ifany = TRUE )
-      
       
       ,PostVenstreVentrikkelFunksjon = factor( PostVenstreVentrikkelFunksjon,
                                              levels = c(
@@ -403,20 +402,6 @@ FROM
       )
       ,aar_uke = as.ordered( aar_uke )
     )
-  
-  
-  
-  # Droppe denne kommende snutten da det kan være nyttig for NORIC om sykehus som ikke
-  # utfører TAVI oppdager selv at de ved en feil har registrert noen forløp som TAVI?
-  
-  # # FJERNER SYKEHUS SOM IKKE UTFØRER TAVI:
-  # 
-  # MitralklaffVar %<>%
-  #   filter( 
-  #     # Fjerner ev. rader fra Ahus, SUS og Sørlandet:
-  #     Sykehusnavn %not_in% c( "Ahus", "SUS", "Sørlandet")
-  #   )
-  
   
   
   MK
