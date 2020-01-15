@@ -130,11 +130,17 @@ shinyServer(function(input, output, session) {
   ## Data sets available
   dataSets <- list(`Bruk og valg av data...` = "info",
                    `Andre prosedyrer` = "AnP",
+                   `Annen diagnostikk` = "AnD",
                    `Angio PCI` = "AP",
-                   `Skjemaoversikt` = "SO",
-                   `Segment stent` = "SS",
+                   `Aortaklaff` = "AK",
+                   `Aortaklaff oppfølging` = "AKOppf",
                    `CT Angio` = "CT",
-                   `Aortaklaff` = "AK")
+                   `Forløpsoversikt` = "FO",
+                   `Mitralklaff` = "MK",
+                   `PasientStudier` = "PS",
+                   `Skjemaoversikt` = "SO",
+                   `Segment stent` = "SS"
+                   )
   
   ## reactive vals
   rvals <- reactiveValues()
