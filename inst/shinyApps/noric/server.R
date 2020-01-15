@@ -22,7 +22,7 @@ shinyServer(function(input, output, session) {
     ### if need be, define your (local) values here
   }
   
-  # While waiting for finer grain defs, hide tabs when not role SC
+  # Hide tabs when not role 'SC'
   if (userRole != "SC") {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
@@ -32,6 +32,11 @@ shinyServer(function(input, output, session) {
   ## ... and hide 'Prosedyrer2', regardless
   hideTab(inputId = "tabs", target = "Prosedyrer2")
   
+  # Hide local reports/tabs for national registry
+  if (isNationalReg(reshId)) {
+    hideTab(inputId = "tabs", target = "Stentbruk")
+    hideTab(inputId = "tabs", target = "Prosedyrer")
+  }
   
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
