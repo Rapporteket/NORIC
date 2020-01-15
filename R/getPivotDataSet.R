@@ -14,16 +14,44 @@
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                             session) {
   
-  validSetId <- c("AnP", "AP", "SO", "SS", "CT", "AK")
+  validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS", "SO", "SS")
   
   if (setId %in% validSetId) {
     if (setId == "AnP") {
       dat <- noric::getLocalAnPData(registryName, singleRow = singleRow,
                                     session = session)
     } 
+    if (setId == "AnD") {
+      dat <- noric::getAnDData(registryName, singleRow = singleRow,
+                              session = session)
+    }
     if (setId == "AP") {
       dat <- noric::getLocalAPData(registryName, singleRow = singleRow,
                                    session = session)
+    }
+    if (setId == "AK") {
+      dat <- noric::getAKData(registryName, singleRow = singleRow,
+                              session = session)
+    }
+    if (setId == "AKOppf") {
+      dat <- noric::getAKOppfData(registryName, singleRow = singleRow,
+                              session = session)
+    }
+    if (setId == "CT") {
+      dat <- noric::getLocalCTData(registryName, singleRow = singleRow,
+                                   session = session)
+    }
+    if (setId == "FO") {
+      dat <- noric::getFOData(registryName, singleRow = singleRow,
+                              session = session)
+    }
+    if (setId == "MK") {
+      dat <- noric::getMKData(registryName, singleRow = singleRow,
+                              session = session)
+    }
+    if (setId == "PS") {
+      dat <- noric::getPSData(registryName, singleRow = singleRow,
+                              session = session)
     }
     if (setId == "SO") {
       dat <- noric::getLocalSOData(registryName, singleRow = singleRow,
@@ -32,14 +60,6 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
     if (setId == "SS") {
       dat <- noric::getLocalSSData(registryName, singleRow = singleRow,
                                    session = session)
-    }
-    if (setId == "CT") {
-      dat <- noric::getLocalCTData(registryName, singleRow = singleRow,
-                                   session = session)
-    }
-    if (setId == "AK") {
-      dat <- noric::getAKData(registryName, singleRow = singleRow,
-                              session = session)
     }
   } else {
     dat <- NULL
