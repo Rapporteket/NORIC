@@ -332,6 +332,19 @@ shinyServer(function(input, output, session) {
   })
   
   ## nye abonnement
+  
+  ### lag liste over mulige valg styrt av lokal eller nasjonal sesjon
+  output$subscriptionRepList <- renderUI({
+    if (isNationalReg(reshId)) {
+      selectInput("subscriptionRep", "Rapport:",
+                  c(""))
+    } else {
+      selectInput("subscriptionRep", "Rapport:",
+                  c("Stentbruk, månedlig", "Prosedyrer, månedlig"))
+    }
+  })
+  
+  ### aktiver abonnement, men kun når et aktuelt valg er gjort
   observeEvent (input$subscribe, {
     package <- "noric"
     owner <- rapbase::getUserName(session)
@@ -350,19 +363,21 @@ shinyServer(function(input, output, session) {
       synopsis <- "NORIC/Rapporteket: stentbruk, månedlig"
       baseName <- "NORIC_local_monthly_stent"
     }
-    fun <- "subscriptionLocalMonthlyReps"
-    paramNames <- c("baseName", "reshId", "registryName", "author", "hospitalName",
-                    "type")
-    paramValues <- c(baseName, reshId, registryName, author, hospitalName,
-                     input$subscriptionFileFormat)
     
-
-    rapbase::createAutoReport(synopsis = synopsis, package = package,
-                              fun = fun, paramNames = paramNames,
-                              paramValues = paramValues, owner = owner,
-                              email = email, organization = organization,
-                              runDayOfYear = runDayOfYear, interval = interval,
-                              intervalName = intervalName)
+    if (nchar(input$subscriptionRep) > 0) {
+      fun <- "subscriptionLocalMonthlyReps"
+      paramNames <- c("baseName", "reshId", "registryName", "author",
+                      "hospitalName", "type")
+      paramValues <- c(baseName, reshId, registryName, author, hospitalName,
+                       input$subscriptionFileFormat)
+      rapbase::createAutoReport(synopsis = synopsis, package = package,
+                                fun = fun, paramNames = paramNames,
+                                paramValues = paramValues, owner = owner,
+                                email = email, organization = organization,
+                                runDayOfYear = runDayOfYear,
+                                interval = interval,
+                                intervalName = intervalName)
+    }
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
   
