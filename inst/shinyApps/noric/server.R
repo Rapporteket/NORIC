@@ -16,11 +16,7 @@ shinyServer(function(input, output, session) {
     hospitalName <- noric::getHospitalName(reshId)
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
-    localRegistryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
-    nationalRegistryName <-
-      noric::NORICmakeRegistryName(baseName = "noricStaging",
-                                   reshID = reshId, role = userRole,
-                                   localRegistry = FALSE)
+    registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
     author <- paste0(userFullName, "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
@@ -31,8 +27,11 @@ shinyServer(function(input, output, session) {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
-    hideTab(inputId = "tabs", target = "Prosedyrer2")
   }
+  
+  ## ... and hide 'Prosedyrer2', regardless
+  hideTab(inputId = "tabs", target = "Prosedyrer2")
+  
   
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
@@ -41,7 +40,7 @@ shinyServer(function(input, output, session) {
                    hospitalName=hospitalName,
                    tableFormat="html",
                    reshId=reshId,
-                   registryName=localRegistryName)
+                   registryName=registryName)
     system.file(srcFile, package="noric") %>% 
       knitr::knit() %>% 
       markdown::markdownToHTML(.,
@@ -87,13 +86,13 @@ shinyServer(function(input, output, session) {
       hospitalName=hospitalName,
       author=author,
       reshId=reshId,
-      registryName=localRegistryName
+      registryName=registryName
     ), output_dir = tempdir())
     file.rename(out, file)
   }
   
   contentDump <- function(file, type) {
-    d <- noric::getDataDump(nationalRegistryName,input$dumpDataSet,
+    d <- noric::getDataDump(registryName,input$dumpDataSet,
                             fromDate = input$dumpDateRange[1],
                             toDate = input$dumpDateRange[2],
                             session = session)
@@ -122,7 +121,7 @@ shinyServer(function(input, output, session) {
     htmlRenderRmd("veiledning.Rmd")
   })
   
-  # Krysstabell/Utforsker
+  # Utforsker
   ## Data sets available
   dataSets <- list(`Bruk og valg av data...` = "info",
                    `Andre prosedyrer` = "AnP",
@@ -159,13 +158,13 @@ shinyServer(function(input, output, session) {
 
   dat <- reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
-                           registryName = nationalRegistryName,
+                           registryName = registryName,
                            session = session)
   })
   
   metaDat <- reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
-                           registryName = nationalRegistryName,
+                           registryName = registryName,
                            singleRow = TRUE,
                            session = session)
   })
@@ -284,7 +283,7 @@ shinyServer(function(input, output, session) {
   
   # Metadata
   meta <- reactive({
-    noric::describeRegistryDb(nationalRegistryName)
+    noric::describeRegistryDb(registryName)
   })
 
   output$metaControl <- renderUI({
@@ -349,7 +348,7 @@ shinyServer(function(input, output, session) {
     fun <- "subscriptionLocalMonthlyReps"
     paramNames <- c("baseName", "reshId", "registryName", "author", "hospitalName",
                     "type")
-    paramValues <- c(baseName, reshId, localRegistryName, author, hospitalName,
+    paramValues <- c(baseName, reshId, registryName, author, hospitalName,
                      input$subscriptionFileFormat)
     
 
