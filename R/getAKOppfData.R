@@ -146,19 +146,17 @@ FROM AortaklaffOppfVar
                              ,ordered = TRUE
                              ,exclude = NULL # inkluderer NA i levels
       )
-      ,VektUkjent = as.ordered( VektUkjent )
-      ,NYHA = as.ordered( NYHA )
-      ,CanadianClass = as.ordered( CanadianClass )
-      ,GangtestIkkeUtfort = as.ordered( GangtestIkkeUtfort )
-      ,SKreatininIkkeUtfort = as.ordered( SKreatininIkkeUtfort )
-      ,HemoglobinUkjent = as.ordered( HemoglobinUkjent )
-      ,VenstreVentrikkelFunksjon = as.ordered( VenstreVentrikkelFunksjon )
-      ,Aortainsuffisiens = as.ordered( Aortainsuffisiens )
-      ,ParavalvularLekkasje = as.ordered( ParavalvularLekkasje )
-      ,Mitralinsuffisiens = as.ordered( Mitralinsuffisiens )
-      ,Komplikasjoner = as.ordered( Komplikasjoner )
-      
-
+      # ,VektUkjent = as.ordered( VektUkjent )
+      # ,NYHA = as.ordered( NYHA )
+      # ,CanadianClass = as.ordered( CanadianClass )
+      # ,GangtestIkkeUtfort = as.ordered( GangtestIkkeUtfort )
+      # ,SKreatininIkkeUtfort = as.ordered( SKreatininIkkeUtfort )
+      # ,HemoglobinUkjent = as.ordered( HemoglobinUkjent )
+      # ,VenstreVentrikkelFunksjon = as.ordered( VenstreVentrikkelFunksjon )
+      # ,Aortainsuffisiens = as.ordered( Aortainsuffisiens )
+      # ,ParavalvularLekkasje = as.ordered( ParavalvularLekkasje )
+      # ,Mitralinsuffisiens = as.ordered( Mitralinsuffisiens )
+      # ,Komplikasjoner = as.ordered( Komplikasjoner )
       
     )
   
