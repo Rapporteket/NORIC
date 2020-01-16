@@ -9,6 +9,7 @@
 #' @importFrom magrittr %>% %<>%
 #' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek
+#' @importFrom tidyselect ends_with
 #'
 #' @return Data frame representing the table AortaklaffOppfVar
 #' @export
@@ -83,16 +84,10 @@ FROM AortaklaffOppfVar
   
   # Gjor datoer om til dato-objekt:
   AKOppf %<>%
-    mutate(
-      BasisBeslutningsDato = ymd( BasisBeslutningsDato )
-      ,BasisProsedyreDato = ymd( BasisProsedyreDato )
-      ,HovedDato = ymd( HovedDato )
-      ,FodselsDato = ymd( FodselsDato )
-      ,OppfDato = ymd( OppfDato )
-      ,OppfAvdodDato = ymd( OppfAvdodDato ) # kan hende denne er identisk til AvdodDato
-      ,AvdodDato = ymd( AvdodDato )
+    mutate_at(
+      vars( ends_with("Dato") ), list( ymd )
     )
-  
+
          
   
   # Endre Sykehusnavn til kortere versjoner:
@@ -109,23 +104,23 @@ FROM AortaklaffOppfVar
   AKOppf %<>%
     filter(
       (
-        (Sykehusnavn=="HUS") & ( as.Date(ProsedyreDato) >= "2013-01-01") # Unødvendig å bruke as.Date(), slette senere?
+        (Sykehusnavn=="HUS") & ( as.Date(BasisProsedyreDato) >= "2013-01-01") # Unødvendig å bruke as.Date(), slette senere?
       ) | (
-        (Sykehusnavn=="UNN") & ( as.Date(ProsedyreDato) >= "2013-05-01" )
+        (Sykehusnavn=="UNN") & ( as.Date(BasisProsedyreDato) >= "2013-05-01" )
       ) | (
-        (Sykehusnavn=="Ullevål") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+        (Sykehusnavn=="Ullevål") & ( as.Date(BasisProsedyreDato) >= "2014-01-01" )
       ) | (
-        (Sykehusnavn=="St.Olavs") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+        (Sykehusnavn=="St.Olavs") & ( as.Date(BasisProsedyreDato) >= "2014-01-01" )
       ) | (
-        (Sykehusnavn=="Sørlandet") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+        (Sykehusnavn=="Sørlandet") & ( as.Date(BasisProsedyreDato) >= "2014-01-01" )
       ) | (
-        (Sykehusnavn=="SUS") & ( as.Date(ProsedyreDato) >= "2014-01-01" )
+        (Sykehusnavn=="SUS") & ( as.Date(BasisProsedyreDato) >= "2014-01-01" )
       ) | (
-        (Sykehusnavn=="Rikshospitalet") & ( as.Date(ProsedyreDato) >= "2015-01-01" )
+        (Sykehusnavn=="Rikshospitalet") & ( as.Date(BasisProsedyreDato) >= "2015-01-01" )
       ) | (
-        (Sykehusnavn=="Feiring") & ( as.Date(ProsedyreDato) >= "2015-01-01" )
+        (Sykehusnavn=="Feiring") & ( as.Date(BasisProsedyreDato) >= "2015-01-01" )
       ) | (
-        (Sykehusnavn=="Ahus") & ( as.Date(ProsedyreDato) >= "2016-01-01" )
+        (Sykehusnavn=="Ahus") & ( as.Date(BasisProsedyreDato) >= "2016-01-01" )
       ))
   
   
@@ -163,17 +158,7 @@ FROM AortaklaffOppfVar
       ,Mitralinsuffisiens = as.ordered( Mitralinsuffisiens )
       ,Komplikasjoner = as.ordered( Komplikasjoner )
       
-      ,UtskrevetTil = factor(UtskrevetTil, 
-                             levels = c( 
-                               "Hjem"           
-                               ,"Rehabilitering" 
-                               ,"Annet sykehus"
-                               ,"Sykehjem"
-                               , NA
-                             )
-                             ,exclude = NULL # inkluderer NA i levels
-                             ,ordered = TRUE
-      )
+
       
     )
   
