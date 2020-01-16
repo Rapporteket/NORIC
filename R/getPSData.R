@@ -1,4 +1,4 @@
-#' getPSData provides local or national reg data from PasientStudier
+#' getPSData provides local or national reg data from PasienterStudier
 #'
 #' @param registryName String providing the registry name
 #' @param singleRow Logical defining if only one row is to be returned. A
@@ -10,7 +10,7 @@
 #' @importFrom dplyr filter mutate mutate_all select recode left_join
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
-#' @return Data frame representing the table PasientStudier
+#' @return Data frame representing the table PasienterStudier
 #' @export
 #'
 
@@ -24,15 +24,15 @@ getPSData <- function(registryName, singleRow = FALSE, ...) {
 SELECT
   *
 FROM
-  PasientStudier
+  PasienterStudier
 "
   
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg = "Query metadata for PasientStudier pivot"
+    msg = "Query metadata for PasienterStudier pivot"
   } else {
     query <- paste0(query, ";")
-    msg = "Query data for PasientStudier pivot"
+    msg = "Query data for PasienterStudier pivot"
   }
   
   if ("session" %in% names(list(...))) {
@@ -94,7 +94,6 @@ FROM
   # (ikke fullstendig, må legge til mer etter hvert)
   PS %<>%
     mutate(
-      
       StudieNavn = addNA( StudieNavn, ifany = TRUE )
       ,ProsedyreType = addNA( ProsedyreType , ifany = TRUE )
       ,StudieStatus = addNA( StudieStatus , ifany = TRUE )
