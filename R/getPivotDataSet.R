@@ -14,7 +14,8 @@
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                             session) {
   
-  validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS", "SO", "SS")
+  validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS",
+                  "SO", "SS")
   
   if (setId %in% validSetId) {
     if (setId == "AnP") {
