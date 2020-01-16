@@ -39,9 +39,3 @@ Artwork is accessed in the same way as for the noweb-files, \emph{e.g}
 \code{system.file("some_nice_logo.pdf", package = "noric")}
 }
 
-\examples{
-help(noric)
-registryName <- NORICmakeRegistryName("noricStaging", "123456")
-data(AngioPCI)
-
-}
