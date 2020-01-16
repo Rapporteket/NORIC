@@ -63,7 +63,7 @@ FROM ForlopsOversikt
   # "tøyseregistreringer")
   # ForlopsOversikt inneholder ikke ProsedyreDato -> bruker derfor HovedDato til å filtrere i stedet
   
-  ForlopsOversikt %<>%
+  FO %<>%
     filter(
       (
         (Sykehusnavn=="HUS") & ( as.Date(HovedDato) >= "2013-01-01")
