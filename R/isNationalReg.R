@@ -7,9 +7,7 @@
 #'
 #' @return Logical (TRUE or FALSE)
 #' @export
-#'
-#' @examples
-#' isNationalReg(1234)
+
 
 isNationalReg <- function(reshID) {
   
