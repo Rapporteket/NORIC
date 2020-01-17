@@ -50,7 +50,6 @@ FROM AortaklaffOppfVar
       # Nøkler:
       AvdRESH
       ,ForlopsID
-      
       # Variablene som legges til:
       ,Sykehusnavn
       ,PasientID
@@ -99,66 +98,40 @@ FROM AortaklaffOppfVar
     )
   
   
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
-  # "tøyseregistreringer")
-  AKOppf %<>%
-    filter(
-      (
-        (Sykehusnavn=="HUS") & ( as.Date(BasisProsedyreDato) >= "2013-01-01") # Unødvendig å bruke as.Date(), slette senere?
-      ) | (
-        (Sykehusnavn=="UNN") & ( as.Date(BasisProsedyreDato) >= "2013-05-01" )
-      ) | (
-        (Sykehusnavn=="Ullevål") & ( as.Date(BasisProsedyreDato) >= "2014-01-01" )
-      ) | (
-        (Sykehusnavn=="St.Olavs") & ( as.Date(BasisProsedyreDato) >= "2014-01-01" )
-      ) | (
-        (Sykehusnavn=="Sørlandet") & ( as.Date(BasisProsedyreDato) >= "2014-01-01" )
-      ) | (
-        (Sykehusnavn=="SUS") & ( as.Date(BasisProsedyreDato) >= "2014-01-01" )
-      ) | (
-        (Sykehusnavn=="Rikshospitalet") & ( as.Date(BasisProsedyreDato) >= "2015-01-01" )
-      ) | (
-        (Sykehusnavn=="Feiring") & ( as.Date(BasisProsedyreDato) >= "2015-01-01" )
-      ) | (
-        (Sykehusnavn=="Ahus") & ( as.Date(BasisProsedyreDato) >= "2016-01-01" )
-      ))
-  
-  
-  # Gjøre kategoriske variabler om til factor:
-  # (ikke fullstendig, må legge til mer etter hvert)
-  AKOppf %<>%
-    mutate(
-      ForlopsType1 = as.ordered( ForlopsType1 )
-      ,ForlopsType2 = factor( ForlopsType2,
-                              levels = c(
-                                "Akutt"
-                                , "Subakutt"
-                                , "Planlagt"
-                              ),
-                              ordered = TRUE )
-      ,Sykehusnavn = as.ordered( Sykehusnavn )
-      ,PasientKjonn = factor(PasientKjonn, 
-                             levels = c( 
-                               "Mann"
-                               , "Kvinne"
-                               , NA
-                             )
-                             ,ordered = TRUE
-                             ,exclude = NULL # inkluderer NA i levels
-      )
-      # ,VektUkjent = as.ordered( VektUkjent )
-      # ,NYHA = as.ordered( NYHA )
-      # ,CanadianClass = as.ordered( CanadianClass )
-      # ,GangtestIkkeUtfort = as.ordered( GangtestIkkeUtfort )
-      # ,SKreatininIkkeUtfort = as.ordered( SKreatininIkkeUtfort )
-      # ,HemoglobinUkjent = as.ordered( HemoglobinUkjent )
-      # ,VenstreVentrikkelFunksjon = as.ordered( VenstreVentrikkelFunksjon )
-      # ,Aortainsuffisiens = as.ordered( Aortainsuffisiens )
-      # ,ParavalvularLekkasje = as.ordered( ParavalvularLekkasje )
-      # ,Mitralinsuffisiens = as.ordered( Mitralinsuffisiens )
-      # ,Komplikasjoner = as.ordered( Komplikasjoner )
-      
-    )
+  # # Gjøre kategoriske variabler om til factor:
+  # # (ikke fullstendig, må legge til mer etter hvert)
+  # AKOppf %<>%
+  #   mutate(
+  #     ForlopsType1 = as.ordered( ForlopsType1 )
+  #     ,ForlopsType2 = factor( ForlopsType2,
+  #                             levels = c(
+  #                               "Akutt"
+  #                               , "Subakutt"
+  #                               , "Planlagt"
+  #                             ),
+  #                             ordered = TRUE )
+  #     ,Sykehusnavn = as.ordered( Sykehusnavn )
+  #     ,PasientKjonn = factor(PasientKjonn, 
+  #                            levels = c( 
+  #                              "Mann"
+  #                              , "Kvinne"
+  #                              , NA
+  #                            )
+  #                            ,ordered = TRUE
+  #                            ,exclude = NULL # inkluderer NA i levels
+  #     )
+  #     ,VektUkjent = as.ordered( VektUkjent )
+  #     ,NYHA = as.ordered( NYHA )
+  #     ,CanadianClass = as.ordered( CanadianClass )
+  #     ,GangtestIkkeUtfort = as.ordered( GangtestIkkeUtfort )
+  #     ,SKreatininIkkeUtfort = as.ordered( SKreatininIkkeUtfort )
+  #     ,HemoglobinUkjent = as.ordered( HemoglobinUkjent )
+  #     ,VenstreVentrikkelFunksjon = as.ordered( VenstreVentrikkelFunksjon )
+  #     ,Aortainsuffisiens = as.ordered( Aortainsuffisiens )
+  #     ,ParavalvularLekkasje = as.ordered( ParavalvularLekkasje )
+  #     ,Mitralinsuffisiens = as.ordered( Mitralinsuffisiens )
+  #     ,Komplikasjoner = as.ordered( Komplikasjoner )
+  #   )
   
   
   # Utledete variabler:
