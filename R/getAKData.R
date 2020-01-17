@@ -72,29 +72,29 @@ FROM
                   suffix = c("", ".FO"))
   
   
-  # Klokkeslett med "01.01.70 " som prefix fikses:
-  AK %<>%
-    mutate(
-      Avslutningstid = gsub( "01.01.70 " , "" , Avslutningstid ) ,
-      Punksjonstid = gsub( "01.01.70 " , "" , Punksjonstid )
-    )
-  
-  
-  # Gjor datoer om til dato-objekt:
-  AK %<>%
-    mutate_at(
-      vars( ends_with("Dato") ), list( ymd )
-    )
-  
-  
-  # Endre Sykehusnavn til kortere versjoner:
-  AK %<>%
-    mutate(
-      Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
-    )
-  
+  # # Klokkeslett med "01.01.70 " som prefix fikses:
+  # AK %<>%
+  #   mutate(
+  #     Avslutningstid = gsub( "01.01.70 " , "" , Avslutningstid ) ,
+  #     Punksjonstid = gsub( "01.01.70 " , "" , Punksjonstid )
+  #   )
+  # 
+  # 
+  # # Gjor datoer om til dato-objekt:
+  # AK %<>%
+  #   mutate_at(
+  #     vars( ends_with("Dato") ), list( ymd )
+  #   )
+  # 
+  # 
+  # # Endre Sykehusnavn til kortere versjoner:
+  # AK %<>%
+  #   mutate(
+  #     Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+  #     Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
+  #     Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+  #   )
+  # 
   
   
   # # Gjøre kategoriske variabler om til factor:
@@ -400,50 +400,50 @@ FROM
   
   
   
-  # Utledete variabler:
-  AK %<>% 
-    mutate( 
-      
-      # dager_mellom_prosedyre_og_utskr = as.numeric( difftime(  UtskrDato, ProsedyreDato, units = "days" ) )
-      # 
-      # ,klaffetype = dplyr::recode(TypeKlaffeprotese,
-      #                             "CoreValve" = "CoreValve",
-      #                             "CoreValve Evolut R" = "CoreValve",
-      #                             "CoreValve Evolut PRO" = "CoreValve",
-      #                             "Edwards" = "Edwards",
-      #                             "Edwards SAPIEN 3" = "Edwards",
-      #                             "Edwards SAPIEN 3 Ultra" = "Edwards",
-      #                             "Edwards SAPIEN XT" = "Edwards",
-      #                             .default = "Annet"
-      # )
-      
-      # Div. tidsvariabler:
-      #
-      # Kalenderår for ProsedyreDato:
-      year = as.ordered( year( ProsedyreDato ))
-      ,aar = year
-      # Måned:
-      # (månedsnr er tosifret; 01, 02, ....)
-      ,maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) ))
-      ,maaned = as.ordered( paste0( year, "-", maaned_nr) )
-      # Kvartal:
-      ,kvartal = quarter( ProsedyreDato, with_year = TRUE )
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
-      ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
-      # Uketall:
-      ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
-      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      ,aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
-                        yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
-                        no = paste0(aar, "-", uke )
-      )
-      ,aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
-                        yes = paste0( as.integer(year(ProsedyreDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
-                        no = aar_uke
-      )
-      ,aar_uke = as.ordered( aar_uke )
-      )
-  
+  # # Utledete variabler:
+  # AK %<>% 
+  #   mutate( 
+  #     
+  #     dager_mellom_prosedyre_og_utskr = as.numeric( difftime(  UtskrDato, ProsedyreDato, units = "days" ) )
+  # 
+  #     ,klaffetype = dplyr::recode(TypeKlaffeprotese,
+  #                                 "CoreValve" = "CoreValve",
+  #                                 "CoreValve Evolut R" = "CoreValve",
+  #                                 "CoreValve Evolut PRO" = "CoreValve",
+  #                                 "Edwards" = "Edwards",
+  #                                 "Edwards SAPIEN 3" = "Edwards",
+  #                                 "Edwards SAPIEN 3 Ultra" = "Edwards",
+  #                                 "Edwards SAPIEN XT" = "Edwards",
+  #                                 .default = "Annet"
+  #     )
+  #     
+  #     # Div. tidsvariabler:
+  #     #
+  #     # Kalenderår for ProsedyreDato:
+  #     ,year = as.ordered( year( ProsedyreDato ))
+  #     ,aar = year
+  #     # Måned:
+  #     # (månedsnr er tosifret; 01, 02, ....)
+  #     ,maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) ))
+  #     ,maaned = as.ordered( paste0( year, "-", maaned_nr) )
+  #     # Kvartal:
+  #     ,kvartal = quarter( ProsedyreDato, with_year = TRUE )
+  #     # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
+  #     ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
+  #     # Uketall:
+  #     ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
+  #     # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
+  #     ,aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
+  #                       yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
+  #                       no = paste0(aar, "-", uke )
+  #     )
+  #     ,aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
+  #                       yes = paste0( as.integer(year(ProsedyreDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
+  #                       no = aar_uke
+  #     )
+  #     ,aar_uke = as.ordered( aar_uke )
+  #     )
+  # 
   
 
   AK

@@ -81,21 +81,21 @@ FROM AortaklaffOppfVar
   
   
   
-  # Gjor datoer om til dato-objekt:
-  AKOppf %<>%
-    mutate_at(
-      vars( ends_with("Dato") ), list( ymd )
-    )
-
-         
-  
-  # Endre Sykehusnavn til kortere versjoner:
-  AKOppf %<>%
-    mutate(
-      Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
-    )
+  # # Gjor datoer om til dato-objekt:
+  # AKOppf %<>%
+  #   mutate_at(
+  #     vars( ends_with("Dato") ), list( ymd )
+  #   )
+  # 
+  #        
+  # 
+  # # Endre Sykehusnavn til kortere versjoner:
+  # AKOppf %<>%
+  #   mutate(
+  #     Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+  #     Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
+  #     Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+  #   )
   
   
   # # Gjøre kategoriske variabler om til factor:
@@ -134,64 +134,64 @@ FROM AortaklaffOppfVar
   #   )
   
   
-  # Utledete variabler:
-  AKOppf %<>%
-    mutate(
-      # Div. tidsvariabler:
-      
-      # Basert på BasisProsedyreDato:
-      # Kalenderår:
-      year_prosedyre = as.ordered( year( BasisProsedyreDato )),
-      aar_prosedyre = year_prosedyre,
-      # Måned:
-      # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr_prosedyre = as.ordered( sprintf(fmt = "%02d", month( BasisProsedyreDato ) )),
-      maaned_prosedyre = as.ordered( paste0( year_prosedyre, "-", maaned_nr_prosedyre) ),
-      # Kvartal:
-      kvartal_prosedyre = quarter( BasisProsedyreDato, with_year = TRUE ),
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
-      kvartal_prosedyre = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_prosedyre) ),
-      # Uketall:
-      uke_prosedyre = as.ordered( sprintf(fmt = "%02d", isoweek( BasisProsedyreDato ) )),
-
-      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      aar_uke_prosedyre = ifelse( test = uke_prosedyre == "01" & maaned_nr_prosedyre == "12", # hvis uke 01 i desember...
-                        yes = paste0( as.integer(year(BasisProsedyreDato)) + 1, "-", uke_prosedyre ), # ..sier vi at year er det seneste året som den uken tilhørte
-                        no = paste0(aar_prosedyre, "-", uke_prosedyre )
-      ),
-      aar_uke_prosedyre = ifelse( test = uke_prosedyre %in% c("52", "53") & maaned_nr_prosedyre == "01", # hvis uke 52 eller 53 i januar...
-                        yes = paste0( as.integer(year(BasisProsedyreDato)) - 1, "-", uke_prosedyre ), # ...sier vi at hele uken tilhører det tidligste året
-                        no = aar_uke_prosedyre
-      ),
-      aar_uke_prosedyre = as.ordered( aar_uke_prosedyre ),
-      
-      # Basert på OppfDato:
-      # Kalenderår:
-      year_oppfolging = as.ordered( year( OppfDato )),
-      aar_oppfolging = year_oppfolging,
-      # Måned:
-      # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr_oppfolging = as.ordered( sprintf(fmt = "%02d", month( OppfDato ) )),
-      maaned_oppfolging = as.ordered( paste0( year_oppfolging, "-", maaned_nr_oppfolging) ),
-      # Kvartal:
-      kvartal_oppfolging = quarter( OppfDato, with_year = TRUE ),
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
-      kvartal_oppfolging = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_oppfolging) ),
-      # Uketall:
-      uke_oppfolging = as.ordered( sprintf(fmt = "%02d", isoweek( OppfDato ) )),
-
-      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      aar_uke_oppfolging = ifelse( test = uke_oppfolging == "01" & maaned_nr_oppfolging == "12", # hvis uke 01 i desember...
-                        yes = paste0( as.integer(year(OppfDato)) + 1, "-", uke_oppfolging ), # ..sier vi at year er det seneste året som den uken tilhørte
-                        no = paste0(aar_oppfolging, "-", uke_oppfolging )
-      ),
-      aar_uke_oppfolging = ifelse( test = uke_oppfolging %in% c("52", "53") & maaned_nr_oppfolging == "01", # hvis uke 52 eller 53 i januar...
-                        yes = paste0( as.integer(year(OppfDato)) - 1, "-", uke_oppfolging ), # ...sier vi at hele uken tilhører det tidligste året
-                        no = aar_uke_oppfolging
-      ),
-      aar_uke_oppfolging = as.ordered( aar_uke_oppfolging )
-    )
-  
+  # # Utledete variabler:
+  # AKOppf %<>%
+  #   mutate(
+  #     # Div. tidsvariabler:
+  #     
+  #     # Basert på BasisProsedyreDato:
+  #     # Kalenderår:
+  #     year_prosedyre = as.ordered( year( BasisProsedyreDato )),
+  #     aar_prosedyre = year_prosedyre,
+  #     # Måned:
+  #     # (månedsnr er tosifret; 01, 02, ....)
+  #     maaned_nr_prosedyre = as.ordered( sprintf(fmt = "%02d", month( BasisProsedyreDato ) )),
+  #     maaned_prosedyre = as.ordered( paste0( year_prosedyre, "-", maaned_nr_prosedyre) ),
+  #     # Kvartal:
+  #     kvartal_prosedyre = quarter( BasisProsedyreDato, with_year = TRUE ),
+  #     # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
+  #     kvartal_prosedyre = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_prosedyre) ),
+  #     # Uketall:
+  #     uke_prosedyre = as.ordered( sprintf(fmt = "%02d", isoweek( BasisProsedyreDato ) )),
+  # 
+  #     # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
+  #     aar_uke_prosedyre = ifelse( test = uke_prosedyre == "01" & maaned_nr_prosedyre == "12", # hvis uke 01 i desember...
+  #                       yes = paste0( as.integer(year(BasisProsedyreDato)) + 1, "-", uke_prosedyre ), # ..sier vi at year er det seneste året som den uken tilhørte
+  #                       no = paste0(aar_prosedyre, "-", uke_prosedyre )
+  #     ),
+  #     aar_uke_prosedyre = ifelse( test = uke_prosedyre %in% c("52", "53") & maaned_nr_prosedyre == "01", # hvis uke 52 eller 53 i januar...
+  #                       yes = paste0( as.integer(year(BasisProsedyreDato)) - 1, "-", uke_prosedyre ), # ...sier vi at hele uken tilhører det tidligste året
+  #                       no = aar_uke_prosedyre
+  #     ),
+  #     aar_uke_prosedyre = as.ordered( aar_uke_prosedyre ),
+  #     
+  #     # Basert på OppfDato:
+  #     # Kalenderår:
+  #     year_oppfolging = as.ordered( year( OppfDato )),
+  #     aar_oppfolging = year_oppfolging,
+  #     # Måned:
+  #     # (månedsnr er tosifret; 01, 02, ....)
+  #     maaned_nr_oppfolging = as.ordered( sprintf(fmt = "%02d", month( OppfDato ) )),
+  #     maaned_oppfolging = as.ordered( paste0( year_oppfolging, "-", maaned_nr_oppfolging) ),
+  #     # Kvartal:
+  #     kvartal_oppfolging = quarter( OppfDato, with_year = TRUE ),
+  #     # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
+  #     kvartal_oppfolging = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_oppfolging) ),
+  #     # Uketall:
+  #     uke_oppfolging = as.ordered( sprintf(fmt = "%02d", isoweek( OppfDato ) )),
+  # 
+  #     # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
+  #     aar_uke_oppfolging = ifelse( test = uke_oppfolging == "01" & maaned_nr_oppfolging == "12", # hvis uke 01 i desember...
+  #                       yes = paste0( as.integer(year(OppfDato)) + 1, "-", uke_oppfolging ), # ..sier vi at year er det seneste året som den uken tilhørte
+  #                       no = paste0(aar_oppfolging, "-", uke_oppfolging )
+  #     ),
+  #     aar_uke_oppfolging = ifelse( test = uke_oppfolging %in% c("52", "53") & maaned_nr_oppfolging == "01", # hvis uke 52 eller 53 i januar...
+  #                       yes = paste0( as.integer(year(OppfDato)) - 1, "-", uke_oppfolging ), # ...sier vi at hele uken tilhører det tidligste året
+  #                       no = aar_uke_oppfolging
+  #     ),
+  #     aar_uke_oppfolging = as.ordered( aar_uke_oppfolging )
+  #   )
+  # 
   
   
   
