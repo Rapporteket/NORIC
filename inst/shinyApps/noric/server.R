@@ -110,7 +110,7 @@ shinyServer(function(input, output, session) {
   
   # widget
   output$appUserName <- renderText(userFullName)
-  output$appOrgName <- renderText(paste(reshId, userRole, sep = ", "))
+  output$appOrgName <- renderText(paste(hospitalName, userRole, sep = ", "))
   
   # User info in widget
   userInfo <- rapbase::howWeDealWithPersonalData(session)
