@@ -1,8 +1,15 @@
 ---
 title: "Veiledning"
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  hospitalName: "Ukjent sykehus"
+  tableFormat: "html"
+  reshId: "999999"
 author: "NORIC"
 date: '`r format(Sys.time(), "%d. %B %Y")`'
+
 ---
 
-## Rapporteket for NORIC
+## Rapporteket for NORIC `r params$hospitalName`
 Her vil det komme beskrivelse av innhold og enkel veiledning i bruk av Rapporteket for NORIC.
