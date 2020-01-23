@@ -17,9 +17,9 @@ date: '`r format(Sys.time(), "%d. %B %Y")`'
 
 ### Utforsker
 
-__Kun tilgjengelig for brukere som har rollen \"Systemkoordinator\" (SC) i Rapporteket.__
+__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) i Rapporteket.__
 
-Denne siden inneholder en ny løsning som erstatter det som tidligere het \"*Ad Hoc View*\". Løsningen benytter en R-pakke som heter `rpivotTable`.
+Denne siden inneholder en ny løsning som erstatter det som tidligere het "*Ad Hoc View*". Løsningen benytter en R-pakke som heter `rpivotTable`.
   
 Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
 Man kan i tillegg finne mer informasjon om pakken på [hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
@@ -43,12 +43,12 @@ Denne rapporten gir en oversikt over opptellinger relatert til utførte prosedyr
 
 ### Datadump
   
-__Kun tilgjengelig for brukere som har rollen \"Systemkoordinator\" (SC) i Rapporteket.__
+__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) i Rapporteket.__
 
 ### Metadata
-__Kun tilgjengelig for brukere som har rollen \"Systemkoordinator\" (SC) i Rapporteket.__
+__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) i Rapporteket.__
 
-Denne siden inneholder metadata (\"data om data\") om de forskjellige tabellene som utgjør datagrunnlaget for Rapporteket (AndreProsedyrerVar, AngioPCIVar osv.). Hvis du for eksempel lurer på om datadumpen *SegmentStent* har en variabel som heter \"Okklusjon\", så kan du bruke søkeordet \"okklusjon\" i søkeboksen oppe i høyre hjørne.
+Denne siden inneholder metadata ("data om data") om de forskjellige tabellene som utgjør datagrunnlaget for Rapporteket (AndreProsedyrerVar, AngioPCIVar osv.). Hvis du for eksempel lurer på om datadumpen *SegmentStent* har en variabel som heter "Okklusjon", så kan du bruke søkeordet "okklusjon" i søkeboksen oppe i høyre hjørne.
   
 Merk at disse tabellene er et resultat av spørringer mot databasen. Tabellene har derfor ikke samme struktur og variabelnavn som databasen. 
 
