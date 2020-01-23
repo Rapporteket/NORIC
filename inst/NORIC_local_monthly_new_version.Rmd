@@ -67,10 +67,10 @@ easypackages::libraries(package_vec)
 `%not_in%` <- purrr::negate(`%in%`)
 
 # Funksjon som genererer tabell: 
-source( "H:/NORIC/R/generer_tabell.R", encoding = "UTF-8" )
+source( "H:/NORIC R projects/RAPPORTEKET/Arkiverte NORIC github prosjekt/NORIC/R/generer_tabell.R", encoding = "UTF-8" )
 
 # Theme-funkjsoner:
-source( "H:/NORIC/R/eget_theme_01.R", encoding = "UTF-8" )
+source( "H:/NORIC R projects/RAPPORTEKET/Arkiverte NORIC github prosjekt/NORIC/R/eget_theme_01.R", encoding = "UTF-8" )
 
 ```
 
@@ -113,7 +113,7 @@ if (knitr::opts_knit$get("rmarkdown.pandoc.to") == "docx") {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # R-fil med diverse parametre som font-størrelse, farger, o.l.: 
-source( "H:/NORIC/R/farger_figurer_etc.R", encoding = "UTF-8" )
+source( "H:/NORIC R projects/RAPPORTEKET/Arkiverte NORIC github prosjekt/NORIC/R/farger_figurer_etc.R", encoding = "UTF-8" )
 
 ``` 
   
@@ -239,6 +239,9 @@ AP %<>%
     - base::months( showN - 1 )
   )
 
+# NB! Da vil figurer/tabell som viser tall per uke (yyyy-ww) kunne vise misvisende tall
+# for den første uken og den siste uken
+
 # Skal tilsvare følgende Reinh.-kode{
 # AnP <- subset(
 #     x = AnP ,
@@ -303,16 +306,24 @@ AP %<>%
 # Ukenummer:
 AP %<>%
   mutate(
+    year = as.ordered( lubridate::year( ProsedyreDato ))
+    , aar = year
+    # Uketall:
+    , uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
+    # Måned:
+    # (månedsnr er tosifret; 01, 02, ....)
+    , maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) ))
+    ,maaned = as.ordered( paste0( year, "-", maaned_nr) )
     # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-    aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
-                      yes = paste0( as.integer(lubridate::year(ProsedyreDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
-                      no = paste0(aar, "-", uke )
-    ),
-    aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
+    , aar_uke = ifelse( test = uke == "01" & maaned_nr == "12" # hvis uke 01 i desember...
+                      , yes = paste0( as.integer(lubridate::year(ProsedyreDato)) + 1, "-", uke ) # ..sier vi at year er det seneste året som den uken tilhørte
+                      , no = paste0(aar, "-", uke )
+    )
+    , aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
                       yes = paste0( as.integer(lubridate::year(ProsedyreDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
                       no = aar_uke
-    ),
-    aar_uke = as.ordered( aar_uke )
+    )
+    , aar_uke = as.ordered( aar_uke )
   )
 
 
