@@ -4,24 +4,16 @@
 \alias{NORICmakeRegistryName}
 \title{Provide registry name corresponding to db config entry}
 \usage{
-NORICmakeRegistryName(baseName, reshID = reshID, role = "LU",
-  localRegistry = TRUE)
+NORICmakeRegistryName(baseName, reshID = reshID)
 }
 \arguments{
 \item{baseName}{String giving the prefix base of the name}
 
 \item{reshID}{String providing the current reshID. At Rapporteket, reshID
 should already be present in the current R session}
-
-\item{role}{String defining the current role of the user. Defaults to "LU"}
-
-\item{localRegistry}{Logical that if TRUE (default) make the function return
-a registry name corresponing to the local registry. If FALSE the function
-will try to return the name of the national registry falling back to the
-local registry name if not successfully so}
 }
 \value{
-registryName String containing the registry name as used in config
+String containing a valid registry name
 }
 \description{
 Provides the registry name key to be used for reading correspponding

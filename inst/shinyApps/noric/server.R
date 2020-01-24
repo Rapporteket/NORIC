@@ -16,22 +16,26 @@ shinyServer(function(input, output, session) {
     hospitalName <- noric::getHospitalName(reshId)
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
-    localRegistryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
-    nationalRegistryName <-
-      noric::NORICmakeRegistryName(baseName = "noricStaging",
-                                   reshID = reshId, role = userRole,
-                                   localRegistry = FALSE)
+    registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
     author <- paste0(userFullName, "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
   }
   
-  # While waiting for finer grain defs, hide tabs when not role SC
+  # Hide tabs when not role 'SC'
   if (userRole != "SC") {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
-    hideTab(inputId = "tabs", target = "Prosedyrer2")
+  }
+  
+  ## ... and hide 'Prosedyrer2', regardless
+  hideTab(inputId = "tabs", target = "Prosedyrer2")
+  
+  # Hide local reports/tabs for national registry
+  if (isNationalReg(reshId)) {
+    hideTab(inputId = "tabs", target = "Stentbruk")
+    hideTab(inputId = "tabs", target = "Prosedyrer")
   }
   
   # html rendering function for re-use
@@ -41,7 +45,7 @@ shinyServer(function(input, output, session) {
                    hospitalName=hospitalName,
                    tableFormat="html",
                    reshId=reshId,
-                   registryName=localRegistryName)
+                   registryName=registryName)
     system.file(srcFile, package="noric") %>% 
       knitr::knit() %>% 
       markdown::markdownToHTML(.,
@@ -87,26 +91,26 @@ shinyServer(function(input, output, session) {
       hospitalName=hospitalName,
       author=author,
       reshId=reshId,
-      registryName=localRegistryName
+      registryName=registryName
     ), output_dir = tempdir())
     file.rename(out, file)
   }
   
   contentDump <- function(file, type) {
-    d <- noric::getDataDump(nationalRegistryName,input$dumpDataSet,
+    d <- noric::getDataDump(registryName,input$dumpDataSet,
                             fromDate = input$dumpDateRange[1],
                             toDate = input$dumpDateRange[2],
                             session = session)
     if (type == "xlsx-csv") {
-      readr::write_excel_csv(d, file)
+      readr::write_excel_csv2(d, file)
     } else {
-      readr::write_csv(d, file)
+      readr::write_csv2(d, file)
     }
   }
   
   # widget
   output$appUserName <- renderText(userFullName)
-  output$appOrgName <- renderText(paste(reshId, userRole, sep = ", "))
+  output$appOrgName <- renderText(paste(hospitalName, userRole, sep = ", "))
   
   # User info in widget
   userInfo <- rapbase::howWeDealWithPersonalData(session)
@@ -122,15 +126,21 @@ shinyServer(function(input, output, session) {
     htmlRenderRmd("veiledning.Rmd")
   })
   
-  # Krysstabell
+  # Utforsker
   ## Data sets available
   dataSets <- list(`Bruk og valg av data...` = "info",
                    `Andre prosedyrer` = "AnP",
+                   `Annen diagnostikk` = "AnD",
                    `Angio PCI` = "AP",
-                   `Skjemaoversikt` = "SO",
-                   `Segment stent` = "SS",
+                   `Aortaklaff` = "AK",
+                   `Aortaklaff oppfølging` = "AKOppf",
                    `CT Angio` = "CT",
-                   `Aortaklaff` = "AK")
+                   `Forløpsoversikt` = "FO",
+                   `Mitralklaff` = "MK",
+                   `PasientStudier` = "PS",
+                   `Skjemaoversikt` = "SO",
+                   `Segment stent` = "SS"
+                   )
   
   ## reactive vals
   rvals <- reactiveValues()
@@ -159,13 +169,13 @@ shinyServer(function(input, output, session) {
 
   dat <- reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
-                           registryName = nationalRegistryName,
+                           registryName = registryName,
                            session = session)
   })
   
   metaDat <- reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
-                           registryName = nationalRegistryName,
+                           registryName = registryName,
                            singleRow = TRUE,
                            session = session)
   })
@@ -284,7 +294,7 @@ shinyServer(function(input, output, session) {
   
   # Metadata
   meta <- reactive({
-    noric::describeRegistryDb(nationalRegistryName)
+    noric::describeRegistryDb(registryName)
   })
 
   output$metaControl <- renderUI({
@@ -328,6 +338,19 @@ shinyServer(function(input, output, session) {
   })
   
   ## nye abonnement
+  
+  ### lag liste over mulige valg styrt av lokal eller nasjonal sesjon
+  output$subscriptionRepList <- renderUI({
+    if (isNationalReg(reshId)) {
+      selectInput("subscriptionRep", "Rapport:",
+                  c(""))
+    } else {
+      selectInput("subscriptionRep", "Rapport:",
+                  c("Stentbruk, månedlig", "Prosedyrer, månedlig"))
+    }
+  })
+  
+  ### aktiver abonnement, men kun når et aktuelt valg er gjort
   observeEvent (input$subscribe, {
     package <- "noric"
     owner <- rapbase::getUserName(session)
@@ -346,19 +369,21 @@ shinyServer(function(input, output, session) {
       synopsis <- "NORIC/Rapporteket: stentbruk, månedlig"
       baseName <- "NORIC_local_monthly_stent"
     }
-    fun <- "subscriptionLocalMonthlyReps"
-    paramNames <- c("baseName", "reshId", "registryName", "author", "hospitalName",
-                    "type")
-    paramValues <- c(baseName, reshId, localRegistryName, author, hospitalName,
-                     input$subscriptionFileFormat)
     
-
-    rapbase::createAutoReport(synopsis = synopsis, package = package,
-                              fun = fun, paramNames = paramNames,
-                              paramValues = paramValues, owner = owner,
-                              email = email, organization = organization,
-                              runDayOfYear = runDayOfYear, interval = interval,
-                              intervalName = intervalName)
+    if (nchar(input$subscriptionRep) > 0) {
+      fun <- "subscriptionLocalMonthlyReps"
+      paramNames <- c("baseName", "reshId", "registryName", "author",
+                      "hospitalName", "type")
+      paramValues <- c(baseName, reshId, registryName, author, hospitalName,
+                       input$subscriptionFileFormat)
+      rapbase::createAutoReport(synopsis = synopsis, package = package,
+                                fun = fun, paramNames = paramNames,
+                                paramValues = paramValues, owner = owner,
+                                email = email, organization = organization,
+                                runDayOfYear = runDayOfYear,
+                                interval = interval,
+                                intervalName = intervalName)
+    }
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
   

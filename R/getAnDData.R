@@ -1,4 +1,4 @@
-#' getLocalAPData provides local reg data from AngioPCIVar
+#' getAnDData provides local reg data from AnnenDiagnostikkVar
 #'
 #' @param registryName String providing the registry name
 #' @param singleRow Logical defining if only one row is to be returned. A
@@ -10,11 +10,11 @@
 #' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
-#' @return Data frame representing the table AngioPCIVar
+#' @return Data frame representing the table AnnenDiagnostikkVar
 #' @export
 #'
 
-getLocalAPData <- function(registryName, singleRow = FALSE, ...) {
+getAnDData <- function(registryName, singleRow = FALSE, ...) {
   
   # declare 'dot'
   . <- ""
@@ -22,26 +22,26 @@ getLocalAPData <- function(registryName, singleRow = FALSE, ...) {
   dbType <- "mysql"
   query <-"
 SELECT *
-FROM AngioPCIVar
+FROM AnnenDiagnostikkVar
   "
   
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg = "Query metadata for AngioPCI pivot"
+    msg = "Query metadata for AnnenDiagnostikk pivot"
   } else {
     query <- paste0(query, ";")
-    msg = "Query data for AngioPCI pivot"
+    msg = "Query data for AnnenDiagnostikk pivot"
   }
   
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  AP <- rapbase::LoadRegData(registryName, query, dbType)
+  AnD <- rapbase::LoadRegData(registryName, query, dbType)
   
   FO <- rapbase::LoadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
-
+  
   
   # Velger relevante variabler fra FO som skal legges til tabellen:
   FO %<>% 
@@ -49,15 +49,15 @@ FROM AngioPCIVar
       # Nøkler:
       AvdRESH
       ,Sykehusnavn
-      ,PasientID
       ,ForlopsID
-      # FodselsDato # Finnes per dags dato i AP fra før
       # Variablene som legges til:
+      # FodselsDato # Finnes per dags dato i AnD fra før
+      ,PasientID
       ,Kommune
       ,KommuneNr
       ,Fylke
       ,Fylkenr
-      # ,PasientKjonn # Finnes per dags dato i AP (heter ikke PasientKjonn, men Kjonn)
+      # ,PasientKjonn # Finnes per dags dato i AnD fra før
       ,PasientAlder
       ,ForlopsType1
       ,ForlopsType2
@@ -65,65 +65,39 @@ FROM AngioPCIVar
       ,HovedDato
     )
   
-  # Legger til variabler fra FO til AP:
-  AP <- left_join(AP, FO, by = c("AvdRESH"
-                                 ,"Sykehusnavn"
-                                 ,"PasientID"
-                                 ,"ForlopsID") 
+  # Legger til variabler fra FO til AnD:
+  AnD <- left_join(AnD, FO, by = c("AvdRESH"
+                                   ,"Sykehusnavn"
+                                   ,"ForlopsID"
+                                   ) 
   ) 
   
   
   
-  # Klokkeslett med "01.01.70 " som prefix fikses:
-  AP %<>%
-    mutate(
-      ProsedyreTid = gsub( "01.01.70 " , "" , ProsedyreTid ) ,
-      SymptomTid = gsub( "01.01.70 " , "" , SymptomTid ) ,
-      BesUtlEKGTid = gsub( "01.01.70 " , "" , BesUtlEKGTid ) ,
-      AnkomstPCITid = gsub( "01.01.70 " , "" , AnkomstPCITid ) ,
-      ApningKarTid = gsub( "01.01.70 " , "" , ApningKarTid ) ,
-      InnleggelseHenvisendeSykehusTid = gsub( "01.01.70 " , "" , InnleggelseHenvisendeSykehusTid ) ,
-      SymptomdebutTid = gsub( "01.01.70 " , "" , SymptomdebutTid ) ,
-      BeslEKGTid = gsub( "01.01.70 " , "" , BeslEKGTid ) ,
-      TrombolyseTid = gsub( "01.01.70 " , "" , TrombolyseTid )
-      )
-  
-  
   # Gjor datoer om til dato-objekt:
-  AP %<>%
+  AnD %<>%
     mutate(
-      AnkomstPCIDato = ymd( AnkomstPCIDato )
-      ,ApningKarDato = ymd( ApningKarDato )
-      ,AvdodDato = ymd( AvdodDato )
-      ,BeslEKGDato = ymd( BeslEKGDato )
-      ,BesUtlEKGDato = ymd( BesUtlEKGDato )
-      ,FodselsDato = ymd( FodselsDato )
-      ,HovedDato = ymd( HovedDato )
-      ,InnleggelseHenvisendeSykehusDato = ymd( InnleggelseHenvisendeSykehusDato )
-      ,PasientRegDato = ymd( PasientRegDato )
-      ,ProsedyreDato = ymd( ProsedyreDato )
-      ,SymptomDato = ymd( SymptomDato )
-      ,SymptomdebutDato = ymd( SymptomdebutDato )
-      ,TrombolyseDato = ymd( TrombolyseDato )
-      ,UtskrevetDodsdato = ymd( UtskrevetDodsdato )
-      ,Utskrivningsdato = ymd( Utskrivningsdato )
+      ProsedyreDato = ymd( ProsedyreDato ),
+      FodselsDato = ymd( FodselsDato ),
+      HovedDato = ymd( HovedDato )
     )
   
   
   # Endre Sykehusnavn til kortere versjoner:
-  AP %<>%
+  AnD %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
       Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
     )
   
+  
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
-  AP %<>%
+  AnD %<>%
     filter(
       (
-        (AvdRESH == 102966) & ( as.Date(ProsedyreDato) >= "2013-01-01" ) # HUS
+        (AvdRESH == 102966) & ( as.Date(ProsedyreDato) >= "2013-01-01") # HUS
       ) | (
         (AvdRESH == 101619) & ( as.Date(ProsedyreDato) >= "2013-05-01" ) # UNN
       ) | (
@@ -145,40 +119,86 @@ FROM AngioPCIVar
   
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
-  AP %<>%
+  AnD %<>%
     mutate(
-      ForlopsType2 = factor( ForlopsType2,
+      ForlopsType1 = factor( ForlopsType2,
+                             levels = c(
+                               "Angio"
+                               , "Angio+PCI"
+                               , "PCI"
+                             ),
+                             ordered = TRUE )
+      ,ForlopsType2 = factor( ForlopsType2,
                              levels = c(
                                "Akutt"
                                , "Subakutt"
                                , "Planlagt"
                              ),
-                             ordered = TRUE ),
-      Indikasjon = as.factor( Indikasjon ),
-      Kjonn = factor(Kjonn, 
+                             ordered = TRUE )
+      ,Sykehusnavn = as.ordered( Sykehusnavn )
+      ,PasientKjonn = factor(PasientKjonn, 
                      levels = c( 
                        "Mann"
                        , "Kvinne"
                        , NA
-                       )
+                     )
                      ,ordered = TRUE
                      ,exclude = NULL # inkluderer NA i levels
-                     ),
-      OverflyttetFra = as.factor( OverflyttetFra ),
-      ProsedyreType = factor( ProsedyreType,
-                              levels = c(
-                                "Angio"
-                                ,"Angio + PCI"
-                                ,"PCI"
-                              ),
-                              ordered = TRUE ),
-      Sykehusnavn = as.ordered( Sykehusnavn )
-      
+      )
+      ,Indikasjon = as.factor( Indikasjon )
+      ,segment = factor(segment, 
+                     levels = c( 
+                       "Proximale RCA (1)",
+                       "Midtre RCA (2)",
+                       "Distale RCA (3)",
+                       "PDA/RPD (4)",
+                       "Ve hovedstamme (5)",
+                       "Proximale LAD (6)",
+                       "Midtre LAD (7)",
+                       "Distale LAD (8)",
+                       "Første diagonal (9)",
+                       "Andre diagonal (10)",
+                       "Proximale LCx (11)",
+                       "Første obtusa marginal (12)",
+                       "Andre obtusa marginal (13)",
+                       "Distale LCx (14)",
+                       "LPD (15)",
+                       "PLA fra venstre (16)",
+                       "Intermediær (17)",
+                       "PLA (18)",
+                       "Høyrekammergren (19)",
+                       "Septal (20)"
+                     )
+                     ,ordered = TRUE
+      )
+      ,graft = factor(graft, 
+                     levels = c( 
+                       "Arterie"
+                       ,"Vene"
+                       ,"Nei"
+                     )
+                     ,ordered = TRUE
+      )
+      ,metode = factor(metode, 
+                     levels = c( 
+                       "iFR"
+                       ,"FFR"
+                       ,"OCT"
+                       ,"IVUS"
+                       ,"CFR"
+                       ,"IMR"
+                       ,"Pd/Pa"
+                       ,"NIRS"
+                       ,"Pa-hyperemi"
+                       ,"Pd-hyperemi"
+                     )
+                     ,ordered = TRUE
+      )
     )
   
   
   # Utledete variabler:
-  AP %<>% 
+  AnD %<>% 
     mutate( 
       # Div. tidsvariabler:
       #
@@ -195,7 +215,7 @@ FROM AngioPCIVar
       kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
       # Uketall:
       uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) )),
-
+      
       # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
       aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
                         yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
@@ -208,9 +228,9 @@ FROM AngioPCIVar
       aar_uke = as.ordered( aar_uke )
     )
   
-
-
-
-  AP
-
-  }
+  
+  
+  
+  AnD
+  
+}

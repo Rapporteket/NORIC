@@ -61,25 +61,23 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
   SO %<>%
     filter(
       (
-        (Sykehusnavn=="HUS") & ( as.Date(HovedDato) >= "2013-01-01")
+        (AvdRESH == 102966) & ( as.Date(HovedDato) >= "2013-01-01" ) # HUS
       ) | (
-        (Sykehusnavn=="UNN") & ( as.Date(HovedDato) >= "2013-05-01" )
+        (AvdRESH == 101619) & ( as.Date(HovedDato) >= "2013-05-01" ) # UNN
       ) | (
-        (Sykehusnavn=="Ullevål") & ( as.Date(HovedDato) >= "2014-01-01" )
+        (AvdRESH == 109880) & ( as.Date(HovedDato) >= "2014-01-01" ) # Ullevål
       ) | (
-        (Sykehusnavn=="St.Olavs") & ( as.Date(HovedDato) >= "2014-01-01" )
+        (AvdRESH == 104284) & ( as.Date(HovedDato) >= "2014-01-01" ) # St.Olavs
       ) | (
-        (Sykehusnavn=="St.Olav") & ( as.Date(HovedDato) >= "2014-01-01" ) # N.B. Grunnet krøll med navnet til St. Olavs
+        (AvdRESH == 114150) & ( as.Date(HovedDato) >= "2014-01-01" ) # SSA
       ) | (
-        (Sykehusnavn=="Sørlandet") & ( as.Date(HovedDato) >= "2014-01-01" )
+        (AvdRESH == 105502) & ( as.Date(HovedDato) >= "2014-01-01" ) # SUS
       ) | (
-        (Sykehusnavn=="SUS") & ( as.Date(HovedDato) >= "2014-01-01" )
+        (AvdRESH == 700422) & ( as.Date(HovedDato) >= "2015-01-01" ) # Riksen
       ) | (
-        (Sykehusnavn=="Rikshospitalet") & ( as.Date(HovedDato) >= "2015-01-01" )
+        (AvdRESH == 106944) & ( as.Date(HovedDato) >= "2015-01-01" ) # LHLGardermoen
       ) | (
-        (Sykehusnavn=="Feiring") & ( as.Date(HovedDato) >= "2015-01-01" )
-      ) | (
-        (Sykehusnavn=="Ahus") & ( as.Date(HovedDato) >= "2016-01-01" )
+        (AvdRESH == 108141) & ( as.Date(HovedDato) >= "2016-01-01" ) # Ahus
       ))
   
   

@@ -1,8 +1,58 @@
 ---
 title: "Veiledning"
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  hospitalName: "Ukjent sykehus"
+  tableFormat: "html"
+  reshId: "999999"
 author: "NORIC"
 date: '`r format(Sys.time(), "%d. %B %Y")`'
+
 ---
 
-## Rapporteket for NORIC
-Her vil det komme beskrivelse av innhold og enkel veiledning i bruk av Rapporteket for NORIC.
+## Rapporteket for NORIC `r params$hospitalName`
+
+
+
+### Utforsker
+
+__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) i Rapporteket.__
+
+Denne siden inneholder en ny løsning som erstatter det som tidligere het "*Ad Hoc View*". Løsningen benytter en R-pakke som heter `rpivotTable`.
+  
+Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
+Man kan i tillegg finne mer informasjon om pakken på [hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
+
+__Den enkleste måten å bli kjent med verktøyet på er å prøve seg frem!__
+    
+  
+
+### Månedsrapporter
+
+Månedsrapporter inneholder oppsummeringer av viktige aktiviteter ved enheten det siste året.  
+Du kan få tilsendt rapportene automatisk per e-post (se Abonnement).
+
+
+#### Stentbruk
+Denne rapporten inneholder opplysninger om hvilke stenter som er brukt.
+
+#### Prosedyrer
+Denne rapporten gir en oversikt over opptellinger relatert til utførte prosedyrer fra Andre prosedyrer- og AngioPCI-modulen.
+
+
+### Datadump
+  
+__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) i Rapporteket.__
+
+### Metadata
+__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) i Rapporteket.__
+
+Denne siden inneholder metadata ("data om data") om de forskjellige tabellene som utgjør datagrunnlaget for Rapporteket (AndreProsedyrerVar, AngioPCIVar osv.). Hvis du for eksempel lurer på om datadumpen *SegmentStent* har en variabel som heter "Okklusjon", så kan du bruke søkeordet "okklusjon" i søkeboksen oppe i høyre hjørne.
+  
+Merk at disse tabellene er et resultat av spørringer mot databasen. Tabellene har derfor ikke samme struktur og variabelnavn som databasen. 
+
+### Abonnement
+
+Her kan du administrere dine abonnement på månedsrapportene.  
+Du kan selv velge hvor ofte du får dem tilsendt (frekvens) og ønsket format (html eller pdf).

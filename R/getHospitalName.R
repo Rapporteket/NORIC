@@ -15,11 +15,15 @@
 
 getHospitalName <- function(reshID) {
   
-  baseName <- "noricStaging"
-  regName <- NORICmakeRegistryName(baseName, reshID)
-  dbType <- "mysql"
-  query <- "SELECT Sykehusnavn FROM AngioPCIVar LIMIT 1"
-  
-  rapbase::LoadRegData(regName, dbType = dbType, query = query)[1,1]
+  if (isNationalReg(reshID)) {
+    return("NORIC nasjonal")
+  } else {
+    baseName <- "noricStaging"
+    regName <- NORICmakeRegistryName(baseName, reshID)
+    dbType <- "mysql"
+    query <- "SELECT Sykehusnavn FROM AngioPCIVar LIMIT 1"
+    
+    return(rapbase::LoadRegData(regName, dbType = dbType, query = query)[1,1])
+  }
   
 }

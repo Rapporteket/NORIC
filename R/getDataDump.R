@@ -117,7 +117,7 @@ WHERE
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
-                       , suffix = c("", ".FO") # usikker som denne linjen trengs, slette senere?
+                       , suffix = c("", ".FO") 
                        )
     }
     
@@ -146,7 +146,7 @@ WHERE
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
-                       , suffix = c("", ".FO") # usikker som denne linjen trengs, slette senere?
+                       , suffix = c("", ".FO") 
       )
     }
     
@@ -192,8 +192,8 @@ WHERE
           # Nøkler:
           AvdRESH
           ,ForlopsID
-          # Variablene som legges til:
           ,PasientID
+          # Variablene som legges til:
           ,Sykehusnavn
           # ,FodselsDato # Finnes per d.d. i CT
           ,Kommune
@@ -209,8 +209,9 @@ WHERE
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID"
+                                       ,"PasientID"
                                        , "AvdRESH"),
-                      suffix = c("", ".FO") # usikker som denne linjen trengs, slette senere?
+                      suffix = c("", ".FO") 
                       )
     }
     
@@ -243,7 +244,7 @@ WHERE
       tab <- left_join(tab, FO, by = c("ForlopsID"
                                        , "AvdRESH"
                                        , "Sykehusnavn"),
-                      suffix = c("", ".FO") # usikker som denne linjen trengs, slette senere?
+                      suffix = c("", ".FO") 
                       )
     }
   }

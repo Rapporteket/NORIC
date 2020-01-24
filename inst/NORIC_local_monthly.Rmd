@@ -271,6 +271,8 @@ mst <- function(tab, type, cap, digs, align = NULL, fs = 8, lsd = FALSE) {
 }
 ```
 
+# `r params$hospitalName`
+
 # Hastegrad
 
 ## Hastegrad
