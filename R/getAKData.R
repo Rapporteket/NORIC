@@ -72,14 +72,7 @@ FROM
                   suffix = c("", ".FO"))
   
   
-  # # Klokkeslett med "01.01.70 " som prefix fikses:
-  # AK %<>%
-  #   mutate(
-  #     Avslutningstid = gsub( "01.01.70 " , "" , Avslutningstid ) ,
-  #     Punksjonstid = gsub( "01.01.70 " , "" , Punksjonstid )
-  #   )
-  # 
-  # 
+
   # # Gjor datoer om til dato-objekt:
   # AK %<>%
   #   mutate_at(
