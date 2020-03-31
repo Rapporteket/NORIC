@@ -73,23 +73,13 @@ FROM
   
   
 
-  # # Gjor datoer om til dato-objekt:
-  # AK %<>%
-  #   mutate_at(
-  #     vars( ends_with("Dato") ), list( ymd )
-  #   )
-  # 
-  # 
-  # # Endre Sykehusnavn til kortere versjoner:
-  # AK %<>%
-  #   mutate(
-  #     Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-  #     Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-  #     Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
-  #   )
-  # 
-  
-  
+  # Gjor datoer om til dato-objekt:
+  AK %<>%
+    mutate_at(
+      vars( ends_with("Dato") ), list( ymd )
+    )
+
+
   # # Gjøre kategoriske variabler om til factor:
   # # (ikke fullstendig, må legge til mer etter hvert)
   # AK %<>%
