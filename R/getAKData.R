@@ -7,7 +7,8 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr filter mutate mutate_all select recode left_join
+#' @importFrom dplyr filter mutate mutate_all mutate_at select recode left_join
+#' vars
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing the table AortaklaffVar
