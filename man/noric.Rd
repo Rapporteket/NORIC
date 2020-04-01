@@ -3,7 +3,6 @@
 \docType{package}
 \name{noric}
 \alias{noric}
-\alias{noric-package}
 \title{All R resources neede for NORIC at Rapporteket}
 \description{
 An implemetation of all R related resources for NORIC at
