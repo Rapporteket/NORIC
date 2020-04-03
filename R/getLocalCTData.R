@@ -117,29 +117,37 @@ FROM CTAngioVar
       # Div. tidsvariabler:
       #
       # Kalenderår for UndersokDato:
-      year = as.ordered( year( UndersokDato )),
-      aar = year,
+      aar = as.ordered( year( UndersokDato ))
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr = as.ordered( sprintf(fmt = "%02d", month( UndersokDato ) )),
-      maaned = as.ordered( paste0( year, "-", maaned_nr) ),
+      ,maaned_nr = as.ordered( sprintf(fmt = "%02d", month( UndersokDato ) ))
+      ,maaned = as.ordered( paste0( aar, "-", maaned_nr) )
       # Kvartal:
-      kvartal = quarter( UndersokDato, with_year = TRUE ),
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
-      kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
+      ,kvartal = quarter( UndersokDato, with_year = TRUE )
+      # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
+      ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", isoweek( UndersokDato ) )),
+      ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( UndersokDato ) ))
       
-      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
-                        yes = paste0( as.integer(year(UndersokDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
-                        no = paste0(aar, "-", uke )
-      ),
-      aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
-                        yes = paste0( as.integer(year(UndersokDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
-                        no = aar_uke
-      ),
-      aar_uke = as.ordered( aar_uke )
+      # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to kalenderår:
+      
+      ,aar_uke = ifelse( 
+        # hvis uke 01 er i desember...
+        test = uke == "01" & maaned_nr == "12"
+        # .. så sier vi at uken tilhører det seneste av de to årene som uke 01 er spredt
+        # over (uke 01 i desember 2019 blir til 2020-01)
+        , yes = paste0( as.integer(year(UndersokDato)) + 1, "-", uke )
+        , no = paste0(aar, "-", uke )
+      )
+      ,aar_uke = ifelse( 
+        # hvis uke 52 eller 53 er i januar...
+        test = uke %in% c("52", "53") & maaned_nr == "01"
+        # ...sier vi at hele uken tilhører det tidligste av de to årene som uke 52/53 er
+        # spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
+        , yes = paste0( as.integer(year(UndersokDato)) - 1, "-", uke )
+        , no = aar_uke
+      )
+      ,aar_uke = as.ordered( aar_uke )
     )
   
   # Utledete variabler - opptelling av funnkoder i de 20 segmentene (ikke graft)
