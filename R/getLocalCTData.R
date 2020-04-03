@@ -155,18 +155,41 @@ FROM CTAngioVar
     mutate( 
       # Opptelling av registrerte funnkoder i segmentene:
       ant_NA = (select(., starts_with("SEGMENT") ) %>% is.na() %>% rowSums() ), 
-      ant_0 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list( ~( . %in% 0)) ) %>% rowSums(., na.rm = TRUE) ),
-      ant_10 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 10)) ) %>% rowSums(., na.rm = TRUE) ), 
-      ant_11 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 11)) ) %>% rowSums(., na.rm = TRUE) ), 
-      ant_12 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 12)) ) %>% rowSums(., na.rm = TRUE) ), 
-      ant_13 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 13)) ) %>% rowSums(., na.rm = TRUE) ), 
-      ant_14 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 14)) ) %>% rowSums(., na.rm = TRUE) ), 
-      ant_15 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 15)) ) %>% rowSums(., na.rm = TRUE) ), 
-      ant_16 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 16)) ) %>% rowSums(., na.rm = TRUE) ), 
-      ant_17 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 17)) ) %>% rowSums(., na.rm = TRUE) ), 
-      ant_18 = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% 18)) ) %>% rowSums(., na.rm = TRUE) ), 
-      # Per den nyeste nummereringen, så er obstruktiv stenose (>=50%) kodet med tallene 13,14 og 15:
-      ant_obstruktiv = ( select(., starts_with("SEGMENT") ) %>% mutate_all(. , list(~( . %in% c(13,14,15))) ) %>% rowSums(., na.rm = TRUE) )
+      ant_0 = ( select(., starts_with("SEGMENT") ) %>% 
+                  mutate_all(. , list( ~( . %in% 0)) ) %>% 
+                  rowSums(., na.rm = TRUE) ),
+      ant_10 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 10)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      ant_11 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 11)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      ant_12 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 12)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      ant_13 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 13)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      ant_14 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 14)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      ant_15 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 15)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      ant_16 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 16)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      ant_17 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 17)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      ant_18 = ( select(., starts_with("SEGMENT") ) %>% 
+                   mutate_all(. , list(~( . %in% 18)) ) %>% 
+                   rowSums(., na.rm = TRUE) ), 
+      # Per den nyeste nummereringen, så er obstruktiv stenose (>=50%) kodet med
+      # tallene 13,14 og 15:
+      ant_obstruktiv = ( select(., starts_with("SEGMENT") ) %>% 
+                           mutate_all(. , list(~( . %in% c(13,14,15))) ) %>% 
+                           rowSums(., na.rm = TRUE) )
     )
   
   
