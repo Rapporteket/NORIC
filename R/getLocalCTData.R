@@ -72,12 +72,8 @@ FROM CTAngioVar
   
   # Gjor datoer om til dato-objekt:
   CT %<>%
-    mutate(
-      AvdodDato = ymd( AvdodDato )
-      ,FodselsDato = ymd( FodselsDato )
-      ,HovedDato = ymd( HovedDato )
-      ,PasientRegDato = ymd( PasientRegDato )
-      ,UndersokDato = ymd( UndersokDato )
+    mutate_at(
+      vars( ends_with("Dato", ignore.case = FALSE) ), list( ymd )
     )
   
   
@@ -116,7 +112,7 @@ FROM CTAngioVar
   
   
   # Gjøre kategoriske variabler om til factor:
-  # (ikke fullstendig, må legget til mer etter hvert)
+  # (ikke fullstendig, må legge til mer etter hvert)
   CT %<>%
     mutate(
       Avdod = factor( Avdod,
