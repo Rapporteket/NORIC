@@ -51,9 +51,7 @@ FROM CTAngioVar
       AvdRESH
       ,ForlopsID
       # Variablene som legges til:
-      ,PasientID # NB. CT har denne variabelen i test, men ikke i QA 
       ,Sykehusnavn
-      # ,FodselsDato # Finnes per d.d. i CT
       ,Kommune
       ,KommuneNr
       ,Fylke
