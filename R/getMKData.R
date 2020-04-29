@@ -123,39 +123,7 @@ FROM
   MK %<>%
     mutate(
       
-      Aktiviteter = addNA( Aktiviteter, ifany = TRUE )
-      ,AndrePlatehemmereVedUtskrivelse = addNA( AndrePlatehemmereVedUtskrivelse , ifany = TRUE )
-      ,Anestesi = addNA( Anestesi , ifany = TRUE )
-      ,AngstDepresjon = addNA( AngstDepresjon , ifany = TRUE )
-      ,AntikoagulantiaVedUtskrivelse = addNA( AntikoagulantiaVedUtskrivelse , ifany = TRUE )
-      ,ASAVedUtskrivelse = addNA( ASAVedUtskrivelse , ifany = TRUE )
-      ,Atrieflimmer = addNA( Atrieflimmer , ifany = TRUE )
-      
-      ,AvdKompAnnenKomp = addNA( AvdKompAnnenKomp , ifany = TRUE )
-      ,AvdKompAtrieflimmer = addNA( AvdKompAtrieflimmer , ifany = TRUE )
-      ,AvdKompBlodning = addNA( AvdKompBlodning , ifany = TRUE )
-      ,AvdKompBlodningGrad = addNA( AvdKompBlodningGrad , ifany = TRUE )
-      ,AvdKompDialyse = addNA( AvdKompDialyse , ifany = TRUE )
-      ,AvdKompDod = addNA( AvdKompDod , ifany = TRUE )
-      ,AvdKompHjerneslag = addNA( AvdKompHjerneslag , ifany = TRUE )
-      ,AvdKompHjerneslagGrad = addNA( AvdKompHjerneslagGrad , ifany = TRUE )
-      ,AvdKompHjerteinfarkt = addNA( AvdKompHjerteinfarkt , ifany = TRUE )
-      ,AvdKompInfeksjon = addNA( AvdKompInfeksjon , ifany = TRUE )
-      ,AvdKomplikasjon = addNA( AvdKomplikasjon , ifany = TRUE )
-      ,AvdKompPacemaker = addNA( AvdKompPacemaker , ifany = TRUE )
-      ,AvdKompTamponade = addNA( AvdKompTamponade , ifany = TRUE )
-      ,AvdKompTIA = addNA( AvdKompTIA , ifany = TRUE )
-      ,AvdKompVaskular = addNA( AvdKompVaskular , ifany = TRUE )
-      
-      ,AvslaattForThorax = addNA( AvslaattForThorax , ifany = TRUE )
-      ,BasisRegStatus = addNA( BasisRegStatus , ifany = TRUE )
-      ,BehHypertoni = addNA( BehHypertoni , ifany = TRUE )
-      ,BesteBehandling = addNA( BesteBehandling , ifany = TRUE )
-      ,Diabetes = addNA( Diabetes , ifany = TRUE )
-      ,DialyseFoerOp = addNA( DialyseFoerOp , ifany = TRUE )
-      ,ForlopsType1 = addNA( ForlopsType1 , ifany = TRUE )
-      
-      ,ForlopsType2 = factor( ForlopsType2,
+      ForlopsType2 = factor( ForlopsType2,
                               levels = c(
                                 "Akutt"
                                 , "Subakutt"
@@ -175,9 +143,6 @@ FROM
                         ,ordered = TRUE
       )
       
-      ,Gangtest = addNA( Gangtest , ifany = TRUE )
-      ,Gripestyrke = addNA( Gripestyrke , ifany = TRUE )
-      
       ,Hastegrad = factor( Hastegrad,
                           levels = c(
                             "Elektiv"
@@ -188,90 +153,7 @@ FROM
                           )
                           ,exclude = NULL # inkluderer NA i levels
                           ,ordered = TRUE )
-      
-      ,Hygiene = factor( Hygiene,
-                          levels = c(
-                            "En (1)"
-                            , "To (2)"
-                            , "Tre (3)"
-                            ,NA
-                          )
-                          ,exclude = NULL # inkluderer NA i levels
-                          ,ordered = TRUE )
-      
-      ,InfarktSiste90d = factor( InfarktSiste90d,
-                           levels = c(
-                             "Ja"
-                             ,"Nei"
-                             ,NA
-                           )
-                           ,exclude = NULL # inkluderer NA i levels
-                           ,ordered = TRUE
-      )
-      
-      ,Insulin = addNA( Insulin , ifany = TRUE )
-      ,Karlukning = addNA( Karlukning , ifany = TRUE )
-      ,KOLS = addNA( KOLS , ifany = TRUE )
-      ,Kommune = addNA( Kommune , ifany = TRUE )
-      ,Kontraindikasjon = addNA( Kontraindikasjon , ifany = TRUE )
-      ,Kontrastmiddel = addNA( Kontrastmiddel , ifany = TRUE )
-      ,KritiskPreopTilstand = addNA( KritiskPreopTilstand , ifany = TRUE )
-      
-      ,LabKompAkuttKlaff = addNA( LabKompAkuttKlaff , ifany = TRUE )
-      ,LabKompAkuttVaskular = addNA( LabKompAkuttVaskular , ifany = TRUE )
-      ,LabKompAnestesi = addNA( LabKompAnestesi , ifany = TRUE )
-      ,LabKompAnnenKomp = addNA( LabKompAnnenKomp , ifany = TRUE )
-      ,LabKompArytmi = addNA( LabKompArytmi , ifany = TRUE )
-      ,LabKompBlodning = addNA( LabKompBlodning , ifany = TRUE )
-      ,LabKompDod = addNA( LabKompDod , ifany = TRUE )
-      ,LabKompEmbolisering = addNA( LabKompEmbolisering , ifany = TRUE )
-      ,LabKompHLMaskin = addNA( LabKompHLMaskin , ifany = TRUE )
-      ,LabKomplikasjon = addNA( LabKomplikasjon , ifany = TRUE )
-      ,LabKompNeurologi = addNA( LabKompNeurologi , ifany = TRUE )
-      ,LabKompPacemaker = addNA( LabKompPacemaker , ifany = TRUE )
-      ,LabKompTamponade = addNA( LabKompTamponade , ifany = TRUE )
-      ,LabKompVaskular = addNA( LabKompVaskular , ifany = TRUE )
-      
-      ,Labnr = addNA( Labnr , ifany = TRUE )
-      ,Malignitet = addNA( Malignitet , ifany = TRUE )
-      ,Mobilitet = addNA( Mobilitet , ifany = TRUE )
-      
-      ,NYHAKlasse = factor( NYHAKlasse,
-                           levels = c(
-                             "I"
-                             ,"II"
-                             ,"III"
-                             ,"IV"
-                             ,"Ukjent"
-                             ,NA
-                           )
-                           ,exclude = NULL # inkluderer NA i levels
-                           ,ordered = TRUE
-      )
-      
-      
-      ,PasientKjonn = factor(PasientKjonn,
-                             levels = c( "Mann", "Kvinne")
-                             ,exclude = NULL # inkluderer NA i levels
-                             , ordered = TRUE
-      )
-      
-      ,PeriferKarsykdom = addNA( PeriferKarsykdom , ifany = TRUE )
-      ,Porselenaorta = addNA( Porselenaorta , ifany = TRUE )
-      ,PostKlassifisering = addNA( PostKlassifisering , ifany = TRUE )
-      ,PostMitralinsuffisiens = addNA( PostMitralinsuffisiens , ifany = TRUE )
-      ,PostMitralstenose = addNA( PostMitralstenose , ifany = TRUE )
-      ,PostProlapsA1 = addNA( PostProlapsA1 , ifany = TRUE )
-      ,PostProlapsA2 = addNA( PostProlapsA2 , ifany = TRUE )
-      ,PostProlapsA3 = addNA( PostProlapsA3 , ifany = TRUE )
-      ,PostProlapsP1 = addNA( PostProlapsP1 , ifany = TRUE )
-      ,PostProlapsP2 = addNA( PostProlapsP2 , ifany = TRUE )
-      ,PostProlapsP3 = addNA( PostProlapsP3 , ifany = TRUE )
-      ,PostProlapsP3 = addNA( PostProlapsP3 , ifany = TRUE )
-      ,PostReversFlow = addNA( PostReversFlow , ifany = TRUE )
-      ,PostTricuspidal = addNA( PostTricuspidal , ifany = TRUE )
-      ,PostVContracta = addNA( PostVContracta , ifany = TRUE )
-      
+
       ,PostVenstreVentrikkelFunksjon = factor( PostVenstreVentrikkelFunksjon,
                                              levels = c(
                                                "Normal"
@@ -285,13 +167,7 @@ FROM
                                              ,exclude = NULL # inkluderer NA i levels
                                              ,ordered = TRUE
       )
-      
-      ,PreAortainsuffisiens = addNA( PreAortainsuffisiens , ifany = TRUE )
-      ,PreAortastenose = addNA( PreAortastenose , ifany = TRUE )
-      ,PreMitralinsuffisiens = addNA( PreMitralinsuffisiens , ifany = TRUE )
-      ,PreMitralstenose = addNA( PreMitralstenose , ifany = TRUE )
-      ,PreTricuspidal = addNA( PreTricuspidal , ifany = TRUE )
-      
+
       ,PreVenstreVentrikkelFunksjon = factor( PreVenstreVentrikkelFunksjon,
                                              levels = c(
                                                "Normal"
@@ -319,40 +195,7 @@ FROM
                                ,exclude = NULL # inkluderer NA i levels
                                ,ordered = TRUE
       )
-      
-      ,RedusertMobilitet = addNA( RedusertMobilitet , ifany = TRUE )
-      
-      ,Royker = factor(Royker, 
-                      levels = c( 
-                        "Aldri røykt"
-                        , "Eks-røyker >1 mnd"
-                        , "Røyker"
-                        , "Ukjent"
-                        , NA
-                      )
-                      ,exclude = NULL # inkluderer NA i levels
-                      ,ordered = TRUE
-      )
-      
-      ,ScreeningBeslutning = addNA( ScreeningBeslutning , ifany = TRUE )
-      ,SkjemaStatus = addNA( SkjemaStatus , ifany = TRUE )
-      ,SmerterUbehag = addNA( SmerterUbehag , ifany = TRUE )
-      ,Steroidbehandling = addNA( Steroidbehandling , ifany = TRUE )
-      ,Stralebehandling = addNA( Stralebehandling , ifany = TRUE )
-      ,Sykehusnavn = as.ordered( Sykehusnavn )
-      
-      ,Thoraxdeformitet = addNA( Thoraxdeformitet , ifany = TRUE )
-      ,TidlACB = addNA( TidlACB , ifany = TRUE )
-      ,TidlAnnet = addNA( TidlAnnet , ifany = TRUE )
-      ,TidlAVR = addNA( TidlAVR , ifany = TRUE )
-      ,TidlHjerneslag = addNA( TidlHjerneslag , ifany = TRUE )
-      ,TidlHjerteoperasjon = addNA( TidlHjerteoperasjon , ifany = TRUE )
-      ,TidlKorrigering = addNA( TidlKorrigering , ifany = TRUE )
-      ,TidlMitralplastikk = addNA( TidlMitralplastikk , ifany = TRUE )
-      ,TidlMVR = addNA( TidlMVR , ifany = TRUE )
-      ,TidlPCI = addNA( TidlPCI , ifany = TRUE )
-      ,UgunstigAnatomi = addNA( UgunstigAnatomi , ifany = TRUE )
-      
+
       ,UtskrevetTil = factor(UtskrevetTil, 
                        levels = c( 
                          "Hjem"           
@@ -364,9 +207,7 @@ FROM
                        ,exclude = NULL # inkluderer NA i levels
                        ,ordered = TRUE
       )
-      
-      ,VellykketProsedyre = addNA( VellykketProsedyre , ifany = TRUE )
-      
+
     )
   
   
