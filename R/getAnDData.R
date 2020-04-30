@@ -114,7 +114,10 @@ FROM AnnenDiagnostikkVar
         (AvdRESH == 106944) & ( as.Date(ProsedyreDato) >= "2015-01-01" ) # LHLGardermoen
       ) | (
         (AvdRESH == 108141) & ( as.Date(ProsedyreDato) >= "2016-01-01" ) # Ahus
-      ))
+      ) | (
+        (AvdRESH == 4210141) & ( as.Date(ProsedyreDato) >= "2020-02-10" ) # Bodø
+      )
+    )
   
   
   # Gjøre kategoriske variabler om til factor:

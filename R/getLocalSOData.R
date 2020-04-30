@@ -78,7 +78,10 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
         (AvdRESH == 106944) & ( as.Date(HovedDato) >= "2015-01-01" ) # LHLGardermoen
       ) | (
         (AvdRESH == 108141) & ( as.Date(HovedDato) >= "2016-01-01" ) # Ahus
-      ))
+      ) | (
+        (AvdRESH == 4210141) & ( as.Date(HovedDato) >= "2020-02-10" ) # Bodø
+      )
+    )
   
   
   # Gjøre kategoriske variabler om til factor:

@@ -108,7 +108,10 @@ FROM CTAngioVar
         (AvdRESH == 106944) & ( as.Date(UndersokDato) >= "2015-01-01" ) # LHLGardermoen
       ) | (
         (AvdRESH == 108141) & ( as.Date(UndersokDato) >= "2016-01-01" ) # Ahus
-      ))
+      ) | (
+        (AvdRESH == 4210141) & ( as.Date(UndersokDato) >= "2020-02-10" ) # Bodø
+      )
+    )
   
   
   # Utledete variabler:
