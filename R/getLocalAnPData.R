@@ -77,13 +77,11 @@ FROM AndreProsedyrerVar
   
   # Gjor datoer om til dato-objekt:
   AnP %<>%
-    mutate(
-      FodselsDato = ymd( FodselsDato )
-      ,HovedDato = ymd( HovedDato )
-      ,ProsedyreDato = ymd( ProsedyreDato )
-    )
+    mutate_at(
+      vars( ends_with("Dato") ), list( ymd )
+    ) 
   
-  
+ 
   # Endre Sykehusnavn til kortere versjoner:
   AnP %<>%
     mutate(
@@ -123,34 +121,13 @@ FROM AndreProsedyrerVar
   # (ikke fullstendig, må legget til mer etter hvert)
   AnP %<>%
     mutate(
-      AnnenProsType = factor( AnnenProsType,
-                                levels = c(
-                                  "Aortaballongpumpe"           
-                                  ,"ECMO"                        
-                                  ,"Høyre hjertekateterisering"  
-                                  ,"Impella"                    
-                                  ,"Lukking av ASD/PFO"          
-                                  ,"Lukking av venstre aurikkel" 
-                                  ,"Perikardiocentese"           
-                                  ,"PTSMA"                      
-                                  ,"Temporær pacemaker"          
-                                  ,"Ventilfilming"
-                                  # ,"Ikke registrert" 
-                                ),
-                                ordered = TRUE
-      ),
-      ForlopsType1 = as.factor( ForlopsType1 ),
-      # (Hastegrad finnes ikke i AndreProsedyrerVar)
       ForlopsType2 = factor( ForlopsType2,
                              levels = c(
                                "Akutt"
                                , "Subakutt"
                                , "Planlagt"
                              ),
-                             ordered = TRUE ),
-      PasientKjonn = factor(PasientKjonn, levels = c( "Mann", "Kvinne"), ordered = TRUE),
-      Sykehusnavn = as.ordered( Sykehusnavn )
-      
+                             ordered = TRUE )
     )
   
   
