@@ -88,36 +88,7 @@ FROM ForlopsOversikt
       )
     )
   
-  
-  # Gjøre kategoriske variabler om til factor:
-  FO %<>%
-    mutate(
-      AvdRESH = as.ordered( AvdRESH )
-      ,Sykehusnavn = as.ordered( Sykehusnavn )
-      
-      ,Kommune = addNA( Kommune )
-      ,KommuneNr = addNA( KommuneNr )
-      ,PasientKjonn = factor(PasientKjonn, 
-                             levels = c( 
-                               "Mann"
-                               , "Kvinne"
-                               , NA
-                             )
-                             ,ordered = TRUE
-                             ,exclude = NULL # inkluderer NA i levels
-      )
-      , erMann = addNA( erMann )
-      , Norsktalende = addNA( Norsktalende)
-      , Avdod = addNA( Avdod)
-      , BasisRegStatus = addNA( BasisRegStatus )
-      
-      ,ForlopsType1 = as.ordered( ForlopsType1 )
-      ,ForlopsType1Num = as.ordered( ForlopsType1Num )
-      ,ForlopsType2Num = as.ordered( ForlopsType2Num )
-      ,ErOppflg = as.ordered( ErOppflg )
-    )
-  
-  
+
   # Utledete variabler:
   FO %<>% 
     mutate( 

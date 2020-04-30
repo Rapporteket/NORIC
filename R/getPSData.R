@@ -88,16 +88,7 @@ FROM
       Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
     )
   
-  
 
-  # Gjøre kategoriske variabler om til factor:
-  # (ikke fullstendig, må legge til mer etter hvert)
-  PS %<>%
-    mutate(
-      StudieNavn = addNA( StudieNavn, ifany = TRUE )
-      ,ProsedyreType = addNA( ProsedyreType , ifany = TRUE )
-      ,StudieStatus = addNA( StudieStatus , ifany = TRUE )
-    )
   
   
   

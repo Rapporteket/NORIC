@@ -83,13 +83,7 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
       )
     )
   
-  
-  # Gjøre kategoriske variabler om til factor:
-  SO %<>%
-    mutate(
-      Skjemanavn = as.ordered( Skjemanavn ),
-      Sykehusnavn = as.ordered( Sykehusnavn )
-    )
+
   
   
   # Utledete variabler:

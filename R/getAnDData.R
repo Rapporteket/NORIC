@@ -121,34 +121,17 @@ FROM AnnenDiagnostikkVar
   
   
   # Gjøre kategoriske variabler om til factor:
-  # (ikke fullstendig, må legge til mer etter hvert)
   AnD %<>%
     mutate(
-      ForlopsType1 = factor( ForlopsType2,
-                             levels = c(
-                               "Angio"
-                               , "Angio+PCI"
-                               , "PCI"
-                             ),
-                             ordered = TRUE )
-      ,ForlopsType2 = factor( ForlopsType2,
+      ForlopsType2 = factor( ForlopsType2,
                              levels = c(
                                "Akutt"
                                , "Subakutt"
                                , "Planlagt"
                              ),
-                             ordered = TRUE )
-      ,Sykehusnavn = as.ordered( Sykehusnavn )
-      ,PasientKjonn = factor(PasientKjonn, 
-                     levels = c( 
-                       "Mann"
-                       , "Kvinne"
-                       , NA
-                     )
-                     ,ordered = TRUE
-                     ,exclude = NULL # inkluderer NA i levels
+                             ordered = TRUE 
       )
-      ,Indikasjon = as.factor( Indikasjon )
+      
       ,segment = factor(segment, 
                      levels = c( 
                        "Proximale RCA (1)",

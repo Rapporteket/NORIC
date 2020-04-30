@@ -156,27 +156,7 @@ FROM AngioPCIVar
                                , "Subakutt"
                                , "Planlagt"
                              ),
-                             ordered = TRUE ),
-      Indikasjon = as.factor( Indikasjon ),
-      Kjonn = factor(Kjonn, 
-                     levels = c( 
-                       "Mann"
-                       , "Kvinne"
-                       , NA
-                       )
-                     ,ordered = TRUE
-                     ,exclude = NULL # inkluderer NA i levels
-                     ),
-      OverflyttetFra = as.factor( OverflyttetFra ),
-      ProsedyreType = factor( ProsedyreType,
-                              levels = c(
-                                "Angio"
-                                ,"Angio + PCI"
-                                ,"PCI"
-                              ),
-                              ordered = TRUE ),
-      Sykehusnavn = as.ordered( Sykehusnavn )
-      
+                             ordered = TRUE )
     )
   
   

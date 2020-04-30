@@ -119,19 +119,6 @@ FROM
   # (ikke fullstendig, må legge til mer etter hvert)
   SS %<>%
     mutate(
-      Etterdilatasjon = factor( Etterdilatasjon,
-                          levels = c(
-                            "Ja"
-                            , "Ja, gjennom stentmaskene"
-                            , "Ja, Kissing-Balloon teknikk"
-                            , "Ja, separate ballonger gjennom stentmaskene og i stent"
-                            , "Nei"
-                            , "Ukjent"
-                            , NA)
-                          ,exclude = NULL # inkluderer NA i levels
-                          ,ordered = TRUE
-      ),
-      Indikasjon = as.factor( Indikasjon ),
       Graft = factor( Graft,
                       levels = c(
                         "Nei"
@@ -140,43 +127,9 @@ FROM
                       )
                       ,exclude = NULL # inkluderer NA i levels
                       ,ordered = TRUE 
-      ),
-      LokalSuksess = factor( LokalSuksess,
-                             levels = c(
-                               "Ja"
-                               ,"Nei"
-                               ,NA
-                             )
-                             ,exclude = NULL # inkluderer NA i levels
-                             ,ordered = TRUE 
-      ),
-      PasientKjonn = factor(PasientKjonn, 
-                            levels = c( 
-                              "Mann"
-                              , "Kvinne"
-                              , NA
-                            )
-                            ,exclude = NULL # inkluderer NA i levels
-                            ,ordered = TRUE
-      ),
-      ProsedyreType = factor( ProsedyreType,
-                              levels = c(
-                                "Annen terapi"
-                                ,"Atherectomi"
-                                ,"Ballong + Stent"
-                                ,"Ballongdilatasjon"
-                                ,"Cutting Ballon"
-                                ,"Diagnostikk"
-                                ,"Direktestent"
-                                ,"Medikamentell ballong"
-                                ,"Medikamentell ballong + Stent"
-                                ,"Rotablator"
-                                ,"Wireforsøk"
-                              ),
-                              ordered = TRUE 
-                              ),
-      Segment = as.ordered( Segment ),
-      Stenoseklasse = factor( Stenoseklasse,
+      )
+      
+      ,Stenoseklasse = factor( Stenoseklasse,
                               levels = c(
                                 "A"
                                 ,"B1"
@@ -188,8 +141,9 @@ FROM
                                 ,"Annet"
                               ),
                               ordered = TRUE 
-                              ),
-      StenoseType = factor( StenoseType,
+                              )
+      
+      ,StenoseType = factor( StenoseType,
                               levels = c(
                                 "DeNovo"
                                 ,"In-stent restenose"
@@ -197,8 +151,8 @@ FROM
                                 ,"Andre restenoser"
                               ),
                               ordered = TRUE 
-                              ),
-      StentType = factor( StentType,
+                              )
+      ,StentType = factor( StentType,
                           levels = c(
                             "DES"
                             , "BMS"
@@ -206,8 +160,7 @@ FROM
                             , NA)
                           ,exclude = NULL # inkluderer NA i levels
                           ,ordered = TRUE
-      ),
-      Sykehusnavn = as.ordered( Sykehusnavn )
+      )
       
     )
   
