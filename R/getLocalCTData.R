@@ -81,8 +81,12 @@ FROM CTAngioVar
   CT %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+      Sykehusnavn = ifelse( 
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      ) ,
+      Sykehusnavn = ifelse( 
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      )
     )
   
   
@@ -132,21 +136,22 @@ FROM CTAngioVar
       # Uketall:
       ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( UndersokDato ) ))
       
-      # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to kalenderår:
+      # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
+      # kalenderår:
       
       ,aar_uke = ifelse( 
         # hvis uke 01 er i desember...
         test = uke == "01" & maaned_nr == "12"
-        # .. så sier vi at uken tilhører det seneste av de to årene som uke 01 er spredt
-        # over (uke 01 i desember 2019 blir til 2020-01)
+        # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
+        # er spredt over (uke 01 i desember 2019 blir til 2020-01)
         , yes = paste0( as.integer(year(UndersokDato)) + 1, "-", uke )
         , no = paste0(aar, "-", uke )
       )
       ,aar_uke = ifelse( 
         # hvis uke 52 eller 53 er i januar...
         test = uke %in% c("52", "53") & maaned_nr == "01"
-        # ...sier vi at hele uken tilhører det tidligste av de to årene som uke 52/53 er
-        # spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
+        # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
+        # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
         , yes = paste0( as.integer(year(UndersokDato)) - 1, "-", uke )
         , no = aar_uke
       )
