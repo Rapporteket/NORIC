@@ -69,12 +69,6 @@ FROM AndreProsedyrerVar
                   suffix = c("", ".FO"))
   
 
-  # Klokkeslett med "01.01.70 " som prefix fikses:
-  AnP %<>%
-    mutate(
-      ProsedyreTid = gsub( "01.01.70 " , "" , ProsedyreTid )
-    )
-  
   # Gjor datoer om til dato-objekt:
   AnP %<>%
     mutate_at(

@@ -78,15 +78,7 @@ FROM
   MK <- left_join(MK, FO, by = c("ForlopsID", "AvdRESH"),
                   suffix = c("", ".FO"))
   
-  
-  # Klokkeslett med "01.01.70 " som prefix fikses:
-  MK %<>%
-    mutate(
-      Avslutningstid = gsub( "01.01.70 " , "" , Avslutningstid ) ,
-      Punksjonstid = gsub( "01.01.70 " , "" , Punksjonstid )
-    )
-  
-  
+
   # Gjor datoer om til dato-objekt:
   MK %<>%
     mutate(

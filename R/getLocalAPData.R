@@ -74,22 +74,6 @@ FROM AngioPCIVar
   
   
   
-  # Klokkeslett med "01.01.70 " som prefix fikses:
-  AP %<>%
-    mutate(
-      ProsedyreTid = gsub( "01.01.70 " , "" , ProsedyreTid ) ,
-      SymptomTid = gsub( "01.01.70 " , "" , SymptomTid ) ,
-      BesUtlEKGTid = gsub( "01.01.70 " , "" , BesUtlEKGTid ) ,
-      AnkomstPCITid = gsub( "01.01.70 " , "" , AnkomstPCITid ) ,
-      ApningKarTid = gsub( "01.01.70 " , "" , ApningKarTid ) ,
-      InnleggelseHenvisendeSykehusTid = 
-        gsub( "01.01.70 " , "" , InnleggelseHenvisendeSykehusTid ) ,
-      SymptomdebutTid = gsub( "01.01.70 " , "" , SymptomdebutTid ) ,
-      BeslEKGTid = gsub( "01.01.70 " , "" , BeslEKGTid ) ,
-      TrombolyseTid = gsub( "01.01.70 " , "" , TrombolyseTid )
-      )
-  
-  
   # Gjor datoer om til dato-objekt:
   AP %<>%
     mutate(
