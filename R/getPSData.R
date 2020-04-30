@@ -70,14 +70,9 @@ FROM
 
   # Gjor datoer om til dato-objekt:
   PS %<>%
-    mutate(
-      FodselsDato = ymd( FodselsDato )
-      ,PasInklDato = ymd( PasInklDato )
-      ,PasAvsluttDato = ymd( PasAvsluttDato )
-      ,StudieStartDato = ymd( StudieStartDato )
-      ,StudieAvsluttDato = ymd( StudieAvsluttDato )
-      ,StudieOppflgAvslDato = ymd( StudieOppflgAvslDato )
-    )
+    mutate_at(
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:

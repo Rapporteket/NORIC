@@ -70,11 +70,12 @@ FROM CTAngioVar
                                   ),
                    suffix = c("", ".FO"))
   
+  
   # Gjor datoer om til dato-objekt:
   CT %<>%
     mutate_at(
-      vars( ends_with("Dato", ignore.case = FALSE) ), list( ymd )
-    )
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:

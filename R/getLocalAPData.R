@@ -76,24 +76,9 @@ FROM AngioPCIVar
   
   # Gjor datoer om til dato-objekt:
   AP %<>%
-    mutate(
-      AnkomstPCIDato = ymd( AnkomstPCIDato )
-      ,ApningKarDato = ymd( ApningKarDato )
-      ,AvdodDato = ymd( AvdodDato )
-      ,BeslEKGDato = ymd( BeslEKGDato )
-      ,BesUtlEKGDato = ymd( BesUtlEKGDato )
-      ,FodselsDato = ymd( FodselsDato )
-      ,HovedDato = ymd( HovedDato )
-      ,InnleggelseHenvisendeSykehusDato = 
-        ymd( InnleggelseHenvisendeSykehusDato )
-      ,PasientRegDato = ymd( PasientRegDato )
-      ,ProsedyreDato = ymd( ProsedyreDato )
-      ,SymptomDato = ymd( SymptomDato )
-      ,SymptomdebutDato = ymd( SymptomdebutDato )
-      ,TrombolyseDato = ymd( TrombolyseDato )
-      ,UtskrevetDodsdato = ymd( UtskrevetDodsdato )
-      ,Utskrivningsdato = ymd( Utskrivningsdato )
-    )
+    mutate_at(
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:

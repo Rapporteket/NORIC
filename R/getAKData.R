@@ -77,8 +77,8 @@ FROM
   # Gjor datoer om til dato-objekt:
   AK %<>%
     mutate_at(
-      vars( ends_with("Dato") ), list( ymd )
-    )
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
 
 
   # Utledete variabler:

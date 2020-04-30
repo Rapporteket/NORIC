@@ -76,11 +76,9 @@ FROM AnnenDiagnostikkVar
   
   # Gjor datoer om til dato-objekt:
   AnD %<>%
-    mutate(
-      ProsedyreDato = ymd( ProsedyreDato ),
-      FodselsDato = ymd( FodselsDato ),
-      HovedDato = ymd( HovedDato )
-    )
+    mutate_at(
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:

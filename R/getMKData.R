@@ -81,13 +81,9 @@ FROM
 
   # Gjor datoer om til dato-objekt:
   MK %<>%
-    mutate(
-      Dodsdato = ymd( Dodsdato )
-      ,ProsedyreDato = ymd( ProsedyreDato )
-      ,FodselsDato = ymd( FodselsDato ) # FO
-      ,HovedDato = ymd( HovedDato ) # FO
-      ,UtskrDato = ymd( UtskrDato )
-    )
+    mutate_at(
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:

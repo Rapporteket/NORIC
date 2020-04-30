@@ -44,11 +44,9 @@ FROM ForlopsOversikt
   
   # Gjor datoer om til dato-objekt:
   FO %<>%
-    mutate(
-      AvdodDato = ymd( AvdodDato )
-      ,FodselsDato = ymd( FodselsDato )
-      ,HovedDato = ymd( HovedDato )
-    )
+    mutate_at(
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:
