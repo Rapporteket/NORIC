@@ -41,8 +41,8 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
   # Gjor datoer om til dato-objekt:
   SO %<>%
     mutate(
-      OpprettetDato = ymd( OpprettetDato )
-      ,SistLagretDato = ymd( SistLagretDato )
+      OpprettetDato = ymd_hms( OpprettetDato )
+      ,SistLagretDato = ymd_hms( SistLagretDato )
       ,HovedDato = ymd( HovedDato )
     )
   
