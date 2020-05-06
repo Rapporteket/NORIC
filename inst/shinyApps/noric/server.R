@@ -46,9 +46,12 @@ shinyServer(function(input, output, session) {
                    tableFormat="html",
                    reshId=reshId,
                    registryName=registryName)
-    # knit from base on temporary directory/file
+    # do all kniting and rendering from temporary directory/file
     sourceFile <- tempfile(fileext = ".Rmd")
-    file.copy(system.file(srcFile, package="noric"), sourceFile)
+    file.copy(system.file(srcFile, package="noric"), sourceFile,
+              overwrite = TRUE)
+    owd <- setwd(dirname(sourceFile))
+    on.exit(setwd(owd))
     sourceFile %>% 
       knitr::knit() %>% 
       markdown::markdownToHTML(.,
