@@ -57,7 +57,7 @@ FROM AngioPCIVar
       ,KommuneNr
       ,Fylke
       ,Fylkenr
-      # ,PasientKjonn # Finnes per dags dato i AP (heter ikke PasientKjonn, men Kjonn)
+      # ,PasientKjonn # Finnes per dags dato i AP (men heter Kjonn)
       ,PasientAlder
       ,ForlopsType1
       ,ForlopsType2
@@ -74,48 +74,23 @@ FROM AngioPCIVar
   
   
   
-  # Klokkeslett med "01.01.70 " som prefix fikses:
-  AP %<>%
-    mutate(
-      ProsedyreTid = gsub( "01.01.70 " , "" , ProsedyreTid ) ,
-      SymptomTid = gsub( "01.01.70 " , "" , SymptomTid ) ,
-      BesUtlEKGTid = gsub( "01.01.70 " , "" , BesUtlEKGTid ) ,
-      AnkomstPCITid = gsub( "01.01.70 " , "" , AnkomstPCITid ) ,
-      ApningKarTid = gsub( "01.01.70 " , "" , ApningKarTid ) ,
-      InnleggelseHenvisendeSykehusTid = gsub( "01.01.70 " , "" , InnleggelseHenvisendeSykehusTid ) ,
-      SymptomdebutTid = gsub( "01.01.70 " , "" , SymptomdebutTid ) ,
-      BeslEKGTid = gsub( "01.01.70 " , "" , BeslEKGTid ) ,
-      TrombolyseTid = gsub( "01.01.70 " , "" , TrombolyseTid )
-      )
-  
-  
   # Gjor datoer om til dato-objekt:
   AP %<>%
-    mutate(
-      AnkomstPCIDato = ymd( AnkomstPCIDato )
-      ,ApningKarDato = ymd( ApningKarDato )
-      ,AvdodDato = ymd( AvdodDato )
-      ,BeslEKGDato = ymd( BeslEKGDato )
-      ,BesUtlEKGDato = ymd( BesUtlEKGDato )
-      ,FodselsDato = ymd( FodselsDato )
-      ,HovedDato = ymd( HovedDato )
-      ,InnleggelseHenvisendeSykehusDato = ymd( InnleggelseHenvisendeSykehusDato )
-      ,PasientRegDato = ymd( PasientRegDato )
-      ,ProsedyreDato = ymd( ProsedyreDato )
-      ,SymptomDato = ymd( SymptomDato )
-      ,SymptomdebutDato = ymd( SymptomdebutDato )
-      ,TrombolyseDato = ymd( TrombolyseDato )
-      ,UtskrevetDodsdato = ymd( UtskrevetDodsdato )
-      ,Utskrivningsdato = ymd( Utskrivningsdato )
-    )
+    mutate_at(
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:
   AP %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+      Sykehusnavn = ifelse( 
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      ) ,
+      Sykehusnavn = ifelse( 
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      )
     )
   
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
@@ -140,7 +115,10 @@ FROM AngioPCIVar
         (AvdRESH == 106944) & ( as.Date(ProsedyreDato) >= "2015-01-01" ) # LHLGardermoen
       ) | (
         (AvdRESH == 108141) & ( as.Date(ProsedyreDato) >= "2016-01-01" ) # Ahus
-      ))
+      ) | (
+        (AvdRESH == 4210141) & ( as.Date(ProsedyreDato) >= "2020-02-10" ) # Bodø
+      )
+    )
   
   
   # Gjøre kategoriske variabler om til factor:
@@ -153,59 +131,48 @@ FROM AngioPCIVar
                                , "Subakutt"
                                , "Planlagt"
                              ),
-                             ordered = TRUE ),
-      Indikasjon = as.factor( Indikasjon ),
-      Kjonn = factor(Kjonn, 
-                     levels = c( 
-                       "Mann"
-                       , "Kvinne"
-                       , NA
-                       )
-                     ,ordered = TRUE
-                     ,exclude = NULL # inkluderer NA i levels
-                     ),
-      OverflyttetFra = as.factor( OverflyttetFra ),
-      ProsedyreType = factor( ProsedyreType,
-                              levels = c(
-                                "Angio"
-                                ,"Angio + PCI"
-                                ,"PCI"
-                              ),
-                              ordered = TRUE ),
-      Sykehusnavn = as.ordered( Sykehusnavn )
-      
+                             ordered = TRUE )
     )
   
   
   # Utledete variabler:
   AP %<>% 
-    mutate( 
+    mutate(
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:
-      year = as.ordered( year( ProsedyreDato )),
-      aar = year,
+      aar = as.ordered( year( ProsedyreDato ))
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) )),
-      maaned = as.ordered( paste0( year, "-", maaned_nr) ),
+      ,maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) ))
+      ,maaned = as.ordered( paste0( aar, "-", maaned_nr) )
       # Kvartal:
-      kvartal = quarter( ProsedyreDato, with_year = TRUE ),
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
-      kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
+      ,kvartal = quarter( ProsedyreDato, with_year = TRUE )
+      # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
+      ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) )),
-
-      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
-                        yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
-                        no = paste0(aar, "-", uke )
-      ),
-      aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
-                        yes = paste0( as.integer(year(ProsedyreDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
-                        no = aar_uke
-      ),
-      aar_uke = as.ordered( aar_uke )
+      ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
+      
+      # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
+      # kalenderår:
+      
+      ,aar_uke = ifelse( 
+        # hvis uke 01 er i desember...
+        test = uke == "01" & maaned_nr == "12"
+        # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
+        # er spredt over (uke 01 i desember 2019 blir til 2020-01)
+        , yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke )
+        , no = paste0(aar, "-", uke )
+      )
+      ,aar_uke = ifelse( 
+        # hvis uke 52 eller 53 er i januar...
+        test = uke %in% c("52", "53") & maaned_nr == "01"
+        # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
+        # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
+        , yes = paste0( as.integer(year(ProsedyreDato)) - 1, "-", uke )
+        , no = aar_uke
+      )
+      ,aar_uke = as.ordered( aar_uke )
     )
   
 

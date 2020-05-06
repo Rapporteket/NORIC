@@ -70,34 +70,24 @@ FROM
 
   # Gjor datoer om til dato-objekt:
   PS %<>%
-    mutate(
-      FodselsDato = ymd( FodselsDato )
-      ,PasInklDato = ymd( PasInklDato )
-      ,PasAvsluttDato = ymd( PasAvsluttDato )
-      ,StudieStartDato = ymd( StudieStartDato )
-      ,StudieAvsluttDato = ymd( StudieAvsluttDato )
-      ,StudieOppflgAvslDato = ymd( StudieOppflgAvslDato )
-    )
+    mutate_at(
+      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:
   PS %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+      Sykehusnavn = ifelse( 
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      ) ,
+      Sykehusnavn = ifelse(
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      )
     )
-  
   
 
-  # Gjøre kategoriske variabler om til factor:
-  # (ikke fullstendig, må legge til mer etter hvert)
-  PS %<>%
-    mutate(
-      StudieNavn = addNA( StudieNavn, ifany = TRUE )
-      ,ProsedyreType = addNA( ProsedyreType , ifany = TRUE )
-      ,StudieStatus = addNA( StudieStatus , ifany = TRUE )
-    )
   
   
   
@@ -108,52 +98,85 @@ FROM
       # Div. tidsvariabler:
       
       # Basert på PasInklDato:
+      
       # Kalenderår:
-      year_pasientinklusjon = as.ordered( year( PasInklDato ))
-      ,aar_pasientinklusjon = year_pasientinklusjon
+      aar_pasientinklusjon = as.ordered( year( PasInklDato ))
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      ,maaned_nr_pasientinklusjon = as.ordered( sprintf(fmt = "%02d", month( PasInklDato ) ))
-      ,maaned_pasientinklusjon = as.ordered( paste0( year_pasientinklusjon, "-", maaned_nr_pasientinklusjon) )
+      ,maaned_nr_pasientinklusjon = 
+        as.ordered( sprintf(fmt = "%02d", month( PasInklDato ) ))
+      ,maaned_pasientinklusjon = 
+        as.ordered( 
+          paste0( aar_pasientinklusjon, "-", maaned_nr_pasientinklusjon) 
+        )
       # Kvartal:
       ,kvartal_pasientinklusjon = quarter( PasInklDato, with_year = TRUE )
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
-      ,kvartal_pasientinklusjon = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_pasientinklusjon) )
+      ,kvartal_pasientinklusjon = 
+        as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_pasientinklusjon) )
       # Uketall:
-      ,uke_pasientinklusjon = as.ordered( sprintf(fmt = "%02d", isoweek( PasInklDato ) ))
-      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      ,aar_uke_pasientinklusjon = ifelse( test = uke_pasientinklusjon == "01" & maaned_nr_pasientinklusjon == "12", # hvis uke 01 i desember...
-                         yes = paste0( as.integer(year(PasInklDato)) + 1, "-", uke_pasientinklusjon ), # ..sier vi at year er det seneste året som den uken tilhørte
-                         no = paste0(aar_pasientinklusjon, "-", uke_pasientinklusjon )
+      ,uke_pasientinklusjon = 
+        as.ordered( sprintf(fmt = "%02d", isoweek( PasInklDato ) ))
+      
+      # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
+      # kalenderår:
+      ,aar_uke_pasientinklusjon = ifelse( 
+        # hvis uke 01 er i desember...
+        test = uke_pasientinklusjon == "01" & maaned_nr_pasientinklusjon == "12" 
+        # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
+        # er spredt over (uke 01 i desember 2019 blir til 2020-01)
+        ,yes = 
+          paste0( as.integer(year(PasInklDato)) + 1, "-", uke_pasientinklusjon )
+        ,no = paste0(aar_pasientinklusjon, "-", uke_pasientinklusjon )
       )
-      ,aar_uke_pasientinklusjon = ifelse( test = uke_pasientinklusjon %in% c("52", "53") & maaned_nr_pasientinklusjon == "01", # hvis uke 52 eller 53 i januar...
-                         yes = paste0( as.integer(year(PasInklDato)) - 1, "-", uke_pasientinklusjon ), # ...sier vi at hele uken tilhører det tidligste året
-                         no = aar_uke_pasientinklusjon
+      ,aar_uke_pasientinklusjon = ifelse( 
+        # hvis uke 52 eller 53 er i januar...
+        test = uke_pasientinklusjon %in% c("52", "53") & 
+          maaned_nr_pasientinklusjon == "01"
+        # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
+        # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
+        ,yes = 
+          paste0( as.integer(year(PasInklDato)) - 1, "-", uke_pasientinklusjon )
+        ,no = aar_uke_pasientinklusjon
       )
       ,aar_uke_pasientinklusjon = as.ordered( aar_uke_pasientinklusjon )
 
       # Basert på StudieStartDato:
+      
       # Kalenderår:
-      ,year_studiestart = as.ordered( year( StudieStartDato ))
-      ,aar_studiestart = year_studiestart
+      ,aar_studiestart = as.ordered( year( StudieStartDato ))
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      ,maaned_nr_studiestart = as.ordered( sprintf(fmt = "%02d", month( StudieStartDato ) ))
-      ,maaned_studiestart = as.ordered( paste0( year_studiestart, "-", maaned_nr_studiestart) )
+      ,maaned_nr_studiestart = 
+        as.ordered( sprintf(fmt = "%02d", month( StudieStartDato ) ))
+      ,maaned_studiestart = 
+        as.ordered( paste0( aar_studiestart, "-", maaned_nr_studiestart) )
       # Kvartal:
       ,kvartal_studiestart = quarter( StudieStartDato, with_year = TRUE )
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
-      ,kvartal_studiestart = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_studiestart) )
+      ,kvartal_studiestart = 
+        as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_studiestart) )
       # Uketall:
-      ,uke_studiestart = as.ordered( sprintf(fmt = "%02d", isoweek( StudieStartDato ) ))
-      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      ,aar_uke_studiestart = ifelse( test = uke_studiestart == "01" & maaned_nr_studiestart == "12", # hvis uke 01 i desember...
-                         yes = paste0( as.integer(year(StudieStartDato)) + 1, "-", uke_studiestart ), # ..sier vi at year er det seneste året som den uken tilhørte
-                         no = paste0(aar_studiestart, "-", uke_studiestart )
+      ,uke_studiestart = 
+        as.ordered( sprintf(fmt = "%02d", isoweek( StudieStartDato ) ))
+      # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
+      # kalenderår:
+      ,aar_uke_studiestart = ifelse( 
+        # hvis uke 01 er i desember...
+        test = uke_studiestart == "01" & maaned_nr_studiestart == "12"
+        # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
+        # er spredt over (uke 01 i desember 2019 blir til 2020-01)
+        ,yes = 
+          paste0( as.integer(year(StudieStartDato)) + 1, "-", uke_studiestart )
+        ,no = paste0(aar_studiestart, "-", uke_studiestart )
       )
-      ,aar_uke_studiestart = ifelse( test = uke_studiestart %in% c("52", "53") & maaned_nr_studiestart == "01", # hvis uke 52 eller 53 i januar...
-                         yes = paste0( as.integer(year(StudieStartDato)) - 1, "-", uke_studiestart ), # ...sier vi at hele uken tilhører det tidligste året
-                         no = aar_uke_studiestart
+      ,aar_uke_studiestart = ifelse( 
+        # hvis uke 52 eller 53 er i januar...
+        test = 
+          uke_studiestart %in% c("52", "53") & maaned_nr_studiestart == "01"
+        # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
+        # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
+        ,yes = 
+          paste0( as.integer(year(StudieStartDato)) - 1, "-", uke_studiestart )
+        ,no = aar_uke_studiestart
       )
       ,aar_uke_studiestart = as.ordered( aar_uke_studiestart )
     )

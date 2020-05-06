@@ -97,43 +97,6 @@ FROM AortaklaffOppfVar
   #     Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
   #   )
   
-  
-  # # Gjøre kategoriske variabler om til factor:
-  # # (ikke fullstendig, må legge til mer etter hvert)
-  # AKOppf %<>%
-  #   mutate(
-  #     ForlopsType1 = as.ordered( ForlopsType1 )
-  #     ,ForlopsType2 = factor( ForlopsType2,
-  #                             levels = c(
-  #                               "Akutt"
-  #                               , "Subakutt"
-  #                               , "Planlagt"
-  #                             ),
-  #                             ordered = TRUE )
-  #     ,Sykehusnavn = as.ordered( Sykehusnavn )
-  #     ,PasientKjonn = factor(PasientKjonn, 
-  #                            levels = c( 
-  #                              "Mann"
-  #                              , "Kvinne"
-  #                              , NA
-  #                            )
-  #                            ,ordered = TRUE
-  #                            ,exclude = NULL # inkluderer NA i levels
-  #     )
-  #     ,VektUkjent = as.ordered( VektUkjent )
-  #     ,NYHA = as.ordered( NYHA )
-  #     ,CanadianClass = as.ordered( CanadianClass )
-  #     ,GangtestIkkeUtfort = as.ordered( GangtestIkkeUtfort )
-  #     ,SKreatininIkkeUtfort = as.ordered( SKreatininIkkeUtfort )
-  #     ,HemoglobinUkjent = as.ordered( HemoglobinUkjent )
-  #     ,VenstreVentrikkelFunksjon = as.ordered( VenstreVentrikkelFunksjon )
-  #     ,Aortainsuffisiens = as.ordered( Aortainsuffisiens )
-  #     ,ParavalvularLekkasje = as.ordered( ParavalvularLekkasje )
-  #     ,Mitralinsuffisiens = as.ordered( Mitralinsuffisiens )
-  #     ,Komplikasjoner = as.ordered( Komplikasjoner )
-  #   )
-  
-  
   # # Utledete variabler:
   # AKOppf %<>%
   #   mutate(

@@ -41,8 +41,8 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
   # Gjor datoer om til dato-objekt:
   SO %<>%
     mutate(
-      OpprettetDato = ymd( OpprettetDato )
-      ,SistLagretDato = ymd( SistLagretDato )
+      OpprettetDato = ymd_hms( OpprettetDato )
+      ,SistLagretDato = ymd_hms( SistLagretDato )
       ,HovedDato = ymd( HovedDato )
     )
   
@@ -51,8 +51,12 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
   SO %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
+      Sykehusnavn = ifelse( 
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      ) ,
+      Sykehusnavn = ifelse( 
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      )
     )
   
   
@@ -78,15 +82,12 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
         (AvdRESH == 106944) & ( as.Date(HovedDato) >= "2015-01-01" ) # LHLGardermoen
       ) | (
         (AvdRESH == 108141) & ( as.Date(HovedDato) >= "2016-01-01" ) # Ahus
-      ))
-  
-  
-  # Gjøre kategoriske variabler om til factor:
-  SO %<>%
-    mutate(
-      Skjemanavn = as.ordered( Skjemanavn ),
-      Sykehusnavn = as.ordered( Sykehusnavn )
+      ) | (
+        (AvdRESH == 4210141) & ( as.Date(HovedDato) >= "2020-02-10" ) # Bodø
+      )
     )
+  
+
   
   
   # Utledete variabler:
@@ -99,30 +100,39 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
                                 ),
       # Div. tidsvariabler:
       #
-      # Kalenderår for ProsedyreDato:
-      year = as.ordered( year( HovedDato )),
-      aar = year,
+      # Kalenderår for HovedDato:
+      aar = as.ordered( year( HovedDato ))
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      maaned_nr = as.ordered( sprintf(fmt = "%02d", month( HovedDato ) )),
-      maaned = as.ordered( paste0( year, "-", maaned_nr) ),
+      ,maaned_nr = as.ordered( sprintf(fmt = "%02d", month( HovedDato ) ))
+      ,maaned = as.ordered( paste0( aar, "-", maaned_nr) )
       # Kvartal:
-      kvartal = quarter( HovedDato, with_year = TRUE ),
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
-      kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) ),
+      ,kvartal = quarter( HovedDato, with_year = TRUE )
+      # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
+      ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
-      uke = as.ordered( sprintf(fmt = "%02d", isoweek( HovedDato ) )),
+      ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( HovedDato ) ))
       
-      # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-      aar_uke = ifelse( test = uke == "01" & maaned_nr == "12", # hvis uke 01 i desember...
-                        yes = paste0( as.integer(year(HovedDato)) + 1, "-", uke ), # ..sier vi at year er det seneste året som den uken tilhørte
-                        no = paste0(aar, "-", uke )
-      ),
-      aar_uke = ifelse( test = uke %in% c("52", "53") & maaned_nr == "01", # hvis uke 52 eller 53 i januar...
-                        yes = paste0( as.integer(year(HovedDato)) - 1, "-", uke ), # ...sier vi at hele uken tilhører det tidligste året
-                        no = aar_uke
-      ),
-      aar_uke = as.ordered( aar_uke )
+      # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
+      # kalenderår:
+      
+      ,aar_uke = ifelse( 
+        # hvis uke 01 er i desember...
+        test = uke == "01" & maaned_nr == "12"
+        # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
+        # er spredt over (uke 01 i desember 2019 blir til 2020-01)
+        , yes = paste0( as.integer(year(HovedDato)) + 1, "-", uke )
+        , no = paste0(aar, "-", uke )
+      )
+      ,aar_uke = ifelse( 
+        # hvis uke 52 eller 53 er i januar...
+        test = uke %in% c("52", "53") & maaned_nr == "01"
+        # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
+        # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
+        , yes = paste0( as.integer(year(HovedDato)) - 1, "-", uke )
+        , no = aar_uke
+      )
+      ,aar_uke = as.ordered( aar_uke )
     ) 
   
   SO
