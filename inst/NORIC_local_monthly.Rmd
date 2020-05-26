@@ -51,7 +51,7 @@ colKontrast <- "#FF7260"
 ``` 
 
 
-```{r GetData, include=FALSE, cache=TRUE}
+```{r GetData, include=FALSE, cache=FALSE}
 
 dbType <- "mysql"
 SOQuery <- "SELECT * FROM SkjemaOversikt"
