@@ -154,16 +154,6 @@ FROM
                               ),
                               ordered = TRUE 
                               )
-      ,StentType = factor( StentType,
-                          levels = c(
-                            "DES"
-                            , "BMS"
-                            , "Annet"
-                            , NA)
-                          ,exclude = NULL # inkluderer NA i levels
-                          ,ordered = TRUE
-      )
-      
     )
   
   
