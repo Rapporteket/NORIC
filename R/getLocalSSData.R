@@ -7,9 +7,9 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr filter mutate mutate_all select group_by count left_join
-#' arrange
-#' @importFrom lubridate ymd year month quarter isoweek
+#' @importFrom dplyr arrange count filter group_by left_join mutate mutate_all 
+#' select   
+#' @importFrom lubridate isoweekmonth quarter year ymd
 #'
 #' @return Data frame representing the table SegmentStent
 #' @export
