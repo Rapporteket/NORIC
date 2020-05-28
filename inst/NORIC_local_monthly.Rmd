@@ -15,7 +15,7 @@ title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrappor
 author: "`r params$author`"
 ---
 
-```{r knitrOptions, include=FALSE}
+```{r knitrOptions, include=TRUE}
 library(magrittr)
 library(knitr)
 library(kableExtra)
@@ -42,7 +42,7 @@ Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
 ``` 
 
 
-```{r SKDEcol, include=FALSE}
+```{r SKDEcol, include=TRUE}
 
 colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
@@ -51,7 +51,7 @@ colKontrast <- "#FF7260"
 ``` 
 
 
-```{r GetData, include=FALSE, cache=FALSE}
+```{r GetData, include=TRUE, cache=FALSE}
 
 dbType <- "mysql"
 SOQuery <- "SELECT * FROM SkjemaOversikt"
@@ -63,10 +63,15 @@ AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 AnP <- rapbase::LoadRegData(params$registryName, AnPQuery, dbType)
 
 showN <- 12 # how many months are displayed
+
+
+evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
+# (TRUE when AnP contains data) 
+
 ```
 
 
-```{r AnPPrepare,include=FALSE, eval=TRUE}
+```{r AnPPrepare,include=evaluate_AnP, eval=evaluate_AnP}
 
 AnP$ProsedyreDato <- as.Date( AnP$ProsedyreDato)
 
@@ -117,7 +122,7 @@ AnP$AnnenProsType <- factor(
 
 
 
-```{r SOPrepare,include=FALSE, eval=TRUE}
+```{r SOPrepare,include=TRUE, eval=TRUE}
 
 SO$RegDate <- as.Date(
     SO$HovedDato)
@@ -153,7 +158,7 @@ SO$Month <- as.factor(
 
 
 
-```{r APprepare,include=FALSE, eval=TRUE}
+```{r APprepare,include=TRUE, eval=TRUE}
 
 AP$FodselsDato <- as.Date( AP$FodselsDato)
 
@@ -199,7 +204,7 @@ AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
 
 
 
-```{r Daterecodes,include=FALSE, eval=TRUE}
+```{r Daterecodes,include=TRUE, eval=TRUE}
 
 AP$Year <- as.numeric(
     format(
@@ -223,7 +228,7 @@ AP $ Day <- as.numeric(
 
 ```
 
-```{r subsetting,include=FALSE, eval=TRUE}
+```{r subsetting,include=TRUE, eval=TRUE}
 
 NSTEMI <- subset(
     x = AP ,
@@ -461,7 +466,7 @@ mst(tab, params$tableFormat, cap, 1, align = rep("r", 7))
 # Annen diagnostikk
 
 
-```{r TabTillegg,include=FALSE}
+```{r TabTillegg,include=TRUE}
 
 PrintTabTilleggCol <- function(VAR){
 
@@ -609,8 +614,10 @@ mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8), lsd = TR
 
 ## Andre prosedyrer
 
+`r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i nåværende datagrunnlag."}`
 
-```{r TabNAndreProsedyrer,  results = 'asis', eval=TRUE}
+
+```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
 cap <- "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned"
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
