@@ -7,9 +7,9 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr filter mutate mutate_all select group_by count left_join
-#' arrange
-#' @importFrom lubridate ymd year month quarter isoweek
+#' @importFrom dplyr arrange count filter group_by left_join mutate mutate_at 
+#' select ungroup 
+#' @importFrom lubridate isoweekmonth quarter year ymd
 #'
 #' @return Data frame representing the table SegmentStent
 #' @export
@@ -154,16 +154,6 @@ FROM
                               ),
                               ordered = TRUE 
                               )
-      ,StentType = factor( StentType,
-                          levels = c(
-                            "DES"
-                            , "BMS"
-                            , "Annet"
-                            , NA)
-                          ,exclude = NULL # inkluderer NA i levels
-                          ,ordered = TRUE
-      )
-      
     )
   
   
@@ -211,27 +201,11 @@ FROM
   # Utledet variabel:
   # ant_stent_ila_forlop = antall stenter satt inn ila ett forløp
   
-  ant_stent <- SS  %>%
-    group_by(Sykehusnavn) %>%
-    count( ForlopsID, wt = !is.na( StentType ) )
-  
-  # Har nå en df med Sykehusnavn, ForlopsID og n = antall rader tilhørende et
-  # forløp hvor StentType er oppgitt (!is.na() == TRUE når det er satt inn
-  # stent)
-
-  # Endrer navn på "n":
-  names( ant_stent )[3] <- "ant_stent_ila_forlop"
-  
-  # Legger "ant_stent_ila_forlop" SS vha en left join:
   SS %<>% 
-    left_join(., ant_stent
-                     , by = c("Sykehusnavn", "ForlopsID" ) 
-                     ) %>% 
-    arrange( Sykehusnavn, ForlopsID)
-  
-  # For hver rad blir det oppgitt antall stenter som ble satt inn ila det
-  # forløpet (ett forløp på ett sykehus kan ha flere rader hvor hver rad oppgir
-  # det totale antallet)
+    group_by( Sykehusnavn, ForlopsID ) %>% 
+    mutate( antall_stent_ila_forlop = sum( !is.na(StentType) ) ) %>% 
+    ungroup() %>% 
+    arrange( Sykehusnavn, ForlopsID )
   
   
   SS
