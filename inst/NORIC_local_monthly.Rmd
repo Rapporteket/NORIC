@@ -63,10 +63,15 @@ AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 AnP <- rapbase::LoadRegData(params$registryName, AnPQuery, dbType)
 
 showN <- 12 # how many months are displayed
+
+
+evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
+# (TRUE when AnP contains data) 
+
 ```
 
 
-```{r AnPPrepare,include=TRUE, eval=TRUE}
+```{r AnPPrepare,include=evaluate_AnP, eval=evaluate_AnP}
 
 AnP$ProsedyreDato <- as.Date( AnP$ProsedyreDato)
 
@@ -609,8 +614,10 @@ mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8), lsd = TR
 
 ## Andre prosedyrer
 
+`r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i nåværende datagrunnlag."}`
 
-```{r TabNAndreProsedyrer,  results = 'asis', eval=TRUE}
+
+```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
 cap <- "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned"
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
