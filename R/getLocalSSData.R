@@ -204,7 +204,7 @@ FROM
   SS %<>% 
     group_by( Sykehusnavn, ForlopsID ) %>% 
     mutate( antall_stent_ila_forlop = sum( !is.na(StentType) ) ) %>% 
-    ungroup() %>% 
+    dplyr::ungroup() %>% 
     arrange( Sykehusnavn, ForlopsID )
   
   
