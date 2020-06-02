@@ -253,7 +253,8 @@ shinyServer(function(input, output, session) {
     },
 
     content = function(file) {
-      contentFile(file, "NORIC_local_monthly_stent.Rmd", "tmpNoricStent.Rmd",
+      contentFile(file, "NORIC_local_monthly_stent.Rmd",
+                  basename(tempfile(fileext = ".Rmd")),
                   input$formatStentbruk)
     }
   )
@@ -264,7 +265,8 @@ shinyServer(function(input, output, session) {
     },
     
     content = function(file) {
-      contentFile(file, "NORIC_local_monthly.Rmd", "tmpNoric.Rmd",
+      contentFile(file, "NORIC_local_monthly.Rmd",
+                  basename(tempfile(fileext = ".Rmd")),
                   input$formatProsedyrer)
     }
   )
@@ -276,7 +278,8 @@ shinyServer(function(input, output, session) {
     },
     
     content = function(file) {
-      contentFile(file, "NORIC_local_monthly.Rmd", "tmpNoric2.Rmd",
+      contentFile(file, "NORIC_local_monthly.Rmd",
+                  basename(tempfile(fileext = ".Rmd")),
                   input$formatProsedyrer2)
     }
   )
