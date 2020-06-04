@@ -64,6 +64,21 @@ WHERE
   }
   
   
+  # Datadumper som skal filtreres på bakgrunn av BasisProsedyreDato:
+  # AKOppf
+  if( tableName %in% c( "AortaklaffOppfVar" ) 
+  ){
+    query <- paste0("
+SELECT
+  *
+FROM 
+  ", tableName, "
+WHERE 
+  BasisProsedyreDato >= '", fromDate, "' AND BasisProsedyreDato <= '", toDate, "';"
+    )
+  }
+  
+  
 
   
   if ("session" %in% names(list(...))) {
@@ -81,6 +96,7 @@ WHERE
     if( tableName %in% c( "AndreProsedyrerVar"
                           , "AnnenDiagnostikkVar"
                           , "AortaklaffVar"
+                          , "AortaklaffOppfVar"
                           , "AngioPCIVar"
                           , "CTAngioVar"
                           , "SegmentStent" )
@@ -171,6 +187,43 @@ WHERE
           ,ForlopsType2
           ,KobletForlopsID
           ,HovedDato
+        )
+      
+      tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
+                       , suffix = c("", ".FO") 
+      )
+    }
+    
+    
+    # AKOppf ----
+    if( tableName %in% c( "AortaklaffOppfVar" )){
+      
+      FO %<>% 
+        select(
+          # Nøkler:
+          AvdRESH
+          ,ForlopsID
+          # Variablene som legges til:
+          ,Sykehusnavn
+          ,PasientID
+          ,PasientKjonn
+          ,PasientAlder
+          ,BasisRegStatus
+          ,ForlopsType1
+          ,ForlopsType2
+          ,KobletForlopsID
+          ,HovedDato
+          ,Kommune
+          ,KommuneNr
+          ,Fylke
+          ,Fylkenr
+          ,FodselsDato
+          ,Avdod
+          ,AvdodDato
+          ,ErOppflg
+          ,OppflgStatus
+          ,OppflgSekNr
+          ,OppflgRegStatus
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
