@@ -133,6 +133,7 @@ WHERE
           ,ForlopsID
           # Variablene som legges til:
           ,PasientID
+          ,PasientAlder
           ,Kommune
           ,KommuneNr
           ,Fylke
