@@ -16,7 +16,7 @@
 getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   
   # Datadumper som skal filtreres på bakgrunn av ProsedyreDato:
-  # AnP, AD, AK, AP, & SS
+  # AnP, AD, AK, AP, MK & SS
   if( tableName %in% c( "AndreProsedyrerVar"
                         , "AnnenDiagnostikkVar"
                         , "AortaklaffVar"
