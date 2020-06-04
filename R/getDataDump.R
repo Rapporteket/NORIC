@@ -80,6 +80,21 @@ WHERE
   }
   
   
+  # Datadumper som skal filtreres på bakgrunn av PasInklDato:
+  # PS
+  if( tableName %in% c( "PasienterStudier" ) 
+  ){
+    query <- paste0("
+SELECT
+  *
+FROM 
+  ", tableName, "
+WHERE 
+  PasInklDato >= '", fromDate, "' AND PasInklDato <= '", toDate, "';"
+    )
+  }
+  
+  
 
   
   if ("session" %in% names(list(...))) {
@@ -93,7 +108,7 @@ WHERE
   
   
   # Henter FO, som har felt som skal legges til tabellen (med unntak av når tabellene som
-  # skal lastes ned er FO, SO, eller PasientStudier)
+  # skal lastes ned er FO eller SO)
     if( tableName %in% c( "AndreProsedyrerVar"
                           , "AnnenDiagnostikkVar"
                           , "AortaklaffVar"
@@ -101,6 +116,7 @@ WHERE
                           , "AngioPCIVar"
                           , "CTAngioVar"
                           , "MitralklaffVar"
+                          , "PasienterStudier"
                           , "SegmentStent" )
   ){
     
@@ -327,6 +343,31 @@ WHERE
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
+                       ,suffix = c("", ".FO") 
+                      )
+    }
+    
+    
+    # PS ----
+    if( tableName %in% c( "PasienterStudier" ) ){
+      
+      FO %<>% 
+        select(
+          # Nøkler:
+          AvdRESH
+          ,PasientID
+          # Variablene som legges til:
+          ,Sykehusnavn
+          ,FodselsDato
+          ,Kommune
+          ,KommuneNr
+          ,Fylke
+          ,Fylkenr
+          ,PasientKjonn
+          ,PasientAlder
+        )
+      
+      tab <- left_join(tab, FO, by = c("PasientID", "AvdRESH")
                        ,suffix = c("", ".FO") 
                       )
     }
