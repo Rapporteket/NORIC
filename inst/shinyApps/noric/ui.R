@@ -118,6 +118,7 @@ ui <- tagList(
                                    "AortaklaffOppfVar",
                                    "CTAngioVar",
                                    "ForlopsOversikt",
+                                   "MitralklaffVar",
                                    "SegmentStent",
                                    "SkjemaOversikt")),
                      dateRangeInput("dumpDateRange", "Velg periode:",
