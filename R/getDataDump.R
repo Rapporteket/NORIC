@@ -21,6 +21,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                         , "AnnenDiagnostikkVar"
                         , "AortaklaffVar"
                         , "AngioPCIVar"
+                        , "MitralklaffVar"
                         , "SegmentStent") 
   ){
     query <- paste0("
@@ -99,6 +100,7 @@ WHERE
                           , "AortaklaffOppfVar"
                           , "AngioPCIVar"
                           , "CTAngioVar"
+                          , "MitralklaffVar"
                           , "SegmentStent" )
   ){
     
@@ -293,6 +295,39 @@ WHERE
                                        ,"PasientID"
                                        , "AvdRESH"),
                       suffix = c("", ".FO") 
+                      )
+    }
+    
+    
+    # MK ----
+    if( tableName %in% c( "MitralklaffVar" ) ){
+      
+      FO %<>% 
+        select(
+          # Nøkler:
+          AvdRESH
+          ,ForlopsID
+          # Variablene som legges til:
+          ,Sykehusnavn
+          ,PasientID
+          ,KommuneNr
+          ,Kommune
+          ,Fylke
+          ,Fylkenr
+          ,PasientKjonn
+          ,PasientAlder
+          ,BasisRegStatus
+          ,ForlopsType1
+          ,ForlopsType2
+          ,KobletForlopsID
+          ,HovedDato
+          ,FodselsDato
+          ,Avdod
+          ,AvdodDato
+        )
+      
+      tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
+                       ,suffix = c("", ".FO") 
                       )
     }
     
