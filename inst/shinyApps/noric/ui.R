@@ -115,6 +115,7 @@ ui <- tagList(
                                    "AnnenDiagnostikkVar",
                                    "AngioPCIVar",
                                    "AortaklaffVar",
+                                   "AortaklaffOppfVar",
                                    "CTAngioVar",
                                    "ForlopsOversikt",
                                    "SegmentStent",
