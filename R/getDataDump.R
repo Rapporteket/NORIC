@@ -16,8 +16,9 @@
 getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   
   # Datadumper som skal filtreres på bakgrunn av ProsedyreDato:
-  # AnP, AK, AP, & SS
+  # AnP, AD, AK, AP, & SS
   if( tableName %in% c( "AndreProsedyrerVar"
+                        , "AnnenDiagnostikkVar"
                         , "AortaklaffVar"
                         , "AngioPCIVar"
                         , "SegmentStent") 
@@ -78,6 +79,7 @@ WHERE
   # Henter FO, som har felt som skal legges til tabellen (med unntak av når tabellene som
   # skal lastes ned er FO, SO, eller PasientStudier)
     if( tableName %in% c( "AndreProsedyrerVar"
+                          , "AnnenDiagnostikkVar"
                           , "AortaklaffVar"
                           , "AngioPCIVar"
                           , "CTAngioVar"
@@ -110,6 +112,31 @@ WHERE
           ,Fylkenr
           ,PasientKjonn
           ,PasientAlder
+          ,ForlopsType1
+          ,ForlopsType2
+          ,KobletForlopsID
+          ,HovedDato
+        )
+      
+      tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
+                       , suffix = c("", ".FO") 
+                       )
+    }
+    
+    # AD ----
+    if( tableName %in% c( "AnnenDiagnostikkVar" )){
+      
+      FO %<>% 
+        select(
+          # Nøkler:
+          AvdRESH
+          ,ForlopsID
+          # Variablene som legges til:
+          ,PasientID
+          ,Kommune
+          ,KommuneNr
+          ,Fylke
+          ,Fylkenr
           ,ForlopsType1
           ,ForlopsType2
           ,KobletForlopsID
