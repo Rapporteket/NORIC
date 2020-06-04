@@ -112,6 +112,7 @@ ui <- tagList(
         sidebarPanel(width = 4,
                      selectInput("dumpDataSet", "Velg datasett:",
                                  c("AndreProsedyrerVar",
+                                   "AnnenDiagnostikkVar",
                                    "AngioPCIVar",
                                    "AortaklaffVar",
                                    "CTAngioVar",
