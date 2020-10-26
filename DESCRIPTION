@@ -2,10 +2,6 @@ Package: noric
 Title: Provide R resources for NORIC at Rapporteket
 Version: 2.0.6.9000
 Authors@R: c(
-  person(family = "Seifert",
-         given = "Reinhard",
-         email = "reinhard.seifert@currerius.com",
-         role = c("aut")),
   person(given = "Ellisif",
          family = "Nygaard",
          role = c("aut", "cre"),
