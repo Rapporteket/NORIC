@@ -1,18 +1,19 @@
 #' Title
 #'
-#' @param setId String definig name of data set to be returned
+#' @param setId String defining name of data set to be returned
 #' @param registryName String naming the registry data
 #' @param singleRow Logical defining if only one row is to be returned. A
 #' relevant usecase will be when only description is needed. By default set to
 #' FALSE
 #' @param session List shiny session object
+#' @param userRole String naming the user role
 #'
 #' @return data frame
 #' @export
 #'
 
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
-                            session) {
+                            session, userRole) { #Lagt inn userRole som parameter
   
   validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS",
                   "SO", "SS")
@@ -45,6 +46,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
     if (setId == "FO") {
       dat <- noric::getFOData(registryName, singleRow = singleRow,
                               session = session)
+      dat %<>% select(-'Avdod', -'AvdodDato') #Variablene er ikke de samme som i AP
     }
     if (setId == "MK") {
       dat <- noric::getMKData(registryName, singleRow = singleRow,
@@ -65,6 +67,17 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   } else {
     dat <- NULL
   }
+  
+  #Fjerner variablene som ikke skal vises for LC
+  if (userRole == "LC") {
+    dat %<>% select_if(!names(.) %in% c('AndreProsOperatorer', 
+                                        'FodselsDato', 
+                                        'AngioOperatorer', 
+                                        'PCIOperatorer',
+                                        'Operatorer',
+                                        'Studie',
+                                        'Granskere'))
+    }
   
   dat
 
