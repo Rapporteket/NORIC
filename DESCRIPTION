@@ -2,6 +2,14 @@ Package: noric
 Title: Provide R resources for NORIC at Rapporteket
 Version: 2.0.6.9000
 Authors@R: c(
+  person(given = "Kristina",
+         family = "Skaare",
+         role = c("aut"),
+         email = "kristina.skaare@helse-bergen.no"),
+  person(given = "Mary",
+         family = "Autenried",
+         role = c("aut"),
+         email = "mary.gerina.autenried@helse-bergen.no"),
   person(given = "Ellisif",
          family = "Nygaard",
          role = c("aut", "cre"),
@@ -10,15 +18,7 @@ Authors@R: c(
          family = "Edvardsen",
          role = c("aut"),
          email = "biorakel@gmail.com",
-         comment = c(ORCID = "0000-0002-5210-3656")),
-  person(given = "Mary",
-         family = "Autenried",
-         role = c("aut"),
-         email = "mary.gerina.autenried@helse-bergen.no"),
-  person(given = "Kristina",
-         family = "Skaare",
-         role = c("aut"),
-         email = "kristina.skaare@helse-bergen.no")
+         comment = c(ORCID = "0000-0002-5210-3656"))
   )
 Description: An implemetation of all R related resources for NORIC at
   Rapporteket, including R-functions for analysis and plotting, noweb-files and
