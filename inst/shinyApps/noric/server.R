@@ -27,6 +27,7 @@ shinyServer(function(input, output, session) {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
+    hideTab(inputId = "tabs", target = "Stentbruk")
   }
   
   ## ... and hide 'Prosedyrer2', regardless
