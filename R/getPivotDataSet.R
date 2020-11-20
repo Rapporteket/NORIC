@@ -46,7 +46,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
     if (setId == "FO") {
       dat <- noric::getFOData(registryName, singleRow = singleRow,
                               session = session)
-      dat %<>% select(-'Avdod', -'AvdodDato') #Variablene er ikke de samme som i AP
+      dat %<>% select(-"Avdod", -"AvdodDato") #Variablene er ikke de samme som i AP
     }
     if (setId == "MK") {
       dat <- noric::getMKData(registryName, singleRow = singleRow,
@@ -70,13 +70,13 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   
   #Fjerner variablene som ikke skal vises for LC
   if (userRole == "LC" && !is.null(dat)) {
-    dat %<>% dplyr::select_if(!names(.) %in% c('AndreProsOperatorer', 
-                                               'FodselsDato', 
-                                               'AngioOperatorer', 
-                                               'PCIOperatorer',
-                                               'Operatorer',
-                                               'Studie',
-                                               'Granskere'))
+    dat %<>% dplyr::select_if(!names(.) %in% c("AndreProsOperatorer", 
+                                               "FodselsDato", 
+                                               "AngioOperatorer", 
+                                               "PCIOperatorer",
+                                               "Operatorer",
+                                               "Studie",
+                                               "Granskere"))
   }
   
   dat
