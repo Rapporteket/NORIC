@@ -69,7 +69,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   }
   
   #Fjerner variablene som ikke skal vises for LC
-  if (userRole == "LC") {
+  if (userRole == "LC" && !is.null(dat)) {
     dat %<>% dplyr::select_if(!names(.) %in% c('AndreProsOperatorer', 
                                                'FodselsDato', 
                                                'AngioOperatorer', 
