@@ -13,7 +13,7 @@
 #'
 
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
-                            session, userRole) { #Lagt inn userRole som parameter
+                            session, userRole) {
   
   validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS",
                   "SO", "SS")
