@@ -1,9 +1,11 @@
 <!-- badges: start -->
-[![Travis build status](https://travis-ci.org/Rapporteket/NORIC.svg?branch=shinyfy)](https://travis-ci.org/Rapporteket/NORIC)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/Rapporteket/NORIC?branch=shinyfy&svg=true)](https://ci.appveyor.com/project/Rapporteket/NORIC)
+[![Version](https://img.shields.io/github/v/release/rapporteket/noric?sort=semver)](https://github.com/rapporteket/noric/releases)
+[![R build status](https://github.com/rapporteket/noric/workflows/R-CMD-check/badge.svg)](https://github.com/rapporteket/noric/actions)
 [![Codecov test coverage](https://codecov.io/gh/Rapporteket/NORIC/branch/master/graph/badge.svg)](https://codecov.io/gh/Rapporteket/NORIC?branch=master)
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![R build status](https://github.com/rapporteket/noric/workflows/R-CMD-check/badge.svg)](https://github.com/rapporteket/noric/actions)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![GitHub open issues](https://img.shields.io/github/issues/rapporteket/noric.svg)](https://github.com/rapporteket/noric/issues)
+[![Doc](https://img.shields.io/badge/Doc--grey.svg)](https://rapporteket.github.io/noric/)
 <!-- badges: end -->
 
 # NORIC
