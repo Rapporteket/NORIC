@@ -3,6 +3,7 @@
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/Rapporteket/NORIC?branch=shinyfy&svg=true)](https://ci.appveyor.com/project/Rapporteket/NORIC)
 [![Codecov test coverage](https://codecov.io/gh/Rapporteket/NORIC/branch/master/graph/badge.svg)](https://codecov.io/gh/Rapporteket/NORIC?branch=master)
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![R build status](https://github.com/rapporteket/noric/workflows/R-CMD-check/badge.svg)](https://github.com/rapporteket/noric/actions)
 <!-- badges: end -->
 
 # NORIC
