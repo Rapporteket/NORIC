@@ -1,11 +1,15 @@
 Package: noric
 Title: Provide R resources for NORIC at Rapporteket
-Version: 2.0.8.9000
+Version: 2.0.9.9000
 Authors@R: c(
-  person(family = "Seifert",
-         given = "Reinhard",
-         email = "reinhard.seifert@currerius.com",
-         role = c("aut")),
+  person(given = "Kristina",
+         family = "Skaare",
+         role = c("aut"),
+         email = "kristina.skaare@helse-bergen.no"),
+  person(given = "Mary",
+         family = "Autenried",
+         role = c("aut"),
+         email = "mary.gerina.autenried@helse-bergen.no"),
   person(given = "Ellisif",
          family = "Nygaard",
          role = c("aut", "cre"),
@@ -48,6 +52,6 @@ Remotes:
   Rapporteket/raplog,
   andrewsali/shinycssloaders
 VignetteBuilder: knitr
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Suggests: 
     covr
