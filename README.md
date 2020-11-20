@@ -5,7 +5,7 @@
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![GitHub open issues](https://img.shields.io/github/issues/rapporteket/noric.svg)](https://github.com/rapporteket/noric/issues)
-[![Doc](https://img.shields.io/badge/Doc--grey.svg)](https://rapporteket.github.io/noric/)
+[![Doc](https://img.shields.io/badge/Doc--grey.svg)](https://rapporteket.github.io/NORIC/)
 <!-- badges: end -->
 
 # NORIC
