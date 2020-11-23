@@ -322,7 +322,7 @@ PrettyTabNR <- function( TabN, add_totals=FALSE ) {
 
 
 ## Hastegrad
-```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=10,fig.height=5,fig.pos='!h',out.width="\\textwidth"}
+```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=10,fig.height=4.5,fig.pos='H',out.width="\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -366,7 +366,7 @@ xtabs(formula = ~ Month + Hastegrad, data = AP) %>%
 
 
 ## Prosedyretype
-```{r FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",fig.width=8,fig.height=4,out.width="\\textwidth"}
+```{r FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",fig.width=8,fig.height=5, fig.pos="H", out.width="\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -413,7 +413,7 @@ tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>%
 
 ## Indikasjon
 
-```{r FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6,out.width="\\textwidth"}
+```{r FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6, fig.pos="H",out.width="\\textwidth"}
 
 op <- par(
     mfcol = c (1,1) ,
