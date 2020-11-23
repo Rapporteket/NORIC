@@ -11,7 +11,7 @@ header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
-title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI', params$hospitalName)`"
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI for ', params$hospitalName ) `"
 author: "`r params$author`"
 ---
 
@@ -201,7 +201,7 @@ AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
 AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
 
 AP %<>% 
-  mutate(Hastegrad = factor(Hastegrad, levels=c("Akutt", "Subakutt", "Planlagt")))
+  mutate(Hastegrad = factor(Hastegrad, levels=c("Akutt", "Subakutt", "Planlagt", NA)))
 ```
 
 
@@ -278,12 +278,9 @@ mst <- function(tab, type, cap, digs, align = NULL, fs = 8, lsd = FALSE) {
 }
 ```
 
-# `r params$hospitalName`
 
-# Hastegrad
 
 ## Hastegrad
-
 ```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=10,fig.height=5,fig.pos='!h',out.width="\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
@@ -317,19 +314,12 @@ legend(
 
 ```
 
-
-## Hastegrad
-
-
 ```{r TabNHastegrad, results='asis', eval=TRUE}
 cap <- "Antall registrerte prosedyrer etter hastegrad og måned"
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   addmargins() %>% 
   mst(., params$tableFormat, cap, 0, align = rep("r", 5))
 ```
-
-
-## Hastegrad
 
 
 ```{r TabRHastegrad,  results = 'asis'}
@@ -343,10 +333,7 @@ mst(tab, params$tableFormat, cap, 1, align = rep("r", 4))
 
 
 
-# Prosedyre type
-
-## Prosedyre type
-
+## Prosedyretype
 ```{r FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",fig.width=8,fig.height=4,out.width="\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
@@ -381,18 +368,12 @@ legend(
 ```
 
 
-## Prosedyre type
-
-
 ```{r TabNProsedyreType,  results = 'asis'}
 cap <- "Antall prosedyrer etter prosedyretype og måned"
 tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
   addmargins()
 mst(tab, params$tableFormat, cap, 0)
 ```
-
-
-## Prosedyre type
 
 
 ```{r TabRProsedyreType,  results = 'asis'}
@@ -405,9 +386,6 @@ mst(tab, params$tableFormat, cap, 1)
 
 
 
-
-
-# Indikasjon
 
 ## Indikasjon
 
@@ -442,8 +420,6 @@ legend(
 ```
 
 
-## Indikasjon
-
 
 ```{r TabNIndikasjon,  results = 'asis'}
 cap = "Antall prosedyrer etter indikasjon og måned"
@@ -452,8 +428,6 @@ xtabs(formula = ~ Month + Indikasjon2, data = AP) %>%
   mst(., params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
 ```
 
-
-## Indikasjon
 
 
 ```{r TabRIndikasjon,  results = 'asis'}
@@ -465,7 +439,7 @@ mst(tab, params$tableFormat, cap, 1, align = rep("r", 7))
 
 
 
-# Annen diagnostikk
+## Annen diagnostikk
 
 
 ```{r TabTillegg,include=FALSE}
@@ -583,7 +557,7 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 
 
 
-## Annen diagnostikk ved angiografi
+### Annen diagnostikk ved angiografi
 
 
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
@@ -592,7 +566,7 @@ mst(TabTillegg[,1:6], params$tableFormat, cap, 0, align = rep("r", 7))
 ```
 
 
-## Tilleggsprosedyrer
+### Tilleggsprosedyrer
 
 
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
@@ -602,16 +576,13 @@ mst(TabTillegg[,7:8], params$tableFormat, cap = cap, 0, align = rep("r", 3))
 
 
 
-## Adjuvant terapi
+### Adjuvant terapi
 
 
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
 mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
 ```
-
-
-# Andre prosedyrer
 
 
 ## Andre prosedyrer
@@ -649,7 +620,6 @@ if (params$tableFormat == 'latex'){
 ```
 
 
-# Komplikasjon
 
 ## Komplikasjon
 
@@ -850,13 +820,8 @@ text(
 
 
 
-
-# Kompletthet
-
-
-## Kompletthet angio/PCI skjemaer
-
-
+## Kompletthet
+### Kompletthet angio/PCI skjemaer
 ```{r SOtab1,results='asis'}
 
 nSOA <- with(
@@ -887,9 +852,7 @@ mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 
 
 
-## Kompletthet utskrivelses skjemaer
-
-
+### Kompletthet utskrivelses skjemaer
 ```{r SOtab2,results='asis'}
 
 nSOU <- with(
