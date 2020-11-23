@@ -279,6 +279,47 @@ mst <- function(tab, type, cap, digs, align = NULL, fs = 8, lsd = FALSE) {
 ```
 
 
+```{r PrettyTabNR}
+# Function that takes arguments 
+#  TabN (table of N's) and add_totals (booelian :add columns with marginal rowSum of not) 
+# returns percentage of totals(rowtotals) and N of each cell
+PrettyTabNR <- function( TabN, add_totals=FALSE ) {
+    TabR <- round(
+        100*prop.table(
+                TabN ,
+                margin = 1 ) ,
+        digits = 1 )
+    N <- sprintf( "%3.0f" , TabN )
+    R <- sprintf( "%4.1f" , TabR )
+    T <- paste( R , "% (" , N , ")" , sep = "" )
+    
+    if(add_totals==FALSE){
+      Tab <- matrix(
+          data = T ,
+          ncol = ncol(TabN) ,
+          byrow = FALSE )
+      Tab[ which(Tab==" 0.0% (  0)") ] <- ""
+      rownames(Tab) <- rownames(TabN)
+      colnames(Tab) <- colnames(TabN)
+    }
+    
+    
+    if(add_totals==TRUE) {
+      Totals <- TabN %>% margin.table(1) 
+      Totals<- paste0("100% (", sprintf( "%3.0f", Totals) , ")")
+      Tab <- matrix(
+        data = c(T, Totals) ,
+        ncol = ncol(TabN)+1 ,
+        byrow = FALSE )
+      Tab[ which(Tab=="100.0% (  0)") ] <- ""
+      rownames(Tab) <- rownames(TabN)
+      colnames(Tab) <- c(colnames(TabN),"Totalt")   
+      }
+    
+    return(Tab)
+}
+```
+
 
 ## Hastegrad
 ```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=10,fig.height=5,fig.pos='!h',out.width="\\textwidth"}
@@ -315,19 +356,10 @@ legend(
 ```
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
-cap <- "Antall registrerte prosedyrer etter hastegrad og måned"
+cap <- "Antall og prosentvis fordeling av registrerte prosedyrer etter hastegrad og måned"
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
-  addmargins() %>% 
+  PrettyTabNR(., add_totals=TRUE) %>% 
   mst(., params$tableFormat, cap, 0, align = rep("r", 5))
-```
-
-
-```{r TabRHastegrad,  results = 'asis'}
-cap <- "Prosentandel prosedyrer etter hastegrad og måned"
-tab <- xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
-  prop.table(., margin = 1) * 100
-
-mst(tab, params$tableFormat, cap, 1, align = rep("r", 4))
 ```
 
 
@@ -369,20 +401,12 @@ legend(
 
 
 ```{r TabNProsedyreType,  results = 'asis'}
-cap <- "Antall prosedyrer etter prosedyretype og måned"
+cap <- "Antall og prosentvis fordeling av prosedyrer etter prosedyretype og måned"
 tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
-  addmargins()
-mst(tab, params$tableFormat, cap, 0)
+  PrettyTabNR(., add_totals=TRUE) %>% 
+  mst(tab, params$tableFormat, cap, 0)
 ```
 
-
-```{r TabRProsedyreType,  results = 'asis'}
-cap = "Prosentandel prosedyrer etter prosedyretype og måned"
-tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
-  prop.table(., margin = 1) * 100
-
-mst(tab, params$tableFormat, cap, 1)
-```
 
 
 
@@ -422,26 +446,16 @@ legend(
 
 
 ```{r TabNIndikasjon,  results = 'asis'}
-cap = "Antall prosedyrer etter indikasjon og måned"
+cap = "Antall og prosentvis fordeling av prosedyrer etter indikasjon og måned"
 xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
-  addmargins() %>%
+  PrettyTabNR(., add_totals=TRUE) %>%
   mst(., params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
 ```
 
 
 
-```{r TabRIndikasjon,  results = 'asis'}
-cap = "Prosentandel prosedyrer etter indikasjon og måned"
-tab <- xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
-  prop.table(., margin = 1) * 100
-mst(tab, params$tableFormat, cap, 1, align = rep("r", 7))
-```
-
-
 
 ## Annen diagnostikk
-
-
 ```{r TabTillegg,include=FALSE}
 
 PrintTabTilleggCol <- function(VAR){
