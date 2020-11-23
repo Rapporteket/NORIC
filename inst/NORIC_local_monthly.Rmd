@@ -200,6 +200,8 @@ AP $ Indikasjon2 <- factor(
 AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
 AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
 
+AP %<>% 
+  mutate(Hastegrad = factor(Hastegrad, levels=c("Akutt", "Subakutt", "Planlagt")))
 ```
 
 
