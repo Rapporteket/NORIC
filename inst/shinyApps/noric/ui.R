@@ -7,17 +7,18 @@ library(shinyalert)
 library(shinycssloaders)
 
 
-addResourcePath('rap', system.file('www', package='rapbase'))
-regTitle = "NORIC"
+addResourcePath("rap", system.file("www", package = "rapbase"))
+regTitle <- "NORIC"
 
 ui <- tagList(
   navbarPage(
-    title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
+    title = div(a(includeHTML(system.file("www/logo.svg",
+                                          package = "rapbase"))),
                 regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
     id = "tabs",
-    
+
     tabPanel("Start",
       useShinyalert(),
       mainPanel(width = 12,
@@ -25,10 +26,10 @@ ui <- tagList(
         appNavbarUserWidget(user = uiOutput("appUserName"),
                            organization = uiOutput("appOrgName"),
                            addUserInfo = TRUE),
-        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"))
+        tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
       )
     ),
-    
+
     tabPanel("Utforsker",
              fluidRow(
                column(6, uiOutput("selectDataSet")),
@@ -47,16 +48,16 @@ ui <- tagList(
                       )
              )
     ),
-    
+
     tabPanel(
       "Stentbruk",
       sidebarLayout(
         sidebarPanel(
-          radioButtons('formatStentbruk',
-                       'Format for nedlasting',
-                       c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
+          radioButtons("formatStentbruk",
+                       "Format for nedlasting",
+                       c("PDF", "HTML", "BEAMER", "REVEAL"),
                        inline = FALSE),
-          downloadButton('downloadReportStentbruk', 'Hent!'),
+          downloadButton("downloadReportStentbruk", "Hent!"),
           width = 2
         ),
         mainPanel(
@@ -71,11 +72,11 @@ ui <- tagList(
       "Prosedyrer",
       sidebarLayout(
         sidebarPanel(
-          radioButtons('formatProsedyrer',
-                       'Format for nedlasting',
-                       c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
+          radioButtons("formatProsedyrer",
+                       "Format for nedlasting",
+                       c("PDF", "HTML", "BEAMER", "REVEAL"),
                        inline = FALSE),
-          downloadButton('downloadReportProsedyrer', 'Hent!'),
+          downloadButton("downloadReportProsedyrer", "Hent!"),
           width = 2
         ),
         mainPanel(
@@ -90,11 +91,11 @@ ui <- tagList(
       "Prosedyrer2",
       sidebarLayout(
         sidebarPanel(
-          radioButtons('formatProsedyrer2',
-                       'Format for nedlasting',
-                       c('PDF', 'HTML'),
+          radioButtons("formatProsedyrer2",
+                       "Format for nedlasting",
+                       c("PDF", "HTML"),
                        inline = FALSE),
-          downloadButton('downloadReportProsedyrer2', 'Hent!'),
+          downloadButton("downloadReportProsedyrer2", "Hent!"),
           width = 2
         ),
         mainPanel(
@@ -105,8 +106,8 @@ ui <- tagList(
         )
       )
     ),
-    
-    
+
+
     tabPanel("Datadump",
       sidebarLayout(
         sidebarPanel(width = 4,
@@ -123,7 +124,7 @@ ui <- tagList(
                                    "SegmentStent",
                                    "SkjemaOversikt")),
                      dateRangeInput("dumpDateRange", "Velg periode:",
-                                    start = ymd(Sys.Date())- years(1),
+                                    start = ymd(Sys.Date()) - years(1),
                                     end = Sys.Date(), separator = "-",
                                     weekstart = 1),
                      radioButtons("dumpFormat", "Velg filformat:",
@@ -131,30 +132,31 @@ ui <- tagList(
                      downloadButton("dumpDownload", "Hent!")
                      ),
         mainPanel(
-          htmlOutput("dataDumpInfo") #%>% 
-            # shinycssloaders::withSpinner(color = "#18bc9c",color.background = "#ffffff",
-            #             type = 2)
+          htmlOutput("dataDumpInfo") #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
         )
       )
     ),
-    
+
     tabPanel("Metadata",
       sidebarLayout(
         sidebarPanel(uiOutput("metaControl")),
         mainPanel(htmlOutput("metaData"))
       )
     ),
-    
+
     tabPanel("Abonnement",
       sidebarLayout(
         sidebarPanel(width = 3,
                      uiOutput("subscriptionRepList"),
                      selectInput("subscriptionFreq", "Frekvens:",
-                                 list(Årlig="Årlig-year",
-                                       Kvartalsvis="Kvartalsvis-quarter",
-                                       Månedlig="Månedlig-month",
-                                       Ukentlig="Ukentlig-week",
-                                       Daglig="Daglig-DSTday"),
+                                 list(Årlig = "Årlig-year",
+                                       Kvartalsvis = "Kvartalsvis-quarter",
+                                       Månedlig = "Månedlig-month",
+                                       Ukentlig = "Ukentlig-week",
+                                       Daglig = "Daglig-DSTday"),
                                  selected = "Månedlig-month"),
                      selectInput("subscriptionFileFormat", "Format:",
                                  c("html", "pdf")),
