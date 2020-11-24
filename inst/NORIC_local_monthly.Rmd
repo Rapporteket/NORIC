@@ -502,7 +502,7 @@ colnames( TabTillegg ) <- c( TilleggLabels )
 # Antall prosedyrer å legge til i hver tabell, slik forstår vi hvordan 
 # prosenten er regnet ut
 TabTillegg %>% 
-  cbind(., AP_HUS %>% 
+  cbind(., AP %>% 
           count(Month) %>%
           adorn_totals("row") %>%
           transmute(N =n))
