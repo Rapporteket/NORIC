@@ -56,3 +56,6 @@ Merk at disse tabellene er et resultat av spørringer mot databasen. Tabellene h
 
 Her kan du administrere dine abonnement på månedsrapportene.  
 Du kan selv velge hvor ofte du får dem tilsendt (frekvens) og ønsket format (html eller pdf).
+
+### Kontaktinformasjon
+Ta gjerne kontakt ved spørsmål eller innspill til rapporter eller annet innhold på rapporteket. E-post: noric@helse-bergen.no
