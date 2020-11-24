@@ -402,9 +402,9 @@ legend(
 
 ```{r TabNProsedyreType,  results = 'asis'}
 cap <- "Antall og prosentvis fordeling av prosedyrer etter prosedyretype og måned"
-tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
+xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
   PrettyTabNR(., add_totals=TRUE) %>% 
-  mst(tab, params$tableFormat, cap, 0)
+  mst(., params$tableFormat, cap, 0)
 ```
 
 
@@ -412,7 +412,6 @@ tab <- xtabs(formula = ~ Month + ProsedyreType, data = AP) %>%
 
 
 ## Indikasjon
-
 ```{r FigNIndikasjon,fig.cap="Antall prosedyrer etter indikasjon og måned",fig.width=12,fig.height=6, fig.pos="H",out.width="\\textwidth"}
 
 op <- par(
@@ -457,7 +456,6 @@ xtabs(formula = ~ Month + Indikasjon2, data = AP) %>%
 
 ## Annen diagnostikk
 ```{r TabTillegg,include=FALSE}
-
 PrintTabTilleggCol <- function(VAR){
 
     nVAR <- addmargins(
@@ -488,12 +486,11 @@ PrintTabTilleggCol <- function(VAR){
              ] )
 
     return(
-        paste(
+        paste0(
             nVARja ,
             " (",
             rVARja ,
-            ")" ,
-            sep = ""))
+            "%)" ))
 
 }
 
@@ -562,40 +559,41 @@ TilleggLabels <- c(
     "Annen",
     "Ingen")
 
-# AdjuvantTerapi
 
 rownames( TabTillegg ) <- c( levels( AP $ Month ) , "Totalt" )
 colnames( TabTillegg ) <- c( TilleggLabels )
 
+# Antall prosedyrer å legge til i hver tabell, slik forstår vi hvordan 
+# prosenten er regnet ut
+TabTillegg %>% 
+  cbind(., AP_HUS %>% 
+          count(Month) %>%
+          adorn_totals("row") %>%
+          transmute(N =n))
 ```
 
 
 
 ### Annen diagnostikk ved angiografi
-
-
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
-cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
-mst(TabTillegg[,1:6], params$tableFormat, cap, 0, align = rep("r", 7))
+cap <- "Antall (prosent) tilleggsprosedyrer per måned"
+mst(TabTillegg[,c("FFR", "IFR", "Doppler", "OCT", "IVUS", "NIRS", "N")], params$tableFormat, cap, 0, align = rep("r", 8))
 ```
 
 
 ### Tilleggsprosedyrer
-
-
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
-cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
-mst(TabTillegg[,7:8], params$tableFormat, cap = cap, 0, align = rep("r", 3))
+cap <- "Antall (prosent) tilleggsprosedyrer per måned"
+mst(TabTillegg[,c("Høyre kat.", "Perikardiocentese", "N")], params$tableFormat, cap = cap, 0, align = rep("r", 4))
 ```
 
 
 
 ### Adjuvant terapi
-
-
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
-cap <- "Totalt antall (prosent) tilleggsprosedyrer etter måned"
-mst(TabTillegg[,9:15], params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
+cap <- "Antall (prosent) tilleggsprosedyrer per måned"
+mst(TabTillegg[,c("PM", "IABP", "Impella", "Trombectomy", "ECMO", "Annen", "Ingen", "N")],
+    params$tableFormat, cap, 0, align = rep("r", 8), lsd = TRUE)
 ```
 
 
