@@ -137,8 +137,6 @@ shinyServer(function(input, output, session) {
   
   # Utforsker
   ## Data sets available
-  
-  #Hvis userRole er SC
   if (userRole == "SC") {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Andre prosedyrer` = "AnP",
@@ -152,8 +150,8 @@ shinyServer(function(input, output, session) {
                      `PasientStudier` = "PS",
                      `Skjemaoversikt` = "SO",
                      `Segment stent` = "SS"
-    )
-  } else { #Ellers er userRole LC
+                     )
+  } else {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Andre prosedyrer` = "AnP",
                      `Annen diagnostikk` = "AnD",
@@ -196,14 +194,14 @@ shinyServer(function(input, output, session) {
   dat <- reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
                            registryName = registryName,
-                           session = session, userRole = userRole) #Lagt inn userRole som parameter
+                           session = session, userRole = userRole)
   })
   
   metaDat <- reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
                            registryName = registryName,
                            singleRow = TRUE,
-                           session = session, userRole = userRole) #Lagt inn userRole som parameter
+                           session = session, userRole = userRole)
   })
   
   ## outputs
