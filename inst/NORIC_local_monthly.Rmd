@@ -11,6 +11,7 @@ header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
+  - \usepackage{float}
 title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI for ', params$hospitalName ) `"
 author: "`r params$author`"
 ---
