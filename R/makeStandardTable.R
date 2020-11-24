@@ -1,6 +1,11 @@
 #' Make standard table for rmarkdown reports
 #'
-#' Functions that will return RMarkdown code for creating standard tables
+#' Functions that will return tables used in reports.
+#' 
+#' \code{mst()} creates RMarkdown code for creating standard tables.
+#' 
+#' \code{prettyTab()} creates a table with cells containing percentages of totals
+#' and observations optinally with a marginal row count
 #'
 #' @param tab Data frame or matrix represetnting the table
 #' @param col_names Character vector with column names. Defaults
@@ -26,7 +31,7 @@
 #' @param add_totals Logical if a column of sums is to be added to the table.
 #' Defaults to FALSE
 #'
-#' @return Character string containing RMarkdown table code
+#' @return Character string containing RMarkdown table code or an R data object
 #' @name makeStandardTable
 #' @aliases mst prettyTab
 #' @examples
