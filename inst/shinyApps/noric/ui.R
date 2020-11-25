@@ -64,7 +64,8 @@ ui <- tagList(
           htmlOutput("stentbruk", inline = TRUE) %>%
             shinycssloaders::withSpinner(color = "#18bc9c",
                                          color.background = "#ffffff",
-                                         type = 2)
+                                         type = 2,
+                                         size = 0)
         )
       )
     ),
