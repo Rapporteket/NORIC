@@ -65,7 +65,8 @@ ui <- tagList(
             shinycssloaders::withSpinner(color = "#18bc9c",
                                          color.background = "#ffffff",
                                          type = 2,
-                                         size = 0)
+                                         size = 1,
+                                         proxy.height = "10px")
         )
       )
     ),
