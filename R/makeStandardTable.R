@@ -1,9 +1,9 @@
 #' Make standard table for rmarkdown reports
 #'
 #' Functions that will return tables used in reports.
-#' 
+#'
 #' \code{mst()} creates RMarkdown code for creating standard tables.
-#' 
+#'
 #' \code{prettyTab()} creates a table with cells containing percentages of totals
 #' and observations optinally with a marginal row count
 #'
@@ -44,19 +44,19 @@ NULL
 #' @export
 mst <- function(tab, col_names = colnames(tab), type = "latex", cap = "",
                 label = "", digs = 0, align = NULL, fs = 8, lsd = FALSE) {
-  
+
   if (type == "latex") {
     if (lsd) {
-      lo <- c("hold_position", "scale_down")
+      lo <- c("HOLD_position", "scale_down")
     } else {
-      lo <- c("hold_position")
+      lo <- c("HOLD_position")
     }
     k <- knitr::kable(tab, format = type, col.names = col_names, caption = cap,
                       label = label, digits = digs,
                       align = align, booktabs = TRUE) %>%
       kableExtra::kable_styling(latex_options = lo, font_size = fs)
   }
-  
+
   if (type == "html") {
     k <- knitr::kable(tab, format = type, col.names = col_names, caption = cap,
                       label = label, digits = digs,
@@ -78,7 +78,7 @@ prettyTab <- function(tab, add_totals = FALSE) {
   N <- sprintf( "%3.0f", tab )
   R <- sprintf( "%4.1f", tabR )
   T <- paste( R, "% (", N, ")", sep = "" )
-  
+
   if(add_totals == FALSE){
     newTab <- matrix(
       data = T ,
@@ -88,7 +88,7 @@ prettyTab <- function(tab, add_totals = FALSE) {
     rownames(newTab) <- rownames(tab)
     colnames(newTab) <- colnames(tab)
   } else {
-    totals <- tab %>% margin.table(1) 
+    totals <- tab %>% margin.table(1)
     totals <- paste0("100% (", sprintf( "%3.0f", totals) , ")")
     newTab <- matrix(
       data = c(T, totals) ,
@@ -96,8 +96,8 @@ prettyTab <- function(tab, add_totals = FALSE) {
       byrow = FALSE )
     newTab[ which(newTab == "100.0% (  0)") ] <- ""
     rownames(newTab) <- rownames(tab)
-    colnames(newTab) <- c(colnames(tab),"Totalt")   
+    colnames(newTab) <- c(colnames(tab),"Totalt")
   }
-  
+
   newTab
 }
