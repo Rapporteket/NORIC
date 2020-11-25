@@ -77,24 +77,25 @@ prettyTab <- function(tab, add_totals = FALSE) {
     digits = 1 )
   N <- sprintf( "%3.0f", tab )
   R <- sprintf( "%4.1f", tabR )
-  T <- paste( R, "% (", N, ")", sep = "" )
+  tabTot <- paste0( N, " (", R, "%)" )
 
   if(add_totals == FALSE){
     newTab <- matrix(
-      data = T ,
+      data = tabTot ,
       ncol = ncol(tab) ,
       byrow = FALSE )
-    newTab[ which(newTab == " 0.0% (  0)") ] <- ""
+    newTab[ which(newTab == "  0 ( 0.0%)") ] <- "     -   "
+    newTab[ which(newTab == "  0 ( NaN%)") ] <- "     -   "
     rownames(newTab) <- rownames(tab)
     colnames(newTab) <- colnames(tab)
   } else {
-    totals <- tab %>% margin.table(1)
-    totals <- paste0("100% (", sprintf( "%3.0f", totals) , ")")
+    totals <- sprintf("%3.0f",tab %>% margin.table(1) )
     newTab <- matrix(
-      data = c(T, totals) ,
+      data = c(tabTot, totals) ,
       ncol = ncol(tab) + 1 ,
       byrow = FALSE )
-    newTab[ which(newTab == "100.0% (  0)") ] <- ""
+    newTab[ which(newTab == "  0 ( 0.0%)") ] <- "     -   "
+    newTab[ which(newTab == "  0 ( NaN%)") ] <- "     -   "
     rownames(newTab) <- rownames(tab)
     colnames(newTab) <- c(colnames(tab),"Totalt")
   }
