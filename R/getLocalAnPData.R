@@ -61,7 +61,6 @@ FROM AndreProsedyrerVar
       ,PasientAlder
       ,ForlopsType1
       ,ForlopsType2
-      ,KobletForlopsID
       ,HovedDato
     )
   
