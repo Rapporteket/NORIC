@@ -1,19 +1,20 @@
 ---
-date: '`r format(Sys.time(), "%d %B, %Y")`'
-params:
-  title: "Emty tite"
-  author: "Anon author"
-  hospitalName: "Ukjent sykehus"
-  tableFormat: "html"
-  reshId: "999999"
-  registryName: "rapbase"
-header-includes:
-  - \usepackage[english, norsk]{babel}
-  - \usepackage{booktabs}
-  - \usepackage{rotating}
-  - \usepackage{float}
-title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI for ', params$hospitalName ) `"
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'MÃ¥nedsrapport Angio/PCI for ', params$hospitalName ) `"
 author: "`r params$author`"
+date: "`r format(Sys.time(), "%d %B, %Y")`"
+output: pdf_document
+params:
+  title: Emty tite
+  author: Anon author
+  hospitalName: Ukjent sykehus
+  tableFormat: html
+  reshId: '999999'
+  registryName: rapbase
+header-includes:
+- \usepackage[english, norsk]{babel}
+- \usepackage{booktabs}
+- \usepackage{rotating}
+- \usepackage{float}
 ---
 
 ```{r knitrOptions, include=FALSE}
@@ -585,9 +586,9 @@ if (params$tableFormat == 'latex'){
 
 
 
-## Komplikasjon
+## Komplikasjoner
 
-### på lab `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+### Komplikasjoner på lab i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
 
 ```{r TabLabKompl,results='asis'}
 
@@ -637,7 +638,7 @@ LabKomplikasjoner$Antall <- unlist(
 
 LabKomplikasjoner$Prosent <- round(
     100 * LabKomplikasjoner$Antall / dim(AP)[1] ,
-    digits = 1 )
+    digits = 2 )
 
 i.labkomp <- order(LabKomplikasjoner$Prosent)
 
@@ -648,16 +649,15 @@ rownames(df) <- NULL
 mst(df,
     type = params$tableFormat,
     cap = NULL,
-    digs = 0,
+    digs = 2,
     align = c("l","r","r", "r"))
 
 ```
 
 
 
-## Komplikasjon
-
-### på lab `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+## Komplikasjoner
+### Komplikasjoner på lab i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
 
 
 ```{r FigLabKompl, fig.cap = "Prosentandel komplikasjoner på laboratoriet", echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, out.width = "\\textwidth"}
@@ -735,7 +735,7 @@ AvdKomplikasjoner$Antall <- unlist(
 
 AvdKomplikasjoner$Prosent <- round(
     100 * AvdKomplikasjoner$Antall / dim(AP)[1] ,
-    digits = 1 )
+    digits = 2 )
 
 i.labkomp <- order(AvdKomplikasjoner$Prosent)
 
@@ -747,7 +747,7 @@ rownames(df) <- NULL
 mst(df,
     type = params$tableFormat,
     cap = NULL,
-    digs = 0,
+    digs = 2,
     align = c("l","r","r"))
 
 ```
