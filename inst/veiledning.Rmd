@@ -17,7 +17,7 @@ date: '`r format(Sys.time(), "%d. %B %Y")`'
 
 ### Utforsker
 
-__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) og "Lokalkoordinator" (LC) i Rapporteket.__
+__Tilgjengelig for brukere med tilgang som  "Systemkoordinator" (SC) og "Lokal koordinator" (LC) i Rapporteket.__
 
 Denne siden inneholder en ny løsning som erstatter det som tidligere het "*Ad Hoc View*". Løsningen benytter en R-pakke som heter `rpivotTable`.
   
