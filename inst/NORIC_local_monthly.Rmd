@@ -603,7 +603,8 @@ LabKomplikasjoner <- data.frame(
     "LabKompTamponade",
     "LabKompAkuttACBOperasjon",
     "LabKompAnnenAlv",
-    "LabKompDod"
+    "LabKompDod",
+    "LabKompProsedyrerelatertDod"
     ),
     Komplikasjon = c(
       "Alle komplikasjoner",
@@ -619,7 +620,8 @@ LabKomplikasjoner <- data.frame(
       "Tamponade",
       "Akutt ACB-operasjon fra lab",
       "Annen alvorlig",
-      "Død"
+      "Død",
+      "Prosedyrerelatert død"
     )
 )
 
@@ -636,9 +638,6 @@ LabKomplikasjoner$Prosent <- round(
     100 * LabKomplikasjoner$Antall / dim(AP)[1],
     digits = 2 )
 
-i.labkomp <- order(LabKomplikasjoner$Prosent)
-
-LabKomplikasjoner <- LabKomplikasjoner[i.labkomp, ]
 
 df <- LabKomplikasjoner[, -1]
 rownames(df) <- NULL
@@ -660,6 +659,8 @@ par(
     xpd = NA,
     las = 1)
 
+i.labkomp <- order(LabKomplikasjoner$Prosent)
+LabKomplikasjoner <- LabKomplikasjoner[i.labkomp, ]
 lk <- LabKomplikasjoner[,4]; names(lk) <- LabKomplikasjoner[,2]
 
 xBarplot <- barplot(
