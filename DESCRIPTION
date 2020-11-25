@@ -42,6 +42,7 @@ Imports:
   RColorBrewer,
   readr,
   revealjs,
+  rlang,
   rpivotTable,
   shiny,
   shinyalert,
