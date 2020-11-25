@@ -66,7 +66,7 @@ ui <- tagList(
                                          color.background = "#ffffff",
                                          type = 2,
                                          size = 1,
-                                         proxy.height = "10px")
+                                         proxy.height = "1px")
         )
       )
     ),
