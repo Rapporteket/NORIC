@@ -556,7 +556,7 @@ mst(TabTillegg[, c("PM", "IABP", "Impella", "Trombectomy", "ECMO", "Annen",
 
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
-cap <- "Antall andre prosedyrer (uten angio/PCI  etter prosedyretype og måned"
+cap <- "Antall andre prosedyrer (utført uten direkte tilknytning til Angio/PCI)  etter prosedyretype og måned"
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ Month + AnnenProsType, data = AnP)
 )
@@ -648,7 +648,7 @@ df <- LabKomplikasjoner[,-1]
 rownames(df) <- NULL
 mst(df,
     type = params$tableFormat,
-    cap = NULL,
+    cap = "Komplikasjoner på lab.",
     digs = 2,
     align = c("l","r","r", "r"))
 
@@ -656,30 +656,27 @@ mst(df,
 
 
 
-## Komplikasjoner
-### Komplikasjoner på lab i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
-
 
 ```{r FigLabKompl, fig.cap = "Prosentandel komplikasjoner på laboratoriet", echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, out.width = "\\textwidth"}
 
 par(
-    mar = c(4,15,2,2) ,
-    xpd = NA ,
+    mar = c(4,15,2,2),
+    xpd = NA,
     las = 1)
 
 lk <- LabKomplikasjoner[,4]; names(lk) <- LabKomplikasjoner[,2]
 
 xBarplot <- barplot(
-    lk ,
-    xlab = "Andel (%)" ,
-    horiz = TRUE ,
-    border = FALSE )
+    lk,
+    xlab = "Andel (%)",
+    horiz = TRUE,
+    border = FALSE)
 
 text(
-    x = LabKomplikasjoner[,4] ,
-    y = xBarplot ,
-    pos = 4 ,
-    col = "#000000AA" ,
+    x = LabKomplikasjoner[,4],
+    y = xBarplot,
+    pos = 4,
+    col = "#000000AA",
     labels = LabKomplikasjoner[,3])
 
 ```
@@ -687,9 +684,7 @@ text(
 
 
 
-## Komplikasjon
-
-### på avdelingen `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+### Komplikasjoner på avdelingen i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
 
 ```{r TabAvdKompl,results='asis'}
 
@@ -746,7 +741,7 @@ rownames(df) <- NULL
 
 mst(df,
     type = params$tableFormat,
-    cap = NULL,
+    cap = "Komplikasjoner på avdelingen.",
     digs = 2,
     align = c("l","r","r"))
 
@@ -755,9 +750,7 @@ mst(df,
 
 
 
-## Komplikasjon
 
-### på avdelingen `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
 
 ```{r FigAvdKompl, fig.cap = "Prosentandel komplikasjoner på avdelingen", echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, out.width = "\\textwidth"}
 
@@ -787,7 +780,7 @@ text(
 
 
 ## Kompletthet
-### Kompletthet angio/PCI skjemaer
+### Kompletthet angio/PCI-skjemaer
 ```{r SOtab1,results='asis'}
 
 nSOA <- with(
@@ -811,14 +804,14 @@ TABkompletthet <- cbind(
     rSOA[ , which( colnames(rSOA)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-cap <- "Antall hoved registreringsskjemaer etter måned"
+cap <- "Antall ferdigstilte hovedskjemaer per måned"
 mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
     digs = c(0,0,0,1), align = rep("r", 4))
 ```
 
 
 
-### Kompletthet utskrivelses skjemaer
+### Kompletthet utskrivelsesskjemaer
 ```{r SOtab2,results='asis'}
 
 nSOU <- with(
@@ -842,7 +835,7 @@ TABkompletthet <- cbind(
     rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-cap <- "Antall utskrivelsesskjemaer etter måned"
+cap <- "Antall ferdigstilte utrskrivelsesskjemaer etter måned"
 mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
     digs = c(0,0,0,1), align = rep("r", 4))
 ```
