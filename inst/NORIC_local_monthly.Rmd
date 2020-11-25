@@ -259,7 +259,7 @@ AP $ Month <- as.factor(
 ```
 
 ## Hastegrad
-```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=10,fig.height=4.5,fig.pos='H',out.width="\\textwidth"}
+```{r FigNHastegrad, fig.cap = "Antall prosedyrer etter hastegrad og måned", fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -303,7 +303,7 @@ xtabs(formula = ~ Month + Hastegrad, data = AP) %>%
 
 
 ## Prosedyretype
-```{r FigNProsedyreType,fig.cap="Antall prosedyrer etter type og måned",fig.width=8,fig.height=5, fig.pos="H", out.width="\\textwidth"}
+```{r FigNProsedyreType, fig.cap = "Antall prosedyrer etter type og måned", fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 pal <- colPrimary[c(1,3,5)]
 
 op <- par(
@@ -349,7 +349,7 @@ xtabs(formula = ~ Month + ProsedyreType, data = AP) %>%
 
 
 ## Indikasjon
-```{r FigNIndikasjon, fig.cap = "Antall prosedyrer etter indikasjon og måned", fig.width = 12, fig.height = 6, fig.pos = "H", out.width="\\textwidth"}
+```{r FigNIndikasjon, fig.cap = "Antall prosedyrer etter indikasjon og måned", fig.width = 12, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
 
 op <- par(
     mfcol = c(1,1),
@@ -651,7 +651,7 @@ mst(df,
 
 
 
-```{r FigLabKompl, fig.cap = "Prosentandel komplikasjoner på laboratoriet", echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = "Prosentandel komplikasjoner på laboratoriet", echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
     mar = c(4,15,2,2),
@@ -748,7 +748,7 @@ mst(df,
 
 
 
-```{r FigAvdKompl, fig.cap = "Prosentandel komplikasjoner på avdelingen", echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, out.width = "\\textwidth"}
+```{r FigAvdKompl, fig.cap = "Prosentandel komplikasjoner på avdelingen", echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
     mar = c(4,15,2,2),
