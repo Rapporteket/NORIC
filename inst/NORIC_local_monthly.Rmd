@@ -1,7 +1,7 @@
 ---
 title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'MÃ¥nedsrapport Angio/PCI for ', params$hospitalName ) `"
-author: "`r params$author`"
-date: "`r format(Sys.time(), "%d %B, %Y")`"
+author: ""
+date: "`r format(Sys.time(), "%d. %B, %Y")`"
 output: pdf_document
 params:
   title: Emty tite
@@ -257,7 +257,6 @@ AP $ Month <- as.factor(
         format = "%y-%m"))
 
 ```
-
 
 ## Hastegrad
 ```{r FigNHastegrad,fig.cap="Antall prosedyrer etter hastegrad og måned",fig.width=10,fig.height=4.5,fig.pos='H',out.width="\\textwidth"}
