@@ -8,9 +8,6 @@
 #'
 #' @return A list with table names and corresponding fields with attributes
 #' @export
-#'
-#' @examples
-#' describeRegistryDb("rapbase")
 
 describeRegistryDb <- function(registryName, tabs = c()) {
   

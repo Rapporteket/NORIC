@@ -16,10 +16,12 @@
 getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   
   # Datadumper som skal filtreres på bakgrunn av ProsedyreDato:
-  # AnP, AK, AP, & SS
+  # AnP, AD, AK, AP, MK & SS
   if( tableName %in% c( "AndreProsedyrerVar"
+                        , "AnnenDiagnostikkVar"
                         , "AortaklaffVar"
                         , "AngioPCIVar"
+                        , "MitralklaffVar"
                         , "SegmentStent") 
   ){
     query <- paste0("
@@ -63,6 +65,36 @@ WHERE
   }
   
   
+  # Datadumper som skal filtreres på bakgrunn av BasisProsedyreDato:
+  # AKOppf
+  if( tableName %in% c( "AortaklaffOppfVar" ) 
+  ){
+    query <- paste0("
+SELECT
+  *
+FROM 
+  ", tableName, "
+WHERE 
+  BasisProsedyreDato >= '", fromDate, "' AND BasisProsedyreDato <= '", toDate, "';"
+    )
+  }
+  
+  
+  # Datadumper som skal filtreres på bakgrunn av PasInklDato:
+  # PS
+  if( tableName %in% c( "PasienterStudier" ) 
+  ){
+    query <- paste0("
+SELECT
+  *
+FROM 
+  ", tableName, "
+WHERE 
+  PasInklDato >= '", fromDate, "' AND PasInklDato <= '", toDate, "';"
+    )
+  }
+  
+  
 
   
   if ("session" %in% names(list(...))) {
@@ -76,11 +108,15 @@ WHERE
   
   
   # Henter FO, som har felt som skal legges til tabellen (med unntak av når tabellene som
-  # skal lastes ned er FO, SO, eller PasientStudier)
+  # skal lastes ned er FO eller SO)
     if( tableName %in% c( "AndreProsedyrerVar"
+                          , "AnnenDiagnostikkVar"
                           , "AortaklaffVar"
+                          , "AortaklaffOppfVar"
                           , "AngioPCIVar"
                           , "CTAngioVar"
+                          , "MitralklaffVar"
+                          , "PasienterStudier"
                           , "SegmentStent" )
   ){
     
@@ -121,6 +157,32 @@ WHERE
                        )
     }
     
+    # AD ----
+    if( tableName %in% c( "AnnenDiagnostikkVar" )){
+      
+      FO %<>% 
+        select(
+          # Nøkler:
+          AvdRESH
+          ,ForlopsID
+          # Variablene som legges til:
+          ,PasientID
+          ,PasientAlder
+          ,Kommune
+          ,KommuneNr
+          ,Fylke
+          ,Fylkenr
+          ,ForlopsType1
+          ,ForlopsType2
+          ,KobletForlopsID
+          ,HovedDato
+        )
+      
+      tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
+                       , suffix = c("", ".FO") 
+                       )
+    }
+    
     # AK ----
     if( tableName %in% c( "AortaklaffVar" )){
       
@@ -143,6 +205,43 @@ WHERE
           ,ForlopsType2
           ,KobletForlopsID
           ,HovedDato
+        )
+      
+      tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
+                       , suffix = c("", ".FO") 
+      )
+    }
+    
+    
+    # AKOppf ----
+    if( tableName %in% c( "AortaklaffOppfVar" )){
+      
+      FO %<>% 
+        select(
+          # Nøkler:
+          AvdRESH
+          ,ForlopsID
+          # Variablene som legges til:
+          ,Sykehusnavn
+          ,PasientID
+          ,PasientKjonn
+          ,PasientAlder
+          ,BasisRegStatus
+          ,ForlopsType1
+          ,ForlopsType2
+          ,KobletForlopsID
+          ,HovedDato
+          ,Kommune
+          ,KommuneNr
+          ,Fylke
+          ,Fylkenr
+          ,FodselsDato
+          ,Avdod
+          ,AvdodDato
+          ,ErOppflg
+          ,OppflgStatus
+          ,OppflgSekNr
+          ,OppflgRegStatus
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
@@ -212,6 +311,64 @@ WHERE
                                        ,"PasientID"
                                        , "AvdRESH"),
                       suffix = c("", ".FO") 
+                      )
+    }
+    
+    
+    # MK ----
+    if( tableName %in% c( "MitralklaffVar" ) ){
+      
+      FO %<>% 
+        select(
+          # Nøkler:
+          AvdRESH
+          ,ForlopsID
+          # Variablene som legges til:
+          ,Sykehusnavn
+          ,PasientID
+          ,KommuneNr
+          ,Kommune
+          ,Fylke
+          ,Fylkenr
+          ,PasientKjonn
+          ,PasientAlder
+          ,BasisRegStatus
+          ,ForlopsType1
+          ,ForlopsType2
+          ,KobletForlopsID
+          ,HovedDato
+          ,FodselsDato
+          ,Avdod
+          ,AvdodDato
+        )
+      
+      tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
+                       ,suffix = c("", ".FO") 
+                      )
+    }
+    
+    
+    # PS ----
+    if( tableName %in% c( "PasienterStudier" ) ){
+      
+      FO %<>% 
+        select(
+          # Nøkler:
+          AvdRESH
+          ,PasientID
+          # Variablene som legges til:
+          ,Sykehusnavn
+          ,FodselsDato
+          ,Kommune
+          ,KommuneNr
+          ,Fylke
+          ,Fylkenr
+          ,PasientKjonn
+          ,PasientAlder
+        )
+      
+      tab <- left_join(tab, FO, by = c("PasientID", "AvdRESH")
+                       ,suffix = c("", ".FO") 
                       )
     }
     
