@@ -660,7 +660,7 @@ mst(df,
 ### på lab `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
 
 
-```{r FigLabKompl,fig.cap="Prosentandel komplikasjoner på laboratoriet",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth"}
+```{r FigLabKompl, fig.cap = "Prosentandel komplikasjoner på laboratoriet", echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, out.width = "\\textwidth"}
 
 par(
     mar = c(4,15,2,2) ,
@@ -759,7 +759,7 @@ mst(df,
 
 ### på avdelingen `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
 
-```{r FigAvdKompl,fig.cap="Prosentandel komplikasjoner på avdelingen",echo=FALSE,fig.pos='!h',fig.width=10,fig.height=5,out.width="\\textwidth"}
+```{r FigAvdKompl, fig.cap = "Prosentandel komplikasjoner på avdelingen", echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, out.width = "\\textwidth"}
 
 par(
     mar = c(4,15,2,2) ,
