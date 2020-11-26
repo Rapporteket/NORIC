@@ -295,8 +295,8 @@ legend(
 ```{r TabNHastegrad, results='asis', eval=TRUE}
 cap <- "Antall og prosentvis fordeling av registrerte prosedyrer etter hastegrad og måned"
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
-  prettyTab(., add_totals=TRUE) %>% 
-  mst(., type = params$tableFormat, cap = cap, digs = 0, align = rep("r", 5))
+  noric::prettyTab(., add_totals=TRUE) %>% 
+  noric::mst(., type = params$tableFormat, cap = cap, digs = 0, align = rep("r", 5))
 ```
 
 
@@ -340,8 +340,8 @@ legend(
 ```{r TabNProsedyreType,  results = 'asis'}
 cap <- "Antall og prosentvis fordeling av prosedyrer etter prosedyretype og måned"
 xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
-  prettyTab(., add_totals=TRUE) %>% 
-  mst(., type = params$tableFormat, cap = cap, digs = 0)
+  noric::prettyTab(., add_totals=TRUE) %>% 
+  noric::mst(., type = params$tableFormat, cap = cap, digs = 0)
 ```
 
 
@@ -384,8 +384,8 @@ legend(
 ```{r TabNIndikasjon,  results = 'asis'}
 cap = "Antall og prosentvis fordeling av prosedyrer etter indikasjon og måned"
 xtabs(formula = ~ Month + Indikasjon2, data = AP) %>% 
-  prettyTab(., add_totals = TRUE) %>%
-  mst(., type = params$tableFormat, cap = cap, digs = 0, align = rep("r", 8),
+  noric::prettyTab(., add_totals = TRUE) %>%
+  noric::mst(., type = params$tableFormat, cap = cap, digs = 0, align = rep("r", 8),
       lsd = TRUE)
 ```
 
@@ -512,11 +512,11 @@ TabTillegg %<>%
 ### Annen diagnostikk ved angiografi
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
 cap <- "Antall (prosent) tilleggsprosedyrer per måned"
-mst(TabTillegg[,c("FFR", "IFR", "Doppler", "OCT", "IVUS", "NIRS", "N")],
-    type = params$tableFormat,
-    cap = cap,
-    digs = 0,
-    align = rep("r", 8))
+noric::mst(TabTillegg[,c("FFR", "IFR", "Doppler", "OCT", "IVUS", "NIRS", "N")],
+           type = params$tableFormat,
+           cap = cap,
+           digs = 0,
+           align = rep("r", 8))
 
 ```
 
@@ -524,11 +524,11 @@ mst(TabTillegg[,c("FFR", "IFR", "Doppler", "OCT", "IVUS", "NIRS", "N")],
 ### Tilleggsprosedyrer
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- "Antall (prosent) tilleggsprosedyrer per måned"
-mst(TabTillegg[,c("Høyre kat.", "Perikardiocentese", "N")],
-    type = params$tableFormat,
-    cap = cap,
-    digs = 0,
-    align = rep("r", 4))
+noric::mst(TabTillegg[,c("Høyre kat.", "Perikardiocentese", "N")],
+           type = params$tableFormat,
+           cap = cap,
+           digs = 0,
+           align = rep("r", 4))
 ```
 
 
@@ -536,13 +536,13 @@ mst(TabTillegg[,c("Høyre kat.", "Perikardiocentese", "N")],
 ### Adjuvant terapi
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 cap <- "Antall (prosent) tilleggsprosedyrer per måned"
-mst(TabTillegg[, c("PM", "IABP", "Impella", "Trombectomy", "ECMO", "Annen",
-                   "Ingen", "N")],
-    type = params$tableFormat,
-    cap = cap,
-    digs = 0,
-    align = rep("r", 8),
-    lsd = TRUE)
+noric::mst(TabTillegg[, c("PM", "IABP", "Impella", "Trombectomy", "ECMO", "Annen",
+                          "Ingen", "N")],
+           type = params$tableFormat,
+           cap = cap,
+           digs = 0,
+           align = rep("r", 8),
+           lsd = TRUE)
 ```
 
 
@@ -640,12 +640,12 @@ LabKomplikasjoner$Prosent <- round(
 
 df <- LabKomplikasjoner[, -1]
 rownames(df) <- NULL
-mst(df,
-    type = params$tableFormat,
-    cap = "Komplikasjoner på lab.",
-    digs = 2,
-    align = c("l","r","r", "r"))
 
+noric::mst(df,
+           type = params$tableFormat,
+           cap = NULL,
+           digs = 0,
+           align = c("l","r","r", "r"))
 ```
 
 
@@ -735,12 +735,12 @@ AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp, ]
 df <- AvdKomplikasjoner[, -1]
 rownames(df) <- NULL
 
-mst(df,
-    type = params$tableFormat,
-    cap = "Komplikasjoner på avdelingen.",
-    digs = 2,
-    align = c("l","r","r"))
 
+noric::mst(df,
+           type = params$tableFormat,
+           cap = NULL,
+           digs = 0,
+           align = c("l","r","r"))
 ```
 
 
@@ -800,9 +800,9 @@ TABkompletthet <- cbind(
     rSOA[, which(colnames(rSOA) == "Ferdigstilt")])
 colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
 
-cap <- "Antall ferdigstilte hovedskjemaer per måned"
-mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
-    digs = c(0,0,0,1), align = rep("r", 4))
+cap <- "Antall hoved registreringsskjemaer etter måned"
+noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
+           digs = c(0,0,0,1), align = rep("r", 4))
 ```
 
 
@@ -830,8 +830,9 @@ TABkompletthet <- cbind(
     rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
-cap <- "Antall ferdigstilte utrskrivelsesskjemaer per måned"
-mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
-    digs = c(0,0,0,1), align = rep("r", 4))
+cap <- "Antall utskrivelsesskjemaer etter måned"
+noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
+           digs = c(0,0,0,1), align = rep("r", 4))
+
 ```
 
