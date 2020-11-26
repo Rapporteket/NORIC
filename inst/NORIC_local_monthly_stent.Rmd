@@ -1,5 +1,5 @@
 ---
-date: '`r format(Sys.time(), "%d %B, %Y")`'
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
 params:
   title: "Emty tite"
   author: "Anon author"
