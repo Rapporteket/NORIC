@@ -60,7 +60,6 @@ FROM CTAngioVar
       ,PasientAlder
       ,ForlopsType1
       ,ForlopsType2
-      ,HovedDato
     )
   
   CT <- left_join(CT, FO, by = c( "ForlopsID"

@@ -62,7 +62,6 @@ FROM AngioPCIVar
       ,ForlopsType1
       ,ForlopsType2
       ,KobletForlopsID
-      ,HovedDato
     )
   
   # Legger til variabler fra FO til AP:

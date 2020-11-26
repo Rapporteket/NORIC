@@ -59,7 +59,6 @@ FROM AortaklaffOppfVar
       ,ForlopsType1
       ,ForlopsType2
       ,KobletForlopsID
-      ,HovedDato
       ,Kommune
       ,KommuneNr
       ,Fylke

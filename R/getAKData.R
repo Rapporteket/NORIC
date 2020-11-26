@@ -65,7 +65,6 @@ FROM
       ,ForlopsType1
       ,ForlopsType2
       ,KobletForlopsID
-      ,HovedDato
     )
   
   
