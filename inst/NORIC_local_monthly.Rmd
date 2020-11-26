@@ -1,8 +1,7 @@
 ---
 title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI for ', params$hospitalName ) `"
 author: ""
-date: "`r format(Sys.time(), "%d %B, %Y")`"
-date: "`r format(Sys.time(), "%d. %B, %Y")`"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: pdf_document
 params:
   title: Emty tite
