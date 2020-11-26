@@ -11,6 +11,7 @@ header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
+  - \usepackage{float}
 title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Stentbruk', params$hospitalName)`"
 author: ""
 ---
@@ -145,6 +146,9 @@ PCImedStent <- subset(
 ``` 
 
 
+```{r otherParameters, echo = FALSE}
+showN <- 12
+```
 
 
 
@@ -196,7 +200,12 @@ legend(
 ## Stent merke
 ```{r prepare-data-SS-pci, include = FALSE}
 # Siste showN måneder. Ikke vise historiske stenter 
-SS %<>% mutate(nMonth = as.numeric(as.factor(format(ProsedyreDato,format = "%y-%m"))))
+SS %<>% dplyr::mutate(nMonth = 
+                        as.numeric(
+                          as.factor(
+                            format(
+                              ProsedyreDato,
+                              format = "%y-%m"))))
 SSpci <-  SS %>% dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>% 
   dplyr::filter(ProsedyreType2 == "Stent")
 ``` 
