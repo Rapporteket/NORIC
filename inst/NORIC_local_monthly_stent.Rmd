@@ -160,37 +160,30 @@ SS$StentType[SS$StentType==""] <- NA
 SS$StentType[SS$StentType=="Annet"] <- "BVS"
 SS$StentType <- factor(SS$StentType)
 
-SS$Indikasjon <- car::recode( SS$Indikasjon ,"
-   'Stabil koronarsykdom '                    ='SAP';
-   'UAP'                                      ='UAP';
-   'NSTEMI'                                   ='NSTEMI';
-   'STEMI'                                    ='STEMI';
-   'STEMI > 24h'                              ='STEMI';
-   'STEMI/Rescue PCI'                         ='STEMI';
-   ''                                         = NA;
-   else                                       ='Annet'
-")
- 
-SS$Indikasjon <- factor( SS$Indikasjon , levels = c(
-'SAP',
-'UAP',
-'NSTEMI',
-'STEMI',
-'Annet'))
+SS %<>% dplyr::mutate(Indikasjon = factor(
+  dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP", 
+                   Indikasjon == "UAP" ~ "UAP", 
+                   Indikasjon == "NSTEMI" ~ "NSTEMI", 
+                   Indikasjon %in% c("STEMI", "STEMI > 24h", "STEMI/Rescue PCI")
+                   ~ "STEMI", 
+                   is.na(Indikasjon) ~ NA_character_, 
+                   TRUE ~ "Annet"), 
+  levels = c("SAP", "UAP", "NSTEMI", "STEMI", "Annet", NA)
+  )) 
 
 
-SS$ProsedyreType2 <- car::recode( SS$ProsedyreType , "
-    'Direktestent' = 'Stent' ;
-    'Ballong + Stent' = 'Stent' ;
-    'Medikamentell ballong+ Stent' = 'Stent' ;
 
-    'Ballongdilatasjon' = 'POBA' ;
+SS %<>% dplyr::mutate(ProsedyreType2 = factor(
+  dplyr::case_when(ProsedyreType %in% 
+                     c("Direktestent",
+                       "Ballong + Stent",
+                       "Medikamentell ballong+ Stent") ~ "Stent",
+            ProsedyreType == "Ballongdilatasjon" ~ "POBA", 
+            ProsedyreType == "Wireforsøk" ~ "Wireforsøk", 
+            ProsedyreType == "Rotablator" ~ "Rotablator",
+            TRUE ~ "Annet"),
+  levels = c("Stent", "POBA", "Wireforsøk", "Rotablator", "Annet")))
 
-    'Wireforsøk' = 'Wireforsøk' ;
-
-    'Rotablator' = 'Rotablator' ;
-
-    else = 'Annet'")
 
 SS$ProsedyreDato <- as.Date(
     x = SS$ProsedyreDato ,
