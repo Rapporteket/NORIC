@@ -177,7 +177,7 @@ SS %<>% dplyr::mutate(ProsedyreType2 = factor(
   dplyr::case_when(ProsedyreType %in% 
                      c("Direktestent",
                        "Ballong + Stent",
-                       "Medikamentell ballong+ Stent") ~ "Stent",
+                       "Medikamentell ballong + Stent") ~ "Stent",
             ProsedyreType == "Ballongdilatasjon" ~ "POBA", 
             ProsedyreType == "Wireforsøk" ~ "Wireforsøk", 
             ProsedyreType == "Rotablator" ~ "Rotablator",
@@ -241,18 +241,12 @@ PCImedStent <- subset(
 
 ## Prosedyre type
 
-```{r TabNRProsedyreType,echo=FALSE,results='asis'}
-cap <- "Prosent (antall) behandlete segmenter etter prosedyretype og måned"
-TabNProsedyreType <- tail(
-  xtabs(
-    formula = ~ YearMonth + ProsedyreType2 ,
-    data = SS
-  ) ,
-  n = showN+1
-)
-
-mst(PrettyTabNR( TabNProsedyreType ), params$tableFormat, cap, 0,
-    align = rep("r", 7))
+```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
+cap <- "Antall (prosent) behandlede segmenter etter prosedyretype og måned"
+tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
+     n = showN + 1) %>%
+  noric::prettyTab(., add_totals = TRUE) %>% 
+  noric::mst(., type = params$tableFormat, cap = cap, digs = 0, align = rep("r", 7))
 ```
 
 
