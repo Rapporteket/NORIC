@@ -74,9 +74,6 @@ AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 
 AP$Nstents[is.na(AP$Nstents)] <- 0
 
-SS$StentType[SS$StentType==""] <- NA
-SS$StentType[SS$StentType=="Annet"] <- "BVS"
-SS$StentType <- factor(SS$StentType)
 
 SS %<>% dplyr::mutate(Indikasjon = factor(
   dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP", 
