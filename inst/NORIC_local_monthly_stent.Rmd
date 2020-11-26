@@ -213,10 +213,9 @@ SSpci <-  SS %>% dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>%
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis"}
 cap <- "Antall (prosent) stenter etter merke og måned"
-xtabs(formula = ~ YearMonth + Stentnavn,
-      data = SSpci,
-      drop.unused.levels = TRUE) %>% 
-  noric::prettyTab(., add_totals = TRUE) %>% 
-  noric::mst(., type = params$tableFormat, cap = cap, digs = 0)
+tab_stent<- addmargins(xtabs(formula = ~ YearMonth + Stentnavn,
+                             data = SSpci,
+                             drop.unused.levels = TRUE)) 
+noric::mst(tab_stent, type = params$tableFormat, cap = cap, digs = 0)
 ```
 
