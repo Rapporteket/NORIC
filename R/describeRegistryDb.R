@@ -1,5 +1,5 @@
 #' Provide registry daatabase metadata
-#' 
+#'
 #' List all tables and fields with attributes such as type and degault values
 #'
 #' @param registryName String providing the registry name key
@@ -10,21 +10,21 @@
 #' @export
 
 describeRegistryDb <- function(registryName, tabs = c()) {
-  
+
   qGetTabs <- "SHOW TABLES;"
   qGetDesc <- "DESCRIBE "
-  
+
   desc <- list()
-  
+
   if (length(tabs) == 0) {
     tabs <- rapbase::LoadRegData(registryName = registryName,
                                  query = qGetTabs)[[1]]
   }
-  
+
   for (tab in tabs) {
     query <- paste0(qGetDesc, tab, ";")
     desc[[tab]] <- rapbase::LoadRegData(registryName, query)
   }
-  
+
   desc
 }
