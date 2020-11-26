@@ -1,5 +1,5 @@
 ---
-date: '`r format(Sys.time(), "%d. %B, %Y")`'
+date: '`r format(Sys.time(), "%d %B, %Y")`'
 params:
   title: "Emty tite"
   author: "Anon author"
@@ -43,11 +43,9 @@ Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
 
 
 ```{r SKDEcol, include=FALSE}
-
 colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
-
 ``` 
 
 
@@ -88,10 +86,7 @@ SS %<>% dplyr::mutate(Indikasjon = factor(
                    ~ "STEMI", 
                    is.na(Indikasjon) ~ NA_character_, 
                    TRUE ~ "Annet"), 
-  levels = c("SAP", "UAP", "NSTEMI", "STEMI", "Annet", NA)
-  )) 
-
-
+  levels = c("SAP", "UAP", "NSTEMI", "STEMI", "Annet", NA))) 
 
 SS %<>% dplyr::mutate(ProsedyreType2 = factor(
   dplyr::case_when(ProsedyreType %in% 
@@ -152,15 +147,11 @@ PCImedStent <- subset(
     )
 ``` 
 
-# `r params$hospitalName`
 
 
 
-
-# Prosedyre type
 
 ## Prosedyre type
-
 ```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
 cap <- "Antall (prosent) behandlede segmenter etter prosedyretype og måned"
 tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
@@ -172,7 +163,7 @@ tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
 
 
 ## Stenter per prosedyre
-### Antall stenter per prosedyre i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`, min. 1 stent (N = `r sum(PCImedStent$Nstents>0)`)
+Antall stenter per prosedyre i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`, min. 1 stent (N = `r sum(PCImedStent$Nstents>0)`)
 
 ```{r Barplot_Nstent_per_Prosedyre, fig.width = 12, fig.height = 8, fig.align="center", fig.pos = "H", out.width = \\textwidth", fig.cap = "Antall stenter per prosedyre",}
 
@@ -222,29 +213,5 @@ xtabs(formula = ~ YearMonth + Stentnavn,
       drop.unused.levels = TRUE) %>% 
   noric::prettyTab(., add_totals = TRUE) %>% 
   noric::mst(., type = params$tableFormat, cap = cap, digs = 0)
-
-
-
-# if (params$tableFormat == "html") {
-#   kable(addmargins(TabNStentMerke), caption = cap) %>% 
-#     kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-#                   full_width = F) %>% 
-#     row_spec(row = 0, font_size = 10, angle = -45)
-# }
-# 
-# if (params$tableFormat == "latex") {
-#   print(
-#     xtable::xtable(
-#       x = addmargins(TabNStentMerke) ,
-#       digits = 0 , caption = cap) ,
-#     booktabs = TRUE ,
-#     rotate.colnames = TRUE,
-#     comment = FALSE,
-#     caption.placement = "top",
-#     scalebox = 0.6
-#   )
-  
-# }
-
 ```
 
