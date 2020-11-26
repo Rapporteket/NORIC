@@ -1,4 +1,4 @@
-#' getaKOppfData provides local reg data from AortaklaffOppfVar
+#' getAKOppfData provides local reg data from AortaklaffOppfVar
 #'
 #' @param registryName String providing the registry name
 #' @param singleRow Logical defining if only one row is to be returned. A
@@ -39,11 +39,9 @@ FROM AortaklaffOppfVar
   }
 
   aKOppf <- rapbase::LoadRegData(registryName, query, dbType)
-  print(dim(aKOppf))
 
   fO <- rapbase::LoadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
-  print(dim(fO))
 
 
   # Velger relevante variabler fra fO som skal legges til tabellen:
