@@ -12,7 +12,7 @@ header-includes:
   - \usepackage{booktabs}
   - \usepackage{rotating}
 title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Stentbruk', params$hospitalName)`"
-author: "`r params$author`"
+author: ""
 ---
 
 ```{r knitrOptions, include=FALSE}
@@ -72,7 +72,7 @@ GROUP BY ForlopsID;
 AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 
 
-AP$Nstents[ is.na(AP$Nstents) ] <- 0
+AP$Nstents[is.na(AP$Nstents)] <- 0
 
 SS$StentType[SS$StentType==""] <- NA
 SS$StentType[SS$StentType=="Annet"] <- "BVS"
@@ -101,50 +101,50 @@ SS %<>% dplyr::mutate(ProsedyreType2 = factor(
 
 
 SS$ProsedyreDato <- as.Date(
-    x = SS$ProsedyreDato ,
-    format = "%Y-%m-%d")
+  x = SS$ProsedyreDato,
+  format = "%Y-%m-%d")
 
 SS$Month <- as.numeric(
-    format( 
-        x = SS$ProsedyreDato , 
-        format = "%m" ))
+  format(
+    x = SS$ProsedyreDato,
+    format = "%m" ))
 
 SS$Year <- as.numeric(
-    format( 
-        x = SS$ProsedyreDato ,
-        format = "%y" ))
+  format(
+    x = SS$ProsedyreDato,
+    format = "%y"))
 
 SS$YearMonth <- factor(
-    format(
-        x = SS$ProsedyreDato ,
-        format = "%y-%m"))
+  format(
+    x = SS$ProsedyreDato,
+    format = "%y-%m"))
 
 
 
 AP$ProsedyreDato <- as.Date(
-    x = AP$ProsedyreDato ,
-    format = "%Y-%m-%d")
+  x = AP$ProsedyreDato,
+  format = "%Y-%m-%d")
                        
 AP$Month <- as.numeric(
-    format( 
-        x = AP$ProsedyreDato , 
-        format = "%m" ))
+  format(
+    x = AP$ProsedyreDato,
+    format = "%m"))
 
                          
 AP$Year <- as.numeric(
-    format( 
-        x = AP$ProsedyreDato ,
-        format = "%y" ))
+  format( 
+    x = AP$ProsedyreDato,
+    format = "%y"))
 
 AP$YearMonth <- factor(
-    format(
-        x = AP$ProsedyreDato ,
-        format = "%y-%m"))
+  format(
+    x = AP$ProsedyreDato,
+    format = "%y-%m"))
 
 PCImedStent <- subset(
-    AP ,
-    Nstents > 0
-    )
+  AP,
+  Nstents > 0
+  )
 ``` 
 
 
@@ -163,9 +163,9 @@ tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
 
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`, min. 1 stent (N = `r sum(PCImedStent$Nstents>0)`)
+Antall stenter per prosedyre i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
 
-```{r Barplot_Nstent_per_Prosedyre, fig.width = 12, fig.height = 8, fig.align="center", fig.pos = "H", out.width = \\textwidth", fig.cap = "Antall stenter per prosedyre",}
+```{r Barplot_Nstent_per_Prosedyre, fig.width = 12, fig.height = 8, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = "Antall stenter per prosedyre"}
 
 op <- par(
   mfcol = c(1,1),
@@ -198,11 +198,10 @@ legend(
 
 ## Stent merke
 ```{r prepare-data-SS-pci, include = FALSE}
-# Siste showN måneder, vise alle brukte stenter. ikke vise historiske stenter 
+# Siste showN måneder. Ikke vise historiske stenter 
 SS %<>% mutate(nMonth = as.numeric(as.factor(format(ProsedyreDato,format = "%y-%m"))))
 SSpci <-  SS %>% dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>% 
-  dplyr::filter(ProsedyreType2 == "Stent" )
-
+  dplyr::filter(ProsedyreType2 == "Stent")
 ``` 
 
 
