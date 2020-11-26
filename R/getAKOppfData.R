@@ -1,4 +1,4 @@
-#' getAKOppfData provides local reg data from AortaklaffOppfVar
+#' getaKOppfData provides local reg data from AortaklaffOppfVar
 #'
 #' @param registryName String providing the registry name
 #' @param singleRow Logical defining if only one row is to be returned. A
@@ -21,64 +21,66 @@ getAKOppfData <- function(registryName, singleRow = FALSE, ...) {
   . <- ""
 
   dbType <- "mysql"
-  query <-"
+  query <- "
 SELECT *
 FROM AortaklaffOppfVar
   "
 
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg = "Query metadata for AortaklaffOppfVar pivot"
+    msg <- "Query metadata for AortaklaffOppfVar pivot"
   } else {
     query <- paste0(query, ";")
-    msg = "Query data for AortaklaffOppfVar pivot"
+    msg <- "Query data for AortaklaffOppfVar pivot"
   }
 
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  AKOppf <- rapbase::LoadRegData(registryName, query, dbType)
+  aKOppf <- rapbase::LoadRegData(registryName, query, dbType)
+  print(dim(aKOppf))
 
-  FO <- rapbase::LoadRegData(registryName,
+  fO <- rapbase::LoadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
+  print(dim(fO))
 
 
-  # Velger relevante variabler fra FO som skal legges til tabellen:
-  FO %<>%
+  # Velger relevante variabler fra fO som skal legges til tabellen:
+  fO %<>%
     dplyr::select(.,
       # Nøkler:
-      .data$AvdRESH
-      ,.data$ForlopsID
+      .data$AvdRESH,
+      .data$ForlopsID,
       # Variablene som legges til:
-      ,.data$Sykehusnavn
-      ,.data$PasientID
-      ,.data$PasientKjonn
-      ,.data$PasientAlder
-      ,.data$BasisRegStatus
-      ,.data$ForlopsType1
-      ,.data$ForlopsType2
-      ,.data$KobletForlopsID
-      ,.data$HovedDato
-      ,.data$Kommune
-      ,.data$KommuneNr
-      ,.data$Fylke
-      ,.data$Fylkenr
-      ,.data$FodselsDato
-      ,.data$Avdod
-      ,.data$AvdodDato
-      ,.data$ErOppflg
-      ,.data$OppflgStatus
-      ,.data$OppflgSekNr
-      ,.data$OppflgRegStatus
+      .data$Sykehusnavn,
+      .data$PasientID,
+      .data$PasientKjonn,
+      .data$PasientAlder,
+      .data$BasisRegStatus,
+      .data$ForlopsType1,
+      .data$ForlopsType2,
+      .data$KobletForlopsID,
+      .data$HovedDato,
+      .data$Kommune,
+      .data$KommuneNr,
+      .data$Fylke,
+      .data$Fylkenr,
+      .data$FodselsDato,
+      .data$Avdod,
+      .data$AvdodDato,
+      .data$ErOppflg,
+      .data$OppflgStatus,
+      .data$OppflgSekNr,
+      .data$OppflgRegStatus
     )
 
-  # Legger til variabler fra FO til AKOppf:
-  AKOppf <- dplyr::left_join(AKOppf, FO, by = c("AvdRESH"
-                                                ,"ForlopsID"
+  # Legger til variabler fra fO til aKOppf:
+  aKOppf <- dplyr::left_join(aKOppf, fO, by = c("AvdRESH",
+                                                "ForlopsID"
                                          )
   )
 
-  AKOppf
+  aKOppf
 
 }
