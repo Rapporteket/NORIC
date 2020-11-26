@@ -241,69 +241,6 @@ PCImedStent <- subset(
 
 # `r params$hospitalName`
 
-# Stent type
-
-## Stent type
-  
-```{r N_stents_StentType_YearMonth,fig.cap="Antall stenter etter type og måned",fig.width=12,fig.height=8,out.width="\\textwidth"}
-
-op <- par(
-    mfcol = c (1,1) ,
-    xpd = NA ,
-    mar = c(5.1,4.1,4.1,13.1) ,
-    bg = "#EEEEEE")
-
-pal <- colPrimary[c(1,3,5)]
-
-barplot(
-    xtabs(
-        formula = ~ StentType + YearMonth ,
-        subset = StentType != "" ,
-        data = SS ) , 
-    las = 1 ,
-    xlab = "Måned" ,
-    ylab = "Antall" ,
-    col = pal ,
-    space = 0.2 ,
-    border = FALSE)
-
-legend(
-    "right" ,
-    inset = -.28 ,
-    bty = "n" ,
-    horiz = FALSE ,
-    fill = pal,
-    legend = levels(SS$StentType) ,
-    cex = 1)
-```
-
-
-
-## Stent type
-
-
-```{r Antall_stenter_etter_type_og_maned,echo=FALSE,results='asis'}
-cap <- "Antall stenter etter type og måned"
-TabNStentType <- tail(
-  xtabs(
-    formula = ~ YearMonth + StentType ,
-    data = SS ) ,
-  n = showN )
-
-mst(addmargins(TabNStentType), params$tableFormat, cap, 0, align = rep("r", 5))
-```
-
-
-## Stent type
-
-
-```{r Prosent_stenttyper_etter_maned,echo = FALSE , results='asis'}
-cap <- "Prosentandel stenter etter typer og måned"
-tab <- addmargins(TabNStentType, margin = 1) %>% 
-  prop.table(., margin = 1) * 100
-
-mst(tab, params$tableFormat, cap, 1, align = rep("r", 4))
-```
 
 
 
