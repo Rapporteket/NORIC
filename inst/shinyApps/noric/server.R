@@ -22,12 +22,12 @@ shinyServer(function(input, output, session) {
     ### if need be, define your (local) values here
   }
   
-  # Hide tabs when not role 'SC'
-  if (userRole == "LU") { # Hvis userRole er LU
+  # Hide tabs when role is 'LU' or some tabs for role 'LC'
+  if (userRole == "LU") {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
-  } else if (userRole == "LC") { # Hvis userRole er LC
+  } else if (userRole == "LC") {
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
   }
