@@ -46,7 +46,6 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
     if (setId == "FO") {
       dat <- noric::getFOData(registryName, singleRow = singleRow,
                               session = session)
-      dat %<>% select(-"Avdod", -"AvdodDato") #Variablene er ikke de samme som i AP
     }
     if (setId == "MK") {
       dat <- noric::getMKData(registryName, singleRow = singleRow,
@@ -67,6 +66,11 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   } else {
     dat <- NULL
   }
+  
+  
+  #Fjerner Avdod og AvdodDato midlertidig for både SC og LC
+  dat %<>% select(-"Avdod", -"AvdodDato")
+  
   
   #Fjerner variablene som ikke skal vises for LC
   if (userRole == "LC" && !is.null(dat)) {

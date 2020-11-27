@@ -16,148 +16,68 @@
 #'
 
 getAKOppfData <- function(registryName, singleRow = FALSE, ...) {
-  
+
   # declare 'dot'
   . <- ""
-  
+
   dbType <- "mysql"
-  query <-"
+  query <- "
 SELECT *
 FROM AortaklaffOppfVar
   "
-  
+
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg = "Query metadata for AortaklaffOppfVar pivot"
+    msg <- "Query metadata for AortaklaffOppfVar pivot"
   } else {
     query <- paste0(query, ";")
-    msg = "Query data for AortaklaffOppfVar pivot"
+    msg <- "Query data for AortaklaffOppfVar pivot"
   }
-  
+
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
-  AKOppf <- rapbase::LoadRegData(registryName, query, dbType)
-  
-  FO <- rapbase::LoadRegData(registryName,
+
+  aKOppf <- rapbase::LoadRegData(registryName, query, dbType)
+
+  fO <- rapbase::LoadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
-  
-  
-  # Velger relevante variabler fra FO som skal legges til tabellen:
-  FO %<>% 
-    select(
+
+
+  # Velger relevante variabler fra fO som skal legges til tabellen:
+  fO %<>%
+    dplyr::select(.,
       # Nøkler:
-      AvdRESH
-      ,ForlopsID
+      .data$AvdRESH,
+      .data$ForlopsID,
       # Variablene som legges til:
-      ,Sykehusnavn
-      ,PasientID
-      ,PasientKjonn
-      ,PasientAlder
-      ,BasisRegStatus
-      ,ForlopsType1
-      ,ForlopsType2
-      ,KobletForlopsID
-      ,HovedDato
-      ,Kommune
-      ,KommuneNr
-      ,Fylke
-      ,Fylkenr
-      ,FodselsDato
-      ,Avdod
-      ,AvdodDato
-      ,ErOppflg
-      ,OppflgStatus
-      ,OppflgSekNr
-      ,OppflgRegStatus
+      .data$Sykehusnavn,
+      .data$PasientID,
+      .data$PasientKjonn,
+      .data$PasientAlder,
+      .data$BasisRegStatus,
+      .data$ForlopsType1,
+      .data$ForlopsType2,
+      .data$KobletForlopsID,
+      .data$Kommune,
+      .data$KommuneNr,
+      .data$Fylke,
+      .data$Fylkenr,
+      .data$FodselsDato,
+      .data$Avdod,
+      .data$AvdodDato,
+      .data$ErOppflg,
+      .data$OppflgStatus,
+      .data$OppflgSekNr,
+      .data$OppflgRegStatus
     )
-  
-  # Legger til variabler fra FO til AKOppf:
-  AKOppf <- left_join(AKOppf, FO, by = c("AvdRESH"
-                                         ,"ForlopsID"
+
+  # Legger til variabler fra fO til aKOppf:
+  aKOppf <- dplyr::left_join(aKOppf, fO, by = c("AvdRESH",
+                                                "ForlopsID"
                                          )
   )
-  
-  
-  
-  # # Gjor datoer om til dato-objekt:
-  # AKOppf %<>%
-  #   mutate_at(
-  #     vars( ends_with("Dato") ), list( ymd )
-  #   )
-  # 
-  #        
-  # 
-  # # Endre Sykehusnavn til kortere versjoner:
-  # AKOppf %<>%
-  #   mutate(
-  #     Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-  #     Sykehusnavn = ifelse( Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn ) ,
-  #     Sykehusnavn = ifelse( Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn )
-  #   )
-  
-  # # Utledete variabler:
-  # AKOppf %<>%
-  #   mutate(
-  #     # Div. tidsvariabler:
-  #     
-  #     # Basert på BasisProsedyreDato:
-  #     # Kalenderår:
-  #     year_prosedyre = as.ordered( year( BasisProsedyreDato )),
-  #     aar_prosedyre = year_prosedyre,
-  #     # Måned:
-  #     # (månedsnr er tosifret; 01, 02, ....)
-  #     maaned_nr_prosedyre = as.ordered( sprintf(fmt = "%02d", month( BasisProsedyreDato ) )),
-  #     maaned_prosedyre = as.ordered( paste0( year_prosedyre, "-", maaned_nr_prosedyre) ),
-  #     # Kvartal:
-  #     kvartal_prosedyre = quarter( BasisProsedyreDato, with_year = TRUE ),
-  #     # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
-  #     kvartal_prosedyre = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_prosedyre) ),
-  #     # Uketall:
-  #     uke_prosedyre = as.ordered( sprintf(fmt = "%02d", isoweek( BasisProsedyreDato ) )),
-  # 
-  #     # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-  #     aar_uke_prosedyre = ifelse( test = uke_prosedyre == "01" & maaned_nr_prosedyre == "12", # hvis uke 01 i desember...
-  #                       yes = paste0( as.integer(year(BasisProsedyreDato)) + 1, "-", uke_prosedyre ), # ..sier vi at year er det seneste året som den uken tilhørte
-  #                       no = paste0(aar_prosedyre, "-", uke_prosedyre )
-  #     ),
-  #     aar_uke_prosedyre = ifelse( test = uke_prosedyre %in% c("52", "53") & maaned_nr_prosedyre == "01", # hvis uke 52 eller 53 i januar...
-  #                       yes = paste0( as.integer(year(BasisProsedyreDato)) - 1, "-", uke_prosedyre ), # ...sier vi at hele uken tilhører det tidligste året
-  #                       no = aar_uke_prosedyre
-  #     ),
-  #     aar_uke_prosedyre = as.ordered( aar_uke_prosedyre ),
-  #     
-  #     # Basert på OppfDato:
-  #     # Kalenderår:
-  #     year_oppfolging = as.ordered( year( OppfDato )),
-  #     aar_oppfolging = year_oppfolging,
-  #     # Måned:
-  #     # (månedsnr er tosifret; 01, 02, ....)
-  #     maaned_nr_oppfolging = as.ordered( sprintf(fmt = "%02d", month( OppfDato ) )),
-  #     maaned_oppfolging = as.ordered( paste0( year_oppfolging, "-", maaned_nr_oppfolging) ),
-  #     # Kvartal:
-  #     kvartal_oppfolging = quarter( OppfDato, with_year = TRUE ),
-  #     # kvartal = as.factor( gsub( "\\.", "-", kvartal) ),
-  #     kvartal_oppfolging = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_oppfolging) ),
-  #     # Uketall:
-  #     uke_oppfolging = as.ordered( sprintf(fmt = "%02d", isoweek( OppfDato ) )),
-  # 
-  #     # Variabel "yyyy-ukenummer" som tar høyde for uketall som befinner seg i to kalenderår:
-  #     aar_uke_oppfolging = ifelse( test = uke_oppfolging == "01" & maaned_nr_oppfolging == "12", # hvis uke 01 i desember...
-  #                       yes = paste0( as.integer(year(OppfDato)) + 1, "-", uke_oppfolging ), # ..sier vi at year er det seneste året som den uken tilhørte
-  #                       no = paste0(aar_oppfolging, "-", uke_oppfolging )
-  #     ),
-  #     aar_uke_oppfolging = ifelse( test = uke_oppfolging %in% c("52", "53") & maaned_nr_oppfolging == "01", # hvis uke 52 eller 53 i januar...
-  #                       yes = paste0( as.integer(year(OppfDato)) - 1, "-", uke_oppfolging ), # ...sier vi at hele uken tilhører det tidligste året
-  #                       no = aar_uke_oppfolging
-  #     ),
-  #     aar_uke_oppfolging = as.ordered( aar_uke_oppfolging )
-  #   )
-  # 
-  
-  
-  
-  AKOppf
-  
+
+  aKOppf
+
 }

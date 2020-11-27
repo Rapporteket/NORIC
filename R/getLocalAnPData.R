@@ -61,8 +61,6 @@ FROM AndreProsedyrerVar
       ,PasientAlder
       ,ForlopsType1
       ,ForlopsType2
-      ,KobletForlopsID
-      ,HovedDato
     )
   
   AnP <- left_join(AnP, FO, by = c("ForlopsID", "AvdRESH"),
