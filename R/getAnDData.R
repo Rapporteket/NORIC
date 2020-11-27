@@ -62,7 +62,6 @@ FROM AnnenDiagnostikkVar
       ,ForlopsType1
       ,ForlopsType2
       ,KobletForlopsID
-      ,HovedDato
     )
   
   # Legger til variabler fra FO til AnD:

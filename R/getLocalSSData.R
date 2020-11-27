@@ -64,7 +64,6 @@ FROM
       ,ForlopsType1
       ,ForlopsType2
       ,KobletForlopsID
-      ,HovedDato
     )
   
   SS <- left_join(SS, FO, by = c("ForlopsID", "AvdRESH", "Sykehusnavn"),

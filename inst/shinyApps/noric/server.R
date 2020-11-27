@@ -21,13 +21,13 @@ shinyServer(function(input, output, session) {
   } else {
     ### if need be, define your (local) values here
   }
-
-  # Hide tabs when not role 'SC'
-  if (userRole == "LU") { # Hvis userRole er LU
+  
+  # Hide tabs when role is 'LU' or some tabs for role 'LC'
+  if (userRole == "LU") {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
-  } else if (userRole == "LC") { # Hvis userRole er LC
+  } else if (userRole == "LC") {
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
   }
@@ -137,8 +137,6 @@ shinyServer(function(input, output, session) {
 
   # Utforsker
   ## Data sets available
-
-  #Hvis userRole er SC
   if (userRole == "SC") {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Andre prosedyrer` = "AnP",
@@ -152,8 +150,8 @@ shinyServer(function(input, output, session) {
                      `PasientStudier` = "PS",
                      `Skjemaoversikt` = "SO",
                      `Segment stent` = "SS"
-    )
-  } else { #Ellers er userRole LC
+                     )
+  } else {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Andre prosedyrer` = "AnP",
                      `Annen diagnostikk` = "AnD",

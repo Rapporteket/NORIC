@@ -236,8 +236,8 @@ WHERE
           ,Fylke
           ,Fylkenr
           ,FodselsDato
-          ,Avdod
-          ,AvdodDato
+          #,Avdod
+          #,AvdodDato
           ,ErOppflg
           ,OppflgStatus
           ,OppflgSekNr
@@ -338,8 +338,8 @@ WHERE
           ,KobletForlopsID
           ,HovedDato
           ,FodselsDato
-          ,Avdod
-          ,AvdodDato
+          #,Avdod
+          #,AvdodDato
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
@@ -406,6 +406,8 @@ WHERE
     }
   }
   
+  # Midlertidig fjerning av variabler i daatadumpen
+  tab %<>% dplyr::select_if(!names(.) %in% c("Avdod", "AvdodDato"))
   
   # Returnerer tabell (med eller uten felt fra FO)
   return( tab )
