@@ -3,7 +3,6 @@ on:
     branches:
       - main
       - master
-      - upping-ci
   pull_request:
     branches:
       - main
