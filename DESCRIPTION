@@ -1,6 +1,6 @@
 Package: noric
 Title: Provide R resources for NORIC at Rapporteket
-Version: 2.0.11
+Version: 2.0.12.9000
 Authors@R: c(
   person(given = "Kristina",
          family = "Skaare",
@@ -42,6 +42,7 @@ Imports:
   RColorBrewer,
   readr,
   revealjs,
+  rlang,
   rpivotTable,
   shiny,
   shinyalert,
