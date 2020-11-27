@@ -162,7 +162,7 @@ tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
 ```
 
 
-
+\pagebreak
 ## Stenter per prosedyre
 Antall stenter per prosedyre i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
 
