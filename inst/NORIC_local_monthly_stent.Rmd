@@ -147,7 +147,7 @@ PCImedStent <- subset(
 
 
 ```{r otherParameters, echo = FALSE}
-showN <- 12
+showN <- 14
 ```
 
 
