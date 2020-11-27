@@ -1,7 +1,7 @@
 ---
 title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI for ', params$hospitalName ) `"
 author: ""
-date: "`r format(Sys.time(), "%d. %B, %Y")`"
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
 output: pdf_document
 params:
   title: Emty tite
@@ -119,7 +119,6 @@ AnP$AnnenProsType <- factor(
         "Lukking v. aurikkel" ,
         "Impella")
     )
-
 ```
 
 
@@ -829,6 +828,7 @@ TABkompletthet <- cbind(
     nSOU[ , which( colnames(nSOU)=="Ferdigstilt" ) ] ,
     rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
+
 
 cap <- "Antall utskrivelsesskjemaer etter måned"
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
