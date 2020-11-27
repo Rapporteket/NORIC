@@ -64,7 +64,7 @@ SO <- rapbase::LoadRegData(params$registryName, SOQuery, dbType)
 AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 AnP <- rapbase::LoadRegData(params$registryName, AnPQuery, dbType)
 
-showN <- 12 # how many months are displayed
+showN <- 14 # how many months are displayed
 
 
 evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks

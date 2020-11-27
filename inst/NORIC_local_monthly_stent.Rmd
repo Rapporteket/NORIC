@@ -147,7 +147,7 @@ PCImedStent <- subset(
 
 
 ```{r otherParameters, echo = FALSE}
-showN <- 12
+showN <- 14
 ```
 
 
@@ -162,7 +162,7 @@ tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
 ```
 
 
-
+\pagebreak
 ## Stenter per prosedyre
 Antall stenter per prosedyre i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
 
@@ -212,10 +212,23 @@ SSpci <-  SS %>% dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>%
 
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis"}
-cap <- "Antall (prosent) stenter etter merke og måned"
+cap <- "Antall  stenter etter merke og måned"
 tab_stent<- addmargins(xtabs(formula = ~ YearMonth + Stentnavn,
                              data = SSpci,
                              drop.unused.levels = TRUE)) 
-noric::mst(tab_stent, type = params$tableFormat, cap = cap, digs = 0)
+
+if(params$tableFormat == "html"){
+  knitr::kable(x=tab_stent, caption = cap) %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                            full_width = F) %>% 
+  kableExtra::row_spec(row = 0, font_size = 10, angle = -45)
+} else if(params$tableFormat == "latex"){
+  knitr::kable(x = tab_stent, 
+               format = params$tableFormat, 
+               caption = cap,
+               booktabs = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
+  kableExtra::row_spec(row = 0, angle = 90)
+}
 ```
 
