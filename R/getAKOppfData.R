@@ -59,7 +59,6 @@ FROM AortaklaffOppfVar
       .data$ForlopsType1,
       .data$ForlopsType2,
       .data$KobletForlopsID,
-      .data$HovedDato,
       .data$Kommune,
       .data$KommuneNr,
       .data$Fylke,
