@@ -236,8 +236,6 @@ WHERE
           ,Fylke
           ,Fylkenr
           ,FodselsDato
-          #,Avdod
-          #,AvdodDato
           ,ErOppflg
           ,OppflgStatus
           ,OppflgSekNr
@@ -338,8 +336,6 @@ WHERE
           ,KobletForlopsID
           ,HovedDato
           ,FodselsDato
-          #,Avdod
-          #,AvdodDato
         )
       
       tab <- left_join(tab, FO, by = c("ForlopsID", "AvdRESH")
