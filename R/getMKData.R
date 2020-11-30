@@ -65,8 +65,6 @@ FROM
       ,ForlopsType2
       ,KobletForlopsID
       ,FodselsDato
-      ,Avdod
-      ,AvdodDato
       # ,ErOppflg # Kommenteres ut da de kanskje skal legges til senere 
       # ,OppflgStatus
       # ,OppflgSekNr
