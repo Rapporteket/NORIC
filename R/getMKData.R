@@ -94,7 +94,7 @@ FROM
   # Per dags dato tar vi ikke bort forløp som har registrert ProsedyreDato fra
   # før TAVI-registreringene i NORIC startet offisielt (1/1/2017).
 
-  # (Svein skrev 7/6-2019 at vi i noen tilfeller behøver eldre prosedyrer, så
+  # (Fra 7/6-2019 har vi at  i noen tilfeller behøver eldre prosedyrer, så
   # vi filtrerer ikke etter dato i det hele tatt nå til å begynne med.
   # Kan ev. på sikt legge til en parameter hvor man kan spesifisere om
   # man vil kun ha prosedyrer fra det "offisielle" tidsrommet.)
