@@ -108,34 +108,34 @@ FROM
   # (ikke fullstendig, må legge til mer etter hvert)
   MK %<>%
     dplyr::mutate(
-      ForlopsType2 = factor( .data$ForlopsType2,
+      ForlopsType2 = factor( .data$ForlopsType2, 
                               levels = c(
-                                "Akutt"
-                                , "Subakutt"
-                                , "Planlagt"
+                                "Akutt", 
+                                "Subakutt", 
+                                "Planlagt", 
                               ),
                               ordered = TRUE ),
       Frailty = factor( .data$Frailty,
                         levels = c(
-                          "Robust"
-                          ,"Intermediær"
-                          ,"Skrøpelig"
-                          ,"Ukjent"
-                          ,NA
-                        )
-                        ,exclude = NULL # inkluderer NA i levels
-                        ,ordered = TRUE
+                          "Robust", 
+                          "Intermediær", 
+                          "Skrøpelig", 
+                          "Ukjent", 
+                          NA
+                        ), 
+                        exclude = NULL, # inkluderer NA i levels
+                        ordered = TRUE
       ),
       Hastegrad = factor( .data$Hastegrad,
                           levels = c(
-                            "Elektiv"
-                            , "Haster"
-                            , "Akutt"
-                            , "Under pågående HLR"
-                            ,NA
-                          )
-                          ,exclude = NULL # inkluderer NA i levels
-                          ,ordered = TRUE),
+                            "Elektiv",
+                            "Haster",
+                            "Akutt",
+                            "Under pågående HLR",
+                            NA
+                          ), 
+                          exclude = NULL, # inkluderer NA i levels
+                          ordered = TRUE),
       PostVenstreVentrikkelFunksjon = factor(
         .data$PostVenstreVentrikkelFunksjon,
         levels = c(
