@@ -49,55 +49,52 @@ FROM
   FO %<>% 
     select(
       # Nøkler:
-      AvdRESH
-      ,ForlopsID
+      .data$AvdRESH,
+      .data$ForlopsID,
       # Variablene som legges til:
-      ,Sykehusnavn
-      ,PasientID
-      ,KommuneNr
-      ,Kommune
-      ,Fylke
-      ,Fylkenr
-      ,PasientKjonn
-      ,PasientAlder
-      ,BasisRegStatus
-      ,ForlopsType1
-      ,ForlopsType2
-      ,KobletForlopsID
-      ,FodselsDato
-      # ,ErOppflg # Kommenteres ut da de kanskje skal legges til senere 
-      # ,OppflgStatus
-      # ,OppflgSekNr
-      # ,OppflgRegStatus
+      .data$Sykehusnavn,
+      .data$PasientID,
+      .data$KommuneNr,
+      .data$Kommune,
+      .data$Fylke,
+      .data$Fylkenr,
+      .data$PasientKjonn,
+      .data$PasientAlder,
+      .data$BasisRegStatus,
+      .data$ForlopsType1,
+      .data$ForlopsType2,
+      .data$KobletForlopsID,
+      .data$FodselsDato
     )
   
   
-  MK <- left_join(MK, FO, by = c("ForlopsID", "AvdRESH"),
+  MK <- dplyr::left_join(MK, FO, by = c("ForlopsID", "AvdRESH"),
                   suffix = c("", ".FO"))
   
 
   # Gjor datoer om til dato-objekt:
   MK %<>%
-    mutate_at(
-      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+    dplyr::mutate_at(
+      vars( ends_with("dato", ignore.case = TRUE) ), list(ymd)
     ) 
   
   
   # Endre Sykehusnavn til kortere versjoner:
   MK %<>%
-    mutate(
-      Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+    dplyr::mutate(
+      Sykehusnavn = ifelse( .data$Sykehusnavn == "Haukeland", "HUS",
+                            .data$Sykehusnavn),
       Sykehusnavn = ifelse( 
-        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
-      ) ,
+        .data$Sykehusnavn %in% c("St.Olav", "St. Olav"), "St.Olavs",
+        .data$Sykehusnavn ),
       Sykehusnavn = ifelse( 
-        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
-      )
+        .data$Sykehusnavn == "Akershus universitetssykehus HF", "Ahus",
+        .data$Sykehusnavn)
     )
   
   
-  # Per dags dato tar vi ikke bort forløp som har registrert ProsedyreDato fra før
-  # TAVI-registreringene i NORIC startet offisielt (1/1/2017).
+  # Per dags dato tar vi ikke bort forløp som har registrert ProsedyreDato fra 
+  # før TAVI-registreringene i NORIC startet offisielt (1/1/2017).
   
   # (Svein skrev 7/6-2019 at vi i noen tilfeller behøver eldre prosedyrer, så
   # vi filtrerer ikke etter dato i det hele tatt nå til å begynne med.
@@ -110,17 +107,15 @@ FROM
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
   MK %<>%
-    mutate(
-      
-      ForlopsType2 = factor( ForlopsType2,
+    dplyr::mutate(
+      ForlopsType2 = factor( .data$ForlopsType2,
                               levels = c(
                                 "Akutt"
                                 , "Subakutt"
                                 , "Planlagt"
                               ),
-                              ordered = TRUE )
-      
-      ,Frailty = factor( Frailty,
+                              ordered = TRUE ),
+      Frailty = factor( .data$Frailty,
                         levels = c(
                           "Robust"
                           ,"Intermediær"
@@ -130,9 +125,8 @@ FROM
                         )
                         ,exclude = NULL # inkluderer NA i levels
                         ,ordered = TRUE
-      )
-      
-      ,Hastegrad = factor( Hastegrad,
+      ),
+      Hastegrad = factor( .data$Hastegrad,
                           levels = c(
                             "Elektiv"
                             , "Haster"
@@ -141,111 +135,106 @@ FROM
                             ,NA
                           )
                           ,exclude = NULL # inkluderer NA i levels
-                          ,ordered = TRUE )
-
-      ,PostVenstreVentrikkelFunksjon = factor( PostVenstreVentrikkelFunksjon,
+                          ,ordered = TRUE),
+      PostVenstreVentrikkelFunksjon = factor(
+        .data$PostVenstreVentrikkelFunksjon,
+        levels = c(
+          "Normal",
+          "Lett nedsatt: EF 40 - 49% ",
+          "Moderat nedsatt: EF 30 - 39%",
+          "Betydelig nedsatt: EF 21 - 29%",
+          "Alvorlig nedsatt: EF <= 20%",
+          "Ukjent",
+          NA
+          ),
+          exclude = NULL, # inkluderer NA i levels
+          ordered = TRUE
+        ),
+      PreVenstreVentrikkelFunksjon = factor(.data$PreVenstreVentrikkelFunksjon,
                                              levels = c(
-                                               "Normal"
-                                               ,"Lett nedsatt: EF 40 - 49% "
-                                               ,"Moderat nedsatt: EF 30 - 39%"
-                                               ,"Betydelig nedsatt: EF 21 - 29%"
-                                               ,"Alvorlig nedsatt: EF <= 20%"
-                                               ,"Ukjent"
-                                               ,NA
-                                             )
-                                             ,exclude = NULL # inkluderer NA i levels
-                                             ,ordered = TRUE
-      )
-
-      ,PreVenstreVentrikkelFunksjon = factor( PreVenstreVentrikkelFunksjon,
-                                             levels = c(
-                                               "Normal"
-                                               ,"Lett nedsatt: EF 40 - 49% "
-                                               ,"Moderat nedsatt: EF 30 - 39%"
-                                               ,"Betydelig nedsatt: EF 21 - 29%"
-                                               ,"Alvorlig nedsatt: EF <= 20%"
-                                               ,"Ukjent"
-                                               ,NA
-                                             )
-                                             ,exclude = NULL # inkluderer NA i levels
-                                             ,ordered = TRUE
-      )
-   
-      ,ProsedyreEkko = factor( ProsedyreEkko,
+                                               "Normal",
+                                               "Lett nedsatt: EF 40 - 49% ",
+                                               "Moderat nedsatt: EF 30 - 39%",
+                                               "Betydelig nedsatt: EF 21 - 29%",
+                                               "Alvorlig nedsatt: EF <= 20%",
+                                               "Ukjent",
+                                               NA
+                                             ),
+                                             exclude = NULL,
+                                             ordered = TRUE
+      ),
+      ProsedyreEkko = factor(.data$ProsedyreEkko,
                                levels = c(
-                                 "Nei" 
-                                 ,"TEE" 
-                                 ,"ICE" 
-                                 ,"TTE"
-                                 ,"IVUS"
-                                 ,"Annet"
-                                 ,NA
-                               )
-                               ,exclude = NULL # inkluderer NA i levels
-                               ,ordered = TRUE
-      )
-
-      ,UtskrevetTil = factor(UtskrevetTil, 
+                                 "Nei",
+                                 "TEE",
+                                 "ICE",
+                                 "TTE",
+                                 "IVUS",
+                                 "Annet",
+                                 NA
+                               ),
+                               exclude = NULL, # inkluderer NA i levels
+                               ordered = TRUE
+      ),
+      UtskrevetTil = factor(.data$UtskrevetTil, 
                        levels = c( 
-                         "Hjem"           
-                         ,"Rehabilitering" 
-                         ,"Annet sykehus"
-                         ,"Sykehjem"
-                         , NA
-                       )
-                       ,exclude = NULL # inkluderer NA i levels
-                       ,ordered = TRUE
+                         "Hjem",
+                         "Rehabilitering",
+                         "Annet sykehus",
+                         "Sykehjem",
+                         NA
+                       ),
+                       exclude = NULL, # inkluderer NA i levels
+                       ordered = TRUE
       )
-
     )
-  
   
   # Utledete variabler:
   MK %<>% 
-    mutate(
-      
-      dager_mellom_prosedyre_og_utskr = as.numeric( 
-        difftime(  UtskrDato, ProsedyreDato, units = "days" ) 
-      )
-      
+    dplyr::mutate(
+      dager_mellom_prosedyre_og_utskr = as.numeric(
+        difftime(.data$UtskrDato, .data$ProsedyreDato, units = "days")),
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:
-      ,aar = as.ordered( year( ProsedyreDato ))
+      aar = as.ordered( year(.data$ProsedyreDato)),
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      ,maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) ))
-      ,maaned = as.ordered( paste0( aar, "-", maaned_nr) )
+      maaned_nr = as.ordered( sprintf(fmt = "%02d",
+                                      month(.data$ProsedyreDato))),
+      maaned = as.ordered( paste0( .data$aar, "-", .data$maaned_nr) ),
       # Kvartal:
-      ,kvartal = quarter( ProsedyreDato, with_year = TRUE )
+      kvartal = quarter(.data$ProsedyreDato, with_year = TRUE),
       # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
-      ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
+      kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", .data$kvartal)),
       # Uketall:
-      ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
+      uke = as.ordered(sprintf(fmt = "%02d", isoweek(.data$ProsedyreDato))),
       
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
       
-      ,aar_uke = ifelse( 
+      aar_uke = ifelse( 
         # hvis uke 01 er i desember...
-        test = uke == "01" & maaned_nr == "12"
+        test = uke == "01" & maaned_nr == "12",
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
         # er spredt over (uke 01 i desember 2019 blir til 2020-01)
-        , yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke )
-        , no = paste0(aar, "-", uke )
-      )
-      ,aar_uke = ifelse( 
+        yes = paste0(as.integer(year(.data$ProsedyreDato)) + 1,
+                     "-",
+                     .data$uke
+                     ),
+        no = paste0(.data$aar, "-", .data$uke )
+      ),
+      aar_uke = ifelse( 
         # hvis uke 52 eller 53 er i januar...
-        test = uke %in% c("52", "53") & maaned_nr == "01"
+        test = .data$uke %in% c("52", "53") & .data$maaned_nr == "01",
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
         # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
-        , yes = paste0( as.integer(year(ProsedyreDato)) - 1, "-", uke )
-        , no = aar_uke
-      )
-      ,aar_uke = as.ordered( aar_uke )
+        yes = paste0(as.integer(year(.data$ProsedyreDato)) - 1, "-", .data$uke),
+        no = .data$aar_uke
+      ),
+      aar_uke = as.ordered(.data$aar_uke)
     )
-  
-  
+
   MK
   
 }
