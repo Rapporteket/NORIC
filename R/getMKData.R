@@ -15,10 +15,9 @@
 #'
 
 getMKData <- function(registryName, singleRow = FALSE, ...) {
-  # declare 'dot'
-  . <- ""
+
   dbType <- "mysql"
-  query <-"
+  query <- "
 SELECT
   *
 FROM
@@ -27,10 +26,10 @@ FROM
 
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg = "Query metadata for MitralklaffVar pivot"
+    msg <- "Query metadata for MitralklaffVar pivot"
   } else {
     query <- paste0(query, ";")
-    msg = "Query data for MitralklaffVar pivot"
+    msg <- "Query data for MitralklaffVar pivot"
   }
 
   if ("session" %in% names(list(...))) {
@@ -212,7 +211,7 @@ FROM
 
       aar_uke = ifelse(
         # hvis uke 01 er i desember...
-        test = uke == "01" & maaned_nr == "12",
+        test = .data$uke == "01" & .data$maaned_nr == "12",
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
         # er spredt over (uke 01 i desember 2019 blir til 2020-01)
         yes = paste0(as.integer(year(.data$ProsedyreDato)) + 1,

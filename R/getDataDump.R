@@ -323,23 +323,23 @@ WHERE
       fO %<>%
         dplyr::select(
           # Nøkler:
-          AvdRESH,
-          ForlopsID,
+          .data$AvdRESH,
+          .data$ForlopsID,
           # Variablene som legges til:
-          Sykehusnavn,
-          PasientID,
-          KommuneNr,
-          Kommune,
-          Fylke,
-          Fylkenr,
-          PasientKjonn,
-          PasientAlder,
-          BasisRegStatus,
-          ForlopsType1,
-          ForlopsType2,
-          KobletForlopsID,
-          HovedDato,
-          FodselsDato,
+          .data$Sykehusnavn,
+          .data$PasientID,
+          .data$KommuneNr,
+          .data$Kommune,
+          .data$Fylke,
+          .data$Fylkenr,
+          .data$PasientKjonn,
+          .data$PasientAlder,
+          .data$BasisRegStatus,
+          .data$ForlopsType1,
+          .data$ForlopsType2,
+          .data$KobletForlopsID,
+          .data$HovedDato,
+          .data$FodselsDato,
         )
 
       tab <- dplyr::left_join(tab, fO, by = c("ForlopsID", "AvdRESH"),
@@ -405,7 +405,7 @@ WHERE
   }
 
   # Midlertidig fjerning av variabler i daatadumpen
-  tab %<>% dplyr::select_if(!names(.) %in% c("Avdod", "AvdodDato"))
+  tab %<>% dplyr::select_if(!names(.data) %in% c("Avdod", "AvdodDato"))
 
   # Returnerer tabell (med eller uten felt fra fO)
   return(tab)
