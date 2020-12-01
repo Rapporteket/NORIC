@@ -171,15 +171,7 @@ AP$ProsedyreDato <- as.Date(AP$ProsedyreDato)
 
 AP$Sykehusnavn <- factor(AP$Sykehusnavn)
 
-AP $ AdmissionType <- car::recode(
-    var = AP $ OverflyttetFra ,
-    recodes = "
-        'Annet sykehus'='Referred';
-        '' = NA;
-        'Annen  avdeling på sykehuset' = NA;
-        'Nei, direkte inn til dette sykehus' = 'Directly admitted';
-        'Omdirigert ambulanse' = 'Directly admitted';
-        ")
+
 
 AP $ Indikasjon2 <- factor(
     car::recode(
