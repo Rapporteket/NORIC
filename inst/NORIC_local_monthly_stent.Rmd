@@ -163,7 +163,7 @@ tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
 
 
 `r if(params$tableFormat !="latex") {"<!--"}`
-\pagebreak
+\newpage
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ## Stenter per prosedyre
@@ -218,17 +218,20 @@ cap <- "Antall  stenter etter merke og måned"
 tab_stent<- addmargins(xtabs(formula = ~ YearMonth + Stentnavn,
                              data = SSpci,
                              drop.unused.levels = TRUE)) 
+align<- c("l", rep("c", dim(tab_stent)[2]-1))
 
 if(params$tableFormat == "html"){
-  knitr::kable(x=tab_stent, caption = cap) %>% 
+  knitr::kable(x=tab_stent, caption = cap, align = align) %>% 
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                             full_width = F) %>% 
-  kableExtra::row_spec(row = 0, font_size = 10, angle = -45)
+  kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>% 
+  kableExtra::column_spec(column = 1, width = "7em")  
 } else if(params$tableFormat == "latex"){
   knitr::kable(x = tab_stent, 
                format = params$tableFormat, 
                caption = cap,
-               booktabs = TRUE) %>%
+               booktabs = TRUE,
+               align = align) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
   kableExtra::row_spec(row = 0, angle = 90)
 }
