@@ -109,7 +109,7 @@ FROM
                               levels = c(
                                 "Akutt",
                                 "Subakutt",
-                                "Planlagt",
+                                "Planlagt"
                               ),
                               ordered = TRUE),
       Frailty = factor(.data$Frailty,
