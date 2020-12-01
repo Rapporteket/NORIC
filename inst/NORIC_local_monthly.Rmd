@@ -392,7 +392,10 @@ PrintTabTilleggCol <- function(VAR){
         rVAR[, which(colnames(rVAR)=="Ja")]
         )
     
-    return(paste0(VARja, " (", rVARja, "%)"))
+   prosentJa <- paste0(nVARja, " (", rVARja,"%)")
+   prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
+   
+   return(prosentJa)
 }
 
 TilleggVars <- c(
