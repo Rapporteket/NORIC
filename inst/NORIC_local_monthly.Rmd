@@ -582,7 +582,7 @@ if (params$tableFormat == 'latex'){
 
 
 ## Komplikasjoner
-### Komplikasjoner på lab i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+### Komplikasjoner på lab i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' til ' )`
 
 ```{r TabLabKompl,results='asis'}
 
@@ -643,7 +643,7 @@ rownames(df) <- NULL
 noric::mst(df,
            type = params$tableFormat,
            cap = NULL,
-           digs = 0,
+           digs = 1,
            align = c("l","r","r", "r"))
 ```
 
@@ -679,7 +679,7 @@ text(
 
 
 
-### Komplikasjoner på avdelingen i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' -- ' )`
+### Komplikasjoner på avdelingen i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' til ' )`
 
 ```{r TabAvdKompl,results='asis'}
 
@@ -738,7 +738,7 @@ rownames(df) <- NULL
 noric::mst(df,
            type = params$tableFormat,
            cap = NULL,
-           digs = 0,
+           digs = 1,
            align = c("l","r","r"))
 ```
 
