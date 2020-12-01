@@ -55,7 +55,7 @@ ui <- tagList(
         sidebarPanel(
           radioButtons("formatStentbruk",
                        "Format for nedlasting",
-                       c("PDF", "HTML", "BEAMER", "REVEAL"),
+                       c("PDF", "HTML"),
                        inline = FALSE),
           downloadButton("downloadReportStentbruk", "Hent!"),
           width = 2
@@ -82,10 +82,13 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer", inline = TRUE) #%>%
-            # shinycssloaders::withSpinner(color = "#18bc9c",
-            #                              color.background = "#ffffff",
-            #                              type = 2)
+          htmlOutput("prosedyrer", inline = TRUE) %>%
+          shinycssloaders::withSpinner(color = "#18bc9c",
+                                       color.background = "#ffffff",
+                                       type = 2,
+                                       size = 1,
+                                       proxy.height = "1px")
+
         )
       )
     ),
