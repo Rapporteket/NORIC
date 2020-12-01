@@ -171,24 +171,18 @@ AP$ProsedyreDato <- as.Date(AP$ProsedyreDato)
 
 AP$Sykehusnavn <- factor(AP$Sykehusnavn)
 
-
-
-AP $ Indikasjon2 <- factor(
-    car::recode(
-        var = AP $ Indikasjon,
-        recodes = "
-            'Stabil koronarsykdom'='SAP';
-            'UAP'='UAP';
-            'NSTEMI'='NSTEMI';
-            'STEMI'='STEMI';
-            'Hjertestans ved STEMI'='STEMI';
-            'STEMI > 24h'='STEMI';
-            'STEMI/Rescue PCI'='STEMI';
-            'Uklare brystsmerter'='Uklare brystsmerter';
-            else='Annet';
-            ") ,
-    levels = c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet"))
-
+AP %<>% dplyr::mutate(Indikasjon2 = factor(
+  dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP", 
+            Indikasjon == "UAP" ~ "UAP",
+            Indikasjon %in% c("STEMI",
+                              "Hjertestans ved STEMI",
+                              "STEMI > 24h",
+                              "STEMI/Rescue PCI") ~ "STEMI", 
+            Indikasjon == "Uklare brystsmerter" ~ "Uklare brystsmerter", 
+            Indikasjon == "NSTEMI" ~ "NSTEMI", 
+            TRUE ~ "Annet"), 
+  levels=c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet")
+  )) 
 
 AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
 AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
