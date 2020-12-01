@@ -7,8 +7,8 @@
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @importFrom magrittr %>% %<>%
-#' @importFrom dplyr arrange count filter group_by left_join mutate mutate_at 
-#' select ungroup 
+#' @importFrom dplyr arrange count filter group_by left_join mutate mutate_at
+#' select ungroup
 #' @importFrom lubridate isoweek month quarter year ymd
 #'
 #' @return Data frame representing the table SegmentStent
@@ -16,10 +16,10 @@
 #'
 
 getLocalSSData <- function(registryName, singleRow = FALSE, ...) {
-  
+
   # declare 'dot'
   . <- ""
-  
+
   dbType <- "mysql"
   query <-"
 SELECT
@@ -27,7 +27,7 @@ SELECT
 FROM
   SegmentStent
 "
-  
+
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg = "Query metadata for SegmentStent pivot"
@@ -35,18 +35,18 @@ FROM
     query <- paste0(query, ";")
     msg = "Query data for SegmentStent pivot"
   }
-  
+
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
-  SS <- rapbase::LoadRegData(registryName, query, dbType)
-  
-  FO <- rapbase::LoadRegData(registryName,
+
+  SS <- rapbase::loadRegData(registryName, query, dbType)
+
+  FO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
-  
+
   # Velger relevante variabler fra FO som skal legges til tabellen:
-  FO %<>% 
+  FO %<>%
     select(
       # Nøkler:
       AvdRESH
@@ -65,29 +65,29 @@ FROM
       ,ForlopsType2
       ,KobletForlopsID
     )
-  
+
   SS <- left_join(SS, FO, by = c("ForlopsID", "AvdRESH", "Sykehusnavn"),
                   suffix = c("", ".FO"))
-  
+
   # Gjor datoer om til dato-objekt:
   SS %<>%
     mutate_at(
       vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
-    ) 
-  
-  
+    )
+
+
   # Endre Sykehusnavn til kortere versjoner:
   SS %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn
       ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn
       )
     )
-  
+
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   SS %<>%
@@ -114,8 +114,8 @@ FROM
         (AvdRESH == 4210141) & ( as.Date(ProsedyreDato) >= "2020-02-10" ) # Bodø
       )
     )
-  
-  
+
+
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
   SS %<>%
@@ -127,9 +127,9 @@ FROM
                         ,"Vene"
                       )
                       ,exclude = NULL # inkluderer NA i levels
-                      ,ordered = TRUE 
+                      ,ordered = TRUE
       )
-      
+
       ,Stenoseklasse = factor( Stenoseklasse,
                               levels = c(
                                 "A"
@@ -141,9 +141,9 @@ FROM
                                 ,"C Bifurkasjon"
                                 ,"Annet"
                               ),
-                              ordered = TRUE 
+                              ordered = TRUE
                               )
-      
+
       ,StenoseType = factor( StenoseType,
                               levels = c(
                                 "DeNovo"
@@ -151,14 +151,14 @@ FROM
                                 ,"Stenttrombose "
                                 ,"Andre restenoser"
                               ),
-                              ordered = TRUE 
+                              ordered = TRUE
                               )
     )
-  
-  
+
+
   # Utledete variabler:
-  SS %<>% 
-    mutate( 
+  SS %<>%
+    mutate(
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:
@@ -173,11 +173,11 @@ FROM
       ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
       ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
-      
+
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
-      
-      ,aar_uke = ifelse( 
+
+      ,aar_uke = ifelse(
         # hvis uke 01 er i desember...
         test = uke == "01" & maaned_nr == "12"
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
@@ -185,7 +185,7 @@ FROM
         , yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke )
         , no = paste0(aar, "-", uke )
       )
-      ,aar_uke = ifelse( 
+      ,aar_uke = ifelse(
         # hvis uke 52 eller 53 er i januar...
         test = uke %in% c("52", "53") & maaned_nr == "01"
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
@@ -195,18 +195,18 @@ FROM
       )
       ,aar_uke = as.ordered( aar_uke )
     )
-  
-  
+
+
   # Utledet variabel:
   # ant_stent_ila_forlop = antall stenter satt inn ila ett forløp
-  
-  SS %<>% 
-    group_by( Sykehusnavn, ForlopsID ) %>% 
-    mutate( antall_stent_ila_forlop = sum( !is.na(StentType) ) ) %>% 
-    dplyr::ungroup() %>% 
+
+  SS %<>%
+    group_by( Sykehusnavn, ForlopsID ) %>%
+    mutate( antall_stent_ila_forlop = sum( !is.na(StentType) ) ) %>%
+    dplyr::ungroup() %>%
     arrange( Sykehusnavn, ForlopsID )
-  
-  
+
+
   SS
-  
+
 }

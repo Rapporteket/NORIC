@@ -15,16 +15,16 @@
 #'
 
 getAnDData <- function(registryName, singleRow = FALSE, ...) {
-  
+
   # declare 'dot'
   . <- ""
-  
+
   dbType <- "mysql"
   query <-"
 SELECT *
 FROM AnnenDiagnostikkVar
   "
-  
+
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg = "Query metadata for AnnenDiagnostikk pivot"
@@ -32,19 +32,19 @@ FROM AnnenDiagnostikkVar
     query <- paste0(query, ";")
     msg = "Query data for AnnenDiagnostikk pivot"
   }
-  
+
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
-  AnD <- rapbase::LoadRegData(registryName, query, dbType)
-  
-  FO <- rapbase::LoadRegData(registryName,
+
+  AnD <- rapbase::loadRegData(registryName, query, dbType)
+
+  FO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
-  
-  
+
+
   # Velger relevante variabler fra FO som skal legges til tabellen:
-  FO %<>% 
+  FO %<>%
     select(
       # Nøkler:
       AvdRESH
@@ -63,36 +63,36 @@ FROM AnnenDiagnostikkVar
       ,ForlopsType2
       ,KobletForlopsID
     )
-  
+
   # Legger til variabler fra FO til AnD:
   AnD <- left_join(AnD, FO, by = c("AvdRESH"
                                    ,"Sykehusnavn"
                                    ,"ForlopsID"
-                                   ) 
-  ) 
-  
-  
-  
+                                   )
+  )
+
+
+
   # Gjor datoer om til dato-objekt:
   AnD %<>%
     mutate_at(
       vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
-    ) 
-  
-  
+    )
+
+
   # Endre Sykehusnavn til kortere versjoner:
   AnD %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn
       ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn
       )
     )
-  
-  
+
+
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   AnD %<>%
@@ -119,8 +119,8 @@ FROM AnnenDiagnostikkVar
         (AvdRESH == 4210141) & ( as.Date(ProsedyreDato) >= "2020-02-10" ) # Bodø
       )
     )
-  
-  
+
+
   # Gjøre kategoriske variabler om til factor:
   AnD %<>%
     mutate(
@@ -130,11 +130,11 @@ FROM AnnenDiagnostikkVar
                                , "Subakutt"
                                , "Planlagt"
                              ),
-                             ordered = TRUE 
+                             ordered = TRUE
       )
-      
-      ,segment = factor(segment, 
-                     levels = c( 
+
+      ,segment = factor(segment,
+                     levels = c(
                        "Proximale RCA (1)",
                        "Midtre RCA (2)",
                        "Distale RCA (3)",
@@ -158,17 +158,17 @@ FROM AnnenDiagnostikkVar
                      )
                      ,ordered = TRUE
       )
-      
-      ,graft = factor(graft, 
-                     levels = c( 
+
+      ,graft = factor(graft,
+                     levels = c(
                        "Arterie"
                        ,"Vene"
                        ,"Nei"
                      )
                      ,ordered = TRUE
       )
-      ,metode = factor(metode, 
-                     levels = c( 
+      ,metode = factor(metode,
+                     levels = c(
                        "iFR"
                        ,"FFR"
                        ,"OCT"
@@ -183,10 +183,10 @@ FROM AnnenDiagnostikkVar
                      ,ordered = TRUE
       )
     )
-  
-  
+
+
   # Utledete variabler:
-  AnD %<>% 
+  AnD %<>%
     mutate(
       # Div. tidsvariabler:
       #
@@ -202,11 +202,11 @@ FROM AnnenDiagnostikkVar
       ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
       ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
-      
+
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
-      
-      ,aar_uke = ifelse( 
+
+      ,aar_uke = ifelse(
         # hvis uke 01 er i desember...
         test = uke == "01" & maaned_nr == "12"
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
@@ -214,7 +214,7 @@ FROM AnnenDiagnostikkVar
         , yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke )
         , no = paste0(aar, "-", uke )
       )
-      ,aar_uke = ifelse( 
+      ,aar_uke = ifelse(
         # hvis uke 52 eller 53 er i januar...
         test = uke %in% c("52", "53") & maaned_nr == "01"
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
@@ -224,10 +224,10 @@ FROM AnnenDiagnostikkVar
       )
       ,aar_uke = as.ordered( aar_uke )
     )
-  
-  
-  
-  
+
+
+
+
   AnD
-  
+
 }

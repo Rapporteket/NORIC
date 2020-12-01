@@ -15,13 +15,13 @@
 #'
 
 getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
-  
+
   # declare 'dot'
   . <- ""
-  
+
   dbType <- "mysql"
   query <- "SELECT * FROM SkjemaOversikt"
-  
+
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg = "Query metadata for SkjemaOversikt pivot"
@@ -29,15 +29,15 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
     query <- paste0(query, ";")
     msg = "Query data for SkjemaOversikt pivot"
   }
-  
+
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
-  SO <- rapbase::LoadRegData(registryName, query, dbType)
-  
 
-  
+  SO <- rapbase::loadRegData(registryName, query, dbType)
+
+
+
   # Gjor datoer om til dato-objekt:
   SO %<>%
     mutate(
@@ -45,21 +45,21 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
       ,SistLagretDato = ymd_hms( SistLagretDato )
       ,HovedDato = ymd( HovedDato )
     )
-  
-  
+
+
   # Endre Sykehusnavn til kortere versjoner:
   SO %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn
       ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn
       )
     )
-  
-  
+
+
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   SO %<>%
@@ -86,10 +86,10 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
         (AvdRESH == 4210141) & ( as.Date(HovedDato) >= "2020-02-10" ) # Bodø
       )
     )
-  
 
-  
-  
+
+
+
   # Utledete variabler:
   SO %<>%
     mutate(
@@ -112,11 +112,11 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
       ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
       ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( HovedDato ) ))
-      
+
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
-      
-      ,aar_uke = ifelse( 
+
+      ,aar_uke = ifelse(
         # hvis uke 01 er i desember...
         test = uke == "01" & maaned_nr == "12"
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
@@ -124,7 +124,7 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
         , yes = paste0( as.integer(year(HovedDato)) + 1, "-", uke )
         , no = paste0(aar, "-", uke )
       )
-      ,aar_uke = ifelse( 
+      ,aar_uke = ifelse(
         # hvis uke 52 eller 53 er i januar...
         test = uke %in% c("52", "53") & maaned_nr == "01"
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
@@ -133,8 +133,8 @@ getLocalSOData <- function(registryName, singleRow = FALSE, ...) {
         , no = aar_uke
       )
       ,aar_uke = as.ordered( aar_uke )
-    ) 
-  
+    )
+
   SO
 
   }

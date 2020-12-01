@@ -15,16 +15,16 @@
 #'
 
 getLocalAPData <- function(registryName, singleRow = FALSE, ...) {
-  
+
   # declare 'dot'
   . <- ""
-  
+
   dbType <- "mysql"
   query <-"
 SELECT *
 FROM AngioPCIVar
   "
-  
+
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg = "Query metadata for AngioPCI pivot"
@@ -32,19 +32,19 @@ FROM AngioPCIVar
     query <- paste0(query, ";")
     msg = "Query data for AngioPCI pivot"
   }
-  
+
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
-  AP <- rapbase::LoadRegData(registryName, query, dbType)
-  
-  FO <- rapbase::LoadRegData(registryName,
+
+  AP <- rapbase::loadRegData(registryName, query, dbType)
+
+  FO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
 
-  
+
   # Velger relevante variabler fra FO som skal legges til tabellen:
-  FO %<>% 
+  FO %<>%
     select(
       # Nøkler:
       AvdRESH
@@ -63,35 +63,35 @@ FROM AngioPCIVar
       ,ForlopsType2
       ,KobletForlopsID
     )
-  
+
   # Legger til variabler fra FO til AP:
   AP <- left_join(AP, FO, by = c("AvdRESH"
                                  ,"Sykehusnavn"
                                  ,"PasientID"
-                                 ,"ForlopsID") 
-  ) 
-  
-  
-  
+                                 ,"ForlopsID")
+  )
+
+
+
   # Gjor datoer om til dato-objekt:
   AP %<>%
     mutate_at(
       vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
-    ) 
-  
-  
+    )
+
+
   # Endre Sykehusnavn til kortere versjoner:
   AP %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn
       ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn
       )
     )
-  
+
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   AP %<>%
@@ -118,8 +118,8 @@ FROM AngioPCIVar
         (AvdRESH == 4210141) & ( as.Date(ProsedyreDato) >= "2020-02-10" ) # Bodø
       )
     )
-  
-  
+
+
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
   AP %<>%
@@ -132,10 +132,10 @@ FROM AngioPCIVar
                              ),
                              ordered = TRUE )
     )
-  
-  
+
+
   # Utledete variabler:
-  AP %<>% 
+  AP %<>%
     mutate(
       # Div. tidsvariabler:
       #
@@ -151,11 +151,11 @@ FROM AngioPCIVar
       ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
       ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
-      
+
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
-      
-      ,aar_uke = ifelse( 
+
+      ,aar_uke = ifelse(
         # hvis uke 01 er i desember...
         test = uke == "01" & maaned_nr == "12"
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
@@ -163,7 +163,7 @@ FROM AngioPCIVar
         , yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke )
         , no = paste0(aar, "-", uke )
       )
-      ,aar_uke = ifelse( 
+      ,aar_uke = ifelse(
         # hvis uke 52 eller 53 er i januar...
         test = uke %in% c("52", "53") & maaned_nr == "01"
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
@@ -173,7 +173,7 @@ FROM AngioPCIVar
       )
       ,aar_uke = as.ordered( aar_uke )
     )
-  
+
 
 
 

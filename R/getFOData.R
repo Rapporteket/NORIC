@@ -15,16 +15,16 @@
 #'
 
 getFOData <- function(registryName, singleRow = FALSE, ...) {
-  
+
   # declare 'dot'
   . <- ""
-  
+
   dbType <- "mysql"
   query <-"
 SELECT *
 FROM ForlopsOversikt
   "
-  
+
   # NB! Usikker på om dette er riktig:{
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -34,38 +34,38 @@ FROM ForlopsOversikt
     msg = "Query data for ForlopsOversikt pivot"
   }
   # }
-  
+
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
-  FO <- rapbase::LoadRegData(registryName, query, dbType)
-  
-  
+
+  FO <- rapbase::loadRegData(registryName, query, dbType)
+
+
   # Gjor datoer om til dato-objekt:
   FO %<>%
     mutate_at(
       vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
-    ) 
-  
-  
+    )
+
+
   # Endre Sykehusnavn til kortere versjoner:
   FO %<>%
     mutate(
       Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn
       ) ,
-      Sykehusnavn = ifelse( 
-        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn 
+      Sykehusnavn = ifelse(
+        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn
       )
     )
-  
+
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
   # ForlopsOversikt inneholder ikke ProsedyreDato. Derfor brukes HovedDato til å
   # filtrere.
-  
+
   FO %<>%
     filter(
       (
@@ -90,10 +90,10 @@ FROM ForlopsOversikt
         (AvdRESH == 4210141) & ( as.Date(HovedDato) >= "2020-02-10" ) # Bodø
       )
     )
-  
+
 
   # Utledete variabler:
-  FO %<>% 
+  FO %<>%
     mutate(
       # Div. tidsvariabler:
       #
@@ -109,11 +109,11 @@ FROM ForlopsOversikt
       ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
       # Uketall:
       ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( HovedDato ) ))
-      
+
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
-      
-      ,aar_uke = ifelse( 
+
+      ,aar_uke = ifelse(
         # hvis uke 01 er i desember...
         test = uke == "01" & maaned_nr == "12"
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
@@ -121,7 +121,7 @@ FROM ForlopsOversikt
         , yes = paste0( as.integer(year(HovedDato)) + 1, "-", uke )
         , no = paste0(aar, "-", uke )
       )
-      ,aar_uke = ifelse( 
+      ,aar_uke = ifelse(
         # hvis uke 52 eller 53 er i januar...
         test = uke %in% c("52", "53") & maaned_nr == "01"
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
@@ -131,9 +131,9 @@ FROM ForlopsOversikt
       )
       ,aar_uke = as.ordered( aar_uke )
     )
-  
-  
-  
+
+
+
   FO
-  
+
 }
