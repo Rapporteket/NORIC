@@ -1,6 +1,6 @@
 Package: noric
 Title: Provide R resources for NORIC at Rapporteket
-Version: 2.0.15
+Version: 2.0.17
 Authors@R: c(
   person(given = "Kristina",
          family = "Skaare",
@@ -28,7 +28,6 @@ License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-  car,
   dplyr,
   ggplot2,
   Hmisc,
