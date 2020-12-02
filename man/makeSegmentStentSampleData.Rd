@@ -2,7 +2,7 @@
 % Please edit documentation in R/sampleDataGenerator.R
 \name{makeSegmentStentSampleData}
 \alias{makeSegmentStentSampleData}
-\title{Sample data generator for SegmentStent}
+\title{Sample data generator for segmentStent}
 \usage{
 makeSegmentStentSampleData(baseName, reshID)
 }
@@ -13,7 +13,7 @@ makeSegmentStentSampleData(baseName, reshID)
 should already be present in the current R session}
 }
 \value{
-SegmentStent a data frame holding the data set
+segmentStent a data frame holding the data set
 }
 \description{
 Functions to generate sample data for development purposes. These data

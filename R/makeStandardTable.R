@@ -4,8 +4,8 @@
 #'
 #' \code{mst()} creates RMarkdown code for creating standard tables.
 #'
-#' \code{prettyTab()} creates a table with cells containing percentages of totals
-#' and observations optinally with a marginal row count
+#' \code{prettyTab()} creates a table with cells containing percentages of
+#' totals and observations optinally with a marginal row count
 #'
 #' @param tab Data frame or matrix represetnting the table
 #' @param col_names Character vector with column names. Defaults
@@ -62,7 +62,8 @@ mst <- function(tab, col_names = colnames(tab), type = "latex", cap = "",
                       label = label, digits = digs,
                       align = align) %>%
       kableExtra::kable_styling(
-        bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE)
+        bootstrap_options = c("striped", "hover", "condensed"),
+        full_width = FALSE)
   }
   k
 }
@@ -75,11 +76,11 @@ prettyTab <- function(tab, add_totals = FALSE) {
       tab,
       margin = 1),
     digits = 1)
-  N <- sprintf("%3.0f", tab)
-  R <- sprintf("%4.1f", tabR)
-  tabTot <- paste0(N, " (", R, "%)")
+  n <- sprintf("%3.0f", tab)
+  r <- sprintf("%4.1f", tabR)
+  tabTot <- paste0(n, " (", r, "%)")
 
-  if(add_totals == FALSE){
+  if (add_totals == FALSE) {
     newTab <- matrix(
       data = tabTot,
       ncol = ncol(tab),
@@ -93,7 +94,7 @@ prettyTab <- function(tab, add_totals = FALSE) {
     newTab <- matrix(
       data = c(tabTot, totals),
       ncol = ncol(tab) + 1,
-      byrow = FALSE )
+      byrow = FALSE)
     newTab[which(newTab == "  0 ( 0.0%)")] <- "     -   "
     newTab[which(newTab == "  0 ( NaN%)")] <- "     -   "
     rownames(newTab) <- rownames(tab)

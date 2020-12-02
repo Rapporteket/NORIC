@@ -1,4 +1,4 @@
-#' Sample data generator for SegmentStent
+#' Sample data generator for segmentStent
 #'
 #' Functions to generate sample data for development purposes. These data
 #' should be distributed openly, hence it must not hold any restricted
@@ -10,24 +10,24 @@
 #' @param baseName String giving the prefix base of the name
 #' @param reshID String providing the current reshID. At Rapporteket, reshID
 #'  should already be present in the current R session
-#' @return SegmentStent a data frame holding the data set
+#' @return segmentStent a data frame holding the data set
 
 
 makeSegmentStentSampleData <- function(baseName, reshID) {
 
-  registryName <- NORICmakeRegistryName(baseName, reshID)
-  query <- "select * from SegmentStent"
-  dbType<-"mysql"
-  SegmentStent <- rapbase::loadRegData(registryName, query, dbType)
+  registryName <- noric::makeRegistryName(baseName, reshID)
+  query <- "select * from segmentStent"
+  dbType <- "mysql"
+  segmentStent <- rapbase::loadRegData(registryName, query, dbType)
 
   # remove/change data
-  nRows <- length(SegmentStent[,1])
-  SegmentStent$PasientKjonn=rep("ukjent", nRows)
-  SegmentStent$FodselsDato=rep("1950-01-01", nRows)
-  SegmentStent$Sykehusnavn=rep("Testsykehus", nRows)
-  SegmentStent$AvdRESH=rep("123456", nRows)
+  nRows <- length(segmentStent[, 1])
+  segmentStent$PasientKjonn <- rep("ukjent", nRows)
+  segmentStent$FodselsDato <- rep("1950-01-01", nRows)
+  segmentStent$Sykehusnavn <- rep("Testsykehus", nRows)
+  segmentStent$AvdRESH <- rep("123456", nRows)
 
-  return(SegmentStent)
+  segmentStent
 
 }
 
@@ -47,7 +47,7 @@ makeSegmentStentSampleData <- function(baseName, reshID) {
 
 makeAngioPCISampleData <- function(baseName, reshID) {
 
-  registryName <- NORICmakeRegistryName(baseName, reshID)
+  registryName <- noric::makeRegistryName(baseName, reshID)
   query <- "
 SELECT
    A.ForlopsID ,
@@ -56,17 +56,13 @@ SELECT
    SUM(S.ForlopsID>0) AS Nstents
 FROM
    AngioPCIVar A
-   LEFT JOIN SegmentStent S on A.ForlopsID=S.ForlopsID
+   LEFT JOIN segmentStent S on A.ForlopsID=S.ForlopsID
 WHERE A.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
   "
-  dbType<-"mysql"
-  AngioPCI <- rapbase::loadRegData(registryName, query, dbType)
+  dbType <- "mysql"
 
-  # remove/change data
-  # no need for it here?
-
-  return(AngioPCI)
+  rapbase::loadRegData(registryName, query, dbType)
 
 }
 
@@ -87,7 +83,7 @@ GROUP BY ForlopsID;
 
 makeTimeToTreatmentSampleData <- function(baseName, reshID) {
 
-  registryName <- NORICmakeRegistryName(baseName, reshID)
+  registryName <- noric::makeRegistryName(baseName, reshID)
   query <- "
 SELECT
   Sykehusnavn ,
@@ -101,12 +97,7 @@ SELECT
 FROM
    AngioPCIVar;
   "
-  dbType<-"mysql"
-  AngioPCIVar <- rapbase::loadRegData(registryName, query, dbType)
-
-  # remove/change data
-  # no need for it here?
-
-  return(AngioPCIVar)
+  dbType <- "mysql"
+  rapbase::loadRegData(registryName, query, dbType)
 
 }

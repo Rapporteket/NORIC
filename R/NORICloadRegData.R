@@ -7,7 +7,7 @@
 #' @return RegData data frame
 #' @export
 
-NORICloadRegDataStent <- function(registryName) {
+loadRegDataStent <- function(registryName) {
 
   dbType <- "mysql"
 
@@ -18,9 +18,8 @@ FROM
   SegmentStent;
 "
 
-  RegData <- rapbase::loadRegData(registryName, query, dbType)
+  rapbase::loadRegData(registryName, query, dbType)
 
-  return(RegData)
 }
 
 
@@ -33,7 +32,7 @@ FROM
 #' @return RegData data frame
 #' @export
 
-NORICloadRegDataAngioPCI <- function(registryName) {
+loadRegDataAngioPCI <- function(registryName) {
 
   dbType <- "mysql"
 
@@ -50,7 +49,6 @@ WHERE A.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
 "
 
-  RegData <- rapbase::loadRegData(registryName, query, dbType)
+  rapbase::loadRegData(registryName, query, dbType)
 
-  return(RegData)
 }

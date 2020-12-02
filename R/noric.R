@@ -18,14 +18,15 @@
 #' \code{system.file("NORIC_local_monthly.Rnw", package = "noric")}. You may
 #' process
 #' the noweb files directly using \emph{Sweave} or \emph{knitr}, \emph{e.g}
-#' \code{knitr::knit(system.file("NORIC_local_monthly.Rnw", package = "noric"))}, or
-#' by using the wrapper of the \emph{rapbase} package, \emph{e.g.}
+#' \code{knitr::knit(system.file("NORIC_local_monthly.Rnw",
+#' package = "noric"))}, or by using the wrapper of the \emph{rapbase} package,
+#' \emph{e.g.}
 #' \code{rapbase::RunNoweb(nowebFileName, packageName, weaveMethod = "knitr")}.
 #'
 #' @section Artwork:
 #' Artwork is accessed in the same way as for the noweb-files, \emph{e.g}
 #' \code{system.file("some_nice_logo.pdf", package = "noric")}
-#' 
+#'
 #' @docType package
 #' @name noric
 NULL
