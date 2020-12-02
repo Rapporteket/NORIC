@@ -152,7 +152,7 @@ WHERE
           .data$ForlopsType1,
           .data$ForlopsType2,
           .data$KobletForlopsID,
-          .data$HovedDato,
+          .data$HovedDato
         )
 
       tab <- dplyr::left_join(tab, fO,
@@ -339,7 +339,7 @@ WHERE
           .data$ForlopsType2,
           .data$KobletForlopsID,
           .data$HovedDato,
-          .data$FodselsDato,
+          .data$FodselsDato
         )
 
       tab <- dplyr::left_join(tab, fO, by = c("ForlopsID", "AvdRESH"),
@@ -364,7 +364,7 @@ WHERE
           .data$Fylke,
           .data$Fylkenr,
           .data$PasientKjonn,
-          .data$PasientAlder,
+          .data$PasientAlder
           )
 
       tab <- dplyr::left_join(tab, fO, by = c("PasientID", "AvdRESH"),
@@ -404,7 +404,7 @@ WHERE
     }
   }
 
-  # Midlertidig fjerning av variabler i daatadumpen
+  # Midlertidig fjerning av variabler i datadumpen
   tab %<>% dplyr::select_if(!names(.data) %in% c("Avdod", "AvdodDato"))
 
   # Returnerer tabell (med eller uten felt fra fO)
