@@ -5,8 +5,6 @@
 #' relevant usecase will be when only description is needed. By default set to
 #' FALSE
 #' @param ... Optional arguments to be passed to the function
-#'
-#' @importFrom magrittr %>% %<>%
 #' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
@@ -16,167 +14,186 @@
 
 getLocalAPData <- function(registryName, singleRow = FALSE, ...) {
 
-  # declare 'dot'
-  . <- ""
-
   dbType <- "mysql"
-  query <-"
+  query <- "
 SELECT *
 FROM AngioPCIVar
   "
 
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg = "Query metadata for AngioPCI pivot"
+    msg <- "Query metadata for AngioPCI pivot"
   } else {
     query <- paste0(query, ";")
-    msg = "Query data for AngioPCI pivot"
+    msg <- "Query data for AngioPCI pivot"
   }
 
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  AP <- rapbase::loadRegData(registryName, query, dbType)
+  aP <- rapbase::loadRegData(registryName, query, dbType)
 
-  FO <- rapbase::loadRegData(registryName,
+  fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
 
 
-  # Velger relevante variabler fra FO som skal legges til tabellen:
-  FO %<>%
-    select(
+  # Velger relevante variabler fra fO som skal legges til tabellen:
+  fO %<>%
+    dplyr::select(
       # Nøkler:
-      AvdRESH
-      ,Sykehusnavn
-      ,PasientID
-      ,ForlopsID
-      # FodselsDato # Finnes per dags dato i AP fra før
+      .data$AvdRESH,
+      .data$Sykehusnavn,
+      .data$PasientID,
+      .data$ForlopsID,
       # Variablene som legges til:
-      ,Kommune
-      ,KommuneNr
-      ,Fylke
-      ,Fylkenr
-      # ,PasientKjonn # Finnes per dags dato i AP (men heter Kjonn)
-      ,PasientAlder
-      ,ForlopsType1
-      ,ForlopsType2
-      ,KobletForlopsID
+      .data$Kommune,
+      .data$KommuneNr,
+      .data$Fylke,
+      .data$Fylkenr,
+      .data$PasientAlder,
+      .data$ForlopsType1,
+      .data$ForlopsType2,
+      .data$KobletForlopsID
     )
 
-  # Legger til variabler fra FO til AP:
-  AP <- left_join(AP, FO, by = c("AvdRESH"
-                                 ,"Sykehusnavn"
-                                 ,"PasientID"
-                                 ,"ForlopsID")
+  # Legger til variabler fra fO til aP:
+  aP <- dplyr::left_join(aP, fO, by = c("AvdRESH",
+                                        "Sykehusnavn",
+                                        "PasientID",
+                                        "ForlopsID")
   )
 
 
-
   # Gjor datoer om til dato-objekt:
-  AP %<>%
-    mutate_at(
-      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+  aP %<>%
+    dplyr::mutate_at(
+      vars(ends_with("dato", ignore.case = TRUE)), list(ymd)
     )
 
 
   # Endre Sykehusnavn til kortere versjoner:
-  AP %<>%
-    mutate(
-      Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+  aP %<>%
+    dplyr::mutate(
       Sykehusnavn = ifelse(
-        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn
-      ) ,
+        .data$Sykehusnavn == "Haukeland",
+        "HUS",
+        .data$Sykehusnavn),
       Sykehusnavn = ifelse(
-        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn
-      )
+        .data$Sykehusnavn %in% c("St.Olav", "St. Olav"),
+        "St.Olavs",
+        .data$Sykehusnavn),
+      Sykehusnavn = ifelse(
+        .data$Sykehusnavn == "Akershus universitetssykehus HF",
+        "Ahus",
+        .data$Sykehusnavn)
     )
 
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
-  AP %<>%
-    filter(
+  aP %<>%
+    dplyr::filter(
       (
-        (AvdRESH == 102966) & ( as.Date(ProsedyreDato) >= "2013-01-01" ) # HUS
+        # HUS
+        (.data$AvdRESH == 102966) & (as.Date(.data$ProsedyreDato) >=
+                                       "2013-01-01")
       ) | (
-        (AvdRESH == 101619) & ( as.Date(ProsedyreDato) >= "2013-05-01" ) # UNN
+        # UNN
+        (.data$AvdRESH == 101619) & (as.Date(.data$ProsedyreDato) >=
+                                       "2013-05-01")
       ) | (
-        (AvdRESH == 109880) & ( as.Date(ProsedyreDato) >= "2014-01-01" ) # Ullevål
+        # Ullevaal
+        (.data$AvdRESH == 109880) & (as.Date(.data$ProsedyreDato) >=
+                                       "2014-01-01")
       ) | (
-        (AvdRESH == 104284) & ( as.Date(ProsedyreDato) >= "2014-01-01" ) # St.Olavs
+        # St Olav
+        (.data$AvdRESH == 104284) & (as.Date(.data$ProsedyreDato) >=
+                                       "2014-01-01")
       ) | (
-        (AvdRESH == 114150) & ( as.Date(ProsedyreDato) >= "2014-01-01" ) # SSA
+        # SSA
+        (.data$AvdRESH == 114150) & (as.Date(.data$ProsedyreDato) >=
+                                       "2014-01-01")
       ) | (
-        (AvdRESH == 105502) & ( as.Date(ProsedyreDato) >= "2014-01-01" ) # SUS
+        #SUS
+        (.data$AvdRESH == 105502) & (as.Date(.data$ProsedyreDato) >=
+                                       "2014-01-01")
       ) | (
-        (AvdRESH == 700422) & ( as.Date(ProsedyreDato) >= "2015-01-01" ) # Riksen
+        # Risken
+        (.data$AvdRESH == 700422) & (as.Date(.data$ProsedyreDato) >=
+                                       "2015-01-01")
       ) | (
-        (AvdRESH == 106944) & ( as.Date(ProsedyreDato) >= "2015-01-01" ) # LHLGardermoen
+        # LHL Gardermoen
+        (.data$AvdRESH == 106944) & (as.Date(.data$ProsedyreDato) >=
+                                       "2015-01-01")
       ) | (
-        (AvdRESH == 108141) & ( as.Date(ProsedyreDato) >= "2016-01-01" ) # Ahus
+        # Ahus
+        (.data$AvdRESH == 108141) & (as.Date(.data$ProsedyreDato) >=
+                                       "2016-01-01")
       ) | (
-        (AvdRESH == 4210141) & ( as.Date(ProsedyreDato) >= "2020-02-10" ) # Bodø
+        # Bodoe
+        (.data$AvdRESH == 4210141) & (as.Date(.data$ProsedyreDato) >=
+                                        "2020-02-10")
       )
     )
 
 
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
-  AP %<>%
-    mutate(
-      ForlopsType2 = factor( ForlopsType2,
-                             levels = c(
-                               "Akutt"
-                               , "Subakutt"
-                               , "Planlagt"
-                             ),
-                             ordered = TRUE )
+  aP %<>%
+    dplyr::mutate(
+      ForlopsType2 = factor(.data$ForlopsType2,
+                            levels = c(
+                              "Akutt",
+                              "Subakutt",
+                              "Planlagt"
+                            ),
+                            ordered = TRUE)
     )
 
 
   # Utledete variabler:
-  AP %<>%
-    mutate(
+  aP %<>%
+    dplyr::mutate(
       # Div. tidsvariabler:
       #
       # Kalenderår for ProsedyreDato:
-      aar = as.ordered( year( ProsedyreDato ))
+      aar = as.ordered(lubridate::year(.data$ProsedyreDato)),
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      ,maaned_nr = as.ordered( sprintf(fmt = "%02d", month( ProsedyreDato ) ))
-      ,maaned = as.ordered( paste0( aar, "-", maaned_nr) )
+      maaned_nr = as.ordered(sprintf(fmt = "%02d",
+                                     lubridate::month(.data$ProsedyreDato))),
+      maaned = as.ordered(paste0(.data$aar, "-", .data$maaned_nr)),
       # Kvartal:
-      ,kvartal = quarter( ProsedyreDato, with_year = TRUE )
-      # kvartal = as.factor( gsub( "\\.", "-", kvartal) )
-      ,kvartal = as.ordered( gsub( "[[:punct:]]", "-Q", kvartal) )
+      kvartal = lubridate::quarter(.data$ProsedyreDato, with_year = TRUE),
+      kvartal = as.ordered(gsub("[[:punct:]]", "-Q", .data$kvartal)),
       # Uketall:
-      ,uke = as.ordered( sprintf(fmt = "%02d", isoweek( ProsedyreDato ) ))
+      uke = as.ordered(sprintf(fmt = "%02d",
+                               lubridate::isoweek(.data$ProsedyreDato))),
 
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
 
-      ,aar_uke = ifelse(
+      aar_uke = ifelse(
         # hvis uke 01 er i desember...
-        test = uke == "01" & maaned_nr == "12"
+        test = .data$uke == "01" & .data$maaned_nr == "12",
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
         # er spredt over (uke 01 i desember 2019 blir til 2020-01)
-        , yes = paste0( as.integer(year(ProsedyreDato)) + 1, "-", uke )
-        , no = paste0(aar, "-", uke )
-      )
-      ,aar_uke = ifelse(
+        yes = paste0(as.integer(lubridate::year(.data$ProsedyreDato)) + 1, "-",
+                     .data$uke),
+        no = paste0(.data$aar, "-", .data$uke)
+      ),
+      aar_uke = ifelse(
         # hvis uke 52 eller 53 er i januar...
-        test = uke %in% c("52", "53") & maaned_nr == "01"
+        test = .data$uke %in% c("52", "53") & .data$maaned_nr == "01",
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
         # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
-        , yes = paste0( as.integer(year(ProsedyreDato)) - 1, "-", uke )
-        , no = aar_uke
-      )
-      ,aar_uke = as.ordered( aar_uke )
+        yes = paste0(as.integer(lubridate::year(.data$ProsedyreDato)) - 1, "-",
+                     .data$uke),
+        no = .data$aar_uke
+      ),
+      aar_uke = as.ordered(.data$aar_uke)
     )
 
+  aP
 
-
-
-  AP
-
-  }
+}
