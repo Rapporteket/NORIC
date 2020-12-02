@@ -405,7 +405,7 @@ WHERE
   }
 
   # Midlertidig fjerning av variabler i datadumpen
-  tab %<>% dplyr::select_if(!names(.data) %in% c("Avdod", "AvdodDato"))
+  tab %<>% dplyr::select(!dplyr::contains(c("Avdod", "AvdodDato")))
 
   # Returnerer tabell (med eller uten felt fra fO)
   return(tab)
