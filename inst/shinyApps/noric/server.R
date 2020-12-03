@@ -83,8 +83,7 @@ shinyServer(function(input, output, session) {
     on.exit(setwd(owd))
     file.copy(src, tmpFile, overwrite = TRUE)
 
-    library(rmarkdown)
-    out <- render(tmpFile, output_format = switch(
+    out <- rmarkdown::render(tmpFile, output_format = switch(
       type,
       PDF = pdf_document(),
       HTML = html_document(),

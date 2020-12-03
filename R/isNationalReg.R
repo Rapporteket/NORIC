@@ -8,10 +8,10 @@
 #' @return Logical (TRUE or FALSE)
 #' @export
 
-isNationalReg <- function(reshID) {
+isNationalReg <- function(reshId) {
 
   conf <- rapbase::getConfig(fileName = "rapbaseConfig.yml")
-  if (reshID == conf$reg$noric$nationalAccess$reshId) {
+  if (reshId == conf$reg$noric$nationalAccess$reshId) {
     return(TRUE)
   } else {
     return(FALSE)

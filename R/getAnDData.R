@@ -90,8 +90,8 @@ FROM AnnenDiagnostikkVar
     )
 
 
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
-  # "tøyseregistreringer")
+  # Tar bort forloep fra før sykehusene ble offisielt med i NORIC (potensielle
+  # "toeyseregistreringer")
   anD %<>%
     dplyr::filter(
       (
@@ -159,17 +159,17 @@ FROM AnnenDiagnostikkVar
                          "Proximale LAD (6)",
                          "Midtre LAD (7)",
                          "Distale LAD (8)",
-                         "Første diagonal (9)",
+                         "F\u00f8rste diagonal (9)",
                          "Andre diagonal (10)",
                          "Proximale LCx (11)",
-                         "Første obtusa marginal (12)",
+                         "F\u00f8rste obtusa marginal (12)",
                          "Andre obtusa marginal (13)",
                          "Distale LCx (14)",
                          "LPD (15)",
                          "PLA fra venstre (16)",
-                         "Intermediær (17)",
+                         "Intermedi\u00e6r (17)",
                          "PLA (18)",
-                         "Høyrekammergren (19)",
+                         "H\u00f8yrekammergren (19)",
                          "Septal (20)"
                        ),
                        ordered = TRUE

@@ -37,18 +37,21 @@ Imports:
   knitr,
   lubridate,
   magrittr,
+  markdown,
   rapbase,
   raplog,
   RColorBrewer,
   readr,
   revealjs,
   rlang,
+  rmarkdown,
   rpivotTable,
   shiny,
   shinyalert,
   shinycssloaders,
   tidyselect,
-  xtable
+  xtable,
+  yaml
 Remotes:
   Rapporteket/rapbase,
   Rapporteket/raplog,

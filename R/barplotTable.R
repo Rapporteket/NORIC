@@ -2,7 +2,14 @@
 #' count crosstabulation
 #'
 #' @param tabN NxM-crosstable with absolute counts
+#' @param sort.level Integer sort level, 0 by default
+#' @param row Integer number of rows for internal function
 #' @return NULL
+#' @name barplotTable
+#' @aliases annotateN barplotTable
+NULL
+
+#' @rdname barplotTable
 #' @export
 
 # auxillary function called by the plot function to add the
@@ -14,6 +21,8 @@ annotateN <- function(row) {
          labels = tabN[row, ])
 }
 
+#' @rdname barplotTable
+#' @export
 barplotTable <- function(tabN, sort.level = 0) {
 
     pal <- RColorBrewer::brewer.pal(
