@@ -15,6 +15,9 @@
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                             session, userRole) {
 
+  # declare dot
+  . <- ""
+
   validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS",
                   "SO", "SS")
 
