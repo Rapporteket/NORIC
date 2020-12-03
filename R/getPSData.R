@@ -5,8 +5,6 @@
 #' relevant usecase will be when only description is needed. By default set to
 #' FALSE
 #' @param ... Optional arguments to be passed to the function
-#'
-#' @importFrom magrittr %>% %<>%
 #' @importFrom dplyr filter mutate mutate_all select recode left_join
 #' @importFrom lubridate ymd year month quarter isoweek
 #'
@@ -16,11 +14,8 @@
 
 getPSData <- function(registryName, singleRow = FALSE, ...) {
 
-  # declare 'dot'
-  . <- ""
-
   dbType <- "mysql"
-  query <-"
+  query <- "
 SELECT
   *
 FROM
@@ -29,160 +24,170 @@ FROM
 
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg = "Query metadata for PasienterStudier pivot"
+    msg <- "Query metadata for PasienterStudier pivot"
   } else {
     query <- paste0(query, ";")
-    msg = "Query data for PasienterStudier pivot"
+    msg <- "Query data for PasienterStudier pivot"
   }
 
   if ("session" %in% names(list(...))) {
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  PS <- rapbase::loadRegData(registryName, query, dbType)
+  pS <- rapbase::loadRegData(registryName, query, dbType)
 
-  FO <- rapbase::loadRegData(registryName,
+  fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
 
 
-  # Velger relevante variabler fra FO som skal legges til tabellen:
-  FO %<>%
-    select(
+  # Velger relevante variabler fra fO som skal legges til tabellen:
+  fO %<>%
+    dplyr::select(
       # Nøkler:
-      AvdRESH
-      ,PasientID
+      .data$AvdRESH,
+      .data$PasientID,
       # Variablene som legges til:
-      ,Sykehusnavn
-      ,FodselsDato
-      ,Kommune
-      ,KommuneNr
-      ,Fylke
-      ,Fylkenr
-      ,PasientKjonn
-      ,PasientAlder
+      .data$Sykehusnavn,
+      .data$FodselsDato,
+      .data$Kommune,
+      .data$KommuneNr,
+      .data$Fylke,
+      .data$Fylkenr,
+      .data$PasientKjonn,
+      .data$PasientAlder
     )
 
 
-  PS <- left_join(PS, FO, by = c("PasientID", "AvdRESH"),
-                  suffix = c("", ".FO"))
+  pS <- dplyr::left_join(pS, fO, by = c("PasientID", "AvdRESH"),
+                         suffix = c("", ".fO"))
 
 
 
   # Gjor datoer om til dato-objekt:
-  PS %<>%
-    mutate_at(
-      vars( ends_with("dato", ignore.case = TRUE) ), list( ymd )
+  pS %<>%
+    dplyr::mutate_at(
+      vars(ends_with("dato", ignore.case = TRUE)), list(lubridate::ymd)
     )
 
 
   # Endre Sykehusnavn til kortere versjoner:
-  PS %<>%
-    mutate(
-      Sykehusnavn = ifelse( Sykehusnavn == "Haukeland" , "HUS" , Sykehusnavn ) ,
+  pS %<>%
+    dplyr::mutate(
       Sykehusnavn = ifelse(
-        Sykehusnavn %in% c("St.Olav", "St. Olav") , "St.Olavs"  , Sykehusnavn
-      ) ,
+        .data$Sykehusnavn == "Haukeland",
+        "HUS",
+        .data$Sykehusnavn),
       Sykehusnavn = ifelse(
-        Sykehusnavn == "Akershus universitetssykehus HF" , "Ahus" , Sykehusnavn
+        .data$Sykehusnavn %in% c("St.Olav", "St. Olav"),
+        "St.Olavs",
+        .data$Sykehusnavn),
+      Sykehusnavn = ifelse(
+        .data$Sykehusnavn == "Akershus universitetssykehus HF",
+        "Ahus",
+        .data$Sykehusnavn
       )
     )
-
-
-
 
 
   # Utledete variabler:
-  PS %<>%
-    mutate(
-
+  pS %<>%
+    dplyr::mutate(
       # Div. tidsvariabler:
-
       # Basert på PasInklDato:
-
       # Kalenderår:
-      aar_pasientinklusjon = as.ordered( year( PasInklDato ))
+      aar_pasientinklusjon = as.ordered(lubridate::year(.data$PasInklDato)),
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      ,maaned_nr_pasientinklusjon =
-        as.ordered( sprintf(fmt = "%02d", month( PasInklDato ) ))
-      ,maaned_pasientinklusjon =
-        as.ordered(
-          paste0( aar_pasientinklusjon, "-", maaned_nr_pasientinklusjon)
-        )
+      maaned_nr_pasientinklusjon =
+        as.ordered(sprintf(fmt = "%02d", lubridate::month(.data$PasInklDato))),
+      maaned_pasientinklusjon =
+        as.ordered(paste0(.data$aar_pasientinklusjon, "-",
+                          .data$maaned_nr_pasientinklusjon)),
       # Kvartal:
-      ,kvartal_pasientinklusjon = quarter( PasInklDato, with_year = TRUE )
-      ,kvartal_pasientinklusjon =
-        as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_pasientinklusjon) )
+      kvartal_pasientinklusjon = lubridate::quarter(.data$PasInklDato,
+                                                    with_year = TRUE),
+      kvartal_pasientinklusjon =
+        as.ordered(gsub("[[:punct:]]", "-Q", .data$kvartal_pasientinklusjon)),
       # Uketall:
-      ,uke_pasientinklusjon =
-        as.ordered( sprintf(fmt = "%02d", isoweek( PasInklDato ) ))
+      uke_pasientinklusjon =
+        as.ordered(sprintf(fmt = "%02d",
+                           lubridate::isoweek(.data$PasInklDato))),
 
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
-      ,aar_uke_pasientinklusjon = ifelse(
+      aar_uke_pasientinklusjon = ifelse(
         # hvis uke 01 er i desember...
-        test = uke_pasientinklusjon == "01" & maaned_nr_pasientinklusjon == "12"
+        test = .data$uke_pasientinklusjon == "01" &
+          .data$maaned_nr_pasientinklusjon == "12",
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
         # er spredt over (uke 01 i desember 2019 blir til 2020-01)
-        ,yes =
-          paste0( as.integer(year(PasInklDato)) + 1, "-", uke_pasientinklusjon )
-        ,no = paste0(aar_pasientinklusjon, "-", uke_pasientinklusjon )
-      )
-      ,aar_uke_pasientinklusjon = ifelse(
+        yes =
+          paste0(as.integer(lubridate::year(.data$PasInklDato)) + 1, "-",
+                 .data$uke_pasientinklusjon),
+        no =
+          paste0(.data$aar_pasientinklusjon, "-", .data$uke_pasientinklusjon)
+      ),
+      aar_uke_pasientinklusjon = ifelse(
         # hvis uke 52 eller 53 er i januar...
-        test = uke_pasientinklusjon %in% c("52", "53") &
-          maaned_nr_pasientinklusjon == "01"
+        test = .data$uke_pasientinklusjon %in% c("52", "53") &
+          .data$maaned_nr_pasientinklusjon == "01",
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
         # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
-        ,yes =
-          paste0( as.integer(year(PasInklDato)) - 1, "-", uke_pasientinklusjon )
-        ,no = aar_uke_pasientinklusjon
-      )
-      ,aar_uke_pasientinklusjon = as.ordered( aar_uke_pasientinklusjon )
-
+        yes = paste0(as.integer(lubridate::year(.data$PasInklDato)) - 1, "-",
+                     .data$uke_pasientinklusjon),
+        no = .data$aar_uke_pasientinklusjon
+      ),
+      aar_uke_pasientinklusjon = as.ordered(.data$aar_uke_pasientinklusjon),
       # Basert på StudieStartDato:
-
       # Kalenderår:
-      ,aar_studiestart = as.ordered( year( StudieStartDato ))
+      aar_studiestart = as.ordered(lubridate::year(.data$StudieStartDato)),
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
-      ,maaned_nr_studiestart =
-        as.ordered( sprintf(fmt = "%02d", month( StudieStartDato ) ))
-      ,maaned_studiestart =
-        as.ordered( paste0( aar_studiestart, "-", maaned_nr_studiestart) )
+      maaned_nr_studiestart =
+        as.ordered(sprintf(fmt = "%02d",
+                           lubridate::month(.data$StudieStartDato))),
+      maaned_studiestart =
+        as.ordered(paste0(.data$aar_studiestart, "-",
+                          .data$maaned_nr_studiestart)),
       # Kvartal:
-      ,kvartal_studiestart = quarter( StudieStartDato, with_year = TRUE )
-      ,kvartal_studiestart =
-        as.ordered( gsub( "[[:punct:]]", "-Q", kvartal_studiestart) )
+      kvartal_studiestart = lubridate::quarter(.data$StudieStartDato,
+                                               with_year = TRUE),
+      kvartal_studiestart =
+        as.ordered(gsub("[[:punct:]]", "-Q", .data$kvartal_studiestart)),
       # Uketall:
-      ,uke_studiestart =
-        as.ordered( sprintf(fmt = "%02d", isoweek( StudieStartDato ) ))
+      uke_studiestart =
+        as.ordered(sprintf(fmt = "%02d",
+                           lubridate::isoweek(.data$StudieStartDato))),
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
-      ,aar_uke_studiestart = ifelse(
+      aar_uke_studiestart = ifelse(
         # hvis uke 01 er i desember...
-        test = uke_studiestart == "01" & maaned_nr_studiestart == "12"
+        test = .data$uke_studiestart == "01" &
+          .data$maaned_nr_studiestart == "12",
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
         # er spredt over (uke 01 i desember 2019 blir til 2020-01)
-        ,yes =
-          paste0( as.integer(year(StudieStartDato)) + 1, "-", uke_studiestart )
-        ,no = paste0(aar_studiestart, "-", uke_studiestart )
-      )
-      ,aar_uke_studiestart = ifelse(
+        yes =
+          paste0(as.integer(lubridate::year(.data$StudieStartDato)) + 1, "-",
+                 .data$uke_studiestart),
+        no = paste0(.data$aar_studiestart, "-", .data$uke_studiestart)
+      ),
+      aar_uke_studiestart = ifelse(
         # hvis uke 52 eller 53 er i januar...
         test =
-          uke_studiestart %in% c("52", "53") & maaned_nr_studiestart == "01"
+          .data$uke_studiestart %in% c("52", "53") &
+          .data$maaned_nr_studiestart == "01",
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
         # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
-        ,yes =
-          paste0( as.integer(year(StudieStartDato)) - 1, "-", uke_studiestart )
-        ,no = aar_uke_studiestart
-      )
-      ,aar_uke_studiestart = as.ordered( aar_uke_studiestart )
+        yes =
+          paste0(as.integer(lubridate::year(.data$StudieStartDato)) - 1, "-",
+                 .data$uke_studiestart),
+        no = .data$aar_uke_studiestart
+      ),
+      aar_uke_studiestart = as.ordered(.data$aar_uke_studiestart),
     )
 
 
 
-  PS
+  pS
 
 }
