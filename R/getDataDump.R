@@ -405,7 +405,7 @@ WHERE
   }
 
   # Midlertidig fjerning av variabler i datadumpen
-  dplyr::select(!dplyr::contains(c("Avdod", "AvdodDato")))
+  dplyr::select(tab, !contains(c("Avdod", "AvdodDato")))
 
 
 }
