@@ -15,7 +15,7 @@ NULL
 #' See \code{magrittr::\link[magrittr:pipe]{\%<>\%}} for details.
 #'
 #' @name %<>%
-#' @rdname pipe
+#' @rdname compound_assignment_pipe
 #' @keywords internal
 #' @export
 #' @importFrom magrittr %<>%
@@ -27,7 +27,7 @@ NULL
 #' See \code{magrittr::\link[magrittr:pipe]{\%$\%}} for details.
 #'
 #' @name %$%
-#' @rdname pipe
+#' @rdname exposition_pipe
 #' @keywords internal
 #' @export
 #' @importFrom magrittr %$%
