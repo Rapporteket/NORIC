@@ -86,7 +86,9 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                                "PCIOperatorer",
                                                "Operatorer",
                                                "Studie",
-                                               "Granskere"))
+                                               "Granskere",
+                                               "OpprettetAv",
+                                               "SistLagretAv"))
   }
 
   dat
