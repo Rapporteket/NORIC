@@ -1,21 +1,21 @@
 Package: noric
-Title: Provide R resources for NORIC at Rapporteket
-Version: 2.0.20
+Title: Provide R Resources for NORIC at Rapporteket
+Version: 2.0.20.9000
 Authors@R: c(
-  person(given = "Kristina",
-         family = "Skaare",
+  person("Kristina",
+         "Skaare",
          role = c("aut"),
          email = "kristina.skaare@helse-bergen.no"),
-  person(given = "Mary",
-         family = "Autenried",
+  person("Mary",
+         "Autenried",
          role = c("aut"),
          email = "mary.gerina.autenried@helse-bergen.no"),
-  person(given = "Ellisif",
-         family = "Nygaard",
+  person("Ellisif",
+         "Nygaard",
          role = c("aut", "cre"),
          email = "ellisif.nygaard@helse-vest.no"),
-  person(given = "Are",
-         family = "Edvardsen",
+  person("Are",
+         "Edvardsen",
          role = c("aut"),
          email = "biorakel@gmail.com",
          comment = c(ORCID = "0000-0002-5210-3656"))
