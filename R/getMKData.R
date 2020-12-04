@@ -36,9 +36,9 @@ FROM
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  mK <- rapbase::LoadRegData(registryName, query, dbType)
+  mK <- rapbase::loadRegData(registryName, query, dbType)
 
-  fO <- rapbase::LoadRegData(registryName,
+  fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
 
 
@@ -115,8 +115,8 @@ FROM
       Frailty = factor(.data$Frailty,
                         levels = c(
                           "Robust",
-                          "Intermediær",
-                          "Skrøpelig",
+                          "Intermedi\u00e6r",
+                          "Skr\u00f8pelig",
                           "Ukjent",
                           NA
                         ),
@@ -128,7 +128,7 @@ FROM
                             "Elektiv",
                             "Haster",
                             "Akutt",
-                            "Under pågående HLR",
+                            "Under p\u00e5g\u00e5ende HLR",
                             NA
                           ),
                           exclude = NULL, # inkluderer NA i levels

@@ -15,6 +15,9 @@
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                             session, userRole) {
 
+  # declare dot
+  . <- ""
+
   validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS",
                   "SO", "SS")
 
@@ -69,7 +72,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
 
 
   #Fjerner Avdod og AvdodDato midlertidig for både SC og LC
-  if(!is.null(dat)) {
+  if (!is.null(dat)) {
     dat %<>% dplyr::select_if(!names(.) %in% c("Avdod", "AvdodDato"))
   }
 

@@ -27,8 +27,9 @@ LaTeX docs weaved with R-code to produce reports. These are accessed by
 \code{system.file("NORIC_local_monthly.Rnw", package = "noric")}. You may
 process
 the noweb files directly using \emph{Sweave} or \emph{knitr}, \emph{e.g}
-\code{knitr::knit(system.file("NORIC_local_monthly.Rnw", package = "noric"))}, or
-by using the wrapper of the \emph{rapbase} package, \emph{e.g.}
+\code{knitr::knit(system.file("NORIC_local_monthly.Rnw",
+package = "noric"))}, or by using the wrapper of the \emph{rapbase} package,
+\emph{e.g.}
 \code{rapbase::RunNoweb(nowebFileName, packageName, weaveMethod = "knitr")}.
 }
 

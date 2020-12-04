@@ -1,5 +1,5 @@
 conf <- rapbase::getConfig()
-conf$reg <- list(noric=list(nationalAccess=list(reshId=100000)))
+conf$reg <- list(noric = list(nationalAccess = list(reshId = 100000)))
 yaml::write_yaml(conf, file = "./rapbaseConfig.yml")
 
 orig_path <- Sys.getenv("R_RAP_CONFIG_PATH")

@@ -40,9 +40,9 @@ FROM
     raplog::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  aK <- rapbase::LoadRegData(registryName, query, dbType)
+  aK <- rapbase::loadRegData(registryName, query, dbType)
 
-  fO <- rapbase::LoadRegData(registryName,
+  fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
 
 

@@ -106,7 +106,7 @@ WHERE
 
 
   # Henter tabellen som skal lastes ned av bruker:
-  tab <- rapbase::LoadRegData(registryName, query)
+  tab <- rapbase::loadRegData(registryName, query)
 
 
   # Henter FO, som har felt som skal legges til tabellen (med unntak av når
@@ -124,7 +124,7 @@ WHERE
   ) {
 
 
-    fO <- rapbase::LoadRegData(registryName,
+    fO <- rapbase::loadRegData(registryName,
                                query = "SELECT * FROM ForlopsOversikt")
 
 

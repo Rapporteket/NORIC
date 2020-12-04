@@ -1,5 +1,5 @@
 #' Get hospital name from registry data
-#' 
+#'
 #' Based on the hospital id (reshID) this function will return the name of
 #' the corresponding hospital as provided in the registry data
 #'
@@ -14,16 +14,16 @@
 #' }
 
 getHospitalName <- function(reshID) {
-  
+
   if (isNationalReg(reshID)) {
     return("NORIC nasjonal")
   } else {
     baseName <- "noricStaging"
-    regName <- NORICmakeRegistryName(baseName, reshID)
+    regName <- noric::makeRegistryName(baseName, reshID)
     dbType <- "mysql"
     query <- "SELECT Sykehusnavn FROM AngioPCIVar LIMIT 1"
-    
-    return(rapbase::LoadRegData(regName, dbType = dbType, query = query)[1,1])
+
+    return(rapbase::loadRegData(regName, dbType = dbType, query = query)[1, 1])
   }
-  
+
 }
