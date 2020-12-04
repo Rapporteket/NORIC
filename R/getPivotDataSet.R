@@ -14,15 +14,15 @@
 
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                             session, userRole) {
-  
+
   validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS",
                   "SO", "SS")
-  
+
   if (setId %in% validSetId) {
     if (setId == "AnP") {
       dat <- noric::getLocalAnPData(registryName, singleRow = singleRow,
                                     session = session)
-    } 
+    }
     if (setId == "AnD") {
       dat <- noric::getAnDData(registryName, singleRow = singleRow,
                               session = session)
@@ -66,26 +66,28 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   } else {
     dat <- NULL
   }
-  
-  
+
+
   #Fjerner Avdod og AvdodDato midlertidig for både SC og LC
   if(!is.null(dat)) {
     dat %<>% dplyr::select_if(!names(.) %in% c("Avdod", "AvdodDato"))
   }
-  
-  
-  
+
+
+
   #Fjerner variablene som ikke skal vises for LC
   if (userRole == "LC" && !is.null(dat)) {
-    dat %<>% dplyr::select_if(!names(.) %in% c("AndreProsOperatorer", 
-                                               "FodselsDato", 
-                                               "AngioOperatorer", 
+    dat %<>% dplyr::select_if(!names(.) %in% c("AndreProsOperatorer",
+                                               "FodselsDato",
+                                               "AngioOperatorer",
                                                "PCIOperatorer",
                                                "Operatorer",
                                                "Studie",
-                                               "Granskere"))
+                                               "Granskere",
+                                               "OpprettetAv",
+                                               "SistLagretAv"))
   }
-  
+
   dat
 
 }
