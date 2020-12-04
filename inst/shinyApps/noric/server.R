@@ -16,12 +16,12 @@ shinyServer(function(input, output, session) {
     hospitalName <- noric::getHospitalName(reshId)
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
-    registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
+    registryName <- noric::makeRegistryName("noricStaging", reshId)
     author <- paste0(userFullName, "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
   }
-  
+
   # Hide tabs when role is 'LU' or some tabs for role 'LC'
   if (userRole == "LU") {
     hideTab(inputId = "tabs", target = "Utforsker")
@@ -83,8 +83,7 @@ shinyServer(function(input, output, session) {
     on.exit(setwd(owd))
     file.copy(src, tmpFile, overwrite = TRUE)
 
-    library(rmarkdown)
-    out <- render(tmpFile, output_format = switch(
+    out <- rmarkdown::render(tmpFile, output_format = switch(
       type,
       PDF = pdf_document(),
       HTML = html_document(),

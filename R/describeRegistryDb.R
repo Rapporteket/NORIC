@@ -17,13 +17,13 @@ describeRegistryDb <- function(registryName, tabs = c()) {
   desc <- list()
 
   if (length(tabs) == 0) {
-    tabs <- rapbase::LoadRegData(registryName = registryName,
+    tabs <- rapbase::loadRegData(registryName = registryName,
                                  query = qGetTabs)[[1]]
   }
 
   for (tab in tabs) {
     query <- paste0(qGetDesc, tab, ";")
-    desc[[tab]] <- rapbase::LoadRegData(registryName, query)
+    desc[[tab]] <- rapbase::loadRegData(registryName, query)
   }
 
   desc
