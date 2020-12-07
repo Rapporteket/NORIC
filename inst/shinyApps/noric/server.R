@@ -85,9 +85,9 @@ shinyServer(function(input, output, session) {
 
     out <- rmarkdown::render(tmpFile, output_format = switch(
       type,
-      PDF = pdf_document(),
-      HTML = html_document(),
-      BEAMER = beamer_presentation(theme = "Hannover"),
+      PDF = rmarkdown::pdf_document(),
+      HTML = rmarkdown::html_document(),
+      BEAMER = rmarkdown::beamer_presentation(theme = "Hannover"),
       REVEAL = revealjs::revealjs_presentation(theme = "sky")
         #css = normalizePath(system.file("bootstrap.css", package = "noric")))
     ), params = list(tableFormat = switch(
