@@ -537,7 +537,7 @@ if(params$tableFormat == 'latex'){
     booktabs = TRUE,
     comment = FALSE,
     caption.placement = "top",
-    table.placement="H"
+    table.placement = "H"
     )
 }
 ```
