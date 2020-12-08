@@ -536,11 +536,13 @@ if(params$tableFormat == 'latex'){
     rotate.colnames = TRUE,
     booktabs = TRUE,
     comment = FALSE,
-    caption.placement = "top"
+    caption.placement = "top",
+    table.placement = "H"
     )
 }
 ```
 
+\newpage
 
 
 ## Komplikasjoner
