@@ -345,7 +345,10 @@ shinyServer(function(input, output, session) {
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
     rv$subscriptionTab, server = FALSE, escape = FALSE, selection = "none",
-    rownames = FALSE, options = list(dom = "t")
+    rownames = FALSE,
+    options = list(
+      dom = "t", ordering = FALSE,
+      columnDefs = list(list(visible = FALSE, targets = c(6, 8))))
   )
 
   ## lag side som viser status for abonnement, også når det ikke finnes noen
