@@ -171,6 +171,23 @@ ui <- tagList(
           uiOutput("subscriptionContent")
         )
       )
+    ),
+    
+    shiny::tabPanel("Utsending",
+      sidebarLayout(
+        sidebarPanel(width = 3,
+          uiOutput("report"),
+          uiOutput("freq"),
+          textInput("email", "Epostmottakere:"),
+          uiOutput("editEmail"),
+          htmlOutput("recipients"),
+          tags$hr(),
+          uiOutput("makeDispatchment")
+        ),
+        mainPanel(
+          uiOutput("dispatchmentContent")
+        )
+      )
     )
   )
 )
