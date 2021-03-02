@@ -121,7 +121,7 @@ shinyServer(function(input, output, session) {
   output$appOrgName <- renderText(paste(hospitalName, userRole, sep = ", "))
 
   # User info in widget
-  userInfo <- rapbase::howWeDealWithPersonalData(session)
+  userInfo <- rapbase::howWeDealWithPersonalData(session, callerPkg = "noric")
   observeEvent(input$userInfo, {
     shinyalert("Dette vet Rapporteket om deg:", userInfo,
                type = "", imageUrl = "rap/logo.svg",
