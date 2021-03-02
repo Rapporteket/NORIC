@@ -38,7 +38,6 @@ Imports:
   magrittr,
   markdown,
   rapbase,
-  raplog,
   RColorBrewer,
   readr,
   revealjs,
@@ -53,7 +52,6 @@ Imports:
   yaml
 Remotes:
   Rapporteket/rapbase,
-  Rapporteket/raplog,
   andrewsali/shinycssloaders
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1

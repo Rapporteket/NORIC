@@ -29,7 +29,7 @@ FROM AndreProsedyrerVar
   }
 
   if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = list(...)[["session"]], msg = msg)
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
   anP <- rapbase::loadRegData(registryName, query, dbType)

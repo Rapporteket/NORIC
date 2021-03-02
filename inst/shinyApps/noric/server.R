@@ -1,13 +1,12 @@
 library(magrittr)
 library(noric)
-library(raplog)
 library(readr)
 library(rpivotTable)
 library(shiny)
 
 shinyServer(function(input, output, session) {
 
-  raplog::appLogger(session = session, msg = "Starting NORIC application")
+  rapbase::appLogger(session = session, msg = "Starting NORIC application")
 
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
@@ -341,7 +340,7 @@ shinyServer(function(input, output, session) {
   ## rekative verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
   rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+    subscriptionTab = rapbase::makeAutoReportTab(session))
 
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
@@ -410,13 +409,13 @@ shinyServer(function(input, output, session) {
                                 interval = interval,
                                 intervalName = intervalName)
     }
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    rv$subscriptionTab <- rapbase::makeAutoReportTab(session)
   })
 
   ## slett eksisterende abonnement
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     rapbase::deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    rv$subscriptionTab <- rapbase::makeAutoReportTab(session)
   })
 })

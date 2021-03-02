@@ -35,7 +35,7 @@ FROM AortaklaffOppfVar
   }
 
   if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = list(...)[["session"]], msg = msg)
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
   aKOppf <- rapbase::loadRegData(registryName, query, dbType)

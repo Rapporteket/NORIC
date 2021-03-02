@@ -100,7 +100,7 @@ WHERE
 
 
   if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = list(...)[["session"]],
+    rapbase::repLogger(session = list(...)[["session"]],
                       msg = paste("NORIC data dump:\n", query))
   }
 
