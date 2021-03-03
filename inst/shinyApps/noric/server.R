@@ -340,13 +340,13 @@ shinyServer(function(input, output, session) {
   # Abonnement
   ## rekative verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
-  rv <- reactiveValues(
-    subscriptionTab = rapbase::makeAutoReportTab(session,
+  subscription <- reactiveValues(
+    tab = rapbase::makeAutoReportTab(session,
                                                  mapOrgId = mapOrgId))
 
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
-    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = "none",
+    subscription$tab, server = FALSE, escape = FALSE, selection = "none",
     rownames = FALSE,
     options = list(
       dom = "t", ordering = FALSE,
@@ -356,7 +356,7 @@ shinyServer(function(input, output, session) {
   ## lag side som viser status for abonnement, også når det ikke finnes noen
   output$subscriptionContent <- renderUI({
     fullName <- rapbase::getUserFullName(session)
-    if (length(rv$subscriptionTab) == 0) {
+    if (length(subscription$tab) == 0) {
       p(paste("Ingen aktive abonnement for", fullName))
     } else {
       tagList(
@@ -414,7 +414,7 @@ shinyServer(function(input, output, session) {
                                 interval = interval,
                                 intervalName = intervalName)
     }
-    rv$subscriptionTab <-
+    subscription$tab <-
       rapbase::makeAutoReportTab(session, mapOrgId = mapOrgId)
   })
 
