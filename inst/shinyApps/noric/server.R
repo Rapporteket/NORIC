@@ -22,23 +22,31 @@ shinyServer(function(input, output, session) {
     ### if need be, define your (local) values here
   }
 
-  # Hide tabs when role is 'LU' or some tabs for role 'LC'
+  # Hide tabs
+  ## when role is 'LU' or some tabs for role 'LC'
   if (userRole == "LU") {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
+    hideTab(inputId = "tabs", target = "Utsending")
   } else if (userRole == "LC") {
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
+    hideTab(inputId = "tabs", target = "Utsending")
   }
 
-  ## ... and hide 'Prosedyrer2', regardless
+  ## 'Prosedyrer2', regardless
   hideTab(inputId = "tabs", target = "Prosedyrer2")
 
-  # Hide local reports/tabs for national registry
+  ## local reports/tabs for national registry
   if (isNationalReg(reshId)) {
     hideTab(inputId = "tabs", target = "Stentbruk")
     hideTab(inputId = "tabs", target = "Prosedyrer")
+  }
+  
+  ## dispatchment when not national registry
+  if (!isNationalReg(reshId)) {
+    hideTab(inputId = "tabs", target = "Utsending")
   }
 
   # html rendering function for re-use
