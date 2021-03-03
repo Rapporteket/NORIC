@@ -16,14 +16,11 @@ shinyServer(function(input, output, session) {
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
     registryName <- noric::makeRegistryName("noricStaging", reshId)
+    mapOrgId <- mapOrgReshId(registryName)
     author <- paste0(userFullName, "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
   }
-  
-  # Org name and id mapping for subscription and dispatchments
-  mapOrgId <- data.frame(name = c("HUS", "Nasjonal"),
-                         id = c(102966, 0))
 
   # Hide tabs when role is 'LU' or some tabs for role 'LC'
   if (userRole == "LU") {
