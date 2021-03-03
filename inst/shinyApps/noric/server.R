@@ -224,6 +224,7 @@ shinyServer(function(input, output, session) {
   })
 
   output$selectVars <- renderUI({
+    req(input$selectedDataSet)
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
       h4(paste("Valgt datasett:",
                names(dataSets)[dataSets == input$selectedDataSet]))
