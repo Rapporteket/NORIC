@@ -19,11 +19,11 @@ header-includes:
 - \usepackage{rotating}
 - \usepackage{float}
 params:
-  hospitalName: Ukjent sykehus
+  hospitalName: hospital
   author: Anon author
   userRole: Ukjent
   tableFormat: latex
-  registryName: rapbase
+  registryName: registry
 ---
 
 
@@ -52,10 +52,6 @@ options(knitr.table.format = params$tableFormat)
 
 knitr::opts_chunk$set(warnings = FALSE, echo = FALSE)
 options(stringsAsFactors = FALSE)
-
-# For some reason Shiny Server does not get the server locale settings right.
-# To display dates correct, enforce locale here:
-Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
 ``` 
 
 
@@ -69,19 +65,11 @@ colKontrast <- "#FF7260"
 
 
 ```{r GetData, include=FALSE, cache=FALSE}
-# SQL SPØRRING ETTER NASJONALE DATA : 
-# Are?
-# dbType <- "mysql"
-# SOQuery <- "SELECT * FROM SkjemaOversikt"
-# SSQuery <- "SELECT * FROM SegementStent"
-# APQuery <- "SELECT * FROM AngioPCIVar"
-# AKQuery <- "SELECT * FROM AortaklaffVar"
 
-# sO_nasjonalt <- rapbase::LoadRegData(params$registryName, SOQuery, dbType)
-# sS_nasjonalt <- rapbase::LoadRegData(params$registryName, SSQuery, dbType)
-# aP_nasjonalt <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
-# aK_nasjonalt <- rapbase::LoadRegData(params$registryName, AKQuery, dbType)
-
+sO_nasjonalt <- noric::getLocalSOData(params$registryName)
+sS_nasjonalt <- noric::getLocalSSData(params$registryName)
+aP_nasjonalt <- noric::getLocalAPData(params$registryName)
+aK_nasjonalt <- noric::getAKData(params$registryName)
 ```
 
 
@@ -412,7 +400,7 @@ nSO <- ferdigstilt_so %>%
   dplyr::count(.data$Month, .data$SkjemastatusTekst, .drop = FALSE) %>% 
   tidyr::pivot_wider(names_from = .data$SkjemastatusTekst, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentFerdig = paste0(round(.data$Ferdigstilt / .data$Totalt * 100, 1), 
@@ -438,7 +426,7 @@ n_so_nasjonalt <- ferdigstilt_so_nasj %>%
   dplyr::count(.data$Month, .data$SkjemastatusTekst, .drop = FALSE) %>% 
   tidyr::pivot_wider(names_from = .data$SkjemastatusTekst, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentFerdig = paste0(round(.data$Ferdigstilt / .data$Totalt * 100, 1),
@@ -553,7 +541,7 @@ nNstemiAP24t <- nstemiAP %>%
   dplyr::count(.data$Month, .data$Ventetid24T) %>% 
   tidyr::pivot_wider(names_from = .data$Ventetid24T, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentInnen24t = round(.data$`Innen 24t` / Totalt * 100, 1),
@@ -571,7 +559,7 @@ n_nstemi_ap24t_nasj <- nstemi_ap_nasjonalt %>%
   dplyr::count(.data$Month, .data$Ventetid24T) %>% 
   tidyr::pivot_wider(names_from = .data$Ventetid24T, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(prosentInnen24t = paste0(
     round(.data$`Innen 24t` / .data$Totalt * 100, 1), " %")) %>% 
@@ -684,7 +672,10 @@ fig_lokal_iAar <- figNstemiAP_iAar %>%
 ```
 
 ```{r hittilIAar_nasj, results='asis', warning=FALSE}
-forsteDagIAar <- lubridate::floor_date(Sys.Date(), "year")
+# NB This scheme is dangerous, e.g. reports run during the first days in January
+#forsteDagIAar <- lubridate::floor_date(Sys.Date(), "year")
+# fake to fit my data
+forsteDagIAar <- lubridate::floor_date(as.Date("2019-01-01"), "year")
 
 nstemi_ap_hittil_iaar_nasj <- nstemi_ap_nasjonalt %>% 
   dplyr::filter(.data$ProsedyreDato >= forsteDagIAar)
@@ -985,7 +976,7 @@ fig_nasj <- figNstemiAP_nasj %>%
   dplyr::mutate(Sykehus = "Nasjonalt",
                 Prosent = paste0(round(.data$value*100,1), " %"))
 
-fig_tabell <- rbind(fig_lokal, fig_nasj) %>% 
+fig_tabell <- rbind(fig_lokal, as.data.frame(fig_nasj)) %>% 
   dplyr::select(.data$Sykehus, 
                 .data$Year, 
                 .data$name, 
@@ -1098,7 +1089,7 @@ nNstemiAP72t <- nstemiAP %>%
   dplyr::count(.data$Month, .data$Ventetid72T) %>% 
   tidyr::pivot_wider(names_from = .data$Ventetid72T, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentInnen72t = round(.data$`Innen 72t`/.data$Totalt*100, 1),
@@ -1116,7 +1107,7 @@ nNstemiAP72t_nasj <- nstemi_ap_nasjonalt %>%
   dplyr::count(.data$Month, .data$Ventetid72T) %>% 
   tidyr::pivot_wider(names_from = .data$Ventetid72T, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentInnen72t = paste0(round(.data$`Innen 72t`/.data$Totalt*100, 1), 
@@ -1190,7 +1181,7 @@ nTrykkmaalingAP <- trykkmaalingAP %>%
   dplyr::count(.data$Month, .data$Trykkmaaling) %>% 
   tidyr::pivot_wider(names_from = .data$Trykkmaaling, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentUtfort = paste0(
@@ -1217,7 +1208,7 @@ nTrykkmaalingAP_nasj <- trykkmaalingAP_nasjonal %>%
   dplyr::count(.data$Month, .data$Trykkmaaling) %>% 
   tidyr::pivot_wider(names_from = .data$Trykkmaaling, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n =0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentUtfort = paste0(
@@ -1306,7 +1297,7 @@ nStentVH <- stentVH %>%
   dplyr::count(.data$Kvartal, .data$IvusOct, .drop = FALSE) %>%
   tidyr::pivot_wider(names_from = .data$IvusOct, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
     prosentUtfort = paste0(
@@ -1332,7 +1323,7 @@ nStentVH_nasjonalt <- stentVH_nasjonalt %>%
   dplyr::count(.data$Kvartal, .data$IvusOct, .drop = FALSE) %>%
   tidyr::pivot_wider(names_from = .data$IvusOct, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
     prosentUtfort = paste0(
@@ -1438,7 +1429,7 @@ nBlodfMedAP <- medisinerAP %>%
   dplyr::count(.data$Month, .data$flereBlodFMed) %>% 
   tidyr::pivot_wider(names_from = .data$flereBlodFMed, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(prosentJa = paste0(round(.data$`Ja`/.data$Totalt*100, 1), " %"),
                 Totalt = ifelse(.data$Totalt < 5,
@@ -1463,7 +1454,7 @@ nBlodfMedAP_nasj <- medisinerAP_nasjonalt %>%
   dplyr::count(.data$Month, .data$flereBlodFMed) %>% 
   tidyr::pivot_wider(names_from = .data$flereBlodFMed, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(prosentJa = paste0(round(.data$`Ja`/.data$Totalt*100, 1), 
                                    " %")) %>% 
@@ -1510,7 +1501,7 @@ nKolestSenkMedAP <- medisinerAP %>%
   dplyr::count(.data$Month, .data$ForskrStatiner) %>% 
   tidyr::pivot_wider(names_from = .data$ForskrStatiner, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentForskrSt = paste0(
@@ -1537,7 +1528,7 @@ nKolestSenkMedAP_nasj <- medisinerAP_nasjonalt %>%
   dplyr::count(.data$Month, .data$ForskrStatiner) %>% 
   tidyr::pivot_wider(names_from = .data$ForskrStatiner, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     prosentForskrSt = paste0(
