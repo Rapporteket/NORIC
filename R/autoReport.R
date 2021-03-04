@@ -1,8 +1,8 @@
-#' Provide reports according to subscription
+#' Make sheduled automated reports
 #'
 #' When called, typically through a chain of events initiated by a chron
-#' process, this is the function that actually produces the report to be
-#' shiped off to the recipient. The actual call to this function is made
+#' process, these are functions that actually produces the reports to be
+#' shipped off to the recipients. The actual call to this function is made
 #' through do.call and has the effect of providing the parameters as class
 #' \emph{list}. Hence, values must be extracted by list operations
 #'
