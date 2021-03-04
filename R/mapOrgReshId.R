@@ -5,8 +5,8 @@
 #' @return A data frame with columns name and id
 #' @export
 
-mapOrgReshId <- function(registryName) {
-  
+mapOrgReshId <- function(registryName, asNamedList = FALSE) {
+
   query <- "
 SELECT
   Sykehusnavn AS name,
@@ -16,6 +16,13 @@ FROM
 GROUP BY
   Sykehusnavn,
   AvdResh;"
-  
-  rapbase::loadRegData(registryName, query)
+
+  res <- rapbase::loadRegData(registryName, query)
+
+  if (asNamedList) {
+    res <- setNames(res$id, res$name)
+    res <- as.list(res)
+  }
+
+  res
 }
