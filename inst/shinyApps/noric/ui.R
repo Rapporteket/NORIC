@@ -172,13 +172,14 @@ ui <- tagList(
         )
       )
     ),
-    
+
     shiny::tabPanel("Utsending",
       sidebarLayout(
         sidebarPanel(width = 3,
-          uiOutput("report"),
+          uiOutput("dispatchmentRepList"),
+          uiOutput("dispatchFromOrgList"),
           uiOutput("freq"),
-          textInput("email", "Epostmottakere:"),
+          textInput("email", "Epost mottaker:"),
           uiOutput("editEmail"),
           htmlOutput("recipients"),
           tags$hr(),

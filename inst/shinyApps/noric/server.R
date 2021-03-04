@@ -43,7 +43,7 @@ shinyServer(function(input, output, session) {
     hideTab(inputId = "tabs", target = "Stentbruk")
     hideTab(inputId = "tabs", target = "Prosedyrer")
   }
-  
+
   ## dispatchment when not national registry
   if (!isNationalReg(reshId)) {
     hideTab(inputId = "tabs", target = "Utsending")
@@ -339,7 +339,14 @@ shinyServer(function(input, output, session) {
 
   output$metaDataTable <- DT::renderDataTable(
     meta()[[input$metaTab]], rownames = FALSE,
-    options = list(lengthMenu = c(25, 50, 100, 200, 400))
+    options = list(
+      lengthMenu = c(25, 50, 100, 200, 400),
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      ))
   )
 
   output$metaData <- renderUI({
@@ -357,7 +364,14 @@ shinyServer(function(input, output, session) {
     subscription$tab, server = FALSE, escape = FALSE, selection = "none",
     rownames = FALSE,
     options = list(
-      dom = "t", ordering = FALSE,
+      dom = "t",
+      ordering = FALSE,
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      ),
       columnDefs = list(list(visible = FALSE, targets = c(6, 8))))
   )
 
@@ -436,7 +450,7 @@ shinyServer(function(input, output, session) {
     freq = "Månedlig-month",
     email = vector()
   )
-  
+
   ## observér og foreta endringer mens applikasjonen kjører
   shiny::observeEvent(input$addEmail, {
     dispatchment$email <- c(dispatchment$email, input$email)
@@ -454,16 +468,18 @@ shinyServer(function(input, output, session) {
     intervalName <- strsplit(input$dispatchmentFreq, "-")[[1]][1]
     runDayOfYear <- rapbase::makeRunDayOfYearSequence(
       interval = interval)
-    
     email <- dispatchment$email
-    organization <- rapbase::getUserReshId(session)
-    
-    if (input$dispatchmentRep == "Automatisk samlerapport1") {
-      synopsis <- "Automatisk samlerapport1"
-      fun <- "samlerapport1Fun"
-      paramNames <- c("p1", "p2")
-      paramValues <- c("Alder", 1)
-      
+    organization <- input$dispatchFromOrg
+
+    if (input$dispatchmentRep == "NORIC_local_montly_KI") {
+      synopsis <- paste("NORIC kvalitetsindikatorer: eget sykehus",
+                        "sammenlignet med resten av landet")
+      fun <- "dispatchMonthlyKi"
+      paramNames <- c("baseName", "hospitalName", "registryName",
+                      "author", "type")
+      paramValues <- c("NORIC_local_montly_KI", "HUS", "noricStagingNasjonal",
+                       "Anon", "pdf")
+
     }
     if (input$dispatchmentRep == "Automatisk samlerapport2") {
       synopsis <- "Automatisk samlerapport2"
@@ -483,15 +499,28 @@ shinyServer(function(input, output, session) {
                                  mapOrgId = mapOrgId)
     dispatchment$email <- vector()
   })
-  
+
   ## ui: velg rapport
-  output$report <- shiny::renderUI({
-    shiny::selectInput(
-      "dispatchmentRep", "Rapport:",
-      c("Automatisk samlerapport1", "Automatisk samlerapport2"),
-      selected = dispatchment$report)
+  output$dispatchmentRepList <- renderUI({
+    if (isNationalReg(reshId)) {
+      selectInput(
+        "dispatchmentRep", "Rapport:",
+        list(
+          `KI: sykehus mot resten av landet` = "NORIC_local_montly_KI"
+        ))
+    } else {
+      selectInput("subscriptionRep", "Rapport:", "")
+    }
   })
-  
+
+  ## ui: velg sykehus
+  output$dispatchFromOrgList <- shiny::renderUI({
+    shiny::selectInput(
+      "dispatchFromOrg", "Velg datakile (sykehus):",
+      mapOrgReshId(registryName, asNamedList = TRUE)
+    )
+  })
+
   ## ui: velg frekvens
   output$freq <- shiny::renderUI({
     shiny::selectInput(
@@ -503,27 +532,31 @@ shinyServer(function(input, output, session) {
             Daglig = "Daglig-DSTday"),
       selected = dispatchment$freq)
   })
-  
+
   ## ui: legg til gyldig- og slett epost
   output$editEmail <- shiny::renderUI({
     if (!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
                input$email)) {
-      shiny::tags$p("Angi mottaker over")
+      shiny::tags$p("Angi mottakers epost over")
     } else {
       if (input$email %in% dispatchment$email) {
-        shiny::actionButton("delEmail", "Slett epostmottaker",
+        shiny::actionButton("delEmail",
+                            paste("Slett mottaker", input$email),
                             icon = shiny::icon("trash"))
       } else {
-        shiny::actionButton("addEmail", "Legg til epostmottaker",
+        shiny::actionButton("addEmail",
+                            paste("Legg til mottaker", input$email),
                             icon = shiny::icon("pencil"))
       }
     }
   })
-  
+
   ## ui: vis valgte mottakere
-  output$recipients <- shiny::renderText(paste(dispatchment$email,
-                                               sep = "<br>"))
-  
+  output$recipients <- shiny::renderUI({
+    recipientList <- paste0(dispatchment$email, sep = "<br/>", collapse = "")
+    shiny::HTML(paste0("<b>Mottakere:</b><br/>", recipientList))
+  })
+
   ## ui: lag ny utsending
   output$makeDispatchment <- shiny::renderUI({
     if (length(dispatchment$email) == 0) {
@@ -533,18 +566,24 @@ shinyServer(function(input, output, session) {
                           icon = shiny::icon("save"))
     }
   })
-  
+
   ## lag tabell over gjeldende status for utsending
   output$activeDispatchments <- DT::renderDataTable(
     dispatchment$tab, server = FALSE, escape = FALSE, selection = "none",
     rownames = FALSE,
     options = list(
       dom = "tp", ordering = FALSE,
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      ),
       columnDefs = list(list(visible = FALSE, targets = 9))
     )
   )
-  
-  
+
+
   ## ui: lag side som viser status for utsending, også når det ikke finnes noen
   output$dispatchmentContent <- shiny::renderUI({
     if (length(dispatchment$tab) == 0) {
@@ -556,13 +595,13 @@ shinyServer(function(input, output, session) {
       )
     }
   })
-  
+
   # Rediger eksisterende auto rapport (alle typer)
   shiny::observeEvent(input$edit_button, {
     repId <- strsplit(input$edit_button, "_")[[1]][2]
     rep <- rapbase::readAutoReportData()[[repId]]
     if (rep$type == "subscription") {
-      
+
     }
     if (rep$type == "dispatchment") {
       dispatchment$freq <- paste0(rep$intervalName, "-", rep$interval)
@@ -574,10 +613,10 @@ shinyServer(function(input, output, session) {
       dispatchment$report <- rep$synopsis
     }
     if (rep$type == "bulletin") {
-      
+
     }
   })
-  
+
   # Slett eksisterende auto rapport (alle typer)
   shiny::observeEvent(input$del_button, {
     repId <- strsplit(input$del_button, "_")[[1]][2]
