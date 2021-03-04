@@ -20,8 +20,41 @@
 #' currently one of "pdf" or "html"
 #'
 #' @return Full path of file produced
-#' @export
+#' @name autoReport
+#' @aliases subscriptionLocalMonthlyReps dispatchMonthyKi
+NULL
 
+#' @rdname autoReport
+#' @export
+dispatchMonthlyKi <- function(baseName, hospitalName, registryName,
+                              author, type) {
+
+  sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
+  tableFormat <- switch(type[[1]],
+                        pdf = "latex",
+                        html = "html"
+  )
+
+  outFile <- tempfile(pattern = baseName[[1]], fileext = paste0(".", type[[1]]))
+
+  rmarkdown::render(input = sourceFile,
+                    output_format = switch(
+                      type[[1]],
+                      pdf = "pdf_document",
+                      html = "html_document"
+                    ),
+                    output_file = outFile,
+                    params = c(hospitalName, registryName, author,
+                               list(tableFormat = tableFormat)),
+                    clean = TRUE,
+                    intermediates_dir = tempdir())
+
+  outFile
+}
+
+
+#' @rdname autoReport
+#' @export
 subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
                                          author, hospitalName, type) {
 
