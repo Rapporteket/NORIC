@@ -1,0 +1,28 @@
+---
+title: "Utsendinger"
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  hospitalName: "Ukjent sykehus"
+  tableFormat: "html"
+  reshId: "999999"
+author: "NORIC"
+date: '`r format(Sys.time(), "%d. %B %Y")`'
+
+---
+
+## Veiledning for utsendinger
+Her kan du sette opp rutinemessig produksjon og utsending av resultater i form av pdf-dokumneter som sendes til angitte mottakere per epost.
+
+### Bruk
+Fra menyen til venstre
+
+1. velg rapport som skal sendes ut,
+1. angi datakilden som skal benyttes,
+1. velg hvor hyppig rapporten skal sendes ut
+1. og angi hver enkelt mottakers epostadresse
+
+Når alt er klart trykk på "Lag utsending" og utsendingen vil komme opp i tabellen under. Aktive oppføringer kan endres ved å trykke på `r shiny::icon("edit")` til høyre i tabellen. Oppføringen vil da slettes fra tabellen og flyttes til menyen til venstre. Mottakere i listen kan slettes ved å angi epostadressen.
+
+### Lurt å tenke over
+Alle utsendinger skjer per epost og det betyr at rapportene som sendes ut __ikke__ skal inneholde person- og helseopplysninger. Du står selv som ansvarlig for de utsendinger du lager. Det er en god regel å ikke sende ut for ofte men heller med passelige intervaller basert på når nye data i registeret bør presenteres. Alle slike utsendinger produseres og sendes ut nattestid. Om du har mange utsendinger kan det være lurt å passe på å spre disse på litt ulike tidspunkter.

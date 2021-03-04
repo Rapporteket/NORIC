@@ -587,10 +587,14 @@ shinyServer(function(input, output, session) {
   ## ui: lag side som viser status for utsending, også når det ikke finnes noen
   output$dispatchmentContent <- shiny::renderUI({
     if (length(dispatchment$tab) == 0) {
-      shiny::p("Det finnes ingen utendinger")
+      shiny::tagList(
+        htmlRenderRmd("dispatchmentGuide.Rmd"),
+        shiny::h2("Det finnes ingen utsendinger")
+      )
     } else {
       shiny::tagList(
-        shiny::p("Aktive utsendinger:"),
+        htmlRenderRmd("dispatchmentGuide.Rmd"),
+        shiny::h2("Aktive utsendinger:"),
         DT::dataTableOutput("activeDispatchments")
       )
     }
