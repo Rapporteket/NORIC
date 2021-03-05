@@ -171,15 +171,18 @@ aP_nasjonalt %<>%  dplyr::mutate(
 
 
 # Ventetid - NSTEMI
+aP_nasjonalt$AdmissionType <- car::recode(
+    var = aP_nasjonalt$OverflyttetFra,
+    recodes = "
+        'Annet sykehus'='Referred';
+        '' = NA;
+        'Annen  avdeling på sykehuset' = NA;
+        'Nei, direkte inn til dette sykehus' = 'Directly admitted';
+        'Omdirigert ambulanse' = 'Directly admitted';
+        ")
+
 aP_nasjonalt %<>% dplyr::mutate(
-  AdmissionType = dplyr::recode(
-    .data$OverflyttetFra,
-    "Annet sykehus" = "Referred",
-    .missing = NA_character_,
-    "Annen  avdeling på sykehuset" = NA_character_,
-    "Nei, direkte inn til dette sykehus" = "Directly admitted",
-    "Omdirigert ambulanse" = "Directly admitted"), 
-  
+ 
   ProsedyreDatoTid = paste(.data$ProsedyreDato, .data$ProsedyreTid),
   ProsedyreTidspunkt = lubridate::parse_date_time2(
     .data$ProsedyreDatoTid,
@@ -472,28 +475,28 @@ med målnivå på henholdsvis 50 % og 80 %.
 
 ```{r ventetidNSTEMI,include=FALSE, eval=TRUE}
 
-#Nasjonalt
-nstemi_ap_nasjonalt <- aP_nasjonalt[which(aP_nasjonalt$Indikasjon == "NSTEMI" &
-                       is.na(aP_nasjonalt$KobletForlopsID) &
-                       aP_nasjonalt$innkomstaarsak != "Øvrig" &
-                       aP_nasjonalt$ForlopsType2 != "Planlagt" & 
-                       !is.na(aP_nasjonalt$AdmissionType) &
-                       aP_nasjonalt$TidsDiffSek > 0 &
-                       aP_nasjonalt$TidsDiffSek <= 1814400 &
-                       !is.na(aP_nasjonalt$TidsDiffSek)
-                     ), ]
+# ANTALL NSTEMI LOKALT
+nstemiAPTot <- aP_nasjonalt %>% 
+  filter(.data$Sykehusnavn == params$hospitalName,
+        .data$Indikasjon == "NSTEMI", 
+         is.na(.data$KobletForlopsID), 
+         .data$innkomstaarsak!="Øvrig",
+         .data$ForlopsType2!="Planlagt",
+         !is.na(.data$AdmissionType))
+ 
 
+# DATSETT NSTEMI MED GYLDIG TID - NASJONALT
+nstemi_ap_nasjonalt <- aP_nasjonalt %>% 
+  filter(.data$Indikasjon == "NSTEMI", 
+         is.na(.data$KobletForlopsID),
+         .data$ForlopsType2!="Planlagt",
+         .data$innkomstaarsak!="Øvrig", 
+         !is.na(.data$AdmissionType),
+         !is.na(.data$TidsDiffSek),
+         .data$TidsDiffSek > 0, 
+         .data$TidsDiffSek <= 1814400)
 
-#Lokalt
-nstemiAPTot <- aP_nasjonalt[which(
-  aP_nasjonalt$Sykehusnavn == params$hospitalName & 
-    aP_nasjonalt$Indikasjon == "NSTEMI" &
-    is.na(aP_nasjonalt$KobletForlopsID) &
-    aP_nasjonalt$innkomstaarsak != "Øvrig" &
-    aP_nasjonalt$ForlopsType2 != "Planlagt" & 
-    !is.na(aP_nasjonalt$AdmissionType)
-  ), ]
-
+# DATSETT NSTEMI MED GYLDIG TID - LOKALT
 nstemiAP <- nstemi_ap_nasjonalt %>% 
   dplyr::filter(.data$Sykehusnavn == params$hospitalName)
 
