@@ -539,13 +539,15 @@ shinyServer(function(input, output, session) {
       shiny::tags$p("Angi mottakers epost over")
     } else {
       if (input$email %in% dispatchment$email) {
-        shiny::actionButton("delEmail",
-                            paste("Slett mottaker", input$email),
-                            icon = shiny::icon("trash"))
+        shiny::actionButton(
+          "delEmail",
+          shiny::HTML(paste("Slett mottaker<br/>", input$email)),
+          icon = shiny::icon("minus-square"))
       } else {
-        shiny::actionButton("addEmail",
-                            paste("Legg til mottaker", input$email),
-                            icon = shiny::icon("pencil"))
+        shiny::actionButton(
+          "addEmail",
+          shiny::HTML(paste("Legg til mottaker<br/>", input$email)),
+          icon = shiny::icon("plus-square"))
       }
     }
   })
