@@ -65,9 +65,8 @@ shinyServer(function(input, output, session) {
     on.exit(setwd(owd))
     sourceFile %>%
       knitr::knit() %>%
-      markdown::markdownToHTML(.,
-                               options = c("fragment_only",
-                                           "base64_images")) %>%
+      rmarkdown::render(., output_format = "html_fragment") %>%
+      readLines() %>%
       shiny::HTML()
   }
 
