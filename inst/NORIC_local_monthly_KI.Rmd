@@ -20,6 +20,7 @@ header-includes:
 - \usepackage{float}
 params:
   hospitalName: hospital
+  reshID: reshid
   author: Anon author
   userRole: Ukjent
   tableFormat: latex
@@ -123,7 +124,7 @@ sO_nasjonalt %<>% dplyr::mutate(
 # crude fix for Ahu Gardermoen and Rikshospitalet which have meaningless test  
 # data before 2015
 sO_nasjonalt %<>% dplyr::filter(
-  ! (.data$Sykehusnavn %in%  c("AHUS Gardermoen", "Rikshospitalet") &
+  ! (.data$AvdRESH %in%  c(106944, 700722) &
        .data$Year < 2015))
 
 sO_nasjonalt %<>%dplyr::mutate(
@@ -162,7 +163,7 @@ aP_nasjonalt %<>% dplyr::mutate(
 # crude fix for Feiring (Gardermoen) and Rikshospitalet which have meaningless 
 # test data before 2015
 aP_nasjonalt %<>% dplyr::filter(
-  ! (.data$Sykehusnavn %in%  c("AHUS Gardermoen", "Rikshospitalet") &
+  ! (.data$AvdRESH %in%  c(106944, 700722) &
        .data$Year < 2015))
 
 
@@ -346,7 +347,7 @@ aK_nasjonalt %<>% dplyr::mutate(
     missing = "Ikke implantert perm. pacemaker"))
 
 dim_ak_lokalt <- aK_nasjonalt %>% 
-  dplyr::filter(.data$Sykehusnavn == params$hospitalName,
+  dplyr::filter(.data$AvdRESH == params$reshID,
          .data$ProsedyreDato >= 2018) %>% 
   dim(.)
 
@@ -389,10 +390,11 @@ ferdigstilt_so_nasj <- sO_nasjonalt %>%
   dplyr::filter(.data$Skjemanavn == "Kompl") %>% 
   dplyr::select(.data$SkjemastatusTekst,
                 .data$Month, 
-                .data$Sykehusnavn)
+                .data$Sykehusnavn, 
+                .data$AvdRESH)
 
 ferdigstilt_so <- ferdigstilt_so_nasj %>% 
-  dplyr::filter(.data$Sykehusnavn == params$hospitalName)
+  dplyr::filter(.data$AvdRESH == params$reshID)
 
 ```
 
@@ -477,7 +479,7 @@ med målnivå på henholdsvis 50 % og 80 %.
 
 # ANTALL NSTEMI LOKALT
 nstemiAPTot <- aP_nasjonalt %>% 
-  filter(.data$Sykehusnavn == params$hospitalName,
+  filter(.data$AvdRESH == params$reshID,
         .data$Indikasjon == "NSTEMI", 
          is.na(.data$KobletForlopsID), 
          .data$innkomstaarsak!="Øvrig",
@@ -498,7 +500,7 @@ nstemi_ap_nasjonalt <- aP_nasjonalt %>%
 
 # DATSETT NSTEMI MED GYLDIG TID - LOKALT
 nstemiAP <- nstemi_ap_nasjonalt %>% 
-  dplyr::filter(.data$Sykehusnavn == params$hospitalName)
+  dplyr::filter(.data$AvdRESH == params$reshID)
 
 
 ```
@@ -1171,10 +1173,11 @@ trykkmaalingAP_nasjonal <- aP_nasjonalt %>%
   dplyr::filter(.data$Indikasjon == "Stabil koronarsykdom") %>% 
   dplyr::select(.data$Month,
                 .data$Trykkmaaling,
-                .data$Sykehusnavn)
+                .data$Sykehusnavn,
+                .data$AvdRESH)
 
 trykkmaalingAP <- trykkmaalingAP_nasjonal %>% 
-  dplyr::filter(.data$Sykehusnavn == params$hospitalName)
+  dplyr::filter(.data$AvdRESH == params$reshID)
 
 ```
 
@@ -1262,7 +1265,9 @@ behandlet for akutt hjerteinfarkt av typen STEMI er ikke medregnet i analysene.
 #Nasjonalt
 stentVH_sS_nasjonalt <- sS_nasjonalt %>% 
   dplyr::filter(!is.na(.data$StentType) & .data$Segment == 5) %>% 
-  dplyr::select(.data$ForlopsID, .data$Sykehusnavn) 
+  dplyr::select(.data$ForlopsID, 
+                .data$Sykehusnavn,
+                .data$AvdRESH) 
 
 
 stentVH_aP_nasjonalt <- aP_nasjonalt %>% 
@@ -1279,16 +1284,17 @@ stentVH_aP_nasjonalt <- aP_nasjonalt %>%
   dplyr::select(.data$ForlopsID, 
                 .data$Sykehusnavn, 
                 .data$IvusOct, 
-                .data$Kvartal)
+                .data$Kvartal,
+                .data$AvdRESH)
 
 
 stentVH_nasjonalt <- stentVH_sS_nasjonalt %>%
   dplyr::inner_join(., 
                     stentVH_aP_nasjonalt, 
-                    by = c("ForlopsID", "Sykehusnavn"))
+                    by = c("ForlopsID", ".data$AvdRESH"))
 #Lokalt
 stentVH <- stentVH_nasjonalt %>% 
-  dplyr::filter(.data$Sykehusnavn == params$hospitalName)
+  dplyr::filter(.data$AvdRESH == params$reshID)
 
 ```
 
@@ -1370,17 +1376,22 @@ medisinerSO_nasjonalt <- sO_nasjonalt %>%
   dplyr::filter(.data$Skjemanavn == "Utskrivelse") %>% 
   dplyr::select(.data$Sykehusnavn, 
                 .data$ForlopsID, 
-                .data$SkjemaStatus)
+                .data$SkjemaStatus,
+                .data$AvdRESH)
 
 
 medisinerSS_nasjonalt <- sS_nasjonalt %>%
   dplyr::select(.data$Sykehusnavn, 
                 .data$ForlopsID, 
-                .data$StentType) %>% 
-  dplyr::group_by(.data$Sykehusnavn, .data$ForlopsID) %>%
+                .data$StentType,
+                .data$AvdRESH) %>% 
+  dplyr::group_by(.data$AvdRESH, .data$ForlopsID) %>%
   dplyr::mutate(antStent = sum(!is.na(.data$StentType), na.rm = TRUE)) %>% 
   dplyr::ungroup() %>% 
-  dplyr::select(.data$Sykehusnavn, .data$ForlopsID, .data$antStent) %>% 
+  dplyr::select(.data$Sykehusnavn, 
+                .data$ForlopsID, 
+                .data$antStent,
+                .data$AvdRESH) %>% 
   dplyr::distinct()
 
 medisinerAP_nasjonalt <- aP_nasjonalt %>% 
@@ -1391,16 +1402,17 @@ medisinerAP_nasjonalt <- aP_nasjonalt %>%
                 .data$Month,
                 .data$UtskrevetDod, 
                 .data$flereBlodFMed, 
-                .data$ForskrStatiner) %>% 
+                .data$ForskrStatiner,
+                .data$AvdRESH) %>% 
   dplyr::left_join(., 
                    medisinerSO_nasjonalt, 
-                   by = c("Sykehusnavn","ForlopsID")
+                   by = c("AvdRESH","ForlopsID")
                    ) %>% 
   dplyr::left_join(.,
                    medisinerSS_nasjonalt, 
-                   by = c("Sykehusnavn","ForlopsID")
+                   by = c("AvdRESH","ForlopsID")
                    ) %>% 
-  dplyr::group_by(.data$Sykehusnavn, .data$primFID) %>% 
+  dplyr::group_by(.data$AvdRESH, .data$primFID) %>% 
   dplyr::mutate(antStentUnderOpphold = sum(.data$antStent > 0, 
                                            na.rm = TRUE)) %>% 
   dplyr::ungroup() %>% 
@@ -1411,7 +1423,7 @@ medisinerAP_nasjonalt <- aP_nasjonalt %>%
 
 #Lokalt
 medisinerAP <- medisinerAP_nasjonalt %>% 
-  dplyr::filter(.data$Sykehusnavn == params$hospitalName)
+  dplyr::filter(.data$AvdRESH == params$reshID)
 
 ```
 
@@ -1604,29 +1616,30 @@ if (dim_ak_lokalt[1] > 0 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
     dplyr::select(.data$Sykehusnavn, 
                   .data$ForlopsID, 
                   .data$Kvartal, 
-                  .data$Pacemakerbehov)
+                  .data$Pacemakerbehov, 
+                  .data$AvdRESH)
         
 
  pacemakerbehovSO_nasjonalt <- sO_nasjonalt %>% 
    dplyr::filter(.data$SkjemaStatus == 1 &
                    .data$Skjemanavn == "Aorta") %>% 
-   dplyr::select(.data$Sykehusnavn, 
+   dplyr::select(.data$AvdResh, 
                  .data$ForlopsID,
                  .data$SkjemaStatus)
   
   pacemakerbehovAK_ferdigstilt_nasj <- pacemakerbehovAK_nasjonalt %>% 
     dplyr::left_join(., 
                      pacemakerbehovSO_nasjonalt, 
-                     by = c("Sykehusnavn", "ForlopsID")) %>% 
+                     by = c("AvdResh", "ForlopsID")) %>% 
     dplyr::filter(.data$SkjemaStatus == 1)
   
   
   #Lokalt
   pacemakerbehovAK <- pacemakerbehovAK_nasjonalt %>% 
-    dplyr::filter(.data$Sykehusnavn == params$hospitalName)
+    dplyr::filter(.data$AvdRESH == params$reshID)
   
   pacemakerbehovAK_ferdigstilt <- pacemakerbehovAK_ferdigstilt_nasj %>% 
-    dplyr::filter(.data$Sykehusnavn == params$hospitalName)
+    dplyr::filter(.data$AvdRESH == params$reshID)
   
   #Sjekker andel ferdigstilte skjemaer
   sjekkTot <- pacemakerbehovAK %>% 
