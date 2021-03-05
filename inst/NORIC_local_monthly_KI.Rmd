@@ -680,7 +680,8 @@ fig_lokal_iAar <- figNstemiAP_iAar %>%
 # NB This scheme is dangerous, e.g. reports run during the first days in January
 #forsteDagIAar <- lubridate::floor_date(Sys.Date(), "year")
 # fake to fit my data
-forsteDagIAar <- lubridate::floor_date(as.Date("2019-01-01"), "year")
+# forsteDagIAar <- lubridate::floor_date(as.Date("2019-01-01"), "year")
+forsteDagIAar <- lubridate::floor_date(Sys.Date(), "year")
 
 nstemi_ap_hittil_iaar_nasj <- nstemi_ap_nasjonalt %>% 
   dplyr::filter(.data$ProsedyreDato >= forsteDagIAar)
