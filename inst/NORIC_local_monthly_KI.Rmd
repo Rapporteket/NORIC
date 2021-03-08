@@ -20,7 +20,7 @@ header-includes:
 - \usepackage{float}
 params:
   hospitalName: hospital
-  reshID: reshid
+  reshID: 999999
   author: Anon author
   userRole: Ukjent
   tableFormat: latex
@@ -1292,7 +1292,7 @@ stentVH_aP_nasjonalt <- aP_nasjonalt %>%
 stentVH_nasjonalt <- stentVH_sS_nasjonalt %>%
   dplyr::inner_join(., 
                     stentVH_aP_nasjonalt, 
-                    by = c("ForlopsID", ".data$AvdRESH"))
+                    by = c("ForlopsID", "AvdRESH"))
 #Lokalt
 stentVH <- stentVH_nasjonalt %>% 
   dplyr::filter(.data$AvdRESH == params$reshID)
@@ -1624,14 +1624,14 @@ if (dim_ak_lokalt[1] > 0 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
  pacemakerbehovSO_nasjonalt <- sO_nasjonalt %>% 
    dplyr::filter(.data$SkjemaStatus == 1 &
                    .data$Skjemanavn == "Aorta") %>% 
-   dplyr::select(.data$AvdResh, 
+   dplyr::select(.data$AvdRESH, 
                  .data$ForlopsID,
                  .data$SkjemaStatus)
   
   pacemakerbehovAK_ferdigstilt_nasj <- pacemakerbehovAK_nasjonalt %>% 
     dplyr::left_join(., 
                      pacemakerbehovSO_nasjonalt, 
-                     by = c("AvdResh", "ForlopsID")) %>% 
+                     by = c("AvdRESH", "ForlopsID")) %>% 
     dplyr::filter(.data$SkjemaStatus == 1)
   
   
@@ -1677,7 +1677,7 @@ if (dim_ak_lokalt[1] > 0 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
     dplyr::count(.data$Kvartal, .data$Pacemakerbehov) %>% 
     tidyr::pivot_wider(names_from = .data$Pacemakerbehov, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
     janitor::adorn_totals("col", name = "Totalt") %>% 
     dplyr::mutate(
       prosentImpPace = paste0(
@@ -1695,7 +1695,7 @@ if (dim_ak_lokalt[1] > 0 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
     dplyr::count(.data$Kvartal, .data$Pacemakerbehov) %>% 
     tidyr::pivot_wider(names_from = .data$Pacemakerbehov, 
                      values_from = .data$n, 
-                     values_fill = 0) %>%
+                     values_fill = list(n = 0)) %>%
     janitor::adorn_totals("col", name = "Totalt") %>% 
     dplyr::mutate(
       prosentImpPace = paste0(
