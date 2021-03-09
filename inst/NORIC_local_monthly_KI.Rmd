@@ -73,40 +73,46 @@ aP_nasjonalt <- noric::getLocalAPData(params$registryName)
 aK_nasjonalt <- noric::getAKData(params$registryName)
 ```
 
+```{r nyesteRegistrering_ap, include=FALSE, eval=TRUE}
+nyeste_registrering_ap <- aP_nasjonalt %>% 
+  summarise(nyesteReg = max(ProsedyreDato), 
+            nyesteRegYear = as.numeric(format(nyesteReg, format="%Y")), 
+            sisteHeleYear = nyesteRegYear -1)
+```
+
 
 ```{r yearTabPrepare, include=FALSE, eval=TRUE}
-sisteDatoYear <- lubridate::floor_date(as.Date(Sys.Date()), "year")-1
-yearDato <- seq(as.Date("2017-01-01"), sisteDatoYear, by = "year")
-
-timeTableYear <- as.data.frame(yearDato) %>%
-  dplyr::mutate(Year = as.numeric(format(.data$yearDato, format = "%Y"))) %>%
-  dplyr::select(.data$Year)
+timeTableYear <- data.frame(
+  Year = 2017:nyeste_registrering_ap$sisteHeleYear)
 ```
 
 
 ```{r kvartalTabPrepare, include=FALSE, eval=TRUE}
-sisteDatoKvartal <- lubridate::floor_date(as.Date(Sys.Date()), "quarter") - 1
-forsteDatoKvartal <- lubridate::floor_date(sisteDatoKvartal - 450, "quarter")
-kvartalDato <- seq(forsteDatoKvartal, sisteDatoKvartal, by = "quarter")
-
-timeTableQuarter <- as.data.frame(kvartalDato) %>%
-  dplyr::mutate(
-    Kvartal = lubridate::quarter(x = .data$kvartalDato, with_year = FALSE),
-    Year = lubridate::year(x = .data$kvartalDato),
-    Kvartal = paste0(Year, " Q", Kvartal)
-    ) %>%
-  dplyr::select(.data$Kvartal)
+# 5 siste ferdige kvartal
+forsteDatoKvartal <- lubridate::floor_date(nyeste_registrering_ap$nyesteReg, 
+                                          "quarter") 
+timeTableQuarter <- data.frame(
+  KvartalDatoStart = rev(seq(forsteDatoKvartal, 
+                             by = "-1 quarter",
+                             length.out = 6)[2:6])) %>% 
+  dplyr::transmute(
+    Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
+                     " Q", 
+                     lubridate::quarter(.dataKvartalDatoStart, 
+                                        with_year = FALSE)))
 ```
 
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
-sisteDatoMonth <- lubridate::floor_date(as.Date(Sys.Date()), "month") - 1
-forsteDatoMonth <- lubridate::floor_date(sisteDatoMonth - 420, "month") 
-monthDato <- seq(forsteDatoMonth, sisteDatoMonth, by = "month")
-
-timeTableMonth <- as.data.frame(monthDato) %>%
-  dplyr::mutate(Month = as.factor(format(x = .data$monthDato, 
-                                         format = "%Y-%m"))) %>%
-  dplyr::select(.data$Month)
+# Hele forrige år og alle påbegynte måneder hittil i år
+forsteDatoSisteMonth <- lubridate::floor_date(nyeste_registrering_ap$nyesteReg, 
+                                        "month") 
+timeTableMonth <- data.frame(
+  monthDato = seq(as.Date(paste0(nyeste_registrering_ap$sisteHeleYear, 
+                                "-01-01")), 
+                  forsteDatoSisteMonth,
+                  by = "month")) %>% 
+  dplyr::transmute(Month = as.factor(format(x = .data$monthDato, 
+                                            format = "%Y-%m")))
 ```
 
 
