@@ -399,9 +399,10 @@ forløp/prosedyre, og ikke per individ.
 \
 
 De fleste kvalitetsindikatorene presenteres per måned hittil i år i tillegg til 
-det siste hele året. Noen av indikatorene presenteres per kvartal, da brukes 
+det siste hele året. Figurene inneholder bare fullførte måneder eller år. 
+Noen av indikatorene presenteres per kvartal, da brukes 
 siste fullførte kvartal samt fire kvartaler tilbake i tid. Det nyeste forløpet 
-som er med i denne rapporten er gjort i det nasjonale registeret den 
+som er med i denne rapporten er registrert i det nasjonale registeret den 
 `r  format(nyeste_registrering_ap$nyesteReg, format ='%d. %B %Y')`.
 \
 Eventuelle spørsmål knyttet til rapporten kan rettes til 
@@ -1749,7 +1750,7 @@ if (dim_ak_lokalt[1] > 0 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
       "Antall implanterte perm. pacemaker" = .data$implPermPace) %>% 
     replace(is.na(.), "-")
     
-cap <- "Antall og andel pasienter som har fått implantert permanent pacemaker under sykehusoppholdet etter kateterbasert innsetting av aortaklaff. Kun observasjoner der prosedyreskjemaet er ferdigstilt er tatt med. Kvartaler som vises er fra siste hele år t.o.m. siste hele kvartal fra nåværende år. Hvis andel ferdigstilte prosedyreskjemaer er mindre enn 50\\%, vises ikke prosenten for andel implanterte permanente pacemaker."
+cap <- "Antall og andel pasienter som har fått implantert permanent pacemaker under sykehusoppholdet etter kateterbasert innsetting av aortaklaff. Kun observasjoner der prosedyreskjemaet er ferdigstilt er tatt med. Hvis andel ferdigstilte prosedyreskjemaer er mindre enn 50\\%, vises ikke prosenten for andel implanterte permanente pacemaker."
     
 noric::mst(tab = tabPacemakerbehovAK_ferdigstilt, 
       type = params$tableFormat, cap = cap,
