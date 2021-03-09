@@ -890,9 +890,8 @@ nNstemiAPKomplett_year <- nNstemiAPTot_year %>%
 
 nstemiAP_fra2017 <- nstemiAP %>% 
   dplyr::filter(
-    .data$Year >= 2017 & 
-      .data$ProsedyreDato < lubridate::floor_date(as.Date(Sys.Date()), 
-                                                  "year"))
+    .data$Year >= 2017 , 
+    .data$Year < nyeste_registrering_ap$nyesteRegYear)
 
 figNstemiAPSamlet <- nstemiAP_fra2017 %>% 
   dplyr::count(.data$Year, .data$Ventetid24T) %>% 
@@ -949,9 +948,8 @@ figNstemiAP <- figNstemiAPSamlet %>%
 #Nasjonalt
 nstemiAP_nasj_fra2017 <- nstemi_ap_nasjonalt %>% 
   dplyr::filter(
-    .data$Year >= 2017 &
-      .data$ProsedyreDato < lubridate::floor_date(as.Date(Sys.Date()), 
-                                                        "year"))
+    .data$Year >= 2017, 
+    .data$Year < nyeste_registrering_ap$nyesteRegYear)
 
 figNstemiAPSamlet_nasj <- nstemiAP_nasj_fra2017 %>% 
   dplyr::group_by(.data$Year, .data$Ventetid24T) %>% 
