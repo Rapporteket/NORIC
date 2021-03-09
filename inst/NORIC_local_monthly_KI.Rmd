@@ -652,10 +652,15 @@ noric::mst(tab = tabVentetid24t,
 __Hittil i år__ 
 
 ```{r hittilIAar, results='asis', warning=FALSE}
-forsteDagIAar <- lubridate::floor_date(Sys.Date(), "year")
+# Hele siste år + alle fullførte måneder i dette året.
+forsteDagFigur_ventetid <- paste0(nyeste_registrering_ap$sisteHeleYear, 
+                        "-01-01")
+sisteDagFigur_ventetid <- lubridate::floor_date(x = nyeste_registrering_ap$nyesteReg,
+                                       unit = "month")
 
 nstemi_ap_hittil_iaar <- nstemiAP %>% 
-  dplyr::filter(.data$ProsedyreDato >= forsteDagIAar)
+  dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
+                .data$ProsedyreDato < sisteDagFigur_ventetid)
 
 
 figNstemiAPSamlet_iAar <- nstemi_ap_hittil_iaar %>% 
@@ -714,14 +719,9 @@ fig_lokal_iAar <- figNstemiAP_iAar %>%
 ```
 
 ```{r hittilIAar_nasj, results='asis', warning=FALSE}
-# NB This scheme is dangerous, e.g. reports run during the first days in January
-#forsteDagIAar <- lubridate::floor_date(Sys.Date(), "year")
-# fake to fit my data
-# forsteDagIAar <- lubridate::floor_date(as.Date("2019-01-01"), "year")
-forsteDagIAar <- lubridate::floor_date(Sys.Date(), "year")
-
-nstemi_ap_hittil_iaar_nasj <- nstemi_ap_nasjonalt %>% 
-  dplyr::filter(.data$ProsedyreDato >= forsteDagIAar)
+stemi_ap_hittil_iaar_nasj <- nstemi_ap_nasjonalt %>% 
+  dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid, 
+                .dato$ProsedyreDato < sisteDagFigur_ventetid)
 
 
 figNstemiAPSamlet_iAar_nasj <- nstemi_ap_hittil_iaar_nasj %>% 
@@ -786,7 +786,7 @@ fig_tabell_iAar <- rbind(fig_lokal_iAar, fig_iAar_nasj) %>%
 ```
 
 
-```{r fig_ventetid24T_iAar_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra starten av dette året til siste hele måned. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
 
 fig_iAar_samlet <- fig_tabell_iAar %>% 
   dplyr::filter(name == "Samlet")
@@ -811,7 +811,7 @@ fig_iAar_samlet %>%
 
 
 
-```{r fig_ventetid24T_iAar_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra starten av dette året til siste hele måned. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
 
 fig_iAar_direkte <- fig_tabell_iAar %>% 
   dplyr::filter(name == "Direkte")
@@ -833,7 +833,7 @@ fig_iAar_direkte %>%
 
 ```
 
-```{r fig_ventetid24T_iAar_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra starten av dette året til siste hele måned. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
 
 fig_iAar_overflyttet <- fig_tabell_iAar %>% 
   dplyr::filter(name == "Overflyttet")
