@@ -365,8 +365,7 @@ aK_nasjonalt %<>% dplyr::mutate(
 
 
 aK_nasjonalt  %<>% 
-  dplyr::filter(RegDate < Sys.Date(), 
-         RegDate >= as.Date("2019-01-01"))
+  dplyr::filter(RegDate >= as.Date("2019-01-01"))
 
 
 aK_nasjonalt %<>% dplyr::mutate(
