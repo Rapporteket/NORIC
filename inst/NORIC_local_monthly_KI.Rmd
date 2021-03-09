@@ -118,9 +118,7 @@ timeTableMonth <- data.frame(
 
 ```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
 nyeste_registrering_ak <- aK_nasjonalt %>% 
-  summarise(nyesteReg = max(ProsedyreDato), 
-            nyesteRegYear = as.numeric(format(nyesteReg, format="%Y")), 
-            sisteHeleYear = nyesteRegYear -1)
+  summarise(nyesteReg = max(ProsedyreDato))
 ```
 
 
