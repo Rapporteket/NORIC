@@ -1690,7 +1690,7 @@ if (dim_ak_lokalt[1] > 0 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
 
 ```
 
-```{r TabNPacemakerbehovAK, results='asis', warning=FALSE}
+```{r TabNPacemakerbehovAK, results='asis', warning=FALSE, eval=FALSE}
 
 if (dim_ak_lokalt[1] > 0 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
   
