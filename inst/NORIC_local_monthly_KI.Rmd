@@ -98,7 +98,7 @@ timeTableQuarter <- data.frame(
   dplyr::transmute(
     Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
                      " Q", 
-                     lubridate::quarter(.dataKvartalDatoStart, 
+                     lubridate::quarter(.data$KvartalDatoStart, 
                                         with_year = FALSE)))
 ```
 
@@ -720,9 +720,9 @@ fig_lokal_iAar <- figNstemiAP_iAar %>%
 ```
 
 ```{r hittilIAar_nasj, results='asis', warning=FALSE}
-stemi_ap_hittil_iaar_nasj <- nstemi_ap_nasjonalt %>% 
+nstemi_ap_hittil_iaar_nasj <- nstemi_ap_nasjonalt %>% 
   dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid, 
-                .dato$ProsedyreDato < sisteDagFigur_ventetid)
+                .data$ProsedyreDato < sisteDagFigur_ventetid)
 
 
 figNstemiAPSamlet_iAar_nasj <- nstemi_ap_hittil_iaar_nasj %>% 
