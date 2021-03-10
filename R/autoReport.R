@@ -26,8 +26,8 @@ NULL
 
 #' @rdname autoReport
 #' @export
-dispatchMonthlyKi <- function(baseName, hospitalName, registryName,
-                              author, type) {
+dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
+                              type, registryName) {
 
   sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
   tableFormat <- switch(type[[1]],
@@ -44,8 +44,8 @@ dispatchMonthlyKi <- function(baseName, hospitalName, registryName,
                       html = "html_document"
                     ),
                     output_file = outFile,
-                    params = c(hospitalName, registryName, author,
-                               list(tableFormat = tableFormat)),
+                    params = c(hospitalName, reshID, author, userRole,
+                               list(tableFormat = tableFormat), registryName),
                     clean = TRUE,
                     intermediates_dir = tempdir())
 
