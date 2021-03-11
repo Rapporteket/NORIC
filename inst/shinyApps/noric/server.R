@@ -470,14 +470,16 @@ shinyServer(function(input, output, session) {
     email <- dispatchment$email
     organization <- input$dispatchFromOrg
 
-    if (input$dispatchmentRep == "NORIC_local_montly_KI") {
+    if (input$dispatchmentRep == "NORIC_local_monthly_KI") {
       synopsis <- paste("NORIC kvalitetsindikatorer: eget sykehus",
                         "sammenlignet med resten av landet")
       fun <- "dispatchMonthlyKi"
-      paramNames <- c("baseName", "hospitalName", "registryName",
-                      "author", "type")
-      paramValues <- c("NORIC_local_montly_KI", "HUS", "noricStagingNasjonal",
-                       "Anon", "pdf")
+      paramNames <- c("baseName", "hospitalName", "reshID", "author", "userRole",
+                      "type", "registryName")
+      paramValues <- c("NORIC_local_monthly_KI",
+                       getHospitalName(input$dispatchFromOrg),
+                       input$dispatchFromOrg, userFullName, userRole, "pdf",
+                       registryName)
 
     }
     if (input$dispatchmentRep == "Automatisk samlerapport2") {
@@ -505,10 +507,10 @@ shinyServer(function(input, output, session) {
       selectInput(
         "dispatchmentRep", "Rapport:",
         list(
-          `KI: sykehus mot resten av landet` = "NORIC_local_montly_KI"
+          `KI: sykehus mot resten av landet` = "NORIC_local_monthly_KI"
         ))
     } else {
-      selectInput("subscriptionRep", "Rapport:", "")
+      selectInput("dispatchmentRep", "Rapport:", "")
     }
   })
 
