@@ -1,13 +1,12 @@
 library(magrittr)
 library(noric)
-library(raplog)
 library(readr)
 library(rpivotTable)
 library(shiny)
 
 shinyServer(function(input, output, session) {
 
-  raplog::appLogger(session = session, msg = "Starting NORIC application")
+  rapbase::appLogger(session = session, msg = "Starting NORIC application")
 
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
@@ -17,28 +16,37 @@ shinyServer(function(input, output, session) {
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
     registryName <- noric::makeRegistryName("noricStaging", reshId)
+    mapOrgId <- mapOrgReshId(registryName)
     author <- paste0(userFullName, "/", "Rapporteket")
   } else {
     ### if need be, define your (local) values here
   }
 
-  # Hide tabs when role is 'LU' or some tabs for role 'LC'
+  # Hide tabs
+  ## when role is 'LU' or some tabs for role 'LC'
   if (userRole == "LU") {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
+    hideTab(inputId = "tabs", target = "Utsending")
   } else if (userRole == "LC") {
     hideTab(inputId = "tabs", target = "Datadump")
     hideTab(inputId = "tabs", target = "Metadata")
+    hideTab(inputId = "tabs", target = "Utsending")
   }
 
-  ## ... and hide 'Prosedyrer2', regardless
+  ## 'Prosedyrer2', regardless
   hideTab(inputId = "tabs", target = "Prosedyrer2")
 
-  # Hide local reports/tabs for national registry
+  ## local reports/tabs for national registry
   if (isNationalReg(reshId)) {
     hideTab(inputId = "tabs", target = "Stentbruk")
     hideTab(inputId = "tabs", target = "Prosedyrer")
+  }
+
+  ## dispatchment when not national registry
+  if (!isNationalReg(reshId)) {
+    hideTab(inputId = "tabs", target = "Utsending")
   }
 
   # html rendering function for re-use
@@ -57,9 +65,8 @@ shinyServer(function(input, output, session) {
     on.exit(setwd(owd))
     sourceFile %>%
       knitr::knit() %>%
-      markdown::markdownToHTML(.,
-                               options = c("fragment_only",
-                                           "base64_images")) %>%
+      rmarkdown::render(., output_format = "html_fragment") %>%
+      readLines() %>%
       shiny::HTML()
   }
 
@@ -121,7 +128,7 @@ shinyServer(function(input, output, session) {
   output$appOrgName <- renderText(paste(hospitalName, userRole, sep = ", "))
 
   # User info in widget
-  userInfo <- rapbase::howWeDealWithPersonalData(session)
+  userInfo <- rapbase::howWeDealWithPersonalData(session, callerPkg = "noric")
   observeEvent(input$userInfo, {
     shinyalert("Dette vet Rapporteket om deg:", userInfo,
                type = "", imageUrl = "rap/logo.svg",
@@ -216,6 +223,7 @@ shinyServer(function(input, output, session) {
   })
 
   output$selectVars <- renderUI({
+    req(input$selectedDataSet)
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
       h4(paste("Valgt datasett:",
                names(dataSets)[dataSets == input$selectedDataSet]))
@@ -330,7 +338,14 @@ shinyServer(function(input, output, session) {
 
   output$metaDataTable <- DT::renderDataTable(
     meta()[[input$metaTab]], rownames = FALSE,
-    options = list(lengthMenu = c(25, 50, 100, 200, 400))
+    options = list(
+      lengthMenu = c(25, 50, 100, 200, 400),
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      ))
   )
 
   output$metaData <- renderUI({
@@ -340,19 +355,29 @@ shinyServer(function(input, output, session) {
   # Abonnement
   ## rekative verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
-  rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+  subscription <- reactiveValues(
+    tab = rapbase::makeAutoReportTab(session, mapOrgId = mapOrgId))
 
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
-    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = "none",
-    rownames = FALSE, options = list(dom = "t")
+    subscription$tab, server = FALSE, escape = FALSE, selection = "none",
+    rownames = FALSE,
+    options = list(
+      dom = "t",
+      ordering = FALSE,
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      ),
+      columnDefs = list(list(visible = FALSE, targets = c(6, 8))))
   )
 
   ## lag side som viser status for abonnement, også når det ikke finnes noen
   output$subscriptionContent <- renderUI({
     fullName <- rapbase::getUserFullName(session)
-    if (length(rv$subscriptionTab) == 0) {
+    if (length(subscription$tab) == 0) {
       p(paste("Ingen aktive abonnement for", fullName))
     } else {
       tagList(
@@ -410,13 +435,204 @@ shinyServer(function(input, output, session) {
                                 interval = interval,
                                 intervalName = intervalName)
     }
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    subscription$tab <-
+      rapbase::makeAutoReportTab(session, mapOrgId = mapOrgId)
   })
 
-  ## slett eksisterende abonnement
-  observeEvent(input$del_button, {
-    selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-    rapbase::deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+  # Utsending
+  ## reaktive verdier for å holde rede på endringer som skjer mens
+  ## applikasjonen kjører
+  dispatchment <- shiny::reactiveValues(
+    tab = rapbase::makeAutoReportTab(session = session, type = "dispatchment",
+                                     mapOrgId = mapOrgId),
+    report = "Automatisk samlerapport1",
+    freq = "Månedlig-month",
+    email = vector()
+  )
+
+  ## observér og foreta endringer mens applikasjonen kjører
+  shiny::observeEvent(input$addEmail, {
+    dispatchment$email <- c(dispatchment$email, input$email)
+  })
+  shiny::observeEvent(input$delEmail, {
+    dispatchment$email <-
+      dispatchment$email[!dispatchment$email == input$email]
+  })
+  shiny::observeEvent(input$dispatch, {
+    package <- "noric"
+    type <- "dispatchment"
+    owner <- rapbase::getUserName(session)
+    ownerName <- rapbase::getUserFullName(session)
+    interval <- strsplit(input$dispatchmentFreq, "-")[[1]][2]
+    intervalName <- strsplit(input$dispatchmentFreq, "-")[[1]][1]
+    runDayOfYear <- rapbase::makeRunDayOfYearSequence(
+      interval = interval)
+    email <- dispatchment$email
+    organization <- input$dispatchFromOrg
+
+    if (input$dispatchmentRep == "NORIC_local_monthly_KI") {
+      synopsis <- paste("NORIC kvalitetsindikatorer: eget sykehus",
+                        "sammenlignet med resten av landet")
+      fun <- "dispatchMonthlyKi"
+      paramNames <- c("baseName", "hospitalName", "reshID", "author", "userRole",
+                      "type", "registryName")
+      paramValues <- c("NORIC_local_monthly_KI",
+                       getHospitalName(input$dispatchFromOrg),
+                       input$dispatchFromOrg, userFullName, userRole, "pdf",
+                       registryName)
+
+    }
+    if (input$dispatchmentRep == "Automatisk samlerapport2") {
+      synopsis <- "Automatisk samlerapport2"
+      fun <- "samlerapport2Fun"
+      paramNames <- c("p1", "p2")
+      paramValues <- c("BMI", 2)
+    }
+    rapbase::createAutoReport(synopsis = synopsis, package = package,
+                              type = type, fun = fun, paramNames = paramNames,
+                              paramValues = paramValues, owner = owner,
+                              ownerName = ownerName,
+                              email = email, organization = organization,
+                              runDayOfYear = runDayOfYear,
+                              interval = interval, intervalName = intervalName)
+    dispatchment$tab <-
+      rapbase::makeAutoReportTab(session, type = "dispatchment",
+                                 mapOrgId = mapOrgId)
+    dispatchment$email <- vector()
+  })
+
+  ## ui: velg rapport
+  output$dispatchmentRepList <- renderUI({
+    if (isNationalReg(reshId)) {
+      selectInput(
+        "dispatchmentRep", "Rapport:",
+        list(
+          `KI: sykehus mot resten av landet` = "NORIC_local_monthly_KI"
+        ))
+    } else {
+      selectInput("dispatchmentRep", "Rapport:", "")
+    }
+  })
+
+  ## ui: velg sykehus
+  output$dispatchFromOrgList <- shiny::renderUI({
+    shiny::selectInput(
+      "dispatchFromOrg", "Velg datakile (sykehus):",
+      mapOrgReshId(registryName, asNamedList = TRUE)
+    )
+  })
+
+  ## ui: velg frekvens
+  output$freq <- shiny::renderUI({
+    shiny::selectInput(
+      "dispatchmentFreq", "Frekvens:",
+      list(Årlig = "Årlig-year",
+            Kvartalsvis = "Kvartalsvis-quarter",
+            Månedlig = "Månedlig-month",
+            Ukentlig = "Ukentlig-week",
+            Daglig = "Daglig-DSTday"),
+      selected = dispatchment$freq)
+  })
+
+  ## ui: legg til gyldig- og slett epost
+  output$editEmail <- shiny::renderUI({
+    if (!grepl("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+               input$email)) {
+      shiny::tags$p("Angi mottakers epost over")
+    } else {
+      if (input$email %in% dispatchment$email) {
+        shiny::actionButton(
+          "delEmail",
+          shiny::HTML(paste("Slett mottaker<br/>", input$email)),
+          icon = shiny::icon("minus-square"))
+      } else {
+        shiny::actionButton(
+          "addEmail",
+          shiny::HTML(paste("Legg til mottaker<br/>", input$email)),
+          icon = shiny::icon("plus-square"))
+      }
+    }
+  })
+
+  ## ui: vis valgte mottakere
+  output$recipients <- shiny::renderUI({
+    recipientList <- paste0(dispatchment$email, sep = "<br/>", collapse = "")
+    shiny::HTML(paste0("<b>Mottakere:</b><br/>", recipientList))
+  })
+
+  ## ui: lag ny utsending
+  output$makeDispatchment <- shiny::renderUI({
+    if (length(dispatchment$email) == 0) {
+      NULL
+    } else {
+      shiny::actionButton("dispatch", "Lag utsending",
+                          icon = shiny::icon("save"))
+    }
+  })
+
+  ## lag tabell over gjeldende status for utsending
+  output$activeDispatchments <- DT::renderDataTable(
+    dispatchment$tab, server = FALSE, escape = FALSE, selection = "none",
+    rownames = FALSE,
+    options = list(
+      dom = "tp", ordering = FALSE,
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      ),
+      columnDefs = list(list(visible = FALSE, targets = 9))
+    )
+  )
+
+
+  ## ui: lag side som viser status for utsending, også når det ikke finnes noen
+  output$dispatchmentContent <- shiny::renderUI({
+    if (length(dispatchment$tab) == 0) {
+      shiny::tagList(
+        htmlRenderRmd("dispatchmentGuide.Rmd"),
+        shiny::h2("Det finnes ingen utsendinger")
+      )
+    } else {
+      shiny::tagList(
+        htmlRenderRmd("dispatchmentGuide.Rmd"),
+        shiny::h2("Aktive utsendinger:"),
+        DT::dataTableOutput("activeDispatchments")
+      )
+    }
+  })
+
+  # Rediger eksisterende auto rapport (alle typer)
+  shiny::observeEvent(input$edit_button, {
+    repId <- strsplit(input$edit_button, "_")[[1]][2]
+    rep <- rapbase::readAutoReportData()[[repId]]
+    if (rep$type == "subscription") {
+
+    }
+    if (rep$type == "dispatchment") {
+      dispatchment$freq <- paste0(rep$intervalName, "-", rep$interval)
+      dispatchment$email <- rep$email
+      rapbase::deleteAutoReport(repId)
+      dispatchment$tab <-
+        rapbase::makeAutoReportTab(session, type = "dispatchment",
+                                   mapOrgId = mapOrgId)
+      dispatchment$report <- rep$synopsis
+    }
+    if (rep$type == "bulletin") {
+
+    }
+  })
+
+  # Slett eksisterende auto rapport (alle typer)
+  shiny::observeEvent(input$del_button, {
+    repId <- strsplit(input$del_button, "_")[[1]][2]
+    rapbase::deleteAutoReport(repId)
+    subscription$tab <-
+      rapbase::makeAutoReportTab(session, type = "subscription",
+                                 mapOrgId = mapOrgId)
+    dispatchment$tab <-
+      rapbase::makeAutoReportTab(session, type = "dispatchment",
+                                 mapOrgId = mapOrgId)
   })
 })
