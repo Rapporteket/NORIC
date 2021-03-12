@@ -517,7 +517,7 @@ shinyServer(function(input, output, session) {
   ## ui: velg sykehus
   output$dispatchFromOrgList <- shiny::renderUI({
     shiny::selectInput(
-      "dispatchFromOrg", "Velg datakile (sykehus):",
+      "dispatchFromOrg", "Velg datakilde (sykehus):",
       mapOrgReshId(registryName, asNamedList = TRUE)
     )
   })
