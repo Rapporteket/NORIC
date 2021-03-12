@@ -126,7 +126,7 @@ nyeste_registrering_ak <- aK_nasjonalt %>%
 ```{r dimAK_lokalt, include=FALSE, eval=TRUE}
 dim_ak_lokalt <- aK_nasjonalt %>% 
   dplyr::filter(.data$AvdRESH == params$reshID,
-         .data$ProsedyreDato >= 2018) %>% 
+                .data$ProsedyreDato >= 2018) %>% 
   dim(.)
 ```
 
@@ -575,7 +575,7 @@ nNstemiAPKomplett <- nNstemiAPTot %>%
 
 ```
 
-### Innen 24 timer
+### Invasiv utredning ved NSTEMI innen 24 timer
 
 ```{r TabN24timerNSTEMI, results='asis', warning=FALSE}
 
@@ -648,9 +648,8 @@ noric::mst(tab = tabVentetid24t,
   cat("\n\n\\pagebreak\n")
 ```
 
-### Figurer - Innen 24 timer
+### Figurer - Invasiv utredning ved NSTEMI innen 24 timer
 
-__Hittil i år__ 
 
 ```{r hittilIAar, results='asis', warning=FALSE}
 # Hele siste år + alle fullførte måneder i dette året.
@@ -862,7 +861,6 @@ fig_iAar_overflyttet %>%
   cat("\n\n\\pagebreak\n")
 ```
 
-__Fra 2017 til siste hele år__
 ```{r komplettYear_24timerNSTEMI, results='asis', warning=FALSE}
 
 nNstemiAPTot_year <- nstemiAPTot %>% 
@@ -1122,7 +1120,7 @@ fig_overflyttet %>% ggplot2::ggplot(
 
 
 
-### Innen 72 timer
+### Invasiv utredning ved NSTEMI innen 72 timer
 
 ```{r TabN72timerNSTEMI, results='asis', warning=FALSE}
 
