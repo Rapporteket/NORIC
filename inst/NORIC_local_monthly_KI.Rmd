@@ -388,9 +388,8 @@ aK_nasjonalt %<>% dplyr::mutate(
 
 \
 Denne rapporten er generert ved hjelp av NORIC sin resultatløsning 
-_Rapporteket_. Brukere med nasjonal systemkoordinator-rolle (SC-rolle) i
-_Rapporteket_ kan bestille regelmessig utsendelse av rapporten per e-post til
-personer i fagmiljøet. Rapporten er kun ment til internt bruk!
+_Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd 
+har bestilt denne tjenesten. Rapporten er kun ment til internt bruk!
 \
 
 Rapporten inneholder tabeller og figurer med resultater basert på forløp 
@@ -399,12 +398,12 @@ bedre sammenligningsgrunnlag. Opptellinger og statistikker er gjort per
 forløp/prosedyre, og ikke per individ. 
 \
 
-De fleste kvalitetsindikatorene presenteres per måned hittil i år i tillegg til 
-det siste hele året. Figurene inneholder bare fullførte måneder eller år. 
-Noen av indikatorene presenteres per kvartal, da brukes 
-siste fullførte kvartal samt fire kvartaler tilbake i tid. Det nyeste forløpet 
-som er med i denne rapporten er registrert i det nasjonale registeret den 
-`r  format(nyeste_registrering_ap$nyesteReg, format ='%d. %B %Y')`.
+De fleste tabellene presenteres per måned hittil i år, samt
+det siste hele året, mens figurene inneholder resultater bare til og med
+foregående måned. Dataeene er sist oppdatert like over midnatt den  
+`r format(Sys.time(), '%d. %B %Y')`. 
+
+
 \
 Eventuelle spørsmål knyttet til rapporten kan rettes til 
 [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
