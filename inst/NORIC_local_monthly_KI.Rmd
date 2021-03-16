@@ -136,7 +136,7 @@ if (dim_ak_lokalt[1] > 0) {
 
 # 5 siste ferdige kvartal
 forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
-                                              "quarter") 
+                                             "quarter") 
 timeTableQuarterAK <- data.frame(
   KvartalDatoStart = rev(seq(forsteDatoKvartalAK, 
                              by = "-1 quarter",
