@@ -298,7 +298,7 @@ aP_nasjonalt %<>% dplyr::mutate(
 aP_nasjonalt %<>% dplyr::mutate(
   ASABin = as.numeric(dplyr::if_else(
     .data$ASA == "Ja",
-    true = 0, false = 1, missing = 0)),
+    true = 1, false = 0, missing = 0)),
 
   
   AndrePlatehemmerebBin = as.numeric(
