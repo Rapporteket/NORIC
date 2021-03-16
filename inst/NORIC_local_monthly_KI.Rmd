@@ -387,13 +387,14 @@ aK_nasjonalt %<>% dplyr::mutate(
 ```
 
 \
-Denne rapporten er automatisk generert og lastet ned fra NORIC sin 
-resultatløsning _Rapporteket_. Rapporten distribueres til personer i fagmiljøet 
-som abonnerer på denne e-post-tjenesten, og er kun ment til internt bruk!
+Denne rapporten er generert ved hjelp av NORIC sin resultatløsning 
+_Rapporteket_. Brukere med nasjonal systemkoordinator-rolle (SC-rolle) i
+_Rapporteket_ kan bestille regelmessig utsendelse av rapporten per e-post til
+personer i fagmiljøet. Rapporten er kun ment til internt bruk!
 \
 
 Rapporten inneholder tabeller og figurer med resultater basert på forløp 
-registret ved `r paste0(params$hospitalName)`, samt nasjonale data for 
+registrert ved `r paste0(params$hospitalName)`, samt nasjonale data for 
 bedre sammenligningsgrunnlag. Opptellinger og statistikker er gjort per 
 forløp/prosedyre, og ikke per individ. 
 \
@@ -415,7 +416,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til
 
 
 
-## Grad av ferdigstilt kompikasjonsskjema
+## Grad av ferdigstilt komplikasjonsskjema
 
 Opplysninger om komplikasjoner er viktig for å kunne vurdere behandlingskvalitet
 og risiko. Dersom de aktuelle registreringsskjemaene ikke er ferdigutfylt, blir 
