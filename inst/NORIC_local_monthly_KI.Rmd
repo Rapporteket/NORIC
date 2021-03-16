@@ -403,7 +403,6 @@ det siste hele året, mens figurene inneholder resultater bare til og med
 foregående måned. Dataeene er sist oppdatert like over midnatt den  
 `r format(Sys.time(), '%d. %B %Y')`. 
 
-
 \
 Eventuelle spørsmål knyttet til rapporten kan rettes til 
 [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
@@ -1611,8 +1610,7 @@ noric::mst(tab = tabKolestSenkMedAP,
 `r if (dim_ak_lokalt[1] == 0 | length(aK_nasjonalt$Pacemakerbehov) == 0) {"<!--"}`
 ## Pacemakerbehov etter kateterbasert innsetting av aortaklaff
 
-Etter kateterbasert innsetting av aortaklaff (TAVI) kan det oppstå 
-hjerterytmeforstyrrelser som gir behov for permanent pacemaker. Indikatoren 
+Denne indikatoren 
 viser andel pasienter som har fått implantert permanent pacemaker under 
 sykehusoppholdet etter kateterbasert innsetting av aortaklaff. Ved noen sykehus 
 blir pasientene raskt overflyttet til annet sykehus etter TAVI. Dersom behovet 
