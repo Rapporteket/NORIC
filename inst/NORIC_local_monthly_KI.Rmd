@@ -116,39 +116,6 @@ timeTableMonth <- data.frame(
 ```
 
 
-```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
-nyeste_registrering_ak <- aK_nasjonalt %>% 
-  summarise(nyesteReg = max(ProsedyreDato))
-```
-
-
-
-```{r dimAK_lokalt, include=FALSE, eval=TRUE}
-dim_ak_lokalt <- aK_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID,
-                .data$ProsedyreDato >= 2018) %>% 
-  dim(.)
-```
-
-
-```{r kvartalTabPrepare_AK, include=FALSE, eval=TRUE}
-if (dim_ak_lokalt[1] > 0) {
-
-# 5 siste ferdige kvartal
-forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
-                                             "quarter") 
-timeTableQuarterAK <- data.frame(
-  KvartalDatoStart = rev(seq(forsteDatoKvartalAK, 
-                             by = "-1 quarter",
-                             length.out = 6)[2:6])) %>% 
-  dplyr::transmute(
-    Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
-                     " Q", 
-                     lubridate::quarter(.data$KvartalDatoStart, 
-                                        with_year = FALSE)))
-}
-```
-
 ```{r sOPrepare,include=FALSE, eval=TRUE}
 
 sO_nasjonalt %<>% dplyr::mutate(
@@ -1686,7 +1653,7 @@ if (dim_ak_lokalt[1] > 0 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
 
 ```
 
-```{r TabNPacemakerbehovAK, results='asis', warning=FALSE, eval=FALSE}
+```{r TabNPacemakerbehovAK, results='asis', warning=FALSE, eval=TRUE}
 
 if (dim_ak_lokalt[1] > 0 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
   
