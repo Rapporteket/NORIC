@@ -353,6 +353,38 @@ aK_nasjonalt %<>% dplyr::mutate(
 
 ```
 
+```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
+nyeste_registrering_ak <- aK_nasjonalt %>% 
+  summarise(nyesteReg = max(ProsedyreDato))
+```
+
+
+
+```{r dimAK_lokalt, include=FALSE, eval=TRUE}
+dim_ak_lokalt <- aK_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dim(.)
+```
+
+
+```{r kvartalTabPrepare_AK, include=FALSE, eval=TRUE}
+if (dim_ak_lokalt[1] > 0) {
+
+# 5 siste ferdige kvartal
+forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
+                                             "quarter") 
+timeTableQuarterAK <- data.frame(
+  KvartalDatoStart = rev(seq(forsteDatoKvartalAK, 
+                             by = "-1 quarter",
+                             length.out = 6)[2:6])) %>% 
+  dplyr::transmute(
+    Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
+                     " Q", 
+                     lubridate::quarter(.data$KvartalDatoStart, 
+                                        with_year = FALSE)))
+}
+```
+
 \
 Denne rapporten er generert ved hjelp av NORIC sin resultatløsning 
 _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd 
