@@ -476,10 +476,11 @@ shinyServer(function(input, output, session) {
       fun <- "dispatchMonthlyKi"
       paramNames <- c("baseName", "hospitalName", "reshID", "author", "userRole",
                       "type", "registryName")
-      paramValues <- c("NORIC_local_monthly_KI",
-                       getHospitalName(input$dispatchFromOrg),
-                       input$dispatchFromOrg, userFullName, userRole, "pdf",
-                       registryName)
+      paramValues <- c(
+        "NORIC_local_monthly_KI",
+        mapOrgId$name[mapOrgId$id == input$dispatchFromOrg],
+        input$dispatchFromOrg, userFullName, userRole, "pdf",
+        registryName)
 
     }
     if (input$dispatchmentRep == "Automatisk samlerapport2") {
