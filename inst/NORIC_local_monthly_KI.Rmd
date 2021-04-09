@@ -960,8 +960,7 @@ nstemiAP_fra2017_lokalt %<>%
                    by = "Year") %>% 
   dplyr::mutate(value = ifelse(.data$komplette_prosent <0.5, 
                                yes = NA_real_, 
-                               no = .data$value), 
-                Sykehus = params$hospitalName)
+                               no = .data$value))
 
 ```
 
@@ -1020,6 +1019,19 @@ nstemiAP_fra2017_nasjonalt <- aP_nasjonalt %>%
 
 
 ```{r prep_nstemi_year_nasjonalt_lokalt, results='asis', warning=FALSE}
+timeTableYear_Samlet <- cbind(timeTableYear, name = "Samlet")
+timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
+timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
+
+timeTableYear_SDO <- rbind(timeTableYear_Samlet, 
+                           timeTableYear_Direkte,
+                           timeTableYear_Overflyttet)
+nstemiAP_fra2017_lokalt %<>% 
+  dplyr::left_join(timeTableYear_SDO,
+            .,
+            by= c("Year", "name")) %>% 
+  dplyr::mutate(Sykehus = params$hospitalName)
+
 
 prep_figVentetid24t_year <- rbind(nstemiAP_fra2017_nasjonalt,
                                   nstemiAP_fra2017_lokalt) %>%
