@@ -1131,71 +1131,97 @@ fig_overflyttet %>% ggplot2::ggplot(
 
 ### Invasiv utredning ved NSTEMI innen 72 timer
 
-```{r TabN72timerNSTEMI, results='asis', warning=FALSE}
-
-#Lokalt
-nNstemiAP72t <- nstemiAP %>% 
+```{r ventetid72t_NSTEMI, results='asis', warning=FALSE}
+# lOKALT : Andel forløp innen 72T 
+nstemi_ventetid72t_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
   dplyr::count(.data$Month, .data$Ventetid72T) %>% 
   tidyr::pivot_wider(names_from = .data$Ventetid72T, 
                      values_from = .data$n, 
                      values_fill = list(n = 0)) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
+  janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
-    prosentInnen72t = round(.data$`Innen 72t`/.data$Totalt*100, 1),
-    innen72tAvKomp = paste0(.data$`Innen 72t`, 
-                            " av ",
-                            .data$Totalt,
-                            " (",
-                            .data$prosentInnen72t,
-                            " %)")) %>% 
-  dplyr::select(.data$Month, .data$innen72tAvKomp)
-
-
-#Nasjonalt
-nNstemiAP72t_nasj <- nstemi_ap_nasjonalt %>% 
-  dplyr::count(.data$Month, .data$Ventetid72T) %>% 
-  tidyr::pivot_wider(names_from = .data$Ventetid72T, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::mutate(
-    prosentInnen72t = paste0(round(.data$`Innen 72t`/.data$Totalt*100, 1), 
-                             " %")) %>% 
-  dplyr::select(.data$Month, .data$prosentInnen72t) %>% 
-  dplyr::rename(Nasjonalt = .data$prosentInnen72t)
-
-
-#Tabell
-tabVentetid72t <- timeTableMonth %>% 
-  dplyr::left_join(., nNstemiAPKomplett, by = c("Month")) %>% 
-  dplyr::left_join(., nNstemiAP72t, by = c("Month")) %>% 
-  dplyr::left_join(., nNstemiAP72t_nasj, by = c("Month")) %>% 
-  dplyr::mutate(
-    innen72tAvKomp = ifelse(.data$sjekkAntall == "N",
-                            yes = NA, 
-                            no = .data$innen72tAvKomp)) %>% 
+    innen72t_prosent_lokalt = round(.data$`Innen 72t` / Totalt * 100, 1)) %>% 
   dplyr::select(.data$Month, 
-                .data$antKompAvTot,
-                .data$innen72tAvKomp,
-                .data$Nasjonalt) %>% 
+                .data$`Innen 72t`, 
+                .data$Totalt, 
+                .data$innen72t_prosent_lokalt)
+
+# NASJONALT : Andel forløp innen 72T 
+nstemi_ventetid72t_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
+  dplyr::count(.data$Month, .data$Ventetid72T) %>% 
+  tidyr::pivot_wider(names_from = .data$Ventetid72T, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>%
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  dplyr::mutate(
+    innen72t_prosent_nasj = paste0(round(.data$`Innen 72t` / Totalt * 100, 1),
+                                  "%")) %>% 
+  dplyr::select(.data$Month, .data$innen72t_prosent_nasj)
+
+
+
+# Forberede tabell , bruke kompletthet og ventetid
+tabVentetid72t <- timeTableMonth %>% 
+  dplyr::left_join(., nstemi_komplett_lokalt, by = c("Month")) %>% 
+  dplyr::left_join(., nstemi_ventetid72t_lokalt, by = c("Month")) %>% 
+  dplyr::left_join(., nstemi_ventetid72t_nasjonalt, by = c("Month")) %>% 
+   dplyr::mutate(
+    innen72tAvKomplette = dplyr::case_when(
+      
+      #  Ingen komplette --> Tom celle i tabellen
+      .data$komplette == 0 | is.na(.data$komplette) ~ "-", 
+
+      # Færre enn 50% eller minder enn 5 --> Ikke vise prosent
+      .data$komplette_prosent < 0.5 | .data$komplette < 5 ~
+        paste0(.data$`Innen 72t`, 
+               " av ", 
+               .data$Totalt, 
+               " (-%)"),
+      
+      # Over 50% og over 5 komplette --> Vise prosent
+      .data$komplette_prosent >= 0.5 & .data$komplette >= 5 ~
+        paste0(.data$`Innen 72t`, 
+              " av ", 
+              .data$Totalt, 
+              " (",
+              .data$innen72t_prosent_lokalt,
+              "%)"), 
+      
+      TRUE ~ "-" )) %>% 
+  dplyr::select(.data$Month, 
+                .data$komplette_antall,
+                .data$innen72tAvKomplette,
+                .data$innen72t_prosent_nasj)
+```
+
+
+```{r TabN72timerNSTEMI, results='asis', warning=FALSE}
+#Tabell
+tabVentetid72t %<>% 
   dplyr::rename(
     "Måned" = .data$Month,
-    "Antall komplette data av totale antall data" = .data$antKompAvTot,
-    "Antall NSTEMI innen 72t av komplett data" = .data$innen72tAvKomp) %>% 
+    "Antall komplette data av totale antall data" = .data$komplette_antall,
+    "Antall NSTEMI innen 72t av komplett data" = .data$innen72tAvKomplette,
+    "Nasjonalt" = .data$innen72t_prosent_nasj) %>%
   replace(is.na(.), "-")
 
-# tabVentetid72t[is.na(tabVentetid72t)] = "-"
+               
+cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
+Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Data med mindre enn 50\\% komplett data eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ventetid under 72 timer regnes ikke ut. (Målnivå: 50 \\%)"
 
-cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert. Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Data med mindre enn 50\\% komplett data blir markert med stjerne. Måneder med mindre enn 5 komplette data vises ikke i tabellen. (Målnivå: 80 \\%)"
-
-noric::mst(tab = tabVentetid72t, 
-    type = params$tableFormat,
+mst(tab = tabVentetid72t, 
+    type = params$tableFormat, 
     cap = cap,
     digs = c(0, 0, 0, 1, 1), 
     align = rep("c", 5), 
     label = "tabVentetid72t")
-
 ```
+
 
 ```{r pagebreakVentetidNSTEMI72, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
