@@ -809,13 +809,13 @@ prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
 ```
 
 
-```{r fig_ventetid24T_iAar_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."}
 
-fig_iAar_samlet <- fig_tabell_iAar %>% 
+fig_ventetid_24t_samlet <- prep_fig_ventetid24t %>% 
   dplyr::filter(name == "Samlet")
 
 
-fig_iAar_samlet %>%
+fig_ventetid_24t_samlet %>%
   ggplot2::ggplot(aes(x = .data$Month,
                       y = .data$value,
                       group = .data$Sykehus)) +
@@ -834,12 +834,12 @@ fig_iAar_samlet %>%
 
 
 
-```{r fig_ventetid24T_iAar_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."}
 
-fig_iAar_direkte <- fig_tabell_iAar %>% 
+fig_ventetid_24t_direkte <- prep_fig_ventetid24t %>% 
   dplyr::filter(name == "Direkte")
 
-fig_iAar_direkte %>%
+fig_ventetid_24t_direkte%>%
   ggplot2::ggplot(aes(x = .data$Month,
                       y = .data$value,
                       group = .data$Sykehus)) +
@@ -856,13 +856,13 @@ fig_iAar_direkte %>%
 
 ```
 
-```{r fig_ventetid24T_iAar_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."}
 
-fig_iAar_overflyttet <- fig_tabell_iAar %>% 
+fig_ventetid_24t_overflyttet <- prep_fig_ventetid24t %>% 
   dplyr::filter(name == "Overflyttet")
 
 
-fig_iAar_overflyttet %>%
+fig_ventetid_24t_overflyttet %>%
   ggplot2::ggplot(aes(x = .data$Month,
                       y = .data$value,
                       group = .data$Sykehus)) +
