@@ -144,7 +144,15 @@ sO_nasjonalt %<>%dplyr::mutate(
 
 
 ```{r sSPrepare,include=FALSE, eval=TRUE}
-sS_nasjonalt %<>% dplyr::mutate(
+sS_nasjonalt %<>% 
+  dplyr::select(
+    .data$ProsedyreDato,
+    .data$StentType, 
+    .data$Segment, 
+    .data$ForlopsID,
+    .data$Sykehusnavn, 
+    .data$AvdRESH) %>% 
+  dplyr::mutate(
   RegDate = as.Date(.data$ProsedyreDato, format = "%Y-%m-%d"),
   Year = as.numeric(format(.data$ProsedyreDato, format = "%Y")),
   Month = as.numeric(format(.data$ProsedyreDato, format = "%m")),
@@ -157,12 +165,41 @@ sS_nasjonalt %<>% dplyr::mutate(
 
 ```{r aPPrepare,include=FALSE, eval=TRUE}
 
-aP_nasjonalt %<>% dplyr::mutate(
-  RegDate = as.Date(.data$ProsedyreDato),
-  Year = as.numeric(format(.data$RegDate, format = "%Y")),
-  Kvartal = paste0(lubridate::year(.data$RegDate),
-                   " Q",
-                   lubridate::quarter(.data$RegDate, with_year = FALSE)))
+aP_nasjonalt %<>% 
+  dplyr::select(
+    .data$AvdRESH,
+    .data$Sykehusnavn,
+    .data$ProsedyreDato,
+    .data$ProsedyreTid,
+    .data$AvdRESH, 
+    .data$OverflyttetFra, 
+    .data$AnkomstPCIDato,
+    .data$AnkomstPCITid, 
+    .data$InnleggelseHenvisendeSykehusDato,
+    .data$InnleggelseHenvisendeSykehusTid,
+    .data$Innkomstarsak,
+    .data$Indikasjon, 
+    .data$KobletForlopsID,
+    .data$ForlopsType2, 
+    .data$IFR, 
+    .data$FFR, 
+    .data$IVUS, 
+    .data$OCT, 
+    .data$ForlopsID, 
+    .data$ASA, 
+    .data$AndrePlatehemmere,
+    .data$AndrePlatehemmere,
+    .data$Antikoagulantia,
+    .data$UtskrStatiner, 
+    .data$TidlABC, 
+    .data$UtskrevetDod) %>%
+
+  dplyr::mutate(
+    RegDate = as.Date(.data$ProsedyreDato),
+    Year = as.numeric(format(.data$RegDate, format = "%Y")),
+    Kvartal = paste0(lubridate::year(.data$RegDate),
+                     " Q",
+                     lubridate::quarter(.data$RegDate, with_year = FALSE)))
 
 
 
@@ -348,11 +385,22 @@ aP_nasjonalt %<>% dplyr::mutate(
 
 ```{r aKPrepare,include=FALSE, eval=TRUE}
 
-aK_nasjonalt %<>% dplyr::mutate(
-  RegDate = as.Date(.data$ProsedyreDato))
+aK_nasjonalt %<>% 
+  dplyr::select(
+   .data$ProsedyreDato,
+   .data$AvdKompPacemaker, 
+   .data$LabKompDod, 
+   .data$TypeKlaffeprotese,
+   .data$ScreeningBeslutning, 
+   .data$Sykehusnavn, 
+   .data$AvdRESH, 
+   .data$ForlopsID, 
+   .data$Pacemaker)
 
 
 aK_nasjonalt  %<>% 
+  dplyr::mutate(
+    RegDate = as.Date(.data$ProsedyreDato)) %>% 
   dplyr::filter(RegDate >= as.Date("2019-01-01"))
 
 
