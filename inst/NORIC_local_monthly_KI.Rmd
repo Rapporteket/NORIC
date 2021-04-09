@@ -532,66 +532,34 @@ utført innen 24 og 72 timer etter innleggelse i sykehus. Det er således to
 ulike kvalitetsindikatorer som gjelder for ventetid på utredning ved NSTEMI
 med målnivå på henholdsvis 50 % og 80 %.
 
-```{r ventetidNSTEMI,include=FALSE, eval=TRUE}
-
-# ANTALL NSTEMI LOKALT
-nstemiAPTot <- aP_nasjonalt %>% 
-  filter(.data$AvdRESH == params$reshID,
-        .data$Indikasjon == "NSTEMI", 
-         is.na(.data$KobletForlopsID), 
-         .data$innkomstaarsak!="Øvrig",
-         .data$ForlopsType2!="Planlagt",
-         !is.na(.data$AdmissionType))
- 
-
-# DATSETT NSTEMI MED GYLDIG TID - NASJONALT
-nstemi_ap_nasjonalt <- aP_nasjonalt %>% 
-  filter(.data$Indikasjon == "NSTEMI", 
-         is.na(.data$KobletForlopsID),
-         .data$ForlopsType2!="Planlagt",
-         .data$innkomstaarsak!="Øvrig", 
-         !is.na(.data$AdmissionType),
-         !is.na(.data$TidsDiffSek),
-         .data$TidsDiffSek > 0, 
-         .data$TidsDiffSek <= 1814400)
-
-# DATSETT NSTEMI MED GYLDIG TID - LOKALT
-nstemiAP <- nstemi_ap_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID)
-
-
-```
 
 ```{r komplettMonth_24timerNSTEMI, results='asis', warning=FALSE}
 
-nNstemiAPTot <- nstemiAPTot %>% 
-  dplyr::count(.data$Month) %>% 
-  dplyr::rename(Totalt = .data$n)
-
-nNstemiAPGyldig <- nstemiAP %>% 
-  dplyr::count(.data$Month) %>% 
-  dplyr::rename(antGyldigTid = .data$n)
-
-nNstemiAPKomplett <- nNstemiAPTot %>% 
-  dplyr::left_join(., nNstemiAPGyldig, by = c("Month")) %>% 
+# For alle NSTEMI : prosent og andel komplette forløp (gyldig tid) per måned
+nstemi_komplett_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja") %>% 
+  dplyr::count(.data$Month, .data$ventetidNstemi_gyldigTid) %>% 
+  tidyr::pivot_wider(names_from = .data$ventetidNstemi_gyldigTid, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>% 
   dplyr::mutate(
-    Komplett = round(.data$antGyldigTid / .data$Totalt * 100, 1),
-    sjekkKomplett = ifelse(.data$Komplett < 50,
-                           yes = paste0(.data$Totalt, "*"),
-                           no = .data$Totalt),
-    sjekkAntall = ifelse(.data$antGyldigTid < 5,
-                         yes = "N",
-                         no = .data$antGyldigTid),
-    antKompAvTot = paste0(.data$antGyldigTid, " av ", .data$sjekkKomplett),
-    antKompAvTot = ifelse(
-      is.na(.data$sjekkKomplett),
-      yes = NA,
-      no = .data$antKompAvTot)) %>% 
-  dplyr::select(.data$Month, 
-                .data$sjekkKomplett, 
-                .data$sjekkAntall, 
-                .data$antKompAvTot)
-
+    komplette_prosent =  .data$ja / (.data$ja + .data$nei), 
+    komplette_antall = dplyr::if_else(.data$komplette_prosent < 0.50 |
+                                        .data$ja < 5,
+                                      true = paste0(.data$ja, 
+                                                    " av ", 
+                                                    (.data$ja + .data$nei), 
+                                                    "*"),
+                                      false = paste0(.data$ja, 
+                                                    " av ", 
+                                                    (.data$ja + .data$nei)), 
+                                      missing = NA_character_)) %>% 
+  select(.data$Month, 
+         .data$ja, 
+         .data$komplette_prosent, 
+         .data$komplette_antall) %>% 
+  rename("komplette" = "ja")
 ```
 
 ### Invasiv utredning ved NSTEMI innen 24 timer
