@@ -1050,7 +1050,7 @@ prep_figVentetid24t_year <- rbind(nstemiAP_fra2017_nasjonalt,
 
 
 
-```{r fig_ventetid24T_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data."}
+```{r fig_ventetid24T_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 forløp."}
 
 fig_samlet <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Samlet")
@@ -1079,7 +1079,7 @@ fig_samlet  %>% ggplot2::ggplot(
 
 ```
 
-```{r fig_ventetid24T_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data.")}
+```{r fig_ventetid24T_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 direkte forløp.")}
 
 fig_direkte <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Direkte")
@@ -1110,7 +1110,7 @@ fig_direkte %>% ggplot2::ggplot(
 ```
 
 
-```{r fig_ventetid24T_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data.")}
+```{r fig_ventetid24T_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 overflyttede forløp.")}
 
 fig_overflyttet <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Overflyttet")
