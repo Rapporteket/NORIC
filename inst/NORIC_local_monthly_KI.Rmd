@@ -667,130 +667,137 @@ mst(tab = tabVentetid24t,
 ### Figurer - Invasiv utredning ved NSTEMI innen 24 timer
 
 
-```{r hittilIAar, results='asis', warning=FALSE}
+```{r hittilIAar_24t_lokalt, results='asis', warning=FALSE}
 # Hele siste år + alle fullførte måneder i dette året.
 forsteDagFigur_ventetid <- paste0(nyeste_registrering_ap$sisteHeleYear, 
-                        "-01-01")
-sisteDagFigur_ventetid <- lubridate::floor_date(x = nyeste_registrering_ap$nyesteReg,
-                                       unit = "month")
+                                  "-01-01")
+sisteDagFigur_ventetid <- lubridate::floor_date(
+  x = nyeste_registrering_ap$nyesteReg,
+  unit = "month")
 
-nstemi_ap_hittil_iaar <- nstemiAP %>% 
+# LOKALT : For NSTEMI med komplette forløp
+# Forberede figurer
+prep_figVentetid24t_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
   dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
-                .data$ProsedyreDato < sisteDagFigur_ventetid)
-
-
-figNstemiAPSamlet_iAar <- nstemi_ap_hittil_iaar %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
+                .data$ProsedyreDato < sisteDagFigur_ventetid) %>% 
+  
+  #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Samlet = round(.data$n / .data$Totalt, 3),
-                name = "Samlet") %>% 
-  dplyr:: rename(Antall = .data$n)
+  dplyr::mutate(
+    innen_24t_samlet = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n(),
+    n_samlet = n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # per admission type (Direkte / OVerflyttet)
+  dplyr::group_by(.data$Month, .data$AdmissionType) %>% 
+  dplyr::mutate(
+    innen_24t_type = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # Beholde en rad per Samlet, Direkte, OVerflyttet : 
+  dplyr::count(.data$Month, 
+               .data$AdmissionType,
+               .data$innen_24t_type, 
+               .data$innen_24t_samlet, 
+               .data$n_samlet) %>% 
+  tidyr::pivot_longer(cols = starts_with("innen_24t_"), 
+               names_to = "Type") %>% 
+  dplyr::mutate(
+    name = dplyr::case_when(
+      
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_type" ~ "Direkte", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_type" ~ "Overflyttet", 
 
-figNstemiAPDirekte_iAar <- nstemi_ap_hittil_iaar %>% 
-  dplyr::filter(AdmissionType == "Directly admitted") %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Direkte = round(.data$n / .data$Totalt, 3),
-                name = "Direkte") %>% 
-  dplyr:: rename(Antall = .data$n)
-
-figNstemiAPOverflyttet_iAar <- nstemi_ap_hittil_iaar %>% 
-  dplyr::filter(AdmissionType == "Referred") %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Overflyttet = round(.data$n / .data$Totalt, 3),
-                name = "Overflyttet") %>% 
-  dplyr:: rename(Antall = .data$n)
-
-
-figNstemiAP_iAar <- figNstemiAPSamlet_iAar %>% 
-  dplyr::left_join(., figNstemiAPDirekte_iAar, by = c("Ventetid24T", 
-                                                      "Month")) %>% 
-  dplyr::left_join(., figNstemiAPOverflyttet_iAar, by = c("Ventetid24T", 
-                                                          "Month")) %>% 
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet"    
+    ), 
+    
+    # antall forløp per type, brukes for å fjerne måneder med <5 forløp i figur
+    antall_komplette = dplyr::case_when(
+      .data$Type == "innen_24t_type" ~ n, 
+      .data$Type == "innen_24t_samlet" ~ n_samlet
+    )) %>% 
   dplyr::select(.data$Month, 
-                .data$Ventetid24T, 
-                .data$Samlet, 
-                .data$Direkte, 
-                .data$Overflyttet) %>% 
-  tidyr::pivot_longer(cols = c("Samlet", "Direkte", "Overflyttet"))
-
-
-fig_lokal_iAar <- figNstemiAP_iAar %>% 
-  dplyr::filter(Ventetid24T == "Innen 24t") %>%
-  dplyr::left_join(., nNstemiAPKomplett, by = c("Month")) %>% 
-  dplyr::mutate(Sykehus = params$hospitalName,
-                value = ifelse(sjekkKomplett == "N",
-                               yes = NA,
-                               no = .data$value)) %>% 
-  dplyr::select(.data$Month, 
-                .data$Ventetid24T, 
                 .data$name, 
                 .data$value, 
-                .data$Sykehus)
+                .data$antall_komplette) %>% 
+  dplyr::group_by(.data$Month, .data$name) %>% 
+  dplyr::distinct()
+
+# Dersom data ikke komplett, bytte ut verdiene med NA
+prep_figVentetid24t_lokalt %<>% 
+  dplyr::left_join(., 
+                   nstemi_komplett_lokalt %>% dplyr::select(
+                     .data$Month, 
+                     .data$komplette_prosent), 
+            by = "Month") %>% 
+  dplyr::mutate(value = ifelse(.data$komplette_prosent < 0.5 |
+                                 .data$antall_komplette < 5, 
+                              yes = NA_real_, 
+                              no = .data$value),
+                Sykehus = params$hospitalName)
 
 ```
 
-```{r hittilIAar_nasj, results='asis', warning=FALSE}
-nstemi_ap_hittil_iaar_nasj <- nstemi_ap_nasjonalt %>% 
-  dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid, 
-                .data$ProsedyreDato < sisteDagFigur_ventetid)
-
-
-figNstemiAPSamlet_iAar_nasj <- nstemi_ap_hittil_iaar_nasj %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
+```{r hittilIAar_24T_nasj, results='asis', warning=FALSE}
+# NASJONALT
+prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
+  dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
+                .data$ProsedyreDato < sisteDagFigur_ventetid) %>% 
+  
+  #Samlet (Direkte og overflyttet)
   dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Samlet = round(.data$n / .data$Totalt, 3),
-                name = "Samlet") %>% 
-  dplyr:: rename(Antall = .data$n)
+  dplyr::mutate(
+    innen_24t_samlet = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # per admission type (Direkte / OVerflyttet)
+  dplyr::group_by(.data$Month, .data$AdmissionType) %>% 
+  dplyr::mutate(
+    innen_24t_type = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # Beholde en rad per Samlet, Direkte, OVerflyttet : 
+  dplyr::count(.data$Month, 
+               .data$AdmissionType, 
+               .data$innen_24t_type,
+               .data$innen_24t_samlet) %>% 
+  tidyr::pivot_longer(cols = starts_with("innen_24t_"), 
+                      names_to = "Type") %>% 
+  dplyr::mutate(name = dplyr::case_when(
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_type" ~ "Direkte", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_type" ~ "Overflyttet", 
+    
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet", 
 
-figNstemiAPDirekte_iAar_nasj <- nstemi_ap_hittil_iaar_nasj %>% 
-  dplyr::filter(AdmissionType == "Directly admitted") %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Direkte = round(.data$n / .data$Totalt, 3),
-                name = "Direkte") %>% 
-  dplyr:: rename(Antall = .data$n)
-
-figNstemiAPOverflyttet_iAar_nasj <- nstemi_ap_hittil_iaar_nasj %>% 
-  dplyr::filter(AdmissionType == "Referred") %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Overflyttet = round(.data$n / .data$Totalt, 3),
-                name = "Overflyttet") %>% 
-  dplyr:: rename(Antall = .data$n)
-
-
-figNstemiAP_iAar_nasj <- figNstemiAPSamlet_iAar_nasj %>% 
-  dplyr::left_join(., figNstemiAPDirekte_iAar_nasj, by = c("Ventetid24T", 
-                                                           "Month")) %>% 
-  dplyr::left_join(., figNstemiAPOverflyttet_iAar_nasj, by = c("Ventetid24T", 
-                                                               "Month")) %>% 
-  dplyr::select(.data$Month, 
-                .data$Ventetid24T, 
-                .data$Samlet, 
-                .data$Direkte, 
-                .data$Overflyttet) %>% 
-  tidyr::pivot_longer(cols = c("Samlet", "Direkte", "Overflyttet"))
-
-
-fig_iAar_nasj <- figNstemiAP_iAar_nasj %>% 
-  dplyr::filter(.data$Ventetid24T == "Innen 24t") %>%
-  dplyr::mutate(Sykehus = "Nasjonalt") %>% 
-  dplyr::select(.data$Month, 
-                .data$Ventetid24T, 
-                .data$name, 
-                .data$value, 
-                .data$Sykehus)
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet"    
+  )) %>% 
+  dplyr::select(.data$Month, .data$name, .data$value) %>% 
+  dplyr::group_by(.data$Month, .data$name) %>% 
+  dplyr::distinct() %>% 
+  dplyr::mutate(Sykehus = "Nasjonalt")
 
 
-fig_tabell_iAar <- rbind(fig_lokal_iAar, fig_iAar_nasj) %>% 
+
+
+prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
+                         prep_figVentetid24t_lokalt) %>% 
   dplyr::select(.data$Sykehus, 
                 .data$Month, 
                 .data$name, 
