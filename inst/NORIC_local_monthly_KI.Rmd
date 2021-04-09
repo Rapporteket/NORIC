@@ -230,7 +230,28 @@ aP_nasjonalt %<>% dplyr::mutate(
  innkomstaarsak = ifelse(is.na(.data$Innkomstarsak),
                          yes = "Ukjent",
                          no = .data$Innkomstarsak))
-
+# Datagrunnlag for ventetid ved NSTEMI
+aP_nasjonalt %<>%
+  dplyr::mutate(
+    ventetidNstemi_datagrunnlag = dplyr::if_else(
+      condition = (.data$Indikasjon == "NSTEMI" & 
+                     is.na(.data$KobletForlopsID) &
+                     .data$innkomstaarsak!="Øvrig" &
+                     .data$ForlopsType2!="Planlagt" &
+                     !is.na(.data$AdmissionType)), 
+    true = "ja", 
+    false = "nei", 
+    missing = "nei"), 
+    
+    ventetidNstemi_gyldigTid = dplyr::if_else(
+      condition = (ventetidNstemi_datagrunnlag == "ja" &
+                              !is.na(.data$AdmissionType) &
+                              !is.na(.data$TidsDiffSek) &
+                              .data$TidsDiffSek > 0 & 
+                              .data$TidsDiffSek <= 1814400),
+    true = "ja", 
+    false = "nei", 
+    missing = "nei"))
 
 # Trykkmåling
 aP_nasjonalt %<>% dplyr::mutate(
