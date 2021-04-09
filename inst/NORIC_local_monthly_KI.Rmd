@@ -564,65 +564,94 @@ nstemi_komplett_lokalt <- aP_nasjonalt %>%
 
 ### Invasiv utredning ved NSTEMI innen 24 timer
 
-```{r TabN24timerNSTEMI, results='asis', warning=FALSE}
+```{r ventetid24t_NSTEMI, results='asis', warning=FALSE}
 
-#Lokalt
-nNstemiAP24t <- nstemiAP %>% 
+# Lokalt: Blant NSTEMI med KOMPLETTE forløp. Andel forløp innen 24T 
+nstemi_ventetid24t_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
   dplyr::count(.data$Month, .data$Ventetid24T) %>% 
   tidyr::pivot_wider(names_from = .data$Ventetid24T, 
                      values_from = .data$n, 
                      values_fill = list(n = 0)) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
+  janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
-    prosentInnen24t = round(.data$`Innen 24t` / Totalt * 100, 1),
-    innen24tAvKomp = paste0(.data$`Innen 24t`,
-                            " av ",
-                            .data$Totalt,
-                            " (",
-                            .data$prosentInnen24t,
-                            " %)")) %>% 
-  dplyr::select(.data$Month, .data$innen24tAvKomp)
-
-
-#Nasjonalt
-n_nstemi_ap24t_nasj <- nstemi_ap_nasjonalt %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  tidyr::pivot_wider(names_from = .data$Ventetid24T, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::mutate(prosentInnen24t = paste0(
-    round(.data$`Innen 24t` / .data$Totalt * 100, 1), " %")) %>% 
-  dplyr::select(.data$Month, .data$prosentInnen24t) %>% 
-  dplyr::rename(Nasjonalt = .data$prosentInnen24t)
-
-
-#Tabell
-tabVentetid24t <- timeTableMonth %>% 
-  dplyr::left_join(., nNstemiAPKomplett, by = c("Month")) %>% 
-  dplyr::left_join(., nNstemiAP24t, by = c("Month")) %>% 
-  dplyr::left_join(., n_nstemi_ap24t_nasj, by = c("Month")) %>% 
-  dplyr::mutate(
-    innen24tAvKomp = 
-      ifelse(.data$sjekkAntall == "N",
-             yes = NA,
-             no = .data$innen24tAvKomp)) %>% 
+    innen24t_prosent_lokalt = round(.data$`Innen 24t` / Totalt * 100, 1)) %>% 
   dplyr::select(.data$Month, 
-                .data$antKompAvTot,
-                .data$innen24tAvKomp,
-                .data$Nasjonalt) %>% 
+                .data$`Innen 24t`, 
+                .data$Totalt, 
+                .data$innen24t_prosent_lokalt)
+
+# NASJONALT: Blant NSTEMI med KOMPLETTE forløp. Andel forløp innen 24T 
+nstemi_ventetid24t_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
+  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
+  tidyr::pivot_wider(names_from = .data$Ventetid24T, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>%
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  dplyr::mutate(
+    innen24t_prosent_nasj = paste0(round(.data$`Innen 24t` / Totalt * 100, 1), 
+                                   "%")) %>% 
+  dplyr::select(.data$Month, .data$innen24t_prosent_nasj)
+
+
+
+# Forberede tabell, bruke kompletthet og ventetid
+tabVentetid24t <- timeTableMonth %>% 
+  dplyr::left_join(., nstemi_komplett_lokalt, by = c("Month")) %>% 
+  dplyr::left_join(., nstemi_ventetid24t_lokalt, by = c("Month")) %>% 
+  dplyr::left_join(., nstemi_ventetid24t_nasjonalt, by = c("Month")) %>% 
+  dplyr::mutate(
+    innen24tAvKomplette = dplyr::case_when(
+      
+      #  Ingen komplette --> tom celle i tabellen
+      .data$komplette == 0 | is.na(.data$komplette) ~ "-", 
+
+      # Færre enn 50% eller minder enn 5 forløp --> Ikke vise prosent
+      .data$komplette_prosent < 0.5 | .data$komplette < 5 ~
+        paste0(.data$`Innen 24t`, 
+                " av ", 
+                .data$Totalt, 
+                " (-%)"),
+      
+      # Over 50% og over 5 komplette --> Vise prosent
+      .data$komplette_prosent >= 0.5 & .data$komplette >= 5 ~
+        paste0(.data$`Innen 24t`, 
+              " av ", 
+              .data$Totalt, 
+              " (",
+              .data$innen24t_prosent_lokalt,
+              "%)"), 
+      
+      TRUE ~ "-")) %>% 
+  dplyr::select(.data$Month, 
+                .data$komplette_antall,
+                .data$innen24tAvKomplette,
+                .data$innen24t_prosent_nasj)
+
+```
+
+
+
+```{r TabN24timerNSTEMI, results='asis', warning=FALSE}
+#Tabell
+tabVentetid24t %<>% 
   dplyr::rename(
     "Måned" = .data$Month,
-    "Antall komplette data av totale antall data" = .data$antKompAvTot,
-    "Antall NSTEMI innen 24t av komplett data" = .data$innen24tAvKomp) %>% 
+    "Antall komplette data av totale antall data" = .data$komplette_antall,
+    "Antall NSTEMI innen 24t av komplett data" = .data$innen24tAvKomplette,
+    "Nasjonalt" = .data$innen24t_prosent_nasj) %>%
   replace(is.na(.), "-")
 
 
-
+               
 cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
-Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Data med mindre enn 50\\% komplett data blir markert med stjerne. Måneder med mindre enn 5 komplette data vises ikke i tabellen. (Målnivå: 50 \\%)"
+Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ventetid under 24 timer regnes ikke ut for disse. (Målnivå: 50 \\%)"
 
-noric::mst(tab = tabVentetid24t, 
+mst(tab = tabVentetid24t, 
     type = params$tableFormat, 
     cap = cap,
     digs = c(0, 0, 0, 1, 1), 
