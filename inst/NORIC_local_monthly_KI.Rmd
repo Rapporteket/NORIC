@@ -1078,16 +1078,18 @@ nstemiAP_fra2017_lokalt %<>%
   dplyr::left_join(timeTableYear_SDO,
             .,
             by= c("Year", "name")) %>% 
-  dplyr::mutate(Sykehus = params$hospitalName)
+  dplyr::mutate(Sykehus = params$hospitalName) %>% 
+  dplyr::select(Year, name, value, Sykehus)
 
 
-prep_figVentetid24t_year <- rbind(nstemiAP_fra2017_nasjonalt,
-                                  nstemiAP_fra2017_lokalt) %>%
+prep_figVentetid24t_year <-
+  rbind(as.data.frame(nstemiAP_fra2017_nasjonalt),
+        nstemiAP_fra2017_lokalt) %>%
   dplyr::select(.data$Sykehus,
                 .data$Year,
                 .data$name,
                 .data$value) %>%
- dplyr::mutate(Sykehus = factor(.data$Sykehus,
+  dplyr::mutate(Sykehus = factor(.data$Sykehus,
                                 levels = c(params$hospitalName,
                                            "Nasjonalt")), 
                value_tekst = ifelse(
