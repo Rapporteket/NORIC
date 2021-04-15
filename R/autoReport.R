@@ -11,6 +11,9 @@
 #' Value must be provided without the file extention (\emph{i.e.} ".Rmd")
 #' @param reshId Single element list with the organization id of the subscriber
 #' as its value
+#' @param reshID Single element list with the organization id of the subscriber
+#' as its value
+#' @param userRole String defining the user role
 #' @param registryName Single element list which value is the regisry name
 #' @param author Single element list holding the name of the subscriber as its
 #' value
