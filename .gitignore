@@ -47,7 +47,6 @@ inst/shinyApps/noric/cache
 # Rdata files
 *.Rdata
 *.data.R
-*.Rd
 
 # Example code in package build process
 *-Ex.R
