@@ -7,7 +7,7 @@
 #' @return A Date object
 #' @export
 
-getLatesEntry <- function(registryName) {
+getLatestEntry <- function(registryName) {
   
   query <- paste0("
 SELECT
