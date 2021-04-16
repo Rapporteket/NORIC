@@ -474,8 +474,8 @@ shinyServer(function(input, output, session) {
       synopsis <- paste("NORIC kvalitetsindikatorer: eget sykehus",
                         "sammenlignet med resten av landet")
       fun <- "dispatchMonthlyKi"
-      paramNames <- c("baseName", "hospitalName", "reshID", "author", "userRole",
-                      "type", "registryName")
+      paramNames <- c("baseName", "hospitalName", "reshID", "author",
+                      "userRole", "type", "registryName")
       paramValues <- c(
         "NORIC_kvalitetsindikator",
         mapOrgId$name[mapOrgId$id == input$dispatchFromOrg],

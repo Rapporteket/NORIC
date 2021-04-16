@@ -3,7 +3,7 @@
 #' @param registryName Character string providing registry name key
 #' @param asNamedList Logical wether to return a list of named values or not.
 #' Default is FALSE in which case a data frame containing name and id is
-#' returned. 
+#' returned.
 #'
 #'@importFrom stats setNames
 #'

@@ -38,7 +38,7 @@ dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
                         html = "html"
   )
 
-  outFile <-tempfile(
+  outFile <- tempfile(
     pattern = paste0(baseName[[1]], "_", as.character(Sys.Date()), "_"),
     fileext = paste0(".", type[[1]])
   )
