@@ -38,7 +38,9 @@ dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
                         html = "html"
   )
 
-  outFile <- tempfile(pattern = baseName[[1]], fileext = paste0(".", type[[1]]))
+  outFile <-
+    tempfile(pattern = paste0(baseName[[1]], "_", as.character(Sys.Date()),
+                              fileext = paste0(".", type[[1]])))
 
   rmarkdown::render(input = sourceFile,
                     output_format = switch(
