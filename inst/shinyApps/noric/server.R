@@ -470,14 +470,14 @@ shinyServer(function(input, output, session) {
     email <- dispatchment$email
     organization <- input$dispatchFromOrg
 
-    if (input$dispatchmentRep == "NORIC_local_monthly_KI") {
+    if (input$dispatchmentRep == "NORIC_kvalitetsindikator") {
       synopsis <- paste("NORIC kvalitetsindikatorer: eget sykehus",
                         "sammenlignet med resten av landet")
       fun <- "dispatchMonthlyKi"
       paramNames <- c("baseName", "hospitalName", "reshID", "author", "userRole",
                       "type", "registryName")
       paramValues <- c(
-        "NORIC_local_monthly_KI",
+        "NORIC_kvalitetsindikator",
         mapOrgId$name[mapOrgId$id == input$dispatchFromOrg],
         input$dispatchFromOrg, userFullName, userRole, "pdf",
         registryName)
@@ -508,7 +508,7 @@ shinyServer(function(input, output, session) {
       selectInput(
         "dispatchmentRep", "Rapport:",
         list(
-          `KI: sykehus mot resten av landet` = "NORIC_local_monthly_KI"
+          `KI: sykehus mot resten av landet` = "NORIC_kvalitetsindikator"
         ))
     } else {
       selectInput("dispatchmentRep", "Rapport:", "")
