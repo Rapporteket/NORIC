@@ -469,7 +469,7 @@ forløp/prosedyre, og ikke per individ.
 De fleste tabellene presenteres per måned hittil i år, samt
 det siste hele året, mens figurene inneholder resultater bare til og med
 foregående måned. Siste innregistrering i datagrunnlaget til denne rapporten
-ble gjort `r format(Sys.time(), '%d. %B %Y')`. 
+ble gjort `r format(noric::getLatestEntry(params$registryName), '%d. %B %Y')`.
 
 \
 Eventuelle spørsmål knyttet til rapporten kan rettes til 
