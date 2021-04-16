@@ -2,7 +2,7 @@
 #'
 #' Provides the newest date based on HovedDato from SkjemaOversikt
 #'
-#' @param registryName
+#' @param registryName Character string providing registry name key
 #'
 #' @return A Date object
 #' @export

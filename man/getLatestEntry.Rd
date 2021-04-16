@@ -7,7 +7,7 @@
 getLatestEntry(registryName)
 }
 \arguments{
-\item{registryName}{}
+\item{registryName}{Character string providing registry name key}
 }
 \value{
 A Date object
