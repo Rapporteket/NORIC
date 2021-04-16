@@ -64,10 +64,6 @@ dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
 subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
                                          author, hospitalName, type) {
 
-  raplog::subLogger(author = author[[1]], registryName = registryName[[1]],
-                    reshId = reshId[[1]],
-                    msg = "Subscription report: stent/prosedyre")
-
   sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
   tableFormat <- switch(type[[1]],
     pdf = "latex",
