@@ -1,8 +1,13 @@
 #' Make mapping between unit name and id
 #'
 #' @param registryName Character string providing registry name key
+#' @param asNamedList Logical wether to return a list of named values or not.
+#' Default is FALSE in which case a data frame containing name and id is
+#' returned.
 #'
-#' @return A data frame with columns name and id
+#'@importFrom stats setNames
+#'
+#' @return A data frame with columns name and id or a list of named ids
 #' @export
 
 mapOrgReshId <- function(registryName, asNamedList = FALSE) {

@@ -116,39 +116,6 @@ timeTableMonth <- data.frame(
 ```
 
 
-```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
-nyeste_registrering_ak <- aK_nasjonalt %>% 
-  summarise(nyesteReg = max(ProsedyreDato))
-```
-
-
-
-```{r dimAK_lokalt, include=FALSE, eval=TRUE}
-dim_ak_lokalt <- aK_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID,
-         .data$ProsedyreDato >= 2018) %>% 
-  dim(.)
-```
-
-
-```{r kvartalTabPrepare_AK, include=FALSE, eval=TRUE}
-if (dim_ak_lokalt[1] > 0) {
-
-# 5 siste ferdige kvartal
-forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
-                                              "quarter") 
-timeTableQuarterAK <- data.frame(
-  KvartalDatoStart = rev(seq(forsteDatoKvartalAK, 
-                             by = "-1 quarter",
-                             length.out = 6)[2:6])) %>% 
-  dplyr::transmute(
-    Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
-                     " Q", 
-                     lubridate::quarter(.data$KvartalDatoStart, 
-                                        with_year = FALSE)))
-}
-```
-
 ```{r sOPrepare,include=FALSE, eval=TRUE}
 
 sO_nasjonalt %<>% dplyr::mutate(
@@ -177,7 +144,15 @@ sO_nasjonalt %<>%dplyr::mutate(
 
 
 ```{r sSPrepare,include=FALSE, eval=TRUE}
-sS_nasjonalt %<>% dplyr::mutate(
+sS_nasjonalt %<>% 
+  dplyr::select(
+    .data$ProsedyreDato,
+    .data$StentType, 
+    .data$Segment, 
+    .data$ForlopsID,
+    .data$Sykehusnavn, 
+    .data$AvdRESH) %>% 
+  dplyr::mutate(
   RegDate = as.Date(.data$ProsedyreDato, format = "%Y-%m-%d"),
   Year = as.numeric(format(.data$ProsedyreDato, format = "%Y")),
   Month = as.numeric(format(.data$ProsedyreDato, format = "%m")),
@@ -190,12 +165,41 @@ sS_nasjonalt %<>% dplyr::mutate(
 
 ```{r aPPrepare,include=FALSE, eval=TRUE}
 
-aP_nasjonalt %<>% dplyr::mutate(
-  RegDate = as.Date(.data$ProsedyreDato),
-  Year = as.numeric(format(.data$RegDate, format = "%Y")),
-  Kvartal = paste0(lubridate::year(.data$RegDate),
-                   " Q",
-                   lubridate::quarter(.data$RegDate, with_year = FALSE)))
+aP_nasjonalt %<>% 
+  dplyr::select(
+    .data$AvdRESH,
+    .data$Sykehusnavn,
+    .data$ProsedyreDato,
+    .data$ProsedyreTid,
+    .data$AvdRESH, 
+    .data$OverflyttetFra, 
+    .data$AnkomstPCIDato,
+    .data$AnkomstPCITid, 
+    .data$InnleggelseHenvisendeSykehusDato,
+    .data$InnleggelseHenvisendeSykehusTid,
+    .data$Innkomstarsak,
+    .data$Indikasjon, 
+    .data$KobletForlopsID,
+    .data$ForlopsType2, 
+    .data$IFR, 
+    .data$FFR, 
+    .data$IVUS, 
+    .data$OCT, 
+    .data$ForlopsID, 
+    .data$ASA, 
+    .data$AndrePlatehemmere,
+    .data$AndrePlatehemmere,
+    .data$Antikoagulantia,
+    .data$UtskrStatiner, 
+    .data$TidlABC, 
+    .data$UtskrevetDod) %>%
+
+  dplyr::mutate(
+    RegDate = as.Date(.data$ProsedyreDato),
+    Year = as.numeric(format(.data$RegDate, format = "%Y")),
+    Kvartal = paste0(lubridate::year(.data$RegDate),
+                     " Q",
+                     lubridate::quarter(.data$RegDate, with_year = FALSE)))
 
 
 
@@ -263,7 +267,28 @@ aP_nasjonalt %<>% dplyr::mutate(
  innkomstaarsak = ifelse(is.na(.data$Innkomstarsak),
                          yes = "Ukjent",
                          no = .data$Innkomstarsak))
-
+# Datagrunnlag for ventetid ved NSTEMI
+aP_nasjonalt %<>%
+  dplyr::mutate(
+    ventetidNstemi_datagrunnlag = dplyr::if_else(
+      condition = (.data$Indikasjon == "NSTEMI" & 
+                     is.na(.data$KobletForlopsID) &
+                     .data$innkomstaarsak!="Øvrig" &
+                     .data$ForlopsType2!="Planlagt" &
+                     !is.na(.data$AdmissionType)), 
+    true = "ja", 
+    false = "nei", 
+    missing = "nei"), 
+    
+    ventetidNstemi_gyldigTid = dplyr::if_else(
+      condition = (ventetidNstemi_datagrunnlag == "ja" &
+                              !is.na(.data$AdmissionType) &
+                              !is.na(.data$TidsDiffSek) &
+                              .data$TidsDiffSek > 0 & 
+                              .data$TidsDiffSek <= 1814400),
+    true = "ja", 
+    false = "nei", 
+    missing = "nei"))
 
 # Trykkmåling
 aP_nasjonalt %<>% dplyr::mutate(
@@ -298,7 +323,7 @@ aP_nasjonalt %<>% dplyr::mutate(
 aP_nasjonalt %<>% dplyr::mutate(
   ASABin = as.numeric(dplyr::if_else(
     .data$ASA == "Ja",
-    true = 0, false = 1, missing = 0)),
+    true = 1, false = 0, missing = 0)),
 
   
   AndrePlatehemmerebBin = as.numeric(
@@ -360,11 +385,22 @@ aP_nasjonalt %<>% dplyr::mutate(
 
 ```{r aKPrepare,include=FALSE, eval=TRUE}
 
-aK_nasjonalt %<>% dplyr::mutate(
-  RegDate = as.Date(.data$ProsedyreDato))
+aK_nasjonalt %<>% 
+  dplyr::select(
+   .data$ProsedyreDato,
+   .data$AvdKompPacemaker, 
+   .data$LabKompDod, 
+   .data$TypeKlaffeprotese,
+   .data$ScreeningBeslutning, 
+   .data$Sykehusnavn, 
+   .data$AvdRESH, 
+   .data$ForlopsID, 
+   .data$Pacemaker)
 
 
 aK_nasjonalt  %<>% 
+  dplyr::mutate(
+    RegDate = as.Date(.data$ProsedyreDato)) %>% 
   dplyr::filter(RegDate >= as.Date("2019-01-01"))
 
 
@@ -386,24 +422,55 @@ aK_nasjonalt %<>% dplyr::mutate(
 
 ```
 
+```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
+nyeste_registrering_ak <- aK_nasjonalt %>% 
+  summarise(nyesteReg = max(ProsedyreDato))
+```
+
+
+
+```{r dimAK_lokalt, include=FALSE, eval=TRUE}
+dim_ak_lokalt <- aK_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dim(.)
+```
+
+
+```{r kvartalTabPrepare_AK, include=FALSE, eval=TRUE}
+if (dim_ak_lokalt[1] > 0) {
+
+# 5 siste ferdige kvartal
+forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
+                                             "quarter") 
+timeTableQuarterAK <- data.frame(
+  KvartalDatoStart = rev(seq(forsteDatoKvartalAK, 
+                             by = "-1 quarter",
+                             length.out = 6)[2:6])) %>% 
+  dplyr::transmute(
+    Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
+                     " Q", 
+                     lubridate::quarter(.data$KvartalDatoStart, 
+                                        with_year = FALSE)))
+}
+```
+
 \
-Denne rapporten er automatisk generert og lastet ned fra NORIC sin 
-resultatløsning _Rapporteket_. Rapporten distribueres til personer i fagmiljøet 
-som abonnerer på denne e-post-tjenesten, og er kun ment til internt bruk!
+Denne rapporten er generert ved hjelp av NORIC sin resultatløsning 
+_Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd 
+har bestilt denne tjenesten. Rapporten er kun ment til internt bruk!
 \
 
 Rapporten inneholder tabeller og figurer med resultater basert på forløp 
-registret ved `r paste0(params$hospitalName)`, samt nasjonale data for 
+registrert ved `r paste0(params$hospitalName)`, samt nasjonale data for 
 bedre sammenligningsgrunnlag. Opptellinger og statistikker er gjort per 
 forløp/prosedyre, og ikke per individ. 
 \
 
-De fleste kvalitetsindikatorene presenteres per måned hittil i år i tillegg til 
-det siste hele året. Figurene inneholder bare fullførte måneder eller år. 
-Noen av indikatorene presenteres per kvartal, da brukes 
-siste fullførte kvartal samt fire kvartaler tilbake i tid. Det nyeste forløpet 
-som er med i denne rapporten er registrert i det nasjonale registeret den 
-`r  format(nyeste_registrering_ap$nyesteReg, format ='%d. %B %Y')`.
+De fleste tabellene presenteres per måned hittil i år, samt
+det siste hele året, mens figurene inneholder resultater bare til og med
+foregående måned. Siste innregistrering i datagrunnlaget til denne rapporten
+ble gjort `r format(noric::getLatestEntry(params$registryName), '%d. %B %Y')`.
+
 \
 Eventuelle spørsmål knyttet til rapporten kan rettes til 
 [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
@@ -415,7 +482,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til
 
 
 
-## Grad av ferdigstilt kompikasjonsskjema
+## Grad av ferdigstilt komplikasjonsskjema
 
 Opplysninger om komplikasjoner er viktig for å kunne vurdere behandlingskvalitet
 og risiko. Dersom de aktuelle registreringsskjemaene ikke er ferdigutfylt, blir 
@@ -513,129 +580,126 @@ utført innen 24 og 72 timer etter innleggelse i sykehus. Det er således to
 ulike kvalitetsindikatorer som gjelder for ventetid på utredning ved NSTEMI
 med målnivå på henholdsvis 50 % og 80 %.
 
-```{r ventetidNSTEMI,include=FALSE, eval=TRUE}
-
-# ANTALL NSTEMI LOKALT
-nstemiAPTot <- aP_nasjonalt %>% 
-  filter(.data$AvdRESH == params$reshID,
-        .data$Indikasjon == "NSTEMI", 
-         is.na(.data$KobletForlopsID), 
-         .data$innkomstaarsak!="Øvrig",
-         .data$ForlopsType2!="Planlagt",
-         !is.na(.data$AdmissionType))
- 
-
-# DATSETT NSTEMI MED GYLDIG TID - NASJONALT
-nstemi_ap_nasjonalt <- aP_nasjonalt %>% 
-  filter(.data$Indikasjon == "NSTEMI", 
-         is.na(.data$KobletForlopsID),
-         .data$ForlopsType2!="Planlagt",
-         .data$innkomstaarsak!="Øvrig", 
-         !is.na(.data$AdmissionType),
-         !is.na(.data$TidsDiffSek),
-         .data$TidsDiffSek > 0, 
-         .data$TidsDiffSek <= 1814400)
-
-# DATSETT NSTEMI MED GYLDIG TID - LOKALT
-nstemiAP <- nstemi_ap_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID)
-
-
-```
 
 ```{r komplettMonth_24timerNSTEMI, results='asis', warning=FALSE}
 
-nNstemiAPTot <- nstemiAPTot %>% 
-  dplyr::count(.data$Month) %>% 
-  dplyr::rename(Totalt = .data$n)
-
-nNstemiAPGyldig <- nstemiAP %>% 
-  dplyr::count(.data$Month) %>% 
-  dplyr::rename(antGyldigTid = .data$n)
-
-nNstemiAPKomplett <- nNstemiAPTot %>% 
-  dplyr::left_join(., nNstemiAPGyldig, by = c("Month")) %>% 
+# For alle NSTEMI : prosent og andel komplette forløp (gyldig tid) per måned
+nstemi_komplett_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja") %>% 
+  dplyr::count(.data$Month, .data$ventetidNstemi_gyldigTid) %>% 
+  tidyr::pivot_wider(names_from = .data$ventetidNstemi_gyldigTid, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>% 
   dplyr::mutate(
-    Komplett = round(.data$antGyldigTid / .data$Totalt * 100, 1),
-    sjekkKomplett = ifelse(.data$Komplett < 50,
-                           yes = paste0(.data$Totalt, "*"),
-                           no = .data$Totalt),
-    sjekkAntall = ifelse(.data$antGyldigTid < 5,
-                         yes = "N",
-                         no = .data$antGyldigTid),
-    antKompAvTot = paste0(.data$antGyldigTid, " av ", .data$sjekkKomplett),
-    antKompAvTot = ifelse(
-      is.na(.data$sjekkKomplett),
-      yes = NA,
-      no = .data$antKompAvTot)) %>% 
+    komplette_prosent =  .data$ja / (.data$ja + .data$nei), 
+    komplette_antall = dplyr::if_else(.data$komplette_prosent < 0.50 |
+                                        .data$ja < 5,
+                                      true = paste0(.data$ja, 
+                                                    " av ", 
+                                                    (.data$ja + .data$nei), 
+                                                    "*"),
+                                      false = paste0(.data$ja, 
+                                                    " av ", 
+                                                    (.data$ja + .data$nei)), 
+                                      missing = NA_character_)) %>% 
+  select(.data$Month, 
+         .data$ja, 
+         .data$komplette_prosent, 
+         .data$komplette_antall) %>% 
+  rename("komplette" = "ja")
+```
+
+### Invasiv utredning ved NSTEMI innen 24 timer
+
+```{r ventetid24t_NSTEMI, results='asis', warning=FALSE}
+
+# Lokalt: Blant NSTEMI med KOMPLETTE forløp. Andel forløp innen 24T 
+nstemi_ventetid24t_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
+  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
+  tidyr::pivot_wider(names_from = .data$Ventetid24T, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>%
+  janitor::adorn_totals("col", name = "Totalt") %>%
+  dplyr::mutate(
+    innen24t_prosent_lokalt = round(.data$`Innen 24t` / Totalt * 100, 1)) %>% 
   dplyr::select(.data$Month, 
-                .data$sjekkKomplett, 
-                .data$sjekkAntall, 
-                .data$antKompAvTot)
+                .data$`Innen 24t`, 
+                .data$Totalt, 
+                .data$innen24t_prosent_lokalt)
+
+# NASJONALT: Blant NSTEMI med KOMPLETTE forløp. Andel forløp innen 24T 
+nstemi_ventetid24t_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
+  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
+  tidyr::pivot_wider(names_from = .data$Ventetid24T, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>%
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  dplyr::mutate(
+    innen24t_prosent_nasj = paste0(round(.data$`Innen 24t` / Totalt * 100, 1), 
+                                   "%")) %>% 
+  dplyr::select(.data$Month, .data$innen24t_prosent_nasj)
+
+
+
+# Forberede tabell, bruke kompletthet og ventetid
+tabVentetid24t <- timeTableMonth %>% 
+  dplyr::left_join(., nstemi_komplett_lokalt, by = c("Month")) %>% 
+  dplyr::left_join(., nstemi_ventetid24t_lokalt, by = c("Month")) %>% 
+  dplyr::left_join(., nstemi_ventetid24t_nasjonalt, by = c("Month")) %>% 
+  dplyr::mutate(
+    innen24tAvKomplette = dplyr::case_when(
+      
+      #  Ingen komplette --> tom celle i tabellen
+      .data$komplette == 0 | is.na(.data$komplette) ~ "-", 
+
+      # Færre enn 50% eller minder enn 5 forløp --> Ikke vise prosent
+      .data$komplette_prosent < 0.5 | .data$komplette < 5 ~
+        paste0(.data$`Innen 24t`, 
+                " av ", 
+                .data$Totalt, 
+                " (-%)"),
+      
+      # Over 50% og over 5 komplette --> Vise prosent
+      .data$komplette_prosent >= 0.5 & .data$komplette >= 5 ~
+        paste0(.data$`Innen 24t`, 
+              " av ", 
+              .data$Totalt, 
+              " (",
+              .data$innen24t_prosent_lokalt,
+              "%)"), 
+      
+      TRUE ~ "-")) %>% 
+  dplyr::select(.data$Month, 
+                .data$komplette_antall,
+                .data$innen24tAvKomplette,
+                .data$innen24t_prosent_nasj)
 
 ```
 
-### Innen 24 timer
+
 
 ```{r TabN24timerNSTEMI, results='asis', warning=FALSE}
-
-#Lokalt
-nNstemiAP24t <- nstemiAP %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  tidyr::pivot_wider(names_from = .data$Ventetid24T, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::mutate(
-    prosentInnen24t = round(.data$`Innen 24t` / Totalt * 100, 1),
-    innen24tAvKomp = paste0(.data$`Innen 24t`,
-                            " av ",
-                            .data$Totalt,
-                            " (",
-                            .data$prosentInnen24t,
-                            " %)")) %>% 
-  dplyr::select(.data$Month, .data$innen24tAvKomp)
-
-
-#Nasjonalt
-n_nstemi_ap24t_nasj <- nstemi_ap_nasjonalt %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  tidyr::pivot_wider(names_from = .data$Ventetid24T, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::mutate(prosentInnen24t = paste0(
-    round(.data$`Innen 24t` / .data$Totalt * 100, 1), " %")) %>% 
-  dplyr::select(.data$Month, .data$prosentInnen24t) %>% 
-  dplyr::rename(Nasjonalt = .data$prosentInnen24t)
-
-
 #Tabell
-tabVentetid24t <- timeTableMonth %>% 
-  dplyr::left_join(., nNstemiAPKomplett, by = c("Month")) %>% 
-  dplyr::left_join(., nNstemiAP24t, by = c("Month")) %>% 
-  dplyr::left_join(., n_nstemi_ap24t_nasj, by = c("Month")) %>% 
-  dplyr::mutate(
-    innen24tAvKomp = 
-      ifelse(.data$sjekkAntall == "N",
-             yes = NA,
-             no = .data$innen24tAvKomp)) %>% 
-  dplyr::select(.data$Month, 
-                .data$antKompAvTot,
-                .data$innen24tAvKomp,
-                .data$Nasjonalt) %>% 
+tabVentetid24t %<>% 
   dplyr::rename(
     "Måned" = .data$Month,
-    "Antall komplette data av totale antall data" = .data$antKompAvTot,
-    "Antall NSTEMI innen 24t av komplett data" = .data$innen24tAvKomp) %>% 
+    "Antall komplette data av totale antall data" = .data$komplette_antall,
+    "Antall NSTEMI innen 24t av komplett data" = .data$innen24tAvKomplette,
+    "Nasjonalt" = .data$innen24t_prosent_nasj) %>%
   replace(is.na(.), "-")
 
 
-
+               
 cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
-Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Data med mindre enn 50\\% komplett data blir markert med stjerne. Måneder med mindre enn 5 komplette data vises ikke i tabellen. (Målnivå: 50 \\%)"
+Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ventetid under 24 timer regnes ikke ut for disse. (Målnivå: 50 \\%)"
 
-noric::mst(tab = tabVentetid24t, 
+mst(tab = tabVentetid24t, 
     type = params$tableFormat, 
     cap = cap,
     digs = c(0, 0, 0, 1, 1), 
@@ -648,134 +712,140 @@ noric::mst(tab = tabVentetid24t,
   cat("\n\n\\pagebreak\n")
 ```
 
-### Figurer - Innen 24 timer
+### Figurer - Invasiv utredning ved NSTEMI innen 24 timer
 
-__Hittil i år__ 
 
-```{r hittilIAar, results='asis', warning=FALSE}
+```{r hittilIAar_24t_lokalt, results='asis', warning=FALSE}
 # Hele siste år + alle fullførte måneder i dette året.
 forsteDagFigur_ventetid <- paste0(nyeste_registrering_ap$sisteHeleYear, 
-                        "-01-01")
-sisteDagFigur_ventetid <- lubridate::floor_date(x = nyeste_registrering_ap$nyesteReg,
-                                       unit = "month")
+                                  "-01-01")
+sisteDagFigur_ventetid <- lubridate::floor_date(
+  x = nyeste_registrering_ap$nyesteReg,
+  unit = "month")
 
-nstemi_ap_hittil_iaar <- nstemiAP %>% 
+# LOKALT : For NSTEMI med komplette forløp
+# Forberede figurer
+prep_figVentetid24t_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
   dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
-                .data$ProsedyreDato < sisteDagFigur_ventetid)
-
-
-figNstemiAPSamlet_iAar <- nstemi_ap_hittil_iaar %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
+                .data$ProsedyreDato < sisteDagFigur_ventetid) %>% 
+  
+  #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Samlet = round(.data$n / .data$Totalt, 3),
-                name = "Samlet") %>% 
-  dplyr:: rename(Antall = .data$n)
+  dplyr::mutate(
+    innen_24t_samlet = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n(),
+    n_samlet = n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # per admission type (Direkte / OVerflyttet)
+  dplyr::group_by(.data$Month, .data$AdmissionType) %>% 
+  dplyr::mutate(
+    innen_24t_type = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # Beholde en rad per Samlet, Direkte, OVerflyttet : 
+  dplyr::count(.data$Month, 
+               .data$AdmissionType,
+               .data$innen_24t_type, 
+               .data$innen_24t_samlet, 
+               .data$n_samlet) %>% 
+  tidyr::pivot_longer(cols = starts_with("innen_24t_"), 
+               names_to = "Type") %>% 
+  dplyr::mutate(
+    name = dplyr::case_when(
+      
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_type" ~ "Direkte", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_type" ~ "Overflyttet", 
 
-figNstemiAPDirekte_iAar <- nstemi_ap_hittil_iaar %>% 
-  dplyr::filter(AdmissionType == "Directly admitted") %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Direkte = round(.data$n / .data$Totalt, 3),
-                name = "Direkte") %>% 
-  dplyr:: rename(Antall = .data$n)
-
-figNstemiAPOverflyttet_iAar <- nstemi_ap_hittil_iaar %>% 
-  dplyr::filter(AdmissionType == "Referred") %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Overflyttet = round(.data$n / .data$Totalt, 3),
-                name = "Overflyttet") %>% 
-  dplyr:: rename(Antall = .data$n)
-
-
-figNstemiAP_iAar <- figNstemiAPSamlet_iAar %>% 
-  dplyr::left_join(., figNstemiAPDirekte_iAar, by = c("Ventetid24T", 
-                                                      "Month")) %>% 
-  dplyr::left_join(., figNstemiAPOverflyttet_iAar, by = c("Ventetid24T", 
-                                                          "Month")) %>% 
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet"    
+    ), 
+    
+    # antall forløp per type, brukes for å fjerne måneder med <5 forløp i figur
+    antall_komplette = dplyr::case_when(
+      .data$Type == "innen_24t_type" ~ n, 
+      .data$Type == "innen_24t_samlet" ~ n_samlet
+    )) %>% 
   dplyr::select(.data$Month, 
-                .data$Ventetid24T, 
-                .data$Samlet, 
-                .data$Direkte, 
-                .data$Overflyttet) %>% 
-  tidyr::pivot_longer(cols = c("Samlet", "Direkte", "Overflyttet"))
-
-
-fig_lokal_iAar <- figNstemiAP_iAar %>% 
-  dplyr::filter(Ventetid24T == "Innen 24t") %>%
-  dplyr::left_join(., nNstemiAPKomplett, by = c("Month")) %>% 
-  dplyr::mutate(Sykehus = params$hospitalName,
-                value = ifelse(sjekkKomplett == "N",
-                               yes = NA,
-                               no = .data$value)) %>% 
-  dplyr::select(.data$Month, 
-                .data$Ventetid24T, 
                 .data$name, 
                 .data$value, 
-                .data$Sykehus)
+                .data$antall_komplette) %>% 
+  dplyr::group_by(.data$Month, .data$name) %>% 
+  dplyr::distinct()
+
+# Dersom data ikke komplett, bytte ut verdiene med NA
+prep_figVentetid24t_lokalt %<>% 
+  dplyr::left_join(., 
+                   nstemi_komplett_lokalt %>% dplyr::select(
+                     .data$Month, 
+                     .data$komplette_prosent), 
+            by = "Month") %>% 
+  dplyr::mutate(value = ifelse(.data$komplette_prosent < 0.5 |
+                                 .data$antall_komplette < 5, 
+                              yes = NA_real_, 
+                              no = .data$value),
+                Sykehus = params$hospitalName)
 
 ```
 
-```{r hittilIAar_nasj, results='asis', warning=FALSE}
-nstemi_ap_hittil_iaar_nasj <- nstemi_ap_nasjonalt %>% 
-  dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid, 
-                .data$ProsedyreDato < sisteDagFigur_ventetid)
-
-
-figNstemiAPSamlet_iAar_nasj <- nstemi_ap_hittil_iaar_nasj %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
+```{r hittilIAar_24T_nasj, results='asis', warning=FALSE}
+# NASJONALT
+prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
+  dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
+                .data$ProsedyreDato < sisteDagFigur_ventetid) %>% 
+  
+  #Samlet (Direkte og overflyttet)
   dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Samlet = round(.data$n / .data$Totalt, 3),
-                name = "Samlet") %>% 
-  dplyr:: rename(Antall = .data$n)
+  dplyr::mutate(
+    innen_24t_samlet = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # per admission type (Direkte / OVerflyttet)
+  dplyr::group_by(.data$Month, .data$AdmissionType) %>% 
+  dplyr::mutate(
+    innen_24t_type = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # Beholde en rad per Samlet, Direkte, OVerflyttet : 
+  dplyr::count(.data$Month, 
+               .data$AdmissionType, 
+               .data$innen_24t_type,
+               .data$innen_24t_samlet) %>% 
+  tidyr::pivot_longer(cols = starts_with("innen_24t_"), 
+                      names_to = "Type") %>% 
+  dplyr::mutate(name = dplyr::case_when(
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_type" ~ "Direkte", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_type" ~ "Overflyttet", 
+    
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet", 
 
-figNstemiAPDirekte_iAar_nasj <- nstemi_ap_hittil_iaar_nasj %>% 
-  dplyr::filter(AdmissionType == "Directly admitted") %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Direkte = round(.data$n / .data$Totalt, 3),
-                name = "Direkte") %>% 
-  dplyr:: rename(Antall = .data$n)
-
-figNstemiAPOverflyttet_iAar_nasj <- nstemi_ap_hittil_iaar_nasj %>% 
-  dplyr::filter(AdmissionType == "Referred") %>% 
-  dplyr::count(.data$Month, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Month) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Overflyttet = round(.data$n / .data$Totalt, 3),
-                name = "Overflyttet") %>% 
-  dplyr:: rename(Antall = .data$n)
-
-
-figNstemiAP_iAar_nasj <- figNstemiAPSamlet_iAar_nasj %>% 
-  dplyr::left_join(., figNstemiAPDirekte_iAar_nasj, by = c("Ventetid24T", 
-                                                           "Month")) %>% 
-  dplyr::left_join(., figNstemiAPOverflyttet_iAar_nasj, by = c("Ventetid24T", 
-                                                               "Month")) %>% 
-  dplyr::select(.data$Month, 
-                .data$Ventetid24T, 
-                .data$Samlet, 
-                .data$Direkte, 
-                .data$Overflyttet) %>% 
-  tidyr::pivot_longer(cols = c("Samlet", "Direkte", "Overflyttet"))
-
-
-fig_iAar_nasj <- figNstemiAP_iAar_nasj %>% 
-  dplyr::filter(.data$Ventetid24T == "Innen 24t") %>%
-  dplyr::mutate(Sykehus = "Nasjonalt") %>% 
-  dplyr::select(.data$Month, 
-                .data$Ventetid24T, 
-                .data$name, 
-                .data$value, 
-                .data$Sykehus)
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet"    
+  )) %>% 
+  dplyr::select(.data$Month, .data$name, .data$value) %>% 
+  dplyr::group_by(.data$Month, .data$name) %>% 
+  dplyr::distinct() %>% 
+  dplyr::mutate(Sykehus = "Nasjonalt")
 
 
-fig_tabell_iAar <- rbind(fig_lokal_iAar, fig_iAar_nasj) %>% 
+
+
+prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
+                         prep_figVentetid24t_lokalt) %>% 
   dplyr::select(.data$Sykehus, 
                 .data$Month, 
                 .data$name, 
@@ -787,13 +857,13 @@ fig_tabell_iAar <- rbind(fig_lokal_iAar, fig_iAar_nasj) %>%
 ```
 
 
-```{r fig_ventetid24T_iAar_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."}
 
-fig_iAar_samlet <- fig_tabell_iAar %>% 
+fig_ventetid_24t_samlet <- prep_fig_ventetid24t %>% 
   dplyr::filter(name == "Samlet")
 
 
-fig_iAar_samlet %>%
+fig_ventetid_24t_samlet %>%
   ggplot2::ggplot(aes(x = .data$Month,
                       y = .data$value,
                       group = .data$Sykehus)) +
@@ -812,12 +882,12 @@ fig_iAar_samlet %>%
 
 
 
-```{r fig_ventetid24T_iAar_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."}
 
-fig_iAar_direkte <- fig_tabell_iAar %>% 
+fig_ventetid_24t_direkte <- prep_fig_ventetid24t %>% 
   dplyr::filter(name == "Direkte")
 
-fig_iAar_direkte %>%
+fig_ventetid_24t_direkte%>%
   ggplot2::ggplot(aes(x = .data$Month,
                       y = .data$value,
                       group = .data$Sykehus)) +
@@ -834,13 +904,13 @@ fig_iAar_direkte %>%
 
 ```
 
-```{r fig_ventetid24T_iAar_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder med mindre enn 5 totale antall komplette data vises ikke i diagrammet."}
+```{r fig_ventetid24T_iAar_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp per måned med maks 24 timer ventetid fra hele siste året til og med siste hele måned. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."}
 
-fig_iAar_overflyttet <- fig_tabell_iAar %>% 
+fig_ventetid_24t_overflyttet <- prep_fig_ventetid24t %>% 
   dplyr::filter(name == "Overflyttet")
 
 
-fig_iAar_overflyttet %>%
+fig_ventetid_24t_overflyttet %>%
   ggplot2::ggplot(aes(x = .data$Month,
                       y = .data$value,
                       group = .data$Sykehus)) +
@@ -862,129 +932,141 @@ fig_iAar_overflyttet %>%
   cat("\n\n\\pagebreak\n")
 ```
 
-__Fra 2017 til siste hele år__
 ```{r komplettYear_24timerNSTEMI, results='asis', warning=FALSE}
 
-nNstemiAPTot_year <- nstemiAPTot %>% 
-  dplyr::count(.data$Year) %>% 
-  dplyr::rename(Totalt = .data$n)
-
-nNstemiAPGyldig_year <- nstemiAP %>%
-  dplyr::count(.data$Year) %>% 
-  dplyr::rename(totGyldigTid = .data$n)
-
-nNstemiAPKomplett_year <- nNstemiAPTot_year %>% 
-  dplyr::left_join(., nNstemiAPGyldig_year, by = c("Year")) %>% 
+# Per ÅR: Blant alle NSTEMI, antall komplette forløp (med gyldig tid) 
+nstemi_komplett_year_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja") %>% 
+  dplyr::count(.data$Year, .data$ventetidNstemi_gyldigTid) %>% 
+  tidyr::pivot_wider(names_from = .data$ventetidNstemi_gyldigTid, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>% 
   dplyr::mutate(
-    Komplett = round(.data$totGyldigTid /.data$Totalt * 100, 1),
-    sjekkKomplett = ifelse(.data$Komplett < 50,
-                           yes = "*",
-                           no = ""),
-    sjekkKomplett = ifelse(.data$totGyldigTid < 5,
-                           yes = "N",
-                           no = .data$sjekkKomplett)) %>% 
-  dplyr::select(.data$Year, .data$sjekkKomplett)
+    komplette_prosent =  .data$ja / (.data$ja + .data$nei)
+  ) %>% 
+  select(.data$Year, 
+         .data$ja, 
+         .data$komplette_prosent) %>%  
+  rename("komplette" = "ja")
 
 ```
 
-```{r tab_fig24timerNSTEMI, results='asis', warning=FALSE}
+```{r prep_nstemi_year_lokalt, results='asis', warning=FALSE}
 
-nstemiAP_fra2017 <- nstemiAP %>% 
+nstemiAP_fra2017_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja",
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
   dplyr::filter(
     .data$Year >= 2017 , 
-    .data$Year < nyeste_registrering_ap$nyesteRegYear)
+    .data$Year < nyeste_registrering_ap$nyesteRegYear) %>% 
 
-figNstemiAPSamlet <- nstemiAP_fra2017 %>% 
-  dplyr::count(.data$Year, .data$Ventetid24T) %>% 
+
+  #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$Year) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Samlet = round(.data$n/.data$Totalt, 3),
-                name = "Samlet") %>% 
-  dplyr:: rename(Antall = .data$n)
+  dplyr::mutate(
+    innen_24t_samlet = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # per admission type (Direkte / OVerflyttet)
+  dplyr::group_by(.data$Year, .data$AdmissionType) %>% 
+  dplyr::mutate(
+    innen_24t_type = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # Beholde en rad per Samlet, Direkte, OVerflyttet : 
+  dplyr::count(.data$Year,
+               .data$AdmissionType,
+               .data$innen_24t_type,
+               .data$innen_24t_samlet) %>% 
+  tidyr::pivot_longer(cols = starts_with("innen_24t_"), 
+                      names_to = "Type") %>% 
+  dplyr::mutate(name = dplyr::case_when(
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_type" ~ "Direkte", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_type" ~ "Overflyttet", 
 
-figNstemiAPDirekte <- nstemiAP_fra2017 %>% 
-  dplyr::filter(.data$AdmissionType == "Directly admitted") %>% 
-  dplyr::count(.data$Year, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Year) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Direkte = round(.data$n/.data$Totalt, 3),
-                name = "Direkte") %>% 
-  dplyr:: rename(Antall = .data$n)
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet"    
+  )) %>% 
+  dplyr::select(.data$Year, .data$name, .data$value) %>% 
+  dplyr::group_by(.data$Year, .data$name) %>% 
+  dplyr::distinct()
 
-figNstemiAPOverflyttet <- nstemiAP_fra2017 %>% 
-  dplyr::filter(.data$AdmissionType == "Referred") %>% 
-  dplyr::count(.data$Year, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Year) %>% 
-  dplyr::mutate(Totalt = sum(.data$n),
-                Overflyttet = round(.data$n/.data$Totalt, 3),
-                name = "Overflyttet") %>% 
-  dplyr:: rename(Antall= .data$n)
+# Dersom data ikke komplett, bytte ut verdiene med NA
+nstemiAP_fra2017_lokalt %<>% 
+  dplyr::left_join(., 
+                   nstemi_komplett_year_lokalt %>% 
+                     dplyr::select(.data$Year, 
+                                   .data$komplette_prosent), 
+                   by = "Year") %>% 
+  dplyr::mutate(value = ifelse(.data$komplette_prosent <0.5, 
+                               yes = NA_real_, 
+                               no = .data$value))
 
-
-figNstemiAP_brok <- rbind(figNstemiAPSamlet, 
-                          figNstemiAPDirekte, 
-                          figNstemiAPOverflyttet) %>%  
-  dplyr::mutate(Andel = paste0("(", .data$Antall, " / ", .data$Totalt, ")")) %>% 
-  dplyr::select(.data$Year, 
-                .data$Ventetid24T, 
-                .data$name, 
-                .data$Andel)
-
-figNstemiAP <- figNstemiAPSamlet %>% 
-  dplyr::left_join(., figNstemiAPDirekte, by = c("Ventetid24T", 
-                                                 "Year")) %>% 
-  dplyr::left_join(., figNstemiAPOverflyttet, by = c("Ventetid24T", 
-                                                     "Year")) %>% 
-  dplyr::select(.data$Year, 
-                .data$Ventetid24T, 
-                .data$Samlet, 
-                .data$Direkte, 
-                .data$Overflyttet) %>% 
-  tidyr::pivot_longer(cols = c("Samlet", "Direkte", "Overflyttet")) %>% 
-  dplyr::left_join(., figNstemiAP_brok, by = c("Year", 
-                                               "Ventetid24T", 
-                                               "name"))
+```
 
 
-#Nasjonalt
-nstemiAP_nasj_fra2017 <- nstemi_ap_nasjonalt %>% 
+
+```{r prep_nstemi_year_nasjonalt, results='asis', warning=FALSE}
+# 
+# #Nasjonalt
+nstemiAP_fra2017_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
   dplyr::filter(
-    .data$Year >= 2017, 
-    .data$Year < nyeste_registrering_ap$nyesteRegYear)
+    .data$Year >= 2017 , 
+    .data$Year < nyeste_registrering_ap$nyesteRegYear) %>% 
 
-figNstemiAPSamlet_nasj <- nstemiAP_nasj_fra2017 %>% 
-  dplyr::group_by(.data$Year, .data$Ventetid24T) %>% 
-  dplyr::count(.data$Year, .data$Ventetid24T) %>% 
+
+  #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$Year) %>% 
-  dplyr::mutate(Samlet = round(.data$n/sum(.data$n), 3))
+  dplyr::mutate(
+    innen_24t_samlet = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # per admission type (Direkte / OVerflyttet)
+  dplyr::group_by(.data$Year, .data$AdmissionType) %>% 
+  dplyr::mutate(
+    innen_24t_type = sum(.data$Ventetid24T == "Innen 24t", na.rm = TRUE)/n()) %>% 
+  dplyr::ungroup() %>% 
+  
+  # Beholde en rad per Samlet, Direkte, OVerflyttet : 
+  dplyr::count(.data$Year, 
+               .data$AdmissionType,
+               .data$innen_24t_type,
+               .data$innen_24t_samlet) %>% 
+  tidyr::pivot_longer(cols = starts_with("innen_24t_"), 
+                      names_to = "Type") %>% 
+  dplyr::mutate(
+    name = dplyr::case_when(
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_type" ~ "Direkte", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_type" ~ "Overflyttet", 
 
-figNstemiAPDirekte_nasj <- nstemiAP_nasj_fra2017 %>% 
-  dplyr::filter(.data$AdmissionType == "Directly admitted") %>% 
-  dplyr::count(.data$Year, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Year) %>% 
-  dplyr::mutate(Direkte = round(.data$n/sum(.data$n), 3))
+    .data$AdmissionType == "Directly admitted" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet", 
+    
+    .data$AdmissionType == "Referred" & 
+      .data$Type == "innen_24t_samlet" ~ "Samlet"    
+  )) %>% 
+  dplyr::select(.data$Year, .data$name, .data$value) %>% 
+  dplyr::group_by(.data$Year, .data$name) %>% 
+  dplyr::distinct() %>% 
+  dplyr::mutate(Sykehus = "Nasjonalt")
 
-figNstemiAPOverflyttet_nasj <- nstemiAP_nasj_fra2017 %>% 
-  dplyr::filter(.data$AdmissionType == "Referred") %>% 
-  dplyr::count(.data$Year, .data$Ventetid24T) %>% 
-  dplyr::group_by(.data$Year) %>% 
-  dplyr::mutate(Overflyttet = round(.data$n/sum(.data$n), 3))
-
-figNstemiAP_nasj <- figNstemiAPSamlet_nasj %>% 
-  dplyr::left_join(., figNstemiAPDirekte_nasj, by = c("Ventetid24T", 
-                                                      "Year")) %>% 
-  dplyr::left_join(., figNstemiAPOverflyttet_nasj, by = c("Ventetid24T", 
-                                                          "Year")) %>% 
-  dplyr::select(.data$Year, 
-                .data$Ventetid24T, 
-                .data$Samlet, 
-                .data$Direkte, 
-                .data$Overflyttet) %>% 
-  tidyr::pivot_longer(cols = c("Samlet", "Direkte", "Overflyttet"))
+```
 
 
-
-#Tabell til figurene "Direkte og overflyttet", "Direkte" og "Overflyttet"
+```{r prep_nstemi_year_nasjonalt_lokalt, results='asis', warning=FALSE}
 timeTableYear_Samlet <- cbind(timeTableYear, name = "Samlet")
 timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
 timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
@@ -992,51 +1074,38 @@ timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
 timeTableYear_SDO <- rbind(timeTableYear_Samlet, 
                            timeTableYear_Direkte,
                            timeTableYear_Overflyttet)
-
-fig_lokal <- figNstemiAP %>% 
-  dplyr::filter(.data$Ventetid24T == "Innen 24t") %>% 
-  dplyr::left_join(timeTableYear_SDO, ., by = c("Year", "name")) %>% 
-  dplyr::left_join(., nNstemiAPKomplett_year, by = c("Year")) %>% 
-  dplyr::mutate(Sykehus = params$hospitalName,
-                Prosent = paste0(round(.data$value*100,1),
-                                 " % \n", 
-                                 .data$Andel, 
-                                 .data$sjekkKomplett),
-                value = ifelse(.data$sjekkKomplett == "N",
-                               yes = NA,
-                               no = .data$value)) %>% 
-  dplyr::select(.data$Year, 
-                .data$Ventetid24T, 
-                .data$name, 
-                .data$value, 
-                .data$Sykehus, 
-                .data$Prosent)
+nstemiAP_fra2017_lokalt %<>% 
+  dplyr::left_join(timeTableYear_SDO,
+            .,
+            by= c("Year", "name")) %>% 
+  dplyr::mutate(Sykehus = params$hospitalName) %>% 
+  dplyr::select(Year, name, value, Sykehus)
 
 
-fig_nasj <- figNstemiAP_nasj %>% 
-  dplyr::filter(.data$Ventetid24T == "Innen 24t") %>% 
-  dplyr::mutate(Sykehus = "Nasjonalt",
-                Prosent = paste0(round(.data$value*100,1), " %"))
-
-fig_tabell <- rbind(fig_lokal, as.data.frame(fig_nasj)) %>% 
-  dplyr::select(.data$Sykehus, 
-                .data$Year, 
-                .data$name, 
-                .data$value, 
-                .data$Prosent) %>% 
- dplyr::mutate(Sykehus = factor(.data$Sykehus,
-                          levels = c(params$hospitalName,
-                                     "Nasjonalt")))
-
+prep_figVentetid24t_year <-
+  rbind(as.data.frame(nstemiAP_fra2017_nasjonalt),
+        nstemiAP_fra2017_lokalt) %>%
+  dplyr::select(.data$Sykehus,
+                .data$Year,
+                .data$name,
+                .data$value) %>%
+  dplyr::mutate(Sykehus = factor(.data$Sykehus,
+                                levels = c(params$hospitalName,
+                                           "Nasjonalt")), 
+               value_tekst = ifelse(
+                 !is.na(.data$value), 
+                 yes = paste0(sprintf("%.1f", .data$value*100 ), "%"), 
+                 no = NA_character_))
 ```
 
 
-```{r fig_ventetid24T_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Data med mindre enn 50\\% komplett data av totalt antall data er markert med stjerne. Søylen vises ikke hvis det totale antall komplette data er mindre enn 5."}
 
-fig_samlet <- fig_tabell %>% 
+```{r fig_ventetid24T_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 forløp."}
+
+fig_samlet <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Samlet")
 
-fig_samlet %>% ggplot2::ggplot(
+fig_samlet  %>% ggplot2::ggplot(
    ggplot2::aes(x = .data$Year,
                 y = .data$value,
                 fill = .data$Sykehus)
@@ -1049,7 +1118,7 @@ fig_samlet %>% ggplot2::ggplot(
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_text(
-    ggplot2::aes(label = .data$Prosent),
+    ggplot2::aes(label = .data$value_tekst),
     position = position_dodge(width = 1),
     vjust = 1.2,
     size = 3,
@@ -1060,9 +1129,9 @@ fig_samlet %>% ggplot2::ggplot(
 
 ```
 
-```{r fig_ventetid24T_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Data med mindre enn 50\\% komplett data av totalt antall data er markert med stjerne. Søylen vises ikke hvis det totale antall komplette data er mindre enn 5.")}
+```{r fig_ventetid24T_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 direkte forløp.")}
 
-fig_direkte <- fig_tabell %>% 
+fig_direkte <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Direkte")
 
 fig_direkte %>% ggplot2::ggplot(
@@ -1078,7 +1147,7 @@ fig_direkte %>% ggplot2::ggplot(
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_text(
-    ggplot2::aes(label = .data$Prosent),
+    ggplot2::aes(label = .data$value_tekst),
     position = position_dodge(width = 1),
     vjust = 1.2,
     size = 3,
@@ -1091,9 +1160,9 @@ fig_direkte %>% ggplot2::ggplot(
 ```
 
 
-```{r fig_ventetid24T_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Data med mindre enn 50\\% komplett data av totalt antall data er markert med stjerne. Søylen vises ikke hvis det totale antall komplette data er mindre enn 5.")}
+```{r fig_ventetid24T_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 overflyttede forløp.")}
 
-fig_overflyttet <- fig_tabell %>% 
+fig_overflyttet <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Overflyttet")
 
 fig_overflyttet %>% ggplot2::ggplot(
@@ -1109,7 +1178,7 @@ fig_overflyttet %>% ggplot2::ggplot(
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_text(
-    ggplot2::aes(label = .data$Prosent),
+    ggplot2::aes(label = .data$value_tekst),
     position = position_dodge(width = 1),
     vjust = 1.2,
     size = 3,
@@ -1122,73 +1191,99 @@ fig_overflyttet %>% ggplot2::ggplot(
 
 
 
-### Innen 72 timer
+### Invasiv utredning ved NSTEMI innen 72 timer
+
+```{r ventetid72t_NSTEMI, results='asis', warning=FALSE}
+# lOKALT : Andel forløp innen 72T 
+nstemi_ventetid72t_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
+  dplyr::count(.data$Month, .data$Ventetid72T) %>% 
+  tidyr::pivot_wider(names_from = .data$Ventetid72T, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>%
+  janitor::adorn_totals("col", name = "Totalt") %>%
+  dplyr::mutate(
+    innen72t_prosent_lokalt = round(.data$`Innen 72t` / Totalt * 100, 1)) %>% 
+  dplyr::select(.data$Month, 
+                .data$`Innen 72t`, 
+                .data$Totalt, 
+                .data$innen72t_prosent_lokalt)
+
+# NASJONALT : Andel forløp innen 72T 
+nstemi_ventetid72t_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
+                .data$ventetidNstemi_gyldigTid == "ja") %>% 
+  dplyr::count(.data$Month, .data$Ventetid72T) %>% 
+  tidyr::pivot_wider(names_from = .data$Ventetid72T, 
+                     values_from = .data$n, 
+                     values_fill = list(n = 0)) %>%
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  dplyr::mutate(
+    innen72t_prosent_nasj = paste0(round(.data$`Innen 72t` / Totalt * 100, 1),
+                                  "%")) %>% 
+  dplyr::select(.data$Month, .data$innen72t_prosent_nasj)
+
+
+
+# Forberede tabell , bruke kompletthet og ventetid
+tabVentetid72t <- timeTableMonth %>% 
+  dplyr::left_join(., nstemi_komplett_lokalt, by = c("Month")) %>% 
+  dplyr::left_join(., nstemi_ventetid72t_lokalt, by = c("Month")) %>% 
+  dplyr::left_join(., nstemi_ventetid72t_nasjonalt, by = c("Month")) %>% 
+   dplyr::mutate(
+    innen72tAvKomplette = dplyr::case_when(
+      
+      #  Ingen komplette --> Tom celle i tabellen
+      .data$komplette == 0 | is.na(.data$komplette) ~ "-", 
+
+      # Færre enn 50% eller minder enn 5 --> Ikke vise prosent
+      .data$komplette_prosent < 0.5 | .data$komplette < 5 ~
+        paste0(.data$`Innen 72t`, 
+               " av ", 
+               .data$Totalt, 
+               " (-%)"),
+      
+      # Over 50% og over 5 komplette --> Vise prosent
+      .data$komplette_prosent >= 0.5 & .data$komplette >= 5 ~
+        paste0(.data$`Innen 72t`, 
+              " av ", 
+              .data$Totalt, 
+              " (",
+              .data$innen72t_prosent_lokalt,
+              "%)"), 
+      
+      TRUE ~ "-" )) %>% 
+  dplyr::select(.data$Month, 
+                .data$komplette_antall,
+                .data$innen72tAvKomplette,
+                .data$innen72t_prosent_nasj)
+```
+
 
 ```{r TabN72timerNSTEMI, results='asis', warning=FALSE}
-
-#Lokalt
-nNstemiAP72t <- nstemiAP %>% 
-  dplyr::count(.data$Month, .data$Ventetid72T) %>% 
-  tidyr::pivot_wider(names_from = .data$Ventetid72T, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::mutate(
-    prosentInnen72t = round(.data$`Innen 72t`/.data$Totalt*100, 1),
-    innen72tAvKomp = paste0(.data$`Innen 72t`, 
-                            " av ",
-                            .data$Totalt,
-                            " (",
-                            .data$prosentInnen72t,
-                            " %)")) %>% 
-  dplyr::select(.data$Month, .data$innen72tAvKomp)
-
-
-#Nasjonalt
-nNstemiAP72t_nasj <- nstemi_ap_nasjonalt %>% 
-  dplyr::count(.data$Month, .data$Ventetid72T) %>% 
-  tidyr::pivot_wider(names_from = .data$Ventetid72T, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::mutate(
-    prosentInnen72t = paste0(round(.data$`Innen 72t`/.data$Totalt*100, 1), 
-                             " %")) %>% 
-  dplyr::select(.data$Month, .data$prosentInnen72t) %>% 
-  dplyr::rename(Nasjonalt = .data$prosentInnen72t)
-
-
 #Tabell
-tabVentetid72t <- timeTableMonth %>% 
-  dplyr::left_join(., nNstemiAPKomplett, by = c("Month")) %>% 
-  dplyr::left_join(., nNstemiAP72t, by = c("Month")) %>% 
-  dplyr::left_join(., nNstemiAP72t_nasj, by = c("Month")) %>% 
-  dplyr::mutate(
-    innen72tAvKomp = ifelse(.data$sjekkAntall == "N",
-                            yes = NA, 
-                            no = .data$innen72tAvKomp)) %>% 
-  dplyr::select(.data$Month, 
-                .data$antKompAvTot,
-                .data$innen72tAvKomp,
-                .data$Nasjonalt) %>% 
+tabVentetid72t %<>% 
   dplyr::rename(
     "Måned" = .data$Month,
-    "Antall komplette data av totale antall data" = .data$antKompAvTot,
-    "Antall NSTEMI innen 72t av komplett data" = .data$innen72tAvKomp) %>% 
+    "Antall komplette data av totale antall data" = .data$komplette_antall,
+    "Antall NSTEMI innen 72t av komplett data" = .data$innen72tAvKomplette,
+    "Nasjonalt" = .data$innen72t_prosent_nasj) %>%
   replace(is.na(.), "-")
 
-# tabVentetid72t[is.na(tabVentetid72t)] = "-"
+               
+cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
+Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Data med mindre enn 50\\% komplett data eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ventetid under 72 timer regnes ikke ut. (Målnivå: 50 \\%)"
 
-cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert. Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Data med mindre enn 50\\% komplett data blir markert med stjerne. Måneder med mindre enn 5 komplette data vises ikke i tabellen. (Målnivå: 80 \\%)"
-
-noric::mst(tab = tabVentetid72t, 
-    type = params$tableFormat,
+mst(tab = tabVentetid72t, 
+    type = params$tableFormat, 
     cap = cap,
     digs = c(0, 0, 0, 1, 1), 
     align = rep("c", 5), 
     label = "tabVentetid72t")
-
 ```
+
 
 ```{r pagebreakVentetidNSTEMI72, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
@@ -1613,8 +1708,7 @@ noric::mst(tab = tabKolestSenkMedAP,
 `r if (dim_ak_lokalt[1] == 0 | length(aK_nasjonalt$Pacemakerbehov) == 0) {"<!--"}`
 ## Pacemakerbehov etter kateterbasert innsetting av aortaklaff
 
-Etter kateterbasert innsetting av aortaklaff (TAVI) kan det oppstå 
-hjerterytmeforstyrrelser som gir behov for permanent pacemaker. Indikatoren 
+Denne indikatoren 
 viser andel pasienter som har fått implantert permanent pacemaker under 
 sykehusoppholdet etter kateterbasert innsetting av aortaklaff. Ved noen sykehus 
 blir pasientene raskt overflyttet til annet sykehus etter TAVI. Dersom behovet 
@@ -1690,7 +1784,7 @@ if (dim_ak_lokalt[1] > 0 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
 
 ```
 
-```{r TabNPacemakerbehovAK, results='asis', warning=FALSE, eval=FALSE}
+```{r TabNPacemakerbehovAK, results='asis', warning=FALSE, eval=TRUE}
 
 if (dim_ak_lokalt[1] > 0 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
   

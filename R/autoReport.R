@@ -11,6 +11,9 @@
 #' Value must be provided without the file extention (\emph{i.e.} ".Rmd")
 #' @param reshId Single element list with the organization id of the subscriber
 #' as its value
+#' @param reshID Single element list with the organization id of the subscriber
+#' as its value
+#' @param userRole String defining the user role
 #' @param registryName Single element list which value is the regisry name
 #' @param author Single element list holding the name of the subscriber as its
 #' value
@@ -35,7 +38,10 @@ dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
                         html = "html"
   )
 
-  outFile <- tempfile(pattern = baseName[[1]], fileext = paste0(".", type[[1]]))
+  outFile <- tempfile(
+    pattern = paste0(baseName[[1]], "_", as.character(Sys.Date()), "_"),
+    fileext = paste0(".", type[[1]])
+  )
 
   rmarkdown::render(input = sourceFile,
                     output_format = switch(
@@ -57,10 +63,6 @@ dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
 #' @export
 subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
                                          author, hospitalName, type) {
-
-  raplog::subLogger(author = author[[1]], registryName = registryName[[1]],
-                    reshId = reshId[[1]],
-                    msg = "Subscription report: stent/prosedyre")
 
   sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
   tableFormat <- switch(type[[1]],
