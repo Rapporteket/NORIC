@@ -75,9 +75,13 @@ aK_nasjonalt <- noric::getAKData(params$registryName)
 
 ```{r nyesteRegistrering_ap, include=FALSE, eval=TRUE}
 nyeste_registrering_ap <- aP_nasjonalt %>% 
-  summarise(nyesteReg = max(ProsedyreDato), 
-            nyesteRegYear = as.numeric(format(nyesteReg, format="%Y")), 
-            sisteHeleYear = nyesteRegYear -1)
+  summarise(nyesteReg_max = max(.data$ProsedyreDato)) %>% 
+  # Dersom nyeste registrering er etter dags dato, brukes heller dags dato
+  # som refereansedatoer for tabeller/figurer 
+  mutate(nyesteReg = min(as.Date(Sys.time()), 
+                         .data$nyesteReg_max), 
+         nyesteRegYear = as.numeric(format(nyesteReg, format="%Y")), 
+         sisteHeleYear = nyesteRegYear -1)
 ```
 
 
@@ -424,7 +428,11 @@ aK_nasjonalt %<>% dplyr::mutate(
 
 ```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
 nyeste_registrering_ak <- aK_nasjonalt %>% 
-  summarise(nyesteReg = max(ProsedyreDato))
+  summarise(nyesteReg_max = max(.data$ProsedyreDato)) %>% 
+  # Dersom nyeste registrering er etter dags dato, brukes heller dags dato
+  # som referansedato for tabeller/figurer
+  mutate(nyesteReg = min(as.Date(Sys.time()), 
+                         .data$nyesteReg_max))
 ```
 
 
@@ -468,8 +476,9 @@ forløp/prosedyre, og ikke per individ.
 \
 De fleste tabellene presenteres per måned hittil i år, samt
 det siste hele året, mens figurene inneholder resultater bare til og med
-foregående måned. Siste innregistrering i datagrunnlaget til denne rapporten
-ble gjort `r format(nyeste_registrering_ap$nyesteReg, '%d. %B %Y')`.
+foregående måned. Siste
+innregistrering som teller med i datagrunnlaget for denne rapporten er 
+`r format(nyeste_registrering_ap$nyesteReg, '%d. %B %Y')`. 
 
 \
 Eventuelle spørsmål knyttet til rapporten kan rettes til 
