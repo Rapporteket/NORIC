@@ -76,9 +76,10 @@ aK_nasjonalt <- noric::getAKData(params$registryName)
 ```{r nyesteRegistrering_ap, include=FALSE, eval=TRUE}
 nyeste_registrering_ap <- aP_nasjonalt %>% 
   summarise(nyesteReg_max = max(.data$ProsedyreDato)) %>% 
-  # Dersom nyeste registrering er etter dags dato, brukes heller dags dato
-  # som refereansedatoer for tabeller/figurer 
-  mutate(nyesteReg = min(as.Date(Sys.time()), 
+  # Bruke gårsdagens dato som referanse. Dersom ingen nye registreringer 
+  # (eller overføringer har stoppet opp), brukes nyeste registrering som ref.
+  # Unngår at forhåndsregisrerte planlagte forløp kommer med i rapporten.
+  mutate(nyesteReg = min((as.Date(Sys.time())-1), 
                          .data$nyesteReg_max), 
          nyesteRegYear = as.numeric(format(nyesteReg, format="%Y")), 
          sisteHeleYear = nyesteRegYear -1)
@@ -429,9 +430,10 @@ aK_nasjonalt %<>% dplyr::mutate(
 ```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
 nyeste_registrering_ak <- aK_nasjonalt %>% 
   summarise(nyesteReg_max = max(.data$ProsedyreDato)) %>% 
-  # Dersom nyeste registrering er etter dags dato, brukes heller dags dato
-  # som referansedato for tabeller/figurer
-  mutate(nyesteReg = min(as.Date(Sys.time()), 
+  # Bruke gårsdagens dato som referanse. Dersom ingen nye registreringer 
+  # (eller overføringer har stoppet opp), brukes nyeste registrering som ref.
+  # Unngår at forhåndsregisrerte planlagte forløp kommer med i rapporten.
+  mutate(nyesteReg = min((as.Date(Sys.time())-1), 
                          .data$nyesteReg_max))
 ```
 
