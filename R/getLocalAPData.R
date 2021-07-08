@@ -54,7 +54,9 @@ FROM AngioPCIVar
       .data$PasientAlder,
       .data$ForlopsType1,
       .data$ForlopsType2,
-      .data$KobletForlopsID
+      .data$KobletForlopsID,
+      .data$Avdod,
+      .data$AvdodDato
     )
 
   # Legger til variabler fra fO til aP:

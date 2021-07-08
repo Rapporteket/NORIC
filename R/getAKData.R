@@ -64,7 +64,9 @@ FROM
       .data$PasientAlder,
       .data$ForlopsType1,
       .data$ForlopsType2,
-      .data$KobletForlopsID
+      .data$KobletForlopsID,
+      .data$Avdod,
+      .data$AvdodDato
     )
 
 

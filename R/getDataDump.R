@@ -209,7 +209,9 @@ WHERE
           .data$ForlopsType1,
           .data$ForlopsType2,
           .data$KobletForlopsID,
-          .data$HovedDato
+          .data$HovedDato,
+          .data$Avdod,
+          .data$AvdodDato
         )
 
       tab <- dplyr::left_join(tab, fO,
@@ -274,14 +276,16 @@ WHERE
           .data$ForlopsType1,
           .data$ForlopsType2,
           .data$KobletForlopsID,
-          .data$HovedDato
+          .data$HovedDato,
+          .data$Avdod,
+          .data$AvdodDato
         )
 
       # Legger til variabler fra fO til AP:
       tab <- dplyr::left_join(tab, fO, by = c("AvdRESH",
-                                       "Sykehusnavn",
-                                       "PasientID",
-                                       "ForlopsID")
+                                              "Sykehusnavn",
+                                              "PasientID",
+                                              "ForlopsID")
       )
     }
 
@@ -306,7 +310,9 @@ WHERE
           .data$ForlopsType1,
           .data$ForlopsType2,
           .data$KobletForlopsID,
-          .data$HovedDato
+          .data$HovedDato,
+          .data$Avdod,
+          .data$AvdodDato
         )
 
       tab <- dplyr::left_join(tab, fO, by = c("ForlopsID",
@@ -403,9 +409,5 @@ WHERE
                               )
     }
   }
-
-  # Midlertidig fjerning av variabler i datadumpen
-  dplyr::select(tab, !tidyselect::contains(c("Avdod", "AvdodDato")))
-
 
 }

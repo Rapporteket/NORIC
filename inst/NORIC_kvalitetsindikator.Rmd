@@ -290,7 +290,7 @@ aP_nasjonalt %<>%
                               !is.na(.data$AdmissionType) &
                               !is.na(.data$TidsDiffSek) &
                               .data$TidsDiffSek > 0 & 
-                              .data$TidsDiffSek <= 1814400),
+                              .data$TidsDiffSek <= 14 * 24 * 60 * 60),
     true = "ja", 
     false = "nei", 
     missing = "nei"))
@@ -1401,7 +1401,7 @@ innsnevring og vurdering av resultat etter PCI. Indikatoren angir andel
 pasienter der det er utført supplerende billeddiagnostikk under prosedyren. 
 Pasienter som tidligere har fått utført ACB-operasjon og pasienter som blir 
 behandlet for akutt hjerteinfarkt av typen STEMI er ikke medregnet i analysene.
-(Mål $\geq$ 40 %)
+(Mål $\geq$ 60 %)
 
 ```{r stentingVH, include=FALSE, eval=TRUE}
 
