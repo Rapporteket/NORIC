@@ -54,9 +54,7 @@ FROM CTAngioVar
       .data$PasientKjonn,
       .data$PasientAlder,
       .data$ForlopsType1,
-      .data$ForlopsType2,
-      .data$Avdod,
-      .data$AvdodDato
+      .data$ForlopsType2
     )
 
   cT <- dplyr::left_join(cT, fO, by = c("ForlopsID",
