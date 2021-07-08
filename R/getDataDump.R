@@ -210,8 +210,7 @@ WHERE
           .data$ForlopsType2,
           .data$KobletForlopsID,
           .data$HovedDato,
-          .data$Avdod,
-          .data$AvdodDato
+          .data$Avdod
         )
 
       tab <- dplyr::left_join(tab, fO,
@@ -276,9 +275,7 @@ WHERE
           .data$ForlopsType1,
           .data$ForlopsType2,
           .data$KobletForlopsID,
-          .data$HovedDato,
-          .data$Avdod,
-          .data$AvdodDato
+          .data$HovedDato
         )
 
       # Legger til variabler fra fO til AP:
@@ -310,9 +307,7 @@ WHERE
           .data$ForlopsType1,
           .data$ForlopsType2,
           .data$KobletForlopsID,
-          .data$HovedDato,
-          .data$Avdod,
-          .data$AvdodDato
+          .data$HovedDato
         )
 
       tab <- dplyr::left_join(tab, fO, by = c("ForlopsID",
