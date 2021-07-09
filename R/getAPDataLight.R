@@ -90,7 +90,7 @@ FROM AngioPCIVar
   ap_light %<>% legg_til_tidsvariabler(., var = ProsedyreDato)
 
 
-
-  ap_light
+  # Utlede aldersklasser
+  ap_light %<>% utlede_aldersklasse(., var = PasientAlder)
 
 }
