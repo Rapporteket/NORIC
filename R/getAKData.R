@@ -65,9 +65,8 @@ FROM
       .data$ForlopsType1,
       .data$ForlopsType2,
       .data$KobletForlopsID,
-      .data$Avdod,
-      .data$AvdodDato
-    )
+      .data$Avdod
+      )
 
 
   aK <- dplyr::left_join(aK, fO, by = c("ForlopsID", "AvdRESH"),
