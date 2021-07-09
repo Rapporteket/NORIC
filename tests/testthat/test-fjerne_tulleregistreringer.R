@@ -32,10 +32,10 @@ test_that("test that error message is produced when missing variables", {
   y <- data.frame(
     toto =  c(rep(102966, 2), rep(104284, 2)),
     ProsedyreDato = as.Date(c("2006-09-30",
-                     "2013-01-01",
-                     "2020-08-26",
-                     "2013-01-31"),
-                   format = "%Y-%m-%d"))
+                              "2013-01-01",
+                              "2020-08-26",
+                              "2013-01-31"),
+                            format = "%Y-%m-%d"))
   expect_error(fjerne_tulleregistreringer(x, var = ProsedyreDato))
   expect_error(fjerne_tulleregistreringer(y, var = ProsedyreDato))
 
