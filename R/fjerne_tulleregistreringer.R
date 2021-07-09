@@ -1,12 +1,7 @@
-
-
-
-
-
-#' Fjerne Tulleregistreringer
+#' Fjerne tulleregistreringer
 #' Fjerne registrerigner fra før de ulike sykehusene offisielt ble med i NORIC
 #'
-#' @param df tabell ap, ak, fo osv
+#' @param df tabell ap, ak, fo osv (Må inneholder variabelen `AvdRESH`)
 #' @param var datoVariabel
 #' AP, anP, anD og SS har ProsedyreDato
 #' CT har undersokDato
@@ -18,11 +13,6 @@
 #' @examples
 fjerne_tulleregistreringer <- function(df, var = ProsedyreDato){
 
-
-  if(!names(df %>% select({{ var }})) %in% c("ProsedyreDato", "HovedDato")){
-    message("Funksjonen er laget for variablene ProsedyreDato og HovedDato,
-            pass på !")
-  }
   message("Fjerner tulleregisreringer som ble utført før sykehusene offisielt
           ble med i NORIC")
 
