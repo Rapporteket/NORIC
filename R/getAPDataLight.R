@@ -33,7 +33,7 @@ FROM AngioPCIVar
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  aP <- rapbase::loadRegData(registryName, query, dbType)
+  aP_light <- rapbase::loadRegData(registryName, query, dbType)
 
   fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
@@ -46,31 +46,29 @@ FROM AngioPCIVar
       .data$AvdRESH,
       .data$PasientID,
       .data$ForlopsID,
+
       # Variablene som legges til:
       .data$Kommune,
       .data$KommuneNr,
       .data$Fylke,
       .data$Fylkenr,
       .data$PasientAlder,
-      .data$KobletForlopsID
-    )
+      .data$KobletForlopsID)
 
   # Legger til variabler fra fO til aP:
-  aP <- dplyr::left_join(aP, fO, by = c("AvdRESH",
-                                        "PasientID",
-                                        "ForlopsID")
-  )
+  ap_light <- dplyr::left_join(aP, fO, by = c("AvdRESH",
+                                              "PasientID",
+                                              "ForlopsID"))
 
 
   # Gjor datoer om til dato-objekt:
-  aP %<>%
+  ap_light %<>%
     dplyr::mutate_at(
-      vars(ends_with("dato", ignore.case = TRUE)), list(ymd)
-    )
+      vars(ends_with("dato", ignore.case = TRUE)), list(ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
-  aP %<>%
+  ap_light %<>%
     dplyr::mutate(
       Sykehusnavn = ifelse(
         .data$Sykehusnavn == "Haukeland",
@@ -88,55 +86,12 @@ FROM AngioPCIVar
 
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
-  aP %<>%
-    dplyr::filter(
-      (
-        # HUS
-        (.data$AvdRESH == 102966) & (as.Date(.data$ProsedyreDato) >=
-                                       "2013-01-01")
-      ) | (
-        # UNN
-        (.data$AvdRESH == 101619) & (as.Date(.data$ProsedyreDato) >=
-                                       "2013-05-01")
-      ) | (
-        # Ullevaal
-        (.data$AvdRESH == 109880) & (as.Date(.data$ProsedyreDato) >=
-                                       "2014-01-01")
-      ) | (
-        # St Olav
-        (.data$AvdRESH == 104284) & (as.Date(.data$ProsedyreDato) >=
-                                       "2014-01-01")
-      ) | (
-        # SSA
-        (.data$AvdRESH == 114150) & (as.Date(.data$ProsedyreDato) >=
-                                       "2014-01-01")
-      ) | (
-        #SUS
-        (.data$AvdRESH == 105502) & (as.Date(.data$ProsedyreDato) >=
-                                       "2014-01-01")
-      ) | (
-        # Risken
-        (.data$AvdRESH == 700422) & (as.Date(.data$ProsedyreDato) >=
-                                       "2015-01-01")
-      ) | (
-        # LHL Gardermoen
-        (.data$AvdRESH == 106944) & (as.Date(.data$ProsedyreDato) >=
-                                       "2015-01-01")
-      ) | (
-        # Ahus
-        (.data$AvdRESH == 108141) & (as.Date(.data$ProsedyreDato) >=
-                                       "2016-01-01")
-      ) | (
-        # Bodoe
-        (.data$AvdRESH == 4210141) & (as.Date(.data$ProsedyreDato) >=
-                                        "2020-02-10")
-      )
-    )
+  ap_light %<>% noric::fjerne_tulleregistreringer(., var = ProsedyreData)
 
 
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
-  aP %<>%
+  ap_light %<>%
     dplyr::mutate(
       Hastegrad = factor(.data$Hastegrad,
                          levels = c("Akutt",
@@ -146,7 +101,7 @@ FROM AngioPCIVar
 
 
   # Utledete variabler:
-  aP %<>%
+  ap_light %<>%
     dplyr::mutate(
       # Div. tidsvariabler:
       #
@@ -188,6 +143,6 @@ FROM AngioPCIVar
       aar_uke = as.ordered(.data$aar_uke)
     )
 
-  aP
+  ap_light
 
 }
