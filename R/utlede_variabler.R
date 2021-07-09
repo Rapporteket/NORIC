@@ -14,7 +14,7 @@
 #' @examples
 utlede_aldersklasse <- function(df, var = PasientAlder){
   df %>%
-    mutate(
+    dplyr::mutate(
       aldersklasse = cut(
         replace_na({{var}}, replace = 0),
         breaks = c(18, 49, 59, 69, 79, 89, 99),
@@ -24,3 +24,25 @@ utlede_aldersklasse <- function(df, var = PasientAlder){
 
 }
 
+
+
+#' Utlede binære variaber ("ja", "nei") for ferdigstilte skjema
+#'
+#' @param df data.frame der variablene skal legges til
+#' @param var variablel som inneholder skjemastatus på numerisk form {-1,0,1}
+#' @param suffix ønsket suffix i nytt variabelnavn:  ferdigstilt_`suffix`
+#'
+#' @return
+#' @export
+#'
+#' @examples
+utlede_ferdigstilt <- function(df,
+                               var = SkjemaStatusStart,
+                               suffix = "startSkjema"){
+
+  df %>%  dplyr::mutate(
+    "ferdigstilt_{suffix}" := dplyr::if_else({{ var }} == 1,
+                                             true = "ja",
+                                             false = "nei",
+                                             missing = NA_character_))
+  }

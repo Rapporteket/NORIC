@@ -23,6 +23,45 @@ test_that("Utlede aldersklasser", {
   # sjekk feilmelding dersom var har feil format
   expect_error(utlede_aldersklasse(x, var = toto))
   expect_error(utlede_aldersklasse(x, var = as.character(alder)))
-
-
   })
+
+
+#  TESTER FUNKSONER FOR FERDISTILTE SKJEMA
+test_that("Ferdigstilt skjemaStatus works",{
+
+  x = data.frame(SkjemaStatusStart = c(-1,0,1, NA))
+  expect_equal(1,
+               x %>%
+                 utlede_ferdigstilt(df = .,
+                                    var = SkjemaStatusStart,
+                                    suffix = "toto") %>%
+                 filter(is.na(ferdigstilt_toto)) %>%
+                 nrow())
+
+  expect_equal(1,
+               x %>%
+                 utlede_ferdigstilt(df = .,
+                                    var = SkjemaStatusStart,
+                                    suffix = "toto") %>%
+                 filter(ferdigstilt_toto == "ja") %>%
+                 nrow())
+
+  expect_equal(2,
+               x %>%
+                 utlede_ferdigstilt(df = .,
+                                    var = SkjemaStatusStart,
+                                    suffix = "toto") %>%
+                 filter(ferdigstilt_toto == "nei") %>%
+                 nrow())
+
+  expect_equal(c("SkjemaStatusStart", "ferdigstilt_testerNavn"),
+               x %>%
+                 utlede_ferdigstilt(df = .,
+                                    var = SkjemaStatusStart,
+                                    suffix = "testerNavn") %>%
+                 names())
+
+
+
+})
+

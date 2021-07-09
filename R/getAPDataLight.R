@@ -72,7 +72,7 @@ FROM AngioPCIVar
 
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
-  ap_light %<>% noric::fjerne_tulleregistreringer(., var = ProsedyreData)
+  ap_light %<>% noric::fjerne_tulleregistreringer(., var = .data$ProsedyreData)
 
 
   # Gjøre kategoriske variabler om til factor:
@@ -87,10 +87,26 @@ FROM AngioPCIVar
 
 
   # Utledete tidsvariabler (aar, maaned, uke osv):
-  ap_light %<>% legg_til_tidsvariabler(., var = ProsedyreDato)
+  ap_light %<>% legg_til_tidsvariabler(., var = .data$ProsedyreDato)
 
 
   # Utlede aldersklasser
-  ap_light %<>% utlede_aldersklasse(., var = PasientAlder)
+  ap_light %<>% utlede_aldersklasse(., var = .data$PasientAlder) %>%
+    relocate(.data$aldersklasse,
+             .after = .data$PasientAlder)
+
+
+  # Utlede variabler for ferdigstilt eller ikke
+  ap_light %<>%
+    utlede_ferdigstilt(., var = SkjemaStatusStart,
+                       suffix = "StartSkjema") %>%
+    utlede_ferdigstilt(., var = SkjemastatusHovedskjema,
+                       suffix = "HovedSkjema") %>%
+    utlede_ferdigstilt(., var = SkjemaStatusUtskrivelse,
+                       suffix = "UtskrSkjema") %>%
+    utlede_ferdigstilt(., var = SkjemaStatusKomplikasjoner,
+                       suffix = "KomplikSkjema")
+
+
 
 }
