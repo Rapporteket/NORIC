@@ -43,3 +43,48 @@ test_that("Number of stents is correct", {
                3)
 
 })
+
+
+
+test_that("Testing utlede_kar_graft is correct", {
+  x <- data.frame(ForlopsID = 1:23,
+                  AvdRESH = rep(1,23),
+                  Segment = c(1:20, 1:3),
+                  Graft = c(rep("Nei", 20), "Arteriell", "Vene", NA))
+
+  x %<>% utlede_kar_graft_segmentStent(.)
+
+  expect_equal(c(23, 5), dim(x))
+  expect__true("kar_graft" %in% names(x))
+
+  expect_equal(rep("RCA", 7),
+               x %>%
+                 filter(Segment %in% c(1, 2, 3, 4, 18, 19),
+                       !Graft %in% c("Arteriell", "Vene")) %>%
+                 pull(kar_graft))
+
+  expect_equal(rep("LAD", 6),
+               x %>%
+                 filter(Segment %in% c(6, 7, 8, 9, 10, 20),
+                        !Graft %in% c("Arteriell", "Vene")) %>%
+                 pull(kar_graft))
+
+  expect_equal(rep("CX", 7),
+               x %>%
+                 filter(Segment %in% c(11, 12, 13, 14, 15, 16, 17),
+                        !Graft %in% c("Arteriell", "Vene")) %>%
+                 pull(kar_graft))
+
+  expect_equal(rep("LMS", 1),
+               x %>%
+                 filter(Segment == 5,
+                        !Graft %in% c("Arteriell", "Vene")) %>%
+                 pull(kar_graft))
+
+  expect_equal(rep("Graft", 2),
+               x %>%
+                 filter(Graft %in% c("Arteriell", "Vene")) %>%
+                 pull(kar_graft))
+
+
+  })

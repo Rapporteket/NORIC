@@ -40,3 +40,173 @@ legg_til_antall_stent <- function(ap, ss){
                      by = c("AvdRESH", "ForlopsID")) %>%
     arrange(.data$AvdRESH, .data$ForlopsID)
 }
+
+
+
+
+
+
+#' Add variable `kar_graft` to NORIC segment-stent-table
+#' Based on variables `Segment` and `Graft`
+#'
+#' @param df_ss segment-stent table, must contain variables `ForlopsID`,
+#' `AVdRESH`, `Segment` and `Graft`
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' x <- data.frame(ForlopsID = 1:23,
+#'                 AvdRESH = rep(1,23),
+#'                 Segment = c(1:20, 1:3),
+#'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
+#' x %>% utlede_kar_graft_segmentStent(.)
+utlede_kar_graft_segmentStent <- function(df = ss){
+
+
+  # Must contain matching-variables + variables needed for calculations
+  if(!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df))) {
+    stop("df must contain variables ForlopsID, AVdRESH, Segment and Graft")
+  }
+
+  df %>%
+    dplyr::mutate(
+      kar_graft = factor(dplyr::case_when(
+        .data$Graft %in% c("Arteriell", "Vene") ~ "Graft",
+        .data$Segment %in% c(1, 2, 3, 4, 18, 19) ~ "RCA",
+        .data$Segment == 5 ~ "LMS",
+        .data$Segment %in% c(6, 7, 8, 9, 10, 20) ~ "LAD",
+        .data$Segment %in% c(11, 12, 13, 14, 15, 16, 17) ~ "CX"),
+        levels = c("LMS",
+                   "LAD",
+                   "RCA",
+                   "CX",
+                   "Graft")))
+}
+
+
+
+
+
+
+# Samle segmentene i Kar eller graft. Dersom graft ser vi bort fra kar.
+ss %<>% mutate(kar_graftKar = factor(case_when(
+  Segment %in% c(1, 2, 3, 4, 18, 19) & Graft == "Nei" ~ "RCA",
+  Segment == 5 & Graft == "Nei" ~ "LMS",
+  Segment %in% c(6, 7, 8, 9, 10, 20) & Graft == "Nei"~ "LAD",
+  Segment %in% c(11, 12, 13, 14, 15, 16, 17) & Graft == "Nei"~ "CX",
+
+  Segment %in% c(1, 2, 3, 4, 18, 19) & Graft == "Arteriell" ~ "RCA_arterieGraft",
+  Segment == 5 & Graft == "Arteriell" ~ NA_character_,
+  Segment %in% c(6, 7, 8, 9, 10, 20) & Graft == "Arteriell"~ "LAD_arterieGraft",
+  Segment %in% c(11, 12, 13, 14, 15, 16, 17) & Graft == "Arteriell"~ "CX_arterieGraft",
+
+  Segment %in% c(1, 2, 3, 4, 18, 19) & Graft == "Vene" ~ "RCA_veneGraft",
+  Segment == 5 & Graft == "Vene" ~ NA_character_,
+  Segment %in% c(6, 7, 8, 9, 10, 20) & Graft == "Vene"~ "LAD_veneGraft",
+  Segment %in% c(11, 12, 13, 14, 15, 16, 17) & Graft == "Vene"~ "CX_veneGraft"),
+
+  levels = c("LMS",
+             "LAD",
+             "RCA",
+             "CX",
+             "LAD_arterieGraft",
+             "RCA_arterieGraft",
+             "CX_arterieGraft",
+             "LAD_veneGraft",
+             "RCA_veneGraft",
+             "CX_veneGraft")))
+dim(ss)
+ss %>%  count(Graft, kar_graft, kar_graftKar)
+ss %>%  count(Graft, Segment, kar_graftKar)
+# Samle segmentene i Kar eller graft. Dersom graft ser vi bort fra kar.
+
+
+
+
+
+# Utlede  PCI ja/nei per kar/graft
+# Wireforsøk teller ikke
+# Format Wide : En kolonne per kar + en kolonne per kar per Graft
+ss %>% filter(ProsedyreType != "Wireforsøk") %>% count(kar_graftKar)
+
+ss_wide_pci <- ss %>%
+  arrange(AvdRESH, ForlopsID, kar_graftKar) %>%
+  filter(ProsedyreType!= "Wireforsøk") %>%
+  select(-Segment, -Graft, -ProsedyreType, -StentType, -kar_graft, -Sykehusnavn ) %>%
+  group_by(ForlopsID, AvdRESH, kar_graftKar) %>%
+  mutate(pci_kar = ifelse(
+    test = n()>0,
+    yes = "ja",
+    no = "nei")) %>%
+  distinct() %>%
+  pivot_wider(names_from = kar_graftKar,
+              values_from = pci_kar,
+              values_fill = "nei") %>%
+  # Disse nivåene mangler:
+  mutate(LAD_arterieGraft = "nei",
+         RCA_arterieGraft = "nei",
+         CX_arterieGraft = "nei") %>%
+  select(AvdRESH, ForlopsID, LMS, LAD, RCA, CX,
+         LAD_arterieGraft, RCA_arterieGraft, CX_arterieGraft,
+         LAD_veneGraft, RCA_veneGraft, CX_veneGraft) %>%
+  rename_at(vars(LMS:CX_veneGraft), function(x) paste0("PCI_", x))
+
+
+# Utlede variabelen WireforsøK per kar
+ss %>% filter(ProsedyreType == "Wireforsøk") %>% count(kar_graftKar)
+
+ss_wide_wire <- ss %>%
+  arrange(AvdRESH, ForlopsID, kar_graftKar) %>%
+  filter(ProsedyreType== "Wireforsøk") %>%
+  select(-Segment, -Graft, -ProsedyreType, -StentType, -kar_graft, -Sykehusnavn ) %>%
+  group_by(ForlopsID, AvdRESH, kar_graftKar) %>%
+  mutate(wire_kar = ifelse(
+    test = n()>0,
+    yes = "ja",
+    no = "nei")) %>%
+  distinct() %>%
+  pivot_wider(names_from = kar_graftKar,
+              values_from = wire_kar,
+              values_fill = "nei") %>%
+  mutate(LMS = "nei",
+         LAD_arterieGraft = "nei",
+         CX_arterieGraft = "nei") %>%
+  select(AvdRESH, ForlopsID, LMS, LAD, RCA, CX,
+         LAD_arterieGraft, RCA_arterieGraft, CX_arterieGraft,
+         LAD_veneGraft, RCA_veneGraft, CX_veneGraft) %>%
+  rename_at(vars(LMS:CX_veneGraft), function(x) paste0("wireforsok_", x))
+
+
+
+# kontroll
+ss %>% filter(ForlopsID %in% c(4227, 8902, 1674, 6954, 4136 )) %>% print(n=20)
+ss_wide_pci %>% filter(ForlopsID %in% c(4227, 8902, 1674, 6954, 4136 ))
+ss_wide_wire %>% filter(ForlopsID %in% c(4227, 8902, 1674, 6954 , 4136))
+
+
+```
+
+
+# ##  Legge til variabler fra Segment Stent i AngioPCI. Dersom SegmentStent mangler
+# for noen forløp blir verdien NA.
+# ```{r merge_ap_ss}
+# ap_uttrekk_ss <- ap_uttrekk %>%
+#   left_join(.,
+#             ss_wide_pci,
+#             by = c("ForlopsID", "AvdRESH")) %>%
+#   left_join(.,
+#             ss_wide_wire,
+#             by = c("ForlopsID", "AvdRESH"))
+#
+# dim(ap_uttrekk_ss)
+# names(ap_uttrekk_ss)
+#
+#
+# ```
+
+
+
+
+
+
