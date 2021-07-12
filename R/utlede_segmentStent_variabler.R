@@ -26,6 +26,7 @@ legg_til_antall_stent <- function(ap, ss){
     # In SS-dataset : Count number of non-missing entries in StentType for each
   # procedure
   ant_stent <- ss %>%
+    dplyr::select(.data$AvdRESH, .data$ForlopsID, .data$StentType) %>%
     dplyr::arrange(., .data$AvdRESH)  %>%
     dplyr::group_by(.data$AvdRESH) %>%
     dplyr::count(.data$ForlopsID,
