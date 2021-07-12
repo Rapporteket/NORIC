@@ -46,13 +46,13 @@ legg_til_antall_stent <- function(ap, ss){
 
 
 
-#' Add variable `kar_graft` to NORIC segment-stent-table
+#' Add variable `kar` to NORIC segment-stent-table
 #' Based on variables `Segment` and `Graft`
 #'
 #' @param df_ss segment-stent table, must contain variables `ForlopsID`,
 #' `AVdRESH`, `Segment` and `Graft`
 #'
-#' @return
+#' @return segment-stent-table with one new variable
 #' @export
 #'
 #' @examples
@@ -60,8 +60,8 @@ legg_til_antall_stent <- function(ap, ss){
 #'                 AvdRESH = rep(1,23),
 #'                 Segment = c(1:20, 1:3),
 #'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
-#' x %>% utlede_kar_graft_segmentStent(.)
-utlede_kar_graft_segmentStent <- function(df = ss){
+#' x %>% utlede_kar_segmentStent(.)
+utlede_kar_segmentStent <- function(df = ss){
 
 
   # Must contain matching-variables + variables needed for calculations
@@ -71,7 +71,7 @@ utlede_kar_graft_segmentStent <- function(df = ss){
 
   df %>%
     dplyr::mutate(
-      kar_graft = factor(dplyr::case_when(
+      kar = factor(dplyr::case_when(
         .data$Graft %in% c("Arteriell", "Vene") ~ "Graft",
         .data$Segment %in% c(1, 2, 3, 4, 18, 19) ~ "RCA",
         .data$Segment == 5 ~ "LMS",
@@ -87,39 +87,72 @@ utlede_kar_graft_segmentStent <- function(df = ss){
 
 
 
+#' Add variable `kar_graft` to NORIC segment-stent-table
+#' Based on variables `Segment` and `Graft`. More detailed than
+#' utlede_kar_segmentStent(), here also `Graft` is detailed for each level
+#' of `kar`.
+#'
+#' @param df_ss segment-stent table, must contain variables `ForlopsID`,
+#' `AVdRESH`, `Segment` and `Graft`
+#'
+#' @return segment-stent-table with one new variable
+#' @export
+#'
+#' @examples
+#' x <- data.frame(ForlopsID = 1:23,
+#'                 AvdRESH = rep(1,23),
+#'                 Segment = c(1:20, 1:3),
+#'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
+#' x %>% utlede_kar_graft_segmentStent(.)
+
+utlede_kar_graft_segmentStent <- function(df = ss){
 
 
-# Samle segmentene i Kar eller graft. Dersom graft ser vi bort fra kar.
-ss %<>% mutate(kar_graftKar = factor(case_when(
-  Segment %in% c(1, 2, 3, 4, 18, 19) & Graft == "Nei" ~ "RCA",
-  Segment == 5 & Graft == "Nei" ~ "LMS",
-  Segment %in% c(6, 7, 8, 9, 10, 20) & Graft == "Nei"~ "LAD",
-  Segment %in% c(11, 12, 13, 14, 15, 16, 17) & Graft == "Nei"~ "CX",
+  # Must contain matching-variables + variables needed for calculations
+  if(!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df))) {
+    stop("df must contain variables ForlopsID, AVdRESH, Segment and Graft")
+  }
 
-  Segment %in% c(1, 2, 3, 4, 18, 19) & Graft == "Arteriell" ~ "RCA_arterieGraft",
-  Segment == 5 & Graft == "Arteriell" ~ NA_character_,
-  Segment %in% c(6, 7, 8, 9, 10, 20) & Graft == "Arteriell"~ "LAD_arterieGraft",
-  Segment %in% c(11, 12, 13, 14, 15, 16, 17) & Graft == "Arteriell"~ "CX_arterieGraft",
+  df %>%
+    dplyr::mutate(kar_graft = factor(case_when(
+      .data$Segment %in% c(1, 2, 3, 4, 18, 19) &
+        .data$Graft == "Nei" ~ "RCA",
+      .data$Segment == 5 &
+        .data$Graft == "Nei" ~ "LMS",
+      .data$Segment %in% c(6, 7, 8, 9, 10, 20) &
+        .data$Graft == "Nei"~ "LAD",
+      .data$Segment %in% c(11, 12, 13, 14, 15, 16, 17) &
+        .data$Graft == "Nei"~ "CX",
 
-  Segment %in% c(1, 2, 3, 4, 18, 19) & Graft == "Vene" ~ "RCA_veneGraft",
-  Segment == 5 & Graft == "Vene" ~ NA_character_,
-  Segment %in% c(6, 7, 8, 9, 10, 20) & Graft == "Vene"~ "LAD_veneGraft",
-  Segment %in% c(11, 12, 13, 14, 15, 16, 17) & Graft == "Vene"~ "CX_veneGraft"),
+      .data$Segment %in% c(1, 2, 3, 4, 18, 19) &
+        .data$Graft == "Arteriell" ~ "RCA_arterieGraft",
+      .data$Segment == 5 &
+        .data$Graft == "Arteriell" ~ NA_character_,
+      .data$Segment %in% c(6, 7, 8, 9, 10, 20) &
+        .data$Graft == "Arteriell"~ "LAD_arterieGraft",
+      .data$Segment %in% c(11, 12, 13, 14, 15, 16, 17) &
+        .data$Graft == "Arteriell"~ "CX_arterieGraft",
 
-  levels = c("LMS",
-             "LAD",
-             "RCA",
-             "CX",
-             "LAD_arterieGraft",
-             "RCA_arterieGraft",
-             "CX_arterieGraft",
-             "LAD_veneGraft",
-             "RCA_veneGraft",
-             "CX_veneGraft")))
-dim(ss)
-ss %>%  count(Graft, kar_graft, kar_graftKar)
-ss %>%  count(Graft, Segment, kar_graftKar)
-# Samle segmentene i Kar eller graft. Dersom graft ser vi bort fra kar.
+      .data$Segment %in% c(1, 2, 3, 4, 18, 19) &
+        .data$Graft == "Vene" ~ "RCA_veneGraft",
+      .data$Segment == 5 &
+        .data$Graft == "Vene" ~ NA_character_,
+      .data$Segment %in% c(6, 7, 8, 9, 10, 20) &
+        .data$Graft == "Vene" ~ "LAD_veneGraft",
+      .data$Segment %in% c(11, 12, 13, 14, 15, 16, 17) &
+        .data$Graft == "Vene" ~ "CX_veneGraft"),
+
+      levels = c("LMS",
+                 "LAD",
+                 "RCA",
+                 "CX",
+                 "LAD_arterieGraft",
+                 "RCA_arterieGraft",
+                 "CX_arterieGraft",
+                 "LAD_veneGraft",
+                 "RCA_veneGraft",
+                 "CX_veneGraft")))
+}
 
 
 
