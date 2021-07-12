@@ -1,4 +1,4 @@
-#' Add time variables
+#' Add time variables in data frame
 #' Year, month, quarter, week..
 #'
 #' @param df data.frame where variables should be added

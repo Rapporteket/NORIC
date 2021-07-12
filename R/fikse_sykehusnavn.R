@@ -1,13 +1,19 @@
-#' Title Endrer sykehusnavn til ønsket navn
+#' Add variable `Sykehusnavn` if missing, update values if existing
 #'
-#' @param df data.frame med data, må inneholde kolonnen `AvdRESH`
-#' @return data.frame med kolonnen `Sykehusnavn`. Denne vil ha overskrevet den
-#' gamle verdien dersom variabelen fanstes i `df` allerede.
+#' @param df data.frame, must contain variable `AvdRESH`
+#' @return data.frame with variable `Sykehusnavn`. Old values are overwritten
+#' if `Sykehusnavn` already existed if `df`
+#'
 #' @export
+#' @example
+#' x <- data.frame(AvdRESH = c(108141, 109880, NA, 123, 105502))
+#' x %>% fikse_sykehusnavn()
 #'
-#' @examples
+#' y <- data.frame(AvdRESH = c(108141, 109880, NA, 123, 105502),
+#'                 Sykehusnavn = c("AHUS", "Ullevål", "NA", "test", "Stavanger"))
 fikse_sykehusnavn <- function(df) {
-  require(dplyr); require(magrittr)
+
+  if (!("AvdRESH" %in% names(df))) stop("df must contain variable AvdRESH")
 
   df %>%
     dplyr::mutate(Sykehusnavn = dplyr::case_when(
