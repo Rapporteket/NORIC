@@ -1,16 +1,18 @@
-#' Legg tid tidsvariabler
-#' Aar, maaned_nr, maaned, kvartal, uketall, aar_uke
+#' Add time variables
+#' Year, month, quarter, week..
 #'
-#' @param df data.frame der variablene skal legges til, må inneholde en
-#' dato-variabel i format "%Y-%m-%d"
-#' @param var for AngioPCI tabellen brukes `ProsedyreDato`, for CT brukes `HovedDato`
+#' @param df data.frame where variables should be added
+#' @param var variable in format "%Y-%m-%d".
 #'
-#' @return `df` med de nye variablene
+#' @return `df` data.frame with new variables added
 #' @export
-#'
-#' @examples
+#' \dontrun{
+#' # FOR AP, AK and CT-data:
+#' AP %<>% legg_til_tidsvariabler(., var = ProsedyreDato)
+#' AK %<>% legg_til_tidsvariabler(., var = ProsedyreDato)
+#' CT %<>% legg_til_tidsvariabler(., var = HovedDatp)
+#' }
 legg_til_tidsvariabler <- function(df, var = ProsedyreDato){
-  require(tidyverse)
 
   message("Legger til variablene aar, uke, maaned, maaned_nr, kvartal og aar_uke")
 
