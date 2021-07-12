@@ -7,7 +7,6 @@
 #' FALSE
 #' @param ... Optional arguments to be passed to the function
 #' @importFrom dplyr filter mutate mutate_all select left_join
-#' @importFrom lubridate ymd year month quarter isoweek
 #'
 #' @return Data frame representing a simplified version of angio PCI-data
 #' @export
@@ -37,6 +36,8 @@ FROM AngioPCIVar
 
   fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
+  sS <- rapbase::loadRegData(registryName,
+                             query = "SELECT * FROM SegmentStent")
 
 
   # Velger relevante variabler fra fO som skal legges til tabellen:
@@ -61,7 +62,12 @@ FROM AngioPCIVar
                                               "ForlopsID"))
 
 
-  # Gjor datoer om til dato-objekt:
+
+  # Legger til utledete variabler fra segment Stent til ap_light
+  ap_light %<>% legg_til_antall_stent(ap = ., ss = sS)
+
+
+   # Gjor datoer om til dato-objekt:
   ap_light %<>%
     dplyr::mutate_at(
       vars(ends_with("dato", ignore.case = TRUE)), list(ymd))
@@ -108,5 +114,5 @@ FROM AngioPCIVar
                        suffix = "KomplikSkjema")
 
 
-
+  # Legge til utledete variabler fra segment stent
 }
