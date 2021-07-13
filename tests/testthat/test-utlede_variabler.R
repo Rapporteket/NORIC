@@ -6,20 +6,20 @@ test_that("Utlede aldersklasser", {
   # sjekk at de som skal bli NA blir det:
   testthat::expect_equal(7,
                          utlede_aldersklasse(x, var = alder) %>%
-                           filter(is.na(aldersklasse)) %>%
+                           dplyr::filter(is.na(aldersklasse)) %>%
                            nrow())
 
   # Sjekk at øvre/nedre grense for aldersklasse er er riktig
   testthat::expect_equal(60,
                          utlede_aldersklasse(x, var = alder) %>%
-                           filter(aldersklasse == "60-69") %>%
-                           pull(alder) %>%
+                           dplyr::filter(aldersklasse == "60-69") %>%
+                           dplyr::pull(alder) %>%
                            min())
 
   testthat::expect_equal(69,
                          utlede_aldersklasse(x, var = alder) %>%
-                           filter(aldersklasse == "60-69") %>%
-                           pull(alder) %>%
+                           dplyr::filter(aldersklasse == "60-69") %>%
+                           dplyr::pull(alder) %>%
                            max())
 
   # sjekk feilmelding dersom var har feil format
@@ -37,7 +37,7 @@ test_that("Ferdigstilt skjemaStatus works", {
                            utlede_ferdigstilt(df = .,
                                               var = SkjemaStatusStart,
                                               suffix = "toto") %>%
-                           filter(is.na(ferdigstilt_toto)) %>%
+                           dplyr::filter(is.na(ferdigstilt_toto)) %>%
                            nrow())
 
   testthat::expect_equal(1,
@@ -45,7 +45,7 @@ test_that("Ferdigstilt skjemaStatus works", {
                            utlede_ferdigstilt(df = .,
                                               var = SkjemaStatusStart,
                                               suffix = "toto") %>%
-                           filter(ferdigstilt_toto == "ja") %>%
+                           dplyr::filter(ferdigstilt_toto == "ja") %>%
                            nrow())
 
   testthat::expect_equal(2,
@@ -53,7 +53,7 @@ test_that("Ferdigstilt skjemaStatus works", {
                            utlede_ferdigstilt(df = .,
                                               var = SkjemaStatusStart,
                                               suffix = "toto") %>%
-                           filter(ferdigstilt_toto == "nei") %>%
+                           dplyr::filter(ferdigstilt_toto == "nei") %>%
                            nrow())
 
   testthat::expect_equal(c("SkjemaStatusStart", "ferdigstilt_testerNavn"),
