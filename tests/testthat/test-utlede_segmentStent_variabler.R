@@ -59,7 +59,7 @@ test_that("Testing utlede_kar_segmen_stent is correct", {
   x %<>% utlede_kar_segment_stent(.)
 
   testthat::expect_equal(c(23, 5), dim(x))
-  testthat::expect__true("kar" %in% names(x))
+  testthat::expect_true("kar" %in% names(x))
 
   testthat::expect_equal(rep("RCA", 7),
                          x %>%
@@ -104,7 +104,7 @@ test_that("Testing utlede_kar_graft_segment_stent is correct", {
   x %<>% utlede_kar_segment_stent(.)
 
   testthat::expect_equal(c(60, 5), dim(x))
-  testthat::expect__true("kar_graft" %in% names(x))
+  testthat::expect_true("kar_graft" %in% names(x))
 
   testthat:: expect_true(all(x %>%
                                filter(Segment %in% c(1, 2, 3, 4, 18, 19)) %>%

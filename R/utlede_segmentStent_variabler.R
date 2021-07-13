@@ -209,23 +209,23 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
 
     # Legge til variabel kar_graft
     utlede_kar_graft_segment_stent(.) %>%
-    select(.data$ForlopsID,
-           .data$AvdRESH,
-           .data$kar_graft,
-           .data$ProsedyreType) %>%
-    arrange(.data$AvdRESH, .data$ForlopsID, .data$kar_graft) %>%
+    dplyr::select(.data$ForlopsID,
+                  .data$AvdRESH,
+                  .data$kar_graft,
+                  .data$ProsedyreType) %>%
+    dplyr::arrange(.data$AvdRESH, .data$ForlopsID, .data$kar_graft) %>%
 
     # Fjerner Wireforsøk og teller alle andre PCI-prosedyrer per kar
     # Dersom 0 prosedyrer i karet (Kun wireforsøk) blir verdien n=0 --> "nei"
     # Dersom minst en prosedyre i karet blir verdien n > 0 --> "ja"
-    count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
-          wt = .data$ProsedyreType != "Wireforsøk") %>%
-    mutate(pci_kar = ifelse(
-      test = .data$n > 0,
-      yes = "ja",
-      no = "nei")) %>%
-    select(- .data$n) %>%
-    distinct() %>%
+    dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
+                 wt = .data$ProsedyreType != "Wireforsøk") %>%
+    dplyr::mutate(pci_kar = ifelse(
+                  test = .data$n > 0,
+                  yes = "ja",
+                  no = "nei")) %>%
+    dplyr::select(- .data$n) %>%
+    dplyr::distinct() %>%
 
     # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
     # datasettet SS (finner dem med funksjonen nesting),
