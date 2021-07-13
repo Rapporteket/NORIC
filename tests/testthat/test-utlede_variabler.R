@@ -1,7 +1,7 @@
 test_that("Utlede aldersklasser", {
-  x <- data.frame(alder = c(-1,10,17,18,20,
-                            59,60,61,69, 70,
-                            99,100,NA, NA, NA))
+  x <- data.frame(alder = c(-1, 10, 17, 18, 20,
+                            59, 60, 61, 69, 70,
+                            99, 100, NA, NA, NA))
 
   # sjekk at de som skal bli NA blir det:
   expect_equal(7,
@@ -13,12 +13,14 @@ test_that("Utlede aldersklasser", {
   expect_equal(60,
                utlede_aldersklasse(x, var = alder) %>%
                  filter(aldersklasse == "60-69") %>%
-                 pull(alder) %>% min())
+                 pull(alder) %>%
+                 min())
 
   expect_equal(69,
                utlede_aldersklasse(x, var = alder) %>%
                  filter(aldersklasse == "60-69") %>%
-                 pull(alder) %>% max())
+                 pull(alder) %>%
+                 max())
 
   # sjekk feilmelding dersom var har feil format
   expect_error(utlede_aldersklasse(x, var = toto))
@@ -27,9 +29,9 @@ test_that("Utlede aldersklasser", {
 
 
 #  TESTER FUNKSONER FOR FERDISTILTE SKJEMA
-test_that("Ferdigstilt skjemaStatus works",{
+test_that("Ferdigstilt skjemaStatus works", {
 
-  x = data.frame(SkjemaStatusStart = c(-1,0,1, NA))
+  x <- data.frame(SkjemaStatusStart = c(-1, 0, 1, NA))
   expect_equal(1,
                x %>%
                  utlede_ferdigstilt(df = .,
@@ -64,4 +66,3 @@ test_that("Ferdigstilt skjemaStatus works",{
 
 
 })
-
