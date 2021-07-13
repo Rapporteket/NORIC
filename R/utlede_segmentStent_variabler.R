@@ -1,23 +1,23 @@
 #' Add number of stents per procedure in AP-dataset
 #'
-#' @param ap Angio PCI dataset where new variable `antall_stent` should be
+#' @param df_ap Angio PCI dataset where new variable `antall_stent` should be
 #' added. Must contain the variables `AvdRESH` and `ForlopsID`,
-#' @param ss segment stent dataset where `antall_stent` is calculated from.
+#' @param df_ss segment stent dataset where `antall_stent` is calculated from.
 #' Must contain the variables `AvdRESH`, `ForlopsID` and `StentType`
 #' @return data.frame with one new variable
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' AP %>% legg_til_antall_stent(., ss = SS)
+#' AP %>% legg_til_antall_stent(., df_ss = SS)
 #' }
-legg_til_antall_stent <- function(ap, ss) {
+legg_til_antall_stent <- function(df_ap, df_ss) {
 
-  if (!all(c("AvdRESH", "ForlopsID") %in% names(ap))) {
-    stop("ap must contain variables AvdRESH + ForlopsID")
+  if (!all(c("AvdRESH", "ForlopsID") %in% names(df_ap))) {
+    stop("df_apmust contain variables AvdRESH + ForlopsID")
   }
 
-  if (!all(c("AvdRESH", "ForlopsID", "StentType") %in% names(ss))) {
+  if (!all(c("AvdRESH", "ForlopsID", "StentType") %in% names(df_ss))) {
     stop("ss must contain variables AvdRESH + ForlopsID + StentType")
   }
 
@@ -25,7 +25,7 @@ legg_til_antall_stent <- function(ap, ss) {
 
     # In SS-dataset : Count number of non-missing entries in StentType for each
   # procedure
-  ant_stent <- ss %>%
+  ant_stent <- df_ss %>%
     dplyr::select(.data$AvdRESH, .data$ForlopsID, .data$StentType) %>%
     dplyr::arrange(., .data$AvdRESH)  %>%
     dplyr::group_by(.data$AvdRESH) %>%
@@ -34,7 +34,7 @@ legg_til_antall_stent <- function(ap, ss) {
     dplyr::rename("antall_stent" = .data$n)
 
 
-  ap %>%
+  df_ap %>%
     dplyr::left_join(.,
                      ant_stent,
                      by = c("AvdRESH", "ForlopsID")) %>%

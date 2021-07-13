@@ -64,7 +64,9 @@ FROM AngioPCIVar
 
 
   # Legger til utledete variabler fra segment Stent til ap_light
-  ap_light %<>% legg_til_antall_stent(ap = ., ss = sS)
+  ap_light %<>% legg_til_antall_stent(df_ap = ., df_ss = sS)
+
+  ap_light %<>% legg_til_pci_per_kar(df_ap = ., df_ss = sS)
 
 
    # Gjor datoer om til dato-objekt:
