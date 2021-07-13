@@ -17,7 +17,7 @@ legg_til_antall_stent <- function(ap, ss) {
     stop("ap must contain variables AvdRESH + ForlopsID")
   }
 
-  if (!all(c("AvdRESH" , "ForlopsID", "StentType") %in% names(ss))) {
+  if (!all(c("AvdRESH", "ForlopsID", "StentType") %in% names(ss))) {
     stop("ss must contain variables AvdRESH + ForlopsID + StentType")
   }
 
@@ -61,7 +61,7 @@ legg_til_antall_stent <- function(ap, ss) {
 #'                 Segment = c(1:20, 1:3),
 #'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
 #' x %>% utlede_kar_segment_stent(.)
-utlede_kar_segment_stent <- function(df = ss){
+utlede_kar_segment_stent <- function(df = ss) {
 
 
   # Must contain matching-variables + variables needed for calculations
@@ -105,7 +105,7 @@ utlede_kar_segment_stent <- function(df = ss){
 #'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
 #' x %>% utlede_kar_graft_segment_stent(.)
 
-utlede_kar_graft_segment_stent <- function(df = ss){
+utlede_kar_graft_segment_stent <- function(df = ss) {
 
 
   # Must contain matching-variables + variables needed for calculations
@@ -190,7 +190,7 @@ utlede_kar_graft_segment_stent <- function(df = ss){
 #'                                      "Wireforsøk",
 #'                                      "Direktestent"))
 #'   ap %>% legg_til_pci_per_kar(., df_ss = ss)
-legg_til_pci_per_kar <- function(df_ap, df_ss){
+legg_til_pci_per_kar <- function(df_ap, df_ss) {
 
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "ProsedyreType") %in%
@@ -200,9 +200,9 @@ legg_til_pci_per_kar <- function(df_ap, df_ss){
   }
 
   # Must contain matching-variables + variables needed for calculations
-  if(!all(c("ForlopsID", "AvdRESH") %in%
+  if (!all(c("ForlopsID", "AvdRESH") %in%
           names(df_ap))) {
-    stop("df_ap must contain variables ForlopsID and AvsRESH" )
+    stop("df_ap must contain variables ForlopsID and AvsRESH")
   }
 
   ss_wide_pci <- df_ss %>%
@@ -216,7 +216,7 @@ legg_til_pci_per_kar <- function(df_ap, df_ss){
     arrange(.data$AvdRESH, .data$ForlopsID, .data$kar_graft) %>%
 
     # Fjerner Wireforsøk og teller alle andre PCI-prosedyrer per kar
-    # Dersom 0 prosedyrer i karet (Kun wireforsøk) blir verdien n = 0 --> "nei")
+    # Dersom 0 prosedyrer i karet (Kun wireforsøk) blir verdien n=0 --> "nei"
     # Dersom minst en prosedyre i karet blir verdien n > 0 --> "ja"
     count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
           wt = .data$ProsedyreType != "Wireforsøk") %>%
@@ -224,7 +224,7 @@ legg_til_pci_per_kar <- function(df_ap, df_ss){
       test = .data$n > 0,
       yes = "ja",
       no = "nei")) %>%
-    select( - .data$n) %>%
+    select(- .data$n) %>%
     distinct() %>%
 
     # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
@@ -255,8 +255,8 @@ legg_til_pci_per_kar <- function(df_ap, df_ss){
                      function(x) paste0("PCI_", x))
 
 
-  # Legg til 10 nye variabler i AP. Forløp i AP som ikke har rader i SS, vil få
-  # verdien NA for de nye kolonnene.
+  # Legg til 10 nye variabler i AP. Forløp i AP som ikke har rader i SS,
+  # vil få verdien NA for de nye kolonnene.
   df_ap %>% dplyr::left_join(.,
                              ss_wide_pci,
                              by = c("AvdRESH", "ForlopsID"))
