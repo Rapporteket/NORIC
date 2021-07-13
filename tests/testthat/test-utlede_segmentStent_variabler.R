@@ -138,3 +138,82 @@ test_that("Testing utlede_kar_graft_segmentStent is correct", {
 
 })
 
+
+
+
+
+test_that("Testing legg_til_pci_per_kar", {
+
+  test_ap <- data.frame(ForlopsID = 1:5,
+                        AvdRESH = rep(1,5))
+
+  # Alle these variables er mandatory, no need to simulate missing values
+  test_ss <- data.frame(ForlopsID = c(1,2,3,3,3),
+                        AvdRESH = rep(1,5),
+                        Segment = c(1,5,10,12,13),
+                        Graft = c(rep("Nei", 3),
+                                  rep("Arteriell", 1),
+                                  rep("Vene", 1)),
+                        ProsedyreType = c("Ballong + Stent",
+                                          "Wireforsøk",
+                                          "Rotablator",
+                                          "Wireforsøk",
+                                          "Direktestent"))
+
+  x <- test_ap %>% legg_til_pci_per_kar(., df_ss = test_ss)
+
+  # Test dimetions
+  expect_equal(c(5,12),
+               dim(x))
+
+  # Test name and order of new variables
+  expect_equal(names(x),
+               c("ForlopsID", "AvdRESH", "PCI_LMS", "PCI_LAD" , "PCI_RCA",
+                 "PCI_CX",  "PCI_LAD_arterieGraft", "PCI_RCA_arterieGraft",
+                 "PCI_CX_arterieGraft", "PCI_LAD_veneGraft", "PCI_RCA_veneGraft",
+                 "PCI_CX_veneGraft"))
+
+
+  # Test that procedures without SS-data have value "NA" for all new variables
+  expect_true(all(is.na(x %>%
+                          filter(ForlopsID %in% 4:5) %>%
+                          select(contains("PCI_")))))
+
+
+  # Test that procedure with only "Wireforsøk" has "nei" for all new variables
+  expect_true(all(x %>%
+                    filter(ForlopsID == 2) %>%
+                    select(contains("PCI")) == "nei"))
+
+  # Test that ForlopsID = 1 is correct
+  expect_true(all(x %>%
+                    filter(ForlopsID == 1) %>%
+                    select(contains("PCI_")) %>%
+                    select(- PCI_RCA) == "nei"))
+
+  expect_true(x %>%
+                filter(ForlopsID == 1) %>%
+                pull(PCI_RCA)  == "ja")
+
+
+  # Test that ForlopsID = 3 is correct
+  expect_true(all(x %>%
+                    filter(ForlopsID == 3) %>%
+                    select(contains("PCI_")) %>%
+                    select(- PCI_LAD, -PCI_CX_veneGraft) == "nei"))
+
+  expect_true(all(x %>%
+                    filter(ForlopsID == 3) %>%
+                    select(PCI_LAD, PCI_CX_veneGraft)  == "ja"))
+
+
+ expect_error(test_ap %>%
+                select(-ForlopsID) %>%
+                legg_til_pci_per_kar(., df_ss = test_ss))
+ expect_error(test_ap %>%
+                legg_til_pci_per_kar(., df_ss = test_ss %>%
+                                       select(-ProsedyreType)))
+
+})
+
+

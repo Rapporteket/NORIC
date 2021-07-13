@@ -157,89 +157,108 @@ utlede_kar_graft_segmentStent <- function(df = ss){
 
 
 
+#' Add PCI variables per level of kar_graft in AP-data
+#'
+#' Add 10 new variables, all prefixed by "PCI_" and suffixed by level of
+#' `kar_graft` (e.g. PCI_LAD, PCI_CX, PCI_CX_veneGraft, PCI_CX_arterieGraft).
+#' Counts number of rows in Segment-stent data per procedure and per
+#' level of `kar_graft`, removing "wireforsøk". If n=0 (only wireforsøk) all
+#' 10 new variables are given value "nei". If n>1 for one or more levels for
+#' `kar_graft` these variables are given value "ja", remaining variables are
+#' given value "nei". In procedures with zero rows in stent-data, all new variables
+#' are given value `NA`.
+#'
+#' @param df_ap AP data where new variables should be added
+#' @param df_ss SS-data used to calculate 10 new variables
+#'
+#' @return `df_ap` with 10 new columns.
+#' @export
+#'
+#' @examples
+#'   ap <- data.frame(ForlopsID = 1:5,
+#'                    AvdRESH = rep(1,5))
+#'
+#'   ss <- data.frame(ForlopsID = c(1,2,3,3,3),
+#'                    AvdRESH = rep(1,5),
+#'                    Segment = c(1,5,10,12,13),
+#'                    Graft = c(rep("Nei", 3),
+#'                              rep("Arteriell", 1),
+#'                              rep("Vene", 1)),
+#'                    ProsedyreType = c("Ballong + Stent",
+#'                                      "Wireforsøk",
+#'                                      "Rotablator",
+#'                                      "Wireforsøk",
+#'                                      "Direktestent"))
+#'   ap %>% legg_til_pci_per_kar(., df_ss = ss)
+legg_til_pci_per_kar <- function(df_ap, df_ss){
 
-# Utlede  PCI ja/nei per kar/graft
-# Wireforsøk teller ikke
-# Format Wide : En kolonne per kar + en kolonne per kar per Graft
-ss %>% filter(ProsedyreType != "Wireforsøk") %>% count(kar_graftKar)
+  # Must contain matching-variables + variables needed for calculations
+  if(!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "ProsedyreType") %in%
+          names(df_ss))) {
+    stop("df_ss must contain variables ForlopsID, AvdRESH, Segment Graft and ProsedyreType" )
+  }
 
-ss_wide_pci <- ss %>%
-  arrange(AvdRESH, ForlopsID, kar_graftKar) %>%
-  filter(ProsedyreType!= "Wireforsøk") %>%
-  select(-Segment, -Graft, -ProsedyreType, -StentType, -kar_graft, -Sykehusnavn ) %>%
-  group_by(ForlopsID, AvdRESH, kar_graftKar) %>%
-  mutate(pci_kar = ifelse(
-    test = n()>0,
-    yes = "ja",
-    no = "nei")) %>%
-  distinct() %>%
-  pivot_wider(names_from = kar_graftKar,
-              values_from = pci_kar,
-              values_fill = "nei") %>%
-  # Disse nivåene mangler:
-  mutate(LAD_arterieGraft = "nei",
-         RCA_arterieGraft = "nei",
-         CX_arterieGraft = "nei") %>%
-  select(AvdRESH, ForlopsID, LMS, LAD, RCA, CX,
-         LAD_arterieGraft, RCA_arterieGraft, CX_arterieGraft,
-         LAD_veneGraft, RCA_veneGraft, CX_veneGraft) %>%
-  rename_at(vars(LMS:CX_veneGraft), function(x) paste0("PCI_", x))
+  # Must contain matching-variables + variables needed for calculations
+  if(!all(c("ForlopsID", "AvdRESH") %in%
+          names(df_ap))) {
+    stop("df_ap must contain variables ForlopsID and AvsRESH" )
+  }
 
+  ss_wide_pci <- df_ss %>%
 
-# Utlede variabelen WireforsøK per kar
-ss %>% filter(ProsedyreType == "Wireforsøk") %>% count(kar_graftKar)
+    # Legge til variabel kar_graft
+    utlede_kar_graft_segmentStent(.) %>%
+    select(.data$ForlopsID,
+           .data$AvdRESH,
+           .data$kar_graft,
+           .data$ProsedyreType) %>%
+    arrange(.data$AvdRESH, .data$ForlopsID, .data$kar_graft) %>%
 
-ss_wide_wire <- ss %>%
-  arrange(AvdRESH, ForlopsID, kar_graftKar) %>%
-  filter(ProsedyreType== "Wireforsøk") %>%
-  select(-Segment, -Graft, -ProsedyreType, -StentType, -kar_graft, -Sykehusnavn ) %>%
-  group_by(ForlopsID, AvdRESH, kar_graftKar) %>%
-  mutate(wire_kar = ifelse(
-    test = n()>0,
-    yes = "ja",
-    no = "nei")) %>%
-  distinct() %>%
-  pivot_wider(names_from = kar_graftKar,
-              values_from = wire_kar,
-              values_fill = "nei") %>%
-  mutate(LMS = "nei",
-         LAD_arterieGraft = "nei",
-         CX_arterieGraft = "nei") %>%
-  select(AvdRESH, ForlopsID, LMS, LAD, RCA, CX,
-         LAD_arterieGraft, RCA_arterieGraft, CX_arterieGraft,
-         LAD_veneGraft, RCA_veneGraft, CX_veneGraft) %>%
-  rename_at(vars(LMS:CX_veneGraft), function(x) paste0("wireforsok_", x))
+    # Fjerner Wireforsøk og teller alle andre PCI-prosedyrer per kar
+    # Dersom ingen prosedyrer i karet (Kun wireforsøk) blir verdien n = 0 --> "nei")
+    # Dersom minst en prosedyre i karet blir verdien n > 0 --> "ja"
+    count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
+          wt = .data$ProsedyreType != "Wireforsøk") %>%
+    mutate(pci_kar = ifelse(
+      test = .data$n > 0,
+      yes = "ja",
+      no = "nei")) %>%
+    select( - .data$n) %>%
+    distinct() %>%
 
+    # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
+    # datasettet SS (finner dem med funksjonen nesting),
+    # komplettes manglende nivåer av kar_graft med verdien "nei"
+    tidyr::complete(.data$kar_graft,
+                    nesting(ForlopsID, AvdRESH),
+                    fill = list(pci_kar = "nei")) %>%
 
+    # format med en rad per variabel:
+    tidyr::pivot_wider(names_from = .data$kar_graft,
+                       values_from = .data$pci_kar) %>%
 
-# kontroll
-ss %>% filter(ForlopsID %in% c(4227, 8902, 1674, 6954, 4136 )) %>% print(n=20)
-ss_wide_pci %>% filter(ForlopsID %in% c(4227, 8902, 1674, 6954, 4136 ))
-ss_wide_wire %>% filter(ForlopsID %in% c(4227, 8902, 1674, 6954 , 4136))
-
-
-```
-
-
-# ##  Legge til variabler fra Segment Stent i AngioPCI. Dersom SegmentStent mangler
-# for noen forløp blir verdien NA.
-# ```{r merge_ap_ss}
-# ap_uttrekk_ss <- ap_uttrekk %>%
-#   left_join(.,
-#             ss_wide_pci,
-#             by = c("ForlopsID", "AvdRESH")) %>%
-#   left_join(.,
-#             ss_wide_wire,
-#             by = c("ForlopsID", "AvdRESH"))
-#
-# dim(ap_uttrekk_ss)
-# names(ap_uttrekk_ss)
-#
-#
-# ```
+    # Rekkefølge nye variabler, og nytt navn
+    dplyr::select(.data$AvdRESH,
+                  .data$ForlopsID,
+                  .data$LMS,
+                  .data$LAD,
+                  .data$RCA,
+                  .data$CX,
+                  .data$LAD_arterieGraft,
+                  .data$RCA_arterieGraft,
+                  .data$CX_arterieGraft,
+                  .data$LAD_veneGraft,
+                  .data$RCA_veneGraft,
+                  .data$CX_veneGraft) %>%
+    dplyr::rename_at(vars(.data$LMS:.data$CX_veneGraft),
+                     function(x) paste0("PCI_", x))
 
 
+  # Legg til 10 nye variabler i AP. Forløp i AP som ikke har rader i SS, vil få
+  # verdien NA for de nye kolonnene.
+  df_ap %>% dplyr::left_join(.,
+                             ss_wide_pci,
+                             by = c("AvdRESH", "ForlopsID"))
 
-
-
+}
 
