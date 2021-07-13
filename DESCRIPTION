@@ -49,12 +49,12 @@ Imports:
   shinycssloaders,
   tidyselect,
   xtable,
-  yaml
+  yaml, 
+  testthat
 Remotes:
   Rapporteket/rapbase,
   andrewsali/shinycssloaders
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Suggests: 
-    covr,
-    testthat
+    covr
