@@ -25,8 +25,8 @@ test_that("Number of stents is correct", {
 
   # If one stent , total number of stents should be 1
   testthat::expect_equal(legg_til_antall_stent(ap = test_ap, ss = test_ss) %>%
-                           dplur::filter(ForlopsID == 3) %>%
-                           dplur::pull(antall_stent),
+                           dplyr::filter(ForlopsID == 3) %>%
+                           dplyr::pull(antall_stent),
                          1)
 
   # If only missing StentType , total number of stents should be 0
@@ -198,7 +198,7 @@ test_that("Testing legg_til_pci_per_kar", {
   testthat::expect_true(x %>%
                           dplyr::filter(ForlopsID == 1) %>%
                           dplyr::pull(PCI_RCA)  == "ja")
-  dplyr::
+
 
   # Test that ForlopsID = 3 is correct
   testthat::expect_true(all(
