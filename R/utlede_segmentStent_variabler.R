@@ -1,7 +1,7 @@
 #' Add number of stents per procedure in AP-dataset
 #'
-#' @param ap Angio PCI dataset where new variable `antall_stent` should be added.
-#'  Must contain the variables `AvdRESH` and `ForlopsID`,
+#' @param ap Angio PCI dataset where new variable `antall_stent` should be
+#' added. Must contain the variables `AvdRESH` and `ForlopsID`,
 #' @param ss segment stent dataset where `antall_stent` is calculated from.
 #' Must contain the variables `AvdRESH`, `ForlopsID` and `StentType`
 #' @return data.frame with one new variable
@@ -11,13 +11,13 @@
 #' \dontrun{
 #' AP %>% legg_til_antall_stent(., ss = SS)
 #' }
-legg_til_antall_stent <- function(ap, ss){
+legg_til_antall_stent <- function(ap, ss) {
 
-  if (!all( c("AvdRESH" , "ForlopsID") %in% names(ap))){
+  if (!all(c("AvdRESH", "ForlopsID") %in% names(ap))) {
     stop("ap must contain variables AvdRESH + ForlopsID")
   }
 
-  if (!all( c("AvdRESH" , "ForlopsID", "StentType") %in% names(ss))){
+  if (!all(c("AvdRESH" , "ForlopsID", "StentType") %in% names(ss))) {
     stop("ss must contain variables AvdRESH + ForlopsID + StentType")
   }
 
@@ -60,12 +60,12 @@ legg_til_antall_stent <- function(ap, ss){
 #'                 AvdRESH = rep(1,23),
 #'                 Segment = c(1:20, 1:3),
 #'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
-#' x %>% utlede_kar_segmentStent(.)
-utlede_kar_segmentStent <- function(df = ss){
+#' x %>% utlede_kar_segment_stent(.)
+utlede_kar_segment_stent <- function(df = ss){
 
 
   # Must contain matching-variables + variables needed for calculations
-  if(!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df))) {
+  if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df))) {
     stop("df must contain variables ForlopsID, AVdRESH, Segment and Graft")
   }
 
@@ -89,7 +89,7 @@ utlede_kar_segmentStent <- function(df = ss){
 
 #' Add variable `kar_graft` to NORIC segment-stent-table
 #' Based on variables `Segment` and `Graft`. More detailed than
-#' utlede_kar_segmentStent(), here also `Graft` is detailed for each level
+#' utlede_kar_segment_stent(), here also `Graft` is detailed for each level
 #' of `kar`.
 #'
 #' @param df_ss segment-stent table, must contain variables `ForlopsID`,
@@ -103,13 +103,13 @@ utlede_kar_segmentStent <- function(df = ss){
 #'                 AvdRESH = rep(1,23),
 #'                 Segment = c(1:20, 1:3),
 #'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
-#' x %>% utlede_kar_graft_segmentStent(.)
+#' x %>% utlede_kar_graft_segment_stent(.)
 
-utlede_kar_graft_segmentStent <- function(df = ss){
+utlede_kar_graft_segment_stent <- function(df = ss){
 
 
   # Must contain matching-variables + variables needed for calculations
-  if(!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df))) {
+  if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df))) {
     stop("df must contain variables ForlopsID, AVdRESH, Segment and Graft")
   }
 
@@ -165,8 +165,8 @@ utlede_kar_graft_segmentStent <- function(df = ss){
 #' level of `kar_graft`, removing "wireforsøk". If n=0 (only wireforsøk) all
 #' 10 new variables are given value "nei". If n>1 for one or more levels for
 #' `kar_graft` these variables are given value "ja", remaining variables are
-#' given value "nei". In procedures with zero rows in stent-data, all new variables
-#' are given value `NA`.
+#' given value "nei". In procedures with zero rows in stent-data, all new
+#' variables are given value `NA`.
 #'
 #' @param df_ap AP data where new variables should be added
 #' @param df_ss SS-data used to calculate 10 new variables
@@ -193,9 +193,10 @@ utlede_kar_graft_segmentStent <- function(df = ss){
 legg_til_pci_per_kar <- function(df_ap, df_ss){
 
   # Must contain matching-variables + variables needed for calculations
-  if(!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "ProsedyreType") %in%
+  if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "ProsedyreType") %in%
           names(df_ss))) {
-    stop("df_ss must contain variables ForlopsID, AvdRESH, Segment Graft and ProsedyreType" )
+    stop("df_ss must contain variables ForlopsID, AvdRESH, Segment Graft
+         and ProsedyreType")
   }
 
   # Must contain matching-variables + variables needed for calculations
@@ -207,7 +208,7 @@ legg_til_pci_per_kar <- function(df_ap, df_ss){
   ss_wide_pci <- df_ss %>%
 
     # Legge til variabel kar_graft
-    utlede_kar_graft_segmentStent(.) %>%
+    utlede_kar_graft_segment_stent(.) %>%
     select(.data$ForlopsID,
            .data$AvdRESH,
            .data$kar_graft,
@@ -215,7 +216,7 @@ legg_til_pci_per_kar <- function(df_ap, df_ss){
     arrange(.data$AvdRESH, .data$ForlopsID, .data$kar_graft) %>%
 
     # Fjerner Wireforsøk og teller alle andre PCI-prosedyrer per kar
-    # Dersom ingen prosedyrer i karet (Kun wireforsøk) blir verdien n = 0 --> "nei")
+    # Dersom 0 prosedyrer i karet (Kun wireforsøk) blir verdien n = 0 --> "nei")
     # Dersom minst en prosedyre i karet blir verdien n > 0 --> "ja"
     count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
           wt = .data$ProsedyreType != "Wireforsøk") %>%
@@ -261,4 +262,3 @@ legg_til_pci_per_kar <- function(df_ap, df_ss){
                              by = c("AvdRESH", "ForlopsID"))
 
 }
-

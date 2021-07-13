@@ -46,13 +46,13 @@ test_that("Number of stents is correct", {
 
 
 
-test_that("Testing utlede_kar_segmentStent is correct", {
+test_that("Testing utlede_kar_segmen_stent is correct", {
   x <- data.frame(ForlopsID = 1:23,
                   AvdRESH = rep(1,23),
                   Segment = c(1:20, 1:3),
                   Graft = c(rep("Nei", 20), "Arteriell", "Vene", NA))
 
-  x %<>% utlede_kar_segmentStent(.)
+  x %<>% utlede_kar_segment_stent(.)
 
   expect_equal(c(23, 5), dim(x))
   expect__true("kar" %in% names(x))
@@ -93,7 +93,7 @@ test_that("Testing utlede_kar_segmentStent is correct", {
 
 
 
-test_that("Testing utlede_kar_graft_segmentStent is correct", {
+test_that("Testing utlede_kar_graft_segment_stent is correct", {
   x <- data.frame(ForlopsID = 1:60,
                   AvdRESH = rep(1,60),
                   Segment = rep(1:20,3),
@@ -101,7 +101,7 @@ test_that("Testing utlede_kar_graft_segmentStent is correct", {
                             rep("Arteriell", 20),
                             rep("Vene", 20)))
 
-  x %<>% utlede_kar_segmentStent(.)
+  x %<>% utlede_kar_segment_stent(.)
 
   expect_equal(c(60, 5), dim(x))
   expect__true("kar_graft" %in% names(x))
