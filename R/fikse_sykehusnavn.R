@@ -10,14 +10,15 @@
 #' x %>% fikse_sykehusnavn()
 #'
 #' y <- data.frame(AvdRESH = c(108141, 109880, NA, 123, 105502),
-#'                 Sykehusnavn = c("AHUS", "Ullevål", "NA", "test", "Stavanger"))
+#'                 Sykehusnavn = c("AHUS", "Ullevål", "NA",
+#'                  "test", "Stavanger"))
 fikse_sykehusnavn <- function(df) {
 
   if (!("AvdRESH" %in% names(df))) stop("df must contain variable AvdRESH")
 
   df %>%
     dplyr::mutate(Sykehusnavn = dplyr::case_when(
-      AvdRESH == 108141 ~ "Ahus Nordbyhagen" ,
+      AvdRESH == 108141 ~ "Ahus Nordbyhagen",
       AvdRESH == 102966 ~ "HUS",
       AvdRESH == 106944 ~ "AHUS Gardermoen",
       AvdRESH == 4210141 ~ "NLSH Bodø",
@@ -30,4 +31,3 @@ fikse_sykehusnavn <- function(df) {
       TRUE ~ NA_character_)
     )
 }
-

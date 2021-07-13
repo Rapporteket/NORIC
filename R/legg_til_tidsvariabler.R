@@ -12,9 +12,10 @@
 #' AK %<>% legg_til_tidsvariabler(., var = ProsedyreDato)
 #' CT %<>% legg_til_tidsvariabler(., var = HovedDatp)
 #' }
-legg_til_tidsvariabler <- function(df, var = ProsedyreDato){
+legg_til_tidsvariabler <- function(df, var = ProsedyreDato) {
 
-  message("Legger til variablene aar, uke, maaned, maaned_nr, kvartal og aar_uke")
+  message("Legger til variablene aar, uke, maaned,
+          maaned_nr, kvartal og aar_uke")
 
 
 
@@ -26,9 +27,10 @@ legg_til_tidsvariabler <- function(df, var = ProsedyreDato){
                                              format = "%Y-%m-%d"))),
 
     # Måned: månedsnr er tosifret; 01, 02, ....
-    maaned_nr = as.ordered(sprintf(fmt = "%02d",
-                                   lubridate::month(as.Date({{ var }},
-                                                            format = "%Y-%m-%d")))),
+    maaned_nr = as.ordered(sprintf(
+      fmt = "%02d",
+      lubridate::month(as.Date({{ var }}, format = "%Y-%m-%d")))),
+
     maaned = as.ordered(paste0(.data$aar,
                                "-",
                                .data$maaned_nr)),
@@ -40,9 +42,9 @@ legg_til_tidsvariabler <- function(df, var = ProsedyreDato){
     kvartal = as.ordered(gsub("[[:punct:]]", "-Q", .data$kvartal)),
 
      # Uketall:
-    uke = as.ordered(sprintf(fmt = "%02d",
-                             lubridate::isoweek(as.Date({{ var }},
-                                                        format = "%Y-%m-%d")))),
+    uke = as.ordered(sprintf(
+      fmt = "%02d",
+      lubridate::isoweek(as.Date({{ var }}, format = "%Y-%m-%d")))),
 
     # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
     # kalenderår:
@@ -62,10 +64,11 @@ legg_til_tidsvariabler <- function(df, var = ProsedyreDato){
       test = .data$uke %in% c("52", "53") & .data$maaned_nr == "01",
       # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
       # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
-      yes = paste0(as.integer(lubridate::year(as.Date({{ var }},
-                                                      format = "%Y-%m-%d"))) - 1,
-                   "-",
-                   .data$uke),
+      yes = paste0(
+        as.integer(lubridate::year(as.Date({{ var }},
+                                           format = "%Y-%m-%d"))) - 1,
+        "-",
+        .data$uke),
       no = .data$aar_uke),
 
     aar_uke = as.ordered(.data$aar_uke)
