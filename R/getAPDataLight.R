@@ -15,24 +15,10 @@
 getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
   dbType <- "mysql"
-  query <- "
-SELECT *
-FROM AngioPCIVar
-  "
 
-  if (singleRow) {
-    query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query metadata for AngioPCI pivot"
-  } else {
-    query <- paste0(query, ";")
-    msg <- "Query data for AngioPCI pivot"
-  }
-
-  if ("session" %in% names(list(...))) {
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-  }
-
-  aP_light <- rapbase::loadRegData(registryName, query, dbType)
+  aP_light <- rapbase::loadRegData(registryName,
+                                   query = "SELECT * FROM AngioPCIVar",
+                                   dbType)
 
   fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
@@ -40,47 +26,81 @@ FROM AngioPCIVar
                              query = "SELECT * FROM SegmentStent")
 
 
-  # Velger relevante variabler fra fO som skal legges til tabellen:
-  fO %<>%
-    dplyr::select(
-      # Nøkler:
-      .data$AvdRESH,
-      .data$PasientID,
-      .data$ForlopsID,
+  # Legger til variabler fra fO til aP
+  ap_light %<>%  dplyr::left_join(
+    x = .,
+    y = fO %>%
+      dplyr::select(
+        # Nøkler:
+        .data$AvdRESH,
+        .data$PasientID,
+        .data$ForlopsID,
 
-      # Variablene som legges til:
-      .data$Kommune,
-      .data$KommuneNr,
-      .data$Fylke,
-      .data$Fylkenr,
-      .data$PasientAlder,
-      .data$KobletForlopsID)
+        # Variablene som legges til:
+        .data$Kommune,
+        .data$KommuneNr,
+        .data$Fylke,
+        .data$Fylkenr,
+        .data$PasientAlder,
+        .data$KobletForlopsID),
+    by = c("AvdRESH","PasientID","ForlopsID"))
 
-  # Legger til variabler fra fO til aP:
-  ap_light <- dplyr::left_join(aP, fO, by = c("AvdRESH",
-                                              "PasientID",
-                                              "ForlopsID"))
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+  ap_light %<>% noric::fjerne_tulleregistreringer(df = .,
+                                                  var = .data$ProsedyreData)
 
-
-
-  # Legger til utledete variabler fra segment Stent til ap_light
-  ap_light %<>% legg_til_antall_stent(df_ap = ., df_ss = sS)
-
-  ap_light %<>% legg_til_pci_per_kar(df_ap = ., df_ss = sS)
-
-
-   # Gjor datoer om til dato-objekt:
+  # Gjor datoer om til dato-objekt:
   ap_light %<>%
     dplyr::mutate_at(
-      vars(ends_with("dato", ignore.case = TRUE)), list(ymd))
+      vars(ends_with("dato", ignore.case = TRUE)),
+      list(ymd))
+
+  # Utledete tidsvariabler (aar, maaned, uke osv):
+  ap_light %<>% noric::legg_til_tidsvariabler(df = .,
+                                              var = .data$ProsedyreDato)
 
 
   # Endre Sykehusnavn til kortere versjoner:
-  ap_light %<>% noric::fikse_sykehusnavn()
+  ap_light %<>% noric::fikse_sykehusnavn(df = .)
 
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
-  # "tøyseregistreringer")
-  ap_light %<>% noric::fjerne_tulleregistreringer(., var = .data$ProsedyreData)
+
+  # Utlede variabler for ferdigstilt eller ikke
+  ap_light %<>%
+    noric::utlede_ferdigstilt(df = .,
+                              var = SkjemaStatusStart,
+                              suffix = "StartSkjema") %>%
+
+    noric::utlede_ferdigstilt(df = .,
+                              var = SkjemastatusHovedskjema,
+                              suffix = "HovedSkjema") %>%
+
+    noric::utlede_ferdigstilt(df = .,
+                              var = SkjemaStatusUtskrivelse,
+                              suffix = "UtskrSkjema") %>%
+
+    noric::utlede_ferdigstilt(df = .,
+                              var = SkjemaStatusKomplikasjoner,
+                              suffix = "KomplikSkjema")
+
+  # Utlede aldersklasser
+  ap_light %<>%
+    utlede_aldersklasse(df = .,
+                        var = .data$PasientAlder) %>%
+    relocate(.data$aldersklasse,
+             .after = .data$PasientAlder)
+
+  # Legger til utledete variabler fra segment Stent til ap_light
+  ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
+                                             df_ss = sS)
+
+  ap_light %<>% noric::legg_til_pci_per_kar(df_ap = .,
+                                            df_ss = sS)
+
+
+  # Legger til utledete varibler fra Annen Diagnostikk-tabellen
+
+
 
 
   # Gjøre kategoriske variabler om til factor:
@@ -92,31 +112,6 @@ FROM AngioPCIVar
                                     "Subakutt",
                                     "Planlagt"),
                          ordered = TRUE))
-
-
-  # Utledete tidsvariabler (aar, maaned, uke osv):
-  ap_light %<>% legg_til_tidsvariabler(., var = .data$ProsedyreDato)
-
-
-  # Utlede aldersklasser
-  ap_light %<>% utlede_aldersklasse(., var = .data$PasientAlder) %>%
-    relocate(.data$aldersklasse,
-             .after = .data$PasientAlder)
-
-
-  # Utlede variabler for ferdigstilt eller ikke
-  ap_light %<>%
-    utlede_ferdigstilt(., var = SkjemaStatusStart,
-                       suffix = "StartSkjema") %>%
-    utlede_ferdigstilt(., var = SkjemastatusHovedskjema,
-                       suffix = "HovedSkjema") %>%
-    utlede_ferdigstilt(., var = SkjemaStatusUtskrivelse,
-                       suffix = "UtskrSkjema") %>%
-    utlede_ferdigstilt(., var = SkjemaStatusKomplikasjoner,
-                       suffix = "KomplikSkjema")
-
-
-  # Legge til utledete variabler fra segment stent
 
   return(ap_light)
 }
