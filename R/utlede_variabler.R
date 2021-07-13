@@ -10,7 +10,7 @@
 #' @return data.frame with new variable
 #'
 #' @export
-#' @example
+#' @examples
 #' df <-  data.frame(age = c(10,20,59,60, NA, 61,69,70,99,100))
 #' df %>% utlede_aldersklasse(., var = age)
 utlede_aldersklasse <- function(df, var = PasientAlder) {
@@ -36,7 +36,7 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
 #' @return data.frame with new variable
 #'
 #' @export
-#' @example
+#' @examples
 #' x <- data.frame(SkjemaStatusStart = c(-1,-1,0,0,1,-1,0,1,NA),
 #'                 SkjemastatusHovedskjema = rep(0,9),
 #'                 SkjemaStatusUtskrivelse = rep(-1,9),

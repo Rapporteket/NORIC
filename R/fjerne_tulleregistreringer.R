@@ -9,7 +9,7 @@
 #'
 #' @return data.frame where old procedures are removed
 #' @export
-#' @example
+#' @examples
 #' x <- data.frame(AvdRESH = c(rep(102966,3), rep(109880,3)),
 #'                 ProsedyreDato = rep(c("2012-01-31",
 #'                                       "2013-02-28",

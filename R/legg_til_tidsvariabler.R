@@ -6,6 +6,7 @@
 #'
 #' @return `df` data.frame with new variables added
 #' @export
+#' @examples
 #' \dontrun{
 #' # FOR AP, AK and CT-data:
 #' AP %<>% legg_til_tidsvariabler(., var = ProsedyreDato)

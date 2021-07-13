@@ -5,7 +5,7 @@
 #' if `Sykehusnavn` already existed if `df`
 #'
 #' @export
-#' @example
+#' @examples
 #' x <- data.frame(AvdRESH = c(108141, 109880, NA, 123, 105502))
 #' x %>% fikse_sykehusnavn()
 #'
