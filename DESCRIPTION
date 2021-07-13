@@ -50,7 +50,8 @@ Imports:
   tidyselect,
   xtable,
   yaml, 
-  testthat
+  testthat, 
+  tidyr
 Remotes:
   Rapporteket/rapbase,
   andrewsali/shinycssloaders
