@@ -11,10 +11,11 @@ test_that("Number of stents is correct", {
                                       "A", "B"))
 
   # If two stents + one missing, total number of stents should be 2
-  testthat::expect_equal(legg_til_antall_stent(ap = test_ap, ss = test_ss) %>%
-                           dplyr::filter(ForlopsID == 1) %>%
-                           dplyr::pull(antall_stent),
-                         2)
+  testthat::expect_equal(
+    object = legg_til_antall_stent(ap = test_ap, ss = test_ss) %>%
+               dplyr::filter(ForlopsID == 1) %>%
+               dplyr::pull(antall_stent),
+    expected = 2)
 
   # If no information on segment-level : value should be NA
   testthat::expect_true(legg_til_antall_stent(ap = test_ap, ss = test_ss) %>%
@@ -61,35 +62,41 @@ test_that("Testing utlede_kar_segmen_stent is correct", {
   testthat::expect_equal(c(23, 5), dim(x))
   testthat::expect_true("kar" %in% names(x))
 
-  testthat::expect_equal(rep("RCA", 7),
-                         x %>%
-                           dplyr::filter(Segment %in% c(1, 2, 3, 4, 18, 19),
-                                         !Graft %in% c("Arteriell", "Vene")) %>%
-                           dplyr::pull(kar))
+  testthat::expect_equal(
+    expected = rep("RCA", 7),
+    object = x %>%
+               dplyr::filter(Segment %in% c(1, 2, 3, 4, 18, 19),
+                             !Graft %in% c("Arteriell", "Vene")) %>%
+               dplyr::pull(kar) %>%
+               as.character())
 
   testthat::expect_equal(rep("LAD", 6),
                          x %>%
                            dplyr::filter(Segment %in% c(6, 7, 8, 9, 10, 20),
                                          !Graft %in% c("Arteriell", "Vene")) %>%
-                           dplyr::pull(kar))
+                           dplyr::pull(kar) %>%
+                           as.character())
 
   testthat:: expect_equal(rep("CX", 7),
                           x %>%
                             dplyr::filter(Segment %in%
                                             c(11, 12, 13, 14, 15, 16, 17),
                                           !Graft %in% c("Arteriell", "Vene")) %>%
-                            dplyr::pull(kar))
+                            dplyr::pull(kar) %>%
+                            as.character())
 
   testthat::expect_equal(rep("LMS", 1),
                          x %>%
                            dplyr::filter(Segment == 5,
                                          !Graft %in% c("Arteriell", "Vene")) %>%
-                           dplyr::pull(kar))
+                           dplyr::pull(kar) %>%
+                           as.character())
 
   testthat::expect_equal(rep("Graft", 2),
                          x %>%
                            dplyr::filter(Graft %in% c("Arteriell", "Vene")) %>%
-                           dplyr::pull(kar))
+                           dplyr::pull(kar) %>%
+                           as.character())
 
 
   })
@@ -130,7 +137,8 @@ test_that("Testing utlede_kar_graft_segment_stent is correct", {
                          x %>%
                            dplyr::filter(Segment == 5,
                                          !Graft %in% c("Arteriell", "Vene")) %>%
-                           dplyr::pull(kar_graft))
+                           dplyr::pull(kar_graft) %>%
+                           as.character())
 
 
   testthat::expect_true(all(is.na(

@@ -115,4 +115,6 @@ FROM AngioPCIVar
 
 
   # Legge til utledete variabler fra segment stent
+
+  return(ap_light)
 }

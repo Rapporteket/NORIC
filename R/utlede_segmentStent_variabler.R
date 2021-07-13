@@ -31,14 +31,14 @@ legg_til_antall_stent <- function(ap, ss) {
     dplyr::group_by(.data$AvdRESH) %>%
     dplyr::count(.data$ForlopsID,
                  wt = !is.na(.data$StentType)) %>%
-    rename("antall_stent" = .data$n)
+    dplyr::rename("antall_stent" = .data$n)
 
 
   ap %>%
     dplyr::left_join(.,
                      ant_stent,
                      by = c("AvdRESH", "ForlopsID")) %>%
-    arrange(.data$AvdRESH, .data$ForlopsID)
+    dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
 }
 
 
@@ -114,7 +114,7 @@ utlede_kar_graft_segment_stent <- function(df = ss) {
   }
 
   df %>%
-    dplyr::mutate(kar_graft = factor(case_when(
+    dplyr::mutate(kar_graft = factor(dplyr::case_when(
       .data$Segment %in% c(1, 2, 3, 4, 18, 19) &
         .data$Graft == "Nei" ~ "RCA",
       .data$Segment == 5 &
@@ -231,7 +231,7 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
     # datasettet SS (finner dem med funksjonen nesting),
     # komplettes manglende nivåer av kar_graft med verdien "nei"
     tidyr::complete(.data$kar_graft,
-                    nesting(ForlopsID, AvdRESH),
+                    tidyr::nesting(ForlopsID, AvdRESH),
                     fill = list(pci_kar = "nei")) %>%
 
     # format med en rad per variabel:

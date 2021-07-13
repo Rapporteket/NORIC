@@ -1,4 +1,4 @@
-test_that("Sykehusnavn is as testthat::expected", {
+test_that("Sykehusnavn is as expected", {
 
   x <- data.frame(AvdRESH = c(108141,
                               102966,
@@ -11,18 +11,18 @@ test_that("Sykehusnavn is as testthat::expected", {
                               109880,
                               101619))
 
-  testthat::expect_equal(all(
-    fikse_sykehusnavn(x)[, 2],
-    c("Ahus Nordbyhagen",
-      "HUS",
-      "AHUS Gardermoen",
-      "NLSH Bodø",
-      "OUS Rikshospitalet",
-      "SSHF Arendal",
-      "St.Olavs hospital",
-      "SUS",
-      "OUS Ullevål",
-      "UNN Tromsø")))
+  testthat::expect_equal(
+    object = fikse_sykehusnavn(x)[, 2],
+    expected = c("Ahus Nordbyhagen",
+                 "HUS",
+                 "AHUS Gardermoen",
+                 "NLSH Bodø",
+                 "OUS Rikshospitalet",
+                 "SSHF Arendal",
+                 "St.Olavs hospital",
+                 "SUS",
+                 "OUS Ullevål",
+                 "UNN Tromsø"))
 })
 
 

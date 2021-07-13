@@ -17,7 +17,7 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
   df %>%
     dplyr::mutate(
       aldersklasse = cut(
-        replace_na({{var}}, replace = 0),
+        tidyr::replace_na({{var}}, replace = 0),
         breaks = c(18, 49, 59, 69, 79, 89, 99),
         include.lowest = TRUE,
         labels = c("18-49", "50-59", "60-69", "70-79", "80-89", "90-99"),
