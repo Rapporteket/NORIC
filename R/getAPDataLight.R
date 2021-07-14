@@ -87,8 +87,8 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   ap_light %<>%
     utlede_aldersklasse(df = .,
                         var = .data$PasientAlder) %>%
-    relocate(.data$aldersklasse,
-             .after = .data$PasientAlder)
+    dplyr::relocate(.data$aldersklasse,
+                    .after = .data$PasientAlder)
 
   # Legger til utledete variabler fra segment Stent til ap_light
   ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
