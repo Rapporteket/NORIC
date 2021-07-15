@@ -35,8 +35,8 @@
 legg_til_tidsvariabler <- function(df, var = ProsedyreDato) {
 
 
-  df %>% dplyr::mutate(
-
+  dplyr::mutate(
+    df,
 
     # Kalenderår for ProsedyreDato:
     aar = as.ordered(lubridate::year(as.Date({{ var }},
