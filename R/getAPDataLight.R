@@ -25,6 +25,8 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   sS <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM SegmentStent")
 
+  aD <- rapbase::loadRegData(registryName,
+                             query = "SELECT * FROM AnnenDiag")
 
   # Legger til variabler fra fO til aP
   ap_light %<>%  dplyr::left_join(
@@ -99,6 +101,8 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
 
   # Legger til utledete varibler fra Annen Diagnostikk-tabellen
+  ap_light %<>% noric::legg_til_ffr_per_kar(df_ap = .,
+                                            df_ad = aD)
 
 
 
