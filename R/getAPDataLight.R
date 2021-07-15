@@ -124,5 +124,13 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                     "Planlagt"),
                          ordered = TRUE))
 
+
+  # Redusere dimensjonen av tabell
+ aP_light %<>% dplyr::select(
+   - FodselsDato,
+   - PasientRegDato,
+   - Studie,
+   - contains("SEGMENT")
+ )
   return(ap_light)
 }
