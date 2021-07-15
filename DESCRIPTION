@@ -47,15 +47,16 @@ Imports:
   shiny,
   shinyalert,
   shinycssloaders,
+  tidyr,
   tidyselect,
   xtable,
-  yaml, 
-  testthat, 
-  tidyr
+  yaml
 Remotes:
   Rapporteket/rapbase,
   andrewsali/shinycssloaders
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Suggests: 
-    covr
+    covr, 
+    testthat
+
