@@ -16,9 +16,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
 
   aP_light <- rapbase::loadRegData(registryName,
-                                   query = "SELECT * FROM AngioPCIVar",
-                                   dbType)
-
+                                   query = "SELECT * FROM AngioPCIVar")
   fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
   sS <- rapbase::loadRegData(registryName,

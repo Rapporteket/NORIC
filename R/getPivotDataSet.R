@@ -18,10 +18,15 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   # declare dot
   . <- ""
 
-  validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS",
-                  "SO", "SS")
+  validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
+                  "MK", "PS", "SO", "SS")
 
   if (setId %in% validSetId) {
+    if (setId == "ApLight") {
+      dat <- noric::getAPDataLight(registryName, singleRow = singleRow,
+                                    session = session)
+    }
+
     if (setId == "AnP") {
       dat <- noric::getLocalAnPData(registryName, singleRow = singleRow,
                                     session = session)
