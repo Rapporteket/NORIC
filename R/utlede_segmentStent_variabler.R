@@ -1,16 +1,95 @@
-#' Add number of stents per procedure in AP-dataset
+#' New variables from NORIC's SementStent-table
 #'
-#' @param df_ap Angio PCI dataset where new variable `antall_stent` should be
-#' added. Must contain the variables `AvdRESH` and `ForlopsID`,
-#' @param df_ss segment stent dataset where `antall_stent` is calculated from.
-#' Must contain the variables `AvdRESH`, `ForlopsID` and `StentType`
-#' @return data.frame with one new variable
-#' @export
+#' Functions for creating variables based on NORIC's \emph{SegmentStent}-table
+#' and for merging these variables into NORIC's \emph{AngioPCIVar}-table by key
+#' variables \code{ForlopsID} and \code{AvdRESH}.
+#'
+#' The function \code{legg_til_antall_stent()} counts the number of non-missing
+#' stent-types for each procedure in \code{df_ss}. The variable
+#'  \code{antall_stent} is then added in \code{df_ap} before \code{df_ap} is
+#'  returned. For procedures with no entries in \code{df_ss},
+#'  \code{antall_stent} has the value <NA>.
+#'
+#' The function \code{utlede_kar_segment_stent()} groups the
+#' \code{Segments} in \code{df_ss} into coronary arteries in the new variable
+#' \code{kar}, then \code{df_ss} is returned from the function.
+#'
+#' The function \code{utlede_kar_graft_segment_stent()} groups the
+#' \code{Segments} and \code{Grafts} in \code{df_ss} into coronary arteries
+#' and/or grafts in the new variable \code{kar_graft}, then \code{df_ss} is
+#' returned from the function.
+
+#'
+#' The function \code{legg_til_pci_per_kar()} uses the data in \code{df_ss} to
+#' calculate 10 new variables. Variable names are prefixed by \code{PCI_} and
+#' suffixed by level of \code{kar_graft} (p.ex.: \code{PCI_LAD}, \code{PCI_CX},
+#' \code{PCI_CX_veneGraft}, \code{PCI_CX_arterieGraft}). The variables indicates
+#' whether or not a PCI is performed in each \code{kar_graft}. If at least one
+#' PCI is done in a \code{kar_graft} the value of the corresponding variable is
+#' \emph{ja}, otherwise the value is \emph{nei}. These 10 variables are then
+#' merged into \code{df_ap}, before \code{df_ap} is returned from the function.
+#' For procedures where no PCI's are done on segment-level (e.g. no entries
+#' available in \code{df_ss}), the values for the 10 new variables are <NA>.
+#' Procedures of type \emph{wireforsoek} are not counted.
+#'
+#'
+#'
+#' @param df_ap NORICS's \emph{AngioPCIVar}-table. Must contain the variables
+#'  \code{AvdRESH} and \code{ForlopsID}.
+#' @param df_ss NORICS's \emph{SegmentStent}-table. Must contain the variables
+#' \code{AvdRESH} and \code{ForlopsID}. Additionally, the variable
+#' \code{StentType} is mandatory in the function \code{legg_til_antall_stent()}
+#' and the variables \code{Segment}, \code{Graft} and \code{ProsedyreType} are
+#' mandatory in the functions \code{utlede_kar_segment_stent},
+#' \code{utlede_kar_graft_segment_stent} and \code{legg_til_pci_per_kar()}.
+#'
+#' @name utlede_segmentStent_variabler
+#' @aliases
+#' legg_til_antall_stent
+#' utlede_kar_segment_stent
+#' utlede_kar_graft_segment_stent
+#' legg_til_pci_per_kar
+#'
+#'
 #'
 #' @examples
-#' \dontrun{
-#' AP %>% legg_til_antall_stent(., df_ss = SS)
-#' }
+#' df_ap <- data.frame(ForlopsID = 1:5,
+#'                     AvdRESH = rep(1,5))
+#'
+#' # Legg til antall stent
+#' df_ss <- data.frame(
+#'   ForlopsID = c(1, 3, 3, 3, 5, 5),
+#'   AvdRESH = rep(1,6),
+#'   Segment = 1:6,
+#'   StentType = c("DES",
+#'                 "BMS", "DES", "Annet",
+#'                 NA, NA))
+#' legg_til_antall_stent(df_ap = df_ap, df_ss = df_ss)
+#'
+#' df_ss <- data.frame(ForlopsID = 1:23,
+#'                     AvdRESH = rep(1,23),
+#'                     Segment = c(1:20, 1:3),
+#'                     Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
+#' utlede_kar_segment_stent(df_ss)
+#' utlede_kar_graft_segment_stent(df_ss)
+#'
+#'
+#' df_ss <- data.frame(ForlopsID = c(1,2,3,3,3),
+#'                     AvdRESH = rep(1,5),
+#'                     Segment = c(1,5,10,12,13),
+#'                     Graft = c(rep("Nei", 3),
+#'                               rep("Arteriell", 1),
+#'                               rep("Vene", 1)),
+#'                     ProsedyreType = c("Ballong + Stent",
+#'                                       "Wireforsøk",
+#'                                       "Rotablator",
+#'                                       "Wireforsøk",
+#'                                       "Direktestent"))
+#' legg_til_pci_per_kar(df_ap = df_ap, df_ss = df_ss)
+NULL
+
+#' @rdname utlede_segmentStent_variabler
+#' @export
 legg_til_antall_stent <- function(df_ap, df_ss) {
 
   if (!all(c("AvdRESH", "ForlopsID") %in% names(df_ap))) {
@@ -21,10 +100,7 @@ legg_til_antall_stent <- function(df_ap, df_ss) {
     stop("ss must contain variables AvdRESH + ForlopsID + StentType")
   }
 
-  message("Legger til variabelen antall_stent...")
-
-    # In SS-dataset : Count number of non-missing entries in StentType for each
-  # procedure
+  # Count number of non-missing entries in StentType for each procedure
   ant_stent <- df_ss %>%
     dplyr::select(.data$AvdRESH, .data$ForlopsID, .data$StentType) %>%
     dplyr::arrange(., .data$AvdRESH)  %>%
@@ -33,11 +109,10 @@ legg_til_antall_stent <- function(df_ap, df_ss) {
                  wt = !is.na(.data$StentType)) %>%
     dplyr::rename("antall_stent" = .data$n)
 
-
-  df_ap %>%
-    dplyr::left_join(.,
-                     ant_stent,
-                     by = c("AvdRESH", "ForlopsID")) %>%
+  # Add new variable to df_ap before returning df_ap
+  dplyr::left_join(df_ap,
+                   ant_stent,
+                   by = c("AvdRESH", "ForlopsID")) %>%
     dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
 }
 
@@ -46,75 +121,50 @@ legg_til_antall_stent <- function(df_ap, df_ss) {
 
 
 
-#' Add variable `kar` to NORIC segment-stent-table
-#' Based on variables `Segment` and `Graft`
-#'
-#' @param df_ss segment-stent table, must contain variables `ForlopsID`,
-#' `AVdRESH`, `Segment` and `Graft`
-#'
-#' @return segment-stent-table with one new variable
+#' @rdname utlede_segmentStent_variabler
 #' @export
-#'
-#' @examples
-#' x <- data.frame(ForlopsID = 1:23,
-#'                 AvdRESH = rep(1,23),
-#'                 Segment = c(1:20, 1:3),
-#'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
-#' x %>% utlede_kar_segment_stent(.)
-utlede_kar_segment_stent <- function(df = ss) {
+utlede_kar_segment_stent <- function(df_ss) {
 
 
   # Must contain matching-variables + variables needed for calculations
-  if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df))) {
+  if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df_ss))) {
     stop("df must contain variables ForlopsID, AVdRESH, Segment and Graft")
   }
 
-  df %>%
-    dplyr::mutate(
-      kar = factor(dplyr::case_when(
-        .data$Graft %in% c("Arteriell", "Vene") ~ "Graft",
-        .data$Segment %in% c(1, 2, 3, 4, 18, 19) ~ "RCA",
-        .data$Segment == 5 ~ "LMS",
-        .data$Segment %in% c(6, 7, 8, 9, 10, 20) ~ "LAD",
-        .data$Segment %in% c(11, 12, 13, 14, 15, 16, 17) ~ "CX"),
-        levels = c("LMS",
-                   "LAD",
-                   "RCA",
-                   "CX",
-                   "Graft")))
+  dplyr::mutate(
+    df_ss,
+
+    kar = factor(dplyr::case_when(
+      .data$Graft %in% c("Arteriell", "Vene") ~ "Graft",
+      .data$Segment %in% c(1, 2, 3, 4, 18, 19) ~ "RCA",
+      .data$Segment == 5 ~ "LMS",
+      .data$Segment %in% c(6, 7, 8, 9, 10, 20) ~ "LAD",
+      .data$Segment %in% c(11, 12, 13, 14, 15, 16, 17) ~ "CX"),
+      levels = c("LMS",
+                 "LAD",
+                 "RCA",
+                 "CX",
+                 "Graft")))
 }
 
 
 
 
-#' Add variable `kar_graft` to NORIC segment-stent-table
-#' Based on variables `Segment` and `Graft`. More detailed than
-#' utlede_kar_segment_stent(), here also `Graft` is detailed for each level
-#' of `kar`.
-#'
-#' @param df_ss segment-stent table, must contain variables `ForlopsID`,
-#' `AVdRESH`, `Segment` and `Graft`
-#'
-#' @return segment-stent-table with one new variable
+#' @rdname utlede_segmentStent_variabler
 #' @export
-#'
-#' @examples
-#' x <- data.frame(ForlopsID = 1:23,
-#'                 AvdRESH = rep(1,23),
-#'                 Segment = c(1:20, 1:3),
-#'                 Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
-#' x %>% utlede_kar_graft_segment_stent(.)
-
-utlede_kar_graft_segment_stent <- function(df = ss) {
+utlede_kar_graft_segment_stent <- function(df_ss) {
 
 
   # Must contain matching-variables + variables needed for calculations
-  if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df))) {
+  if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft") %in% names(df_ss))) {
     stop("df must contain variables ForlopsID, AVdRESH, Segment and Graft")
   }
 
-  df %>%
-    dplyr::mutate(kar_graft = factor(dplyr::case_when(
+
+  dplyr::mutate(
+    df_ss,
+
+    kar_graft = factor(dplyr::case_when(
       .data$Segment %in% c(1, 2, 3, 4, 18, 19) &
         .data$Graft == "Nei" ~ "RCA",
       .data$Segment == 5 &
@@ -157,58 +207,27 @@ utlede_kar_graft_segment_stent <- function(df = ss) {
 
 
 
-#' Add PCI variables per level of kar_graft in AP-data
-#'
-#' Add 10 new variables, all prefixed by "PCI_" and suffixed by level of
-#' `kar_graft` (e.g. PCI_LAD, PCI_CX, PCI_CX_veneGraft, PCI_CX_arterieGraft).
-#' Counts number of rows in Segment-stent data per procedure and per
-#' level of `kar_graft`, removing "wireforsøk". If n=0 (only wireforsøk) all
-#' 10 new variables are given value "nei". If n>1 for one or more levels for
-#' `kar_graft` these variables are given value "ja", remaining variables are
-#' given value "nei". In procedures with zero rows in stent-data, all new
-#' variables are given value `NA`.
-#'
-#' @param df_ap AP data where new variables should be added
-#' @param df_ss SS-data used to calculate 10 new variables
-#'
-#' @return `df_ap` with 10 new columns.
+#' @rdname utlede_segmentStent_variabler
 #' @export
-#'
-#' @examples
-#'   ap <- data.frame(ForlopsID = 1:5,
-#'                    AvdRESH = rep(1,5))
-#'
-#'   ss <- data.frame(ForlopsID = c(1,2,3,3,3),
-#'                    AvdRESH = rep(1,5),
-#'                    Segment = c(1,5,10,12,13),
-#'                    Graft = c(rep("Nei", 3),
-#'                              rep("Arteriell", 1),
-#'                              rep("Vene", 1)),
-#'                    ProsedyreType = c("Ballong + Stent",
-#'                                      "Wireforsøk",
-#'                                      "Rotablator",
-#'                                      "Wireforsøk",
-#'                                      "Direktestent"))
-#'   ap %>% legg_til_pci_per_kar(., df_ss = ss)
 legg_til_pci_per_kar <- function(df_ap, df_ss) {
 
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "ProsedyreType") %in%
-          names(df_ss))) {
+           names(df_ss))) {
     stop("df_ss must contain variables ForlopsID, AvdRESH, Segment Graft
          and ProsedyreType")
   }
 
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH") %in%
-          names(df_ap))) {
-    stop("df_ap must contain variables ForlopsID and AvsRESH")
+           names(df_ap))) {
+    stop("df_ap must contain variables ForlopsID and AvdRESH")
   }
 
   ss_wide_pci <- df_ss %>%
 
     # Legge til variabel kar_graft
-    utlede_kar_graft_segment_stent(.) %>%
+    noric::utlede_kar_graft_segment_stent(.) %>%
     dplyr::select(.data$ForlopsID,
                   .data$AvdRESH,
                   .data$kar_graft,
@@ -221,9 +240,9 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
     dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
                  wt = .data$ProsedyreType != "Wireforsøk") %>%
     dplyr::mutate(pci_kar = ifelse(
-                  test = .data$n > 0,
-                  yes = "ja",
-                  no = "nei")) %>%
+      test = .data$n > 0,
+      yes = "ja",
+      no = "nei")) %>%
     dplyr::select(- .data$n) %>%
     dplyr::distinct() %>%
 
@@ -257,8 +276,8 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
 
   # Legg til 10 nye variabler i AP. Forløp i AP som ikke har rader i SS,
   # vil få verdien NA for de nye kolonnene.
-  df_ap %>% dplyr::left_join(.,
-                             ss_wide_pci,
-                             by = c("AvdRESH", "ForlopsID"))
+  dplyr::left_join(df_ap,
+                   ss_wide_pci,
+                   by = c("AvdRESH", "ForlopsID"))
 
 }
