@@ -18,32 +18,37 @@ test_that("Number of stents is correct", {
     expected = 2)
 
   # If no information on segment-level : value should be NA
-  testthat::expect_true(legg_til_antall_stent(df_ap = test_ap, df_ss = test_ss) %>%
+  testthat::expect_true(legg_til_antall_stent(df_ap = test_ap,
+                                              df_ss = test_ss) %>%
                           dplyr::filter(ForlopsID == 2) %>%
                           dplyr::pull(antall_stent) %>%
                           is.na())
 
 
   # If one stent , total number of stents should be 1
-  testthat::expect_equal(legg_til_antall_stent(df_ap = test_ap, df_ss = test_ss) %>%
+  testthat::expect_equal(legg_til_antall_stent(df_ap = test_ap,
+                                               df_ss = test_ss) %>%
                            dplyr::filter(ForlopsID == 3) %>%
                            dplyr::pull(antall_stent),
                          1)
 
   # If only missing StentType , total number of stents should be 0
-  testthat::expect_equal(legg_til_antall_stent(df_ap = test_ap, df_ss = test_ss) %>%
+  testthat::expect_equal(legg_til_antall_stent(df_ap = test_ap,
+                                               df_ss = test_ss) %>%
                            dplyr::filter(ForlopsID == 5) %>%
                            dplyr::pull(antall_stent),
                          0)
 
   # If different 2 values for StentType, total number of stents should be 2
-  testthat::expect_equal(legg_til_antall_stent(df_ap = test_ap, df_ss = test_ss) %>%
+  testthat::expect_equal(legg_til_antall_stent(df_ap = test_ap,
+                                               df_ss = test_ss) %>%
                            dplyr::filter(ForlopsID == 6) %>%
                            dplyr::pull(antall_stent),
                          2)
 
   # Number of columns should be 3
-  testthat::expect_equal(legg_til_antall_stent(df_ap = test_ap, df_ss = test_ss) %>%
+  testthat::expect_equal(legg_til_antall_stent(df_ap = test_ap,
+                                               df_ss = test_ss) %>%
                            ncol(),
                          3)
 
@@ -79,16 +84,17 @@ test_that("utlede_kar_segmen_stent is correct", {
 
   testthat:: expect_equal(rep("CX", 7),
                           x %>%
-                            dplyr::filter(Segment %in%
-                                            c(11, 12, 13, 14, 15, 16, 17),
-                                          !Graft %in% c("Arteriell", "Vene")) %>%
+                            dplyr::filter(
+                              Segment %in% c(11, 12, 13, 14, 15, 16, 17),
+                              !Graft %in% c("Arteriell", "Vene")) %>%
                             dplyr::pull(kar) %>%
                             as.character())
 
   testthat::expect_equal(rep("LMS", 1),
                          x %>%
-                           dplyr::filter(Segment == 5,
-                                         !Graft %in% c("Arteriell", "Vene")) %>%
+                           dplyr::filter(
+                             Segment == 5,
+                             !Graft %in% c("Arteriell", "Vene")) %>%
                            dplyr::pull(kar) %>%
                            as.character())
 

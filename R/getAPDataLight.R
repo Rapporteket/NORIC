@@ -69,19 +69,19 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # Utlede variabler for ferdigstilt eller ikke
   ap_light %<>%
     noric::utlede_ferdigstilt(df = .,
-                              var = SkjemaStatusStart,
+                              var = .data$SkjemaStatusStart,
                               suffix = "StartSkjema") %>%
 
     noric::utlede_ferdigstilt(df = .,
-                              var = SkjemastatusHovedskjema,
+                              var = .data$SkjemastatusHovedskjema,
                               suffix = "HovedSkjema") %>%
 
     noric::utlede_ferdigstilt(df = .,
-                              var = SkjemaStatusUtskrivelse,
+                              var = .data$SkjemaStatusUtskrivelse,
                               suffix = "UtskrSkjema") %>%
 
     noric::utlede_ferdigstilt(df = .,
-                              var = SkjemaStatusKomplikasjoner,
+                              var = .data$SkjemaStatusKomplikasjoner,
                               suffix = "KomplikSkjema")
 
   # Utlede aldersklasser

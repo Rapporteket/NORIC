@@ -50,7 +50,7 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
 #'  suffix = "komplikSkjema")
 
 utlede_ferdigstilt <- function(df,
-                               var = SkjemaStatusStart,
+                               var = .data$SkjemaStatusStart,
                                suffix = "startSkjema") {
 
   df %>%  dplyr::mutate(
