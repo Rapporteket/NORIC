@@ -1,23 +1,37 @@
-#' Add time variables in data frame
-#' Year, month, quarter, week..
+#' Add time-variables
 #'
-#' @param df data.frame where variables should be added
-#' @param var variable in format "%Y-%m-%d".
+#' The function \code{legg_til_tidsvariabler()} creates six time-variables, \code{aar},
+#' \code{maaned_nr}, \code{maaned}, \code{kvartal}, \code{uke}, \code{aar_uke},
+#' based on a given date-column (\code{var}) of input data.frame \code{df}. Then these new variables
+#' are added to \code{df} before the entire data.frame is returned.
 #'
-#' @return `df` data.frame with new variables added
-#' @export
+#' @param df data.frame from any NORIC-table. Must contain a variable
+#' in date-format.
+#' @param var name of variable in date-format that should be used to
+#' calculate the new variables.
+#'
+#' @return The input data.frame \code{df} is returned as it is, with six new columns,
+#' one for each time-variable.
+#'
 #' @examples
+#' df <- data.frame(
+#'    datoVariabel = c("2021-02-28",
+#'                     "2013-09-15",
+#'                     "2020-05-31",
+#'                     "2015-12-12",
+#'                     "2016-12-31",
+#'                     "2016-01-01" ))
+#' legg_til_tidsvariabler(df = df,
+#'                        var = datoVariabel)
+#'
 #' \dontrun{
-#' # FOR AP, AK and CT-data:
-#' AP %<>% legg_til_tidsvariabler(., var = ProsedyreDato)
-#' AK %<>% legg_til_tidsvariabler(., var = ProsedyreDato)
-#' CT %<>% legg_til_tidsvariabler(., var = HovedDatp)
+#' # FOR NORIC's ap, ak and ct-tables:
+#' legg_til_tidsvariabler(ap, var = ProsedyreDato)
+#' legg_til_tidsvariabler(ak, var = ProsedyreDato)
+#' legg_til_tidsvariabler(ct, var = UndersokDato)
 #' }
+#' @export
 legg_til_tidsvariabler <- function(df, var = ProsedyreDato) {
-
-  message("Legger til variablene aar, uke, maaned,
-          maaned_nr, kvartal og aar_uke")
-
 
 
   df %>% dplyr::mutate(
