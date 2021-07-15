@@ -100,9 +100,19 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
 
   # Legger til utledete varibler fra Annen Diagnostikk-tabellen
-  ap_light %<>% noric::legg_til_ffr_per_kar(df_ap = .,
-                                            df_ad = aD)
-
+  ap_light %<>%
+    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
+                                        df_ad = aD,
+                                        metodeType = "FFR") %>%
+    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
+                                        df_ad = aD,
+                                        metodeType = "iFR") %>%
+    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
+                                        df_ad = aD,
+                                        metodeType = "IVUS") %>%
+    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
+                                        df_ad = aD,
+                                        metodeType = "OCT") %>%
 
 
 

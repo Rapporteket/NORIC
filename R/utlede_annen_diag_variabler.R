@@ -8,10 +8,13 @@
 #' \code{segments} in \code{df_ad} into coronary arteries in the new variable
 #' \code{kar}, then \code{df_ad} is returned from the function.
 #'
-#' The function \code{legg_til_ffr_per_kar()} uses the data in \code{df_ad} to
-#' calculate 5 new variables, \code{FFR_LMS}, \code{FFR_LAD}, \code{FFR_RCA},
-#' \code{FFR_CX} and \code{FFR_Graft}, who says whether or not a FFR measure
-#' is performed in each \code{kar}. If at least one FFR measure is done in a
+#' The function \code{legg_til_trykk_bilde_per_kar()} uses the data in
+#' \code{df_ad} to calculate 5 new variables, where variable names prefix is
+#' type of method (one of: "FFR", "iFR", "IVUS" or "OCT") and suffix is each
+#' level of \code{kar} (p.ex. if metode is 'FFR' then variables are
+#'  \code{FFR_LAD}, \code{FFR_RCA}, \code{FFR_CX} and \code{FFR_Graft}).
+#' The variable says whether or not a measure of this method
+#' is performed in each \code{kar}. If at least one measure is done in a
 #' \code{kar} the value of the corresponding variable is given the value
 #' \emph{ja}, otherwise the value is \emph{nei}. These 5 variables are then
 #' merged into \code{df_ap}, before \code{df_ap} is returned from the function.
@@ -25,9 +28,15 @@
 #' @param df_ap NORIC's \emph{AngioPCIVar}-table, must contain variables
 #' \code{ForlopsID} and \code{AVdRESH}
 #'
+#' @param metodeType value of variable \code{metode} from NORIC-table
+#' \emph{AnnenDiag}. Must have one of following values : "FFR", "iFR", "IVUS"
+#' or "OCT"
+#'
 #'
 #' @name utlede_annenDiag_variabler
-#' @aliases utlede_kar_annen_diag legg_til_ffr_per_kar
+#' @aliases
+#' utlede_kar_annen_diag
+#' legg_til_trykk_bilde_per_kar
 #'
 #' @examples
 #' df_ad <- data.frame(
@@ -52,8 +61,9 @@
 #'
 #'
 #' utlede_kar_annen_diag(df_ad)
-#' legg_til_ffr_per_kar(df_ap = df_ap,
-#'                      df_ad = df_ad)
+#' legg_til_trykk_bilde_per_kar(df_ap = df_ap,
+#'                              df_ad = df_ad,
+#'                              metodeType = "FFR")
 NULL
 
 
@@ -104,7 +114,9 @@ utlede_kar_annen_diag <- function(df_ad = ad) {
 
 #' @rdname utlede_annenDiag_variabler
 #' @export
-legg_til_ffr_per_kar <- function(df_ap, df_ad) {
+legg_til_trykk_bilde_per_kar <- function(df_ap,
+                                              df_ad,
+                                              metodeType = "FFR") {
 
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH", "segment", "graft", "metode") %in%
@@ -120,40 +132,45 @@ legg_til_ffr_per_kar <- function(df_ap, df_ad) {
   }
 
 
+  if (!metodeType %in% c("FFR", "iFR", "IVUS", "OCT")) {
+    stop("MetodeType er en tekstreng med en verdiene : 'FFR', 'iFR', 'IVUS'
+         eller 'OCT'.")
+  }
 
-  # Forberede 5 nye variabler: FFR_LMS, FFR_LAD, FFR_RCA, FFR_CX og FFR_Graft
-  ad_wide_ffr <- df_ad %>%
+  ad_wide <- df_ad %>%
 
     # Legge til variabel kar_graft
-    noric::utlede_kar_annen_diag(.) %>%
+    utlede_kar_annen_diag(.) %>%
     dplyr::select(.data$ForlopsID,
                   .data$AvdRESH,
                   .data$kar,
                   .data$metode) %>%
     dplyr::arrange(.data$AvdRESH, .data$ForlopsID, .data$kar) %>%
 
-    # Teller kun metode = "FFR"
-    # Dersom 0 prosedyrer i karet (ingen FFR) blir verdien n=0 --> "nei"
-    # Dersom minst en prosedyre (FFR) i karet blir verdien n > 0 --> "ja"
+    # Teller kun metode = metodeType
+    # Dersom 0 undersøkelser i karet av denne metoden blir verdien n=0-->"nei"
+    # Dersom minst en undersøkelse med denne metoden i karet blir verdien
+    #    n > 0 --> "ja"
     dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar,
-                 wt = .data$metode == "FFR") %>%
-    dplyr::mutate(ffr_kar = ifelse(
-      test = .data$n > 0,
-      yes = "ja",
-      no = "nei")) %>%
+                 wt = .data$metode == metodeType) %>%
+    dplyr::mutate(
+      verdi_kar = ifelse(
+        test = .data$n > 0,
+        yes = "ja",
+        no = "nei")) %>%
     dplyr::select(- .data$n) %>%
     dplyr::distinct() %>%
 
     # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
-    # datasettet AP (finner dem med funksjonen nesting),
+    # datasettet AD (finner dem med funksjonen nesting),
     # komplettes manglende nivåer av kar med verdien "nei"
     tidyr::complete(.data$kar,
                     tidyr::nesting(ForlopsID, AvdRESH),
-                    fill = list(ffr_kar = "nei")) %>%
+                    fill = list(verdi_kar = "nei")) %>%
 
-    # format med en rad per variabel:
+    # format wide med en rad per variabel:
     tidyr::pivot_wider(names_from = .data$kar,
-                       values_from = .data$ffr_kar) %>%
+                       values_from = .data$verdi_kar) %>%
 
     # Rekkefølge nye variabler, og nytt navn
     dplyr::select(.data$AvdRESH,
@@ -164,30 +181,13 @@ legg_til_ffr_per_kar <- function(df_ap, df_ad) {
                   .data$CX,
                   .data$Graft) %>%
     dplyr::rename_at(vars(.data$LMS:.data$Graft),
-                     function(x) paste0("FFR_", x))
+                     function(x) paste0(metodeType, "_", x))
 
 
   # Returnere df_ap, hvor de 5 nye variablene er lagt til.
-  # Forløp i AP som ikke har rader i AD, vil få verdien NA for de nye kolonnene.
+  # Forløp i AP som ikke har rader i AD, får verdien NA for de nye kolonnene.
   dplyr::left_join(df_ap,
-                   ad_wide_ffr,
+                   ad_wide,
                    by = c("AvdRESH", "ForlopsID"))
 
 }
-
-
-
-
-
-#' @rdname utlede_annenDiag_variabler
-#' @export
-legg_til_ifr_per_kar <- function(df_ap, df_ad) {}
-
-#' @rdname utlede_annenDiag_variabler
-#' @export
-legg_til_ivus_per_kar <- function(df_ap, df_ad) {}
-
-#' @rdname utlede_annenDiag_variabler
-#' @export
-legg_til_oct_per_kar <- function(df_ap, df_ad) {}
-

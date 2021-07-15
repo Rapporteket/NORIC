@@ -3,21 +3,12 @@
 \name{utlede_annenDiag_variabler}
 \alias{utlede_annenDiag_variabler}
 \alias{utlede_kar_annen_diag}
-\alias{legg_til_ffr_per_kar}
-\alias{legg_til_ifr_per_kar}
-\alias{legg_til_ivus_per_kar}
-\alias{legg_til_oct_per_kar}
+\alias{legg_til_trykk_bilde_per_kar}
 \title{New variables from NORIC's AnnenDiag-table}
 \usage{
 utlede_kar_annen_diag(df_ad = ad)
 
-legg_til_ffr_per_kar(df_ap, df_ad)
-
-legg_til_ifr_per_kar(df_ap, df_ad)
-
-legg_til_ivus_per_kar(df_ap, df_ad)
-
-legg_til_oct_per_kar(df_ap, df_ad)
+legg_til_trykk_bilde_per_kar(df_ap, df_ad, metodeType = "FFR")
 }
 \arguments{
 \item{df_ad}{NORIC's \emph{AnnenDiag}-table, must contain variables
@@ -26,6 +17,10 @@ legg_til_oct_per_kar(df_ap, df_ad)
 
 \item{df_ap}{NORIC's \emph{AngioPCIVar}-table, must contain variables
 \code{ForlopsID} and \code{AVdRESH}}
+
+\item{metodeType}{value of variable \code{metode} from NORIC-table
+\emph{AnnenDiag}. Must have one of following values : "FFR", "iFR", "IVUS"
+or "OCT"}
 }
 \description{
 Functions for creating variables based on NORIC's \emph{AnnenDiag}-table and
@@ -37,10 +32,13 @@ The function \code{utlede_kar_annen_diag()} groups the
 \code{segments} in \code{df_ad} into coronary arteries in the new variable
 \code{kar}, then \code{df_ad} is returned from the function.
 
-The function \code{legg_til_ffr_per_kar()} uses the data in \code{df_ad} to
-calculate 5 new variables, \code{FFR_LMS}, \code{FFR_LAD}, \code{FFR_RCA},
-\code{FFR_CX} and \code{FFR_Graft}, who says whether or not a FFR measure
-is performed in each \code{kar}. If at least one FFR measure is done in a
+The function \code{legg_til_trykk_bilde_per_kar()} uses the data in
+\code{df_ad} to calculate 5 new variables, where variable names prefix is
+type of method (one of: "FFR", "iFR", "IVUS" or "OCT") and suffix is each
+level of \code{kar} (p.ex. if metode is 'FFR' then variables are
+ \code{FFR_LAD}, \code{FFR_RCA}, \code{FFR_CX} and \code{FFR_Graft}).
+The variable says whether or not a measure of this method
+is performed in each \code{kar}. If at least one measure is done in a
 \code{kar} the value of the corresponding variable is given the value
 \emph{ja}, otherwise the value is \emph{nei}. These 5 variables are then
 merged into \code{df_ap}, before \code{df_ap} is returned from the function.
@@ -70,6 +68,7 @@ df_ap <-data.frame(
 
 
 utlede_kar_annen_diag(df_ad)
-legg_til_ffr_per_kar(df_ap = df_ap,
-                     df_ad = df_ad)
+legg_til_trykk_bilde_per_kar(df_ap = df_ap,
+                             df_ad = df_ad,
+                             metodeType = "FFR")
 }

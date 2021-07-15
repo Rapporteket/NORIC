@@ -24,7 +24,7 @@ test_that("utlede_kar_annen_diag is correct", {
                               NA,
                               "Intermediær (17)",
                               "Ve hovedstamme (5)"),
-                  segment_num = c(1:4, 18:19, 6:10, 20, 11:17, 5, NA, 17,5),
+                  segment_num = c(1:4, 18:19, 6:10, 20, 11:17, 5, NA, 17, 5),
                   graft = c(rep("Nei", 20), "Arterie", "Vene", NA))
 
   x %<>% utlede_kar_annen_diag(.)
@@ -77,7 +77,7 @@ test_that("utlede_kar_annen_diag is correct", {
 
 
 
-test_that("legg_til_ffr_kar is correct", {
+test_that("legg_til_trykk_bilde_per_kar is correct", {
 
   test_ad <- data.frame(ForlopsID = c(1, 1, 1, 1, 1, 3, 4, 5, 5, 5),
                         AvdRESH = c(rep(1, 6), rep(2, 4)),
@@ -100,58 +100,111 @@ test_that("legg_til_ffr_kar is correct", {
   test_ap <- data.frame(ForlopsID = c(1:5),
                         AvdRESH = c(1, 1, 1, 2, 2))
 
+  x_ffr <- legg_til_trykk_bilde_per_kar(df_ap = test_ap,
+                                             df_ad = test_ad)
 
-  x <- test_ap %>% legg_til_ffr_per_kar(df_ap = ., df_ad = test_ad)
+  x_ffr_ifr_ivus_oct <- legg_til_trykk_bilde_per_kar(df_ap = test_ap,
+                                                          df_ad = test_ad,
+                                                          metode = "FFR") %>%
+    legg_til_trykk_bilde_per_kar(df_ap = .,
+                                      df_ad = test_ad,
+                                      metode = "iFR") %>%
 
-  # Test dimentions
-  testthat::expect_equal(c(5, 7), dim(x))
+    legg_til_trykk_bilde_per_kar(df_ap = .,
+                                      df_ad = test_ad,
+                                      metode = "IVUS") %>%
+    legg_til_trykk_bilde_per_kar(df_ap = .,
+                                      df_ad = test_ad,
+                                      metode = "OCT")
+
+
+
+
+
+  # Test dimensions
+  testthat::expect_equal(c(5, 7), dim(x_ffr))
+  testthat::expect_equal(c(5, 22), dim(x_ffr_ifr_ivus_oct))
 
   # Test name and order of new variables
   testthat::expect_equal(
-    names(x),
+    names(x_ffr_ifr_ivus_oct),
     c("ForlopsID", "AvdRESH",
-      "FFR_LMS", "FFR_LAD", "FFR_RCA", "FFR_CX",  "FFR_Graft"))
+      "FFR_LMS", "FFR_LAD", "FFR_RCA", "FFR_CX",  "FFR_Graft",
+      "iFR_LMS", "iFR_LAD", "iFR_RCA", "iFR_CX",  "iFR_Graft",
+      "IVUS_LMS", "IVUS_LAD", "IVUS_RCA", "IVUS_CX",  "IVUS_Graft",
+      "OCT_LMS", "OCT_LAD", "OCT_RCA", "OCT_CX",  "OCT_Graft"))
 
   # Test that procedures without AD-data have value "NA" for all new variables
   testthat::expect_true(all(is.na(
-    x %>%
-      dplyr::filter(ForlopsID == 2, AvdRESH == 1 ) %>%
-      dplyr::select(contains("FFR_")))))
+    x_ffr_ifr_ivus_oct %>%
+      dplyr::filter(ForlopsID == 2, AvdRESH == 1) %>%
+      dplyr::select(-AvdRESH, -ForlopsID))))
 
 
   # Test that procedure without any rows with method FFR has "nei" for
-  # all new variables
-  testthat::expect_true(all(x %>%
+  # all FFR-variables
+  testthat::expect_true(all(x_ffr_ifr_ivus_oct %>%
                               dplyr::filter(ForlopsID == 4, AvdRESH == 2) %>%
                               dplyr::select(contains("FFR")) == "nei"))
 
   # Test that ForlopsID = 1 is correct
-  testthat::expect_true(all(x %>%
+  testthat::expect_true(all(x_ffr_ifr_ivus_oct %>%
                               dplyr::filter(ForlopsID == 1) %>%
-                              dplyr::select(FFR_RCA, FFR_LAD) == "ja"))
+                              dplyr::select(FFR_RCA,
+                                            IVUS_LMS,
+                                            IVUS_RCA,
+                                            FFR_LAD) == "ja"))
 
-  testthat::expect_true(all(x %>%
+  testthat::expect_true(all(x_ffr_ifr_ivus_oct %>%
                               dplyr::filter(ForlopsID == 1) %>%
-                              dplyr::select(FFR_CX, FFR_LMS)  == "nei"))
+                              dplyr::select(-ForlopsID,
+                                            -AvdRESH,
+                                            - FFR_RCA,
+                                            - IVUS_LMS,
+                                            - IVUS_RCA,
+                                            - FFR_LAD)  == "nei"))
 
 
   # Test that ForlopsID = 3 is correct
   testthat::expect_true(all(
-    x %>%
+    x_ffr_ifr_ivus_oct %>%
       dplyr::filter(ForlopsID == 3) %>%
       dplyr::select(FFR_Graft) == "ja"))
 
   testthat::expect_true(all(
-    x %>%
+    x_ffr_ifr_ivus_oct %>%
       dplyr::filter(ForlopsID == 3) %>%
-      dplyr::select(FFR_RCA, FFR_CX, FFR_LMS, FFR_LAD)  == "nei"))
+      dplyr::select(- ForlopsID, -AvdRESH, - FFR_Graft)  == "nei"))
 
 
-  testthat::expect_error(legg_til_ffr_per_kar(test_ap %>%
-                                   dplyr::select(-ForlopsID),
-                                 df_ad = test_ad))
-  testthat::expect_error(legg_til_ffr_per_kar(test_ap,
-                                 df_ad = test_ad %>% dplyr::select(-metode)))
+
+  # Test that ForlopsID 5 is correct (test that metode = "tull" doesn't count)
+  testthat::expect_true(all(
+    x_ffr_ifr_ivus_oct %>%
+      dplyr::filter(ForlopsID == 5) %>%
+      dplyr::select(FFR_RCA, IVUS_LAD) == "ja"))
+
+  testthat::expect_true(all(
+    x_ffr_ifr_ivus_oct %>%
+      dplyr::filter(ForlopsID == 5) %>%
+      dplyr::select(- ForlopsID, -AvdRESH, - FFR_RCA, - IVUS_LAD)  == "nei"))
+
+
+  testthat::expect_error(
+    legg_til_ffr_per_kar(df_ap = test_ap %>% dplyr::select(-ForlopsID),
+                         df_ad = test_ad,
+                         metodeType = "FFR"))
+
+  testthat::expect_error(
+    legg_til_ffr_per_kar(df_ap = test_ap,
+                         df_ad = test_ad %>% dplyr::select(-metode),
+                         metodeType = "iFR"))
+
+  testthat::expect_error(
+    legg_til_ffr_per_kar(df_ap = test_ap,
+                         df_ad = test_ad,
+                         metodeType = "tulleType"))
+
 
 
 
