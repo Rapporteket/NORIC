@@ -51,7 +51,7 @@ test_that("Number of stents is correct", {
 
 
 
-test_that("Testing utlede_kar_segmen_stent is correct", {
+test_that("utlede_kar_segmen_stent is correct", {
   x <- data.frame(ForlopsID = 1:23,
                   AvdRESH = rep(1, 23),
                   Segment = c(1:20, 1:3),
@@ -101,7 +101,7 @@ test_that("Testing utlede_kar_segmen_stent is correct", {
 
   })
 
-test_that("Testing utlede_kar_graft_segment_stent is correct", {
+test_that("utlede_kar_graft_segment_stent is correct", {
   x <- data.frame(ForlopsID = 1:60,
                   AvdRESH = rep(1, 60),
                   Segment = rep(1:20, 3),
@@ -153,12 +153,12 @@ test_that("Testing utlede_kar_graft_segment_stent is correct", {
 
 
 
-test_that("Testing legg_til_pci_per_kar", {
+test_that("legg_til_pci_per_kar is correct", {
 
   test_ap <- data.frame(ForlopsID = 1:5,
                         AvdRESH = rep(1, 5))
 
-  # Alle these variables er mandatory, no need to simulate missing values
+  # All these variables er mandatory, no need to simulate missing values
   test_ss <- data.frame(ForlopsID = c(1, 2, 3, 3, 3),
                         AvdRESH = rep(1, 5),
                         Segment = c(1, 5, 10, 12, 13),
@@ -221,11 +221,100 @@ test_that("Testing legg_til_pci_per_kar", {
       dplyr::select(PCI_LAD, PCI_CX_veneGraft)  == "ja"))
 
 
-  testthat::expect_error(test_ap %>%
-                           dplyr::select(-ForlopsID) %>%
-                           dplyr::legg_til_pci_per_kar(., df_ss = test_ss))
-  testthat::expect_error(test_ap %>%
-                           dplyr::legg_til_pci_per_kar(., df_ss = test_ss) %>%
-                           dplyr::select(-ProsedyreType))
+  testthat::expect_error(
+    noric::legg_til_pci_per_kar(df_ap = test_ap %>%
+                                  dplyr::select(-ForlopsID),
+                                df_ss = test_ss))
+
+  testthat::expect_error(
+    noric::legg_til_pci_per_kar(df_ap = test_ap,
+                                df_ss = test_ss %>%
+                                  dplyr::select(-ProsedyreType)))
+
+})
+
+
+
+
+test_that("legg_til_wirefosok_per_kar is correct", {
+
+  test_ap <- data.frame(ForlopsID = 1:5,
+                        AvdRESH = rep(1, 5))
+
+  # Alle these variables er mandatory, no need to simulate missing values
+  test_ss <- data.frame(ForlopsID = c(1, 2, 3, 3, 3),
+                        AvdRESH = rep(1, 5),
+                        Segment = c(1, 5, 10, 12, 13),
+                        Graft = c(rep("Nei", 3),
+                                  rep("Arteriell", 1),
+                                  rep("Vene", 1)),
+                        ProsedyreType = c("Ballong + Stent",
+                                          "Wireforsøk",
+                                          "Rotablator",
+                                          "Wireforsøk",
+                                          "Direktestent"))
+
+  x <- legg_til_wireforsok_per_kar(df_ap = test_ap,
+                                   df_ss = test_ss)
+
+  # Test dimetions
+  testthat::expect_equal(c(5, 12), dim(x))
+
+  # Test name and order of new variables
+  testthat::expect_equal(
+    names(x),
+    c("ForlopsID", "AvdRESH", "wireforsok_LMS", "wireforsok_LAD",
+      "wireforsok_RCA", "wireforsok_CX",  "wireforsok_LAD_arterieGraft",
+      "wireforsok_RCA_arterieGraft", "wireforsok_CX_arterieGraft",
+      "wireforsok_LAD_veneGraft", "wireforsok_RCA_veneGraft",
+      "wireforsok_CX_veneGraft"))
+
+
+  # Test that procedures without SS-data have value "NA" for all new variables
+  testthat::expect_true(all(is.na(
+    x %>%
+      dplyr::filter(ForlopsID %in% 4:5) %>%
+      dplyr::select(contains("wireforsok_")))))
+
+
+  # Test that procedure with only no "Wireforsøk" has "nei" for all
+  # new variables
+  testthat::expect_true(all(x %>%
+                              dplyr::filter(ForlopsID == 1) %>%
+                              dplyr::select(contains("wireforsok")) == "nei"))
+
+  # Test that ForlopsID = 2 is correct
+  testthat::expect_true(all(x %>%
+                              dplyr::filter(ForlopsID == 2) %>%
+                              dplyr::select(contains("wireforsok")) %>%
+                              dplyr::select(- wireforsok_LMS) == "nei"))
+
+  testthat::expect_true(x %>%
+                          dplyr::filter(ForlopsID == 2) %>%
+                          dplyr::pull(wireforsok_LMS)  == "ja")
+
+
+  # Test that ForlopsID = 3 is correct
+  testthat::expect_true(all(
+    x %>%
+      dplyr::filter(ForlopsID == 3) %>%
+      dplyr::select(contains("wireforsok_")) %>%
+      dplyr::select(- wireforsok_CX_arterieGraft) == "nei"))
+
+  testthat::expect_true(
+    x %>%
+      dplyr::filter(ForlopsID == 3) %>%
+      dplyr::pull(wireforsok_CX_arterieGraft)  == "ja")
+
+
+  testthat::expect_error(
+    noric::legg_til_wireforsok_per_kar(df_ap = test_ap %>%
+                                         dplyr::select(-ForlopsID),
+                                       df_ss = test_ss))
+
+  testthat::expect_error(
+    noric::legg_til_wireforsok_per_kar(df_ap = test_ap,
+                                       df_ss = test_ss %>%
+                                         dplyr::select(-ProsedyreType)))
 
 })

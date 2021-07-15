@@ -33,15 +33,30 @@
 #' Procedures of type \emph{wireforsoek} are not counted.
 #'
 #'
+#' The function \code{legg_til_wireforsok_per_kar()} uses the data in \code{df_ss} to
+#' calculate 10 new variables. Variable names are prefixed by \code{wireforsok_} and
+#' suffixed by level of \code{kar_graft} (p.ex.: \code{wireforsok_LAD}, \code{wireforsok_CX},
+#' \code{wireforsok_CX_veneGraft}, \code{wireforsok_CX_arterieGraft}). The variables indicates
+#' whether or not a wireforsøk is performed in each \code{kar_graft}. If at least one
+#' wireforsøk is done in a \code{kar_graft} the value of the corresponding variable is
+#' \emph{ja}, otherwise the value is \emph{nei}. These 10 variables are then
+#' merged into \code{df_ap}, before \code{df_ap} is returned from the function.
+#' For procedures where no wireforsok's are done on segment-level (e.g. no entries
+#' available in \code{df_ss}), the values for the 10 new variables are <NA>.
+#' Only procedures of type \emph{wireforsoek} are counted.
+
+#'
 #'
 #' @param df_ap NORICS's \emph{AngioPCIVar}-table. Must contain the variables
 #'  \code{AvdRESH} and \code{ForlopsID}.
+#'
 #' @param df_ss NORICS's \emph{SegmentStent}-table. Must contain the variables
 #' \code{AvdRESH} and \code{ForlopsID}. Additionally, the variable
 #' \code{StentType} is mandatory in the function \code{legg_til_antall_stent()}
 #' and the variables \code{Segment}, \code{Graft} and \code{ProsedyreType} are
-#' mandatory in the functions \code{utlede_kar_segment_stent},
-#' \code{utlede_kar_graft_segment_stent} and \code{legg_til_pci_per_kar()}.
+#' mandatory in the functions \code{utlede_kar_segment_stent()},
+#' \code{utlede_kar_graft_segment_stent()}, \code{legg_til_pci_per_kar()} and
+#' \code{legg_til_wireforsok_per_kar()}.
 #'
 #' @name utlede_segmentStent_variabler
 #' @aliases
@@ -49,6 +64,7 @@
 #' utlede_kar_segment_stent
 #' utlede_kar_graft_segment_stent
 #' legg_til_pci_per_kar
+#' legg_til_wireforsok_per_kar
 #'
 #'
 #'
@@ -56,7 +72,7 @@
 #' df_ap <- data.frame(ForlopsID = 1:5,
 #'                     AvdRESH = rep(1,5))
 #'
-#' # Legg til antall stent
+#' # Legg til antall stent i df_ap
 #' df_ss <- data.frame(
 #'   ForlopsID = c(1, 3, 3, 3, 5, 5),
 #'   AvdRESH = rep(1,6),
@@ -66,6 +82,7 @@
 #'                 NA, NA))
 #' legg_til_antall_stent(df_ap = df_ap, df_ss = df_ss)
 #'
+#' # Legg til kar ellerkar_graft i df_ss
 #' df_ss <- data.frame(ForlopsID = 1:23,
 #'                     AvdRESH = rep(1,23),
 #'                     Segment = c(1:20, 1:3),
@@ -74,6 +91,7 @@
 #' utlede_kar_graft_segment_stent(df_ss)
 #'
 #'
+#' # Legg til PCI-variabler og wireforsok-variabler per kar_graft i df_ap
 #' df_ss <- data.frame(ForlopsID = c(1,2,3,3,3),
 #'                     AvdRESH = rep(1,5),
 #'                     Segment = c(1,5,10,12,13),
@@ -86,6 +104,8 @@
 #'                                       "Wireforsøk",
 #'                                       "Direktestent"))
 #' legg_til_pci_per_kar(df_ap = df_ap, df_ss = df_ss)
+#' legg_til_wireforsok_per_kar(df_ap = df_ap, df_ss = df_ss)
+
 NULL
 
 #' @rdname utlede_segmentStent_variabler
@@ -281,3 +301,83 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
                    by = c("AvdRESH", "ForlopsID"))
 
 }
+
+
+
+#' @rdname utlede_segmentStent_variabler
+#' @export
+legg_til_wireforsok_per_kar <- function(df_ap, df_ss) {
+
+  # Must contain matching-variables + variables needed for calculations
+  if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "ProsedyreType") %in%
+           names(df_ss))) {
+    stop("df_ss must contain variables ForlopsID, AvdRESH, Segment Graft
+         and ProsedyreType")
+  }
+
+  # Must contain matching-variables + variables needed for calculations
+  if (!all(c("ForlopsID", "AvdRESH") %in%
+           names(df_ap))) {
+    stop("df_ap must contain variables ForlopsID and AvdRESH")
+  }
+
+  ss_wide_wire <- df_ss %>%
+
+    # Legge til variabel kar_graft
+    utlede_kar_graft_segment_stent(.) %>%
+    dplyr::select(.data$ForlopsID,
+                  .data$AvdRESH,
+                  .data$kar_graft,
+                  .data$ProsedyreType) %>%
+    dplyr::arrange(.data$AvdRESH, .data$ForlopsID, .data$kar_graft) %>%
+
+    # Teller kun wireforsok,per kar
+    # Dersom 0 wireforsøk i karet blir verdien n=0 --> "nei"
+    # Dersom minst et wireforsøk i karet blir verdien n > 0 --> "ja"
+    dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
+                 wt = .data$ProsedyreType == "Wireforsøk") %>%
+    dplyr::mutate(wire_kar = ifelse(
+      test = .data$n > 0,
+      yes = "ja",
+      no = "nei")) %>%
+    dplyr::select(- .data$n) %>%
+    dplyr::distinct() %>%
+
+    # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
+    # datasettet SS (finner dem med funksjonen nesting),
+    # komplettes manglende nivåer av kar_graft med verdien "nei"
+    tidyr::complete(.data$kar_graft,
+                    tidyr::nesting(ForlopsID, AvdRESH),
+                    fill = list(wire_kar = "nei")) %>%
+
+    # format med en rad per variabel:
+    tidyr::pivot_wider(names_from = .data$kar_graft,
+                       values_from = .data$wire_kar) %>%
+
+    # Rekkefølge nye variabler, og nytt navn
+    dplyr::select(.data$AvdRESH,
+                  .data$ForlopsID,
+                  .data$LMS,
+                  .data$LAD,
+                  .data$RCA,
+                  .data$CX,
+                  .data$LAD_arterieGraft,
+                  .data$RCA_arterieGraft,
+                  .data$CX_arterieGraft,
+                  .data$LAD_veneGraft,
+                  .data$RCA_veneGraft,
+                  .data$CX_veneGraft) %>%
+    dplyr::rename_at(vars(.data$LMS:.data$CX_veneGraft),
+                     function(x) paste0("wireforsok_", x))
+
+
+  # Legg til 10 nye variabler i AP. Forløp i AP som ikke har rader i SS,
+  # vil få verdien NA for de nye kolonnene.
+  dplyr::left_join(df_ap,
+                   ss_wide_wire,
+                   by = c("AvdRESH", "ForlopsID"))
+
+}
+
+
+

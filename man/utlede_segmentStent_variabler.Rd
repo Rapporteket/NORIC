@@ -6,6 +6,7 @@
 \alias{utlede_kar_segment_stent}
 \alias{utlede_kar_graft_segment_stent}
 \alias{legg_til_pci_per_kar}
+\alias{legg_til_wireforsok_per_kar}
 \title{New variables from NORIC's SementStent-table}
 \usage{
 legg_til_antall_stent(df_ap, df_ss)
@@ -15,6 +16,8 @@ utlede_kar_segment_stent(df_ss)
 utlede_kar_graft_segment_stent(df_ss)
 
 legg_til_pci_per_kar(df_ap, df_ss)
+
+legg_til_wireforsok_per_kar(df_ap, df_ss)
 }
 \arguments{
 \item{df_ap}{NORICS's \emph{AngioPCIVar}-table. Must contain the variables
@@ -24,8 +27,9 @@ legg_til_pci_per_kar(df_ap, df_ss)
 \code{AvdRESH} and \code{ForlopsID}. Additionally, the variable
 \code{StentType} is mandatory in the function \code{legg_til_antall_stent()}
 and the variables \code{Segment}, \code{Graft} and \code{ProsedyreType} are
-mandatory in the functions \code{utlede_kar_segment_stent},
-\code{utlede_kar_graft_segment_stent} and \code{legg_til_pci_per_kar()}.}
+mandatory in the functions \code{utlede_kar_segment_stent()},
+\code{utlede_kar_graft_segment_stent()}, \code{legg_til_pci_per_kar()} and
+\code{legg_til_wireforsok_per_kar()}.}
 }
 \description{
 Functions for creating variables based on NORIC's \emph{SegmentStent}-table
@@ -49,20 +53,35 @@ and/or grafts in the new variable \code{kar_graft}, then \code{df_ss} is
 returned from the function.
 
 The function \code{legg_til_pci_per_kar()} uses the data in \code{df_ss} to
-calculate 10 new variables, all prefixed by \code{PCI_} and suffixed by level
-of \code{kar_graft} (examples: \code{PCI_LAD}, \code{PCI_CX}, \code{PCI_CX_veneGraft},
-\code{PCI_CX_arterieGraft}). The variables indicates whether or not a PCI is performed in each
-\code{kar_graft}. If at least one PCI is done in a \code{kar_graft} the value
-of the corresponding variable is \emph{ja}, otherwise the value is
-\emph{nei}. These 10 variables are then merged into \code{df_ap}, before
-\code{df_ap} is returned from the function. For procedures where no PCIs are
-done on segment-level (e.g. no entries available in \code{df_ss}), the values
-for the 10 new variables are <NA>. Procedures of type \emph{wireforsoek} are
-not counted.
+calculate 10 new variables. Variable names are prefixed by \code{PCI_} and
+suffixed by level of \code{kar_graft} (p.ex.: \code{PCI_LAD}, \code{PCI_CX},
+\code{PCI_CX_veneGraft}, \code{PCI_CX_arterieGraft}). The variables indicates
+whether or not a PCI is performed in each \code{kar_graft}. If at least one
+PCI is done in a \code{kar_graft} the value of the corresponding variable is
+\emph{ja}, otherwise the value is \emph{nei}. These 10 variables are then
+merged into \code{df_ap}, before \code{df_ap} is returned from the function.
+For procedures where no PCI's are done on segment-level (e.g. no entries
+available in \code{df_ss}), the values for the 10 new variables are <NA>.
+Procedures of type \emph{wireforsoek} are not counted.
+
+
+The function \code{legg_til_wireforsok_per_kar()} uses the data in \code{df_ss} to
+calculate 10 new variables. Variable names are prefixed by \code{wireforsok_} and
+suffixed by level of \code{kar_graft} (p.ex.: \code{wireforsok_LAD}, \code{wireforsok_CX},
+\code{wireforsok_CX_veneGraft}, \code{wireforsok_CX_arterieGraft}). The variables indicates
+whether or not a wireforsøk is performed in each \code{kar_graft}. If at least one
+wireforsøk is done in a \code{kar_graft} the value of the corresponding variable is
+\emph{ja}, otherwise the value is \emph{nei}. These 10 variables are then
+merged into \code{df_ap}, before \code{df_ap} is returned from the function.
+For procedures where no wireforsok's are done on segment-level (e.g. no entries
+available in \code{df_ss}), the values for the 10 new variables are <NA>.
+Only procedures of type \emph{wireforsoek} are counted.
 }
 \examples{
 df_ap <- data.frame(ForlopsID = 1:5,
                     AvdRESH = rep(1,5))
+
+# Legg til antall stent i df_ap
 df_ss <- data.frame(
   ForlopsID = c(1, 3, 3, 3, 5, 5),
   AvdRESH = rep(1,6),
@@ -72,6 +91,7 @@ df_ss <- data.frame(
                 NA, NA))
 legg_til_antall_stent(df_ap = df_ap, df_ss = df_ss)
 
+# Legg til kar ellerkar_graft i df_ss
 df_ss <- data.frame(ForlopsID = 1:23,
                     AvdRESH = rep(1,23),
                     Segment = c(1:20, 1:3),
@@ -80,6 +100,7 @@ utlede_kar_segment_stent(df_ss)
 utlede_kar_graft_segment_stent(df_ss)
 
 
+# Legg til PCI-variabler og wireforsok-variabler per kar_graft i df_ap
 df_ss <- data.frame(ForlopsID = c(1,2,3,3,3),
                     AvdRESH = rep(1,5),
                     Segment = c(1,5,10,12,13),
@@ -92,4 +113,5 @@ df_ss <- data.frame(ForlopsID = c(1,2,3,3,3),
                                       "WireforsÃ¸k",
                                       "Direktestent"))
 legg_til_pci_per_kar(df_ap = df_ap, df_ss = df_ss)
+legg_til_wireforsok_per_kar(df_ap = df_ap, df_ss = df_ss)
 }
