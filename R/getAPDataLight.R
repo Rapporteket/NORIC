@@ -14,7 +14,6 @@
 
 getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
-  dbType <- "mysql"
 
   aP_light <- rapbase::loadRegData(registryName,
                                    query = "SELECT * FROM AngioPCIVar",
