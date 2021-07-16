@@ -1,18 +1,21 @@
-
-
-
-#' Add variable `aldersklasse` - decades
+#' Add variable aldersklasse in decades
 #'
-#' Under 18 years og above 99 are set as NA
-#' @param df data.frame where the new variable should be added.
-#' @param var Variable name of the numerical variable that contains age as
-#' a continuous value. Default variable name is `PasientAlder`
-#' @return data.frame with new variable
+#' Groups together ages in age-classes of decades, p.ex. "50-59" where ages 50
+#' and 59 are min and max values of the age-class. Ages from 18 to 49 are
+#' grouped together, whereas ages under 18 years or above 99 years are given
+#' age-class <NA>.
+#'
+#' @param df data.frame, must contain a column with age as a continuous
+#' variable
+#' @param var is the variable name of the age-variable in \code{df}. Default
+#' value is \code{PasientAlder}.
+#' @return The input data.frame \code{df} is returned as it is,  with one new
+#'  column named \code{aldersklasse} added.
 #'
 #' @export
 #' @examples
 #' df <-  data.frame(age = c(10,20,59,60, NA, 61,69,70,99,100))
-#' df %>% utlede_aldersklasse(., var = age)
+#' utlede_aldersklasse(df = df, var = age)
 utlede_aldersklasse <- function(df, var = PasientAlder) {
   df %>%
     dplyr::mutate(
@@ -27,13 +30,22 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
 
 
 
-#' Add binary variable ("ja", "nei") for table status
+#' Add binary variable for table-status
 #'
-#' @param df data.frame where variable should be added
-#' @param var variable name of the numerical staus-variable with
-#' values {-1,0,1}
-#' @param suffix wanted suffix in the added variable's name:ferdigstilt_`suffix`
-#' @return data.frame with new variable
+#' The function \code{utlede_ferdigstilt()} uses the values of variable
+#' \code{var} to create a new column named \code{ferdigstilt_suffix} in
+#' \code{df} before \code{df} is returned from the function. The new variable is
+#' given the value \emph{ja} if \code{var} is 1, and value \emph{nei} if
+#' \code{var} is -1 or 0.
+#'
+#' @param df data.frame, must contain a numerical status-variable with values
+#'  -1, 0 or 1.
+#' @param var variable name of the numerical status-variable. Default value
+#' is \code{SkjemaStatusStart}.
+#' @param suffix wanted suffix in the new variable's name:
+#' \code{ferdigstilt_suffix}. Default values is "startSkjema".
+#' @return The data.frame given in input \code{df} is returned as it is,
+#' with one new column added.
 #'
 #' @export
 #' @examples
@@ -41,19 +53,25 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
 #'                 SkjemastatusHovedskjema = rep(0,9),
 #'                 SkjemaStatusUtskrivelse = rep(-1,9),
 #'                 SkjemaStatusKomplikasjoner = c(rep(-1,4), rep(1,3), NA, NA))
-#' x %>% utlede_ferdigstilt(., var = SkjemaStatusStart, suffix = "startSkjema")
-#' x %>%
-#' utlede_ferdigstilt(., var = SkjemaStatusStart, suffix = "startSkjema") %>%
-#' utlede_ferdigstilt(., var = SkjemastatusHovedskjema,
-#' suffix = "hovedSkjema") %>%
-#' utlede_ferdigstilt(., var = SkjemaStatusKomplikasjoner,
-#'  suffix = "komplikSkjema")
+#'
+#' utlede_ferdigstilt(x, var = SkjemaStatusStart, suffix = "startSkjema")
+#'
+#' utlede_ferdigstilt(x,
+#'                    var = SkjemaStatusStart,
+#'                    suffix = "startSkjema") %>%
+#'    utlede_ferdigstilt(.,
+#'                       var = SkjemastatusHovedskjema,
+#'                       suffix = "hovedSkjema") %>%
+#'    utlede_ferdigstilt(.,
+#'                       var = SkjemaStatusKomplikasjoner,
+#'                       suffix = "komplikSkjema")
 
 utlede_ferdigstilt <- function(df,
                                var = .data$SkjemaStatusStart,
                                suffix = "startSkjema") {
 
-  df %>%  dplyr::mutate(
+  dplyr::mutate(
+    .data = df,
     "ferdigstilt_{suffix}" := dplyr::if_else({{ var }} == 1,
                                              true = "ja",
                                              false = "nei",

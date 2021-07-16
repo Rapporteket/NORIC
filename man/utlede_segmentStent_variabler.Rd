@@ -65,15 +65,17 @@ available in \code{df_ss}), the values for the 10 new variables are <NA>.
 Procedures of type \emph{wireforsoek} are not counted.
 
 
-The function \code{legg_til_wireforsok_per_kar()} uses the data in \code{df_ss} to
-calculate 10 new variables. Variable names are prefixed by \code{wireforsok_} and
-suffixed by level of \code{kar_graft} (p.ex.: \code{wireforsok_LAD}, \code{wireforsok_CX},
-\code{wireforsok_CX_veneGraft}, \code{wireforsok_CX_arterieGraft}). The variables indicates
-whether or not a wireforsøk is performed in each \code{kar_graft}. If at least one
-wireforsøk is done in a \code{kar_graft} the value of the corresponding variable is
-\emph{ja}, otherwise the value is \emph{nei}. These 10 variables are then
-merged into \code{df_ap}, before \code{df_ap} is returned from the function.
-For procedures where no wireforsok's are done on segment-level (e.g. no entries
+The function \code{legg_til_wireforsok_per_kar()} uses the data in
+\code{df_ss} to calculate 10 new variables. Variable names are prefixed by
+\code{wireforsok_} and suffixed by level of \code{kar_graft}
+(p.ex.: \code{wireforsok_LAD}, \code{wireforsok_CX},
+\code{wireforsok_CX_veneGraft}, \code{wireforsok_CX_arterieGraft}).
+The variables indicates whether or not a wireforsøk is performed in each
+\code{kar_graft}. If at least one wireforsøk is done in a \code{kar_graft}
+the value of the corresponding variable is \emph{ja}, otherwise the value is
+\emph{nei}. These 10 variables are then merged into \code{df_ap}, before
+\code{df_ap} is returned from the function. For procedures where no
+wireforsok's are done on segment-level (e.g. no entries
 available in \code{df_ss}), the values for the 10 new variables are <NA>.
 Only procedures of type \emph{wireforsoek} are counted.
 }

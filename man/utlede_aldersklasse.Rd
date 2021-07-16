@@ -2,23 +2,28 @@
 % Please edit documentation in R/utlede_variabler.R
 \name{utlede_aldersklasse}
 \alias{utlede_aldersklasse}
-\title{Add variable `aldersklasse` - decades}
+\title{Add variable aldersklasse in decades}
 \usage{
 utlede_aldersklasse(df, var = PasientAlder)
 }
 \arguments{
-\item{df}{data.frame where the new variable should be added.}
+\item{df}{data.frame, must contain a column with age as a continuous
+variable}
 
-\item{var}{Variable name of the numerical variable that contains age as
-a continuous value. Default variable name is `PasientAlder`}
+\item{var}{is the variable name of the age-variable in \code{df}. Default
+value is \code{PasientAlder}.}
 }
 \value{
-data.frame with new variable
+The input data.frame \code{df} is returned as it is,  with one new
+ column named \code{aldersklasse} added.
 }
 \description{
-Under 18 years og above 99 are set as NA
+Groups together ages in age-classes of decades, p.ex. "50-59" where ages 50
+and 59 are min and max values of the age-class. Ages from 18 to 49 are
+grouped together, whereas ages under 18 years or above 99 years are given
+age-class <NA>.
 }
 \examples{
 df <-  data.frame(age = c(10,20,59,60, NA, 61,69,70,99,100))
-df \%>\% utlede_aldersklasse(., var = age)
+utlede_aldersklasse(df = df, var = age)
 }
