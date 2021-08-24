@@ -106,12 +106,14 @@ utlede_ferdigstilt <- function(df,
 #'                 var2 = c(NA, rep("B", 5), NA))
 #' slaa_sammen_variabler(df = x, var1 = var1, var2 = var2,
 #'                       var_name = "var_1_2", slette_gamle = FALSE)
-slaa_sammen_variabler <- function(df, var1, var2, var_name, slette_gamle = FALSE) {
+slaa_sammen_variabler <- function(df,
+                                  var1, var2, var_name,
+                                  slette_gamle = FALSE) {
 
 
   if(class(df %>% dplyr::pull({{ var1 }})) !=
      class(df %>% dplyr::pull({{ var2 }}))) {
-    stop("må vaere samme klasse")
+    stop("maa vaere samme klasse")
   }
 
   klasse <- class(df %>% dplyr::pull({{ var1 }}))
