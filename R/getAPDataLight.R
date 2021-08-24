@@ -26,7 +26,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                              query = "SELECT * FROM AnnenDiag")
 
   # Legger til variabler fra fO til aP
-  ap_light %<>%  dplyr::left_join(
+  aP_light %<>%  dplyr::left_join(
     x = .,
     y = fO %>%
       dplyr::select(
@@ -46,27 +46,27 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
   # (potensielle "tøyseregistreringer")
-  ap_light %<>% noric::fjerne_tulleregistreringer(df = .,
+  aP_light %<>% noric::fjerne_tulleregistreringer(df = .,
                                                   var = .data$ProsedyreData)
 
   # Gjor datoer om til dato-objekt:
-  ap_light %<>%
+  aP_light %<>%
     dplyr::mutate_at(
       vars(ends_with("dato", ignore.case = TRUE)),
       list(ymd))
 
   # Utledete tidsvariabler (aar, maaned, uke osv):
-  ap_light %<>% noric::legg_til_tidsvariabler(df = .,
+  aP_light %<>% noric::legg_til_tidsvariabler(df = .,
                                               var = .data$ProsedyreDato)
 
 
   # Endre Sykehusnavn til kortere versjoner:
-  ap_light %<>% noric::fikse_sykehusnavn(df = .)
+  aP_light %<>% noric::fikse_sykehusnavn(df = .)
 
 
   # Utlede variabler for ferdigstilt eller ikke,
   # Fjerne {-1,0,1}-variablene fra tabellen (forenkle!!)
-  ap_light %<>%
+  aP_light %<>%
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusStart,
                               suffix = "StartSkjema") %>%
@@ -82,26 +82,26 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusKomplikasjoner,
                               suffix = "KomplikSkjema") %>%
-    select(- .data$SkjemaStatusStart,
-           - .data$SkjemastatusHovedskjema,
-           - .data$SkjemaStatusUtskrivelse
-           - .data$SkjemaStatusKomplikasjoner)
+    dplyr::select(- .data$SkjemaStatusStart,
+                  - .data$SkjemastatusHovedskjema,
+                  - .data$SkjemaStatusUtskrivelse
+                  - .data$SkjemaStatusKomplikasjoner)
 
   # Utlede aldersklasser
-  ap_light %<>%
+  aP_light %<>%
     utlede_aldersklasse(df = .,
                         var = .data$PasientAlder)
 
-  # Legger til utledete variabler fra segment Stent til ap_light
-  ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
+  # Legger til utledete variabler fra segment Stent til aP_light
+  aP_light %<>% noric::legg_til_antall_stent(df_ap = .,
                                              df_ss = sS)
 
-  ap_light %<>% noric::legg_til_pci_per_kar(df_ap = .,
+  aP_light %<>% noric::legg_til_pci_per_kar(df_ap = .,
                                             df_ss = sS)
 
 
   # Legger til utledete varibler fra Annen Diagnostikk-tabellen
-  ap_light %<>%
+  aP_light %<>%
     noric::legg_til_trykk_bilde_per_kar(df_ap = .,
                                         df_ad = aD,
                                         metodeType = "FFR") %>%
@@ -113,13 +113,13 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                         metodeType = "IVUS") %>%
     noric::legg_til_trykk_bilde_per_kar(df_ap = .,
                                         df_ad = aD,
-                                        metodeType = "OCT") %>%
+                                        metodeType = "OCT")
 
 
 
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
-  ap_light %<>%
+  aP_light %<>%
     dplyr::mutate(
       Hastegrad = factor(.data$Hastegrad,
                          levels = c("Akutt",
@@ -130,16 +130,16 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # Bare en variabel for symptomdebutDato - og tid.  har sjekket de er like.
   #  Dersom en av dem er NA - brukes den andre, og omvendt
   aP_light %<>%
-    slaa_sammen_variabler(df = .,
-                          var1 = SymptomDato,
-                          var2 = SymptomDebutDato,
-                          var_name = "SymptomdebutDato",
-                          slette_gamle = TRUE) %>%
-    slaa_sammen_variabler(df = .,
-                          var1 = SymptomTid,
-                          var2 = SymptomDebutTid,
-                          var_name = "SymptomdebutTid",
-                          slette_gamle = TRUE)
+    noric::slaa_sammen_variabler(df = .,
+                                 var1 = SymptomDato,
+                                 var2 = SymptomDebutDato,
+                                 var_name = "SymptomdebutDato",
+                                 slette_gamle = TRUE) %>%
+    noric::slaa_sammen_variabler(df = .,
+                                 var1 = SymptomTid,
+                                 var2 = SymptomDebutTid,
+                                 var_name = "SymptomdebutTid",
+                                 slette_gamle = TRUE)
 
   # TO DO:
   # BesUtlEKGDato  og BeslEKGDato. Beholde berre ein variabel
@@ -152,13 +152,14 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                  # -.data$BesUtlEKGTidUkjent )
 
 
-  # Redusere dimensjonen av tabell
- aP_light %<>% dplyr::select(
-   - contains("Ukjent")
-   - .data$FodselsDato,
-   - .data$PasientRegDato,
-   - .data$Studie,
-   - contains("SEGMENT")
- )
-  return(ap_light)
+  # Fjerne noen variabler
+  aP_light %<>%
+    dplyr::select(- contains("Ukjent")
+                  - .data$FodselsDato,
+                  - .data$PasientRegDato,
+                  - .data$Studie,
+                  - contains("SEGMENT"))
+
+
+  aP_light
 }
