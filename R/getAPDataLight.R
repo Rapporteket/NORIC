@@ -64,7 +64,8 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   ap_light %<>% noric::fikse_sykehusnavn(df = .)
 
 
-  # Utlede variabler for ferdigstilt eller ikke
+  # Utlede variabler for ferdigstilt eller ikke,
+  # Fjerne {-1,0,1}-variablene fra tabellen (forenkle!!)
   ap_light %<>%
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusStart,
@@ -80,14 +81,16 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusKomplikasjoner,
-                              suffix = "KomplikSkjema")
+                              suffix = "KomplikSkjema") %>%
+    select(- .data$SkjemaStatusStart,
+           - .data$SkjemastatusHovedskjema,
+           - .data$SkjemaStatusUtskrivelse
+           - .data$SkjemaStatusKomplikasjoner)
 
   # Utlede aldersklasser
   ap_light %<>%
     utlede_aldersklasse(df = .,
-                        var = .data$PasientAlder) %>%
-    dplyr::relocate(.data$aldersklasse,
-                    .after = .data$PasientAlder)
+                        var = .data$PasientAlder)
 
   # Legger til utledete variabler fra segment Stent til ap_light
   ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
@@ -124,12 +127,37 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                     "Planlagt"),
                          ordered = TRUE))
 
+  # Bare en variabel for symptomdebutDato - og tid.  har sjekket de er like.
+  #  Dersom en av dem er NA - brukes den andre, og omvendt
+  aP_light %<>%
+    slaa_sammen_variabler(df = .,
+                          var1 = SymptomDato,
+                          var2 = SymptomDebutDato,
+                          var_name = "SymptomdebutDato",
+                          slette_gamle = TRUE) %>%
+    slaa_sammen_variabler(df = .,
+                          var1 = SymptomTid,
+                          var2 = SymptomDebutTid,
+                          var_name = "SymptomdebutTid",
+                          slette_gamle = TRUE)
+
+  # TO DO:
+  # BesUtlEKGDato  og BeslEKGDato. Beholde berre ein variabel
+  #  + (BesUtlEKGTud, TidUkjent)
+  # Dei er ikkje identiske for sekundærforløp med STEMI, NSTEMI, hjertestans osv
+  # Bør vi ha verdi eller ikkje for desse forløpa ??
+
+  #  aP_light %<>% dplyr::select(-.data$BesUtlEKGDato,
+                                 # -.data$BesUtlEKGTid,
+                                 # -.data$BesUtlEKGTidUkjent )
+
 
   # Redusere dimensjonen av tabell
  aP_light %<>% dplyr::select(
-   - FodselsDato,
-   - PasientRegDato,
-   - Studie,
+   - contains("Ukjent")
+   - .data$FodselsDato,
+   - .data$PasientRegDato,
+   - .data$Studie,
    - contains("SEGMENT")
  )
   return(ap_light)

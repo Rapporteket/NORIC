@@ -14,7 +14,7 @@ utlede_ferdigstilt(df, var = .data$SkjemaStatusStart, suffix = "startSkjema")
 is \code{SkjemaStatusStart}.}
 
 \item{suffix}{wanted suffix in the new variable's name:
-\code{ferdigstilt_suffix}}
+\code{ferdigstilt_suffix}. Default values is "startSkjema".}
 }
 \value{
 The data.frame given in input \code{df} is returned as it is,
@@ -25,7 +25,7 @@ The function \code{utlede_ferdigstilt()} uses the values of variable
 \code{var} to create a new column named \code{ferdigstilt_suffix} in
 \code{df} before \code{df} is returned from the function. The new variable is
 given the value \emph{ja} if \code{var} is 1, and value \emph{nei} if
-\code{var} is -1 of 0.
+\code{var} is -1 or 0.
 }
 \examples{
 x <- data.frame(SkjemaStatusStart = c(-1,-1,0,0,1,-1,0,1,NA),
