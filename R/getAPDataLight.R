@@ -63,9 +63,6 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # Endre Sykehusnavn til kortere versjoner:
   ap_light %<>% noric::fikse_sykehusnavn(df = .)
 
-  # Legge til kvalitetsindikatorene:
-  ap_light %<>% noric::ki_ferdigstilt_komplikasjoner()
-  ap_light %<>% noric::ki_trykkmaaling_utfoert()
 
   # Utlede variabler for ferdigstilt eller ikke,
   # Fjerne {-1,0,1}-variablene fra tabellen (forenkle!!)
@@ -97,7 +94,8 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # Legger til utledete variabler fra segment Stent til ap_light
   ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
                                              df_ss = sS)
-
+  ap_light %<>% noric::satt_inn_stent_i_lms(df_ap = .,
+                                            df_ss = sS)
   ap_light %<>% noric::legg_til_pci_per_kar(df_ap = .,
                                             df_ss = sS)
 
@@ -118,6 +116,9 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                         metodeType = "OCT")
 
 
+  # Legge til kvalitetsindikatorene:
+  ap_light %<>% noric::ki_ferdigstilt_komplikasjoner()
+  ap_light %<>% noric::ki_trykkmaaling_utfoert()
 
 
 
@@ -130,6 +131,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                     "Subakutt",
                                     "Planlagt"),
                          ordered = TRUE))
+
 
   # Bare en variabel for symptomdebutDato - og tid.  har sjekket de er like.
   #  Dersom en av dem er NA - brukes den andre, og omvendt
