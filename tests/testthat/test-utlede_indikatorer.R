@@ -32,8 +32,8 @@ test_that("ki_trykkmaaling_utfoert works", {
 
   x <- data.frame(
     Indikasjon = c(rep("Stabil koronarsykdom", 6), NA, NA, "Annet"),
-    FFR = c(NA, "Ja", "Ja", NA, "Ja", "Ukjent", "Nei","Ja", "Ja"),
-    IFR = c(NA, "Ja", "Nei","Ja", "Ukjent", NA, NA,"Ja", NA))
+    FFR = c(NA, "Ja", "Ja", NA, "Ja", "Ukjent", "Nei", "Ja", "Ja"),
+    IFR = c(NA, "Ja", "Nei", "Ja", "Ukjent", NA, NA, "Ja", NA))
 
 x_out <- noric::ki_trykkmaaling_utfoert(df_ap = x)
 

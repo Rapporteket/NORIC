@@ -72,8 +72,8 @@ ki_ferdigstilt_komplikasjoner <- function(df_ap) {
         .data$ki_komplik_ferdig_dg == "ja" &
           .data$SkjemaStatusKomplikasjoner %in% c(-1, 0) ~ "nei",
 
-
         .data$ki_komplik_ferdig_dg == "nei" ~ NA_character_,
+
         FALSE ~ NA_character_))
 }
 
@@ -113,7 +113,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
         .data$ki_trykkmaaling_dg == "ja" &
           is.na(.data$FFR) & is.na(.data$IFR) ~ "nei",
 
-
         .data$ki_trykkmaaling_dg == "nei" ~ NA_character_,
+
         FALSE ~ NA_character_))
 }

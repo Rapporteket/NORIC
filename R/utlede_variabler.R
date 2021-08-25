@@ -111,22 +111,21 @@ slaa_sammen_variabler <- function(df,
                                   slette_gamle = FALSE) {
 
 
-  if(class(df %>% dplyr::pull({{ var1 }})) !=
-     class(df %>% dplyr::pull({{ var2 }}))) {
+  if (class(df %>% dplyr::pull({{ var1 }})) !=
+      class(df %>% dplyr::pull({{ var2 }}))) {
     stop("maa vaere samme klasse")
   }
 
-  klasse <- class(df %>% dplyr::pull({{ var1 }}))
-
-  df %<>% dplyr::mutate(
+  df %<>%
+    dplyr::mutate(
     "{var_name}" := ifelse(test = is.na({{ var1 }}),
-                          yes = {{ var2 }},
-                          no = {{ var1 }})) %>%
+                           yes = {{ var2 }},
+                           no = {{ var1 }})) %>%
     # Sette på riktig plass i tabellen
     dplyr::relocate(var_name, .after = {{ var2 }})
 
   # Eventuelt slette gamle variabler
-  if(slette_gamle)  df %<>% dplyr::select(- {{var1}}, -{{ var2 }})
+  if (slette_gamle)  df %<>% dplyr::select(- {{var1}}, - {{ var2 }})
 
   df
 }
