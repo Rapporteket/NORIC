@@ -55,6 +55,63 @@ test_that("Number of stents is correct", {
 })
 
 
+test_that("satt inn stent i segment 5 is correct", {
+
+  test_ap <- data.frame(ForlopsID = 1:6,
+                        AvdRESH = rep(1, 6))
+
+  test_ss <- data.frame(ForlopsID = c(1, 1, 1, 3, 4, 5, 5, 5, 6, 6),
+                        AvdRESH = rep(1, 10),
+                        Segment = c(5, 1, 1, 5, 2, 5, 1, 1, 5, 5),
+                        Graft = rep("Nei", 10),
+                        StentType = c("A", "A", NA,
+                                      "B", "C",
+                                      NA, NA, NA,
+                                      "A", "B"))
+
+  # For disse forløpene forventes det at "satt_inn_stent_i_LMS" = ja
+  testthat::expect_true(all(
+    noric::satt_inn_stent_i_lms(df_ap = test_ap,
+                                df_ss = test_ss) %>%
+      dplyr::filter(ForlopsID %in% c(1, 3, 6)) %>%
+      dplyr::pull(satt_inn_stent_i_LMS) == "ja"))
+
+  # For disse forløpene forventes det at satt_inn_stent_i_LMS = nei
+  testthat::expect_true(all(
+    noric::satt_inn_stent_i_lms(df_ap = test_ap,
+                                df_ss = test_ss) %>%
+      dplyr::filter(ForlopsID %in% c(4, 5)) %>%
+      dplyr::pull(satt_inn_stent_i_LMS) == "nei"))
+
+
+  # For disse forløpene forventes det at satt_inn_stent_i_LMS = NA
+  testthat::expect_true(noric::satt_inn_stent_i_lms(df_ap = test_ap,
+                                                    df_ss = test_ss) %>%
+                          dplyr::filter(ForlopsID == 2) %>%
+                          dplyr::pull(satt_inn_stent_i_LMS) %>%
+                          is.na())
+
+
+
+  # Forventet antall rader og kolonner
+  testthat::expect_equal(
+    noric::satt_inn_stent_i_lms(df_ap = test_ap, df_ss = test_ss) %>%
+      dim(),
+    c(6,3))
+
+  # Forventede navn på rader
+  testthat::expect_equal(
+    noric::satt_inn_stent_i_lms(df_ap = test_ap, df_ss = test_ss) %>%
+      names(),
+    c("ForlopsID","AvdRESH", "satt_inn_stent_i_LMS"))
+})
+
+
+
+
+
+
+
 
 test_that("utlede_kar_segmen_stent is correct", {
   x <- data.frame(ForlopsID = 1:23,

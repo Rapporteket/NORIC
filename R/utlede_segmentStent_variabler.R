@@ -18,6 +18,12 @@
 #' \code{Segments} and \code{Grafts} in \code{df_ss} into coronary arteries
 #' and/or grafts in the new variable \code{kar_graft}, then \code{df_ss} is
 #' returned from the function.
+#'
+#' The function \code{satt_inn_stent_i_lms()} adds the variable
+#' \code{satt_inn_stent_i_LMS} in table \code{df_ap}. The variable is binary
+#' and has value \emph{ja} if at least one stent is registered in LMS for the
+#' procedure, value \emph{nei} if 0 stents are registered in LMS and finally
+#'  value \emph{NA} if no rows are available in \code{df_ss} for the procedure.
 
 #'
 #' The function \code{legg_til_pci_per_kar()} uses the data in \code{df_ss} to
@@ -65,6 +71,7 @@
 #' legg_til_antall_stent
 #' utlede_kar_segment_stent
 #' utlede_kar_graft_segment_stent
+#' satt_inn_stent_i_lms
 #' legg_til_pci_per_kar
 #' legg_til_wireforsok_per_kar
 #'
@@ -140,6 +147,70 @@ legg_til_antall_stent <- function(df_ap, df_ss) {
 
 
 
+#' @rdname utlede_segmentStent_variabler
+#' @export
+satt_inn_stent_i_lms <- function(df_ap, df_ss) {
+    # Must contain matching-variables + variables needed for calculations
+    if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "StentType") %in%
+             names(df_ss))) {
+      stop("df_ss must contain variables ForlopsID, AvdRESH, Segment, Graft and
+         StentType")
+    }
+
+    # Must contain matching-variables + variables needed for calculations
+    if (!all(c("ForlopsID", "AvdRESH") %in%
+             names(df_ap))) {
+      stop("df_ap must contain variables ForlopsID and AvdRESH")
+    }
+
+    ss_wide_stent_lms <- df_ss %>%
+
+      # Legge til variabel kar
+      noric::utlede_kar_segment_stent(.) %>%
+      dplyr::select(.data$ForlopsID,
+                    .data$AvdRESH,
+                    .data$kar,
+                    .data$StentType) %>%
+      dplyr::arrange(.data$AvdRESH, .data$ForlopsID, .data$kar) %>%
+
+      # Teller om minst en stent ble satt inn i LMS
+      # Dersom 0 stent i karet  n=0 --> "nei"
+      # Dersom minst en stent i karet blir verdien n > 0 --> "ja"
+      dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar,
+                   wt = !is.na(.data$StentType)) %>%
+      dplyr::mutate(stent_i_kar = ifelse(
+        test = .data$n > 0,
+        yes = "ja",
+        no = "nei")) %>%
+      dplyr::select(- .data$n) %>%
+      dplyr::distinct() %>%
+
+      # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
+      # datasettet SS (finner dem med funksjonen nesting),
+      # komplettes manglende nivåer av kar med verdien "nei"
+      tidyr::complete(.data$kar,
+                      tidyr::nesting(ForlopsID, AvdRESH),
+                      fill = list(stent_i_kar = "nei")) %>%
+
+      # format med en rad per variabel:
+      tidyr::pivot_wider(names_from = .data$kar,
+                         values_from = .data$stent_i_kar) %>%
+
+      # Beholde bare LMS, fjerne de andre karene
+      dplyr::select(.data$AvdRESH,
+                    .data$ForlopsID,
+                    .data$LMS) %>%
+
+      dplyr::rename(satt_inn_stent_i_LMS = LMS)
+
+
+    # Legg til 1 ny variablel i AP : stent_i_LMS = ja/nei/NA.
+    # Forløp i AP som ikke har rader i SS, vil få verdien NA .
+    dplyr::left_join(df_ap,
+                     ss_wide_stent_lms,
+                     by = c("AvdRESH", "ForlopsID"))
+
+  }
 
 
 

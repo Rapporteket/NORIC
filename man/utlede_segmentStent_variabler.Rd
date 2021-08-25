@@ -5,11 +5,14 @@
 \alias{legg_til_antall_stent}
 \alias{utlede_kar_segment_stent}
 \alias{utlede_kar_graft_segment_stent}
+\alias{satt_inn_stent_i_lms}
 \alias{legg_til_pci_per_kar}
 \alias{legg_til_wireforsok_per_kar}
 \title{New variables from NORIC's SementStent-table}
 \usage{
 legg_til_antall_stent(df_ap, df_ss)
+
+satt_inn_stent_i_lms(df_ap, df_ss)
 
 utlede_kar_segment_stent(df_ss)
 
@@ -51,6 +54,12 @@ The function \code{utlede_kar_graft_segment_stent()} groups the
 \code{Segments} and \code{Grafts} in \code{df_ss} into coronary arteries
 and/or grafts in the new variable \code{kar_graft}, then \code{df_ss} is
 returned from the function.
+
+The function \code{satt_inn_stent_i_lms()} adds the variable
+\code{satt_inn_stent_i_LMS} in table \code{df_ap}. The variable is binary
+and has value \emph{ja} if at least one stent is registered in LMS for the
+procedure, value \emph{nei} if 0 stents are registered in LMS and finally
+ value \emph{NA} if no rows are available in \code{df_ss} for the procedure.
 
 The function \code{legg_til_pci_per_kar()} uses the data in \code{df_ss} to
 calculate 10 new variables. Variable names are prefixed by \code{PCI_} and
