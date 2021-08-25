@@ -47,13 +47,13 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
   # (potensielle "tøyseregistreringer")
   ap_light %<>% noric::fjerne_tulleregistreringer(df = .,
-                                                  var = .data$ProsedyreData)
+                                                  var = .data$ProsedyreDato)
 
   # Gjor datoer om til dato-objekt:
   ap_light %<>%
     dplyr::mutate_at(
       vars(ends_with("dato", ignore.case = TRUE)),
-      list(ymd))
+      list(lubridate::ymd))
 
   # Utledete tidsvariabler (aar, maaned, uke osv):
   ap_light %<>% noric::legg_til_tidsvariabler(df = .,
@@ -63,6 +63,9 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # Endre Sykehusnavn til kortere versjoner:
   ap_light %<>% noric::fikse_sykehusnavn(df = .)
 
+  # Legge til kvalitetsindikatorene:
+  ap_light %<>% noric::ki_ferdigstilt_komplikasjoner()
+  ap_light %<>% noric::ki_trykkmaaling_utfoert()
 
   # Utlede variabler for ferdigstilt eller ikke,
   # Fjerne {-1,0,1}-variablene fra tabellen (forenkle!!)
@@ -84,13 +87,12 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                               suffix = "KomplikSkjema") %>%
     dplyr::select(- .data$SkjemaStatusStart,
                   - .data$SkjemastatusHovedskjema,
-                  - .data$SkjemaStatusUtskrivelse
+                  - .data$SkjemaStatusUtskrivelse,
                   - .data$SkjemaStatusKomplikasjoner)
 
   # Utlede aldersklasser
-  ap_light %<>%
-    utlede_aldersklasse(df = .,
-                        var = .data$PasientAlder)
+  ap_light %<>% noric::utlede_aldersklasse(df = .,
+                                           var = .data$PasientAlder)
 
   # Legger til utledete variabler fra segment Stent til ap_light
   ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
@@ -116,9 +118,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                         metodeType = "OCT")
 
 
-  # Legge til kvalitetsindikatorene:
-  ap_light %<>% noric::ki_ferdigstilt_komplikasjoner()
-  ap_light %<>% noric::ki_trykkmaaling_utfoert()
+
 
 
   # Gjøre kategoriske variabler om til factor:
@@ -135,14 +135,14 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   #  Dersom en av dem er NA - brukes den andre, og omvendt
   ap_light %<>%
     noric::slaa_sammen_variabler(df = .,
-                                 var1 = SymptomDato,
-                                 var2 = SymptomDebutDato,
-                                 var_name = "SymptomdebutDato",
+                                 var1 = .data$SymptomDato,
+                                 var2 = .data$SymptomdebutDato,
+                                 var_name = "SymptomDebutDato",
                                  slette_gamle = TRUE) %>%
     noric::slaa_sammen_variabler(df = .,
-                                 var1 = SymptomTid,
-                                 var2 = SymptomDebutTid,
-                                 var_name = "SymptomdebutTid",
+                                 var1 = .data$SymptomTid,
+                                 var2 = .data$SymptomdebutTid,
+                                 var_name = "SymptomDebutTid",
                                  slette_gamle = TRUE)
 
   # TO DO:
@@ -159,11 +159,11 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
   # Fjerne noen variabler
   ap_light %<>%
-    dplyr::select(- contains("Ukjent")
+    dplyr::select(- tidyselect::contains("Ukjent"),
                   - .data$FodselsDato,
                   - .data$PasientRegDato,
                   - .data$Studie,
-                  - contains("SEGMENT"))
+                  - tidyselect::contains("SEGMENT"))
 
 
   ap_light
