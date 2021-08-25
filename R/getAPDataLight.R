@@ -116,6 +116,10 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                         metodeType = "OCT")
 
 
+  # Legge til kvalitetsindikatorene:
+  aP_light %<>% noric::ki_ferdigstilt_komplikasjoner()
+  aP_light %<>% noric::ki_trykkmaaling_utfoert()
+
 
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
