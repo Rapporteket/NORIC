@@ -116,11 +116,12 @@ slaa_sammen_variabler <- function(df,
     stop("maa vaere samme klasse")
   }
 
+
   df %<>%
     dplyr::mutate(
-    "{var_name}" := ifelse(test = is.na({{ var1 }}),
-                           yes = {{ var2 }},
-                           no = {{ var1 }})) %>%
+      "{var_name}" := dplyr::if_else(condition = is.na({{ var1 }}),
+                                     true = {{ var2 }},
+                                     false = {{ var1 }})) %>%
     # Sette på riktig plass i tabellen
     dplyr::relocate(var_name, .after = {{ var2 }})
 
