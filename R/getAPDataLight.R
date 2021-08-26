@@ -119,6 +119,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # Legge til kvalitetsindikatorene:
   ap_light %<>% noric::ki_ferdigstilt_komplikasjoner()
   ap_light %<>% noric::ki_trykkmaaling_utfoert()
+  ap_light %<>% noric::ki_ivus_oct_ved_stenting_lms()
 
 
 
