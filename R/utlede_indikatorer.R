@@ -25,6 +25,21 @@
 #' \item numerator \code{ki_trykkmaaling} has value \emph{ja} if FFR and/or iFR
 #' has been performed.}
 #'
+#' \code{ki_ivus_oct_ved_stenting_lms()}
+#' \itemize{
+#' \item denominator \code{ki_ivus_oct_ved_stenting_lms_dg} (datagrunnlag) is
+#' \emph{ja} when all of these conditions are fulfilled:
+#' \enumerate{
+#'   \item \code{Indikasjon} is one of "Vitieutredning", "Uklare brystsmerter",
+#'  "Annet", "Hjertestans uten STEMI", "Hjertesvikt/kardiomyopati",
+#'   "Komplettering av tidligere PCI", "UAP", "NSTEMI",
+#'   "Stabil koronarsykdom"
+#'   \item \code{satt_inn_stent_i_LMS} = "ja"
+#'   \item \code{TidlABC} is one of "Nei", "Ukjent", NA
+#'   }
+#' \item numerator \code{ki_ivus_oct_ved_stenting_lms} has value \emph{ja} if
+#' IVUS and/or OCT has been performed.
+#' }
 #'
 #'
 #' @param df_ap NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -33,17 +48,30 @@
 #'
 #'
 #' @name utlede_kvalitesindikatorer
-#' @aliases ki_ferdigstilt_komplikasjoner ki_trykkmaaling_utfoert
+#' @aliases
+#' ki_ferdigstilt_komplikasjoner
+#' ki_trykkmaaling_utfoert
+#' ki_ivus_oct_ved_stenting_lms
 #'
 #' @examples
 #'  x <- data.frame(
-#'  SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA),
+#'  SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
+#'  noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
+#'
+#'  x <- data.frame(
 #'  Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
 #'  FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
 #'  IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
-#'
-#'  noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
 #'  noric::ki_trykkmaaling_utfoert(df_ap = x)
+#'
+#'  x <- data.frame(
+#'  Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "Annet"),
+#'  TidlABC = rep("Nei", 6),
+#'  satt_inn_stent_i_LMS = c(rep("ja", 4), NA, "nei"),
+#'  IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
+#'  OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+#'  noric::ki_ivus_oct_ved_stenting_lms(df_ap = x)
+
 NULL
 
 #' @rdname utlede_kvalitesindikatorer
@@ -114,6 +142,68 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
           is.na(.data$FFR) & is.na(.data$IFR) ~ "nei",
 
         .data$ki_trykkmaaling_dg == "nei" ~ NA_character_,
+
+        FALSE ~ NA_character_))
+}
+
+
+
+
+
+
+#' @rdname utlede_kvalitesindikatorer
+#' @export
+ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
+  stopifnot(all(c("Indikasjon","TidlABC", "IVUS",
+                  "OCT", "satt_inn_stent_i_LMS")
+                %in% names(df_ap)))
+
+
+  df_ap %>%
+    dplyr::mutate(
+
+      # Datagrunnlag for indikatoren
+      #  ~ IKKE tidligere ACB-operert
+      #  ~ en av indikasjonene i listen
+      #  ~ prosedyre med stenting av venstre hovedstamme (Segment5 = LMS = VH)
+      ki_ivus_oct_ved_stenting_lms_dg = dplyr::if_else(
+        condition =
+          (.data$TidlABC %in% c("Nei", "Ukjent") | is.na(.data$TidlABC)) &
+          .data$Indikasjon %in% c("Vitieutredning",
+                                  "Uklare brystsmerter",
+                                  "Annet",
+                                  "Hjertestans uten STEMI",
+                                  "Hjertesvikt/kardiomyopati",
+                                  "Komplettering av tidligere PCI",
+                                  "UAP",
+                                  "NSTEMI",
+                                  "Stabil koronarsykdom") &
+          .data$satt_inn_stent_i_LMS == "ja",
+
+        true = "ja",
+        false = "nei",
+        missing = "nei"),
+
+      # utlede verdi for indikatoren dersom datagrunnlag = "ja"
+      # IVUS og/eller OCT er utført
+      ki_ivus_oct_ved_stenting_lms = dplyr::case_when(
+
+        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+          (.data$IVUS == "Ja" | .data$OCT == "Ja") ~ "ja",
+
+        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+          (.data$IVUS != "Ja" & .data$OCT != "Ja") ~ "nei",
+
+        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+          is.na(.data$IVUS) & .data$OCT != "Ja" ~ "nei",
+
+        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+          .data$IVUS != "Ja" & is.na(.data$OCT) ~ "nei",
+
+        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+          is.na(.data$IVUS) & is.na(.data$OCT) ~ "nei",
+
+        .data$ki_ivus_oct_ved_stenting_lms_dg == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }

@@ -4,11 +4,14 @@
 \alias{utlede_kvalitesindikatorer}
 \alias{ki_ferdigstilt_komplikasjoner}
 \alias{ki_trykkmaaling_utfoert}
+\alias{ki_ivus_oct_ved_stenting_lms}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
 
 ki_trykkmaaling_utfoert(df_ap)
+
+ki_ivus_oct_ved_stenting_lms(df_ap)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -41,14 +44,39 @@ Following variables are created for the different functions:
  \emph{Indikasjon = Stabil koronarsykdom}.
 \item numerator \code{ki_trykkmaaling} has value \emph{ja} if FFR and/or iFR
 has been performed.}
+
+\code{ki_ivus_oct_ved_stenting_lms()}
+\itemize{
+\item denominator \code{ki_ivus_oct_ved_stenting_lms_dg} (datagrunnlag) is
+\emph{ja} when all of these conditions are fulfilled:
+\enumerate{
+  \item \code{Indikasjon} is one of {"Vitieutredning", "Uklare brystsmerter",
+ "Annet", "Hjertestans uten STEMI", "Hjertesvikt/kardiomyopati",
+  "Komplettering av tidligere PCI", "UAP", "NSTEMI",
+  "Stabil koronarsykdom"}
+  \item \code{satt_inn_stent_i_LMS} = "ja"
+  \item \code{TidlABC} is one of {"Nei", "Ukjent", NA }
+  }
+\item numerator \code{ki_ivus_oct_ved_stenting_lms} has value \emph{ja} if
+IVUS and/or OCT has been performed.
+}
 }
 \examples{
  x <- data.frame(
- SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA),
+ SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
+ noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
+
+ x <- data.frame(
  Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
  FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
  IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
-
- noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
  noric::ki_trykkmaaling_utfoert(df_ap = x)
+
+ x <- data.frame(
+ Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "Annet"),
+ TidlABC = rep("Nei", 6),
+ satt_inn_stent_i_LMS = c(rep("ja", 4), NA, "nei"),
+ IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
+ OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+ noric::ki_ivus_oct_ved_stenting_lms(df_ap = x)
 }
