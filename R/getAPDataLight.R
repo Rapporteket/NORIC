@@ -81,11 +81,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusKomplikasjoner,
-                              suffix = "KomplikSkjema") %>%
-    dplyr::select(- .data$SkjemaStatusStart,
-                  - .data$SkjemastatusHovedskjema,
-                  - .data$SkjemaStatusUtskrivelse,
-                  - .data$SkjemaStatusKomplikasjoner)
+                              suffix = "KomplikSkjema")
 
   # Utlede aldersklasser
   ap_light %<>% noric::utlede_aldersklasse(df = .,
@@ -166,7 +162,12 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                   - .data$FodselsDato,
                   - .data$PasientRegDato,
                   - .data$Studie,
-                  - tidyselect::contains("SEGMENT"))
+                  - tidyselect::contains("SEGMENT"),
+                  - .data$SkjemaStatusStart,
+                  - .data$SkjemastatusHovedskjema,
+                  - .data$SkjemaStatusUtskrivelse,
+                  - .data$SkjemaStatusKomplikasjoner)
+
 
 
   ap_light
