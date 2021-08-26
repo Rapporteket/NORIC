@@ -117,16 +117,16 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
     TidlABC = c(rep("Ja", 10),
                 rep(c("Nei", "Ukjent", NA_character_), 6),
                 NA_character_, NA_character_),
-    IVUS = rep(c("Ja", "Ja", "Nei", "Ukjent", NA_character_),6 ),
-    OCT = rep(c("Nei", "Ja", "Nei", "Ukjent", NA_character_),6 ))
+    IVUS = rep(c("Ja", "Ja", "Nei", "Ukjent", NA_character_), 6),
+    OCT = rep(c("Nei", "Ja", "Nei", "Ukjent", NA_character_), 6))
 
 
   ss_test <- data.frame(
     AvdRESH = rep(1, 10),
     ForlopsID = c(1:3, 10:13, 20:22),
-    Segment = c(1:5, 5,5,5,10, 40),
+    Segment = c(1:5, 5, 5, 5, 10, 40),
     Graft = rep("Nei", 10),
-    StentType = c(rep(NA_character_,3), rep("A", 4), rep("B", 3))
+    StentType = c(rep(NA_character_, 3), rep("A", 4), rep("B", 3))
   )
 
 
@@ -204,7 +204,8 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(ki_ivus_oct_ved_stenting_lms_dg == "nei") %>%
-      dplyr::pull(ki_ivus_oct_ved_stenting_lms) %>% is.na()))
+      dplyr::pull(ki_ivus_oct_ved_stenting_lms) %>%
+      is.na()))
 
 
   # Forventer at KI er ja dersom i datagrunnlaget og en IVUS/OCT er uført

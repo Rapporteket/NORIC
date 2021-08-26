@@ -154,7 +154,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
-  stopifnot(all(c("Indikasjon","TidlABC", "IVUS",
+  stopifnot(all(c("Indikasjon", "TidlABC", "IVUS",
                   "OCT", "satt_inn_stent_i_LMS")
                 %in% names(df_ap)))
 
