@@ -14,9 +14,26 @@
 
 getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
+  query <- "
+SELECT *
+FROM AngioPCIVar
+  "
+
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query metadata for AngioPCI pivot"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for AngioPCI pivot"
+  }
+
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
 
   ap_light <- rapbase::loadRegData(registryName,
-                                   query = "SELECT * FROM AngioPCIVar")
+                                   query = query)
+
   fO <- rapbase::loadRegData(registryName,
                              query = "SELECT * FROM ForlopsOversikt")
   sS <- rapbase::loadRegData(registryName,
