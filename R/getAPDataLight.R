@@ -147,19 +147,19 @@ FROM AngioPCIVar
                          ordered = TRUE))
 
 
-  # Bare en variabel for symptomdebutDato - og tid.  har sjekket de er like.
-  #  Dersom en av dem er NA - brukes den andre, og omvendt
-  ap_light %<>%
-    noric::slaa_sammen_variabler(df = .,
-                                 var1 = .data$SymptomDato,
-                                 var2 = .data$SymptomdebutDato,
-                                 var_name = "SymptomDebutDato",
-                                 slette_gamle = TRUE) %>%
-    noric::slaa_sammen_variabler(df = .,
-                                 var1 = .data$SymptomTid,
-                                 var2 = .data$SymptomdebutTid,
-                                 var_name = "SymptomDebutTid",
-                                 slette_gamle = TRUE)
+  # # Bare en variabel for symptomdebutDato - og tid.  har sjekket de er like.
+  # #  Dersom en av dem er NA - brukes den andre, og omvendt
+  # ap_light %<>%
+  #   noric::slaa_sammen_variabler(df = .,
+  #                                var1 = .data$SymptomDato,
+  #                                var2 = .data$SymptomdebutDato,
+  #                                var_name = "SymptomDebutDato",
+  #                                slette_gamle = TRUE) %>%
+  #   noric::slaa_sammen_variabler(df = .,
+  #                                var1 = .data$SymptomTid,
+  #                                var2 = .data$SymptomdebutTid,
+  #                                var_name = "SymptomDebutTid",
+  #                                slette_gamle = TRUE)
 
   # TO DO:
   # BesUtlEKGDato  og BeslEKGDato. Beholde berre ein variabel
@@ -174,18 +174,18 @@ FROM AngioPCIVar
 
 
   # Fjerne noen variabler
-  ap_light %<>%
-    dplyr::select(- tidyselect::contains("Ukjent"),
-                  - .data$FodselsDato,
-                  - .data$PasientRegDato,
-                  - .data$Studie,
-                  - tidyselect::contains("SEGMENT"),
-                  - .data$SkjemaStatusStart,
-                  - .data$SkjemastatusHovedskjema,
-                  - .data$SkjemaStatusUtskrivelse,
-                  - .data$SkjemaStatusKomplikasjoner)
-
-
+  # ap_light %<>%
+  #   dplyr::select(- tidyselect::contains("Ukjent"),
+  #                 - .data$FodselsDato,
+  #                 - .data$PasientRegDato,
+  #                 - .data$Studie,
+  #                 - tidyselect::contains("SEGMENT"),
+  #                 - .data$SkjemaStatusStart,
+  #                 - .data$SkjemastatusHovedskjema,
+  #                 - .data$SkjemaStatusUtskrivelse,
+  #                 - .data$SkjemaStatusKomplikasjoner)
+  #
+  #
 
   ap_light
 }
