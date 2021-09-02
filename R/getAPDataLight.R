@@ -14,6 +14,7 @@
 
 getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
+  dbType <- "mysql"
   query <- "
 SELECT *
 FROM AngioPCIVar
@@ -31,6 +32,7 @@ FROM AngioPCIVar
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
+
   ap_light <- rapbase::loadRegData(registryName,
                                    query = query)
 
@@ -40,7 +42,7 @@ FROM AngioPCIVar
                              query = "SELECT * FROM SegmentStent")
 
   aD <- rapbase::loadRegData(registryName,
-                             query = "SELECT * FROM AnnenDiag")
+                             query = "SELECT * FROM AnnenDiagnostikkVar")
 
   # Legger til variabler fra fO til aP
   ap_light %<>%  dplyr::left_join(
