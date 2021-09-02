@@ -107,6 +107,7 @@ FROM AngioPCIVar
   # Legger til utledete variabler fra segment Stent til ap_light
   ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
                                              df_ss = sS)
+  ap_light %<>% noric::legg_til_antall_stent_per_opphold(df_ap = .)
   ap_light %<>% noric::satt_inn_stent_i_lms(df_ap = .,
                                             df_ss = sS)
   ap_light %<>% noric::legg_til_pci_per_kar(df_ap = .,
@@ -130,10 +131,10 @@ FROM AngioPCIVar
 
 
   # Legge til kvalitetsindikatorene:
-  ap_light %<>% noric::ki_ferdigstilt_komplikasjoner()
-  ap_light %<>% noric::ki_trykkmaaling_utfoert()
-  ap_light %<>% noric::ki_ivus_oct_ved_stenting_lms()
-
+  ap_light %<>% noric::ki_ferdigstilt_komplikasjoner(df_ap = .)
+  ap_light %<>% noric::ki_trykkmaaling_utfoert(df_ap = .)
+  ap_light %<>% noric::ki_ivus_oct_ved_stenting_lms(df_ap = .)
+  ap_light %<>% noric::ki_foreskrevet_blodfortynnende(df_ap = .)
 
 
   # Gjøre kategoriske variabler om til factor:
