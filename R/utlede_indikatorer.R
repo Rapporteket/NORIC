@@ -41,10 +41,28 @@
 #' IVUS and/or OCT has been performed.
 #' }
 #'
+#' \code{ki_foreskrevet_blodfortynnende()}
+#' \itemize{
+#' \item denominator \code{ki_foreskrevet_blodfortynnende_dg} (datagrunnlag) is
+#' \emph{ja} when all of these conditions are fulfilled:
+#' \enumerate{
+#'   \item \code{antall_stent_under_opphold} is at least 1
+#'   \item \code{Regtype} = "Primær"
+#'   \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
+#'   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
+#'   "Ukjent" are excluded
+#'   }
+#' \item numerator \code{ki_foreskrevet_blodfortynnende} has value \emph{ja} if
+#' at least two of \code{ASA}, \code{AndrePlatehemmere} or
+#'  \code{Antikoagulantia} are prescribed.
+#' }
 #'
 #' @param df_ap NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
 #' contain some of the variables \code{SkjemaStatusKomplikasjoner},
-#' \code{Indikasjon}, \code{FFR}, \code{IFR}, ....
+#' \code{SkjemaStatusUtskrivelse}, \code{Regtype},
+#' \code{Indikasjon}, \code{FFR}, \code{IFR},
+#' \code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
+#' \code{antall_stent_under_opphold}, ...
 #'
 #'
 #' @name utlede_kvalitesindikatorer
@@ -52,25 +70,38 @@
 #' ki_ferdigstilt_komplikasjoner
 #' ki_trykkmaaling_utfoert
 #' ki_ivus_oct_ved_stenting_lms
+#' ki_foreskrevet_blodfortynnende
 #'
 #' @examples
 #'  x <- data.frame(
-#'  SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
+#'       SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
 #'  noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
 #'
 #'  x <- data.frame(
-#'  Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
-#'  FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-#'  IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+#'       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
+#'       FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
+#'       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
 #'  noric::ki_trykkmaaling_utfoert(df_ap = x)
 #'
 #'  x <- data.frame(
-#'  Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "Annet"),
-#'  TidlABC = rep("Nei", 6),
-#'  satt_inn_stent_i_LMS = c(rep("ja", 4), NA, "nei"),
-#'  IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-#'  OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+#'       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "Annet"),
+#'       TidlABC = rep("Nei", 6),
+#'       satt_inn_stent_i_LMS = c(rep("ja", 4), NA, "nei"),
+#'       IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
+#'       OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
 #'  noric::ki_ivus_oct_ved_stenting_lms(df_ap = x)
+#'
+#'  x <- data.frame(
+#'       antall_stent_under_opphold = 1:6,
+#'       Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
+#'       SkjemaStatusUtskrivelse = 1,
+#'       UtskrevetDod = c(rep("Nei", 5), "Ja"),
+#'       ASA = c("Ja", "Nei", "Ukjent", "Ja", "Ja", "Nei"),
+#'       AndrePlatehemmere = c(NA, "Annet", "Clopidogrel (Plavix)",
+#'                             "Nei", "Nei", NA),
+#'       Antikoagulantia = c(NA, "Annet", "Lixiana", "Marevan",  NA, "Exanta"))
+#' noric::ki_foreskrevet_blodfortynnende(df_ap = x)
+
 
 NULL
 
@@ -147,10 +178,6 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
 }
 
 
-
-
-
-
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
@@ -207,3 +234,90 @@ ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
 
         FALSE ~ NA_character_))
 }
+
+
+
+#' @rdname utlede_kvalitesindikatorer
+#' @export
+ki_foreskrevet_blodfortynnende <- function(df_ap) {
+  stopifnot(all(c("antall_stent_under_opphold",
+                  "Regtype",
+                  "UtskrevetDod",
+                  "SkjemaStatusUtskrivelse",
+                  "ASA",
+                  "AndrePlatehemmere",
+                  "Antikoagulantia")
+                %in% names(df_ap)))
+
+
+  df_ap %>%
+    dplyr::mutate(
+
+      # Datagrunnlag for indikatoren
+      #  ~ Minst en stent satt inn i løpet av oppholdet (primær eller sekundær)
+      #  ~ Primærforløp
+      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent, NA}
+      #  ~ Ferdigstilt utskrivelsesskjema
+      ki_foreskrevet_blodfortynnende_dg = dplyr::if_else(
+        condition =
+          (.data$antall_stent_under_opphold > 0 &
+             .data$Regtype == "Primær" &
+             .data$UtskrevetDod == "Nei" &
+             .data$SkjemaStatusUtskrivelse == 1),
+
+        true = "ja",
+        false = "nei",
+        missing = "nei"),
+
+      # utlede verdi for indikatoren dersom datagrunnlag = "ja"
+      # En av de anbefalte kobinasjonene av blodfortynnende medisiner
+      ki_foreskrevet_blodfortynnende = dplyr::case_when(
+
+        # Gyldige kominasjoner:
+        .data$ki_foreskrevet_blodfortynnende_dg == "ja" &
+          (.data$ASA == "Ja" &
+             !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_))
+        ~ "ja",
+
+        .data$ki_foreskrevet_blodfortynnende_dg == "ja" &
+          (.data$ASA == "Ja" &
+             !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
+        ~ "ja",
+
+        .data$ki_foreskrevet_blodfortynnende_dg == "ja" &
+          (!.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
+             !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
+        ~ "ja",
+
+        # Ugyldige kombinasjoner
+        .data$ki_foreskrevet_blodfortynnende_dg == "ja" &
+          (.data$ASA == "Ja" &
+             .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
+             .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
+        ~ "nei",
+
+        .data$ki_foreskrevet_blodfortynnende_dg == "ja" &
+          (!.data$ASA %in% "Ja" &
+             !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
+             .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
+        ~ "nei",
+
+        .data$ki_foreskrevet_blodfortynnende_dg == "ja" &
+          (!.data$ASA %in% "Ja" &
+             .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
+             !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
+        ~ "nei",
+
+        # Ingen blodfortynnende foreskrevet
+        .data$ki_foreskrevet_blodfortynnende_dg == "ja" &
+          (!.data$ASA %in% "Ja" &
+             .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
+             .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
+        ~ "nei",
+
+        .data$ki_foreskrevet_blodfortynnende_dg == "nei" ~ NA_character_,
+
+        FALSE ~ NA_character_))
+}
+
+

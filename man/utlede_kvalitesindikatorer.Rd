@@ -5,6 +5,7 @@
 \alias{ki_ferdigstilt_komplikasjoner}
 \alias{ki_trykkmaaling_utfoert}
 \alias{ki_ivus_oct_ved_stenting_lms}
+\alias{ki_foreskrevet_blodfortynnende}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
@@ -12,11 +13,16 @@ ki_ferdigstilt_komplikasjoner(df_ap)
 ki_trykkmaaling_utfoert(df_ap)
 
 ki_ivus_oct_ved_stenting_lms(df_ap)
+
+ki_foreskrevet_blodfortynnende(df_ap)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
 contain some of the variables \code{SkjemaStatusKomplikasjoner},
-\code{Indikasjon}, \code{FFR}, \code{IFR}, ....}
+\code{SkjemaStatusUtskrivelse}, \code{Regtype},
+\code{Indikasjon}, \code{FFR}, \code{IFR},
+\code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
+\code{antall_stent_under_opphold}, .... depending on indicator.}
 }
 \description{
 Functions for creating two new variables for each indicator:
@@ -50,15 +56,31 @@ has been performed.}
 \item denominator \code{ki_ivus_oct_ved_stenting_lms_dg} (datagrunnlag) is
 \emph{ja} when all of these conditions are fulfilled:
 \enumerate{
-  \item \code{Indikasjon} is one of {"Vitieutredning", "Uklare brystsmerter",
+  \item \code{Indikasjon} is one of "Vitieutredning", "Uklare brystsmerter",
  "Annet", "Hjertestans uten STEMI", "Hjertesvikt/kardiomyopati",
   "Komplettering av tidligere PCI", "UAP", "NSTEMI",
-  "Stabil koronarsykdom"}
+  "Stabil koronarsykdom"
   \item \code{satt_inn_stent_i_LMS} = "ja"
-  \item \code{TidlABC} is one of {"Nei", "Ukjent", NA }
+  \item \code{TidlABC} is one of "Nei", "Ukjent", NA
   }
 \item numerator \code{ki_ivus_oct_ved_stenting_lms} has value \emph{ja} if
 IVUS and/or OCT has been performed.
+}
+
+\code{ki_foreskrevet_blodfortynnende()}
+\itemize{
+\item denominator \code{ki_foreskrevet_blodfortynnende_dg} (datagrunnlag) is
+\emph{ja} when all of these conditions are fulfilled:
+\enumerate{
+  \item \code{antall_stent_under_opphold} is at least 1
+  \item \code{Regtype} = "Primær"
+  \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
+  \item \code{UtskrevetDod}  = "Nei". Which meant that "NA", "Ja" or "Ukjent
+   are excluded
+  }
+\item numerator \code{ki_foreskrevet_blodfortynnende} has value \emph{ja} if
+at least two of \code{ASA}, \code{AndrePlatehemmere} or
+ \code{Antikoagulantia} are prescribed.
 }
 }
 \examples{
@@ -79,4 +101,15 @@ IVUS and/or OCT has been performed.
  IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
  OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
  noric::ki_ivus_oct_ved_stenting_lms(df_ap = x)
+
+ x <- data.frame(
+      antall_stent_under_opphold = 1:6,
+      Regtype = c("PrimÃ¦r", "PrimÃ¦r", "SekundÃ¦r", rep("PrimÃ¦r", 3)),
+      SkjemaStatusUtskrivelse = 1,
+      UtskrevetDod = c(rep("Nei", 5), "Ja"),
+      ASA = c("Ja", "Nei", "Ukjent", "Ja", "Ja", "Nei"),
+      AndrePlatehemmere = c(NA, "Annet", "Clopidogrel (Plavix)",
+                            "Nei", "Nei", NA),
+      Antikoagulantia = c(NA, "Annet", "Lixiana", "Marevan",  NA, "Exanta"))
+noric::ki_foreskrevet_blodfortynnende(df_ap = x)
 }
