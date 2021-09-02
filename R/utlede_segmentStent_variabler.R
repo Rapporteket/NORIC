@@ -10,6 +10,13 @@
 #'  returned. For procedures with no entries in \code{df_ss},
 #'  \code{antall_stent} has the value <NA>.
 #'
+#' The function \code{legg_til_antall_stent_per_opphold()} groups the
+#' procedures (primærforløp - koblet primærforløp) by main procedure and counts
+#' the total number of stents. If no registration in SegmentStent-table for
+#' any procedure associated with a main procedure, NA is returned. If at least
+#' one registration is available in SegmentStent, the sum om stents is returned
+#' (the sum might be 0, if only other types of interventions were registered).
+#'
 #' The function \code{utlede_kar_segment_stent()} groups the
 #' \code{Segments} in \code{df_ss} into coronary arteries in the new variable
 #' \code{kar}, then \code{df_ss} is returned from the function.
@@ -69,6 +76,7 @@
 #' @name utlede_segmentStent_variabler
 #' @aliases
 #' legg_til_antall_stent
+#' legg_til_antall_stent_per_opphold
 #' utlede_kar_segment_stent
 #' utlede_kar_graft_segment_stent
 #' satt_inn_stent_i_lms
@@ -90,6 +98,18 @@
 #'                 "BMS", "DES", "Annet",
 #'                 NA, NA))
 #' legg_til_antall_stent(df_ap = df_ap, df_ss = df_ss)
+#'
+#'
+#' x <- data.frame(AvdRESH = rep(1, 13),
+#'                 ForlopsID = 101:113,
+#'                 Regtype = c(rep("Primær", 6), rep("Sekundær", 7)),
+#'                 PrimaerForlopsID = c(rep(NA, 6),
+#'                                      101, 102, 102, 103, 104, 106, 50),
+#'                 antall_stent = c(0, 5, NA, 1, NA, NA,
+#'                                  3, 1, 2, 3, NA, NA, 10))
+#' legg_til_antall_stent_per_opphold(x)
+#'
+#'
 #'
 #' # Legg til kar ellerkar_graft i df_ss
 #' df_ss <- data.frame(ForlopsID = 1:23,
@@ -144,6 +164,42 @@ legg_til_antall_stent <- function(df_ap, df_ss) {
                    by = c("AvdRESH", "ForlopsID")) %>%
     dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
 }
+
+
+
+
+#' @rdname utlede_segmentStent_variabler
+#' @export
+legg_til_antall_stent_per_opphold <- function(df_ap) {
+
+  stopifnot(all(c("AvdRESH",
+                  "ForlopsID",
+                  "Regtype",
+                  "PrimaerForlopsID",
+                  "antall_stent") %in% names(df_ap)))
+
+  # Antall stent satt inn under hvert opphold:
+  df_ap %>%
+
+    # Gruppere oppholdene sammen
+    dplyr::mutate(prim_fid = ifelse(.data$Regtype == "Primær",
+                                    yes = .data$ForlopsID,
+                                    no = .data$PrimaerForlopsID)) %>%
+    dplyr::group_by(.data$AvdRESH, .data$prim_fid) %>%
+
+    # Antall stent satt inn under opphold
+    # Dersom ingen informajon i SS for noen av forløpene for oppholdet -->NA
+    # Dersom minst en informasjon i SS (selv om dette er "0 stent") --> summen
+    dplyr::mutate(
+      antall_stent_under_opphold = ifelse(
+        all(is.na(.data$antall_stent)),
+        NA,
+        sum(.data$antall_stent, na.rm = TRUE))) %>%
+
+    dplyr::ungroup()
+
+}
+
 
 
 

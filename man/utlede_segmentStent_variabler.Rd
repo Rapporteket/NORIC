@@ -3,6 +3,7 @@
 \name{utlede_segmentStent_variabler}
 \alias{utlede_segmentStent_variabler}
 \alias{legg_til_antall_stent}
+\alias{legg_til_antall_stent_per_opphold}
 \alias{utlede_kar_segment_stent}
 \alias{utlede_kar_graft_segment_stent}
 \alias{satt_inn_stent_i_lms}
@@ -11,6 +12,8 @@
 \title{New variables from NORIC's SementStent-table}
 \usage{
 legg_til_antall_stent(df_ap, df_ss)
+
+legg_til_antall_stent_per_opphold(df_ap)
 
 satt_inn_stent_i_lms(df_ap, df_ss)
 
@@ -45,6 +48,13 @@ stent-types for each procedure in \code{df_ss}. The variable
  \code{antall_stent} is then added in \code{df_ap} before \code{df_ap} is
  returned. For procedures with no entries in \code{df_ss},
  \code{antall_stent} has the value <NA>.
+
+The function \code{legg_til_antall_stent_per_opphold()} groups the
+procedures (primærforløp - koblet primærforløp) by main procedure and counts
+the total number of stents. If no registration in SegmentStent-table for
+any procedure associated with a main procedure, NA is returned. If at least
+one registration is available in SegmentStent, the sum om stents is returned
+(the sum might be 0, if only other types of interventions were registered).
 
 The function \code{utlede_kar_segment_stent()} groups the
 \code{Segments} in \code{df_ss} into coronary arteries in the new variable
@@ -101,6 +111,18 @@ df_ss <- data.frame(
                 "BMS", "DES", "Annet",
                 NA, NA))
 legg_til_antall_stent(df_ap = df_ap, df_ss = df_ss)
+
+
+x <- data.frame(AvdRESH = rep(1, 13),
+                ForlopsID = 101:113,
+                Regtype = c(rep("PrimÃ¦r", 6), rep("SekundÃ¦r", 7)),
+                PrimaerForlopsID = c(rep(NA, 6),
+                                     101, 102, 102, 103, 104, 106, 50),
+                antall_stent = c(0, 5, NA, 1, NA, NA,
+                                 3, 1, 2, 3, NA, NA, 10))
+legg_til_antall_stent_per_opphold(x)
+
+
 
 # Legg til kar ellerkar_graft i df_ss
 df_ss <- data.frame(ForlopsID = 1:23,
