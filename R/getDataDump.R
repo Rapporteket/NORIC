@@ -111,17 +111,15 @@ WHERE
 
   # Henter FO, som har felt som skal legges til tabellen (med unntak av når
   # tabellene som skal lastes ned er FO eller SO)
-    if (tableName %in% c("AndreProsedyrerVar",
-                        "AnnenDiagnostikkVar",
-                        "AortaklaffVar",
-                        "AortaklaffOppfVar",
-                        "AngioPCIVar",
-                        "CTAngioVar",
-                        "MitralklaffVar",
-                        "PasienterStudier",
-                        "SegmentStent"
-                        )
-  ) {
+  if (tableName %in% c("AndreProsedyrerVar",
+                       "AnnenDiagnostikkVar",
+                       "AortaklaffVar",
+                       "AortaklaffOppfVar",
+                       "AngioPCIVar",
+                       "CTAngioVar",
+                       "MitralklaffVar",
+                       "PasienterStudier",
+                       "SegmentStent")) {
 
 
     fO <- rapbase::loadRegData(registryName,
