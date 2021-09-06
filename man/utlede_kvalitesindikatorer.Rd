@@ -6,6 +6,7 @@
 \alias{ki_trykkmaaling_utfoert}
 \alias{ki_ivus_oct_ved_stenting_lms}
 \alias{ki_foreskrevet_blodfortynnende}
+\alias{ki_foreskrevet_kolesterolsenkende}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
@@ -15,6 +16,8 @@ ki_trykkmaaling_utfoert(df_ap)
 ki_ivus_oct_ved_stenting_lms(df_ap)
 
 ki_foreskrevet_blodfortynnende(df_ap)
+
+ki_foreskrevet_kolesterolsenkende(df_ap)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -22,7 +25,7 @@ contain some of the variables \code{SkjemaStatusKomplikasjoner},
 \code{SkjemaStatusUtskrivelse}, \code{Regtype},
 \code{Indikasjon}, \code{FFR}, \code{IFR},
 \code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
-\code{antall_stent_under_opphold}, .... depending on indicator.}
+\code{antall_stent_under_opphold}, ...}
 }
 \description{
 Functions for creating two new variables for each indicator:
@@ -69,37 +72,52 @@ IVUS and/or OCT has been performed.
 
 \code{ki_foreskrevet_blodfortynnende()}
 \itemize{
-\item denominator \code{ki_foreskrevet_blodfortynnende_dg} (datagrunnlag) is
+\item denominator \code{ki_foreskr_blodfortynnende_dg} (datagrunnlag) is
 \emph{ja} when all of these conditions are fulfilled:
 \enumerate{
   \item \code{antall_stent_under_opphold} is at least 1
   \item \code{Regtype} = "Primær"
   \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
-  \item \code{UtskrevetDod}  = "Nei". Which meant that "NA", "Ja" or "Ukjent
-   are excluded
+  \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
+  "Ukjent" are excluded
   }
 \item numerator \code{ki_foreskrevet_blodfortynnende} has value \emph{ja} if
 at least two of \code{ASA}, \code{AndrePlatehemmere} or
  \code{Antikoagulantia} are prescribed.
 }
+
+\code{ki_foreskrevet_kolesterolsenkende()}
+\itemize{
+\item denominator \code{ki_foreskr_kolesterolsenkende_dg}
+(datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+\enumerate{
+  \item \code{antall_stent_under_opphold} is at least 1
+  \item \code{Regtype} = "Primær"
+  \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
+  \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
+  "Ukjent" are excluded
+  }
+\item numerator \code{ki_foreskr_kolesterolsenkende} has value \emph{ja}
+if \code{UtskrStatiner} is "Ja".
+}
 }
 \examples{
  x <- data.frame(
- SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
+      SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
  noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
 
  x <- data.frame(
- Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
- FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
- IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+      Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
+      FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
+      IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
  noric::ki_trykkmaaling_utfoert(df_ap = x)
 
  x <- data.frame(
- Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "Annet"),
- TidlABC = rep("Nei", 6),
- satt_inn_stent_i_LMS = c(rep("ja", 4), NA, "nei"),
- IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
- OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+      Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "Annet"),
+      TidlABC = rep("Nei", 6),
+      satt_inn_stent_i_LMS = c(rep("ja", 4), NA, "nei"),
+      IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
+      OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
  noric::ki_ivus_oct_ved_stenting_lms(df_ap = x)
 
  x <- data.frame(
@@ -110,6 +128,8 @@ at least two of \code{ASA}, \code{AndrePlatehemmere} or
       ASA = c("Ja", "Nei", "Ukjent", "Ja", "Ja", "Nei"),
       AndrePlatehemmere = c(NA, "Annet", "Clopidogrel (Plavix)",
                             "Nei", "Nei", NA),
-      Antikoagulantia = c(NA, "Annet", "Lixiana", "Marevan",  NA, "Exanta"))
+      Antikoagulantia = c(NA, "Annet", "Lixiana", "Marevan",  NA, "Exanta"),
+      UtskrStatiner = c("Ja", "Ja", NA, "Nei", "Ukjent", "Ja"))
 noric::ki_foreskrevet_blodfortynnende(df_ap = x)
+noric::ki_foreskrevet_kolesterolsenkende(df_ap = x)
 }
