@@ -136,8 +136,8 @@ FROM AngioPCIVar
   ap_light %<>% noric::ki_ferdigstilt_komplikasjoner(df_ap = .)
   ap_light %<>% noric::ki_trykkmaaling_utfoert(df_ap = .)
   ap_light %<>% noric::ki_ivus_oct_ved_stenting_lms(df_ap = .)
-  ap_light %<>% noric::ki_foreskrevet_blodfortynnende(df_ap = .)
-
+  ap_light %<>% noric::ki_foreskr_blodfortynnende(df_ap = .)
+  ap_light %<>% noric::ki_foreskr_kolesterolsenkende(df_ap = .)
 
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
