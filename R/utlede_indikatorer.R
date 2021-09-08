@@ -71,6 +71,26 @@
 #' \item numerator \code{ki_foreskr_kolesterolsenkende} has value \emph{ja}
 #' if \code{UtskrStatiner} is "Ja".
 #' }
+#'
+#'
+#' #' \code{ki_nstemi_utredet_innen24t()}
+#' \itemize{
+#' \item denominator \code{ki_nstemi_utredet_innen24t_dg}
+#' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+#' \enumerate{
+#'   \item \code{Indikasjone} is "NSTEMI"
+#'   \item \code{Regtype} = "Primær"
+#'   \item \code{Innkomstarsak} not "Øvrig" (NA allowed)
+#'   \item \code{Hastegrad}  = "Akutt" or "Subakutt.
+#'   \item{OverflyttetFra} neither "Annen avdeling på sykehuset" nor "NA".
+#'   }
+#' \item numerator \code{ki_nstemi_utredet_innen24t} has value \emph{ja}
+#' if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
+#' value \emph{nei} if  \code{ventetid_nstemi_timer} is in the interval 24hours
+#' to 14 days and value \emph{ugyldig/manglende} if time is negative, longer
+#' than 14 days or missing.
+#' }
+#'
 
 #' @param df_ap NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
 #' contain some of the variables \code{SkjemaStatusKomplikasjoner},
@@ -87,6 +107,7 @@
 #' ki_ivus_oct_ved_stenting_lms
 #' ki_foreskr_blodfortynnende
 #' ki_foreskr_kolesterolsenkende
+#' ki_nstemi_utredet_innen24t
 #'
 #' @examples
 #'  x <- data.frame(
@@ -119,6 +140,14 @@
 #'       UtskrStatiner = c("Ja", "Ja", NA, "Nei", "Ukjent", "Ja"))
 #' noric::ki_foreskr_blodfortynnende(df_ap = x)
 #' noric::ki_foreskr_kolesterolsenkende(df_ap = x)
+#'
+#'  x <- data.frame(
+#'       Indikasjon = c("Annet", NA, "NSTEMI", "NSTEMI", "NSTEMI", "NSTEMI"),
+#'       Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
+#'       Innkomstarsak = rep(c("Brystesmerter", "Øvrig", "Dyspne"), 2),
+#'       Hastegrad = rep("Subakutt", 6),
+#'       ventetid_nstemi_timer = c(1,2,5,10,NA, -350)
+#' noric::ki_nstemi_utredet_innen24t(df_ap = x)
 
 
 NULL
@@ -388,4 +417,70 @@ ki_foreskr_kolesterolsenkende <- function(df_ap) {
         FALSE ~ NA_character_))
 }
 
+
+
+
+
+
+
+#' @rdname utlede_kvalitesindikatorer
+#' @export
+ki_nstemi_utredet_innen24t <- function(df_ap) {
+
+  stopifnot(all(c("Indikasjon",
+                  "Regtype",
+                  "Innkomstarsak",
+                  "Hastegrad",
+                  "OverflyttetFra",
+                  "ventetid_nstemi_timer") %in% names(df_ap)))
+
+
+  df_ap %>%
+    dplyr::mutate(
+
+      # Datagrunnlag for indikatoren
+      #  ~ Indikasjon NSTEMI
+      #  ~ Primærforløp
+      #  ~ Innkomstårsak er alt annet enn "Øvrig" (NA er mulig)
+      #  ~ Ikke planlagte forløp
+      #  ~ OverflyttetFra ulik {NA, "Annen avdeling på sykehuset"}
+      ki_nstemi_utredet_innen24t_dg = dplyr::if_else(
+        condition =
+          (.data$Indikasjon == "NSTEMI" &
+             .data$Regtype == "Primær" &
+             !.data$Innkomstarsak %in% "Øvrig" &  # NA tillates
+             !.data$Hastegrad %in% "Planlagt" &
+             .data$OverflyttetFra != "Annen avdeling på sykehuset"), # ikke NA,
+
+        true = "ja",
+        false = "nei",
+        missing = "nei"),
+
+      # utlede verdi for indikatoren dersom datagrunnlag = "ja"
+      # gylsig ventetid innen 24t.
+      # NB: Dersom ugyldig tid (negativ, over 14dg, manglende) --> NA
+      ki_nstemi_utredet_innen24t = dplyr::case_when(
+
+        .data$ki_nstemi_utredet_innen24t_dg == "ja" &
+          (!is.na(.data$ventetid_nstemi_timer) &
+            .data$ventetid_nstemi_timer >= 0 &
+          .data$ventetid_nstemi_timer <= 24) ~ "ja",
+
+        .data$ki_nstemi_utredet_innen24t_dg == "ja" &
+          (!is.na(.data$ventetid_nstemi_timer) &
+             .data$ventetid_nstemi_timer > 24 &
+             .data$ventetid_nstemi_timer <= 14*24) ~ "nei",
+
+
+        .data$ki_nstemi_utredet_innen24t_dg == "ja" &
+          (is.na(.data$ventetid_nstemi_timer) |
+             .data$ventetid_nstemi_timer < 0 |
+             .data$ventetid_nstemi_timer > 14*24) ~ "ugyldig/manglende",
+
+
+
+        .data$ki_nstemi_utredet_innen24t_dg == "nei" ~ NA_character_,
+
+        FALSE ~ NA_character_))
+}
 

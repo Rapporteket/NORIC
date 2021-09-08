@@ -5,8 +5,9 @@
 \alias{ki_ferdigstilt_komplikasjoner}
 \alias{ki_trykkmaaling_utfoert}
 \alias{ki_ivus_oct_ved_stenting_lms}
-\alias{ki_foreskrevet_blodfortynnende}
-\alias{ki_foreskrevet_kolesterolsenkende}
+\alias{ki_foreskr_blodfortynnende}
+\alias{ki_foreskr_kolesterolsenkende}
+\alias{ki_nstemi_utredet_innen24t}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
@@ -15,9 +16,11 @@ ki_trykkmaaling_utfoert(df_ap)
 
 ki_ivus_oct_ved_stenting_lms(df_ap)
 
-ki_foreskrevet_blodfortynnende(df_ap)
+ki_foreskr_blodfortynnende(df_ap)
 
-ki_foreskrevet_kolesterolsenkende(df_ap)
+ki_foreskr_kolesterolsenkende(df_ap)
+
+ki_nstemi_utredet_innen24t(df_ap)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -70,7 +73,7 @@ has been performed.}
 IVUS and/or OCT has been performed.
 }
 
-\code{ki_foreskrevet_blodfortynnende()}
+\code{ki_foreskr_blodfortynnende()}
 \itemize{
 \item denominator \code{ki_foreskr_blodfortynnende_dg} (datagrunnlag) is
 \emph{ja} when all of these conditions are fulfilled:
@@ -81,12 +84,12 @@ IVUS and/or OCT has been performed.
   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
   "Ukjent" are excluded
   }
-\item numerator \code{ki_foreskrevet_blodfortynnende} has value \emph{ja} if
+\item numerator \code{ki_foreskr_blodfortynnende} has value \emph{ja} if
 at least two of \code{ASA}, \code{AndrePlatehemmere} or
  \code{Antikoagulantia} are prescribed.
 }
 
-\code{ki_foreskrevet_kolesterolsenkende()}
+\code{ki_foreskr_kolesterolsenkende()}
 \itemize{
 \item denominator \code{ki_foreskr_kolesterolsenkende_dg}
 (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
@@ -99,6 +102,25 @@ at least two of \code{ASA}, \code{AndrePlatehemmere} or
   }
 \item numerator \code{ki_foreskr_kolesterolsenkende} has value \emph{ja}
 if \code{UtskrStatiner} is "Ja".
+}
+
+
+#' \code{ki_nstemi_utredet_innen24t()}
+\itemize{
+\item denominator \code{ki_nstemi_utredet_innen24t_dg}
+(datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+\enumerate{
+  \item \code{Indikasjone} is "NSTEMI"
+  \item \code{Regtype} = "Primær"
+  \item \code{Innkomstarsak} not "Øvrig" (NA allowed)
+  \item \code{Hastegrad}  = "Akutt" or "Subakutt.
+  \item{OverflyttetFra} neither "Annen avdeling på sykehuset" nor "NA".
+  }
+\item numerator \code{ki_nstemi_utredet_innen24t} has value \emph{ja}
+if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
+value \emph{nei} if  \code{ventetid_nstemi_timer} is in the interval 24hours
+to 14 days and value \emph{ugyldig/manglende} if time is negative, longer
+than 14 days or missing.
 }
 }
 \examples{
@@ -130,6 +152,14 @@ if \code{UtskrStatiner} is "Ja".
                             "Nei", "Nei", NA),
       Antikoagulantia = c(NA, "Annet", "Lixiana", "Marevan",  NA, "Exanta"),
       UtskrStatiner = c("Ja", "Ja", NA, "Nei", "Ukjent", "Ja"))
-noric::ki_foreskrevet_blodfortynnende(df_ap = x)
-noric::ki_foreskrevet_kolesterolsenkende(df_ap = x)
+noric::ki_foreskr_blodfortynnende(df_ap = x)
+noric::ki_foreskr_kolesterolsenkende(df_ap = x)
+
+ x <- data.frame(
+      Indikasjon = c("Annet", NA, "NSTEMI", "NSTEMI", "NSTEMI", "NSTEMI"),
+      Regtype = c("PrimÃ¦r", "PrimÃ¦r", "SekundÃ¦r", rep("PrimÃ¦r", 3)),
+      Innkomstarsak = rep(c("Brystesmerter", "Ã˜vrig", "Dyspne"), 2),
+      Hastegrad = rep("Subakutt", 6),
+      ventetid_nstemi_timer = c(1,2,5,10,NA, -350)
+noric::ki_nstemi_utredet_innen24t(df_ap = x)
 }
