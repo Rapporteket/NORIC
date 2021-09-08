@@ -14,35 +14,57 @@
 
 getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
-  dbType <- "mysql"
-  query <- "
-SELECT *
-FROM AngioPCIVar
-  "
 
   if (singleRow) {
-    query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query metadata for AngioPCI pivot"
+    msg <- "Query metadata for AngioPCIlight pivot"
+    if ("session" %in% names(list(...))) {
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    }
+
+    # Load only first row for all tables
+    ap_light <- rapbase::loadRegData(
+      registryName,
+      query = "SELECT * FROM AngioPCIVar LIMIT 1;")
+
+    fO <- rapbase::loadRegData(
+      registryName,
+      query = "SELECT * FROM ForlopsOversikt LIMIT 1;")
+
+    sS <- rapbase::loadRegData(
+      registryName,
+      query = "SELECT * FROM SegmentStent LIMIT 1;")
+
+    aD <- rapbase::loadRegData(
+      registryName,
+      query = "SELECT * FROM AnnenDiagnostikkVar LIMIT 1;")
+
+
   } else {
-    query <- paste0(query, ";")
-    msg <- "Query data for AngioPCI pivot"
+    msg <- "Query data for AngioPCIlight pivot"
+    if ("session" %in% names(list(...))) {
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    }
+
+    #  Load complete tables
+    ap_light <- rapbase::loadRegData(
+      registryName,
+      query = "SELECT * FROM AngioPCIVar LIMIT 1;")
+
+    fO <- rapbase::loadRegData(
+      registryName,
+      query = "SELECT * FROM ForlopsOversikt;")
+
+    sS <- rapbase::loadRegData(
+      registryName,
+      query = "SELECT * FROM SegmentStent;")
+
+    aD <- rapbase::loadRegData(
+      registryName,
+      query = "SELECT * FROM AnnenDiagnostikkVar;")
   }
 
-  if ("session" %in% names(list(...))) {
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-  }
 
 
-  ap_light <- rapbase::loadRegData(registryName,
-                                   query = query)
-
-  fO <- rapbase::loadRegData(registryName,
-                             query = "SELECT * FROM ForlopsOversikt")
-  sS <- rapbase::loadRegData(registryName,
-                             query = "SELECT * FROM SegmentStent")
-
-  aD <- rapbase::loadRegData(registryName,
-                             query = "SELECT * FROM AnnenDiagnostikkVar")
 
   # Legger til variabler fra fO til aP
   ap_light %<>%  dplyr::left_join(
@@ -139,6 +161,12 @@ FROM AngioPCIVar
   ap_light %<>% noric::ki_foreskr_blodfortynnende(df_ap = .)
   ap_light %<>% noric::ki_foreskr_kolesterolsenkende(df_ap = .)
 
+  ap_light %<>%
+    noric::legg_til_ventetid_nstemi_timer(df_ap = .) %>%
+    noric::ki_nstemi_utredet_innen24t(df_ap = .) %>%
+    dplyr::select(-.data$ventetid_nstemi_timer)
+
+
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
   ap_light %<>%
@@ -172,8 +200,8 @@ FROM AngioPCIVar
   # Bør vi ha verdi eller ikkje for desse forløpa ??
 
   #  ap_light %<>% dplyr::select(-.data$BesUtlEKGDato,
-                                 # -.data$BesUtlEKGTid,
-                                 # -.data$BesUtlEKGTidUkjent )
+  # -.data$BesUtlEKGTid,
+  # -.data$BesUtlEKGTidUkjent )
 
 
   # Fjerne noen variabler
