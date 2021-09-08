@@ -586,7 +586,7 @@ test_that("ki_nstemi_utredet_innen24t works", {
                   "Planlagt", "Akutt",
                   rep(c("Akutt", "Subakutt"), 6)),
     OverflyttetFra = c(rep("Annet sykehus", 7),
-                       NA, "Annen avdeling på sykehuset",
+                       NA, "Annen  avdeling på sykehuset",
                        rep("Annet sykehus", 11)),
     ventetid_nstemi_timer = c(
       rep(c(-8000, NA, 0, 0.01, 15, 4, 24.0, 24.1, 337),2),
@@ -635,7 +635,7 @@ test_that("ki_nstemi_utredet_innen24t works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$ki_nstemi_utredet_innen24t_dg == "ja") %>%
-      dplyr::pull(.data$OverflyttetFra) != "Annen avdeling på sykehuset"))
+      dplyr::pull(.data$OverflyttetFra) != "Annen  avdeling på sykehuset"))
 
 
   # Forventer at datagrunnlag er nei, dersom indikasjon ulik NSTEMI
@@ -667,7 +667,7 @@ test_that("ki_nstemi_utredet_innen24t works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$OverflyttetFra %in%
-                      c(NA, "Annen avdeling på sykehuset")) %>%
+                      c(NA, "Annen  avdeling på sykehuset")) %>%
       dplyr::pull(.data$ki_nstemi_utredet_innen24t_dg)  == "nei"))
 
 

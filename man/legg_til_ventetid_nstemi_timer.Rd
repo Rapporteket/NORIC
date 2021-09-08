@@ -20,9 +20,9 @@ returnerer \code{df_ap} med en ny kolonne:
 Antall timer mellom Ankomst PCI og Prosedyre for direkte innlagte pasienter.
 Antall timer mellom Innleggelse ved henvisende sykeshus og Prosedyre for
 overfoerte pasienter. Dersom en av datoene/tidspunktene mangler kan ikke
-antall timer regnes ut. Dersom verken \code{OverflyttetFra} mangler eller er
-lik "Annen avd på sykehuset" regnes ikke ventetid ut. Ingen filter paa
-unormalt lange, eller negative, ventetider.
+antall timer regnes ut. Dersom  \code{OverflyttetFra} mangler eller er
+lik "Annen avd paa sykehuset" regnes ikke ventetid ut. Ingen filter paa
+unormalt lange eller negative, ventetider.
 }
 \examples{
 x <- data.frame(

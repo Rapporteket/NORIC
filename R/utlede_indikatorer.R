@@ -82,7 +82,7 @@
 #'   \item \code{Regtype} = "Primær"
 #'   \item \code{Innkomstarsak} not "Øvrig" (NA allowed)
 #'   \item \code{Hastegrad}  = "Akutt" or "Subakutt.
-#'   \item{OverflyttetFra} neither "Annen avdeling på sykehuset" nor "NA".
+#'   \item{OverflyttetFra} neither "Annen  avdeling på sykehuset" nor "NA".
 #'   }
 #' \item numerator \code{ki_nstemi_utredet_innen24t} has value \emph{ja}
 #' if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
@@ -443,14 +443,15 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
       #  ~ Primærforløp
       #  ~ Innkomstårsak er alt annet enn "Øvrig" (NA er mulig)
       #  ~ Ikke planlagte forløp
-      #  ~ OverflyttetFra ulik {NA, "Annen avdeling på sykehuset"}
+      #  ~ OverflyttetFra ulik {NA, "Annen  avdeling på sykehuset"}
+      #  MERK 2 mellomrom mellom annen__avdeling
       ki_nstemi_utredet_innen24t_dg = dplyr::if_else(
         condition =
           (.data$Indikasjon == "NSTEMI" &
              .data$Regtype == "Primær" &
              !.data$Innkomstarsak %in% "Øvrig" &  # NA tillates
              !.data$Hastegrad %in% "Planlagt" &
-             .data$OverflyttetFra != "Annen avdeling på sykehuset"), # ikke NA,
+             .data$OverflyttetFra != "Annen  avdeling på sykehuset"), # ikke NA,
 
         true = "ja",
         false = "nei",
