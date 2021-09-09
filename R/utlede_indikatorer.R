@@ -81,7 +81,8 @@
 #'   \item \code{Regtype} = "Primær"
 #'   \item \code{Innkomstarsak} not "Øvrig" (NA allowed)
 #'   \item \code{Hastegrad}  = "Akutt" or "Subakutt.
-#'   \item{OverflyttetFra} neither "Annen  avdeling på sykehuset" nor "NA".
+#'   \item \code{OverflyttetFra} neither "Annen  avdeling på sykehuset" nor
+#'   "NA".
 #'   }
 #' \item numerator \code{ki_nstemi_utredet_innen24t} has value \emph{ja}
 #' if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
@@ -91,8 +92,30 @@
 #'  \code{\link{noric::legg_til_ventetid_nstemi_timer()}}.
 #' }
 #'
-
-#' @param df_ap NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
+#' \code{ki_stemi_utredet_innen120min()}
+#' \itemize{
+#' \item denominator \code{ki_stemi_utredet_innen120min_dg}
+#' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+#' \enumerate{
+#'   \item \code{AvdRESH} is different from 106944 (AHUS Gardermoen does not
+#'   treat STEMI patients)
+#'   \item \code{Regtype} = "Primær"
+#'   \item \code{Indikasjon} = "STEMI"
+#'   \item \code{GittTrombolyse} is "Nei" or "NA"
+#'   \item \code{Hastegrad}  = "Akutt"
+#'   \item \code{HLRForSykehus} different from  "Ja", "Ukjent"
+#'   \item \code{ProsedyreType} different from "Angio"
+#'   }
+#' \item numerator \code{ki_stemi_utredet_innen120min} has value \emph{ja}
+#' if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
+#' value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
+#' to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative, longer
+#' than 24h or missing. See also function
+#'  \code{\link{noric::legg_til_ventetid_stemi_min()}}.
+#' }
+#'
+#'
+#'@param df_ap NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
 #' contain some of the variables \code{SkjemaStatusKomplikasjoner},
 #' \code{SkjemaStatusUtskrivelse}, \code{Regtype},
 #' \code{Indikasjon}, \code{FFR}, \code{IFR},
@@ -108,6 +131,7 @@
 #' ki_foreskr_blodfortynnende
 #' ki_foreskr_kolesterolsenkende
 #' ki_nstemi_utredet_innen24t
+#' ki_stemi_utredet_innen120min
 #'
 #' @examples
 #'  x <- data.frame(
@@ -484,6 +508,80 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
 
 
         .data$ki_nstemi_utredet_innen24t_dg == "nei" ~ NA_character_,
+
+        FALSE ~ NA_character_))
+}
+
+
+
+
+
+
+
+#' @rdname utlede_kvalitesindikatorer
+#' @export
+ki_stemi_utredet_innen120min <- function(df_ap) {
+
+  stopifnot(all(c("AvdRESH",
+                  "Indikasjon",
+                  "Regtype",
+                  "GittTrombolyse",
+                  "Hastegrad",
+                  "HLRForSykehus",
+                  "ProsedyreType",
+                  "ventetid_stemi_min") %in% names(df_ap)))
+
+
+  df_ap %>%
+    dplyr::mutate(
+
+      # Datagrunnlag for indikatoren
+      #  ~ Ikke AHUS GARDERMOEN
+      #  ~ Indikasjon STEMI
+      #  ~ Primærforløp
+      #  ~ Ikke gitt trombolyse
+      #  ~ Kun akutte forløp
+      #  ~ Ikke hjerte-lungeredning før sykehus
+      #  ~ Ikke prosedyretype Angio
+      ki_stemi_utredet_innen120min_dg = dplyr::if_else(
+        condition =
+          (.data$AvdRESH != 106944 &
+             .data$Indikasjon == "STEMI" &
+             .data$Regtype == "Primær" &
+             .data$GittTrombolyse %in% c("Nei", NA) &  # NA tillates
+             .data$Hastegrad %in% "Akutt" &
+             !.data$HLRForSykehus %in% c("Ja", "Ukjent") &
+             .data$ProsedyreType != "Angio"),
+
+
+        true = "ja",
+        false = "nei",
+        missing = "nei"),
+
+      # utlede verdi for indikatoren dersom datagrunnlag = "ja"
+      # gylsig ventetid innen 24t.
+      # NB: Dersom ugyldig tid (negativ, over 24t, manglende) --> NA
+      ki_stemi_utredet_innen120min = dplyr::case_when(
+
+        .data$ki_stemi_utredet_innen120min_dg == "ja" &
+          (!is.na(.data$ventetid_stemi_min) &
+             .data$ventetid_stemi_min >= 0 &
+             .data$ventetid_stemi_min <= 120) ~ "ja",
+
+        .data$ki_stemi_utredet_innen120min_dg == "ja" &
+          (!is.na(.data$ventetid_stemi_min) &
+             .data$ventetid_stemi_min > 120 &
+             .data$ventetid_stemi_min <= 24*60) ~ "nei",
+
+
+        .data$ki_stemi_utredet_innen120min_dg == "ja" &
+          (is.na(.data$ventetid_stemi_min) |
+             .data$ventetid_stemi_min < 0 |
+             .data$ventetid_stemi_min > 24*60) ~ "ugyldig/manglende",
+
+
+
+        .data$ki_stemi_utredet_innen120min_dg == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }

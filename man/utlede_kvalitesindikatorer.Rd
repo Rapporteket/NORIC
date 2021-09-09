@@ -8,6 +8,7 @@
 \alias{ki_foreskr_blodfortynnende}
 \alias{ki_foreskr_kolesterolsenkende}
 \alias{ki_nstemi_utredet_innen24t}
+\alias{ki_stemi_utredet_innen120min}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
@@ -21,6 +22,8 @@ ki_foreskr_blodfortynnende(df_ap)
 ki_foreskr_kolesterolsenkende(df_ap)
 
 ki_nstemi_utredet_innen24t(df_ap)
+
+ki_stemi_utredet_innen120min(df_ap)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -113,7 +116,8 @@ if \code{UtskrStatiner} is "Ja".
   \item \code{Regtype} = "Primær"
   \item \code{Innkomstarsak} not "Øvrig" (NA allowed)
   \item \code{Hastegrad}  = "Akutt" or "Subakutt.
-  \item{OverflyttetFra} neither "Annen  avdeling på sykehuset" nor "NA".
+  \item \code{OverflyttetFra} neither "Annen  avdeling på sykehuset" nor
+  "NA".
   }
 \item numerator \code{ki_nstemi_utredet_innen24t} has value \emph{ja}
 if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
@@ -121,6 +125,28 @@ value \emph{nei} if  \code{ventetid_nstemi_timer} is in the interval 24hours
 to 14 days and value \emph{ugyldig/manglende} if time is negative, longer
 than 14 days or missing. See also function
  \code{\link{noric::legg_til_ventetid_nstemi_timer()}}.
+}
+
+\code{ki_stemi_utredet_innen120min()}
+\itemize{
+\item denominator \code{ki_stemi_utredet_innen120min_dg}
+(datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+\enumerate{
+  \item \code{AvdRESH} is different from 106944 (AHUS Gardermoen does not
+  treat STEMI patients)
+  \item \code{Regtype} = "Primær"
+  \item \code{Indikasjon} = "STEMI"
+  \item \code{GittTrombolyse} is "Nei" or "NA"
+  \item \code{Hastegrad}  = "Akutt"
+  \item \code{HLRForSykehus} different from  "Ja", "Ukjent"
+  \item \code{ProsedyreType} different from "Angio"
+  }
+\item numerator \code{ki_stemi_utredet_innen120min} has value \emph{ja}
+if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
+value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
+to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative, longer
+than 24h or missing. See also function
+ \code{\link{noric::legg_til_ventetid_stemi_min()}}.
 }
 }
 \examples{
