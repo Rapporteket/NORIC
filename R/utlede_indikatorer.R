@@ -72,8 +72,7 @@
 #' if \code{UtskrStatiner} is "Ja".
 #' }
 #'
-#'
-#' #' \code{ki_nstemi_utredet_innen24t()}
+#' \code{ki_nstemi_utredet_innen24t()}
 #' \itemize{
 #' \item denominator \code{ki_nstemi_utredet_innen24t_dg}
 #' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
@@ -88,7 +87,8 @@
 #' if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
 #' value \emph{nei} if  \code{ventetid_nstemi_timer} is in the interval 24hours
 #' to 14 days and value \emph{ugyldig/manglende} if time is negative, longer
-#' than 14 days or missing.
+#' than 14 days or missing. See also function
+#'  \code{\link{noric::legg_til_ventetid_nstemi_timer()}}.
 #' }
 #'
 
@@ -146,7 +146,10 @@
 #'       Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
 #'       Innkomstarsak = rep(c("Brystesmerter", "Øvrig", "Dyspne"), 2),
 #'       Hastegrad = rep("Subakutt", 6),
-#'       ventetid_nstemi_timer = c(1,2,5,10,NA, -350)
+#'       OverflyttetFra = c("Annen  avdeling på sykehuset",
+#'                          rep("Annet sykehus", 2),
+#'                          rep("Omdirigert ambulanse", 3)),
+#'       ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
 #' noric::ki_nstemi_utredet_innen24t(df_ap = x)
 
 

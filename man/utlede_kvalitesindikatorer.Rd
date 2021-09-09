@@ -104,8 +104,7 @@ at least two of \code{ASA}, \code{AndrePlatehemmere} or
 if \code{UtskrStatiner} is "Ja".
 }
 
-
-#' \code{ki_nstemi_utredet_innen24t()}
+\code{ki_nstemi_utredet_innen24t()}
 \itemize{
 \item denominator \code{ki_nstemi_utredet_innen24t_dg}
 (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
@@ -114,13 +113,14 @@ if \code{UtskrStatiner} is "Ja".
   \item \code{Regtype} = "Primær"
   \item \code{Innkomstarsak} not "Øvrig" (NA allowed)
   \item \code{Hastegrad}  = "Akutt" or "Subakutt.
-  \item{OverflyttetFra} neither "Annen avdeling på sykehuset" nor "NA".
+  \item{OverflyttetFra} neither "Annen  avdeling på sykehuset" nor "NA".
   }
 \item numerator \code{ki_nstemi_utredet_innen24t} has value \emph{ja}
 if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
 value \emph{nei} if  \code{ventetid_nstemi_timer} is in the interval 24hours
 to 14 days and value \emph{ugyldig/manglende} if time is negative, longer
-than 14 days or missing.
+than 14 days or missing. See also function
+ \code{\link{noric::legg_til_ventetid_nstemi_timer()}}.
 }
 }
 \examples{
@@ -160,6 +160,9 @@ noric::ki_foreskr_kolesterolsenkende(df_ap = x)
       Regtype = c("PrimÃ¦r", "PrimÃ¦r", "SekundÃ¦r", rep("PrimÃ¦r", 3)),
       Innkomstarsak = rep(c("Brystesmerter", "Ã˜vrig", "Dyspne"), 2),
       Hastegrad = rep("Subakutt", 6),
-      ventetid_nstemi_timer = c(1,2,5,10,NA, -350)
+      OverflyttetFra = c("Annen  avdeling pÃ¥ sykehuset",
+                         rep("Annet sykehus", 2),
+                         rep("Omdirigert ambulanse", 3)),
+      ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
 noric::ki_nstemi_utredet_innen24t(df_ap = x)
 }
