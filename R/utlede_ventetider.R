@@ -128,7 +128,8 @@ legg_til_ventetid_nstemi_timer <- function(df_ap){
 #'  BesUtlEKGDato = as.Date(c("2020-01-30", "2021-11-14",
 #'                            "2018-04-24", "2020-01-01"),
 #'                          format = "%Y-%m-%d"),
-#'  BesUtlEKGTid = c( "21:10:00", "23:10:00", "05:20:00", NA_character_))
+#'  BesUtlEKGTid = c( "21:10:00", "23:10:00", "05:20:00", NA_character_),
+#'  BeslutningsutlosendeEKG = rep("Ved annet sykehus", 4))
 #' noric::legg_til_ventetid_stemi_min(x)
 
 legg_til_ventetid_stemi_min <- function(df_ap){
