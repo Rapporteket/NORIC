@@ -125,3 +125,69 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
 
 
 })
+
+
+test_that("legg_til_ventetid_stemi_min() works", {
+
+
+
+  x <- data.frame(
+    ProsedyreDato = as.Date(c("2020-01-30", "2021-11-15",
+                              "2020-11-11", "2021-12-24",
+                              "2020-01-19", "2020-01-19",
+                              "2020-01-19", "2020-01-19",
+                              NA, "2020-01-19"),
+                            format = "%Y-%m-%d"),
+
+    ProsedyreTid = c("22:30:00", "01:10:00",
+                     "13:45:00", "12:20:00",
+                     "12:00:00", "12:00:00",
+                     "12:00:00", "12:00:00",
+                     "12:00:00", NA),
+
+    BesUtlEKGDato = as.Date(c("2020-01-30", "2021-11-14",
+                              "2018-04-24", "2020-01-01",
+                              "2020-01-19", "2020-01-20",
+                              "2020-01-19", "2020-01-19",
+                              "2020-01-19", "2020-01-19"),
+                            format = "%Y-%m-%d"),
+
+    BesUtlEKGTid = c( "21:10:00", "23:10:00",
+                      "05:20:00", NA_character_,
+                      "13:05:00", "12:00:00",
+                      "12:00:00", "11:30:30",
+                      "12:00:00", "12:00:00"),
+
+    BeslutningsutlosendeEKG = rep(c("Etter ankomst dette sykehus",
+                                "Prehospitalt",
+                                "Ukjent",
+                                "Ved annet sykehus", NA), 2))
+
+  x_out <- noric::legg_til_ventetid_stemi_min(x)
+
+
+
+  # Forventede variablenavn
+  expect_equal(names(x_out),
+               c("ProsedyreDato",
+                 "ProsedyreTid",
+                 "BesUtlEKGDato",
+                 "BesUtlEKGTid",
+                 "BeslutningsutlosendeEKG",
+                 "ventetid_stemi_min"))
+
+  # Forventer at ventetid mangler dersom en av dato-tidspunkt mangler
+  expect_true(all(
+    x_out %>%
+      dplyr::filter(
+        (is.na(.data$ProsedyreDato) | is.na(.data$ProsedyreTid) |
+           is.na(.data$BesUtlEKGDato) | is.na(.data$BesUtlEKGTid))) %>%
+      dplyr::pull(.data$ventetid_stemi_min) %>%
+      is.na()))
+
+  # Forventet ventetid er denne vektoren
+  expect_equal(
+    x_out %>% dplyr::pull(.data$ventetid_stemi_min),
+    c(80.0, 120.0, 1342585.0, NA, -65.0, -1440.0, NA, 29.5, NA, NA))
+
+})
