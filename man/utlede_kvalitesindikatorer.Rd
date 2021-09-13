@@ -193,13 +193,13 @@ noric::ki_foreskr_kolesterolsenkende(df_ap = x)
 noric::ki_nstemi_utredet_innen24t(df_ap = x)
 
  x <- data.frame(
-      AvdRESH = 1:6
-      Indikasjon = c("Annet", NA, rep("STEMI",4)),
+      AvdRESH = 1:6,
+      Indikasjon = c("Annet", rep("STEMI",5)),
       Regtype = c("PrimÃ¦r", "PrimÃ¦r", "SekundÃ¦r", rep("PrimÃ¦r", 3)),
-      GittTrombolyse = rep("Ja, etter innkomst annet sykehus", 6),
+      GittTrombolyse = rep("Nei", 6),
       Hastegrad = rep("Akutt", 6),
       HLRForSykehus = rep("Nei", 6),
       ProsedyreType = rep("Angio + PCI", 6),
-      ventetid_stemi_min = c(-10, 20, 110, 125, 1150, 1480))
+      ventetid_stemi_min = c(-10, 20, 110, 120, 1150, 1480))
 noric::ki_stemi_pci_innen120min(df_ap = x)
 }
