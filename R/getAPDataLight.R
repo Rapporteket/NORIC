@@ -90,6 +90,10 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   ap_light %<>% noric::fjerne_tulleregistreringer(df = .,
                                                   var = .data$ProsedyreDato)
 
+  # Legg til oppholdsID (samme ID for alle prosedyrer tilknyttet samme sykehus-
+  # opphold)
+  ap_light %<>% noric::utlede_OppholdsID(df =.)
+
   # Gjor datoer om til dato-objekt:
   ap_light %<>%
     dplyr::mutate_at(
@@ -164,7 +168,13 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   ap_light %<>%
     noric::legg_til_ventetid_nstemi_timer(df_ap = .) %>%
     noric::ki_nstemi_utredet_innen24t(df_ap = .) %>%
+    noric::ki_nstemi_utredet_innen72(df_ap = .) %>%
     dplyr::select(-.data$ventetid_nstemi_timer)
+
+  ap_light %<>%
+    noric::legg_til_ventetid_stemi_min(df_ap = .) %>%
+    noric::ki_stemi_pci_innen120min(df_ap = .) %>%
+    dplyr::select(-.data$ventetid_stemi_min)
 
 
   # Gjøre kategoriske variabler om til factor:
