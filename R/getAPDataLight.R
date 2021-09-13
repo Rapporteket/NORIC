@@ -48,7 +48,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
     #  Load complete tables
     ap_light <- rapbase::loadRegData(
       registryName,
-      query = "SELECT * FROM AngioPCIVar LIMIT 1;")
+      query = "SELECT * FROM AngioPCIVar;")
 
     fO <- rapbase::loadRegData(
       registryName,
