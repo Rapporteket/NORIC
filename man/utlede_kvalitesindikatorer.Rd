@@ -124,7 +124,7 @@ if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
 value \emph{nei} if  \code{ventetid_nstemi_timer} is in the interval 24hours
 to 14 days and value \emph{ugyldig/manglende} if time is negative, longer
 than 14 days or missing. See also function
- \code{\link{noric::legg_til_ventetid_nstemi_timer()}}.
+ \link[noric]{legg_til_ventetid_nstemi_timer}.
 }
 
 \code{ki_stemi_utredet_innen120min()}
@@ -146,7 +146,7 @@ if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
 value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
 to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative, longer
 than 24h or missing. See also function
- \code{\link{noric::legg_til_ventetid_stemi_min()}}.
+ \link[noric]{legg_til_ventetid_stemi_min}.
 }
 }
 \examples{

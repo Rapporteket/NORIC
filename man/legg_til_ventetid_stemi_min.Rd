@@ -18,7 +18,7 @@ returnerer \code{df_ap} med en ny kolonne:
 Antall minutter fra beslutningsutløsende EKG til arteriepunksjon.
 Dersom en av datoene/tidspunktene mangler kan ikke ventetiden regnes ut.
 Ingen filter paa unormalt lange eller negative, ventetider. Dette er en
-hjelpefunksjon til \link{\code{ki_stemi_utredet_innen12min()}}, ventetidene
+hjelpefunksjon til \link[noric]{ki_stemi_utredet_innen120min()}, ventetidene
 må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der.
 }
 \examples{
@@ -30,6 +30,7 @@ x <- data.frame(
  BesUtlEKGDato = as.Date(c("2020-01-30", "2021-11-14",
                            "2018-04-24", "2020-01-01"),
                          format = "\%Y-\%m-\%d"),
- BesUtlEKGTid = c( "21:10:00", "23:10:00", "05:20:00", NA_character_))
+ BesUtlEKGTid = c( "21:10:00", "23:10:00", "05:20:00", NA_character_),
+ BeslutningsutlosendeEKG = rep("Ved annet sykehus", 4))
 noric::legg_til_ventetid_stemi_min(x)
 }
