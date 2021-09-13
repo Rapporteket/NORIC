@@ -112,10 +112,7 @@ test_that("satt inn stent i segment 5 is correct", {
 test_that("legg_til_antall_stent_per_opphold is correct", {
 
   x <- data.frame(AvdRESH = rep(1, 13),
-                  ForlopsID = 101:113,
-                  Regtype = c(rep("Primær", 6), rep("Sekundær", 7)),
-                  PrimaerForlopsID = c(rep(NA, 6),
-                                       101, 102, 102, 103, 104, 106, 50),
+                  OppholdsID = c(101:106, 101, 102, 102, 103, 104, 106, 50),
                   antall_stent = c(0, 5, NA, 1, NA, NA,
                                    3, 1, 2, 3, NA, NA, 10))
   x_out <- noric::legg_til_antall_stent_per_opphold(x)
@@ -123,22 +120,20 @@ test_that("legg_til_antall_stent_per_opphold is correct", {
 
   testthat::expect_equal(
     names(x_out),
-    c("AvdRESH", "ForlopsID", "Regtype", "PrimaerForlopsID",
-      "antall_stent", "prim_fid", "antall_stent_under_opphold")
-  )
+    c("AvdRESH", "OppholdsID", "antall_stent", "antall_stent_under_opphold"))
 
 
 
   # Dersom flere forløp for et opphold skal alle forløp ha totalsummen
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(ForlopsID %in% c(102, 108, 109)) %>%
+      dplyr::filter(OppholdsID %in% c(102)) %>%
       dplyr::pull(antall_stent_under_opphold)  == 8))
 
   # Dersom ingen forløp har noe informasjon i SegmentStent, skal NA returneres
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(ForlopsID %in% c(105, 106, 112)) %>%
+      dplyr::filter(OppholdsID %in% c(105, 106)) %>%
       dplyr::pull(antall_stent_under_opphold) %>%
       is.na())
   )
@@ -146,7 +141,7 @@ test_that("legg_til_antall_stent_per_opphold is correct", {
   # Dersom minst et forløp har en registrering, skal ikke NA returneres
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(ForlopsID %in% c(103, 110)) %>%
+      dplyr::filter(OppholdsID %in% c(103)) %>%
       dplyr::pull(antall_stent_under_opphold) == 3)
   )
 

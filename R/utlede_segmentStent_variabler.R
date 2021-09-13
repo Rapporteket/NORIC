@@ -101,13 +101,10 @@
 #'
 #'
 #' x <- data.frame(AvdRESH = rep(1, 13),
-#'                 ForlopsID = 101:113,
-#'                 Regtype = c(rep("Primær", 6), rep("Sekundær", 7)),
-#'                 PrimaerForlopsID = c(rep(NA, 6),
-#'                                      101, 102, 102, 103, 104, 106, 50),
+#'                 OppholdsID = c(101:106, 101, 102, 102, 103, 104, 106, 50),
 #'                 antall_stent = c(0, 5, NA, 1, NA, NA,
 #'                                  3, 1, 2, 3, NA, NA, 10))
-#' legg_til_antall_stent_per_opphold(x)
+#' noric::legg_til_antall_stent_per_opphold(x)
 #'
 #'
 #'
@@ -173,19 +170,14 @@ legg_til_antall_stent <- function(df_ap, df_ss) {
 legg_til_antall_stent_per_opphold <- function(df_ap) {
 
   stopifnot(all(c("AvdRESH",
-                  "ForlopsID",
-                  "Regtype",
-                  "PrimaerForlopsID",
+                  "OppholdsID",
                   "antall_stent") %in% names(df_ap)))
 
   # Antall stent satt inn under hvert opphold:
   df_ap %>%
 
     # Gruppere oppholdene sammen
-    dplyr::mutate(prim_fid = ifelse(.data$Regtype == "Primær",
-                                    yes = .data$ForlopsID,
-                                    no = .data$PrimaerForlopsID)) %>%
-    dplyr::group_by(.data$AvdRESH, .data$prim_fid) %>%
+    dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
 
     # Antall stent satt inn under opphold
     # Dersom ingen informajon i SS for noen av forløpene for oppholdet -->NA

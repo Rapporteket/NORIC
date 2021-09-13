@@ -114,13 +114,10 @@ legg_til_antall_stent(df_ap = df_ap, df_ss = df_ss)
 
 
 x <- data.frame(AvdRESH = rep(1, 13),
-                ForlopsID = 101:113,
-                Regtype = c(rep("PrimÃ¦r", 6), rep("SekundÃ¦r", 7)),
-                PrimaerForlopsID = c(rep(NA, 6),
-                                     101, 102, 102, 103, 104, 106, 50),
+                OppholdsID = c(101:106, 101, 102, 102, 103, 104, 106, 50),
                 antall_stent = c(0, 5, NA, 1, NA, NA,
                                  3, 1, 2, 3, NA, NA, 10))
-legg_til_antall_stent_per_opphold(x)
+noric::legg_til_antall_stent_per_opphold(x)
 
 
 

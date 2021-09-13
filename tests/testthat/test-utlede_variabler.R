@@ -28,6 +28,43 @@ test_that("Utlede aldersklasser", {
 })
 
 
+
+test_that("Utlede OppholdsID fungerer", {
+
+  x <- data.frame(
+         Regtype = c(rep("Primær", 4), "Sekundær", "Sekundær"),
+         ForlopsID = c(1, 2, 3, 4, 5, 6),
+         PrimaerForlopsID = c(rep(NA, 4), 1, 3))
+ x_out <-  noric::utlede_OppholdsID(x)
+
+ testthat::expect_equal(
+   names(x_out),
+   c("Regtype", "ForlopsID", "PrimaerForlopsID", "OppholdsID")
+ )
+
+ expect_true(all(
+   x_out %>%
+     dplyr::filter(.data$ForlopsID %in% c(1, 5)) %>%
+     pull(.data$OppholdsID) == 1))
+
+ expect_true(all(
+   x_out %>%
+     dplyr::filter(.data$ForlopsID %in% c(3, 6)) %>%
+     pull(.data$OppholdsID) == 3))
+
+ expect_equal(
+   x_out %>%
+     dplyr::filter(.data$Regtype  == "Primær") %>%
+     pull(.data$OppholdsID),
+
+     x_out %>%
+     dplyr::filter(.data$Regtype  == "Primær") %>%
+     pull(.data$ForlopsID))
+
+
+})
+
+
 #  TESTER FUNKSONER FOR FERDISTILTE SKJEMA
 test_that("Ferdigstilt skjemaStatus works", {
 

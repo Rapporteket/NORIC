@@ -29,7 +29,36 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
 
 }
 
+#' Add variable OppholdsID
+#'
+#' Procedures that belongs to the same hospital-stay are given the same ID.
+#'
+#' @param df
+#'
+#' @return returns \code{df} with a new column \code{OppholdsID}. For
+#' primaerforlop \code{OppholdsID} are copied from \code{ForlopsID}, whereas
+#' for sekundaerforlop \code{OppholdsID} are copied from
+#'  \code{PrimaerForlopsID} aka \code{KobletForlopsID}.
+#' \code{PrimaerForlopsID}.
+#'
+#' @export
+#'
+#' @examples
+#' x <- data.frame(
+#'    Regtype = c(rep("Primær", 4), "Sekundær", "Sekundær"),
+#'    ForlopsID = c(1, 2, 3, 4, 5, 6),
+#'    PrimaerForlopsID = c(rep(NA, 4), 1, 3))
+#' utlede_OppholdsID(x)
+utlede_OppholdsID <- function(df){
 
+  stopifnot(c("Regtype", "ForlopsID", "PrimaerForlopsID") %in% names(df))
+
+  df %>%
+    dplyr::mutate(OppholdsID = ifelse(.data$Regtype == "Primær",
+                                      yes = .data$ForlopsID,
+                                      no = .data$PrimaerForlopsID))
+
+}
 
 #' Add binary variable for table-status
 #'
@@ -130,3 +159,5 @@ slaa_sammen_variabler <- function(df,
 
   df
 }
+
+
