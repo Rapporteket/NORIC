@@ -131,6 +131,7 @@
 #' ki_foreskr_blodfortynnende
 #' ki_foreskr_kolesterolsenkende
 #' ki_nstemi_utredet_innen24t
+#' ki_nstemi_utredet_innen72t
 #' ki_stemi_pci_innen120min
 #'
 #' @examples
@@ -175,6 +176,7 @@
 #'                          rep("Omdirigert ambulanse", 3)),
 #'       ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
 #' noric::ki_nstemi_utredet_innen24t(df_ap = x)
+#' noric::ki_nstemi_utredet_innen72t(df_ap = x)
 #'
 #'  x <- data.frame(
 #'       AvdRESH = 1:6,
@@ -522,6 +524,72 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
 
         FALSE ~ NA_character_))
 }
+
+
+
+
+#' @rdname utlede_kvalitesindikatorer
+#' @export
+ki_nstemi_utredet_innen72t <- function(df_ap) {
+
+  stopifnot(all(c("Indikasjon",
+                  "Regtype",
+                  "Innkomstarsak",
+                  "Hastegrad",
+                  "OverflyttetFra",
+                  "ventetid_nstemi_timer") %in% names(df_ap)))
+
+
+  df_ap %>%
+    dplyr::mutate(
+
+      # Datagrunnlag for indikatoren
+      #  ~ Indikasjon NSTEMI
+      #  ~ Primærforløp
+      #  ~ Innkomstårsak er alt annet enn "Øvrig" (NA er mulig)
+      #  ~ Ikke planlagte forløp
+      #  ~ OverflyttetFra ulik {NA, "Annen  avdeling på sykehuset"}
+      #  MERK 2 mellomrom mellom annen__avdeling
+      ki_nstemi_utredet_innen72t_dg = dplyr::if_else(
+        condition =
+          (.data$Indikasjon == "NSTEMI" &
+             .data$Regtype == "Primær" &
+             !.data$Innkomstarsak %in% "Øvrig" &  # NA tillates
+             !.data$Hastegrad %in% "Planlagt" &
+             .data$OverflyttetFra != "Annen  avdeling på sykehuset"), # ikke NA,
+
+        true = "ja",
+        false = "nei",
+        missing = "nei"),
+
+      # utlede verdi for indikatoren dersom datagrunnlag = "ja"
+      # gylsig ventetid innen 72t.
+      # NB: Dersom ugyldig tid (negativ, over 14dg, manglende) --> NA
+      ki_nstemi_utredet_innen72t = dplyr::case_when(
+
+        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+          (!is.na(.data$ventetid_nstemi_timer) &
+             .data$ventetid_nstemi_timer >= 0 &
+             .data$ventetid_nstemi_timer <= 72) ~ "ja",
+
+        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+          (!is.na(.data$ventetid_nstemi_timer) &
+             .data$ventetid_nstemi_timer > 72 &
+             .data$ventetid_nstemi_timer <= 14*24) ~ "nei",
+
+
+        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+          (is.na(.data$ventetid_nstemi_timer) |
+             .data$ventetid_nstemi_timer < 0 |
+             .data$ventetid_nstemi_timer > 14*24) ~ "ugyldig/manglende",
+
+
+
+        .data$ki_nstemi_utredet_innen72t_dg == "nei" ~ NA_character_,
+
+        FALSE ~ NA_character_))
+}
+
 
 
 

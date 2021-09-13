@@ -8,6 +8,7 @@
 \alias{ki_foreskr_blodfortynnende}
 \alias{ki_foreskr_kolesterolsenkende}
 \alias{ki_nstemi_utredet_innen24t}
+\alias{ki_nstemi_utredet_innen72t}
 \alias{ki_stemi_pci_innen120min}
 \title{NORIC's quality indicators}
 \usage{
@@ -22,6 +23,8 @@ ki_foreskr_blodfortynnende(df_ap)
 ki_foreskr_kolesterolsenkende(df_ap)
 
 ki_nstemi_utredet_innen24t(df_ap)
+
+ki_nstemi_utredet_innen72t(df_ap)
 
 ki_stemi_pci_innen120min(df_ap)
 }
@@ -191,6 +194,7 @@ noric::ki_foreskr_kolesterolsenkende(df_ap = x)
                          rep("Omdirigert ambulanse", 3)),
       ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
 noric::ki_nstemi_utredet_innen24t(df_ap = x)
+noric::ki_nstemi_utredet_innen72t(df_ap = x)
 
  x <- data.frame(
       AvdRESH = 1:6,
