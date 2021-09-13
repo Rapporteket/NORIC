@@ -8,7 +8,7 @@
 \alias{ki_foreskr_blodfortynnende}
 \alias{ki_foreskr_kolesterolsenkende}
 \alias{ki_nstemi_utredet_innen24t}
-\alias{ki_stemi_utredet_innen120min}
+\alias{ki_stemi_pci_innen120min}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
@@ -23,7 +23,7 @@ ki_foreskr_kolesterolsenkende(df_ap)
 
 ki_nstemi_utredet_innen24t(df_ap)
 
-ki_stemi_utredet_innen120min(df_ap)
+ki_stemi_pci_innen120min(df_ap)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -127,9 +127,9 @@ than 14 days or missing. See also function
  \link[noric]{legg_til_ventetid_nstemi_timer}.
 }
 
-\code{ki_stemi_utredet_innen120min()}
+\code{ki_stemi_pci_innen120min()}
 \itemize{
-\item denominator \code{ki_stemi_utredet_innen120min_dg}
+\item denominator \code{ki_stemi_pci_innen120min_dg}
 (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
 \enumerate{
   \item \code{AvdRESH} is different from 106944 (AHUS Gardermoen does not
@@ -141,7 +141,7 @@ than 14 days or missing. See also function
   \item \code{HLRForSykehus} different from  "Ja", "Ukjent"
   \item \code{ProsedyreType} different from "Angio"
   }
-\item numerator \code{ki_stemi_utredet_innen120min} has value \emph{ja}
+\item numerator \code{ki_stemi_pci_innen120min} has value \emph{ja}
 if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
 value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
 to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative, longer
@@ -191,4 +191,15 @@ noric::ki_foreskr_kolesterolsenkende(df_ap = x)
                          rep("Omdirigert ambulanse", 3)),
       ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
 noric::ki_nstemi_utredet_innen24t(df_ap = x)
+
+ x <- data.frame(
+      AvdRESH = 1:6
+      Indikasjon = c("Annet", NA, rep("STEMI",4)),
+      Regtype = c("PrimÃ¦r", "PrimÃ¦r", "SekundÃ¦r", rep("PrimÃ¦r", 3)),
+      GittTrombolyse = rep("Ja, etter innkomst annet sykehus", 6),
+      Hastegrad = rep("Akutt", 6),
+      HLRForSykehus = rep("Nei", 6),
+      ProsedyreType = rep("Angio + PCI", 6),
+      ventetid_stemi_min = c(-10, 20, 110, 125, 1150, 1480))
+noric::ki_stemi_pci_innen120min(df_ap = x)
 }

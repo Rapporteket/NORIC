@@ -92,9 +92,9 @@
 #'  \link[noric]{legg_til_ventetid_nstemi_timer}.
 #' }
 #'
-#' \code{ki_stemi_utredet_innen120min()}
+#' \code{ki_stemi_pci_innen120min()}
 #' \itemize{
-#' \item denominator \code{ki_stemi_utredet_innen120min_dg}
+#' \item denominator \code{ki_stemi_pci_innen120min_dg}
 #' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
 #' \enumerate{
 #'   \item \code{AvdRESH} is different from 106944 (AHUS Gardermoen does not
@@ -106,7 +106,7 @@
 #'   \item \code{HLRForSykehus} different from  "Ja", "Ukjent"
 #'   \item \code{ProsedyreType} different from "Angio"
 #'   }
-#' \item numerator \code{ki_stemi_utredet_innen120min} has value \emph{ja}
+#' \item numerator \code{ki_stemi_pci_innen120min} has value \emph{ja}
 #' if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
 #' value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
 #' to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative, longer
@@ -131,7 +131,7 @@
 #' ki_foreskr_blodfortynnende
 #' ki_foreskr_kolesterolsenkende
 #' ki_nstemi_utredet_innen24t
-#' ki_stemi_utredet_innen120min
+#' ki_stemi_pci_innen120min
 #'
 #' @examples
 #'  x <- data.frame(
@@ -175,6 +175,17 @@
 #'                          rep("Omdirigert ambulanse", 3)),
 #'       ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
 #' noric::ki_nstemi_utredet_innen24t(df_ap = x)
+#'
+#'  x <- data.frame(
+#'       AvdRESH = 1:6,
+#'       Indikasjon = c("Annet", rep("STEMI",5)),
+#'       Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
+#'       GittTrombolyse = rep("Nei", 6),
+#'       Hastegrad = rep("Akutt", 6),
+#'       HLRForSykehus = rep("Nei", 6),
+#'       ProsedyreType = rep("Angio + PCI", 6),
+#'       ventetid_stemi_min = c(-10, 20, 110, 120, 1150, 1480))
+#' noric::ki_stemi_pci_innen120min(df_ap = x)
 
 
 NULL
@@ -520,7 +531,7 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
 
 #' @rdname utlede_kvalitesindikatorer
 #' @export
-ki_stemi_utredet_innen120min <- function(df_ap) {
+ki_stemi_pci_innen120min <- function(df_ap) {
 
   stopifnot(all(c("AvdRESH",
                   "Indikasjon",
@@ -543,7 +554,7 @@ ki_stemi_utredet_innen120min <- function(df_ap) {
       #  ~ Kun akutte forløp
       #  ~ Ikke hjerte-lungeredning før sykehus
       #  ~ Ikke prosedyretype Angio
-      ki_stemi_utredet_innen120min_dg = dplyr::if_else(
+      ki_stemi_pci_innen120min_dg = dplyr::if_else(
         condition =
           (.data$AvdRESH != 106944 &
              .data$Indikasjon == "STEMI" &
@@ -561,27 +572,27 @@ ki_stemi_utredet_innen120min <- function(df_ap) {
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # gylsig ventetid innen 24t.
       # NB: Dersom ugyldig tid (negativ, over 24t, manglende) --> NA
-      ki_stemi_utredet_innen120min = dplyr::case_when(
+      ki_stemi_pci_innen120min = dplyr::case_when(
 
-        .data$ki_stemi_utredet_innen120min_dg == "ja" &
+        .data$ki_stemi_pci_innen120min_dg == "ja" &
           (!is.na(.data$ventetid_stemi_min) &
              .data$ventetid_stemi_min >= 0 &
              .data$ventetid_stemi_min <= 120) ~ "ja",
 
-        .data$ki_stemi_utredet_innen120min_dg == "ja" &
+        .data$ki_stemi_pci_innen120min_dg == "ja" &
           (!is.na(.data$ventetid_stemi_min) &
              .data$ventetid_stemi_min > 120 &
              .data$ventetid_stemi_min <= 24*60) ~ "nei",
 
 
-        .data$ki_stemi_utredet_innen120min_dg == "ja" &
+        .data$ki_stemi_pci_innen120min_dg == "ja" &
           (is.na(.data$ventetid_stemi_min) |
              .data$ventetid_stemi_min < 0 |
              .data$ventetid_stemi_min > 24*60) ~ "ugyldig/manglende",
 
 
 
-        .data$ki_stemi_utredet_innen120min_dg == "nei" ~ NA_character_,
+        .data$ki_stemi_pci_innen120min_dg == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }

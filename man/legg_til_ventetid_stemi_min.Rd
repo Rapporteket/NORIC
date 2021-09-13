@@ -18,7 +18,7 @@ returnerer \code{df_ap} med en ny kolonne:
 Antall minutter fra beslutningsutløsende EKG til arteriepunksjon.
 Dersom en av datoene/tidspunktene mangler kan ikke ventetiden regnes ut.
 Ingen filter paa unormalt lange eller negative, ventetider. Dette er en
-hjelpefunksjon til \link[noric]{ki_stemi_utredet_innen120min()}, ventetidene
+hjelpefunksjon til \link[noric]{ki_stemi_pci_innen120min()}, ventetidene
 må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der.
 }
 \examples{
