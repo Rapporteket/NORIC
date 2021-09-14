@@ -53,27 +53,28 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
     ap_light <- rapbase::loadRegData(
       registryName,
-      query = paste0("SELECT * FROM AngioPCIVar WHERE ProsedyreDato >= ",
+      query = paste0("SELECT * FROM AngioPCIVar WHERE ProsedyreDato >= '",
                      last_3_years,
-                     " ;"))
+                     "' ;"))
 
     fO <- rapbase::loadRegData(
       registryName,
-      query = paste0("SELECT * FROM ForlopsOversikt WHERE HovedDato >= ",
+      query = paste0("SELECT * FROM ForlopsOversikt WHERE HovedDato >= '",
                      last_3_years,
-                     " ;"))
+                     "' ;"))
 
     sS <- rapbase::loadRegData(
       registryName,
-      query = paste0("SELECT * FROM SegmentStent WHERE ProsedyreDato >= ",
+      query = paste0("SELECT * FROM SegmentStent WHERE ProsedyreDato >= '",
                      last_3_years,
-                     " ;"))
+                     "' ;"))
 
     aD <- rapbase::loadRegData(
       registryName,
-      query = paste0("SELECT * FROM AnnenDiagnostikkVar WHERE ProsedyreDato >=",
-                     last_3_years,
-                     " ;"))
+      query = paste0(
+        "SELECT * FROM AnnenDiagnostikkVar WHERE ProsedyreDato >= '",
+        last_3_years,
+        "' ;"))
   }
 
 
