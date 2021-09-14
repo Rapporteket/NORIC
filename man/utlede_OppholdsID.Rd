@@ -7,7 +7,7 @@
 utlede_OppholdsID(df)
 }
 \arguments{
-\item{df}{}
+\item{df}{data.frame med Angio PCI data}
 }
 \value{
 returns \code{df} with a new column \code{OppholdsID}. For

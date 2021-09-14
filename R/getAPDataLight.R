@@ -45,6 +45,8 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
       rapbase::repLogger(session = list(...)[["session"]], msg = msg)
     }
 
+
+    # latest_entry <- noiric::getLatestEntry(registryName = registryName)
     #  Load complete tables
     ap_light <- rapbase::loadRegData(
       registryName,
@@ -168,7 +170,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   ap_light %<>%
     noric::legg_til_ventetid_nstemi_timer(df_ap = .) %>%
     noric::ki_nstemi_utredet_innen24t(df_ap = .) %>%
-    noric::ki_nstemi_utredet_innen72(df_ap = .) %>%
+    noric::ki_nstemi_utredet_innen72t(df_ap = .) %>%
     dplyr::select(-.data$ventetid_nstemi_timer)
 
   ap_light %<>%

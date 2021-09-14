@@ -33,7 +33,7 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
 #'
 #' Procedures that belongs to the same hospital-stay are given the same ID.
 #'
-#' @param df
+#' @param df data.frame med Angio PCI data
 #'
 #' @return returns \code{df} with a new column \code{OppholdsID}. For
 #' primaerforlop \code{OppholdsID} are copied from \code{ForlopsID}, whereas
