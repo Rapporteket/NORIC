@@ -40,29 +40,40 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
 
   } else {
-    msg <- "Query data for AngioPCIlight pivot"
+    msg <- "Query data for AngioPCI light pivot"
     if ("session" %in% names(list(...))) {
       rapbase::repLogger(session = list(...)[["session"]], msg = msg)
     }
 
+    #  Load complete tables from 3 last years until today
+    latest_entry <- noric::getLatestEntry(registryName = registryName)
+    last_3_years <- as.Date(
+      paste0(as.numeric(lubridate::year(latest_entry))-3, "-01-01"),
+      format = "%Y-%m-%d")
 
-    # latest_entry <- noiric::getLatestEntry(registryName = registryName)
-    #  Load complete tables
     ap_light <- rapbase::loadRegData(
       registryName,
-      query = "SELECT * FROM AngioPCIVar;")
+      query = paste0("SELECT * FROM AngioPCIVar WHERE ProsedyreDato >= ",
+                     last_3_years,
+                     " ;"))
 
     fO <- rapbase::loadRegData(
       registryName,
-      query = "SELECT * FROM ForlopsOversikt;")
+      query = paste0("SELECT * FROM ForlopsOversikt WHERE HovedDato >= ",
+                     last_3_years,
+                     " ;"))
 
     sS <- rapbase::loadRegData(
       registryName,
-      query = "SELECT * FROM SegmentStent;")
+      query = paste0("SELECT * FROM SegmentStent WHERE ProsedyreDato >= ",
+                     last_3_years,
+                     " ;"))
 
     aD <- rapbase::loadRegData(
       registryName,
-      query = "SELECT * FROM AnnenDiagnostikkVar;")
+      query = paste0("SELECT * FROM AnnenDiagnostikkVar WHERE ProsedyreDato >=",
+                     last_3_years,
+                     " ;"))
   }
 
 

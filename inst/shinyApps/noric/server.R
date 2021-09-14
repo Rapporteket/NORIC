@@ -145,7 +145,7 @@ shinyServer(function(input, output, session) {
   ## Data sets available
   if (userRole == "SC") {
     dataSets <- list(`Bruk og valg av data...` = "info",
-                     `Angio PCI med utledete variabler` = "ApLight",
+                     `Angio PCI med utledete variabler, 3 siste år` = "ApLight",
                      `Andre prosedyrer` = "AnP",
                      `Annen diagnostikk` = "AnD",
                      `Angio PCI` = "AP",
@@ -160,7 +160,7 @@ shinyServer(function(input, output, session) {
                      )
   } else {
     dataSets <- list(`Bruk og valg av data...` = "info",
-                     `Angio PCI med utledete variabler` = "ApLight",
+                     `Angio PCI med utledete variabler, 3 siste år` = "ApLight",
                      `Andre prosedyrer` = "AnP",
                      `Annen diagnostikk` = "AnD",
                      `Angio PCI` = "AP",
