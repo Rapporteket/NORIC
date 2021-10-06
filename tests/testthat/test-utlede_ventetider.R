@@ -288,7 +288,7 @@ testthat::expect_equal(
   df_out %>%
     dplyr::filter(
       .data$liggedogn_dg %in% c("ja", "ugyldig tid")) %>%
-    dplyr::pull(.data$antall_dg_mellom_prosedyre_og_utskr),
+    dplyr::pull(.data$liggedogn),
 
   c(1, 365, -29797, -1095, 395))
 
