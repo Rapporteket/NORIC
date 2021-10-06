@@ -138,9 +138,9 @@ df_ss <- data.frame(ForlopsID = c(1,2,3,3,3),
                               rep("Arteriell", 1),
                               rep("Vene", 1)),
                     ProsedyreType = c("Ballong + Stent",
-                                      "WireforsÃ¸k",
+                                      "Wireforsøk",
                                       "Rotablator",
-                                      "WireforsÃ¸k",
+                                      "Wireforsøk",
                                       "Direktestent"))
 legg_til_pci_per_kar(df_ap = df_ap, df_ss = df_ss)
 legg_til_wireforsok_per_kar(df_ap = df_ap, df_ss = df_ss)

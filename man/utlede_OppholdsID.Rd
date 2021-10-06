@@ -21,7 +21,7 @@ Procedures that belongs to the same hospital-stay are given the same ID.
 }
 \examples{
 x <- data.frame(
-   Regtype = c(rep("PrimÃ¦r", 4), "SekundÃ¦r", "SekundÃ¦r"),
+   Regtype = c(rep("Primær", 4), "Sekundær", "Sekundær"),
    ForlopsID = c(1, 2, 3, 4, 5, 6),
    PrimaerForlopsID = c(rep(NA, 4), 1, 3))
 utlede_OppholdsID(x)

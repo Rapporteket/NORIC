@@ -173,7 +173,7 @@ than 24h or missing. See also function
 
  x <- data.frame(
       antall_stent_under_opphold = 1:6,
-      Regtype = c("PrimÃ¦r", "PrimÃ¦r", "SekundÃ¦r", rep("PrimÃ¦r", 3)),
+      Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
       SkjemaStatusUtskrivelse = 1,
       UtskrevetDod = c(rep("Nei", 5), "Ja"),
       ASA = c("Ja", "Nei", "Ukjent", "Ja", "Ja", "Nei"),
@@ -186,10 +186,10 @@ noric::ki_foreskr_kolesterolsenkende(df_ap = x)
 
  x <- data.frame(
       Indikasjon = c("Annet", NA, "NSTEMI", "NSTEMI", "NSTEMI", "NSTEMI"),
-      Regtype = c("PrimÃ¦r", "PrimÃ¦r", "SekundÃ¦r", rep("PrimÃ¦r", 3)),
-      Innkomstarsak = rep(c("Brystesmerter", "Ã˜vrig", "Dyspne"), 2),
+      Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
+      Innkomstarsak = rep(c("Brystesmerter", "Øvrig", "Dyspne"), 2),
       Hastegrad = rep("Subakutt", 6),
-      OverflyttetFra = c("Annen  avdeling pÃ¥ sykehuset",
+      OverflyttetFra = c("Annen  avdeling på sykehuset",
                          rep("Annet sykehus", 2),
                          rep("Omdirigert ambulanse", 3)),
       ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
@@ -199,7 +199,7 @@ noric::ki_nstemi_utredet_innen72t(df_ap = x)
  x <- data.frame(
       AvdRESH = 1:6,
       Indikasjon = c("Annet", rep("STEMI",5)),
-      Regtype = c("PrimÃ¦r", "PrimÃ¦r", "SekundÃ¦r", rep("PrimÃ¦r", 3)),
+      Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
       GittTrombolyse = rep("Nei", 6),
       Hastegrad = rep("Akutt", 6),
       HLRForSykehus = rep("Nei", 6),

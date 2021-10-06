@@ -21,6 +21,6 @@ x <- data.frame(AvdRESH = c(108141, 109880, NA, 123, 105502))
 x \%>\% fikse_sykehusnavn()
 
 y <- data.frame(AvdRESH = c(108141, 109880, NA, 123, 105502),
-                Sykehusnavn = c("AHUS", "UllevÃ¥l", "NA",
+                Sykehusnavn = c("AHUS", "Ullevål", "NA",
                  "test", "Stavanger"))
 }
