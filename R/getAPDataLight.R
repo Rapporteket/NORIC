@@ -14,6 +14,7 @@
 
 getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
+  . <- ""
 
   if (singleRow) {
     msg <- "Query metadata for AngioPCIlight pivot"

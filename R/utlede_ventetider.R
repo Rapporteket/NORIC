@@ -213,6 +213,8 @@ legg_til_ventetid_stemi_min <- function(df_ap){
 #'
 #' @export
 legg_til_liggedogn <- function(df_ap){
+
+  . <- ""
   stopifnot(all(c("OverflyttetFra",
                   "AnkomstPCIDato",
                   "Regtype",

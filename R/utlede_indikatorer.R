@@ -665,3 +665,12 @@ ki_stemi_pci_innen120min <- function(df_ap) {
         FALSE ~ NA_character_))
 }
 
+
+
+
+
+
+
+
+
+

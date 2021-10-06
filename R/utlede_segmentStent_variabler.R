@@ -198,7 +198,10 @@ legg_til_antall_stent_per_opphold <- function(df_ap) {
 #' @rdname utlede_segmentStent_variabler
 #' @export
 satt_inn_stent_i_lms <- function(df_ap, df_ss) {
-    # Must contain matching-variables + variables needed for calculations
+
+  . <- ""
+
+  # Must contain matching-variables + variables needed for calculations
     if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "StentType") %in%
              names(df_ss))) {
       stop("df_ss must contain variables ForlopsID, AvdRESH, Segment, Graft and
@@ -351,6 +354,8 @@ utlede_kar_graft_segment_stent <- function(df_ss) {
 #' @rdname utlede_segmentStent_variabler
 #' @export
 legg_til_pci_per_kar <- function(df_ap, df_ss) {
+
+  . <- ""
 
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "ProsedyreType") %in%

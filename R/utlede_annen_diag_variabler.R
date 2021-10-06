@@ -115,9 +115,10 @@ utlede_kar_annen_diag <- function(df_ad = ad) {
 #' @rdname utlede_annenDiag_variabler
 #' @export
 legg_til_trykk_bilde_per_kar <- function(df_ap,
-                                              df_ad,
-                                              metodeType = "FFR") {
+                                         df_ad,
+                                         metodeType = "FFR") {
 
+  . <- ""
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH", "segment", "graft", "metode") %in%
            names(df_ad))) {
