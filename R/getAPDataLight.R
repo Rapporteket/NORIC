@@ -172,6 +172,8 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
 
 
+  # Legg til liggedogn
+  ap_light %<>% noric::legg_til_liggedogn(df_ap = .)
 
 
   # Fjerne noen variabler.

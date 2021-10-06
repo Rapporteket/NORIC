@@ -55,8 +55,7 @@ Remotes:
   Rapporteket/rapbase,
   andrewsali/shinycssloaders
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     covr, 
     testthat
-

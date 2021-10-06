@@ -87,8 +87,8 @@ legg_til_ventetid_nstemi_timer <- function(df_ap){
                                     .data$HenvisendeSykehusTidspunkt,
                                     units = "hours")), 1),
 
-     # Manglende eller "Annen avd på sykehuset"
-     TRUE ~ NA_real_)) %>%
+        # Manglende eller "Annen avd på sykehuset"
+        TRUE ~ NA_real_)) %>%
 
 
     # Fjerne midlertidige variabler
@@ -154,9 +154,9 @@ legg_til_ventetid_stemi_min <- function(df_ap){
 
 
       ventetid_stemi_min =
-          round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
-                                    .data$BesUtlEkgTidspunkt ,
-                                    units = "mins")), 1),
+        round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
+                                  .data$BesUtlEkgTidspunkt ,
+                                  units = "mins")), 1),
 
       # Fjerner de som har 0 minutters ventetid samtidig som
       # Beslutingsutløsende EKG er Prehospitalt
@@ -171,4 +171,96 @@ legg_til_ventetid_stemi_min <- function(df_ap){
     # Fjerne midlertidige variabler
     dplyr::select(-.data$ProsedyreTidspunkt,
                   -.data$BesUtlEkgTidspunkt)
+}
+
+
+
+
+
+
+
+
+#' Liggedogn
+#'
+#' Antall dager fra AnkomstPCIDato til Utskrivingsdato, kun for primaerforlop
+#' hos direkte innlagte pasienter eller pasienter overfoert fra annet
+#' sykehus.
+#'
+#' @param df_ap data.frame med Angio PCI data fra noric. Maa inneholde
+#' variablene \code{AnkomstPCIDato}, \code{UtskrivingsDato},
+#' \code{OverflyttetFra} og \code{Regtype}.
+#'
+#' @return Returnerer \code{df_ap} med to nye variabler
+#'  \code{liggedogn} og \code{liggedogn_dg}. Variabelen \code{liggedogn}
+#'  inneholder antall dager mellom AnkomstPCI-sykehus og utskrivelse, denne
+#'  kan ogsaa inneholde negative tider og tider over 1 aar.
+#'  Variabelne \code{liggetid_dg} inneholder datagrunnlaget for
+#'  \code{liggedogn} og har verdiene:
+#' \itemize{
+#' \item "nei" for pasienter overfoert fra annen avdeling paa sykehuset eller
+#' der denne informasjonen er manglende.
+#' \item "nei" for sekundaerforlop, da disse ikke har utskrivelsesskjema.
+#' \item "ja" for primaerforlop hos direkte innlagte pasienter eller pasienter
+#' overfoert fra andre sykehus og der liggedogn er i intervallet 0 dager
+#' til 1 aar.
+#' \item "ugyldig" for primaerforlop hos direkte innlagte pasienter
+#' eller pasienter overfoert fra andre sykehusmed og der liggetid er enten et
+#' negativt antall dager eller over 1 aar.
+#' \item "manglende" for primaerforlop hos direkte innlagte pasienter eller
+#' pasienter overfoert fra andre sykehus der utskrivingsdato og/eller
+#' AnkomstPCIDato mangler.
+#'}
+#'
+#' @export
+legg_til_liggedogn <- function(df_ap){
+  stopifnot(all(c("OverflyttetFra",
+                  "AnkomstPCIDato",
+                  "Regtype",
+                  "Utskrivningsdato") %in% names(df_ap)))
+
+  df_ap %>%
+    dplyr::mutate(
+
+      liggedogn = as.numeric(difftime(.data$Utskrivningsdato ,
+                                      .data$AnkomstPCIDato,
+                                      units = "days")),
+
+
+      liggedogn_dg = dplyr::case_when(
+
+        .data$Regtype == "Primær" &
+          .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
+                                      "Omdirigert ambulanse",
+                                      "Annet sykehus") &
+          .data$liggedogn >= 0 & .data$liggedogn <= 365 ~ "ja",
+
+
+        .data$Regtype == "Primær" &
+          .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
+                                      "Omdirigert ambulanse",
+                                      "Annet sykehus") &
+          (.data$liggedogn < 0 | .data$liggedogn > 365) ~ "ugyldig tid",
+
+
+        .data$Regtype == "Primær" &
+          .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
+                                      "Omdirigert ambulanse",
+                                      "Annet sykehus") &
+          (is.na(.data$AnkomstPCIDato) | is.na(Utskrivningsdato)) ~ "manglende",
+
+
+        .data$Regtype == "Primær" &
+          (.data$OverflyttetFra == "Annen  avdeling på sykehuset" |
+             is.na(.data$OverflyttetFra)) ~ "nei",
+
+        .data$Regtype == "Sekundær" ~ "nei",
+
+
+        TRUE ~ "nei"),
+
+
+      liggedogn = ifelse(.data$liggedogn_dg == "nei",yes = NA_integer_,
+                         no = .data$liggedogn))
+
+
 }
