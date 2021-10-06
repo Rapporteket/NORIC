@@ -124,7 +124,6 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
 
   # Utlede variabler for ferdigstilt eller ikke,
-  # Fjerne {-1,0,1}-variablene fra tabellen (forenkle!!)
   ap_light %<>%
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusStart,
@@ -146,30 +145,14 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   ap_light %<>% noric::utlede_aldersklasse(df = .,
                                            var = .data$PasientAlder)
 
-  # Legger til utledete variabler fra segment Stent til ap_light
+  # Legger til utledete variabler fra segment Stent til ap_light,
+  # Noen er hjelpevariabler som brukes i KI-funksjonene. Disse fjernes
+  # før de legges i utforsker.
   ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
                                              df_ss = sS)
   ap_light %<>% noric::legg_til_antall_stent_per_opphold(df_ap = .)
   ap_light %<>% noric::satt_inn_stent_i_lms(df_ap = .,
                                             df_ss = sS)
-  ap_light %<>% noric::legg_til_pci_per_kar(df_ap = .,
-                                            df_ss = sS)
-
-
-  # Legger til utledete varibler fra Annen Diagnostikk-tabellen
-  ap_light %<>%
-    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
-                                        df_ad = aD,
-                                        metodeType = "FFR") %>%
-    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
-                                        df_ad = aD,
-                                        metodeType = "iFR") %>%
-    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
-                                        df_ad = aD,
-                                        metodeType = "IVUS") %>%
-    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
-                                        df_ad = aD,
-                                        metodeType = "OCT")
 
 
   # Legge til kvalitetsindikatorene:
@@ -182,17 +165,37 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   ap_light %<>%
     noric::legg_til_ventetid_nstemi_timer(df_ap = .) %>%
     noric::ki_nstemi_utredet_innen24t(df_ap = .) %>%
-    noric::ki_nstemi_utredet_innen72t(df_ap = .) %>%
-    dplyr::select(-.data$ventetid_nstemi_timer)
-
+    noric::ki_nstemi_utredet_innen72t(df_ap = .)
   ap_light %<>%
     noric::legg_til_ventetid_stemi_min(df_ap = .) %>%
-    noric::ki_stemi_pci_innen120min(df_ap = .) %>%
-    dplyr::select(-.data$ventetid_stemi_min)
+    noric::ki_stemi_pci_innen120min(df_ap = .)
 
+
+
+
+
+  # Fjerne noen variabler.
+  #  Se variablliste fra NORIC
+  ap_light %<>%
+    dplyr::select(- .data$SkjemaStatusStart,
+                  - .data$SkjemastatusHovedskjema,
+                  - .data$SkjemaStatusUtskrivelse,
+                  - .data$SkjemaStatusKomplikasjoner,
+                  - tidyselect::contains("Ukjent"),
+                  - .data$PasientRegDato,
+                  - .data$Studie,
+                  -.data$BesUtlEKGDato,
+                  -.data$BesUtlEKGTid,
+                  -.data$KillipKlasseAnkomst,
+                  -.data$KardiogentSjokk,
+                  -.data$Kreatinin)
+
+  # Fjerne utledete hjelpevariabler
+  ap_light %<>%
+    dplyr::select(- .data$antall_stent_under_opphold,
+                  - .data$satt_inn_stent_i_LMS)
 
   # Gjøre kategoriske variabler om til factor:
-  # (ikke fullstendig, må legge til mer etter hvert)
   ap_light %<>%
     dplyr::mutate(
       Hastegrad = factor(.data$Hastegrad,
@@ -200,47 +203,6 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
                                     "Subakutt",
                                     "Planlagt"),
                          ordered = TRUE))
-
-
-  # # Bare en variabel for symptomdebutDato - og tid.  har sjekket de er like.
-  # #  Dersom en av dem er NA - brukes den andre, og omvendt
-  # ap_light %<>%
-  #   noric::slaa_sammen_variabler(df = .,
-  #                                var1 = .data$SymptomDato,
-  #                                var2 = .data$SymptomdebutDato,
-  #                                var_name = "SymptomDebutDato",
-  #                                slette_gamle = TRUE) %>%
-  #   noric::slaa_sammen_variabler(df = .,
-  #                                var1 = .data$SymptomTid,
-  #                                var2 = .data$SymptomdebutTid,
-  #                                var_name = "SymptomDebutTid",
-  #                                slette_gamle = TRUE)
-
-  # TO DO:
-  # BesUtlEKGDato  og BeslEKGDato. Beholde berre ein variabel
-  #  + (BesUtlEKGTud, TidUkjent)
-  # Dei er ikkje identiske for sekundærforløp med STEMI, NSTEMI,
-  # hjertestans osv
-  # Bør vi ha verdi eller ikkje for desse forløpa ??
-
-  #  ap_light %<>% dplyr::select(-.data$BesUtlEKGDato,
-  # -.data$BesUtlEKGTid,
-  # -.data$BesUtlEKGTidUkjent )
-
-
-  # Fjerne noen variabler
-  # ap_light %<>%
-  #   dplyr::select(- tidyselect::contains("Ukjent"),
-  #                 - .data$FodselsDato,
-  #                 - .data$PasientRegDato,
-  #                 - .data$Studie,
-  #                 - tidyselect::contains("SEGMENT"),
-  #                 - .data$SkjemaStatusStart,
-  #                 - .data$SkjemastatusHovedskjema,
-  #                 - .data$SkjemaStatusUtskrivelse,
-  #                 - .data$SkjemaStatusKomplikasjoner)
-  #
-  #
 
   ap_light
 }
