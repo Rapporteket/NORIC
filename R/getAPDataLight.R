@@ -179,18 +179,124 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # Fjerne noen variabler.
   #  Se variablliste fra NORIC
   ap_light %<>%
-    dplyr::select(- .data$SkjemaStatusStart,
-                  - .data$SkjemastatusHovedskjema,
-                  - .data$SkjemaStatusUtskrivelse,
-                  - .data$SkjemaStatusKomplikasjoner,
-                  - tidyselect::contains("Ukjent"),
-                  - .data$PasientRegDato,
-                  - .data$Studie,
-                  -.data$BesUtlEKGDato,
-                  -.data$BesUtlEKGTid,
-                  -.data$KillipKlasseAnkomst,
-                  -.data$KardiogentSjokk,
-                  -.data$Kreatinin)
+    dplyr::select(
+      # Foretrekker de utledete "ferdigstilt.. " variablene:
+      - .data$SkjemaStatusStart,
+      - .data$SkjemastatusHovedskjema,
+      - .data$SkjemaStatusUtskrivelse,
+      - .data$SkjemaStatusKomplikasjoner,
+
+      # Overflødig, fordi tilhørende kont. verdi er NA:
+      - tidyselect::contains("Ukjent"),
+
+      # Ikke i bruk
+      - .data$PasientRegDato,
+      - .data$Studie,
+
+      # Dobbelt opp av disse, fjerne minst komplette/feil (sept 2021):
+      -.data$BesUtlEKGDato,
+      -.data$BesUtlEKGTid,
+      -.data$KillipKlasseAnkomst,
+      -.data$KardiogentSjokk,
+      -.data$Kreatinin,
+
+      # Fjerne alle init-medikamenter:
+      -.data$InitASA,
+      -.data$InitAntikoagulantia,
+      -.data$InitAndrePlatehemmere,
+      -.data$InitStatiner,
+      -.data$InitNSAID,
+      -.data$InitACEHemmere,
+      -.data$InitA2Blokkere,
+      -.data$InitBetaBlokkere,
+      -.data$InitCaHemmere,
+      -.data$InitDiabetesPrOral,
+      -.data$InitDigitalis,
+      -.data$InitDiuretika,
+      -.data$InitAldosteronantagonist,
+      -.data$InitOvrigLipid,
+      -.data$InitNitroglycerin,
+
+      # Fjerne alle init blodprøver
+      - .data$Infarktmarkoer,
+      - .data$InfarktMarkoerMax,
+      - .data$Kolesterol,
+      - .data$Triglycerider,
+      - .data$HDL,
+      - .data$MaaltLDL,
+      - .data$SGlukose,
+      - .data$HbA1c,
+      - .data$Kreatinin,
+      - .data$CRP,
+      - .data$Hemoglobin,
+
+      # # Fjerne medikamenter Før
+      # - .data$AntitrombotiskFor,
+      # - .data$TrombolyseFor,
+      # - .data$ASAFor,
+      # - .data$ClopidogrelFor,
+      # - .data$PrasugrelFor,
+      # - .data$TicagrelorFor,
+      # - .data$HeparinFor,
+      # - .data$DalteparinFor,
+      # - .data$EnoxaparinFor,
+      # - .data$AnnetLavmolHeparinFor,
+      # - .data$BivalirudinFor,
+      # - .data$FondaparinuxFor,
+      # - .data$AbciximabFor,
+      # - .data$EptifibatidFor,
+      # - .data$TirofibanFor,
+      # - .data$WarfarinFor,
+      # - .data$DabigatranFor,
+      # - .data$ApiksabanFor,
+      # - .data$RivaroksabanFor,
+      # - .data$EdoksabanFor,
+      # - .data$KangrelorFor,
+      # - .data$AnnetAntitrombotiskFor
+      #
+      # # Fjerne medikamenter under
+      # - .data$AntitrombotiskUnder,
+      # - .data$TrombolyseUnder,
+      # - .data$ASAUnder,
+      # - .data$ClopidogrelUnder,
+      # - .data$PrasugrelUnder,
+      # - .data$TicagrelorUnder,
+      # - .data$HeparinUnder,
+      # - .data$DalteparinUnder,
+      # - .data$EnoxaparinUnder,
+      # - .data$AnnetLavmolHeparinUnder,
+      # - .data$BivalirudinUnder,
+      # - .data$FondaparinuxUnder,
+      # - .data$AbciximabUnder,
+      # - .data$EptifibatidUnder,
+      # - .data$TirofibanUnder,
+      # - .data$WarfarinUnder,
+      # - .data$KangrelorUnder,
+      # - .data$AnnetAntitrombotiskUnder,
+
+      # Fjerne komplikasjoner
+      - tidyselect::contains("AvdKomp"),
+      - tidyselect::contains("LabKomp")
+
+
+      # Mediakmenter ved utskrivelse:
+      - .data$NSAID,
+      - .data$ACEHemmere,
+      - .data$A2Blokkere,
+      - .data$Betablokkere,
+      - .data$CaBlokkere,
+      - .data$DiabetesBehandlingInsulin,
+      - .data$DiabetesBehandlingPerOral,
+      - .data$Digitalis,
+      - .data$Diuretika,
+      - .data$Aldosteronantagonister,
+      - .data$NitroglycerinLangtid,
+
+      # Andre variabler utskrivelse
+      - .data$InfarktType,
+      - .data$InfarktSubklasse,
+      - .data$UtskrDiagnoser
+)
 
   # Fjerne utledete hjelpevariabler
   ap_light %<>%
