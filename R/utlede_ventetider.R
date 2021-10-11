@@ -193,7 +193,7 @@ legg_til_ventetid_stemi_min <- function(df_ap){
 #' @return Returnerer \code{df_ap} med to nye variabler
 #'  \code{liggedogn} og \code{liggedogn_dg}. Variabelen \code{liggedogn}
 #'  inneholder antall dager mellom AnkomstPCI-sykehus og utskrivelse, denne
-#'  kan ogsaa inneholde negative tider og tider over 1 aar.
+#'  kan ogsaa inneholde negative tider og tider over 60 dager.
 #'  Variabelne \code{liggetid_dg} inneholder datagrunnlaget for
 #'  \code{liggedogn} og har verdiene:
 #' \itemize{
@@ -202,10 +202,10 @@ legg_til_ventetid_stemi_min <- function(df_ap){
 #' \item "nei" for sekundaerforlop, da disse ikke har utskrivelsesskjema.
 #' \item "ja" for primaerforlop hos direkte innlagte pasienter eller pasienter
 #' overfoert fra andre sykehus og der liggedogn er i intervallet 0 dager
-#' til 1 aar.
+#' til 60 dager.
 #' \item "ugyldig" for primaerforlop hos direkte innlagte pasienter
 #' eller pasienter overfoert fra andre sykehusmed og der liggetid er enten et
-#' negativt antall dager eller over 1 aar.
+#' negativt antall dager eller over 60 dager.
 #' \item "manglende" for primaerforlop hos direkte innlagte pasienter eller
 #' pasienter overfoert fra andre sykehus der utskrivingsdato og/eller
 #' AnkomstPCIDato mangler.
@@ -234,14 +234,14 @@ legg_til_liggedogn <- function(df_ap){
           .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                       "Omdirigert ambulanse",
                                       "Annet sykehus") &
-          .data$liggedogn >= 0 & .data$liggedogn <= 365 ~ "ja",
+          .data$liggedogn >= 0 & .data$liggedogn <= 60 ~ "ja",
 
 
         .data$Regtype == "Primær" &
           .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                       "Omdirigert ambulanse",
                                       "Annet sykehus") &
-          (.data$liggedogn < 0 | .data$liggedogn > 365) ~ "ugyldig tid",
+          (.data$liggedogn < 0 | .data$liggedogn > 60) ~ "ugyldig tid",
 
 
         .data$Regtype == "Primær" &

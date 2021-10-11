@@ -256,7 +256,7 @@ testthat::test_that("legg_til_liggedogn fungerer", {
                                   "Omdirigert ambulanse",
                                   "Annet sykehus") &
         .data$liggedogn >= 0 &
-        .data$liggedogn <= 365) %>%
+        .data$liggedogn <= 60) %>%
       dplyr::pull(.data$liggedogn_dg) == "ja"))
 
 testthat::expect_true(all(
@@ -266,7 +266,7 @@ testthat::expect_true(all(
       .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                   "Omdirigert ambulanse",
                                   "Annet sykehus") &
-        (.data$liggedogn < 0 | .data$liggedogn > 365)) %>%
+        (.data$liggedogn < 0 | .data$liggedogn > 60)) %>%
     dplyr::pull(.data$liggedogn_dg) == "ugyldig tid"
 ))
 
