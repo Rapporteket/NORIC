@@ -277,7 +277,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
       # Fjerne komplikasjoner
       - tidyselect::contains("AvdKomp"),
-      - tidyselect::contains("LabKomp")
+      - tidyselect::contains("LabKomp"),
 
 
       # Mediakmenter ved utskrivelse:
