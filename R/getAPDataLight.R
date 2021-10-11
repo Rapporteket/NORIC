@@ -249,11 +249,18 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
       - .data$Aldosteronantagonister,
       - .data$NitroglycerinLangtid,
 
+      - .data$TroponinVerdiFor,
+      - .data$TroponinMetFor,
+      - .data$TroponinVerdiEtter,
+      - .data$TroponinMetEtter,
+      - .data$CKMBFor,
+      - .data$CKMBEtter,
+
       # Andre variabler utskrivelse
       - .data$InfarktType,
       - .data$InfarktSubklasse,
-      - .data$UtskrDiagnoser
-)
+      - .data$UtskrDiagnoser,
+      - .data$AnnenAlvorligSykdom)
 
   # Fjerne utledete hjelpevariabler
   ap_light %<>%
