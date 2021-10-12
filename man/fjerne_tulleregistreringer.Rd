@@ -2,8 +2,7 @@
 % Please edit documentation in R/fjerne_tulleregistreringer.R
 \name{fjerne_tulleregistreringer}
 \alias{fjerne_tulleregistreringer}
-\title{Remove test-registrations
-Remove registrations done before the hospitals officially joined NORIC}
+\title{Remove test-registrations}
 \usage{
 fjerne_tulleregistreringer(df, var = ProsedyreDato)
 }
@@ -19,7 +18,6 @@ FO og SO uses `HovedDato`}
 data.frame where old procedures are removed
 }
 \description{
-Remove test-registrations
 Remove registrations done before the hospitals officially joined NORIC
 }
 \examples{

@@ -1,4 +1,5 @@
 #' Remove test-registrations
+#'
 #' Remove registrations done before the hospitals officially joined NORIC
 #'
 #' @param df One of the NORIC-tables: AP, KA, FO etc (Must contain variable
@@ -17,10 +18,8 @@
 #'                                       "2020-06-19"),2))
 fjerne_tulleregistreringer <- function(df, var = ProsedyreDato) {
 
-  if (!("AvdRESH" %in% names(df))) stop("df must contain variable AvdRESH")
+  stopifnot("AvdRESH" %in% names(df))
 
-  message("Fjerner tulleregisreringer som ble utført før sykehusene offisielt
-          ble med i NORIC")
 
   df %>%
     dplyr::filter(
@@ -51,7 +50,7 @@ fjerne_tulleregistreringer <- function(df, var = ProsedyreDato) {
         (# Ahus Nordbyhagen
         (.data$AvdRESH == 108141) & (as.Date({{ var }}) >= "2016-01-01")) |
 
-        (# Nordlandsykehuset (bodø)
+        (# Nordlandsykehuset (bodoe)
         (.data$AvdRESH == 4210141) & (as.Date({{ var }}) >= "2020-02-10"))
     )
 }
