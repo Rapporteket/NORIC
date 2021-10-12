@@ -137,6 +137,7 @@ NULL
 #' @rdname utlede_segmentStent_variabler
 #' @export
 legg_til_antall_stent <- function(df_ap, df_ss) {
+  . <- ""
 
   if (!all(c("AvdRESH", "ForlopsID") %in% names(df_ap))) {
     stop("df_apmust contain variables AvdRESH + ForlopsID")
