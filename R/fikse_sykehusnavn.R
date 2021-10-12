@@ -20,7 +20,7 @@ fikse_sykehusnavn <- function(df) {
     dplyr::mutate(Sykehusnavn = dplyr::case_when(
       AvdRESH == 108141 ~ "Ahus Nordbyhagen",
       AvdRESH == 102966 ~ "HUS",
-      AvdRESH == 106944 ~ "AHUS Gardermoen",
+      AvdRESH == 106944 ~ "Ahus Gardermoen",
       AvdRESH == 4210141 ~ "NLSH Bodø",
       AvdRESH == 700422 ~ "OUS Rikshospitalet",
       AvdRESH == 114150 ~ "SSHF Arendal",

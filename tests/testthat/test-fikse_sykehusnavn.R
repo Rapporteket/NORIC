@@ -15,7 +15,7 @@ test_that("Sykehusnavn is as expected", {
     object = fikse_sykehusnavn(x)[, 2],
     expected = c("Ahus Nordbyhagen",
                  "HUS",
-                 "AHUS Gardermoen",
+                 "Ahus Gardermoen",
                  "NLSH Bodø",
                  "OUS Rikshospitalet",
                  "SSHF Arendal",
