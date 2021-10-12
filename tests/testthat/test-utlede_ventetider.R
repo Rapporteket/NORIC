@@ -2,8 +2,8 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
 
   x <- data.frame(
     OverflyttetFra = c(
-      "Annen avdeling på sykehuset", NA,
-      rep(c("Omdirigert ambulanse", "Nei, direkte inn til dette sykehuset"), 4),
+      "Annen  avdeling på sykehuset", NA,
+      rep(c("Omdirigert ambulanse", "Nei, direkte inn til dette sykehus"), 4),
       rep("Annet sykehus",8)),
 
     ProsedyreDato = as.Date(
@@ -70,7 +70,7 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
     x_out %>%
       dplyr::filter(
         .data$OverflyttetFra %in% c("Omdirigert ambulanse",
-                                    "Nei, direkte inn til dette sykehuset"),
+                                    "Nei, direkte inn til dette sykehus"),
         (is.na(.data$ProsedyreDato) | is.na(.data$ProsedyreTid) |
            is.na(.data$AnkomstPCIDato) | is.na(.data$AnkomstPCITid))) %>%
       dplyr::pull(.data$ventetid_nstemi_timer) %>%
@@ -97,7 +97,7 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
         !.data$OverflyttetFra %in%
           c("Annet sykehus",
             "Omdirigert ambulanse",
-            "Nei, direkte inn til dette sykehuset")) %>%
+            "Nei, direkte inn til dette sykehus")) %>%
       dplyr::pull(.data$ventetid_nstemi_timer) %>%
       is.na()))
 
@@ -109,7 +109,7 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
       dplyr::filter(
         .data$OverflyttetFra %in%
           c("Omdirigert ambulanse",
-            "Nei, direkte inn til dette sykehuset")) %>%
+            "Nei, direkte inn til dette sykehus")) %>%
       dplyr::pull(.data$ventetid_nstemi_timer))
 
 
