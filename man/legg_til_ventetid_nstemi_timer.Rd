@@ -27,7 +27,7 @@ unormalt lange eller negative, ventetider.
 \examples{
 x <- data.frame(
  OverflyttetFra = c("Omdirigert ambulanse",
-                    "Nei, direkte inn til dette sykehuset",
+                    "Nei, direkte inn til dette sykehus",
                     "Annet sykehus", NA),
  ProsedyreDato = as.Date(c("2020-01-30", "2021-11-15",
                            "2020-11-11", "2021-12-24"),
