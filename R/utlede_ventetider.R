@@ -71,24 +71,26 @@ legg_til_ventetid_nstemi_timer <- function(df_ap){
         "%Y-%m-%d %H:%M:%S"),
 
 
-      ventetid_nstemi_timer = dplyr::case_when(
+      ventetid_nstemi_sekunder = dplyr::case_when(
 
         # Hvis direkte innleggelse.
         .data$OverflyttetFra %in%
           c("Nei, direkte inn til dette sykehus",
             "Omdirigert ambulanse") ~
-          round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
-                                    .data$AnkomstTidspunkt ,
-                                    units = "hours")), 1),
+          as.numeric(difftime(.data$ProsedyreTidspunkt ,
+                              .data$AnkomstTidspunkt ,
+                              units = "secs")),
 
         # Hvis overflyttede pasienter
         .data$OverflyttetFra %in% c("Annet sykehus") ~
-          round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
-                                    .data$HenvisendeSykehusTidspunkt,
-                                    units = "hours")), 1),
+          as.numeric(difftime(.data$ProsedyreTidspunkt ,
+                              .data$HenvisendeSykehusTidspunkt,
+                              units = "secs")),
 
         # Manglende eller "Annen avd på sykehuset"
-        TRUE ~ NA_real_)) %>%
+        TRUE ~ NA_real_),
+
+      ventetid_nstemi_timer = .data$ventetid_nstemi_sekunder / 3600) %>%
 
 
     # Fjerne midlertidige variabler

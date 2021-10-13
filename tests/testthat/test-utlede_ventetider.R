@@ -62,6 +62,7 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
                  "AnkomstPCITid",
                  "InnleggelseHenvisendeSykehusDato",
                  "InnleggelseHenvisendeSykehusTid",
+                 "ventetid_nstemi_sekunder",
                  "ventetid_nstemi_timer"))
 
   # Forventer at ventetid mangler dersom en av dato-tidspunkt mangler

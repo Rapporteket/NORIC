@@ -472,6 +472,7 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
                   "Innkomstarsak",
                   "Hastegrad",
                   "OverflyttetFra",
+                  "ventetid_nstemi_sekunder",
                   "ventetid_nstemi_timer") %in% names(df_ap)))
 
 
@@ -503,20 +504,21 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
       ki_nstemi_utredet_innen24t = dplyr::case_when(
 
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
-          (!is.na(.data$ventetid_nstemi_timer) &
-            .data$ventetid_nstemi_timer >= 0 &
-          .data$ventetid_nstemi_timer <= 24) ~ "ja",
+          (!is.na(.data$ventetid_nstemi_sekunder) &
+            .data$ventetid_nstemi_sekunder > 0 &
+          .data$ventetid_nstemi_sekunder <= 24 * 60 * 60) ~ "ja",
 
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
-          (!is.na(.data$ventetid_nstemi_timer) &
-             .data$ventetid_nstemi_timer > 24 &
-             .data$ventetid_nstemi_timer <= 14*24) ~ "nei",
+          (!is.na(.data$ventetid_nstemi_sekunder) &
+             .data$ventetid_nstemi_sekunder > 24 * 60 * 60 &
+             .data$ventetid_nstemi_sekunder <= 14 * 24 * 60 * 60) ~ "nei",
 
 
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
-          (is.na(.data$ventetid_nstemi_timer) |
-             .data$ventetid_nstemi_timer < 0 |
-             .data$ventetid_nstemi_timer > 14*24) ~ "ugyldig/manglende",
+          (is.na(.data$ventetid_nstemi_sekunder) |
+             .data$ventetid_nstemi_sekunder <= 0 |
+             .data$ventetid_nstemi_sekunder > 14 * 24 * 60 * 60) ~
+          "ugyldig/manglende",
 
 
 
@@ -537,6 +539,7 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
                   "Innkomstarsak",
                   "Hastegrad",
                   "OverflyttetFra",
+                  "ventetid_nstemi_sekunder",
                   "ventetid_nstemi_timer") %in% names(df_ap)))
 
 
@@ -568,20 +571,21 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
       ki_nstemi_utredet_innen72t = dplyr::case_when(
 
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
-          (!is.na(.data$ventetid_nstemi_timer) &
-             .data$ventetid_nstemi_timer >= 0 &
-             .data$ventetid_nstemi_timer <= 72) ~ "ja",
+          (!is.na(.data$ventetid_nstemi_sekunder) &
+             .data$ventetid_nstemi_sekunder > 0 &
+             .data$ventetid_nstemi_sekunder <= 72 * 60 * 60) ~ "ja",
 
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
-          (!is.na(.data$ventetid_nstemi_timer) &
-             .data$ventetid_nstemi_timer > 72 &
-             .data$ventetid_nstemi_timer <= 14*24) ~ "nei",
+          (!is.na(.data$ventetid_nstemi_sekunder) &
+             .data$ventetid_nstemi_sekunder > 72 * 60 * 60 &
+             .data$ventetid_nstemi_sekunder <= 14 * 24 * 60 *60) ~ "nei",
 
 
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
-          (is.na(.data$ventetid_nstemi_timer) |
-             .data$ventetid_nstemi_timer < 0 |
-             .data$ventetid_nstemi_timer > 14*24) ~ "ugyldig/manglende",
+          (is.na(.data$ventetid_nstemi_sekunder) |
+             .data$ventetid_nstemi_sekunder <= 0 |
+             .data$ventetid_nstemi_sekunder > 14 * 24 * 60 * 60) ~
+          "ugyldig/manglende",
 
 
 
