@@ -13,7 +13,7 @@ variablene \code{AnkomstPCIDato}, \code{UtskrivingsDato},
 }
 \value{
 Returnerer \code{df_ap} med to nye variabler
- \code{liggedogn} og \code{liggedogn_dg}. Variabelen \code{liggedogn}
+ \code{liggedogn} og \code{liggedogn_data}. Variabelen \code{liggedogn}
  inneholder antall dager mellom AnkomstPCI-sykehus og utskrivelse, denne
  kan ogsaa inneholde negative tider og tider over 60 dager.
  Variabelne \code{liggetid_dg} inneholder datagrunnlaget for

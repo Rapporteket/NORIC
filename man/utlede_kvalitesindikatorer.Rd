@@ -42,7 +42,7 @@ The first variable says whether the procedure counts (ja/nei) in the
 denominator for the given indicator and the second says whether
 the procedure counts in the numerator (ja/nei/NA). If the denominator has
 value \emph{nei} the numerator should always be \emph{NA}. Denominator
-variables names are suffixed by \emph{_dg} (datagrunnlag).
+variables names are suffixed by \emph{_data} (datagrunnlag).
 }
 \details{
 Following variables are created for the different functions:
@@ -112,7 +112,7 @@ if \code{UtskrStatiner} is "Ja".
 
 \code{ki_nstemi_utredet_innen24t()}
 \itemize{
-\item denominator \code{ki_nstemi_utredet_innen24t_dg}
+\item denominator \code{indik_nstemi_angio_innen24t_data}
 (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
 \enumerate{
   \item \code{Indikasjone} is "NSTEMI"
@@ -122,7 +122,7 @@ if \code{UtskrStatiner} is "Ja".
   \item \code{OverflyttetFra} neither "Annen  avdeling på sykehuset" nor
   "NA".
   }
-\item numerator \code{ki_nstemi_utredet_innen24t} has value \emph{ja}
+\item numerator \code{indik_nstemi_angio_innen24t} has value \emph{ja}
 if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
 value \emph{nei} if  \code{ventetid_nstemi_timer} is in the interval 24hours
 to 14 days and value \emph{ugyldig/manglende} if time is negative, longer
@@ -132,7 +132,7 @@ than 14 days or missing. See also function
 
 \code{ki_stemi_pci_innen120min()}
 \itemize{
-\item denominator \code{ki_stemi_pci_innen120min_dg}
+\item denominator \code{indik_stemi_pci_innen2t_data}
 (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
 \enumerate{
   \item \code{AvdRESH} is different from 106944 (AHUS Gardermoen does not
@@ -144,7 +144,7 @@ than 14 days or missing. See also function
   \item \code{HLRForSykehus} different from  "Ja", "Ukjent"
   \item \code{ProsedyreType} different from "Angio"
   }
-\item numerator \code{ki_stemi_pci_innen120min} has value \emph{ja}
+\item numerator \code{indik_stemi_pci_innen2t} has value \emph{ja}
 if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
 value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
 to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative,
