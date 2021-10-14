@@ -109,8 +109,9 @@
 #' \item numerator \code{ki_stemi_pci_innen120min} has value \emph{ja}
 #' if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
 #' value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
-#' to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative, longer
-#' than 24h or missing. See also function
+#' to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative,
+#' longer than 24h,  missing or if \code{BeslutningsutlosendeEKG} has value
+#' "Prehospitalt" and \code{ventetid_stemi_min} is 0 minutes. See also function
 #'  \link[noric]{legg_til_ventetid_stemi_min}.
 #' }
 #'
@@ -174,7 +175,7 @@
 #'       OverflyttetFra = c("Annen  avdeling på sykehuset",
 #'                          rep("Annet sykehus", 2),
 #'                          rep("Omdirigert ambulanse", 3)),
-#'       ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
+#'       ventetid_nstemi_timer = c(0, 0, 5, 100, NA, -0.1))
 #' noric::ki_nstemi_utredet_innen24t(df_ap = x)
 #' noric::ki_nstemi_utredet_innen72t(df_ap = x)
 #'
@@ -186,6 +187,7 @@
 #'       Hastegrad = rep("Akutt", 6),
 #'       HLRForSykehus = rep("Nei", 6),
 #'       ProsedyreType = rep("Angio + PCI", 6),
+#'       BeslutningsutlosendeEKG = rep("Prehospitalt", 6),
 #'       ventetid_stemi_min = c(-10, 20, 110, 120, 1150, 1480))
 #' noric::ki_stemi_pci_innen120min(df_ap = x)
 
@@ -472,7 +474,6 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
                   "Innkomstarsak",
                   "Hastegrad",
                   "OverflyttetFra",
-                  "ventetid_nstemi_sekunder",
                   "ventetid_nstemi_timer") %in% names(df_ap)))
 
 
@@ -499,26 +500,26 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
         missing = "nei"),
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
-      # gylsig ventetid innen 24t.
-      # NB: Dersom ugyldig tid (negativ, over 14dg, manglende) --> NA
+      # Ugyldig tid (negativ, over 14dg, manglende)
+      # Gyldig tid 0 timer til 14 dager.
+      # Næyaktig 0.00 timer er ugyldig tid.
       ki_nstemi_utredet_innen24t = dplyr::case_when(
 
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
-          (!is.na(.data$ventetid_nstemi_sekunder) &
-            .data$ventetid_nstemi_sekunder > 0 &
-          .data$ventetid_nstemi_sekunder <= 24 * 60 * 60) ~ "ja",
+          (!is.na(.data$ventetid_nstemi_timer) &
+            .data$ventetid_nstemi_timer > 0.0 &
+          .data$ventetid_nstemi_timer <= 24.0) ~ "ja",
 
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
-          (!is.na(.data$ventetid_nstemi_sekunder) &
-             .data$ventetid_nstemi_sekunder > 24 * 60 * 60 &
-             .data$ventetid_nstemi_sekunder <= 14 * 24 * 60 * 60) ~ "nei",
+          (!is.na(.data$ventetid_nstemi_timer) &
+             .data$ventetid_nstemi_timer > 24.0 &
+             .data$ventetid_nstemi_timer <= 14 * 24.0) ~ "nei",
 
 
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
-          (is.na(.data$ventetid_nstemi_sekunder) |
-             .data$ventetid_nstemi_sekunder <= 0 |
-             .data$ventetid_nstemi_sekunder > 14 * 24 * 60 * 60) ~
-          "ugyldig/manglende",
+          (is.na(.data$ventetid_nstemi_timer) |
+             .data$ventetid_nstemi_timer <= 0.0 |
+             .data$ventetid_nstemi_timer > 14 * 24) ~ "ugyldig/manglende",
 
 
 
@@ -539,7 +540,6 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
                   "Innkomstarsak",
                   "Hastegrad",
                   "OverflyttetFra",
-                  "ventetid_nstemi_sekunder",
                   "ventetid_nstemi_timer") %in% names(df_ap)))
 
 
@@ -571,21 +571,20 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
       ki_nstemi_utredet_innen72t = dplyr::case_when(
 
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
-          (!is.na(.data$ventetid_nstemi_sekunder) &
-             .data$ventetid_nstemi_sekunder > 0 &
-             .data$ventetid_nstemi_sekunder <= 72 * 60 * 60) ~ "ja",
+          (!is.na(.data$ventetid_nstemi_timer) &
+             .data$ventetid_nstemi_timer > 0.0 &
+             .data$ventetid_nstemi_timer <= 72.0) ~ "ja",
 
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
-          (!is.na(.data$ventetid_nstemi_sekunder) &
-             .data$ventetid_nstemi_sekunder > 72 * 60 * 60 &
-             .data$ventetid_nstemi_sekunder <= 14 * 24 * 60 *60) ~ "nei",
+          (!is.na(.data$ventetid_nstemi_timer) &
+             .data$ventetid_nstemi_timer > 72.0 &
+             .data$ventetid_nstemi_timer <= 14 * 24) ~ "nei",
 
 
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
-          (is.na(.data$ventetid_nstemi_sekunder) |
-             .data$ventetid_nstemi_sekunder <= 0 |
-             .data$ventetid_nstemi_sekunder > 14 * 24 * 60 * 60) ~
-          "ugyldig/manglende",
+          (is.na(.data$ventetid_nstemi_timer) |
+             .data$ventetid_nstemi_timer <= 0.0 |
+             .data$ventetid_nstemi_timer > 14 * 24) ~ "ugyldig/manglende",
 
 
 
@@ -612,6 +611,7 @@ ki_stemi_pci_innen120min <- function(df_ap) {
                   "Hastegrad",
                   "HLRForSykehus",
                   "ProsedyreType",
+                  "BeslutningsutlosendeEKG",
                   "ventetid_stemi_min") %in% names(df_ap)))
 
 
@@ -643,8 +643,13 @@ ki_stemi_pci_innen120min <- function(df_ap) {
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # gylsig ventetid innen 24t.
+      # BeslutningsutlosendeEKG ikke gitt prehospitalt og 0 minutter ventetid
       # NB: Dersom ugyldig tid (negativ, over 24t, manglende) --> NA
       ki_stemi_pci_innen120min = dplyr::case_when(
+
+        .data$ki_stemi_pci_innen120min_dg == "ja" &
+          .data$BeslutningsutlosendeEKG %in% "Prehospitalt" &
+          .data$ventetid_stemi_min == 0 ~ "ugyldig/manglende",
 
         .data$ki_stemi_pci_innen120min_dg == "ja" &
           (!is.na(.data$ventetid_stemi_min) &
@@ -656,13 +661,10 @@ ki_stemi_pci_innen120min <- function(df_ap) {
              .data$ventetid_stemi_min > 120 &
              .data$ventetid_stemi_min <= 24*60) ~ "nei",
 
-
         .data$ki_stemi_pci_innen120min_dg == "ja" &
           (is.na(.data$ventetid_stemi_min) |
              .data$ventetid_stemi_min < 0 |
              .data$ventetid_stemi_min > 24*60) ~ "ugyldig/manglende",
-
-
 
         .data$ki_stemi_pci_innen120min_dg == "nei" ~ NA_character_,
 

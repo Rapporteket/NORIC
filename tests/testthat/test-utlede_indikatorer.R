@@ -592,8 +592,6 @@ test_that("ki_nstemi_utredet_innen24t works", {
       rep(c(-8000, NA, 0, 0.01, 15, 4, 24.0, 24.1, 337),2),
       25, 03))
 
-
-
   x_out <- noric::ki_nstemi_utredet_innen24t(x)
 
   testthat::expect_equal(names(x_out),
@@ -686,8 +684,8 @@ test_that("ki_nstemi_utredet_innen24t works", {
       dplyr::filter(
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
           !is.na(.data$ventetid_nstemi_timer) &
-          .data$ventetid_nstemi_timer >= 0 &
-          .data$ventetid_nstemi_timer <= 24) %>%
+          .data$ventetid_nstemi_timer > 0.0 &
+          .data$ventetid_nstemi_timer <= 24.0) %>%
       dplyr::pull(.data$ki_nstemi_utredet_innen24t) == "ja"))
 
   # Forventer at KI er nei dersom i datagrunnlaget og for lang tidsdiff
@@ -696,7 +694,7 @@ test_that("ki_nstemi_utredet_innen24t works", {
       dplyr::filter(
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
           !is.na(.data$ventetid_nstemi_timer) &
-          .data$ventetid_nstemi_timer > 24 &
+          .data$ventetid_nstemi_timer > 24.0 &
           .data$ventetid_nstemi_timer < 14 * 24) %>%
       dplyr::pull(.data$ki_nstemi_utredet_innen24t) == "nei"))
 
@@ -707,7 +705,7 @@ test_that("ki_nstemi_utredet_innen24t works", {
       dplyr::filter(
         .data$ki_nstemi_utredet_innen24t_dg == "ja" &
           (is.na(.data$ventetid_nstemi_timer) |
-             .data$ventetid_nstemi_timer < 0 |
+             .data$ventetid_nstemi_timer <= 0.0 |
              .data$ventetid_nstemi_timer >= 14 * 24)) %>%
       dplyr::pull(.data$ki_nstemi_utredet_innen24t) == "ugyldig/manglende"))
 
@@ -848,8 +846,8 @@ test_that("ki_nstemi_utredet_innen72t works", {
       dplyr::filter(
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
           !is.na(.data$ventetid_nstemi_timer) &
-          .data$ventetid_nstemi_timer >= 0 &
-          .data$ventetid_nstemi_timer <= 72) %>%
+          .data$ventetid_nstemi_timer > 0.0 &
+          .data$ventetid_nstemi_timer <= 72.0) %>%
       dplyr::pull(.data$ki_nstemi_utredet_innen72t) == "ja"))
 
   # Forventer at KI er nei dersom i datagrunnlaget og for lang tidsdiff
@@ -858,7 +856,7 @@ test_that("ki_nstemi_utredet_innen72t works", {
       dplyr::filter(
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
           !is.na(.data$ventetid_nstemi_timer) &
-          .data$ventetid_nstemi_timer > 72 &
+          .data$ventetid_nstemi_timer > 72.0 &
           .data$ventetid_nstemi_timer < 14 * 24) %>%
       dplyr::pull(.data$ki_nstemi_utredet_innen72t) == "nei"))
 
@@ -869,7 +867,7 @@ test_that("ki_nstemi_utredet_innen72t works", {
       dplyr::filter(
         .data$ki_nstemi_utredet_innen72t_dg == "ja" &
           (is.na(.data$ventetid_nstemi_timer) |
-             .data$ventetid_nstemi_timer < 0 |
+             .data$ventetid_nstemi_timer <= 0.0 |
              .data$ventetid_nstemi_timer >= 14 * 24)) %>%
       dplyr::pull(.data$ki_nstemi_utredet_innen72t) == "ugyldig/manglende"))
 
@@ -916,13 +914,16 @@ test_that("ki_stemi_pci_innen120min works", {
     HLRForSykehus = c(rep("Nei", 13), "Ja", "Ukjent",
                       "Nei", rep(c("Nei", NA), 7)),
     ProsedyreType = c(rep("PCI", 15), "Angio", rep("Angio + PCI", 14)),
+    BeslutningsutlosendeEKG = c(rep("Prehospitalt", 20),
+                                rep("Ukjent", 8),
+                                "Prehospitalt", "Prehospitalt"),
 
-    ventetid_stemi_min = c(-10, 0, 15, 19.8,100, 120,
+    ventetid_stemi_min = c(-10, 0, 15, 19.8, 100, 120,
                            120.1, 120.0, 150, 1440, 1441, 2000,
                            rep(NA, 8),
                            -10, 0, 15, 100, 120.0,
-                           120.1,  150, 1440, 1441, 2000))
-  x_out <- noric::ki_stemi_pci_innen120min(df_ap =x)
+                           120.1,  150, 1440, 0, 2000))
+  x_out <- noric::ki_stemi_pci_innen120min(df_ap = x)
 
 
 
@@ -936,6 +937,7 @@ test_that("ki_stemi_pci_innen120min works", {
       "Hastegrad",
       "HLRForSykehus",
       "ProsedyreType",
+      "BeslutningsutlosendeEKG",
       "ventetid_stemi_min",
       "ki_stemi_pci_innen120min_dg",
       "ki_stemi_pci_innen120min"))
@@ -1058,9 +1060,31 @@ test_that("ki_stemi_pci_innen120min works", {
       dplyr::filter(
         .data$ki_stemi_pci_innen120min_dg == "ja" &
           !is.na(.data$ventetid_stemi_min) &
-          .data$ventetid_stemi_min >= 0 &
+          .data$ventetid_stemi_min > 0 &
           .data$ventetid_stemi_min <= 120) %>%
       dplyr::pull(.data$ki_stemi_pci_innen120min) == "ja"))
+
+
+
+  # Forventer at KI er ja dersom i datagrunnlaget og OK ikke Besutl = prehosp
+  expect_true(all(
+    x_out %>%
+      dplyr::filter(
+        .data$ki_stemi_pci_innen120min_dg == "ja" &
+          .data$ventetid_stemi_min == 0 &
+          !.data$BeslutningsutlosendeEKG %in% "Prehospitalt") %>%
+      dplyr::pull(.data$ki_stemi_pci_innen120min) == "ja"))
+
+
+  # Forventer at KI er nei her
+  expect_true(all(
+    x_out %>%
+      dplyr::filter(
+        .data$ki_stemi_pci_innen120min_dg == "ja" &
+          .data$ventetid_stemi_min == 0.0 &
+          .data$BeslutningsutlosendeEKG =="Prehospitalt") %>%
+      dplyr::pull(.data$ki_stemi_pci_innen120min) ==  "ugyldig/manglende"))
+
 
   # Forventer at KI er nei dersom i datagrunnlaget og for lang tidsdiff
   expect_true(all(
