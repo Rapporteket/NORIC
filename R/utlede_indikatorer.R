@@ -94,7 +94,7 @@
 #'
 #' \code{ki_stemi_pci_innen120min()}
 #' \itemize{
-#' \item denominator \code{ki_stemi_pci_innen120min_dg}
+#' \item denominator \code{indik_stemi_pci_innen2t_data}
 #' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
 #' \enumerate{
 #'   \item \code{AvdRESH} is different from 106944 (AHUS Gardermoen does not
@@ -106,7 +106,7 @@
 #'   \item \code{HLRForSykehus} different from  "Ja", "Ukjent"
 #'   \item \code{ProsedyreType} different from "Angio"
 #'   }
-#' \item numerator \code{ki_stemi_pci_innen120min} has value \emph{ja}
+#' \item numerator \code{indik_stemi_pci_innen2t} has value \emph{ja}
 #' if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
 #' value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
 #' to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative,
@@ -627,7 +627,7 @@ ki_stemi_pci_innen120min <- function(df_ap) {
       #  ~ Kun akutte forløp
       #  ~ Ikke hjerte-lungeredning før sykehus
       #  ~ Ikke prosedyretype Angio
-      ki_stemi_pci_innen120min_dg = dplyr::if_else(
+      indik_stemi_pci_innen2t_data = dplyr::if_else(
         condition =
           (.data$AvdRESH != 106944 &
              .data$Indikasjon == "STEMI" &
@@ -646,28 +646,28 @@ ki_stemi_pci_innen120min <- function(df_ap) {
       # gylsig ventetid innen 24t.
       # BeslutningsutlosendeEKG ikke gitt prehospitalt og 0 minutter ventetid
       # NB: Dersom ugyldig tid (negativ, over 24t, manglende) --> NA
-      ki_stemi_pci_innen120min = dplyr::case_when(
+      indik_stemi_pci_innen2t = dplyr::case_when(
 
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           .data$BeslutningsutlosendeEKG %in% "Prehospitalt" &
           .data$ventetid_stemi_min == 0 ~ "ugyldig/manglende",
 
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           (!is.na(.data$ventetid_stemi_min) &
              .data$ventetid_stemi_min >= 0 &
              .data$ventetid_stemi_min <= 120) ~ "ja",
 
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           (!is.na(.data$ventetid_stemi_min) &
              .data$ventetid_stemi_min > 120 &
              .data$ventetid_stemi_min <= 24*60) ~ "nei",
 
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           (is.na(.data$ventetid_stemi_min) |
              .data$ventetid_stemi_min < 0 |
              .data$ventetid_stemi_min > 24*60) ~ "ugyldig/manglende",
 
-        .data$ki_stemi_pci_innen120min_dg == "nei" ~ NA_character_,
+        .data$indik_stemi_pci_innen2t_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }

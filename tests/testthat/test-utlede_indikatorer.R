@@ -763,38 +763,38 @@ test_that("ki_nstemi_utredet_innen72t works", {
                            "Hastegrad",
                            "OverflyttetFra",
                            "ventetid_nstemi_timer",
-                           "ki_nstemi_utredet_innen72t_dg",
-                           "ki_nstemi_utredet_innen72t"))
+                           "indik_nstemi_angio_innen72t_data",
+                           "indik_nstemi_angio_innen72t"))
 
   # Forventer Indikasjon NSTEMI dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_nstemi_utredet_innen72t_dg == "ja") %>%
+      dplyr::filter(.data$indik_nstemi_angio_innen72t_data == "ja") %>%
       dplyr::pull(.data$Indikasjon) == "NSTEMI"))
 
   # Forventer primærforløp dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_nstemi_utredet_innen72t_dg == "ja") %>%
+      dplyr::filter(.data$indik_nstemi_angio_innen72t_data == "ja") %>%
       dplyr::pull(.data$Regtype) == "Primær"))
 
   # Forventer ferdigstilt dersom datagrunnlag = ja
   expect_equal(
     x_out %>%
-      dplyr::filter(.data$ki_nstemi_utredet_innen72t_dg == "ja") %>%
+      dplyr::filter(.data$indik_nstemi_angio_innen72t_data == "ja") %>%
       dplyr::pull(.data$Innkomstarsak) %in% "Øvrig",
     rep(FALSE, 12))
 
   # Forventer akutt eller subakutt dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_nstemi_utredet_innen72t_dg == "ja") %>%
+      dplyr::filter(.data$indik_nstemi_angio_innen72t_data == "ja") %>%
       dplyr::pull(.data$Hastegrad) %in% c("Akutt", "Subakutt")))
 
   # Forventet ikke overflyttet fra sykeshus eller NA dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_nstemi_utredet_innen72t_dg == "ja") %>%
+      dplyr::filter(.data$indik_nstemi_angio_innen72t_data == "ja") %>%
       dplyr::pull(.data$OverflyttetFra) != "Annen  avdeling på sykehuset"))
 
 
@@ -802,41 +802,41 @@ test_that("ki_nstemi_utredet_innen72t works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(!.data$Indikasjon %in% "NSTEMI") %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t_dg)  == "nei"))
+      dplyr::pull(.data$indik_nstemi_angio_innen72t_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, dersom sekundærforløp
   expect_true(all(
     x_out %>%
       dplyr::filter(!.data$Regtype == "Primær") %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t_dg)  == "nei"))
+      dplyr::pull(.data$indik_nstemi_angio_innen72t_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, dersom Innkomstårsak er Øvrig
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$Innkomstarsak == "Øvrig") %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t_dg)  == "nei"))
+      dplyr::pull(.data$indik_nstemi_angio_innen72t_data)  == "nei"))
 
 
   # Forventer at datagrunnlag er nei, dersom Planlagt forløp
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$Hastegrad == "Planlagt") %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t_dg)  == "nei"))
+      dplyr::pull(.data$indik_nstemi_angio_innen72t_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, dersom overført eget shus
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$OverflyttetFra %in%
                       c(NA, "Annen  avdeling på sykehuset")) %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t_dg)  == "nei"))
+      dplyr::pull(.data$indik_nstemi_angio_innen72t_data)  == "nei"))
 
 
 
   # Forventer at KI er NA dersom ikke i datagrunnlag
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_nstemi_utredet_innen72t_dg == "nei") %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t) %>%
+      dplyr::filter(.data$indik_nstemi_angio_innen72t_data == "nei") %>%
+      dplyr::pull(.data$indik_nstemi_angio_innen72t) %>%
       is.na()))
 
 
@@ -844,32 +844,32 @@ test_that("ki_nstemi_utredet_innen72t works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+        .data$indik_nstemi_angio_innen72t_data == "ja" &
           !is.na(.data$ventetid_nstemi_timer) &
           .data$ventetid_nstemi_timer > 0.0 &
           .data$ventetid_nstemi_timer <= 72.0) %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t) == "ja"))
+      dplyr::pull(.data$indik_nstemi_angio_innen72t) == "ja"))
 
   # Forventer at KI er nei dersom i datagrunnlaget og for lang tidsdiff
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+        .data$indik_nstemi_angio_innen72t_data == "ja" &
           !is.na(.data$ventetid_nstemi_timer) &
           .data$ventetid_nstemi_timer > 72.0 &
           .data$ventetid_nstemi_timer < 14 * 24) %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t) == "nei"))
+      dplyr::pull(.data$indik_nstemi_angio_innen72t) == "nei"))
 
   # Forventer at KI ugyldig dersom i datagrunnlaget, men tid mangler, er
   # negativ eller for lang
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+        .data$indik_nstemi_angio_innen72t_data == "ja" &
           (is.na(.data$ventetid_nstemi_timer) |
              .data$ventetid_nstemi_timer <= 0.0 |
              .data$ventetid_nstemi_timer >= 14 * 24)) %>%
-      dplyr::pull(.data$ki_nstemi_utredet_innen72t) == "ugyldig/manglende"))
+      dplyr::pull(.data$indik_nstemi_angio_innen72t) == "ugyldig/manglende"))
 
 
   # Forventer feilmelding dersom variabler mangler
@@ -939,50 +939,50 @@ test_that("ki_stemi_pci_innen120min works", {
       "ProsedyreType",
       "BeslutningsutlosendeEKG",
       "ventetid_stemi_min",
-      "ki_stemi_pci_innen120min_dg",
-      "ki_stemi_pci_innen120min"))
+      "indik_stemi_pci_innen2t_data",
+      "indik_stemi_pci_innen2t"))
 
 
   # Forventede RESHID dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_stemi_pci_innen120min_dg == "ja") %>%
+      dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
       dplyr::pull(.data$AvdRESH) != 106944))
 
     # Forventer Indikasjon STEMI dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_stemi_pci_innen120min_dg == "ja") %>%
+      dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
       dplyr::pull(.data$Indikasjon) == "STEMI"))
 
   # Forventer primærforløp dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_stemi_pci_innen120min_dg == "ja") %>%
+      dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
       dplyr::pull(.data$Regtype) == "Primær"))
 
   # Forventer ikke Gitt trimbolyse dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_stemi_pci_innen120min_dg == "ja") %>%
+      dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
       dplyr::pull(.data$GittTrombolyse) %in% c(NA, "Nei")))
 
   # Forventer akutt eller subakutt dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_stemi_pci_innen120min_dg == "ja") %>%
+      dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
       dplyr::pull(.data$Hastegrad) %in% c("Akutt")))
 
   # Forventet ikke HLR dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_stemi_pci_innen120min_dg == "ja") %>%
+      dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
       dplyr::pull(.data$HLRForSykehus) %in% c("Nei", NA)))
 
   # Forventet ikke HLR dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_stemi_pci_innen120min_dg == "ja") %>%
+      dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
       dplyr::pull(.data$ProsedyreType) %in% c("Angio + PCI", "PCI")))
 
 
@@ -992,20 +992,20 @@ test_that("ki_stemi_pci_innen120min works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(!.data$Indikasjon %in% "STEMI") %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min_dg)  == "nei"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, dersomGardermoen
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$AvdRESH %in% 106944) %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min_dg)  == "nei"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t_data)  == "nei"))
 
 
    # Forventer at datagrunnlag er nei, dersom sekundærforløp
   expect_true(all(
     x_out %>%
       dplyr::filter(!.data$Regtype == "Primær") %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min_dg)  == "nei"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, dersom Gitt Trombolyse
   expect_true(all(
@@ -1015,28 +1015,28 @@ test_that("ki_stemi_pci_innen120min works", {
                         "Ja, etter innkomst ved PCI sykehus",
                         "Ja, prehospitalt",
                         "Ja, ukjent sted")) %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min_dg)  == "nei"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t_data)  == "nei"))
 
 
   # Forventer at datagrunnlag er nei, dersom Planlagt forløp
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$Hastegrad %in% c("Planlagt", "Subakutt")) %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min_dg)  == "nei"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, dersom HLR Gitt
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$HLRForSykehus %in%
                       c("Ja", "Ukjent")) %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min_dg)  == "nei"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, Angio
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$ProsedyreType %in%
                       c("Angio")) %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min_dg)  == "nei"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t_data)  == "nei"))
 
 
 
@@ -1049,8 +1049,8 @@ test_that("ki_stemi_pci_innen120min works", {
   # Forventer at KI er NA dersom ikke i datagrunnlag
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_stemi_pci_innen120min_dg == "nei") %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min) %>%
+      dplyr::filter(.data$indik_stemi_pci_innen2t_data == "nei") %>%
+      dplyr::pull(.data$indik_stemi_pci_innen2t) %>%
       is.na()))
 
 
@@ -1058,11 +1058,11 @@ test_that("ki_stemi_pci_innen120min works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           !is.na(.data$ventetid_stemi_min) &
           .data$ventetid_stemi_min > 0 &
           .data$ventetid_stemi_min <= 120) %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min) == "ja"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t) == "ja"))
 
 
 
@@ -1070,42 +1070,42 @@ test_that("ki_stemi_pci_innen120min works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           .data$ventetid_stemi_min == 0 &
           !.data$BeslutningsutlosendeEKG %in% "Prehospitalt") %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min) == "ja"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t) == "ja"))
 
 
   # Forventer at KI er nei her
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           .data$ventetid_stemi_min == 0.0 &
           .data$BeslutningsutlosendeEKG =="Prehospitalt") %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min) ==  "ugyldig/manglende"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t) ==  "ugyldig/manglende"))
 
 
   # Forventer at KI er nei dersom i datagrunnlaget og for lang tidsdiff
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           !is.na(.data$ventetid_stemi_min) &
           .data$ventetid_stemi_min > 120 &
           .data$ventetid_stemi_min <= 24 * 60) %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min) == "nei"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t) == "nei"))
 
   # Forventer at KI ugyldig dersom i datagrunnlaget, men tid mangler, er
   # negativ eller for lang
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$ki_stemi_pci_innen120min_dg == "ja" &
+        .data$indik_stemi_pci_innen2t_data == "ja" &
           (is.na(.data$ventetid_stemi_min) |
              .data$ventetid_stemi_min < 0 |
              .data$ventetid_stemi_min > 24 * 60)) %>%
-      dplyr::pull(.data$ki_stemi_pci_innen120min) == "ugyldig/manglende"))
+      dplyr::pull(.data$indik_stemi_pci_innen2t) == "ugyldig/manglende"))
 
 
   # Forventer feilmelding dersom variabler mangler
