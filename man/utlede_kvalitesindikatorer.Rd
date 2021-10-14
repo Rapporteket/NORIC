@@ -81,7 +81,7 @@ IVUS and/or OCT has been performed.
 
 \code{ki_foreskr_blodfortynnende()}
 \itemize{
-\item denominator \code{ki_foreskr_blodfortynnende_dg} (datagrunnlag) is
+\item denominator \code{indik_blodfortynnende_data} (datagrunnlag) is
 \emph{ja} when all of these conditions are fulfilled:
 \enumerate{
   \item \code{antall_stent_under_opphold} is at least 1
@@ -90,14 +90,14 @@ IVUS and/or OCT has been performed.
   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
   "Ukjent" are excluded
   }
-\item numerator \code{ki_foreskr_blodfortynnende} has value \emph{ja} if
+\item numerator \code{indik_blodfortynnende} has value \emph{ja} if
 at least two of \code{ASA}, \code{AndrePlatehemmere} or
  \code{Antikoagulantia} are prescribed.
 }
 
 \code{ki_foreskr_kolesterolsenkende()}
 \itemize{
-\item denominator \code{ki_foreskr_kolesterolsenkende_dg}
+\item denominator \code{indik_kolesterolsenkende_data}
 (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
 \enumerate{
   \item \code{antall_stent_under_opphold} is at least 1
@@ -106,7 +106,7 @@ at least two of \code{ASA}, \code{AndrePlatehemmere} or
   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
   "Ukjent" are excluded
   }
-\item numerator \code{ki_foreskr_kolesterolsenkende} has value \emph{ja}
+\item numerator \code{indik_kolesterolsenkende} has value \emph{ja}
 if \code{UtskrStatiner} is "Ja".
 }
 

@@ -43,7 +43,7 @@
 #'
 #' \code{ki_foreskr_blodfortynnende()}
 #' \itemize{
-#' \item denominator \code{ki_foreskr_blodfortynnende_dg} (datagrunnlag) is
+#' \item denominator \code{indik_blodfortynnende_data} (datagrunnlag) is
 #' \emph{ja} when all of these conditions are fulfilled:
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
@@ -52,14 +52,14 @@
 #'   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
 #'   "Ukjent" are excluded
 #'   }
-#' \item numerator \code{ki_foreskr_blodfortynnende} has value \emph{ja} if
+#' \item numerator \code{indik_blodfortynnende} has value \emph{ja} if
 #' at least two of \code{ASA}, \code{AndrePlatehemmere} or
 #'  \code{Antikoagulantia} are prescribed.
 #' }
 #'
 #' \code{ki_foreskr_kolesterolsenkende()}
 #' \itemize{
-#' \item denominator \code{ki_foreskr_kolesterolsenkende_dg}
+#' \item denominator \code{indik_kolesterolsenkende_data}
 #' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
@@ -68,7 +68,7 @@
 #'   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
 #'   "Ukjent" are excluded
 #'   }
-#' \item numerator \code{ki_foreskr_kolesterolsenkende} has value \emph{ja}
+#' \item numerator \code{indik_kolesterolsenkende} has value \emph{ja}
 #' if \code{UtskrStatiner} is "Ja".
 #' }
 #'
@@ -347,7 +347,7 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
       #  ~ Primærforløp
       #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent, NA}
       #  ~ Ferdigstilt utskrivelsesskjema
-      ki_foreskr_blodfortynnende_dg = dplyr::if_else(
+      indik_blodfortynnende_data = dplyr::if_else(
         condition =
           (.data$antall_stent_under_opphold > 0 &
              .data$Regtype == "Primær" &
@@ -360,51 +360,51 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # En av de anbefalte kobinasjonene av blodfortynnende medisiner
-      ki_foreskr_blodfortynnende = dplyr::case_when(
+      indik_blodfortynnende = dplyr::case_when(
 
         # Gyldige kominasjoner:
-        .data$ki_foreskr_blodfortynnende_dg == "ja" &
+        .data$indik_blodfortynnende_data == "ja" &
           (.data$ASA == "Ja" &
              !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
 
-        .data$ki_foreskr_blodfortynnende_dg == "ja" &
+        .data$indik_blodfortynnende_data == "ja" &
           (.data$ASA == "Ja" &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
 
-        .data$ki_foreskr_blodfortynnende_dg == "ja" &
+        .data$indik_blodfortynnende_data == "ja" &
           (!.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
 
         # Ugyldige kombinasjoner
-        .data$ki_foreskr_blodfortynnende_dg == "ja" &
+        .data$indik_blodfortynnende_data == "ja" &
           (.data$ASA == "Ja" &
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
 
-        .data$ki_foreskr_blodfortynnende_dg == "ja" &
+        .data$indik_blodfortynnende_data == "ja" &
           (!.data$ASA %in% "Ja" &
              !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
 
-        .data$ki_foreskr_blodfortynnende_dg == "ja" &
+        .data$indik_blodfortynnende_data == "ja" &
           (!.data$ASA %in% "Ja" &
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
 
         # Ingen blodfortynnende foreskrevet
-        .data$ki_foreskr_blodfortynnende_dg == "ja" &
+        .data$indik_blodfortynnende_data == "ja" &
           (!.data$ASA %in% "Ja" &
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
 
-        .data$ki_foreskr_blodfortynnende_dg == "nei" ~ NA_character_,
+        .data$indik_blodfortynnende_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }
@@ -414,6 +414,7 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_foreskr_kolesterolsenkende <- function(df_ap) {
+
   stopifnot(all(c("antall_stent_under_opphold",
                   "Regtype",
                   "UtskrevetDod",
@@ -430,7 +431,7 @@ ki_foreskr_kolesterolsenkende <- function(df_ap) {
       #  ~ Primærforløp
       #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent, NA}
       #  ~ Ferdigstilt utskrivelsesskjema
-      ki_foreskr_kolesterolsenkende_dg = dplyr::if_else(
+      indik_kolesterolsenkende_data = dplyr::if_else(
         condition =
           (.data$antall_stent_under_opphold > 0 &
              .data$Regtype == "Primær" &
@@ -443,18 +444,18 @@ ki_foreskr_kolesterolsenkende <- function(df_ap) {
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # og utskrevet Statiner
-      ki_foreskr_kolesterolsenkende = dplyr::case_when(
+      indik_kolesterolsenkende = dplyr::case_when(
 
-        .data$ki_foreskr_kolesterolsenkende_dg == "ja" &
+        .data$indik_kolesterolsenkende_data == "ja" &
           .data$UtskrStatiner == "Ja" ~ "ja",
 
-        .data$ki_foreskr_kolesterolsenkende_dg == "ja" &
+        .data$indik_kolesterolsenkende_data == "ja" &
           (.data$UtskrStatiner == "Nei" |
              is.na(.data$UtskrStatiner) |
              .data$UtskrStatiner == "Ukjent") ~ "nei",
 
 
-        .data$ki_foreskr_kolesterolsenkende_dg == "nei" ~ NA_character_,
+        .data$indik_kolesterolsenkende_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }
