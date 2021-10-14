@@ -109,13 +109,13 @@ test_that("satt inn stent i segment 5 is correct", {
 
 
 
-test_that("legg_til_antall_stent_per_opphold is correct", {
+test_that("legg_til_antall_stent_opphold is correct", {
 
   x <- data.frame(AvdRESH = rep(1, 13),
                   OppholdsID = c(101:106, 101, 102, 102, 103, 104, 106, 50),
                   antall_stent = c(0, 5, NA, 1, NA, NA,
                                    3, 1, 2, 3, NA, NA, 10))
-  x_out <- noric::legg_til_antall_stent_per_opphold(x)
+  x_out <- noric::legg_til_antall_stent_opphold(x)
 
 
   testthat::expect_equal(

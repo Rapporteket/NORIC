@@ -49,7 +49,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
     #  Load complete tables from 3 last years until today
     latest_entry <- noric::getLatestEntry(registryName = registryName)
     last_3_years <- as.Date(
-      paste0(as.numeric(lubridate::year(latest_entry))-3, "-01-01"),
+      paste0(as.numeric(lubridate::year(latest_entry)) - 3, "-01-01"),
       format = "%Y-%m-%d")
 
     ap_light <- rapbase::loadRegData(
@@ -107,7 +107,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
 
   # Legg til oppholdsID (samme ID for alle prosedyrer tilknyttet samme sykehus-
   # opphold)
-  ap_light %<>% noric::utlede_OppholdsID(df =.)
+  ap_light %<>% noric::utlede_OppholdsID(df = .)
 
   # Gjor datoer om til dato-objekt:
   ap_light %<>%
@@ -151,7 +151,7 @@ getAPDataLight <- function(registryName, singleRow = FALSE, ...) {
   # før de legges i utforsker.
   ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
                                              df_ss = sS)
-  ap_light %<>% noric::legg_til_antall_stent_per_opphold(df_ap = .)
+  ap_light %<>% noric::legg_til_antall_stent_opphold(df_ap = .)
   ap_light %<>% noric::satt_inn_stent_i_lms(df_ap = .,
                                             df_ss = sS)
 

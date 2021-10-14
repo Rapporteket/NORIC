@@ -10,12 +10,13 @@
 #'  returned. For procedures with no entries in \code{df_ss},
 #'  \code{antall_stent} has the value <NA>.
 #'
-#' The function \code{legg_til_antall_stent_per_opphold()} groups the
-#' procedures (primærforløp - koblet primærforløp) by main procedure and counts
-#' the total number of stents. If no registration in SegmentStent-table for
-#' any procedure associated with a main procedure, NA is returned. If at least
-#' one registration is available in SegmentStent, the sum om stents is returned
-#' (the sum might be 0, if only other types of interventions were registered).
+#' The function \code{legg_til_antall_stent_opphold()} groups the
+#' procedures (primErforløp - koblet primaerforløp) by main procedure and
+#' counts the total number of stents. If no registration in SegmentStent-table
+#' for any procedure associated with a main procedure, NA is returned. If at
+#' least one registration is available in SegmentStent, the sum om stents is
+#' returned (the sum might be 0, if only other types of interventions were
+#'  registered).
 #'
 #' The function \code{utlede_kar_segment_stent()} groups the
 #' \code{Segments} in \code{df_ss} into coronary arteries in the new variable
@@ -76,7 +77,7 @@
 #' @name utlede_segmentStent_variabler
 #' @aliases
 #' legg_til_antall_stent
-#' legg_til_antall_stent_per_opphold
+#' legg_til_antall_stent_opphold
 #' utlede_kar_segment_stent
 #' utlede_kar_graft_segment_stent
 #' satt_inn_stent_i_lms
@@ -104,7 +105,7 @@
 #'                 OppholdsID = c(101:106, 101, 102, 102, 103, 104, 106, 50),
 #'                 antall_stent = c(0, 5, NA, 1, NA, NA,
 #'                                  3, 1, 2, 3, NA, NA, 10))
-#' noric::legg_til_antall_stent_per_opphold(x)
+#' noric::legg_til_antall_stent_opphold(x)
 #'
 #'
 #'
@@ -168,7 +169,7 @@ legg_til_antall_stent <- function(df_ap, df_ss) {
 
 #' @rdname utlede_segmentStent_variabler
 #' @export
-legg_til_antall_stent_per_opphold <- function(df_ap) {
+legg_til_antall_stent_opphold <- function(df_ap) {
 
   stopifnot(all(c("AvdRESH",
                   "OppholdsID",
@@ -434,6 +435,8 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
 #' @rdname utlede_segmentStent_variabler
 #' @export
 legg_til_wireforsok_per_kar <- function(df_ap, df_ss) {
+
+  . <- ""
 
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH", "Segment", "Graft", "ProsedyreType") %in%

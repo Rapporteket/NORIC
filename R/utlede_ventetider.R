@@ -43,7 +43,7 @@
 #'
 #'
 #'
-legg_til_ventetid_nstemi_timer <- function(df_ap){
+legg_til_ventetid_nstemi_timer <- function(df_ap) {
 
   stopifnot(all(c("OverflyttetFra",
                   "ProsedyreDato",
@@ -76,13 +76,13 @@ legg_til_ventetid_nstemi_timer <- function(df_ap){
         .data$OverflyttetFra %in%
           c("Nei, direkte inn til dette sykehus",
             "Omdirigert ambulanse") ~
-          round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
-                                    .data$AnkomstTidspunkt ,
+          round(as.numeric(difftime(.data$ProsedyreTidspunkt,
+                                    .data$AnkomstTidspunkt,
                                     units = "hours")), 2),
 
         # Hvis overflyttede pasienter
         .data$OverflyttetFra %in% c("Annet sykehus") ~
-          round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
+          round(as.numeric(difftime(.data$ProsedyreTidspunkt,
                                     .data$HenvisendeSykehusTidspunkt,
                                     units = "hours")), 2),
         # Manglende eller "Annen avd på sykehuset"
@@ -130,7 +130,7 @@ legg_til_ventetid_nstemi_timer <- function(df_ap){
 #'  BeslutningsutlosendeEKG = rep("Ved annet sykehus", 4))
 #' noric::legg_til_ventetid_stemi_min(x)
 
-legg_til_ventetid_stemi_min <- function(df_ap){
+legg_til_ventetid_stemi_min <- function(df_ap) {
 
   stopifnot(all(c("ProsedyreDato",
                   "ProsedyreTid",
@@ -152,8 +152,8 @@ legg_til_ventetid_stemi_min <- function(df_ap){
 
 
       ventetid_stemi_min =
-        round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
-                                  .data$BesUtlEkgTidspunkt ,
+        round(as.numeric(difftime(.data$ProsedyreTidspunkt,
+                                  .data$BesUtlEkgTidspunkt,
                                   units = "mins")), 1),
 
       # Fjerner de som har 0 minutters ventetid samtidig som
@@ -162,7 +162,7 @@ legg_til_ventetid_stemi_min <- function(df_ap){
         .data$ventetid_stemi_min == 0 &
           .data$BeslutningsutlosendeEKG %in% "Prehospitalt",
         yes = NA,
-        no = ventetid_stemi_min )) %>%
+        no = ventetid_stemi_min)) %>%
 
 
 
@@ -210,9 +210,8 @@ legg_til_ventetid_stemi_min <- function(df_ap){
 #'}
 #'
 #' @export
-legg_til_liggedogn <- function(df_ap){
+legg_til_liggedogn <- function(df_ap) {
 
-  . <- ""
   stopifnot(all(c("OverflyttetFra",
                   "AnkomstPCIDato",
                   "Regtype",
@@ -249,7 +248,7 @@ legg_til_liggedogn <- function(df_ap){
         .data$liggedogn_data == "nei" ~ NA_real_,
         .data$liggedogn_data == "manglende" ~ NA_real_,
         .data$liggedogn_data == "ja" ~
-          as.numeric(difftime(.data$Utskrivningsdato ,
+          as.numeric(difftime(.data$Utskrivningsdato,
                               .data$AnkomstPCIDato,
                               units = "days")),
         TRUE ~ NA_real_),

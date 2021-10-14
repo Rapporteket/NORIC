@@ -343,7 +343,8 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
     dplyr::mutate(
 
       # Datagrunnlag for indikatoren
-      #  ~ Minst en stent satt inn i løpet av oppholdet (primær eller sekundær)
+      #  ~ Minst en stent satt inn i løpet av oppholdet (primær eller
+      #    sekundær)
       #  ~ Primærforløp
       #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent, NA}
       #  ~ Ferdigstilt utskrivelsesskjema
@@ -494,7 +495,7 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
              .data$Regtype == "Primær" &
              !.data$Innkomstarsak %in% "Øvrig" &  # NA tillates
              !.data$Hastegrad %in% "Planlagt" &
-             .data$OverflyttetFra != "Annen  avdeling på sykehuset"), # ikke NA,
+             .data$OverflyttetFra != "Annen  avdeling på sykehuset"), # - NA,
 
         true = "ja",
         false = "nei",
@@ -560,7 +561,7 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
              .data$Regtype == "Primær" &
              !.data$Innkomstarsak %in% "Øvrig" &  # NA tillates
              !.data$Hastegrad %in% "Planlagt" &
-             .data$OverflyttetFra != "Annen  avdeling på sykehuset"), # ikke NA,
+             .data$OverflyttetFra != "Annen  avdeling på sykehuset"), # - NA,
 
         true = "ja",
         false = "nei",
@@ -660,24 +661,14 @@ ki_stemi_pci_innen120min <- function(df_ap) {
         .data$indik_stemi_pci_innen2t_data == "ja" &
           (!is.na(.data$ventetid_stemi_min) &
              .data$ventetid_stemi_min > 120 &
-             .data$ventetid_stemi_min <= 24*60) ~ "nei",
+             .data$ventetid_stemi_min <= 24 * 60) ~ "nei",
 
         .data$indik_stemi_pci_innen2t_data == "ja" &
           (is.na(.data$ventetid_stemi_min) |
              .data$ventetid_stemi_min < 0 |
-             .data$ventetid_stemi_min > 24*60) ~ "ugyldig/manglende",
+             .data$ventetid_stemi_min > 24 * 60) ~ "ugyldig/manglende",
 
         .data$indik_stemi_pci_innen2t_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }
-
-
-
-
-
-
-
-
-
-

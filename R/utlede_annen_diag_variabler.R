@@ -72,7 +72,6 @@ NULL
 #' @export
 utlede_kar_annen_diag <- function(df_ad = ad) {
 
-
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH", "segment", "graft") %in% names(df_ad))) {
     stop("df_ad must contain variables ForlopsID, AVdRESH, segment and graft")
