@@ -62,7 +62,6 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
                  "AnkomstPCITid",
                  "InnleggelseHenvisendeSykehusDato",
                  "InnleggelseHenvisendeSykehusTid",
-                 "ventetid_nstemi_sekunder",
                  "ventetid_nstemi_timer"))
 
   # Forventer at ventetid mangler dersom en av dato-tidspunkt mangler
@@ -104,7 +103,7 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
 
   # Forventer disse tidene dersom direkte innlagt
   expect_equal(
-    c(87673.0, NA, NA, 2.4, NA, -836971.1, 73.5, 36.0),
+    c(87673.00, NA, NA, 2.42, NA, -836971.13, 73.50, 36.00),
 
     x_out %>%
       dplyr::filter(
@@ -116,7 +115,7 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
 
   # Forventer disse tidene dersom overført
   expect_equal(
-    c(NA, NA, -876585.0, 72.0, 41.4, -33.8, 26.3, 61.0),
+    c(NA, NA, -876585.00, 72.00, 41.40, -33.80, 26.33, 61.00),
 
     x_out %>%
       dplyr::filter(
