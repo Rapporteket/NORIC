@@ -77,16 +77,16 @@ legg_til_ventetid_nstemi_timer <- function(df_ap){
           c("Nei, direkte inn til dette sykehus",
             "Omdirigert ambulanse") ~
           round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
-                              .data$AnkomstTidspunkt ,
-                              units = "hours")), 2),
+                                    .data$AnkomstTidspunkt ,
+                                    units = "hours")), 2),
 
         # Hvis overflyttede pasienter
         .data$OverflyttetFra %in% c("Annet sykehus") ~
           round(as.numeric(difftime(.data$ProsedyreTidspunkt ,
-                              .data$HenvisendeSykehusTidspunkt,
-                              units = "hours")), 2),
-      # Manglende eller "Annen avd på sykehuset"
-      TRUE ~ NA_real_)) %>%
+                                    .data$HenvisendeSykehusTidspunkt,
+                                    units = "hours")), 2),
+        # Manglende eller "Annen avd på sykehuset"
+        TRUE ~ NA_real_)) %>%
 
 
     # Fjerne midlertidige variabler
@@ -189,7 +189,7 @@ legg_til_ventetid_stemi_min <- function(df_ap){
 #' \code{OverflyttetFra} og \code{Regtype}.
 #'
 #' @return Returnerer \code{df_ap} med to nye variabler
-#'  \code{liggedogn} og \code{liggedogn_dg}. Variabelen \code{liggedogn}
+#'  \code{liggedogn} og \code{liggedogn_data}. Variabelen \code{liggedogn}
 #'  inneholder antall dager mellom AnkomstPCI-sykehus og utskrivelse, denne
 #'  kan ogsaa inneholde negative tider og tider over 60 dager.
 #'  Variabelne \code{liggetid_dg} inneholder datagrunnlaget for
@@ -221,33 +221,20 @@ legg_til_liggedogn <- function(df_ap){
   df_ap %>%
     dplyr::mutate(
 
-      liggedogn = as.numeric(difftime(.data$Utskrivningsdato ,
-                                      .data$AnkomstPCIDato,
-                                      units = "days")),
-
-
-      liggedogn_dg = dplyr::case_when(
+      # Datagrunnlag
+      liggedogn_data = dplyr::case_when(
 
         .data$Regtype == "Primær" &
           .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                       "Omdirigert ambulanse",
                                       "Annet sykehus") &
-          .data$liggedogn >= 0 & .data$liggedogn <= 60 ~ "ja",
-
-
-        .data$Regtype == "Primær" &
-          .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
-                                      "Omdirigert ambulanse",
-                                      "Annet sykehus") &
-          (.data$liggedogn < 0 | .data$liggedogn > 60) ~ "ugyldig tid",
-
+          (is.na(.data$AnkomstPCIDato) |
+             is.na(Utskrivningsdato)) ~ "manglende",
 
         .data$Regtype == "Primær" &
           .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                       "Omdirigert ambulanse",
-                                      "Annet sykehus") &
-          (is.na(.data$AnkomstPCIDato) | is.na(Utskrivningsdato)) ~ "manglende",
-
+                                      "Annet sykehus") ~ "ja",
 
         .data$Regtype == "Primær" &
           (.data$OverflyttetFra == "Annen  avdeling på sykehuset" |
@@ -255,12 +242,26 @@ legg_til_liggedogn <- function(df_ap){
 
         .data$Regtype == "Sekundær" ~ "nei",
 
-
         TRUE ~ "nei"),
 
 
-      liggedogn = ifelse(.data$liggedogn_dg == "nei",yes = NA_integer_,
-                         no = .data$liggedogn))
+      liggedogn = dplyr::case_when(
+        .data$liggedogn_data == "nei" ~ NA_real_,
+        .data$liggedogn_data == "manglende" ~ NA_real_,
+        .data$liggedogn_data == "ja" ~
+          as.numeric(difftime(.data$Utskrivningsdato ,
+                              .data$AnkomstPCIDato,
+                              units = "days")),
+        TRUE ~ NA_real_),
+
+
+      # Definere ugyldig tid i datagrunnlaget:
+      liggedogn_data = ifelse(.data$liggedogn_data == "ja" &
+                                (.data$liggedogn < 0 | .data$liggedogn > 60),
+                              yes = "ugyldig tid",
+                              no = .data$liggedogn_data)
+
+    )
 
 
 }

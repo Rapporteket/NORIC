@@ -230,13 +230,13 @@ testthat::test_that("legg_til_liggedogn fungerer", {
                          "AnkomstPCIDato",
                          "Utskrivningsdato",
                          "liggedogn",
-                         "liggedogn_dg")))
+                         "liggedogn_data")))
 
 
   testthat::expect_true(
     df_out %>%
       dplyr::filter(.data$Regtype == "Sekundær") %>%
-      dplyr::pull(.data$liggedogn_dg) == "nei")
+      dplyr::pull(.data$liggedogn_data) == "nei")
 
 
   testthat::expect_true(all(
@@ -245,7 +245,7 @@ testthat::test_that("legg_til_liggedogn fungerer", {
         .data$Regtype == "Primær" &
           (is.na(.data$OverflyttetFra) |
              .data$OverflyttetFra == "Annen  avdeling på sykehuset")) %>%
-      dplyr::pull(.data$liggedogn_dg) == "nei"))
+      dplyr::pull(.data$liggedogn_data) == "nei"))
 
 
   testthat::expect_true(all(
@@ -257,7 +257,7 @@ testthat::test_that("legg_til_liggedogn fungerer", {
                                   "Annet sykehus") &
         .data$liggedogn >= 0 &
         .data$liggedogn <= 60) %>%
-      dplyr::pull(.data$liggedogn_dg) == "ja"))
+      dplyr::pull(.data$liggedogn_data) == "ja"))
 
 testthat::expect_true(all(
   df_out %>%
@@ -267,7 +267,7 @@ testthat::expect_true(all(
                                   "Omdirigert ambulanse",
                                   "Annet sykehus") &
         (.data$liggedogn < 0 | .data$liggedogn > 60)) %>%
-    dplyr::pull(.data$liggedogn_dg) == "ugyldig tid"
+    dplyr::pull(.data$liggedogn_data) == "ugyldig tid"
 ))
 
 
@@ -279,7 +279,7 @@ testthat::expect_true(all(
                                     "Omdirigert ambulanse",
                                     "Annet sykehus") &
         is.na(liggedogn)) %>%
-    dplyr::pull(.data$liggedogn_dg) == "manglende" ))
+    dplyr::pull(.data$liggedogn_data) == "manglende" ))
 
 
 
@@ -287,7 +287,7 @@ testthat::expect_true(all(
 testthat::expect_equal(
   df_out %>%
     dplyr::filter(
-      .data$liggedogn_dg %in% c("ja", "ugyldig tid")) %>%
+      .data$liggedogn_data %in% c("ja", "ugyldig tid")) %>%
     dplyr::pull(.data$liggedogn),
 
   c(1, 365, -29797, -1095, 395))
