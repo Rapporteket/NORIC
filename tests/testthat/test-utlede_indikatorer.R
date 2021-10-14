@@ -143,13 +143,13 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                  "IVUS",
                  "OCT",
                  "satt_inn_stent_i_LMS",
-                 "ki_ivus_oct_ved_stenting_lms_dg",
-                 "ki_ivus_oct_ved_stenting_lms"))
+                 "indik_ivus_oct_v_stent_lms_data",
+                 "indik_ivus_oct_v_stent_lms"))
 
   # Forventer disse indikasjonene dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_ivus_oct_ved_stenting_lms_dg == "ja") %>%
+      dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja") %>%
       dplyr::pull(.data$Indikasjon) %in% c("Vitieutredning",
                                            "Uklare brystsmerter",
                                            "Annet",
@@ -162,13 +162,13 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
   # Forventer at stent satt inn i LMS dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_ivus_oct_ved_stenting_lms_dg == "ja") %>%
+      dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja") %>%
       dplyr::pull(.data$satt_inn_stent_i_LMS) == "ja"))
 
   # Forventer disse verdiene av TidlABC dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_ivus_oct_ved_stenting_lms_dg == "ja") %>%
+      dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja") %>%
       dplyr::pull(.data$TidlABC) %in% c("Ukjent", "Nei", NA)))
 
 
@@ -184,51 +184,51 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                                              "Komplettering av tidligere PCI",
                                              "UAP",
                                              "NSTEMI")) %>%
-      dplyr::pull(.data$ki_ivus_oct_ved_stenting_lms_dg)  == "nei"))
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, dersom disse verdiene av TidlABC
   expect_true(all(
     x_out %>%
       dplyr::filter(!.data$TidlABC %in% c("Nei", "Ukjent", NA)) %>%
-      dplyr::pull(.data$ki_ivus_oct_ved_stenting_lms_dg)  == "nei"))
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms_data)  == "nei"))
 
   # Forventer at datagrunnlag er nei, dersom stent ikke satt inn
   expect_true(all(
     x_out %>%
       dplyr::filter(!.data$satt_inn_stent_i_LMS %in% c("ja")) %>%
-      dplyr::pull(.data$ki_ivus_oct_ved_stenting_lms_dg)  == "nei"))
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms_data)  == "nei"))
 
 
 
   # Forventer at KI er NA dersom ikke i datagrunnlag
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_ivus_oct_ved_stenting_lms_dg == "nei") %>%
-      dplyr::pull(.data$ki_ivus_oct_ved_stenting_lms) %>%
+      dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "nei") %>%
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms) %>%
       is.na()))
 
 
   # Forventer at KI er ja dersom i datagrunnlaget og en IVUS/OCT er uført
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_ivus_oct_ved_stenting_lms_dg == "ja",
+      dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja",
                     .data$IVUS == "Ja") %>%
-      dplyr::pull(.data$ki_ivus_oct_ved_stenting_lms) == "ja"))
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms) == "ja"))
 
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_ivus_oct_ved_stenting_lms_dg == "ja",
+      dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja",
                     .data$OCT == "Ja") %>%
-      dplyr::pull(.data$ki_ivus_oct_ved_stenting_lms) == "ja"))
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms) == "ja"))
 
 
   # Forventer at KI er nei dersom i datagrunnlaget og ingen IVUS/OCT er uført
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+      dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja" &
                       (.data$IVUS != "Ja" | is.na(.data$IVUS)) &
                       (.data$OCT != "Ja" | is.na(.data$OCT))) %>%
-      dplyr::pull(.data$ki_ivus_oct_ved_stenting_lms) == "nei"))
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms) == "nei"))
 
 
   # Forventer feilmelding dersom variabler mangler

@@ -58,14 +58,14 @@ Following variables are created for the different functions:
 
 \code{ki_trykkmaaling_utfoert()}
 \itemize{
-\item denominator \code{indik_trykkmaaling_data} (datagrunnlag) is \emph{ja} when
- \emph{Indikasjon = Stabil koronarsykdom}.
-\item numerator \code{indik_trykkmaaling} has value \emph{ja} if FFR and/or iFR
-has been performed.}
+\item denominator \code{indik_trykkmaaling_data} (datagrunnlag) is \emph{ja}
+when \emph{Indikasjon = Stabil koronarsykdom}.
+\item numerator \code{indik_trykkmaaling} has value \emph{ja} if FFR and/or
+ iFR has been performed.}
 
 \code{ki_ivus_oct_ved_stenting_lms()}
 \itemize{
-\item denominator \code{ki_ivus_oct_ved_stenting_lms_dg} (datagrunnlag) is
+\item denominator \code{indik_ivus_oct_v_stent_lms_data} (datagrunnlag) is
 \emph{ja} when all of these conditions are fulfilled:
 \enumerate{
   \item \code{Indikasjon} is one of "Vitieutredning", "Uklare brystsmerter",
@@ -75,7 +75,7 @@ has been performed.}
   \item \code{satt_inn_stent_i_LMS} = "ja"
   \item \code{TidlABC} is one of "Nei", "Ukjent", NA
   }
-\item numerator \code{ki_ivus_oct_ved_stenting_lms} has value \emph{ja} if
+\item numerator \code{indik_ivus_oct_v_stent_lms} has value \emph{ja} if
 IVUS and/or OCT has been performed.
 }
 

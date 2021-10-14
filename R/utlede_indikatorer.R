@@ -27,7 +27,7 @@
 #'
 #' \code{ki_ivus_oct_ved_stenting_lms()}
 #' \itemize{
-#' \item denominator \code{ki_ivus_oct_ved_stenting_lms_dg} (datagrunnlag) is
+#' \item denominator \code{indik_ivus_oct_v_stent_lms_data} (datagrunnlag) is
 #' \emph{ja} when all of these conditions are fulfilled:
 #' \enumerate{
 #'   \item \code{Indikasjon} is one of "Vitieutredning", "Uklare brystsmerter",
@@ -37,7 +37,7 @@
 #'   \item \code{satt_inn_stent_i_LMS} = "ja"
 #'   \item \code{TidlABC} is one of "Nei", "Ukjent", NA
 #'   }
-#' \item numerator \code{ki_ivus_oct_ved_stenting_lms} has value \emph{ja} if
+#' \item numerator \code{indik_ivus_oct_v_stent_lms} has value \emph{ja} if
 #' IVUS and/or OCT has been performed.
 #' }
 #'
@@ -282,7 +282,7 @@ ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
       #  ~ IKKE tidligere ACB-operert
       #  ~ en av indikasjonene i listen
       #  ~ prosedyre med stenting av venstre hovedstamme (Segment5 = LMS = VH)
-      ki_ivus_oct_ved_stenting_lms_dg = dplyr::if_else(
+      indik_ivus_oct_v_stent_lms_data = dplyr::if_else(
         condition =
           (.data$TidlABC %in% c("Nei", "Ukjent") | is.na(.data$TidlABC)) &
           .data$Indikasjon %in% c("Vitieutredning",
@@ -302,24 +302,24 @@ ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # IVUS og/eller OCT er utført
-      ki_ivus_oct_ved_stenting_lms = dplyr::case_when(
+      indik_ivus_oct_v_stent_lms = dplyr::case_when(
 
-        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           (.data$IVUS == "Ja" | .data$OCT == "Ja") ~ "ja",
 
-        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           (.data$IVUS != "Ja" & .data$OCT != "Ja") ~ "nei",
 
-        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           is.na(.data$IVUS) & .data$OCT != "Ja" ~ "nei",
 
-        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           .data$IVUS != "Ja" & is.na(.data$OCT) ~ "nei",
 
-        .data$ki_ivus_oct_ved_stenting_lms_dg == "ja" &
+        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           is.na(.data$IVUS) & is.na(.data$OCT) ~ "nei",
 
-        .data$ki_ivus_oct_ved_stenting_lms_dg == "nei" ~ NA_character_,
+        .data$indik_ivus_oct_v_stent_lms_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }
