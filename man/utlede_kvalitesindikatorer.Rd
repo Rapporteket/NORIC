@@ -147,8 +147,9 @@ than 14 days or missing. See also function
 \item numerator \code{ki_stemi_pci_innen120min} has value \emph{ja}
 if \code{ventetid_stemi_min} is in the interval 0-120 minutes,
 value \emph{nei} if  \code{ventetid_stemi_min} is in the interval 120 min
-to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative, longer
-than 24h or missing. See also function
+to 24h (86400 min) and value \emph{ugyldig/manglende} if time is negative,
+longer than 24h,  missing or if \code{BeslutningsutlosendeEKG} has value
+"Prehospitalt" and \code{ventetid_stemi_min} is 0 minutes. See also function
  \link[noric]{legg_til_ventetid_stemi_min}.
 }
 }
@@ -192,7 +193,7 @@ noric::ki_foreskr_kolesterolsenkende(df_ap = x)
       OverflyttetFra = c("Annen  avdeling på sykehuset",
                          rep("Annet sykehus", 2),
                          rep("Omdirigert ambulanse", 3)),
-      ventetid_nstemi_timer = c(1,2,5,10,NA, -350))
+      ventetid_nstemi_timer = c(0, 0, 5, 100, NA, -0.1))
 noric::ki_nstemi_utredet_innen24t(df_ap = x)
 noric::ki_nstemi_utredet_innen72t(df_ap = x)
 
@@ -204,6 +205,7 @@ noric::ki_nstemi_utredet_innen72t(df_ap = x)
       Hastegrad = rep("Akutt", 6),
       HLRForSykehus = rep("Nei", 6),
       ProsedyreType = rep("Angio + PCI", 6),
+      BeslutningsutlosendeEKG = rep("Prehospitalt", 6),
       ventetid_stemi_min = c(-10, 20, 110, 120, 1150, 1480))
 noric::ki_stemi_pci_innen120min(df_ap = x)
 }
