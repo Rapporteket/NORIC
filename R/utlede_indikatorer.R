@@ -5,7 +5,7 @@
 #' denominator for the given indicator and the second says whether
 #' the procedure counts in the numerator (ja/nei/NA). If the denominator has
 #' value \emph{nei} the numerator should always be \emph{NA}. Denominator
-#' variables names are suffixed by \emph{_dg} (datagrunnlag).
+#' variables names are suffixed by \emph{_data} (datagrunnlag).
 #'
 #' Following variables are created for the different functions:
 #'
@@ -74,7 +74,7 @@
 #'
 #' \code{ki_nstemi_utredet_innen24t()}
 #' \itemize{
-#' \item denominator \code{ki_nstemi_utredet_innen24t_dg}
+#' \item denominator \code{indik_nstemi_angio_innen24t_data}
 #' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
 #' \enumerate{
 #'   \item \code{Indikasjone} is "NSTEMI"
@@ -84,7 +84,7 @@
 #'   \item \code{OverflyttetFra} neither "Annen  avdeling på sykehuset" nor
 #'   "NA".
 #'   }
-#' \item numerator \code{ki_nstemi_utredet_innen24t} has value \emph{ja}
+#' \item numerator \code{indik_nstemi_angio_innen24t} has value \emph{ja}
 #' if \code{ventetid_nstemi_timer} is in the interval 0-24hours,
 #' value \emph{nei} if  \code{ventetid_nstemi_timer} is in the interval 24hours
 #' to 14 days and value \emph{ugyldig/manglende} if time is negative, longer
@@ -488,7 +488,7 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
       #  ~ Ikke planlagte forløp
       #  ~ OverflyttetFra ulik {NA, "Annen  avdeling på sykehuset"}
       #  MERK 2 mellomrom mellom annen__avdeling
-      ki_nstemi_utredet_innen24t_dg = dplyr::if_else(
+      indik_nstemi_angio_innen24t_data = dplyr::if_else(
         condition =
           (.data$Indikasjon == "NSTEMI" &
              .data$Regtype == "Primær" &
@@ -504,27 +504,27 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
       # Ugyldig tid (negativ, over 14dg, manglende)
       # Gyldig tid 0 timer til 14 dager.
       # Næyaktig 0.00 timer er ugyldig tid.
-      ki_nstemi_utredet_innen24t = dplyr::case_when(
+      indik_nstemi_angio_innen24t = dplyr::case_when(
 
-        .data$ki_nstemi_utredet_innen24t_dg == "ja" &
+        .data$indik_nstemi_angio_innen24t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
             .data$ventetid_nstemi_timer > 0.0 &
           .data$ventetid_nstemi_timer <= 24.0) ~ "ja",
 
-        .data$ki_nstemi_utredet_innen24t_dg == "ja" &
+        .data$indik_nstemi_angio_innen24t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
              .data$ventetid_nstemi_timer > 24.0 &
              .data$ventetid_nstemi_timer <= 14 * 24.0) ~ "nei",
 
 
-        .data$ki_nstemi_utredet_innen24t_dg == "ja" &
+        .data$indik_nstemi_angio_innen24t_data == "ja" &
           (is.na(.data$ventetid_nstemi_timer) |
              .data$ventetid_nstemi_timer <= 0.0 |
              .data$ventetid_nstemi_timer > 14 * 24) ~ "ugyldig/manglende",
 
 
 
-        .data$ki_nstemi_utredet_innen24t_dg == "nei" ~ NA_character_,
+        .data$indik_nstemi_angio_innen24t_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }
@@ -554,7 +554,7 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
       #  ~ Ikke planlagte forløp
       #  ~ OverflyttetFra ulik {NA, "Annen  avdeling på sykehuset"}
       #  MERK 2 mellomrom mellom annen__avdeling
-      ki_nstemi_utredet_innen72t_dg = dplyr::if_else(
+      indik_nstemi_angio_innen72t_data = dplyr::if_else(
         condition =
           (.data$Indikasjon == "NSTEMI" &
              .data$Regtype == "Primær" &
@@ -569,27 +569,27 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # gylsig ventetid innen 72t.
       # NB: Dersom ugyldig tid (negativ, over 14dg, manglende) --> NA
-      ki_nstemi_utredet_innen72t = dplyr::case_when(
+      indik_nstemi_angio_innen72t = dplyr::case_when(
 
-        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+        .data$indik_nstemi_angio_innen72t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
              .data$ventetid_nstemi_timer > 0.0 &
              .data$ventetid_nstemi_timer <= 72.0) ~ "ja",
 
-        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+        .data$indik_nstemi_angio_innen72t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
              .data$ventetid_nstemi_timer > 72.0 &
              .data$ventetid_nstemi_timer <= 14 * 24) ~ "nei",
 
 
-        .data$ki_nstemi_utredet_innen72t_dg == "ja" &
+        .data$indik_nstemi_angio_innen72t_data == "ja" &
           (is.na(.data$ventetid_nstemi_timer) |
              .data$ventetid_nstemi_timer <= 0.0 |
              .data$ventetid_nstemi_timer > 14 * 24) ~ "ugyldig/manglende",
 
 
 
-        .data$ki_nstemi_utredet_innen72t_dg == "nei" ~ NA_character_,
+        .data$indik_nstemi_angio_innen72t_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }
