@@ -49,18 +49,18 @@ Following variables are created for the different functions:
 
 \code{ki_ferdigstilt_komplikasjoner()}
  \itemize{
- \item denominator \code{ki_komplik_ferdig_dg} (datagrunnlag) is
+ \item denominator \code{indik_komplik_ferdig_data} (datagrunnlag) is
  \emph{ja} when \emph{Regtype = Primaer}.
- \item numerator \code{ki_komplik_ferdig} has value \emph{ja} if the
+ \item numerator \code{indik_komplik_ferdig} has value \emph{ja} if the
  complications form is completed (komplikasjons-skjema er ferdigstilt).}
 
 
 
 \code{ki_trykkmaaling_utfoert()}
 \itemize{
-\item denominator \code{ki_trykkmaaling_dg} (datagrunnlag) is \emph{ja} when
+\item denominator \code{indik_trykkmaaling_data} (datagrunnlag) is \emph{ja} when
  \emph{Indikasjon = Stabil koronarsykdom}.
-\item numerator \code{ki_trykkmaaling} has value \emph{ja} if FFR and/or iFR
+\item numerator \code{indik_trykkmaaling} has value \emph{ja} if FFR and/or iFR
 has been performed.}
 
 \code{ki_ivus_oct_ved_stenting_lms()}

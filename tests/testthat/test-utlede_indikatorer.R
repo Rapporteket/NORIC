@@ -1,34 +1,34 @@
-test_that("ki_ferdigstilt_komplikasjoner works", {
+testthat::test_that("ki_ferdigstilt_komplikasjoner works", {
 
   x <- data.frame(SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
   x_out <- noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
 
-  expect_equal(names(x_out),
+  testthat::expect_equal(names(x_out),
                c("SkjemaStatusKomplikasjoner",
                  "indik_komplik_ferdig_data",
                  "indik_komplik_ferdig"))
 
-  expect_equal(
+  testthat::expect_equal(
     x_out %>%
       dplyr::filter(is.na(.data$SkjemaStatusKomplikasjoner)) %>%
       dplyr::pull(.data$indik_komplik_ferdig_data),
     c("nei", "nei", "nei"))
 
-  expect_true(
+  testthat::expect_true(
     all(x_out %>%
           dplyr::filter(.data$indik_komplik_ferdig_data == "nei") %>%
           dplyr::select(.data$indik_komplik_ferdig) %>%
           is.na()))
 
 
-  expect_error(
+  testthat::expect_error(
     noric::ki_ferdigstilt_komplikasjoner(
       df_ap = data.frame(tullenavn = c(1, 1, 1))))
 })
 
 
 
-test_that("ki_trykkmaaling_utfoert works", {
+testthat::test_that("ki_trykkmaaling_utfoert works", {
 
   x <- data.frame(
     Indikasjon = c(rep("Stabil koronarsykdom", 6), NA, NA, "Annet"),
@@ -37,59 +37,59 @@ test_that("ki_trykkmaaling_utfoert works", {
 
   x_out <- noric::ki_trykkmaaling_utfoert(df_ap = x)
 
-  expect_equal(names(x_out),
+  testthat::expect_equal(names(x_out),
                c("Indikasjon",
                  "FFR",
                  "IFR",
-                 "ki_trykkmaaling_dg",
-                 "ki_trykkmaaling"))
+                 "indik_trykkmaaling_data",
+                 "indik_trykkmaaling"))
 
-  expect_true(all(
+  testthat::expect_true(all(
     x_out %>%
       dplyr::filter(.data$Indikasjon == "Stabil koronarsykdom") %>%
-      dplyr::pull(.data$ki_trykkmaaling_dg) == "ja"))
+      dplyr::pull(.data$indik_trykkmaaling_data) == "ja"))
 
-  expect_true(all(
+  testthat::expect_true(all(
     x_out %>%
       dplyr::filter(.data$Indikasjon != "Stabil koronarsykdom" |
                       is.na(.data$Indikasjon)) %>%
-      dplyr::pull(.data$ki_trykkmaaling_dg) == "nei"))
+      dplyr::pull(.data$indik_trykkmaaling_data) == "nei"))
 
 
-  expect_true(
+  testthat::expect_true(
     all(x_out %>%
-          dplyr::filter(.data$ki_trykkmaaling_dg == "nei") %>%
-          dplyr::select(.data$ki_trykkmaaling) %>%
+          dplyr::filter(.data$indik_trykkmaaling_data == "nei") %>%
+          dplyr::select(.data$indik_trykkmaaling) %>%
           is.na()))
 
 
-  expect_true(all(
+  testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_trykkmaaling_dg == "ja" & .data$FFR == "Ja") %>%
-      dplyr::pull(.data$ki_trykkmaaling) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$FFR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
 
 
-  expect_true(all(
+  testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_trykkmaaling_dg == "ja" & .data$IFR == "Ja") %>%
-      dplyr::pull(.data$ki_trykkmaaling) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$IFR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
 
 
-  expect_true(all(
+  testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ki_trykkmaaling_dg == "ja" &
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
                       (.data$FFR != "Ja" | is.na(.data$FFR)) &
                       (.data$IFR != "Ja" | is.na(.data$IFR))) %>%
-      dplyr::pull(.data$ki_trykkmaaling) == "nei"))
+      dplyr::pull(.data$indik_trykkmaaling) == "nei"))
 
 
 
-  expect_error(
+  testthat::expect_error(
     noric::ki_trykkmaaling_utfoert(
       df_ap = data.frame(tullenavn = c(1, 1, 1))))
 
 
-  expect_error(
+  testthat::expect_error(
     noric::ki_trykkmaaling_utfoert(
       df_ap = data.frame(Indikasjon = "Stabil koronarsykdom",
                          FFR = "Ja")))

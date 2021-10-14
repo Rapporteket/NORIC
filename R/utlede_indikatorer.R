@@ -20,10 +20,10 @@
 #'
 #' \code{ki_trykkmaaling_utfoert()}
 #' \itemize{
-#' \item denominator \code{ki_trykkmaaling_dg} (datagrunnlag) is \emph{ja} when
-#'  \emph{Indikasjon = Stabil koronarsykdom}.
-#' \item numerator \code{ki_trykkmaaling} has value \emph{ja} if FFR and/or iFR
-#' has been performed.}
+#' \item denominator \code{indik_trykkmaaling_data} (datagrunnlag) is \emph{ja}
+#' when \emph{Indikasjon = Stabil koronarsykdom}.
+#' \item numerator \code{indik_trykkmaaling} has value \emph{ja} if FFR and/or
+#'  iFR has been performed.}
 #'
 #' \code{ki_ivus_oct_ved_stenting_lms()}
 #' \itemize{
@@ -236,7 +236,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
     dplyr::mutate(
 
       # Datagrunnlag for indikatoren
-      ki_trykkmaaling_dg = dplyr::if_else(
+      indik_trykkmaaling_data = dplyr::if_else(
         condition = .data$Indikasjon %in% c("Stabil koronarsykdom"),
         true = "ja",
         false = "nei",
@@ -244,24 +244,24 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # IFR og/eller FFR er utført
-      ki_trykkmaaling = dplyr::case_when(
+      indik_trykkmaaling = dplyr::case_when(
 
-        .data$ki_trykkmaaling_dg == "ja" &
+        .data$indik_trykkmaaling_data == "ja" &
           (.data$FFR == "Ja" | .data$IFR == "Ja") ~ "ja",
 
-        .data$ki_trykkmaaling_dg == "ja" &
+        .data$indik_trykkmaaling_data == "ja" &
           (.data$FFR != "Ja" & .data$IFR != "Ja") ~ "nei",
 
-        .data$ki_trykkmaaling_dg == "ja" &
+        .data$indik_trykkmaaling_data == "ja" &
           is.na(.data$FFR) & .data$IFR != "Ja" ~ "nei",
 
-        .data$ki_trykkmaaling_dg == "ja" &
+        .data$indik_trykkmaaling_data == "ja" &
           .data$FFR != "Ja" & is.na(.data$IFR) ~ "nei",
 
-        .data$ki_trykkmaaling_dg == "ja" &
+        .data$indik_trykkmaaling_data == "ja" &
           is.na(.data$FFR) & is.na(.data$IFR) ~ "nei",
 
-        .data$ki_trykkmaaling_dg == "nei" ~ NA_character_,
+        .data$indik_trykkmaaling_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }
