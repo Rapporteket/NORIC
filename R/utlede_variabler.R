@@ -49,7 +49,7 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
 #'    ForlopsID = c(1, 2, 3, 4, 5, 6),
 #'    PrimaerForlopsID = c(rep(NA, 4), 1, 3))
 #' utlede_OppholdsID(x)
-utlede_OppholdsID <- function(df){
+utlede_OppholdsID <- function(df) {
 
   stopifnot(c("Regtype", "ForlopsID", "PrimaerForlopsID") %in% names(df))
 
@@ -109,55 +109,5 @@ utlede_ferdigstilt <- function(df,
     dplyr::relocate(paste0("ferdigstilt_", suffix), .after = {{ var }})
 }
 
-
-
-#' Use values from two variables
-#'
-#' The function \code{slaa_sammen_variabler()} uses the values of two variables,
-#' \code{var1} and \code{var2}, in dataset \code{df} to create a new variable
-#' named \code{var_name} in the same dataset. \code{var_name} is first given the
-#' value of \code{var1}, in rows where \code{var1} is missing the values of
-#' \code{var2} are used. In rows where both \code{var1} and \code{var2} are
-#' missing, \code{var_name} is also missing. If \code{slette_var1_var2} is TRUE,
-#' \code{var1} and \code{var2} are deleted before \code{df} is returned.
-
-#' @param df data.frame, must have variables \code{var1} and \code{var2}.
-#' @param var1 variable to be used as main-source for \code{var_name}
-#' @param var2 variable to use when rows of \code{var1} are missing
-#' @param var_name string with name of new variable
-#' @param slette_gamle boolean. Should \code{var1} and \code{var2} be
-#' deleted from \code{df} before \code{df} is returned? Default value is FALSE.
-#'
-#' @export
-#'
-#' @examples
-#' x <- data.frame(var1 = c(rep("A", 5), NA, NA),
-#'                 var2 = c(NA, rep("B", 5), NA))
-#' slaa_sammen_variabler(df = x, var1 = var1, var2 = var2,
-#'                       var_name = "var_1_2", slette_gamle = FALSE)
-slaa_sammen_variabler <- function(df,
-                                  var1, var2, var_name,
-                                  slette_gamle = FALSE) {
-
-
-  if (class(df %>% dplyr::pull({{ var1 }})) !=
-      class(df %>% dplyr::pull({{ var2 }}))) {
-    stop("maa vaere samme klasse")
-  }
-
-
-  df %<>%
-    dplyr::mutate(
-      "{var_name}" := dplyr::if_else(condition = is.na({{ var1 }}),
-                                     true = {{ var2 }},
-                                     false = {{ var1 }})) %>%
-    # Sette på riktig plass i tabellen
-    dplyr::relocate(var_name, .after = {{ var2 }})
-
-  # Eventuelt slette gamle variabler
-  if (slette_gamle)  df %<>% dplyr::select(- {{var1}}, - {{ var2 }})
-
-  df
-}
 
 
