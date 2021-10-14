@@ -5,19 +5,19 @@ test_that("ki_ferdigstilt_komplikasjoner works", {
 
   expect_equal(names(x_out),
                c("SkjemaStatusKomplikasjoner",
-                 "ki_komplik_ferdig_dg",
-                 "ki_komplik_ferdig"))
+                 "indik_komplik_ferdig_data",
+                 "indik_komplik_ferdig"))
 
   expect_equal(
     x_out %>%
       dplyr::filter(is.na(.data$SkjemaStatusKomplikasjoner)) %>%
-      dplyr::pull(.data$ki_komplik_ferdig_dg),
+      dplyr::pull(.data$indik_komplik_ferdig_data),
     c("nei", "nei", "nei"))
 
   expect_true(
     all(x_out %>%
-          dplyr::filter(.data$ki_komplik_ferdig_dg == "nei") %>%
-          dplyr::select(.data$ki_komplik_ferdig) %>%
+          dplyr::filter(.data$indik_komplik_ferdig_data == "nei") %>%
+          dplyr::select(.data$indik_komplik_ferdig) %>%
           is.na()))
 
 

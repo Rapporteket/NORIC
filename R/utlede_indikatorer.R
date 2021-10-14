@@ -11,9 +11,9 @@
 #'
 #' \code{ki_ferdigstilt_komplikasjoner()}
 #'  \itemize{
-#'  \item denominator \code{ki_komplik_ferdig_dg} (datagrunnlag) is
+#'  \item denominator \code{indik_komplik_ferdig_data} (datagrunnlag) is
 #'  \emph{ja} when \emph{Regtype = Primaer}.
-#'  \item numerator \code{ki_komplik_ferdig} has value \emph{ja} if the
+#'  \item numerator \code{indik_komplik_ferdig} has value \emph{ja} if the
 #'  complications form is completed (komplikasjons-skjema er ferdigstilt).}
 #'
 #'
@@ -205,22 +205,22 @@ ki_ferdigstilt_komplikasjoner <- function(df_ap) {
     dplyr::mutate(
 
       # Datagrunnlag for indikatoren
-      ki_komplik_ferdig_dg = dplyr::if_else(
+      indik_komplik_ferdig_data = dplyr::if_else(
         condition = .data$SkjemaStatusKomplikasjoner %in% c(-1, 0, 1),
         true = "ja",
         false = "nei",
         missing = "nei"),
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
-      ki_komplik_ferdig = dplyr::case_when(
+      indik_komplik_ferdig = dplyr::case_when(
 
-        .data$ki_komplik_ferdig_dg == "ja" &
+        .data$indik_komplik_ferdig_data == "ja" &
           .data$SkjemaStatusKomplikasjoner == 1 ~ "ja",
 
-        .data$ki_komplik_ferdig_dg == "ja" &
+        .data$indik_komplik_ferdig_data == "ja" &
           .data$SkjemaStatusKomplikasjoner %in% c(-1, 0) ~ "nei",
 
-        .data$ki_komplik_ferdig_dg == "nei" ~ NA_character_,
+        .data$indik_komplik_ferdig_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
 }
