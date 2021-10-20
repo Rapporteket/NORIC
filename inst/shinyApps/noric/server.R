@@ -372,8 +372,8 @@ shinyServer(function(input, output, session) {
         search = "S\u00f8k:",
         info = "Rad _START_ til _END_ av totalt _TOTAL_",
         paginate = list(previous = "Forrige", `next` = "Neste")
-      ),
-      columnDefs = list(list(visible = FALSE, targets = c(6, 8))))
+      )
+    )
   )
 
   ## lag side som viser status for abonnement, også når det ikke finnes noen
