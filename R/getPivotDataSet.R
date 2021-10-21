@@ -18,10 +18,15 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   # declare dot
   . <- ""
 
-  validSetId <- c("AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO", "MK", "PS",
-                  "SO", "SS")
+  validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
+                  "MK", "PS", "SO", "SS")
 
   if (setId %in% validSetId) {
+    if (setId == "ApLight") {
+      dat <- noric::getAPDataLight(registryName, singleRow = singleRow,
+                                    session = session)
+    }
+
     if (setId == "AnP") {
       dat <- noric::getLocalAnPData(registryName, singleRow = singleRow,
                                     session = session)
@@ -76,8 +81,14 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   if (userRole == "LC" && !is.null(dat)) {
     dat %<>% dplyr::select_if(!names(.) %in% c("AndreProsOperatorer",
                                                "FodselsDato",
-                                               "AngioOperatorer",
+                                               "PCIHovedOperator",
+                                               "PCIAndreOperator",
+                                               "PCITredjeOperator",
+                                               "Angiografor1",
+                                               "Angiografor2",
+                                               "Angiografor3",
                                                "PCIOperatorer",
+                                               "AngioOperatorer",
                                                "Operatorer",
                                                "Studie",
                                                "Granskere",

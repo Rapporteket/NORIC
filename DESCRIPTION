@@ -1,6 +1,6 @@
 Package: noric
 Title: Provide R Resources for NORIC at Rapporteket
-Version: 2.2.1
+Version: 2.3.0
 Authors@R: c(
   person("Kristina",
          "Skaare",
@@ -47,6 +47,7 @@ Imports:
   shiny,
   shinyalert,
   shinycssloaders,
+  tidyr,
   tidyselect,
   xtable,
   yaml
@@ -54,7 +55,7 @@ Remotes:
   Rapporteket/rapbase,
   andrewsali/shinycssloaders
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
-    covr,
+    covr, 
     testthat
