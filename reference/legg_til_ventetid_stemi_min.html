@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make mapping between unit name and id — mapOrgReshId • noric</title>
+<title>STEMI ventetid — legg_til_ventetid_stemi_min • noric</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,12 @@
 
 
 
-<meta property="og:title" content="Make mapping between unit name and id — mapOrgReshId" />
-<meta property="og:description" content="Make mapping between unit name and id" />
+<meta property="og:title" content="STEMI ventetid — legg_til_ventetid_stemi_min" />
+<meta property="og:description" content="Antall minutter fra beslutningsutløsende EKG til arteriepunksjon.
+Dersom en av datoene/tidspunktene mangler kan ikke ventetiden regnes ut.
+Ingen filter paa unormalt lange eller negative, ventetider. Dette er en
+hjelpefunksjon til ki_stemi_pci_innen120min, ventetidene
+må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der." />
 
 
 
@@ -106,36 +110,58 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make mapping between unit name and id</h1>
+    <h1>STEMI ventetid</h1>
     
-    <div class="hidden name"><code>mapOrgReshId.Rd</code></div>
+    <div class="hidden name"><code>legg_til_ventetid_stemi_min.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Make mapping between unit name and id</p>
+    <p>Antall minutter fra beslutningsutløsende EKG til arteriepunksjon.
+Dersom en av datoene/tidspunktene mangler kan ikke ventetiden regnes ut.
+Ingen filter paa unormalt lange eller negative, ventetider. Dette er en
+hjelpefunksjon til <a href='utlede_kvalitesindikatorer.html'>ki_stemi_pci_innen120min</a>, ventetidene
+må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mapOrgReshId</span><span class='op'>(</span><span class='va'>registryName</span>, asNamedList <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>legg_til_ventetid_stemi_min</span><span class='op'>(</span><span class='va'>df_ap</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>registryName</th>
-      <td><p>Character string providing registry name key</p></td>
-    </tr>
-    <tr>
-      <th>asNamedList</th>
-      <td><p>Logical wether to return a list of named values or not.
-Default is FALSE in which case a data frame containing name and id is
-returned.</p></td>
+      <th>df_ap</th>
+      <td><p>tabellen med AngioPCI data fra NORIC. Maa inneholde variablene
+<code>ProsedyreDato, ProsedyreTid,BesUtlEKGDato, BesUtlEKGTid</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with columns name and id or a list of named ids</p>
+    <p>returnerer <code>df_ap</code> med en ny kolonne:
+ <code>ventetid_stemi_minutter</code></p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+ ProsedyreDato <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"2020-01-30"</span>, <span class='st'>"2021-11-15"</span>,
+                           <span class='st'>"2020-11-11"</span>, <span class='st'>"2021-12-24"</span><span class='op'>)</span>,
+                         format <span class='op'>=</span> <span class='st'>"%Y-%m-%d"</span><span class='op'>)</span>,
+ ProsedyreTid <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"22:30:00"</span>, <span class='st'>"01:10:00"</span>, <span class='st'>"13:45:00"</span>, <span class='st'>"12:20:00"</span><span class='op'>)</span>,
+ BesUtlEKGDato <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"2020-01-30"</span>, <span class='st'>"2021-11-14"</span>,
+                           <span class='st'>"2018-04-24"</span>, <span class='st'>"2020-01-01"</span><span class='op'>)</span>,
+                         format <span class='op'>=</span> <span class='st'>"%Y-%m-%d"</span><span class='op'>)</span>,
+ BesUtlEKGTid <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span> <span class='st'>"21:10:00"</span>, <span class='st'>"23:10:00"</span>, <span class='st'>"05:20:00"</span>, <span class='cn'>NA_character_</span><span class='op'>)</span>,
+ BeslutningsutlosendeEKG <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='st'>"Ved annet sykehus"</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>noric</span><span class='fu'>::</span><span class='fu'>legg_til_ventetid_stemi_min</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   ProsedyreDato ProsedyreTid BesUtlEKGDato BesUtlEKGTid BeslutningsutlosendeEKG
+#&gt; 1    2020-01-30     22:30:00    2020-01-30     21:10:00       Ved annet sykehus
+#&gt; 2    2021-11-15     01:10:00    2021-11-14     23:10:00       Ved annet sykehus
+#&gt; 3    2020-11-11     13:45:00    2018-04-24     05:20:00       Ved annet sykehus
+#&gt; 4    2021-12-24     12:20:00    2020-01-01         &lt;NA&gt;       Ved annet sykehus
+#&gt;   ventetid_stemi_min
+#&gt; 1                 80
+#&gt; 2                120
+#&gt; 3            1342585
+#&gt; 4                 NA</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

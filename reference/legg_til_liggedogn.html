@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make mapping between unit name and id — mapOrgReshId • noric</title>
+<title>Liggedogn — legg_til_liggedogn • noric</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,10 @@
 
 
 
-<meta property="og:title" content="Make mapping between unit name and id — mapOrgReshId" />
-<meta property="og:description" content="Make mapping between unit name and id" />
+<meta property="og:title" content="Liggedogn — legg_til_liggedogn" />
+<meta property="og:description" content="Antall dager fra AnkomstPCIDato til Utskrivingsdato, kun for primaerforlop
+hos direkte innlagte pasienter eller pasienter overfoert fra annet
+sykehus." />
 
 
 
@@ -106,35 +108,52 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make mapping between unit name and id</h1>
+    <h1>Liggedogn</h1>
     
-    <div class="hidden name"><code>mapOrgReshId.Rd</code></div>
+    <div class="hidden name"><code>legg_til_liggedogn.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Make mapping between unit name and id</p>
+    <p>Antall dager fra AnkomstPCIDato til Utskrivingsdato, kun for primaerforlop
+hos direkte innlagte pasienter eller pasienter overfoert fra annet
+sykehus.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mapOrgReshId</span><span class='op'>(</span><span class='va'>registryName</span>, asNamedList <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>legg_til_liggedogn</span><span class='op'>(</span><span class='va'>df_ap</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>registryName</th>
-      <td><p>Character string providing registry name key</p></td>
-    </tr>
-    <tr>
-      <th>asNamedList</th>
-      <td><p>Logical wether to return a list of named values or not.
-Default is FALSE in which case a data frame containing name and id is
-returned.</p></td>
+      <th>df_ap</th>
+      <td><p>data.frame med Angio PCI data fra noric. Maa inneholde
+variablene <code>AnkomstPCIDato</code>, <code>UtskrivingsDato</code>,
+<code>OverflyttetFra</code> og <code>Regtype</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with columns name and id or a list of named ids</p>
+    <p>Returnerer <code>df_ap</code> med to nye variabler
+ <code>liggedogn</code> og <code>liggedogn_data</code>. Variabelen <code>liggedogn</code>
+ inneholder antall dager mellom AnkomstPCI-sykehus og utskrivelse, denne
+ kan ogsaa inneholde negative tider og tider over 60 dager.
+ Variabelne <code>liggetid_dg</code> inneholder datagrunnlaget for
+ <code>liggedogn</code> og har verdiene:</p><ul>
+<li><p>"nei" for pasienter overfoert fra annen avdeling paa sykehuset eller
+der denne informasjonen er manglende.</p></li>
+<li><p>"nei" for sekundaerforlop, da disse ikke har utskrivelsesskjema.</p></li>
+<li><p>"ja" for primaerforlop hos direkte innlagte pasienter eller pasienter
+overfoert fra andre sykehus og der liggedogn er i intervallet 0 dager
+til 60 dager.</p></li>
+<li><p>"ugyldig" for primaerforlop hos direkte innlagte pasienter
+eller pasienter overfoert fra andre sykehusmed og der liggetid er enten et
+negativt antall dager eller over 60 dager.</p></li>
+<li><p>"manglende" for primaerforlop hos direkte innlagte pasienter eller
+pasienter overfoert fra andre sykehus der utskrivingsdato og/eller
+AnkomstPCIDato mangler.</p></li>
+</ul>
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

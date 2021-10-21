@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make mapping between unit name and id — mapOrgReshId • noric</title>
+<title>getAPDataLight provides local reg data from AngioPCIVar + useful generated
+variables — getAPDataLight • noric</title>
 
 
 <!-- jquery -->
@@ -39,8 +40,10 @@
 
 
 
-<meta property="og:title" content="Make mapping between unit name and id — mapOrgReshId" />
-<meta property="og:description" content="Make mapping between unit name and id" />
+<meta property="og:title" content="getAPDataLight provides local reg data from AngioPCIVar + useful generated
+variables — getAPDataLight" />
+<meta property="og:description" content="getAPDataLight provides local reg data from AngioPCIVar + useful generated
+variables" />
 
 
 
@@ -106,35 +109,41 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make mapping between unit name and id</h1>
+    <h1>getAPDataLight provides local reg data from AngioPCIVar + useful generated
+variables</h1>
     
-    <div class="hidden name"><code>mapOrgReshId.Rd</code></div>
+    <div class="hidden name"><code>getAPDataLight.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Make mapping between unit name and id</p>
+    <p>getAPDataLight provides local reg data from AngioPCIVar + useful generated
+variables</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mapOrgReshId</span><span class='op'>(</span><span class='va'>registryName</span>, asNamedList <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>getAPDataLight</span><span class='op'>(</span><span class='va'>registryName</span>, singleRow <span class='op'>=</span> <span class='cn'>FALSE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>registryName</th>
-      <td><p>Character string providing registry name key</p></td>
+      <td><p>String providing the registry name</p></td>
     </tr>
     <tr>
-      <th>asNamedList</th>
-      <td><p>Logical wether to return a list of named values or not.
-Default is FALSE in which case a data frame containing name and id is
-returned.</p></td>
+      <th>singleRow</th>
+      <td><p>Logical defining if only one row is to be returned. A
+relevant usecase will be when only description is needed. By default set to
+FALSE</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Optional arguments to be passed to the function</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with columns name and id or a list of named ids</p>
+    <p>Data frame representing a simplified version of angio PCI-data</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make mapping between unit name and id — mapOrgReshId • noric</title>
+<title>Add time-variables — legg_til_tidsvariabler • noric</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,12 @@
 
 
 
-<meta property="og:title" content="Make mapping between unit name and id — mapOrgReshId" />
-<meta property="og:description" content="Make mapping between unit name and id" />
+<meta property="og:title" content="Add time-variables — legg_til_tidsvariabler" />
+<meta property="og:description" content="The function legg_til_tidsvariabler() creates six time-variables,
+aar, maaned_nr, maaned, kvartal, uke,
+aar_uke, based on a given date-column (var) of input
+data.frame df. Then these new variables are added to df before
+the entire data.frame is returned." />
 
 
 
@@ -106,36 +110,65 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make mapping between unit name and id</h1>
+    <h1>Add time-variables</h1>
     
-    <div class="hidden name"><code>mapOrgReshId.Rd</code></div>
+    <div class="hidden name"><code>legg_til_tidsvariabler.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Make mapping between unit name and id</p>
+    <p>The function <code>legg_til_tidsvariabler()</code> creates six time-variables,
+<code>aar</code>, <code>maaned_nr</code>, <code>maaned</code>, <code>kvartal</code>, <code>uke</code>,
+<code>aar_uke</code>, based on a given date-column (<code>var</code>) of input
+data.frame <code>df</code>. Then these new variables are added to <code>df</code> before
+the entire data.frame is returned.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mapOrgReshId</span><span class='op'>(</span><span class='va'>registryName</span>, asNamedList <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>legg_til_tidsvariabler</span><span class='op'>(</span><span class='va'>df</span>, var <span class='op'>=</span> <span class='va'>ProsedyreDato</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>registryName</th>
-      <td><p>Character string providing registry name key</p></td>
+      <th>df</th>
+      <td><p>data.frame from any NORIC-table. Must contain a variable in
+date-format.</p></td>
     </tr>
     <tr>
-      <th>asNamedList</th>
-      <td><p>Logical wether to return a list of named values or not.
-Default is FALSE in which case a data frame containing name and id is
-returned.</p></td>
+      <th>var</th>
+      <td><p>name of variable in date-format that should be used to calculate
+the new variables.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with columns name and id or a list of named ids</p>
+    <p>The input data.frame <code>df</code> is returned as it is, with six new
+columns added,one for each time-variable.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+   datoVariabel <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"2021-02-28"</span>,
+                    <span class='st'>"2013-09-15"</span>,
+                    <span class='st'>"2020-05-31"</span>,
+                    <span class='st'>"2015-12-12"</span>,
+                    <span class='st'>"2016-12-31"</span>,
+                    <span class='st'>"2016-01-01"</span> <span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>legg_til_tidsvariabler</span><span class='op'>(</span>df <span class='op'>=</span> <span class='va'>df</span>,
+                       var <span class='op'>=</span> <span class='va'>datoVariabel</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   datoVariabel  aar maaned_nr  maaned kvartal uke aar_uke
+#&gt; 1   2021-02-28 2021        02 2021-02 2021-Q1  08 2021-08
+#&gt; 2   2013-09-15 2013        09 2013-09 2013-Q3  37 2013-37
+#&gt; 3   2020-05-31 2020        05 2020-05 2020-Q2  22 2020-22
+#&gt; 4   2015-12-12 2015        12 2015-12 2015-Q4  50 2015-50
+#&gt; 5   2016-12-31 2016        12 2016-12 2016-Q4  52 2016-52
+#&gt; 6   2016-01-01 2016        01 2016-01 2016-Q1  53 2015-53</div><div class='input'>
+<span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='co'># FOR NORIC's ap, ak and ct-tables:</span>
+<span class='fu'>legg_til_tidsvariabler</span><span class='op'>(</span><span class='va'>ap</span>, var <span class='op'>=</span> <span class='va'>ProsedyreDato</span><span class='op'>)</span>
+<span class='fu'>legg_til_tidsvariabler</span><span class='op'>(</span><span class='va'>ak</span>, var <span class='op'>=</span> <span class='va'>ProsedyreDato</span><span class='op'>)</span>
+<span class='fu'>legg_til_tidsvariabler</span><span class='op'>(</span><span class='va'>ct</span>, var <span class='op'>=</span> <span class='va'>UndersokDato</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

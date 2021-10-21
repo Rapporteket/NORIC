@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make mapping between unit name and id — mapOrgReshId • noric</title>
+<title>Add variable aldersklasse in decades — utlede_aldersklasse • noric</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,11 @@
 
 
 
-<meta property="og:title" content="Make mapping between unit name and id — mapOrgReshId" />
-<meta property="og:description" content="Make mapping between unit name and id" />
+<meta property="og:title" content="Add variable aldersklasse in decades — utlede_aldersklasse" />
+<meta property="og:description" content="Groups together ages in age-classes of decades, p.ex. &quot;50-59&quot; where ages 50
+and 59 are min and max values of the age-class. Ages from 18 to 49 are
+grouped together, whereas ages under 18 years or above 99 years are given
+age-class &amp;lt;NA&amp;gt;." />
 
 
 
@@ -106,36 +109,54 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make mapping between unit name and id</h1>
+    <h1>Add variable aldersklasse in decades</h1>
     
-    <div class="hidden name"><code>mapOrgReshId.Rd</code></div>
+    <div class="hidden name"><code>utlede_aldersklasse.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Make mapping between unit name and id</p>
+    <p>Groups together ages in age-classes of decades, p.ex. "50-59" where ages 50
+and 59 are min and max values of the age-class. Ages from 18 to 49 are
+grouped together, whereas ages under 18 years or above 99 years are given
+age-class &lt;NA&gt;.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mapOrgReshId</span><span class='op'>(</span><span class='va'>registryName</span>, asNamedList <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>utlede_aldersklasse</span><span class='op'>(</span><span class='va'>df</span>, var <span class='op'>=</span> <span class='va'>PasientAlder</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>registryName</th>
-      <td><p>Character string providing registry name key</p></td>
+      <th>df</th>
+      <td><p>data.frame, must contain a column with age as a continuous
+variable</p></td>
     </tr>
     <tr>
-      <th>asNamedList</th>
-      <td><p>Logical wether to return a list of named values or not.
-Default is FALSE in which case a data frame containing name and id is
-returned.</p></td>
+      <th>var</th>
+      <td><p>is the variable name of the age-variable in <code>df</code>. Default
+value is <code>PasientAlder</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A data frame with columns name and id or a list of named ids</p>
+    <p>The input data.frame <code>df</code> is returned as it is,  with one new
+ column named <code>aldersklasse</code> added.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>df</span> <span class='op'>&lt;-</span>  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>age <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>10</span>,<span class='fl'>20</span>,<span class='fl'>59</span>,<span class='fl'>60</span>, <span class='cn'>NA</span>, <span class='fl'>61</span>,<span class='fl'>69</span>,<span class='fl'>70</span>,<span class='fl'>99</span>,<span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>utlede_aldersklasse</span><span class='op'>(</span>df <span class='op'>=</span> <span class='va'>df</span>, var <span class='op'>=</span> <span class='va'>age</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;    age aldersklasse
+#&gt; 1   10         &lt;NA&gt;
+#&gt; 2   20        18-49
+#&gt; 3   59        50-59
+#&gt; 4   60        60-69
+#&gt; 5   NA         &lt;NA&gt;
+#&gt; 6   61        60-69
+#&gt; 7   69        60-69
+#&gt; 8   70        70-79
+#&gt; 9   99        90-99
+#&gt; 10 100         &lt;NA&gt;</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

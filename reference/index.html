@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.0</span>
       </span>
     </div>
 
@@ -85,6 +85,9 @@
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -140,6 +143,18 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="fikse_sykehusnavn.html">fikse_sykehusnavn()</a></code> </p>
+        </td>
+        <td><p>Add variable `Sykehusnavn` if missing, update values if existing</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="fjerne_tulleregistreringer.html">fjerne_tulleregistreringer()</a></code> </p>
+        </td>
+        <td><p>Remove test-registrations</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="getAKData.html">getAKData()</a></code> </p>
         </td>
         <td><p>getAKData provides local or national reg data from AortaklaffVar</p></td>
@@ -149,6 +164,13 @@
           <p><code><a href="getAKOppfData.html">getAKOppfData()</a></code> </p>
         </td>
         <td><p>getAKOppfData provides local reg data from AortaklaffOppfVar</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getAPDataLight.html">getAPDataLight()</a></code> </p>
+        </td>
+        <td><p>getAPDataLight provides local reg data from AngioPCIVar + useful generated
+variables</p></td>
       </tr><tr>
         
         <td>
@@ -236,6 +258,30 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="legg_til_liggedogn.html">legg_til_liggedogn()</a></code> </p>
+        </td>
+        <td><p>Liggedogn</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="legg_til_tidsvariabler.html">legg_til_tidsvariabler()</a></code> </p>
+        </td>
+        <td><p>Add time-variables</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="legg_til_ventetid_nstemi_timer.html">legg_til_ventetid_nstemi_timer()</a></code> </p>
+        </td>
+        <td><p>NSTEMI ventetid</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="legg_til_ventetid_stemi_min.html">legg_til_ventetid_stemi_min()</a></code> </p>
+        </td>
+        <td><p>STEMI ventetid</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="loadRegDataAngioPCI.html">loadRegDataAngioPCI()</a></code> </p>
         </td>
         <td><p>Provide dataframe for AngioPCI</p></td>
@@ -269,6 +315,42 @@
           <p><code><a href="noric.html">noric</a></code> </p>
         </td>
         <td><p>All R resources neede for NORIC at Rapporteket</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="utlede_OppholdsID.html">utlede_OppholdsID()</a></code> </p>
+        </td>
+        <td><p>Add variable OppholdsID</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="utlede_aldersklasse.html">utlede_aldersklasse()</a></code> </p>
+        </td>
+        <td><p>Add variable aldersklasse in decades</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="utlede_annenDiag_variabler.html">utlede_kar_annen_diag()</a></code> <code><a href="utlede_annenDiag_variabler.html">legg_til_trykk_bilde_per_kar()</a></code> </p>
+        </td>
+        <td><p>New variables from NORIC's AnnenDiag-table</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="utlede_ferdigstilt.html">utlede_ferdigstilt()</a></code> </p>
+        </td>
+        <td><p>Add binary variable for table-status</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="utlede_kvalitesindikatorer.html">ki_ferdigstilt_komplikasjoner()</a></code> <code><a href="utlede_kvalitesindikatorer.html">ki_trykkmaaling_utfoert()</a></code> <code><a href="utlede_kvalitesindikatorer.html">ki_ivus_oct_ved_stenting_lms()</a></code> <code><a href="utlede_kvalitesindikatorer.html">ki_foreskr_blodfortynnende()</a></code> <code><a href="utlede_kvalitesindikatorer.html">ki_foreskr_kolesterolsenkende()</a></code> <code><a href="utlede_kvalitesindikatorer.html">ki_nstemi_utredet_innen24t()</a></code> <code><a href="utlede_kvalitesindikatorer.html">ki_nstemi_utredet_innen72t()</a></code> <code><a href="utlede_kvalitesindikatorer.html">ki_stemi_pci_innen120min()</a></code> </p>
+        </td>
+        <td><p>NORIC's quality indicators</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="utlede_segmentStent_variabler.html">legg_til_antall_stent()</a></code> <code><a href="utlede_segmentStent_variabler.html">legg_til_antall_stent_opphold()</a></code> <code><a href="utlede_segmentStent_variabler.html">satt_inn_stent_i_lms()</a></code> <code><a href="utlede_segmentStent_variabler.html">utlede_kar_segment_stent()</a></code> <code><a href="utlede_segmentStent_variabler.html">utlede_kar_graft_segment_stent()</a></code> <code><a href="utlede_segmentStent_variabler.html">legg_til_pci_per_kar()</a></code> <code><a href="utlede_segmentStent_variabler.html">legg_til_wireforsok_per_kar()</a></code> </p>
+        </td>
+        <td><p>New variables from NORIC's SementStent-table</p></td>
       </tr>
     </tbody>
     </table>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Make mapping between unit name and id — mapOrgReshId • noric</title>
+<title>Changelog • noric</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,7 @@
 
 
 
-<meta property="og:title" content="Make mapping between unit name and id — mapOrgReshId" />
-<meta property="og:description" content="Make mapping between unit name and id" />
+<meta property="og:title" content="Changelog" />
 
 
 
@@ -59,7 +58,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-topic">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -106,42 +105,32 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Make mapping between unit name and id</h1>
-    
-    <div class="hidden name"><code>mapOrgReshId.Rd</code></div>
+      <h1 data-toc-skip>Changelog <small></small></h1>
+      
     </div>
 
-    <div class="ref-description">
-    <p>Make mapping between unit name and id</p>
-    </div>
-
-    <pre class="usage"><span class='fu'>mapOrgReshId</span><span class='op'>(</span><span class='va'>registryName</span>, asNamedList <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
-
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>registryName</th>
-      <td><p>Character string providing registry name key</p></td>
-    </tr>
-    <tr>
-      <th>asNamedList</th>
-      <td><p>Logical wether to return a list of named values or not.
-Default is FALSE in which case a data frame containing name and id is
-returned.</p></td>
-    </tr>
-    </table>
-
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A data frame with columns name and id or a list of named ids</p>
-
+    <div id="noric-230" class="section level1">
+<h1 class="page-header" data-toc-text="2.3.0">
+<a href="#noric-230" class="anchor"></a>noric 2.3.0</h1>
+<ul>
+<li>new table in utforsker : “Angio PCI med utledete variabler, 3 siste aar”</li>
+<li>creation of functions used to ease datamanagment (e.g. fjern_tulleregistrering, fikse_sykehusnavn)</li>
+<li>creation of functions used to add new variables in noric datasets (e.g. year, month, week, waiting times, age-class)</li>
+<li>creation of functions used to add new variables for quality indicators and which data to analyse for each indicator (e.g. indik_trykkmaaling_utfort + indik_trykkmaaling_utfoert_data)</li>
+<li>creation of functions used to add information from “SegmentStent”-table or “annen diagnostikk”-table into “angioPCI”-table (e.g. antall_stent, stent_i_lms, antall_ffr_lms, kar)</li>
+<li>use of testthat/tests for all new functions</li>
+<li>general cleanup in code</li>
+<li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
+</ul>
+</div>
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
+
 </div>
 
 
