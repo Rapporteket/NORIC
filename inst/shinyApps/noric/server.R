@@ -439,6 +439,39 @@ shinyServer(function(input, output, session) {
       rapbase::makeAutoReportTab(session, mapOrgId = mapOrgId)
   })
 
+  # Ny Utsending (ved rapbase)
+  dispatch <- list(
+    `KI: sykehus mot resten av landet` = list(
+      synopsis = paste("NORIC kvalitetsindikatorer: eget sykehus",
+                        "sammenlignet med resten av landet"),
+      fun = "dispatchMonthlyKi",
+      paramNames = c("baseName", "hospitalName", "reshID", "author",
+                     "userRole", "type", "registryName"),
+      paramValues = c(
+        "NORIC_kvalitetsindikator", "udefName", 999999, userFullName,
+        userRole, "pdf", registryName
+      )
+    )
+  )
+  
+  orgs <- noric::mapOrgReshId(registryName, asNamedList = TRUE)
+  
+  org <- rapbase::autoReportOrgServer("noricDispatch", orgs)
+  
+  dispatchParamNames <- shiny::reactive(
+    c("hospitalName", "reshID")
+  )
+  dispatchParamValues <- shiny::reactive(
+    c(org$name(), org$value())
+  )
+  
+  rapbase::autoReportServer(
+    "noricDispatch", registryName = registryName, type = "dispatchment",
+    org = org$value, paramNames = dispatchParamNames,
+    paramValues = dispatchParamValues, reports = dispatch, orgs = orgs,
+    eligible = all(c(userRole == "SC", isNationalReg(reshId)))
+  )
+  
   # Utsending
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører

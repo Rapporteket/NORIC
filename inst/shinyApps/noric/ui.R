@@ -197,6 +197,19 @@ ui <- tagList(
       ),
       
       shiny::tabPanel(
+        "Utsending NY",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::autoReportOrgInput("noricDispatch"),
+            rapbase::autoReportInput("noricDispatch")
+          ),
+          shiny::mainPanel(
+            rapbase::autoReportUI("noricDispatch")
+          )
+        )
+      ),
+      
+      shiny::tabPanel(
         "Bruksstatistikk",
         shiny::sidebarLayout(
           shiny::sidebarPanel(
