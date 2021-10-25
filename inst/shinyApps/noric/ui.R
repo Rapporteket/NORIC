@@ -199,7 +199,10 @@ ui <- tagList(
       shiny::tabPanel(
         "Bruksstatistikk",
         shiny::sidebarLayout(
-          shiny::sidebarPanel(rapbase::statsInput("noricStats")),
+          shiny::sidebarPanel(
+            rapbase::statsInput("noricStats"),
+            rapbase::statsGuideUI("noricStatsGuide")
+          ),
           shiny::mainPanel(rapbase::statsUI("noricStats"))
         )
       ),
