@@ -636,4 +636,8 @@ shinyServer(function(input, output, session) {
       rapbase::makeAutoReportTab(session, type = "dispatchment",
                                  mapOrgId = mapOrgId)
   })
+  
+  # Use stats
+  rapbase::statsServer("noricStats", registryName = "noric",
+                       eligible = all(userRole == "SC"))
 })

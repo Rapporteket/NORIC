@@ -194,6 +194,14 @@ ui <- tagList(
             uiOutput("dispatchmentContent")
           )
         )
+      ),
+      
+      shiny::tabPanel(
+        "Bruksstatistikk",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(rapbase::statsInput("noricStats")),
+          shiny::mainPanel(rapbase::statsUI("noricStats"))
+        )
       )
     )
   )
