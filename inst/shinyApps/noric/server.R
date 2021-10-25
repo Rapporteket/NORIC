@@ -27,12 +27,10 @@ shinyServer(function(input, output, session) {
   if (userRole == "LU") {
     hideTab(inputId = "tabs", target = "Utforsker")
     hideTab(inputId = "tabs", target = "Datadump")
-    hideTab(inputId = "tabs", target = "Metadata")
-    hideTab(inputId = "tabs", target = "Utsending")
+    hideTab(inputId = "tabs", target = "Verktøy")
   } else if (userRole == "LC") {
     hideTab(inputId = "tabs", target = "Datadump")
-    hideTab(inputId = "tabs", target = "Metadata")
-    hideTab(inputId = "tabs", target = "Utsending")
+    hideTab(inputId = "tabs", target = "Verktøy")
   }
 
   ## 'Prosedyrer2', regardless

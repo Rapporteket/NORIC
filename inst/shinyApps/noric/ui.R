@@ -145,13 +145,6 @@ ui <- tagList(
       )
     ),
 
-    tabPanel("Metadata",
-      sidebarLayout(
-        sidebarPanel(uiOutput("metaControl")),
-        mainPanel(htmlOutput("metaData"))
-      )
-    ),
-
     tabPanel("Abonnement",
       sidebarLayout(
         sidebarPanel(width = 3,
@@ -173,20 +166,33 @@ ui <- tagList(
       )
     ),
 
-    shiny::tabPanel("Utsending",
-      sidebarLayout(
-        sidebarPanel(width = 3,
-          uiOutput("dispatchmentRepList"),
-          uiOutput("dispatchFromOrgList"),
-          uiOutput("freq"),
-          textInput("email", "Epost mottaker:"),
-          uiOutput("editEmail"),
-          htmlOutput("recipients"),
-          tags$hr(),
-          uiOutput("makeDispatchment")
-        ),
-        mainPanel(
-          uiOutput("dispatchmentContent")
+    shiny::navbarMenu(
+      "Verktøy",
+      
+      tabPanel("Metadata",
+               sidebarLayout(
+                 sidebarPanel(uiOutput("metaControl")),
+                 mainPanel(htmlOutput("metaData"))
+               )
+      ),
+      
+      shiny::tabPanel(
+        "Utsending",
+        sidebarLayout(
+          sidebarPanel(
+            width = 3,
+            uiOutput("dispatchmentRepList"),
+            uiOutput("dispatchFromOrgList"),
+            uiOutput("freq"),
+            textInput("email", "Epost mottaker:"),
+            uiOutput("editEmail"),
+            htmlOutput("recipients"),
+            tags$hr(),
+            uiOutput("makeDispatchment")
+          ),
+          mainPanel(
+            uiOutput("dispatchmentContent")
+          )
         )
       )
     )
