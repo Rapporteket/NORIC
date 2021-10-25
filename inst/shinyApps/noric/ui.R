@@ -202,6 +202,14 @@ ui <- tagList(
           shiny::sidebarPanel(rapbase::statsInput("noricStats")),
           shiny::mainPanel(rapbase::statsUI("noricStats"))
         )
+      ),
+      
+      shiny::tabPanel(
+        "Eksport",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
+          shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
+        )
       )
     )
   )

@@ -640,4 +640,9 @@ shinyServer(function(input, output, session) {
   # Use stats
   rapbase::statsServer("noricStats", registryName = "noric",
                        eligible = all(userRole == "SC"))
+  
+  # Export
+  rapbase::exportUCServer("noricExport", registryName = registryName,
+                          repoName = "noric", eligible = (userRole == "SC"))
+  rapbase::exportGuideServer("noricExportGuide", registryName = registryName)
 })
