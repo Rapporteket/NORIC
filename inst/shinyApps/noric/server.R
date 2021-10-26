@@ -466,7 +466,7 @@ shinyServer(function(input, output, session) {
   )
   
   rapbase::autoReportServer(
-    "noricDispatch", registryName = registryName, type = "dispatchment",
+    "noricDispatch", registryName = "noric", type = "dispatchment",
     org = org$value, paramNames = dispatchParamNames,
     paramValues = dispatchParamValues, reports = dispatch, orgs = orgs,
     eligible = all(c(userRole == "SC", isNationalReg(reshId)))
