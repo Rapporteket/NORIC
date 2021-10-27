@@ -44,7 +44,7 @@ shinyServer(function(input, output, session) {
 
   ## dispatchment when not national registry
   if (!isNationalReg(reshId)) {
-    shiny::hideTab(inputId = "tabs", target = "Eksport")
+    shiny::hideTab(inputId = "tabs", target = "Utsending")
   }
 
   # html rendering function for re-use
