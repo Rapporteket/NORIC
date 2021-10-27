@@ -178,26 +178,6 @@ ui <- tagList(
       
       shiny::tabPanel(
         "Utsending",
-        sidebarLayout(
-          sidebarPanel(
-            width = 3,
-            uiOutput("dispatchmentRepList"),
-            uiOutput("dispatchFromOrgList"),
-            uiOutput("freq"),
-            textInput("email", "Epost mottaker:"),
-            uiOutput("editEmail"),
-            htmlOutput("recipients"),
-            tags$hr(),
-            uiOutput("makeDispatchment")
-          ),
-          mainPanel(
-            uiOutput("dispatchmentContent")
-          )
-        )
-      ),
-      
-      shiny::tabPanel(
-        "Utsending NY",
         shiny::sidebarLayout(
           shiny::sidebarPanel(
             rapbase::autoReportOrgInput("noricDispatch"),
