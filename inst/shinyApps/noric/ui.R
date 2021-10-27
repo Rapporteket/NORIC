@@ -144,30 +144,9 @@ ui <- tagList(
         )
       )
     ),
-
-    tabPanel("Abonnement",
-      sidebarLayout(
-        sidebarPanel(width = 3,
-                     uiOutput("subscriptionRepList"),
-                     selectInput("subscriptionFreq", "Frekvens:",
-                                 list(Årlig = "Årlig-year",
-                                       Kvartalsvis = "Kvartalsvis-quarter",
-                                       Månedlig = "Månedlig-month",
-                                       Ukentlig = "Ukentlig-week",
-                                       Daglig = "Daglig-DSTday"),
-                                 selected = "Månedlig-month"),
-                     selectInput("subscriptionFileFormat", "Format:",
-                                 c("html", "pdf")),
-                     actionButton("subscribe", "Bestill!")
-        ),
-        mainPanel(
-          uiOutput("subscriptionContent")
-        )
-      )
-    ),
     
     shiny::tabPanel(
-      "Abonnement NY",
+      "Abonnement",
       shiny::sidebarLayout(
         shiny::sidebarPanel(
           rapbase::autoReportInput("noricSubscription")

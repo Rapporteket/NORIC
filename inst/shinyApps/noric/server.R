@@ -352,92 +352,6 @@ shinyServer(function(input, output, session) {
     DT::dataTableOutput("metaDataTable")
   })
 
-  # Abonnement
-  ## rekative verdier for å holde rede på endringer som skjer mens
-  ## applikasjonen kjører
-  subscription <- reactiveValues(
-    tab = rapbase::makeAutoReportTab(session, mapOrgId = mapOrgId))
-
-  ## lag tabell over gjeldende status for abonnement
-  output$activeSubscriptions <- DT::renderDataTable(
-    subscription$tab, server = FALSE, escape = FALSE, selection = "none",
-    rownames = FALSE,
-    options = list(
-      dom = "t",
-      ordering = FALSE,
-      language = list(
-        lengthMenu = "Vis _MENU_ rader per side",
-        search = "S\u00f8k:",
-        info = "Rad _START_ til _END_ av totalt _TOTAL_",
-        paginate = list(previous = "Forrige", `next` = "Neste")
-      )
-    )
-  )
-
-  ## lag side som viser status for abonnement, også når det ikke finnes noen
-  output$subscriptionContent <- renderUI({
-    fullName <- rapbase::getUserFullName(session)
-    if (length(subscription$tab) == 0) {
-      p(paste("Ingen aktive abonnement for", fullName))
-    } else {
-      tagList(
-        p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
-                rapbase::getUserEmail(session), ":")),
-        DT::dataTableOutput("activeSubscriptions")
-      )
-    }
-  })
-
-  ## nye abonnement
-
-  ### lag liste over mulige valg styrt av lokal eller nasjonal sesjon
-  output$subscriptionRepList <- renderUI({
-    if (isNationalReg(reshId)) {
-      selectInput("subscriptionRep", "Rapport:",
-                  c(""))
-    } else {
-      selectInput("subscriptionRep", "Rapport:",
-                  c("Stentbruk, månedlig", "Prosedyrer, månedlig"))
-    }
-  })
-
-  ### aktiver abonnement, men kun når et aktuelt valg er gjort
-  observeEvent(input$subscribe, {
-    package <- "noric"
-    owner <- rapbase::getUserName(session)
-    interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
-    intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
-    organization <- rapbase::getUserReshId(session)
-    runDayOfYear <- rapbase::makeRunDayOfYearSequence(
-      interval = interval
-    )
-    email <- rapbase::getUserEmail(session)
-    if (input$subscriptionRep == "Prosedyrer, månedlig") {
-      synopsis <- "NORIC/Rapporteket: prosedyrer, månedlig"
-      baseName <- "NORIC_local_monthly"
-    }
-    if (input$subscriptionRep == "Stentbruk, månedlig") {
-      synopsis <- "NORIC/Rapporteket: stentbruk, månedlig"
-      baseName <- "NORIC_local_monthly_stent"
-    }
-
-    if (nchar(input$subscriptionRep) > 0) {
-      fun <- "subscriptionLocalMonthlyReps"
-      paramNames <- c("baseName", "reshId", "registryName", "author",
-                      "hospitalName", "type")
-      paramValues <- c(baseName, reshId, registryName, author, hospitalName,
-                       input$subscriptionFileFormat)
-      rapbase::createAutoReport(synopsis = synopsis, package = package,
-                                fun = fun, paramNames = paramNames,
-                                paramValues = paramValues, owner = owner,
-                                email = email, organization = organization,
-                                runDayOfYear = runDayOfYear,
-                                interval = interval,
-                                intervalName = intervalName)
-    }
-    subscription$tab <-
-      rapbase::makeAutoReportTab(session, mapOrgId = mapOrgId)
-  })
   
   # List of org name(s) and number(s) for both subscription and dispatchments
   orgs <- noric::mapOrgReshId(registryName, asNamedList = TRUE)
@@ -501,40 +415,6 @@ shinyServer(function(input, output, session) {
     eligible = all(c(userRole == "SC", isNationalReg(reshId)))
   )
   
-  
-
-  # Rediger eksisterende auto rapport (alle typer)
-  shiny::observeEvent(input$edit_button, {
-    repId <- strsplit(input$edit_button, "_")[[1]][2]
-    rep <- rapbase::readAutoReportData()[[repId]]
-    if (rep$type == "subscription") {
-
-    }
-    if (rep$type == "dispatchment") {
-      dispatchment$freq <- paste0(rep$intervalName, "-", rep$interval)
-      dispatchment$email <- rep$email
-      rapbase::deleteAutoReport(repId)
-      dispatchment$tab <-
-        rapbase::makeAutoReportTab(session, type = "dispatchment",
-                                   mapOrgId = mapOrgId)
-      dispatchment$report <- rep$synopsis
-    }
-    if (rep$type == "bulletin") {
-
-    }
-  })
-
-  # Slett eksisterende auto rapport (alle typer)
-  shiny::observeEvent(input$del_button, {
-    repId <- strsplit(input$del_button, "_")[[1]][2]
-    rapbase::deleteAutoReport(repId)
-    subscription$tab <-
-      rapbase::makeAutoReportTab(session, type = "subscription",
-                                 mapOrgId = mapOrgId)
-    dispatchment$tab <-
-      rapbase::makeAutoReportTab(session, type = "dispatchment",
-                                 mapOrgId = mapOrgId)
-  })
   
   # Use stats
   rapbase::statsServer("noricStats", registryName = "noric",
