@@ -438,7 +438,38 @@ shinyServer(function(input, output, session) {
     subscription$tab <-
       rapbase::makeAutoReportTab(session, mapOrgId = mapOrgId)
   })
+  
+  # List of org name(s) and number(s) for both subscription and dispatchments
+  orgs <- noric::mapOrgReshId(registryName, asNamedList = TRUE)
+  
+  # Ny abonnement kode (med moduler fra rapbase)
+  ## currently, function parameters are the same for all reports
+  pn <- c("baseName", "reshId", "registryName", "author", "hospitalName",
+          "type")
+  pv <- c(reshId, registryName, author, hospitalName, "pdf")
+  
+  subReports <- list(
+    Prosedyrer = list(
+      synopsis = "M\u00E5nedlig oppsummering av prosedyrer siste \u00E5r",
+      fun = "subscriptionLocalMonthlyReps",
+      paramNames = pn,
+      paramValues = c("NORIC_local_monthly", pv)
+    ),
+    Stentbruk = list(
+      synopsis = "M\u00E5nedlig oppsummering av stentbruk siste \u00E5r",
+      fun = "subscriptionLocalMonthlyReps",
+      paramNames = pn,
+      paramValues = c("NORIC_local_monthly_stent", pv)
+    )
+  )
+  
+  ## serve subscriptions
+  rapbase::autoReportServer(
+    "noricSubscription", registryName = "noric", type = "subscription",
+    reports = subReports, orgs = orgs
+  )
 
+  
   # Ny Utsending (ved rapbase)
   dispatch <- list(
     `KI: sykehus mot resten av landet` = list(
@@ -453,8 +484,6 @@ shinyServer(function(input, output, session) {
       )
     )
   )
-  
-  orgs <- noric::mapOrgReshId(registryName, asNamedList = TRUE)
   
   org <- rapbase::autoReportOrgServer("noricDispatch", orgs)
   

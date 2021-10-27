@@ -165,6 +165,18 @@ ui <- tagList(
         )
       )
     ),
+    
+    shiny::tabPanel(
+      "Abonnement NY",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::autoReportInput("noricSubscription")
+        ),
+        shiny::mainPanel(
+          rapbase::autoReportUI("noricSubscription")
+        )
+      )
+    ),
 
     shiny::navbarMenu(
       "Verktøy",
