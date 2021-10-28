@@ -40,6 +40,7 @@ shinyServer(function(input, output, session) {
   if (isNationalReg(reshId)) {
     shiny::hideTab(inputId = "tabs", target = "Stentbruk")
     shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
+    shiny::hideTab(inputId = "tabs", target = "Abonnement")
   }
 
   ## dispatchment when not national registry
