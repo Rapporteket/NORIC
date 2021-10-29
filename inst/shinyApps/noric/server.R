@@ -123,17 +123,9 @@ shinyServer(function(input, output, session) {
   }
 
   # widget
-  output$appUserName <- renderText(userFullName)
-  output$appOrgName <- renderText(paste(hospitalName, userRole, sep = ", "))
-
-  # User info in widget
-  userInfo <- rapbase::howWeDealWithPersonalData(session, callerPkg = "noric")
-  observeEvent(input$userInfo, {
-    shinyalert("Dette vet Rapporteket om deg:", userInfo,
-               type = "", imageUrl = "rap/logo.svg",
-               closeOnEsc = TRUE, closeOnClickOutside = TRUE,
-               html = TRUE, confirmButtonText = rapbase::noOptOutOk())
-  })
+  rapbase::navbarWidgetServer(
+    "noricUserWidget", orgName = hospitalName, caller = "noric"
+  )
 
   # Start
   output$veiledning <- renderUI({
@@ -353,16 +345,16 @@ shinyServer(function(input, output, session) {
     DT::dataTableOutput("metaDataTable")
   })
 
-  
+
   # List of org name(s) and number(s) for both subscription and dispatchments
   orgs <- noric::mapOrgReshId(registryName, asNamedList = TRUE)
-  
+
   # Ny abonnement kode (med moduler fra rapbase)
   ## currently, function parameters are the same for all reports
   pn <- c("baseName", "reshId", "registryName", "author", "hospitalName",
           "type")
   pv <- c(reshId, registryName, author, hospitalName, "pdf")
-  
+
   subReports <- list(
     Prosedyrer = list(
       synopsis = "M\u00E5nedlig oppsummering av prosedyrer siste \u00E5r",
@@ -377,14 +369,14 @@ shinyServer(function(input, output, session) {
       paramValues = c("NORIC_local_monthly_stent", pv)
     )
   )
-  
+
   ## serve subscriptions
   rapbase::autoReportServer(
     "noricSubscription", registryName = "noric", type = "subscription",
     reports = subReports, orgs = orgs
   )
 
-  
+
   # Ny Utsending (ved rapbase)
   dispatch <- list(
     `KI: sykehus mot resten av landet` = list(
@@ -399,29 +391,29 @@ shinyServer(function(input, output, session) {
       )
     )
   )
-  
+
   org <- rapbase::autoReportOrgServer("noricDispatch", orgs)
-  
+
   dispatchParamNames <- shiny::reactive(
     c("hospitalName", "reshID")
   )
   dispatchParamValues <- shiny::reactive(
     c(org$name(), org$value())
   )
-  
+
   rapbase::autoReportServer(
     "noricDispatch", registryName = "noric", type = "dispatchment",
     org = org$value, paramNames = dispatchParamNames,
     paramValues = dispatchParamValues, reports = dispatch, orgs = orgs,
     eligible = all(c(userRole == "SC", isNationalReg(reshId)))
   )
-  
-  
+
+
   # Use stats
   rapbase::statsServer("noricStats", registryName = "noric",
                        eligible = all(userRole == "SC"))
   rapbase::statsGuideServer("noricStatsGuide", registryName = registryName)
-  
+
   # Export
   rapbase::exportUCServer("noricExport", registryName = registryName,
                           repoName = "noric", eligible = (userRole == "SC"))

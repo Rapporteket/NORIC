@@ -3,11 +3,9 @@ library(magrittr)
 library(rapbase)
 library(rpivotTable)
 library(shiny)
-library(shinyalert)
 library(shinycssloaders)
 
 
-addResourcePath("rap", system.file("www", package = "rapbase"))
 regTitle <- "NORIC"
 
 ui <- tagList(
@@ -20,13 +18,9 @@ ui <- tagList(
     id = "tabs",
 
     tabPanel("Start",
-      useShinyalert(),
       mainPanel(width = 12,
         htmlOutput("veiledning", inline = TRUE),
-        appNavbarUserWidget(user = uiOutput("appUserName"),
-                           organization = uiOutput("appOrgName"),
-                           addUserInfo = TRUE),
-        tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
+        rapbase::navbarWidgetInput("noricUserWidget")
       )
     ),
 
@@ -144,7 +138,7 @@ ui <- tagList(
         )
       )
     ),
-    
+
     shiny::tabPanel(
       "Abonnement",
       shiny::sidebarLayout(
@@ -159,14 +153,14 @@ ui <- tagList(
 
     shiny::navbarMenu(
       "Verktøy",
-      
+
       tabPanel("Metadata",
                sidebarLayout(
                  sidebarPanel(uiOutput("metaControl")),
                  mainPanel(htmlOutput("metaData"))
                )
       ),
-      
+
       shiny::tabPanel(
         "Utsending",
         shiny::sidebarLayout(
@@ -179,7 +173,7 @@ ui <- tagList(
           )
         )
       ),
-      
+
       shiny::tabPanel(
         "Bruksstatistikk",
         shiny::sidebarLayout(
@@ -190,7 +184,7 @@ ui <- tagList(
           shiny::mainPanel(rapbase::statsUI("noricStats"))
         )
       ),
-      
+
       shiny::tabPanel(
         "Eksport",
         shiny::sidebarLayout(
