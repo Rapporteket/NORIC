@@ -144,49 +144,58 @@ ui <- tagList(
         )
       )
     ),
-
-    tabPanel("Metadata",
-      sidebarLayout(
-        sidebarPanel(uiOutput("metaControl")),
-        mainPanel(htmlOutput("metaData"))
-      )
-    ),
-
-    tabPanel("Abonnement",
-      sidebarLayout(
-        sidebarPanel(width = 3,
-                     uiOutput("subscriptionRepList"),
-                     selectInput("subscriptionFreq", "Frekvens:",
-                                 list(Årlig = "Årlig-year",
-                                       Kvartalsvis = "Kvartalsvis-quarter",
-                                       Månedlig = "Månedlig-month",
-                                       Ukentlig = "Ukentlig-week",
-                                       Daglig = "Daglig-DSTday"),
-                                 selected = "Månedlig-month"),
-                     selectInput("subscriptionFileFormat", "Format:",
-                                 c("html", "pdf")),
-                     actionButton("subscribe", "Bestill!")
+    
+    shiny::tabPanel(
+      "Abonnement",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::autoReportInput("noricSubscription")
         ),
-        mainPanel(
-          uiOutput("subscriptionContent")
+        shiny::mainPanel(
+          rapbase::autoReportUI("noricSubscription")
         )
       )
     ),
 
-    shiny::tabPanel("Utsending",
-      sidebarLayout(
-        sidebarPanel(width = 3,
-          uiOutput("dispatchmentRepList"),
-          uiOutput("dispatchFromOrgList"),
-          uiOutput("freq"),
-          textInput("email", "Epost mottaker:"),
-          uiOutput("editEmail"),
-          htmlOutput("recipients"),
-          tags$hr(),
-          uiOutput("makeDispatchment")
-        ),
-        mainPanel(
-          uiOutput("dispatchmentContent")
+    shiny::navbarMenu(
+      "Verktøy",
+      
+      tabPanel("Metadata",
+               sidebarLayout(
+                 sidebarPanel(uiOutput("metaControl")),
+                 mainPanel(htmlOutput("metaData"))
+               )
+      ),
+      
+      shiny::tabPanel(
+        "Utsending",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::autoReportOrgInput("noricDispatch"),
+            rapbase::autoReportInput("noricDispatch")
+          ),
+          shiny::mainPanel(
+            rapbase::autoReportUI("noricDispatch")
+          )
+        )
+      ),
+      
+      shiny::tabPanel(
+        "Bruksstatistikk",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::statsInput("noricStats"),
+            rapbase::statsGuideUI("noricStatsGuide")
+          ),
+          shiny::mainPanel(rapbase::statsUI("noricStats"))
+        )
+      ),
+      
+      shiny::tabPanel(
+        "Eksport",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
+          shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
         )
       )
     )

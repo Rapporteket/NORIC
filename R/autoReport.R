@@ -32,26 +32,32 @@ NULL
 dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
                               type, registryName) {
 
-  sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
-  tableFormat <- switch(type[[1]],
+  sourceFile <- system.file(paste0(baseName, ".Rmd"), package = "noric")
+  tableFormat <- switch(type,
                         pdf = "latex",
                         html = "html"
   )
 
   outFile <- tempfile(
-    pattern = paste0(baseName[[1]], "_", as.character(Sys.Date()), "_"),
-    fileext = paste0(".", type[[1]])
+    pattern = paste0(baseName, "_", as.character(Sys.Date()), "_"),
+    fileext = paste0(".", type)
   )
 
   rmarkdown::render(input = sourceFile,
                     output_format = switch(
-                      type[[1]],
+                      type,
                       pdf = "pdf_document",
                       html = "html_document"
                     ),
                     output_file = outFile,
-                    params = c(hospitalName, reshID, author, userRole,
-                               list(tableFormat = tableFormat), registryName),
+                    params = list(
+                      hospitalName = hospitalName,
+                      reshID = reshID,
+                      author = author,
+                      userRole = userRole,
+                      tableFormat = tableFormat,
+                      registryName = registryName
+                    ),
                     clean = TRUE,
                     intermediates_dir = tempdir())
 
@@ -64,23 +70,28 @@ dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
 subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
                                          author, hospitalName, type) {
 
-  sourceFile <- system.file(paste0(baseName[[1]], ".Rmd"), package = "noric")
-  tableFormat <- switch(type[[1]],
+  sourceFile <- system.file(paste0(baseName, ".Rmd"), package = "noric")
+  tableFormat <- switch(type,
     pdf = "latex",
     html = "html"
   )
 
-  outFile <- tempfile(pattern = baseName[[1]], fileext = paste0(".", type[[1]]))
+  outFile <- tempfile(pattern = baseName, fileext = paste0(".", type))
 
   rmarkdown::render(input = sourceFile,
                     output_format = switch(
-                      type[[1]],
+                      type,
                       pdf = "pdf_document",
                       html = "html_document"
                     ),
                     output_file = outFile,
-                    params = c(reshId, registryName, author, hospitalName,
-                               list(tableFormat = tableFormat)),
+                    params = list(
+                      reshId = reshId,
+                      registryName = registryName,
+                      author = author,
+                      hospitalName = hospitalName,
+                      tableFormat = tableFormat
+                    ),
                     clean = TRUE,
                     intermediates_dir = tempdir())
 

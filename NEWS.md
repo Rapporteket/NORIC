@@ -1,3 +1,13 @@
+# noric 2.4.0
+
+## New features
+* use statistics report
+* database export for development and data processing purposes
+
+## Improvements
+* selectable start date for subscriptions
+* replaced local functions with general modules from rapbase reducing the number of code lines
+
 # noric 2.3.0
 
 * new table in utforsker : "Angio PCI med utledete variabler, 3 siste aar"
