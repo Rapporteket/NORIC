@@ -96,7 +96,7 @@ timeTableYear <- data.frame(
 ```{r kvartalTabPrepare, include=FALSE, eval=TRUE}
 # 5 siste ferdige kvartal
 forsteDatoKvartal <- lubridate::floor_date(nyeste_registrering_ap$nyesteReg, 
-                                          "quarter") 
+                                           "quarter") 
 timeTableQuarter <- data.frame(
   KvartalDatoStart = rev(seq(forsteDatoKvartal, 
                              by = "-1 quarter",
@@ -111,10 +111,10 @@ timeTableQuarter <- data.frame(
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
 # Hele forrige år og alle påbegynte måneder hittil i år
 forsteDatoSisteMonth <- lubridate::floor_date(nyeste_registrering_ap$nyesteReg, 
-                                        "month") 
+                                              "month") 
 timeTableMonth <- data.frame(
   monthDato = seq(as.Date(paste0(nyeste_registrering_ap$sisteHeleYear, 
-                                "-01-01")), 
+                                 "-01-01")), 
                   forsteDatoSisteMonth,
                   by = "month")) %>% 
   dplyr::transmute(Month = as.factor(format(x = .data$monthDato, 
@@ -127,7 +127,7 @@ timeTableMonth <- data.frame(
 sO_nasjonalt %<>% dplyr::mutate(
   RegDate = as.Date(HovedDato), 
   Year = as.numeric(format(x = .data$RegDate,
-                             format = "%Y")),
+                           format = "%Y")),
   Kvartal = paste0(lubridate::year(x = .data$RegDate),
                    " Q",
                    lubridate::quarter(x = .data$RegDate, with_year = FALSE)))
@@ -142,9 +142,9 @@ sO_nasjonalt %<>% dplyr::filter(
 sO_nasjonalt %<>%dplyr::mutate(
   Month = as.factor(format(x = .data$RegDate, format = "%Y-%m")), 
   SkjemastatusTekst = dplyr::recode_factor(.data$SkjemaStatus, 
-                                     `-1` = "Ikke opprettet", 
-                                     `0` = "Kladd", 
-                                     `1` = "Ferdigstilt"))
+                                           `-1` = "Ikke opprettet", 
+                                           `0` = "Kladd", 
+                                           `1` = "Ferdigstilt"))
 ```
 
 
@@ -159,13 +159,13 @@ sS_nasjonalt %<>%
     .data$Sykehusnavn, 
     .data$AvdRESH) %>% 
   dplyr::mutate(
-  RegDate = as.Date(.data$ProsedyreDato, format = "%Y-%m-%d"),
-  Year = as.numeric(format(.data$ProsedyreDato, format = "%Y")),
-  Month = as.numeric(format(.data$ProsedyreDato, format = "%m")),
-  YearMonth = factor(format(.data$ProsedyreDato, format = "%Y-%m")),
-  Kvartal = paste0(lubridate::year(.data$RegDate),
-                   " Q",
-                   lubridate::quarter(.data$RegDate, with_year = FALSE)))
+    RegDate = as.Date(.data$ProsedyreDato, format = "%Y-%m-%d"),
+    Year = as.numeric(format(.data$ProsedyreDato, format = "%Y")),
+    Month = as.numeric(format(.data$ProsedyreDato, format = "%m")),
+    YearMonth = factor(format(.data$ProsedyreDato, format = "%Y-%m")),
+    Kvartal = paste0(lubridate::year(.data$RegDate),
+                     " Q",
+                     lubridate::quarter(.data$RegDate, with_year = FALSE)))
 ```
 
 
@@ -199,7 +199,7 @@ aP_nasjonalt %<>%
     .data$UtskrStatiner, 
     .data$TidlABC, 
     .data$UtskrevetDod) %>%
-
+  
   dplyr::mutate(
     RegDate = as.Date(.data$ProsedyreDato),
     Year = as.numeric(format(.data$RegDate, format = "%Y")),
@@ -222,8 +222,8 @@ aP_nasjonalt %<>%  dplyr::mutate(
 
 # Ventetid - NSTEMI
 aP_nasjonalt$AdmissionType <- car::recode(
-    var = aP_nasjonalt$OverflyttetFra,
-    recodes = "
+  var = aP_nasjonalt$OverflyttetFra,
+  recodes = "
         'Annet sykehus'='Referred';
         '' = NA;
         'Annen  avdeling på sykehuset' = NA;
@@ -232,7 +232,7 @@ aP_nasjonalt$AdmissionType <- car::recode(
         ")
 
 aP_nasjonalt %<>% dplyr::mutate(
- 
+  
   ProsedyreDatoTid = paste(.data$ProsedyreDato, .data$ProsedyreTid),
   ProsedyreTidspunkt = lubridate::parse_date_time2(
     .data$ProsedyreDatoTid,
@@ -246,33 +246,33 @@ aP_nasjonalt %<>% dplyr::mutate(
   HenvisendeSykehusDatoTid = paste(
     .data$InnleggelseHenvisendeSykehusDato,
     .data$InnleggelseHenvisendeSykehusTid),
- 
+  
   HenvisendeSykehusTidspunkt = lubridate::parse_date_time2(
     .data$HenvisendeSykehusDatoTid,
     "%Y-%m-%d %H:%M:%S"),
-
- TidsDiffSek = dplyr::if_else(
-   .data$AdmissionType == "Directly admitted",
-   true = as.numeric(difftime(.data$ProsedyreTidspunkt,
-                              .data$AnkomstTidspunkt, 
-                              units = "secs")),
-   false = as.numeric(difftime(.data$ProsedyreTidspunkt,
-                               .data$HenvisendeSykehusTidspunkt, 
-                               units = "secs"))),
- 
- TidsDiffTimer = round((.data$TidsDiffSek / 60) / 60, 1),
- 
- Ventetid24T = ifelse(.data$TidsDiffTimer <= 24,
-                      yes = "Innen 24t",
-                      no = "Over 24t"), 
- 
- Ventetid72T = ifelse(.data$TidsDiffTimer <= 72,
-                      yes = "Innen 72t",
-                      no = "Over 72t"),
- 
- innkomstaarsak = ifelse(is.na(.data$Innkomstarsak),
-                         yes = "Ukjent",
-                         no = .data$Innkomstarsak))
+  
+  TidsDiffSek = dplyr::if_else(
+    .data$AdmissionType == "Directly admitted",
+    true = as.numeric(difftime(.data$ProsedyreTidspunkt,
+                               .data$AnkomstTidspunkt, 
+                               units = "secs")),
+    false = as.numeric(difftime(.data$ProsedyreTidspunkt,
+                                .data$HenvisendeSykehusTidspunkt, 
+                                units = "secs"))),
+  
+  TidsDiffTimer = round((.data$TidsDiffSek / 60) / 60, 1),
+  
+  Ventetid24T = ifelse(.data$TidsDiffTimer <= 24,
+                       yes = "Innen 24t",
+                       no = "Over 24t"), 
+  
+  Ventetid72T = ifelse(.data$TidsDiffTimer <= 72,
+                       yes = "Innen 72t",
+                       no = "Over 72t"),
+  
+  innkomstaarsak = ifelse(is.na(.data$Innkomstarsak),
+                          yes = "Ukjent",
+                          no = .data$Innkomstarsak))
 # Datagrunnlag for ventetid ved NSTEMI
 aP_nasjonalt %<>%
   dplyr::mutate(
@@ -282,19 +282,19 @@ aP_nasjonalt %<>%
                      .data$innkomstaarsak!="Øvrig" &
                      .data$ForlopsType2!="Planlagt" &
                      !is.na(.data$AdmissionType)), 
-    true = "ja", 
-    false = "nei", 
-    missing = "nei"), 
+      true = "ja", 
+      false = "nei", 
+      missing = "nei"), 
     
     ventetidNstemi_gyldigTid = dplyr::if_else(
       condition = (ventetidNstemi_datagrunnlag == "ja" &
-                              !is.na(.data$AdmissionType) &
-                              !is.na(.data$TidsDiffSek) &
-                              .data$TidsDiffSek > 0 & 
-                              .data$TidsDiffSek <= 14 * 24 * 60 * 60),
-    true = "ja", 
-    false = "nei", 
-    missing = "nei"))
+                     !is.na(.data$AdmissionType) &
+                     !is.na(.data$TidsDiffSek) &
+                     .data$TidsDiffSek > 0 & 
+                     .data$TidsDiffSek <= 14 * 24 * 60 * 60),
+      true = "ja", 
+      false = "nei", 
+      missing = "nei"))
 
 # Trykkmåling
 aP_nasjonalt %<>% dplyr::mutate(
@@ -330,17 +330,17 @@ aP_nasjonalt %<>% dplyr::mutate(
   ASABin = as.numeric(dplyr::if_else(
     .data$ASA == "Ja",
     true = 1, false = 0, missing = 0)),
-
+  
   
   AndrePlatehemmerebBin = as.numeric(
     dplyr::if_else(
       .data$AndrePlatehemmere == "Nei" | .data$AndrePlatehemmere == "Ukjent",
       true = 0, false = 1, missing = 0)),
-
-AntikoagulantiaBin = as.numeric(
-  dplyr::if_else(.data$Antikoagulantia == "Nei" | 
-                   .data$Antikoagulantia == "Ukjent",
-                 true = 0, false = 1, missing = 0)))
+  
+  AntikoagulantiaBin = as.numeric(
+    dplyr::if_else(.data$Antikoagulantia == "Nei" | 
+                     .data$Antikoagulantia == "Ukjent",
+                   true = 0, false = 1, missing = 0)))
 
 
 aP_nasjonalt %<>% dplyr::mutate(
@@ -374,8 +374,8 @@ aP_nasjonalt %<>% dplyr::mutate(
     .data$BlodfortynnendeKategori == "DAPT" |
       .data$BlodfortynnendeKategori == "DAPT og OAC" |
       .data$BlodfortynnendeKategori == "SAPT og OAC",
-  yes = "Ja",
-  no = "Nei"))
+    yes = "Ja",
+    no = "Nei"))
 
 
 # Foreskriving av kolesterolsenkende medisiner
@@ -385,7 +385,7 @@ aP_nasjonalt %<>% dplyr::mutate(
     true = "Forskrevet statiner",
     false = "Ikke forskrevet statiner",
     missing = "Ikke forskrevet statiner"))
-  
+
 ```
 
 
@@ -393,15 +393,15 @@ aP_nasjonalt %<>% dplyr::mutate(
 
 aK_nasjonalt %<>% 
   dplyr::select(
-   .data$ProsedyreDato,
-   .data$AvdKompPacemaker, 
-   .data$LabKompDod, 
-   .data$TypeKlaffeprotese,
-   .data$ScreeningBeslutning, 
-   .data$Sykehusnavn, 
-   .data$AvdRESH, 
-   .data$ForlopsID, 
-   .data$Pacemaker)
+    .data$ProsedyreDato,
+    .data$AvdKompPacemaker, 
+    .data$LabKompDod, 
+    .data$TypeKlaffeprotese,
+    .data$ScreeningBeslutning, 
+    .data$Sykehusnavn, 
+    .data$AvdRESH, 
+    .data$ForlopsID, 
+    .data$Pacemaker)
 
 
 aK_nasjonalt  %<>% 
@@ -415,7 +415,7 @@ aK_nasjonalt %<>% dplyr::mutate(
   Kvartal = paste0(lubridate::year(x = .data$RegDate),
                    " Q",
                    lubridate::quarter(x = .data$RegDate, 
-                                        with_year = FALSE)), 
+                                      with_year = FALSE)), 
   Month = as.factor(format(x = .data$RegDate, format = "%Y-%m")))
 
 # Pacemakerbehov etter kateterbasert innsetting av aortaklaff
@@ -448,20 +448,20 @@ dim_ak_lokalt <- aK_nasjonalt %>%
 
 
 ```{r kvartalTabPrepare_AK, include=FALSE, eval=TRUE}
-if (dim_ak_lokalt[1] > 0) {
-
-# 5 siste ferdige kvartal
-forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
-                                             "quarter") 
-timeTableQuarterAK <- data.frame(
-  KvartalDatoStart = rev(seq(forsteDatoKvartalAK, 
-                             by = "-1 quarter",
-                             length.out = 6)[2:6])) %>% 
-  dplyr::transmute(
-    Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
-                     " Q", 
-                     lubridate::quarter(.data$KvartalDatoStart, 
-                                        with_year = FALSE)))
+if (dim_ak_lokalt[1] > 10) {
+  
+  # 5 siste ferdige kvartal
+  forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
+                                               "quarter") 
+  timeTableQuarterAK <- data.frame(
+    KvartalDatoStart = rev(seq(forsteDatoKvartalAK, 
+                               by = "-1 quarter",
+                               length.out = 6)[2:6])) %>% 
+    dplyr::transmute(
+      Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
+                       " Q", 
+                       lubridate::quarter(.data$KvartalDatoStart, 
+                                          with_year = FALSE)))
 }
 ```
 
@@ -489,7 +489,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til
 
 
 ```{r pagebreakForside, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 
@@ -568,16 +568,16 @@ tabFerdigtiltKompl <- timeTableMonth %>%
 cap <- "Antall og andel ferdigstilte komplikasjonsskjemaer etter måned. Måneder med mindre enn 5 observasjoner er markert med N."
 
 noric::mst(tab = tabFerdigtiltKompl, 
-    type = params$tableFormat,
-    cap = cap,
-    digs = c(0, 0, 1, 1), 
-    align = rep("c", 4), 
-    label = "tabFerdigtiltKompl")
+           type = params$tableFormat,
+           cap = cap,
+           digs = c(0, 0, 1, 1), 
+           align = rep("c", 4), 
+           label = "tabFerdigtiltKompl")
 ```
 
 
 ```{r pagebreakFerdigstilt, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 ## Invasiv utredning ved NSTEMI
@@ -612,8 +612,8 @@ nstemi_komplett_lokalt <- aP_nasjonalt %>%
                                                     (.data$ja + .data$nei), 
                                                     "*"),
                                       false = paste0(.data$ja, 
-                                                    " av ", 
-                                                    (.data$ja + .data$nei)), 
+                                                     " av ", 
+                                                     (.data$ja + .data$nei)), 
                                       missing = NA_character_)) %>% 
   select(.data$Month, 
          .data$ja, 
@@ -669,22 +669,22 @@ tabVentetid24t <- timeTableMonth %>%
       
       #  Ingen komplette --> tom celle i tabellen
       .data$komplette == 0 | is.na(.data$komplette) ~ "-", 
-
+      
       # Færre enn 50% eller minder enn 5 forløp --> Ikke vise prosent
       .data$komplette_prosent < 0.5 | .data$komplette < 5 ~
         paste0(.data$`Innen 24t`, 
-                " av ", 
-                .data$Totalt, 
-                " (-%)"),
+               " av ", 
+               .data$Totalt, 
+               " (-%)"),
       
       # Over 50% og over 5 komplette --> Vise prosent
       .data$komplette_prosent >= 0.5 & .data$komplette >= 5 ~
         paste0(.data$`Innen 24t`, 
-              " av ", 
-              .data$Totalt, 
-              " (",
-              .data$innen24t_prosent_lokalt,
-              "%)"), 
+               " av ", 
+               .data$Totalt, 
+               " (",
+               .data$innen24t_prosent_lokalt,
+               "%)"), 
       
       TRUE ~ "-")) %>% 
   dplyr::select(.data$Month, 
@@ -707,21 +707,21 @@ tabVentetid24t %<>%
   replace(is.na(.), "-")
 
 
-               
+
 cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
 Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ventetid under 24 timer regnes ikke ut for disse. (Målnivå: 50 \\%)"
 
-mst(tab = tabVentetid24t, 
-    type = params$tableFormat, 
-    cap = cap,
-    digs = c(0, 0, 0, 1, 1), 
-    align = rep("c", 5), 
-    label = "tabVentetid24t")
+noric::mst(tab = tabVentetid24t, 
+           type = params$tableFormat, 
+           cap = cap,
+           digs = c(0, 0, 0, 1, 1), 
+           align = rep("c", 5), 
+           label = "tabVentetid24t")
 ```
 
 
 ```{r pagebreakVentetidNSTEMIfigLinje, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 ### Figurer - Invasiv utredning ved NSTEMI innen 24 timer
@@ -764,21 +764,21 @@ prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
                .data$innen_24t_samlet, 
                .data$n_samlet) %>% 
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), 
-               names_to = "Type") %>% 
+                      names_to = "Type") %>% 
   dplyr::mutate(
     name = dplyr::case_when(
       
-    .data$AdmissionType == "Directly admitted" & 
-      .data$Type == "innen_24t_type" ~ "Direkte", 
-    
-    .data$AdmissionType == "Referred" & 
-      .data$Type == "innen_24t_type" ~ "Overflyttet", 
-
-    .data$AdmissionType == "Directly admitted" & 
-      .data$Type == "innen_24t_samlet" ~ "Samlet", 
-    
-    .data$AdmissionType == "Referred" & 
-      .data$Type == "innen_24t_samlet" ~ "Samlet"    
+      .data$AdmissionType == "Directly admitted" & 
+        .data$Type == "innen_24t_type" ~ "Direkte", 
+      
+      .data$AdmissionType == "Referred" & 
+        .data$Type == "innen_24t_type" ~ "Overflyttet", 
+      
+      .data$AdmissionType == "Directly admitted" & 
+        .data$Type == "innen_24t_samlet" ~ "Samlet", 
+      
+      .data$AdmissionType == "Referred" & 
+        .data$Type == "innen_24t_samlet" ~ "Samlet"    
     ), 
     
     # antall forløp per type, brukes for å fjerne måneder med <5 forløp i figur
@@ -799,11 +799,11 @@ prep_figVentetid24t_lokalt %<>%
                    nstemi_komplett_lokalt %>% dplyr::select(
                      .data$Month, 
                      .data$komplette_prosent), 
-            by = "Month") %>% 
+                   by = "Month") %>% 
   dplyr::mutate(value = ifelse(.data$komplette_prosent < 0.5 |
                                  .data$antall_komplette < 5, 
-                              yes = NA_real_, 
-                              no = .data$value),
+                               yes = NA_real_, 
+                               no = .data$value),
                 Sykehus = params$hospitalName)
 
 ```
@@ -844,7 +844,7 @@ prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
     
     .data$AdmissionType == "Directly admitted" & 
       .data$Type == "innen_24t_samlet" ~ "Samlet", 
-
+    
     .data$AdmissionType == "Referred" & 
       .data$Type == "innen_24t_samlet" ~ "Samlet"    
   )) %>% 
@@ -857,14 +857,14 @@ prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
 
 
 prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
-                         prep_figVentetid24t_lokalt) %>% 
+                              prep_figVentetid24t_lokalt) %>% 
   dplyr::select(.data$Sykehus, 
                 .data$Month, 
                 .data$name, 
                 .data$value) %>% 
   dplyr::mutate(Sykehus = factor(.data$Sykehus,
-                          levels = c(params$hospitalName,
-                                     "Nasjonalt")))
+                                 levels = c(params$hospitalName,
+                                            "Nasjonalt")))
 
 ```
 
@@ -941,7 +941,7 @@ fig_ventetid_24t_overflyttet %>%
 
 
 ```{r pagebreakVentetidNSTEMIfigSoyle, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 ```{r komplettYear_24timerNSTEMI, results='asis', warning=FALSE}
@@ -973,8 +973,8 @@ nstemiAP_fra2017_lokalt <- aP_nasjonalt %>%
   dplyr::filter(
     .data$Year >= 2017 , 
     .data$Year < nyeste_registrering_ap$nyesteRegYear) %>% 
-
-
+  
+  
   #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$Year) %>% 
   dplyr::mutate(
@@ -1000,7 +1000,7 @@ nstemiAP_fra2017_lokalt <- aP_nasjonalt %>%
     
     .data$AdmissionType == "Referred" & 
       .data$Type == "innen_24t_type" ~ "Overflyttet", 
-
+    
     .data$AdmissionType == "Directly admitted" & 
       .data$Type == "innen_24t_samlet" ~ "Samlet", 
     
@@ -1035,8 +1035,8 @@ nstemiAP_fra2017_nasjonalt <- aP_nasjonalt %>%
   dplyr::filter(
     .data$Year >= 2017 , 
     .data$Year < nyeste_registrering_ap$nyesteRegYear) %>% 
-
-
+  
+  
   #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$Year) %>% 
   dplyr::mutate(
@@ -1058,18 +1058,18 @@ nstemiAP_fra2017_nasjonalt <- aP_nasjonalt %>%
                       names_to = "Type") %>% 
   dplyr::mutate(
     name = dplyr::case_when(
-    .data$AdmissionType == "Directly admitted" & 
-      .data$Type == "innen_24t_type" ~ "Direkte", 
-    
-    .data$AdmissionType == "Referred" & 
-      .data$Type == "innen_24t_type" ~ "Overflyttet", 
-
-    .data$AdmissionType == "Directly admitted" & 
-      .data$Type == "innen_24t_samlet" ~ "Samlet", 
-    
-    .data$AdmissionType == "Referred" & 
-      .data$Type == "innen_24t_samlet" ~ "Samlet"    
-  )) %>% 
+      .data$AdmissionType == "Directly admitted" & 
+        .data$Type == "innen_24t_type" ~ "Direkte", 
+      
+      .data$AdmissionType == "Referred" & 
+        .data$Type == "innen_24t_type" ~ "Overflyttet", 
+      
+      .data$AdmissionType == "Directly admitted" & 
+        .data$Type == "innen_24t_samlet" ~ "Samlet", 
+      
+      .data$AdmissionType == "Referred" & 
+        .data$Type == "innen_24t_samlet" ~ "Samlet"    
+    )) %>% 
   dplyr::select(.data$Year, .data$name, .data$value) %>% 
   dplyr::group_by(.data$Year, .data$name) %>% 
   dplyr::distinct() %>% 
@@ -1088,8 +1088,8 @@ timeTableYear_SDO <- rbind(timeTableYear_Samlet,
                            timeTableYear_Overflyttet)
 nstemiAP_fra2017_lokalt %<>% 
   dplyr::left_join(timeTableYear_SDO,
-            .,
-            by= c("Year", "name")) %>% 
+                   .,
+                   by= c("Year", "name")) %>% 
   dplyr::mutate(Sykehus = params$hospitalName) %>% 
   dplyr::select(Year, name, value, Sykehus)
 
@@ -1102,12 +1102,12 @@ prep_figVentetid24t_year <-
                 .data$name,
                 .data$value) %>%
   dplyr::mutate(Sykehus = factor(.data$Sykehus,
-                                levels = c(params$hospitalName,
-                                           "Nasjonalt")), 
-               value_tekst = ifelse(
-                 !is.na(.data$value), 
-                 yes = paste0(sprintf("%.1f", .data$value*100 ), "%"), 
-                 no = NA_character_))
+                                 levels = c(params$hospitalName,
+                                            "Nasjonalt")), 
+                value_tekst = ifelse(
+                  !is.na(.data$value), 
+                  yes = paste0(sprintf("%.1f", .data$value*100 ), "%"), 
+                  no = NA_character_))
 ```
 
 
@@ -1118,10 +1118,10 @@ fig_samlet <- prep_figVentetid24t_year %>%
   dplyr::filter(.data$name == "Samlet")
 
 fig_samlet  %>% ggplot2::ggplot(
-   ggplot2::aes(x = .data$Year,
-                y = .data$value,
-                fill = .data$Sykehus)
-   ) +
+  ggplot2::aes(x = .data$Year,
+               y = .data$value,
+               fill = .data$Sykehus)
+) +
   ggplot2::ggtitle("Direkte og overflyttet") +
   ggplot2::geom_bar(stat = "identity", position = "dodge") +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
@@ -1136,7 +1136,7 @@ fig_samlet  %>% ggplot2::ggplot(
     size = 3,
     colour =  ifelse(fig_samlet$Sykehus == "Nasjonalt",
                      "white", "black")
-    ) +
+  ) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
 
 ```
@@ -1147,10 +1147,10 @@ fig_direkte <- prep_figVentetid24t_year %>%
   dplyr::filter(.data$name == "Direkte")
 
 fig_direkte %>% ggplot2::ggplot(
-   ggplot2::aes(x = .data$Year,
-                y = .data$value,
-                fill = .data$Sykehus)
-   ) +
+  ggplot2::aes(x = .data$Year,
+               y = .data$value,
+               fill = .data$Sykehus)
+) +
   ggplot2::ggtitle("Direkte") +
   ggplot2::geom_bar(stat = "identity", position = "dodge") +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
@@ -1165,7 +1165,7 @@ fig_direkte %>% ggplot2::ggplot(
     size = 3,
     colour =  ifelse(fig_samlet$Sykehus == "Nasjonalt",
                      "white", "black")
-    ) +
+  ) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
 
 
@@ -1178,10 +1178,10 @@ fig_overflyttet <- prep_figVentetid24t_year %>%
   dplyr::filter(.data$name == "Overflyttet")
 
 fig_overflyttet %>% ggplot2::ggplot(
-   ggplot2::aes(x = .data$Year,
-                y = .data$value,
-                fill = .data$Sykehus)
-   ) +
+  ggplot2::aes(x = .data$Year,
+               y = .data$value,
+               fill = .data$Sykehus)
+) +
   ggplot2::ggtitle("Overflyttet") +
   ggplot2::geom_bar(stat = "identity", position = "dodge") +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
@@ -1196,7 +1196,7 @@ fig_overflyttet %>% ggplot2::ggplot(
     size = 3,
     colour =  ifelse(fig_samlet$Sykehus == "Nasjonalt",
                      "white", "black")
-    ) +
+  ) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
 
 ```
@@ -1234,7 +1234,7 @@ nstemi_ventetid72t_nasjonalt <- aP_nasjonalt %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
     innen72t_prosent_nasj = paste0(round(.data$`Innen 72t` / Totalt * 100, 1),
-                                  "%")) %>% 
+                                   "%")) %>% 
   dplyr::select(.data$Month, .data$innen72t_prosent_nasj)
 
 
@@ -1244,12 +1244,12 @@ tabVentetid72t <- timeTableMonth %>%
   dplyr::left_join(., nstemi_komplett_lokalt, by = c("Month")) %>% 
   dplyr::left_join(., nstemi_ventetid72t_lokalt, by = c("Month")) %>% 
   dplyr::left_join(., nstemi_ventetid72t_nasjonalt, by = c("Month")) %>% 
-   dplyr::mutate(
+  dplyr::mutate(
     innen72tAvKomplette = dplyr::case_when(
       
       #  Ingen komplette --> Tom celle i tabellen
       .data$komplette == 0 | is.na(.data$komplette) ~ "-", 
-
+      
       # Færre enn 50% eller minder enn 5 --> Ikke vise prosent
       .data$komplette_prosent < 0.5 | .data$komplette < 5 ~
         paste0(.data$`Innen 72t`, 
@@ -1260,11 +1260,11 @@ tabVentetid72t <- timeTableMonth %>%
       # Over 50% og over 5 komplette --> Vise prosent
       .data$komplette_prosent >= 0.5 & .data$komplette >= 5 ~
         paste0(.data$`Innen 72t`, 
-              " av ", 
-              .data$Totalt, 
-              " (",
-              .data$innen72t_prosent_lokalt,
-              "%)"), 
+               " av ", 
+               .data$Totalt, 
+               " (",
+               .data$innen72t_prosent_lokalt,
+               "%)"), 
       
       TRUE ~ "-" )) %>% 
   dplyr::select(.data$Month, 
@@ -1284,21 +1284,21 @@ tabVentetid72t %<>%
     "Nasjonalt" = .data$innen72t_prosent_nasj) %>%
   replace(is.na(.), "-")
 
-               
+
 cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
 Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Data med mindre enn 50\\% komplett data eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ventetid under 72 timer regnes ikke ut. (Målnivå: 50 \\%)"
 
-mst(tab = tabVentetid72t, 
-    type = params$tableFormat, 
-    cap = cap,
-    digs = c(0, 0, 0, 1, 1), 
-    align = rep("c", 5), 
-    label = "tabVentetid72t")
+noric::mst(tab = tabVentetid72t, 
+           type = params$tableFormat, 
+           cap = cap,
+           digs = c(0, 0, 0, 1, 1), 
+           align = rep("c", 5), 
+           label = "tabVentetid72t")
 ```
 
 
 ```{r pagebreakVentetidNSTEMI72, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 
@@ -1338,11 +1338,11 @@ nTrykkmaalingAP <- trykkmaalingAP %>%
       round(.data$`Utført trykkmåling`/.data$Totalt*100, 1), 
       " %"),
     Totalt = ifelse(.data$Totalt < 5,
-                      yes = "N",
-                      no = .data$Totalt),
+                    yes = "N",
+                    no = .data$Totalt),
     utfortTrykkmaaling = ifelse(.data$Totalt == "N",
-                                  yes = NA,
-                                  no = .data$`Utført trykkmåling`),
+                                yes = NA,
+                                no = .data$`Utført trykkmåling`),
     prosentUtfort = ifelse(.data$Totalt == "N",
                            yes = NA,
                            no = .data$prosentUtfort)) %>% 
@@ -1381,15 +1381,16 @@ tabTrykkmaalingAP <- timeTableMonth %>%
 cap <- "Antall og andel prosedyrer der det ved indikasjon stabil koronarsykdom har blitt utført trykkmåling i form av fractional flow reserve (FFR) eller instantaneous wave-free ratio (iFR). Måneder med mindre enn 5 observasjoner er markert med N."
 
 noric::mst(tab = tabTrykkmaalingAP, 
-    type = params$tableFormat, 
-    cap = cap,
-    digs = c(0,0,1,1), 
-    align = rep("c", 4), 
-    label = "tabTrykkmaalingAP")
+           type = params$tableFormat, 
+           cap = cap,
+           digs = c(0,0,1,1), 
+           align = rep("c", 4), 
+           label = "tabTrykkmaalingAP")
 ```
 
+
 ```{r pagebreakTrykkmaaling, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 ## Billeddiagnostikk ved stenting av venstre hovedstamme
@@ -1416,15 +1417,15 @@ stentVH_sS_nasjonalt <- sS_nasjonalt %>%
 
 stentVH_aP_nasjonalt <- aP_nasjonalt %>% 
   dplyr::filter(!.data$TidlABC %in% "Ja" &
-    .data$Indikasjon %in% c("Vitieutredning",
-                            "Uklare brystsmerter",
-                            "Annet",
-                            "Hjertestans uten STEMI",
-                            "Hjertesvikt/kardiomyopati",
-                            "Komplettering av tidligere PCI",
-                            "UAP",
-                            "NSTEMI",
-                            "Stabil koronarsykdom"))%>% 
+                  .data$Indikasjon %in% c("Vitieutredning",
+                                          "Uklare brystsmerter",
+                                          "Annet",
+                                          "Hjertestans uten STEMI",
+                                          "Hjertesvikt/kardiomyopati",
+                                          "Komplettering av tidligere PCI",
+                                          "UAP",
+                                          "NSTEMI",
+                                          "Stabil koronarsykdom"))%>% 
   dplyr::select(.data$ForlopsID, 
                 .data$Sykehusnavn, 
                 .data$IvusOct, 
@@ -1456,11 +1457,11 @@ nStentVH <- stentVH %>%
     prosentUtfort = paste0(
       round(.data$`Utført IVUS/OCT`/.data$Totalt*100, 1), " %"),
     Totalt = ifelse(.data$Totalt < 5,
-                      yes = "N",
-                      no = .data$Totalt),
+                    yes = "N",
+                    no = .data$Totalt),
     utfortIvusOct = ifelse(.data$Totalt == "N",
-                               yes = NA,
-                               no = .data$`Utført IVUS/OCT`),
+                           yes = NA,
+                           no = .data$`Utført IVUS/OCT`),
     prosentUtfort = ifelse(Totalt == "N",
                            yes = NA,
                            no = .data$prosentUtfort)) %>%
@@ -1495,16 +1496,17 @@ tabStentVH <- timeTableQuarter %>%
 cap <- "Antall og andel prosedyrer der det er brukt supplerende billeddiagnostike metoder (IVUS og/eller OCT). Kvartaler med mindre enn 5 observasjoner er markert med N."
 
 noric::mst(tab = tabStentVH, 
-    type = params$tableFormat,
-    cap = cap,
-    digs = c(0,0,1,1), 
-    align = rep("c", 4), 
-    label = "tabStentVH")
+           type = params$tableFormat,
+           cap = cap,
+           digs = c(0,0,1,1), 
+           align = rep("c", 4), 
+           label = "tabStentVH")
 
 ```
 
+
 ```{r pagebreakStentingVH, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 ## Foreskriving av medisiner
@@ -1551,11 +1553,11 @@ medisinerAP_nasjonalt <- aP_nasjonalt %>%
   dplyr::left_join(., 
                    medisinerSO_nasjonalt, 
                    by = c("AvdRESH","ForlopsID")
-                   ) %>% 
+  ) %>% 
   dplyr::left_join(.,
                    medisinerSS_nasjonalt, 
                    by = c("AvdRESH","ForlopsID")
-                   ) %>% 
+  ) %>% 
   dplyr::group_by(.data$AvdRESH, .data$primFID) %>% 
   dplyr::mutate(antStentUnderOpphold = sum(.data$antStent > 0, 
                                            na.rm = TRUE)) %>% 
@@ -1592,14 +1594,14 @@ nBlodfMedAP <- medisinerAP %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(prosentJa = paste0(round(.data$`Ja`/.data$Totalt*100, 1), " %"),
                 Totalt = ifelse(.data$Totalt < 5,
-                                  yes = "N",
-                                  no = .data$Totalt),
+                                yes = "N",
+                                no = .data$Totalt),
                 JaBlodFMed = ifelse(.data$Totalt == "N",
-                                       yes = NA,
-                                       no = .data$`Ja`),
+                                    yes = NA,
+                                    no = .data$`Ja`),
                 prosentJa = ifelse(.data$Totalt == "N",
-                                       yes = NA,
-                                       no = .data$prosentJa)) %>% 
+                                   yes = NA,
+                                   no = .data$prosentJa)) %>% 
   dplyr::select(.data$Month, 
                 .data$Totalt, 
                 .data$JaBlodFMed, 
@@ -1631,16 +1633,16 @@ tabBlodfMedAP <- timeTableMonth %>%
 cap <- "Antall og andel pasienter per opphold der det er dokumentert i journalen foreskrivning av blodfortynnende medisiner som omfatter enten dobbel blodplatehemmer, eller en blodplatehemmer i kombinasjon med Marevan eller NOAC. Måneder med mindre enn 5 ferdigstilte observasjoner er markert med N."
 
 noric::mst(tab = tabBlodfMedAP, 
-    type = params$tableFormat, 
-    cap = cap,
-    digs = c(0, 0, 1, 1), 
-    align = rep("c", 4), 
-    label = "tabBlodfMedAP")
+           type = params$tableFormat, 
+           cap = cap,
+           digs = c(0, 0, 1, 1), 
+           align = rep("c", 4), 
+           label = "tabBlodfMedAP")
 ```
 
 
 ```{r pagebreaKolesterolsenkendeMedisiner, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 ### Foreskriving av kolesterolsenkende medisiner
@@ -1666,11 +1668,11 @@ nKolestSenkMedAP <- medisinerAP %>%
     prosentForskrSt = paste0(
       round(.data$`Forskrevet statiner`/.data$Totalt*100, 1), " %"),
     Totalt = ifelse(.data$Totalt < 5,
-                      yes = "N",
-                      no = .data$Totalt),
+                    yes = "N",
+                    no = .data$Totalt),
     forskrevetStatiner = ifelse(.data$Totalt == "N",
-                                   yes = NA,
-                                   no = .data$`Forskrevet statiner`),
+                                yes = NA,
+                                no = .data$`Forskrevet statiner`),
     prosentForskrSt = ifelse(`Totalt` == "N",
                              yes = NA,
                              no = .data$prosentForskrSt)) %>% 
@@ -1706,15 +1708,15 @@ tabKolestSenkMedAP <- timeTableMonth %>%
 cap <- "Antall og andel pasienter per opphold som har fått foreskrevet kolesterolsenkende medikamenter i form av statiner ved utskrivelse etter PCI med innsetting av stent. Måneder med mindre enn 5 ferdigstilte observasjoner er markert med N."
 
 noric::mst(tab = tabKolestSenkMedAP, 
-    type = params$tableFormat, 
-    cap = cap,
-    digs = c(0, 0, 1, 1), 
-    align = rep("c", 4), 
-    label = "tabKolestSenkMedAP")
+           type = params$tableFormat, 
+           cap = cap,
+           digs = c(0, 0, 1, 1), 
+           align = rep("c", 4), 
+           label = "tabKolestSenkMedAP")
 ```
 
 ```{r pagebreakForeskrivingAvMedisiner, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 ```
 
 `r if (dim_ak_lokalt[1] <= 10 | length(aK_nasjonalt$Pacemakerbehov) == 0) {"<!--"}`
@@ -1733,28 +1735,28 @@ prosedyre er ekskludert. Lav andel pacemakerbehov er ønskelig.
 ```{r pacemakerbehovAK, include=FALSE, eval=TRUE}
 
 if (dim_ak_lokalt[1] > 10 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
-
+  
   #Nasjonalt
   pacemakerbehovAK_nasjonalt <- aK_nasjonalt %>% 
-      dplyr::filter(
-        !.data$LabKompDod %in% "Ja" &
-            !is.na(.data$TypeKlaffeprotese) &
-          !.data$Pacemaker %in% "Ja" &
-          (is.na(.data$ScreeningBeslutning) |
-             .data$ScreeningBeslutning != "BAV")) %>% 
+    dplyr::filter(
+      !.data$LabKompDod %in% "Ja" &
+        !is.na(.data$TypeKlaffeprotese) &
+        !.data$Pacemaker %in% "Ja" &
+        (is.na(.data$ScreeningBeslutning) |
+           .data$ScreeningBeslutning != "BAV")) %>% 
     dplyr::select(.data$Sykehusnavn, 
                   .data$ForlopsID, 
                   .data$Kvartal, 
                   .data$Pacemakerbehov, 
                   .data$AvdRESH)
-        
-
- pacemakerbehovSO_nasjonalt <- sO_nasjonalt %>% 
-   dplyr::filter(.data$SkjemaStatus == 1 &
-                   .data$Skjemanavn == "Aorta") %>% 
-   dplyr::select(.data$AvdRESH, 
-                 .data$ForlopsID,
-                 .data$SkjemaStatus)
+  
+  
+  pacemakerbehovSO_nasjonalt <- sO_nasjonalt %>% 
+    dplyr::filter(.data$SkjemaStatus == 1 &
+                    .data$Skjemanavn == "Aorta") %>% 
+    dplyr::select(.data$AvdRESH, 
+                  .data$ForlopsID,
+                  .data$SkjemaStatus)
   
   pacemakerbehovAK_ferdigstilt_nasj <- pacemakerbehovAK_nasjonalt %>% 
     dplyr::left_join(., 
@@ -1804,8 +1806,8 @@ if (dim_ak_lokalt[1] > 10 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
   nPacemakerbehovAK <- pacemakerbehovAK_ferdigstilt %>% 
     dplyr::count(.data$Kvartal, .data$Pacemakerbehov) %>% 
     tidyr::pivot_wider(names_from = .data$Pacemakerbehov, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
+                       values_from = .data$n, 
+                       values_fill = list(n = 0)) %>%
     janitor::adorn_totals("col", name = "Totalt") %>% 
     dplyr::mutate(
       prosentImpPace = paste0(
@@ -1822,8 +1824,8 @@ if (dim_ak_lokalt[1] > 10 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
   nPacemakerbehovAK_nasj <- pacemakerbehovAK_ferdigstilt_nasj %>% 
     dplyr::count(.data$Kvartal, .data$Pacemakerbehov) %>% 
     tidyr::pivot_wider(names_from = .data$Pacemakerbehov, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
+                       values_from = .data$n, 
+                       values_fill = list(n = 0)) %>%
     janitor::adorn_totals("col", name = "Totalt") %>% 
     dplyr::mutate(
       prosentImpPace = paste0(
@@ -1832,7 +1834,7 @@ if (dim_ak_lokalt[1] > 10 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
     dplyr::select(.data$Kvartal, .data$prosentImpPace) %>% 
     dplyr::rename(Nasjonalt = .data$prosentImpPace)
   
-    
+  
   #Tabell
   tabPacemakerbehovAK_ferdigstilt <- timeTableQuarterAK %>% 
     dplyr::left_join(., sjekkAndelFerdigstilt, by = "Kvartal") %>% 
@@ -1844,25 +1846,25 @@ if (dim_ak_lokalt[1] > 10 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
         " av ", 
         .data$Totalt),
       Prosent = ifelse(.data$Andel < 0.5,
-                         yes = NA,
-                         no = .data$Prosent)) %>% 
+                       yes = NA,
+                       no = .data$Prosent)) %>% 
     dplyr::select(.data$Kvartal,
-                 .data$antFerdigProsSkjema,
-                 .data$implPermPace,
-                 .data$Prosent,
-                 .data$Nasjonalt)  %>% 
+                  .data$antFerdigProsSkjema,
+                  .data$implPermPace,
+                  .data$Prosent,
+                  .data$Nasjonalt)  %>% 
     dplyr::rename(
       "Antall/andel ferdigstilte prosedyreskjemaer" = .data$antFerdigProsSkjema,
       "Antall implanterte perm. pacemaker" = .data$implPermPace) %>% 
     replace(is.na(.), "-")
-    
-cap <- "Antall og andel pasienter som har fått implantert permanent pacemaker under sykehusoppholdet etter kateterbasert innsetting av aortaklaff. Kun observasjoner der prosedyreskjemaet er ferdigstilt er tatt med. Hvis andel ferdigstilte prosedyreskjemaer er mindre enn 50\\%, vises ikke prosenten for andel implanterte permanente pacemaker."
-    
-noric::mst(tab = tabPacemakerbehovAK_ferdigstilt, 
-      type = params$tableFormat, cap = cap,
-      digs = c(0, 0, 1, 1), 
-      align = rep("c", 4), 
-      label = "tabPacemakerbehovAK")
+  
+  cap <- "Antall og andel pasienter som har fått implantert permanent pacemaker under sykehusoppholdet etter kateterbasert innsetting av aortaklaff. Kun observasjoner der prosedyreskjemaet er ferdigstilt er tatt med. Hvis andel ferdigstilte prosedyreskjemaer er mindre enn 50\\%, vises ikke prosenten for andel implanterte permanente pacemaker."
+  
+  noric::mst(tab = tabPacemakerbehovAK_ferdigstilt, 
+             type = params$tableFormat, cap = cap,
+             digs = c(0, 0, 1, 1), 
+             align = rep("c", 4), 
+             label = "tabPacemakerbehovAK")
 }
 ```
 
