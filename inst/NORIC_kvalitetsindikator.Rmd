@@ -35,6 +35,7 @@ library(kableExtra)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(noric)
 # library(gridExtra) Sjekk om rapporten fungerer uten denne pakken
 
 
@@ -1716,7 +1717,7 @@ noric::mst(tab = tabKolestSenkMedAP,
   cat("\n\n\\pagebreak\n")
 ```
 
-`r if (dim_ak_lokalt[1] == 0 | length(aK_nasjonalt$Pacemakerbehov) == 0) {"<!--"}`
+`r if (dim_ak_lokalt[1] <= 10 | length(aK_nasjonalt$Pacemakerbehov) == 0) {"<!--"}`
 ## Pacemakerbehov etter kateterbasert innsetting av aortaklaff
 
 Denne indikatoren 
@@ -1727,11 +1728,11 @@ for pacemaker melder seg etter overflytting til annet sykehus, vil dette ikke
 komme fram i datagrunnlaget til registeret og resultatene må tolkes med 
 forsiktighet. Pasienter som allerede har implantert permanent pacemaker før 
 prosedyre er ekskludert. Lav andel pacemakerbehov er ønskelig.
-`r if (dim_ak_lokalt[1] == 0 | length(aK_nasjonalt$Pacemakerbehov) == 0) {"-->"}`
+`r if (dim_ak_lokalt[1] <= 10 | length(aK_nasjonalt$Pacemakerbehov) == 0) {"-->"}`
 
 ```{r pacemakerbehovAK, include=FALSE, eval=TRUE}
 
-if (dim_ak_lokalt[1] > 0 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
+if (dim_ak_lokalt[1] > 10 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
 
   #Nasjonalt
   pacemakerbehovAK_nasjonalt <- aK_nasjonalt %>% 
@@ -1797,7 +1798,7 @@ if (dim_ak_lokalt[1] > 0 & length(aK_nasjonalt$Pacemakerbehov) > 0) {
 
 ```{r TabNPacemakerbehovAK, results='asis', warning=FALSE, eval=TRUE}
 
-if (dim_ak_lokalt[1] > 0 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
+if (dim_ak_lokalt[1] > 10 &  length(aK_nasjonalt$Pacemakerbehov) > 0) {
   
   #Lokalt
   nPacemakerbehovAK <- pacemakerbehovAK_ferdigstilt %>% 
