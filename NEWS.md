@@ -1,3 +1,11 @@
+# noric 2.4.1
+
+Bugfix monthly quality indicator-reports
+* more than 10 TAVI needed last 3 years to create pacemaker-table
+* use mst from noric library
+
+
+
 # noric 2.4.0
 
 ## New features
