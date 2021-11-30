@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.1</span>
       </span>
     </div>
 
@@ -132,18 +132,19 @@
 if `Sykehusnavn` already existed if `df`</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>AvdRESH <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>108141</span>, <span class='fl'>109880</span>, <span class='cn'>NA</span>, <span class='fl'>123</span>, <span class='fl'>105502</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>x</span> <span class='op'>%&gt;%</span> <span class='fu'>fikse_sykehusnavn</span><span class='op'>(</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   AvdRESH      Sykehusnavn
-#&gt; 1  108141 Ahus Nordbyhagen
-#&gt; 2  109880      OUS Ullevål
-#&gt; 3      NA             &lt;NA&gt;
-#&gt; 4     123             &lt;NA&gt;
-#&gt; 5  105502              SUS</div><div class='input'>
-<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>AvdRESH <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>108141</span>, <span class='fl'>109880</span>, <span class='cn'>NA</span>, <span class='fl'>123</span>, <span class='fl'>105502</span><span class='op'>)</span>,
-                Sykehusnavn <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AHUS"</span>, <span class='st'>"Ullevål"</span>, <span class='st'>"NA"</span>,
-                 <span class='st'>"test"</span>, <span class='st'>"Stavanger"</span><span class='op'>)</span><span class='op'>)</span>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>AvdRESH <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>108141</span>, <span class='fl'>109880</span>, <span class='cn'>NA</span>, <span class='fl'>123</span>, <span class='fl'>105502</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>x</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span> <span class='fu'>fikse_sykehusnavn</span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   AvdRESH      Sykehusnavn</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 1  108141 Ahus Nordbyhagen</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 2  109880      OUS Ullevål</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 3      NA             &lt;NA&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 4     123             &lt;NA&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 5  105502              SUS</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>AvdRESH <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>108141</span>, <span class='fl'>109880</span>, <span class='cn'>NA</span>, <span class='fl'>123</span>, <span class='fl'>105502</span><span class='op'>)</span>,</span>
+<span class='r-in'>                Sykehusnavn <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AHUS"</span>, <span class='st'>"Ullevål"</span>, <span class='st'>"NA"</span>,</span>
+<span class='r-in'>                 <span class='st'>"test"</span>, <span class='st'>"Stavanger"</span><span class='op'>)</span><span class='op'>)</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
