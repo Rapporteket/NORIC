@@ -52,20 +52,64 @@ colKontrast <- "#FF7260"
 
 ``` 
 
+```{r parametre}
+showN <- 14
+```
+
+
+
+
+
+```{r latest_entry, include=FALSE, eval=TRUE}
+# DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+
+# NYESTE DATO: 
+# Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# overføringer har stoppet opp
+
+# ELDSTE DATO: 
+# Januar fra i fjor (hele foregående år skal vise i rapporten)
+nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+
+periode_data <- data.frame(
+  siste_dato = min((as.Date(Sys.time()) - 1), 
+                   nyeste_reg)) 
+
+periode_data %<>% 
+  dplyr::mutate(
+    forste_dato  = lubridate::floor_date(.data$siste_dato, 
+                                         "month") - months(showN))
+```
+
+
+
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-dbType <- "mysql"
-SOQuery <- "SELECT * FROM SkjemaOversikt"
-APQuery <- "SELECT * FROM AngioPCIVar"
-AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
+# dbType <- "mysql"
+# SOQuery <- "SELECT * FROM SkjemaOversikt"
+# APQuery <- "SELECT * FROM AngioPCIVar"
+# AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
+# 
+# SO <- rapbase::LoadRegData(params$registryName, SOQuery, dbType)
+# AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
+# AnP <- rapbase::LoadRegData(params$registryName, AnPQuery, dbType)
 
-SO <- rapbase::LoadRegData(params$registryName, SOQuery, dbType)
-AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
-AnP <- rapbase::LoadRegData(params$registryName, AnPQuery, dbType)
+SO <- noric::getLocalSOData(params$registryName, 
+                            fromDate  = periode_data$forste_dato, 
+                            toDate = periode_data$siste_dato)
 
-showN <- 14 # how many months are displayed
 
+AP <- noric::getLocalAPData(params$registryName, 
+                            fromDate  = periode_data$forste_dato, 
+                            toDate = periode_data$siste_dato)
+
+AnP <- noric::getAnDData(params$registryName, 
+                         fromDate  = periode_data$forste_dato, 
+                         toDate = periode_data$siste_dato)
 
 evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
 # (TRUE when AnP contains data) 
@@ -118,7 +162,7 @@ AnP$AnnenProsType <- factor(
     "Lukking ASD/PFO",
     "Lukking v. aurikkel",
     "Impella")
-  )
+)
 ```
 
 
@@ -136,16 +180,16 @@ SO$nMonth <- as.numeric(
   as.factor(
     format(
       x = SO$RegDate,
-     format = "%y-%m")))
+      format = "%y-%m")))
 
 SO <- subset(
   x = SO,
   subset =
     (nMonth > max(nMonth, na.rm = TRUE) - showN) & (RegDate < Sys.Date())
-  )
+)
 
 
-  # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
+# crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
 if (SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [which( SO$Year >= 2015), ]
 
 SO$Month <- as.factor(
@@ -172,16 +216,16 @@ AP$Sykehusnavn <- factor(AP$Sykehusnavn)
 
 AP %<>% dplyr::mutate(Indikasjon2 = factor(
   dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP", 
-            Indikasjon == "UAP" ~ "UAP",
-            Indikasjon %in% c("STEMI",
-                              "Hjertestans ved STEMI",
-                              "STEMI > 24h",
-                              "STEMI/Rescue PCI") ~ "STEMI", 
-            Indikasjon == "Uklare brystsmerter" ~ "Uklare brystsmerter", 
-            Indikasjon == "NSTEMI" ~ "NSTEMI", 
-            TRUE ~ "Annet"), 
+                   Indikasjon == "UAP" ~ "UAP",
+                   Indikasjon %in% c("STEMI",
+                                     "Hjertestans ved STEMI",
+                                     "STEMI > 24h",
+                                     "STEMI/Rescue PCI") ~ "STEMI", 
+                   Indikasjon == "Uklare brystsmerter" ~ "Uklare brystsmerter", 
+                   Indikasjon == "NSTEMI" ~ "NSTEMI", 
+                   TRUE ~ "Annet"), 
   levels=c("Uklare brystsmerter","SAP","UAP","NSTEMI","STEMI","Annet")
-  )) 
+)) 
 
 AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
 AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
@@ -202,7 +246,7 @@ AP$Year <- as.numeric(
 AP$Week <- as.numeric(
   format(
     x = AP $ ProsedyreDato,
-   format = "%W"))
+    format = "%W"))
 
 
 AP$nMonth <- as.numeric(
@@ -232,7 +276,7 @@ AP <- subset(
   x = AP,
   subset = nMonth >= max(nMonth , na.rm = TRUE) - showN)
 
- # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
+# crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
 if(AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP[which( AP$Year >= 2015), ]
 
 AP$Month <- as.factor(
@@ -373,29 +417,29 @@ PrintTabTilleggCol <- function(VAR){
   nVAR <- addmargins(
     table(
       AP$Month,
-     addNA(factor(
-       AP[,VAR],
-       levels = c("Ja","Nei","")))),
+      addNA(factor(
+        AP[,VAR],
+        levels = c("Ja","Nei","")))),
     margin = 1)
-
+  
   nVARja <- sprintf(
     "%3.0f",
     nVAR[, which(colnames(nVAR)=="Ja")]
-    )
-
-    rVAR <- round(
-      100 * prop.table(nVAR, margin = 1),
-      digits = 1)
-
-    rVARja <- sprintf(
-        "%4.1f" ,
-        rVAR[, which(colnames(rVAR)=="Ja")]
-        )
-    
-   prosentJa <- paste0(nVARja, " (", rVARja,"%)")
-   prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
-   
-   return(prosentJa)
+  )
+  
+  rVAR <- round(
+    100 * prop.table(nVAR, margin = 1),
+    digits = 1)
+  
+  rVARja <- sprintf(
+    "%4.1f" ,
+    rVAR[, which(colnames(rVAR)=="Ja")]
+  )
+  
+  prosentJa <- paste0(nVARja, " (", rVARja,"%)")
+  prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
+  
+  return(prosentJa)
 }
 
 TilleggVars <- c(
@@ -419,7 +463,7 @@ IndexMinEnTillegg <- unique(
     lapply(
       X = TilleggVars,
       FUN = function(X) which(AP[, X] == "Ja")
-      )))
+    )))
 
 AP$IngenTillegg <- "Ja"
 AP$IngenTillegg[IndexMinEnTillegg] <- "Nei"
@@ -440,7 +484,7 @@ TabTillegg <- cbind(
   PrintTabTilleggCol("ECMO"),
   PrintTabTilleggCol("AnnenDiag"),
   PrintTabTilleggCol("IngenTillegg")
-  )
+)
 
 TilleggLabels <- c(
   "FFR",
@@ -538,7 +582,7 @@ if(params$tableFormat == 'latex'){
     comment = FALSE,
     caption.placement = "top",
     table.placement = "H"
-    )
+  )
 }
 ```
 
@@ -566,24 +610,24 @@ LabKomplikasjoner <- data.frame(
     "LabKompAnnenAlv",
     "LabKompDod",
     "LabKompProsedyrerelatertDod"
-    ),
-    Komplikasjon = c(
-      "Alle komplikasjoner",
-      "Allergisk reaksjon lett/moderat",
-      "Allergisk reaksjon alvorlig",
-      "Behandlingskrevende arytmi",
-      "Hemodynamisk",
-      "Neurologisk",
-      "Vaskulaer (men ikke koronar)",
-      "Mistet stent",
-      "Vedvarende sidegrensokklusjon",
-      "Perforasjon",
-      "Tamponade",
-      "Akutt ACB-operasjon fra lab",
-      "Annen alvorlig",
-      "Død",
-      "Prosedyrerelatert død"
-    )
+  ),
+  Komplikasjon = c(
+    "Alle komplikasjoner",
+    "Allergisk reaksjon lett/moderat",
+    "Allergisk reaksjon alvorlig",
+    "Behandlingskrevende arytmi",
+    "Hemodynamisk",
+    "Neurologisk",
+    "Vaskulaer (men ikke koronar)",
+    "Mistet stent",
+    "Vedvarende sidegrensokklusjon",
+    "Perforasjon",
+    "Tamponade",
+    "Akutt ACB-operasjon fra lab",
+    "Annen alvorlig",
+    "Død",
+    "Prosedyrerelatert død"
+  )
 )
 
 LabKomplikasjoner$Antall <- unlist(
@@ -591,12 +635,12 @@ LabKomplikasjoner$Antall <- unlist(
     X = LabKomplikasjoner$VarName,
     FUN = function(X) try(
       sum(AP[,X] == "Ja" , na.rm = TRUE)
-      )
-    ))
+    )
+  ))
 
 LabKomplikasjoner$Prosent <- round(
-    100 * LabKomplikasjoner$Antall / dim(AP)[1],
-    digits = 2)
+  100 * LabKomplikasjoner$Antall / dim(AP)[1],
+  digits = 2)
 
 
 df <- LabKomplikasjoner[, -1]
@@ -657,7 +701,7 @@ AvdKomplikasjoner <- data.frame(
     "AvdKompHjerteinfarkt",
     "AvdKompAnnenAlvorlig",
     "AvdKompDod"
-    ),
+  ),
   Komplikasjon = c(
     "Alle komplikasjoner",
     "Allergisk senkomplikasjon",
@@ -671,20 +715,20 @@ AvdKomplikasjoner <- data.frame(
     "Hjerteinfarkt",
     "Annen alvorlig",
     "Død"
-    )
   )
+)
 
 AvdKomplikasjoner$Antall <- unlist(
   lapply(
     X = AvdKomplikasjoner$VarName,
     FUN = function(X) try(
       sum(AP[, X] == "Ja" , na.rm = TRUE)
-      )
-    ))
+    )
+  ))
 
 AvdKomplikasjoner$Prosent <- round(
-    100 * AvdKomplikasjoner$Antall / dim(AP)[1],
-    digits = 2)
+  100 * AvdKomplikasjoner$Antall / dim(AP)[1],
+  digits = 2)
 
 i.labkomp <- order(AvdKomplikasjoner$Prosent)
 
@@ -707,9 +751,9 @@ noric::mst(df,
 ```{r FigAvdKompl, fig.cap = "Prosentandel komplikasjoner på avdelingen", echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
-    mar = c(4,15,2,2),
-    xpd = NA,
-    las = 1)
+  mar = c(4,15,2,2),
+  xpd = NA,
+  las = 1)
 
 ak <- AvdKomplikasjoner[,4]; names(ak) <- AvdKomplikasjoner[,2]
 
@@ -718,7 +762,7 @@ xBarplot <- barplot(
   xlab = "Andel (%)",
   horiz = TRUE,
   border = FALSE
-  )
+)
 
 text(
   x = AvdKomplikasjoner[,4],
@@ -778,9 +822,9 @@ rSOU <- round(
   digits = 1)
 
 TABkompletthet <- cbind(
-    rowSums(nSOU) ,
-    nSOU[ , which( colnames(nSOU)=="Ferdigstilt" ) ] ,
-    rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
+  rowSums(nSOU) ,
+  nSOU[ , which( colnames(nSOU)=="Ferdigstilt" ) ] ,
+  rSOU[ , which( colnames(rSOU)=="Ferdigstilt" ) ] )
 colnames(TABkompletthet) <- c("Totalt","Ferdigstilt","Prosent")
 
 
