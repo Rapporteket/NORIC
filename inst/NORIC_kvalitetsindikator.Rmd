@@ -66,9 +66,49 @@ colKontrast <- "#FF7260"
 
 
 
+```{r latest_entry, include=FALSE, eval=TRUE}
+# DATAGRUNNLAG: PERIODE
+# NYESTE DATO: 
+# Finne nyeste prosedyredato i prosedyre-tabellen. Vi ønsker ikke at 
+# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# overføringer har stoppet opp
+# ELDSTE DATO: 
+# Januar fra i fjor (hele forrige år)
+nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+
+periode_data <- data.frame(
+  siste_dato = min((as.Date(Sys.time()) - 1), 
+                   nyeste_reg)) 
+
+periode_data %<>% 
+  dplyr::mutate(
+    
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = .data$nyesteRegYear -1, 
+    
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"), format = "%y-%m-%d"))
+```
+
+
+
+
+
+
+
+
+
 ```{r GetData, include=FALSE, cache=FALSE}
 
-sO_nasjonalt <- noric::getLocalSOData(params$registryName)
+sO_nasjonalt <- noric::getLocalSOData(params$registryName, 
+                                      fromDate  = periode_data$forste_dato, 
+                                      toDate = periode_data$siste_dato)
+
 sS_nasjonalt <- noric::getLocalSSData(params$registryName)
 aP_nasjonalt <- noric::getLocalAPData(params$registryName)
 aK_nasjonalt <- noric::getAKData(params$registryName)
