@@ -107,7 +107,7 @@ AP <- noric::getLocalAPData(params$registryName,
                             fromDate  = periode_data$forste_dato, 
                             toDate = periode_data$siste_dato)
 
-AnP <- noric::getAnDData(params$registryName, 
+AnP <- noric::getAnPData(params$registryName, 
                          fromDate  = periode_data$forste_dato, 
                          toDate = periode_data$siste_dato)
 
