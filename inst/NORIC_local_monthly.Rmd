@@ -89,14 +89,6 @@ periode_data %<>%
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-# dbType <- "mysql"
-# SOQuery <- "SELECT * FROM SkjemaOversikt"
-# APQuery <- "SELECT * FROM AngioPCIVar"
-# AnPQuery <- "SELECT * FROM AndreProsedyrerVar"
-# 
-# SO <- rapbase::LoadRegData(params$registryName, SOQuery, dbType)
-# AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
-# AnP <- rapbase::LoadRegData(params$registryName, AnPQuery, dbType)
 
 SO <- noric::getLocalSOData(params$registryName, 
                             fromDate  = periode_data$forste_dato, 
