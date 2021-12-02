@@ -4,10 +4,26 @@
 \alias{getLocalAPData}
 \title{getLocalAPData provides local reg data from AngioPCIVar}
 \usage{
-getLocalAPData(registryName, singleRow = FALSE, ...)
+getLocalAPData(
+  registryName,
+  fromDate = NULL,
+  toDate = NULL,
+  singleRow = FALSE,
+  ...
+)
 }
 \arguments{
 \item{registryName}{String providing the registry name}
+
+\item{fromDate}{A Date or character class object  of format "YYYY-MM-DD"
+defining start of the period from which data will be collected. Default is
+\code{NULL} in which case til will be set to the assumed pre-historic date of
+"1900-01-01".}
+
+\item{toDate}{A Date or character class object  of format "YYYY-MM-DD"
+defining end of the period from which data will be collected. Default is
+\code{NULL} in which case til will be set to the last known registration date
+for NORIC.}
 
 \item{singleRow}{Logical defining if only one row is to be returned. A
 relevant usecase will be when only description is needed. By default set to
