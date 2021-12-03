@@ -47,8 +47,16 @@ WHERE
 
   anP <- rapbase::loadRegData(registryName, query, dbType)
 
-  fO <- rapbase::loadRegData(registryName,
-                             query = "SELECT * FROM ForlopsOversikt")
+  query <- paste("
+SELECT
+  *
+FROM
+  ForlopsOversikt
+WHERE
+  HovedDato >= '", fromDate, "' AND HovedDato <= '", toDate, "'"
+  )
+
+  fO <- rapbase::loadRegData(registryName, query)
 
 
   # Velger relevante variabler fra fO som skal legges til tabellen:
