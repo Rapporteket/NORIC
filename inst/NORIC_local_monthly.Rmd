@@ -99,9 +99,9 @@ AP <- noric::getLocalAPData(params$registryName,
                             fromDate  = periode_data$forste_dato, 
                             toDate = periode_data$siste_dato)
 
-AnP <- noric::getAnPData(params$registryName, 
-                         fromDate  = periode_data$forste_dato, 
-                         toDate = periode_data$siste_dato)
+AnP <- noric::getLocalAnPData(params$registryName, 
+                              fromDate  = periode_data$forste_dato, 
+                              toDate = periode_data$siste_dato)
 
 evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
 # (TRUE when AnP contains data) 
