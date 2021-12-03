@@ -88,21 +88,23 @@ SS <- noric::getLocalSSData(params$registryName,
                             toDate = periode_data$siste_dato)
 
 dbType <- "mysql"
-APQuery <- paste0(
-  "SELECT
-   A.ForlopsID ,
-   min(A.Sykehusnavn) AS Sykehusnavn ,
-   min(A.ProsedyreDato) AS ProsedyreDato ,
-   SUM(S.ForlopsID>0) AS Nstents
-FROM AngioPCIVar A
-LEFT JOIN SegmentStent S
-ON A.ForlopsID=S.ForlopsID AND S.StentType <> ''
-WHERE A.ProsedyreType  != 'Angio' 
-AND ProsedyreDato >= '",
-periode_data$forste_dato, 
-"' AND ProsedyreDato <= '", 
-toDate = periode_data$siste_dato, 
-"' GROUP BY ForlopsID;"
+APQuery <- paste0("
+SELECT
+  A.ForlopsID ,
+  min(A.Sykehusnavn) AS Sykehusnavn ,
+  min(A.ProsedyreDato) AS ProsedyreDato ,
+  SUM(S.ForlopsID>0) AS Nstents
+FROM
+  AngioPCIVar A
+LEFT JOIN SegmentStent S ON
+  A.ForlopsID = S.ForlopsID AND
+  S.StentType IS NOT NULL
+WHERE
+  A.ProsedyreType  != 'Angio' AND
+  A.ProsedyreDato >= '", periode_data$forste_dato, "' AND
+  A.ProsedyreDato <= '", periode_data$siste_dato, "' 
+GROUP BY
+  A.ForlopsID;"
 )
 
 
