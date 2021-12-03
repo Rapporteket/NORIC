@@ -1,6 +1,14 @@
 #' getLocalAnPData provides local reg data from AndreProsedyrerVar
 #'
 #' @param registryName String providing the registry name
+#' @param fromDate A Date or character class object  of format "YYYY-MM-DD"
+#' defining start of the period from which data will be collected. Default is
+#' \code{NULL} in which case til will be set to the assumed pre-historic date of
+#' "1900-01-01".
+#' @param toDate A Date or character class object  of format "YYYY-MM-DD"
+#' defining end of the period from which data will be collected. Default is
+#' \code{NULL} in which case til will be set to the last known registration date
+#' for NORIC.
 #' @param singleRow Logical defining if only one row is to be returned. A
 #' relevant usecase will be when only description is needed. By default set to
 #' FALSE
@@ -12,13 +20,18 @@
 #' @export
 #'
 
-getLocalAnPData <- function(registryName, singleRow = FALSE, ...) {
+getLocalAnPData <- function(registryName, fromDate = NULL, toDate = NULL,
+                            singleRow = FALSE, ...) {
 
   dbType <- "mysql"
-  query <- "
-SELECT *
-FROM AndreProsedyrerVar
-  "
+  query <- paste("
+SELECT
+  *
+FROM
+  AndreProsedyrerVar
+WHERE
+  ProsedyreDato >= '", fromDate, "' AND ProsedyreDato <= '", toDate, "'"
+  )
 
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
