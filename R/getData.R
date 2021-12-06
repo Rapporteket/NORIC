@@ -238,4 +238,62 @@ WHERE
 }
 
 
+getAnP <- function(registryName, fromDate, toDate, singleRow, ...){
+
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- noric::getLatestEntry(registryName)
+  }
+
+  # Ask for all variables from AndreProsedyrerVar in time interval
+  # Add selected variables from ForlopsOversikt
+  # 2 variables to match on: AvdRESH, ForlopsID
+
+  query <- paste0("
+SELECT
+    AndreProsedyrerVar.*,
+    ForlopsOversikt.Sykehusnavn,
+    ForlopsOversikt.PasientID,
+    ForlopsOversikt.FodselsDato,
+    ForlopsOversikt.Kommune,
+    ForlopsOversikt.KommuneNr,
+    ForlopsOversikt.Fylke,
+    ForlopsOversikt.Fylkenr,
+    ForlopsOversikt.PasientKjonn,
+    ForlopsOversikt.PasientAlder,
+    ForlopsOversikt.ForlopsType1,
+    ForlopsOversikt.ForlopsType2
+FROM
+    AndreProsedyrerVar
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'
+LEFT JOIN ForlopsOversikt ON
+    AndreProsedyrerVar.AvdRESH = ForlopsOversikt.AvdRESH AND
+    AndreProsedyrerVar.ForlopsID = ForlopsOversikt.ForlopsID
+ ")
+
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for AndreProsedyrerVar"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for AndreProsedyrerVar"
+  }
+
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+
+  anP <- rapbase::loadRegData(registryName, query, dbType)
+
+
+
+  list(anP = anP)
+}
+
 

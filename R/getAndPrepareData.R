@@ -19,7 +19,7 @@
 #' @return Data frame representing the chosen table. Basic data managment is
 #' done (e.g. added variables from FO, added time-variables, rename hospitals)
 #' @export
-#' @aliases getPrepApData getPrepSOData getPrepAkData getPrepFoData
+#' @aliases getPrepApData getPrepSOData getPrepAkData getPrepFoData getPrepAnPData
 #' NULL
 #'
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
@@ -27,7 +27,6 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
 
   . <- ""
 
-  # Hente AP-tabell med utvalgte variabler fra FO
   dataListe <- noric::getAp(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
@@ -62,7 +61,6 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
   . <- ""
 
-  # Hente So-tabell
   dataListe <- noric::getSo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
@@ -106,7 +104,6 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
 
   . <- ""
 
-  # Hente AK-tabell med utvalgte variabler fra FO
   dataListe <- noric::getAk(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
@@ -148,7 +145,6 @@ getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
 
   . <- ""
 
-  # Hente So-tabell
   dataListe <- noric::getFo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
@@ -176,5 +172,47 @@ getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
   fO %<>% noric::legg_til_tidsvariabler(df = ., var = HovedDato)
 
   fO
+}
+
+getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  dataListe <- noric::getAnP(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = singleRow)
+  anP <- dataListe$anP
+
+
+  # Gjor datoer om til dato-objekt:
+  anP %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(ymd))
+
+
+  # Endre Sykehusnavn til kortere versjoner:
+  anP %<>% noric::fikse_sykehusnavn(df = .)
+
+
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+  anP %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+
+
+  # Legg til aar, maaned, uke, etc.
+  anP %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+
+  # Gjøre kategoriske variabler om til factor:
+  anP %<>%
+    dplyr::mutate(
+      ForlopsType2 = factor(.data$ForlopsType2,
+                            levels = c("Akutt",
+                                       "Subakutt",
+                                       "Planlagt"),
+                            ordered = TRUE))
+
+  anP
 }
 
