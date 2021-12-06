@@ -24,7 +24,7 @@
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getAp getSo getAk
+#' @aliases getAp getSo getAk getFo
 #' NULL
 #'
 #'
@@ -192,3 +192,50 @@ LEFT JOIN ForlopsOversikt ON
 
   list(aK = aK)
 }
+
+getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
+
+
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- noric::getLatestEntry(registryName)
+  }
+
+
+  # Ask for all variables from ForlopsOversikt, in time interval
+  query <- paste0("
+SELECT
+    *
+FROM
+    ForlopsOversikt
+WHERE
+    HovedDato >= '", fromDate, "' AND
+    HovedDato <= '", toDate, "'
+ ")
+
+
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for ForlopsOversikt"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for ForlopsOversikt"
+  }
+
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+
+  fO <- rapbase::loadRegData(registryName, query, dbType)
+
+
+  list(fO = fO)
+
+}
+
+
+

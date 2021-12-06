@@ -19,7 +19,7 @@
 #' @return Data frame representing the chosen table. Basic data managment is
 #' done (e.g. added variables from FO, added time-variables, rename hospitals)
 #' @export
-#' @aliases getPrepApData getPrepSOData getPrepAkData
+#' @aliases getPrepApData getPrepSOData getPrepAkData getPrepFoData
 #' NULL
 #'
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
@@ -106,7 +106,7 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
 
   . <- ""
 
-  # Hente AP-tabell med utvalgte variabler fra FO
+  # Hente AK-tabell med utvalgte variabler fra FO
   dataListe <- noric::getAk(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
@@ -142,3 +142,39 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
 
   aK
 }
+
+getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  # Hente So-tabell
+  dataListe <- noric::getFo(registryName = registryName,
+                            fromDate = fromDate,
+                            toDate = toDate,
+                            singleRow = singleRow)
+  fO <- dataListe$fO
+
+
+  # Gjor datoer om til dato-objekt:
+  fO %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(ymd))
+
+
+  # Endre Sykehusnavn til kortere versjoner:
+  fO %<>% noric::fikse_sykehusnavn(df = .)
+
+
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
+  # "tøyseregistreringer")
+  fO %<>% noric::fjerne_tulleregistreringer(df = ., var = HovedDato)
+
+
+
+  # Legg til aar, maaned, uke, etc.
+  fO %<>% noric::legg_til_tidsvariabler(df = ., var = HovedDato)
+
+  fO
+}
+
