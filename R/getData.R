@@ -24,7 +24,7 @@
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getDataDump getNameReshId getHospitalName getRand12 getProsPatient
+#' @aliases getAp getSo getAk
 #' NULL
 #'
 #'
@@ -87,10 +87,6 @@ LEFT JOIN ForlopsOversikt ON
 
 
 
-
-
-
-
 getSo <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
@@ -137,4 +133,62 @@ WHERE
 
 
 
+getAk <- function(registryName, fromDate, toDate, singleRow, ...){
 
+   # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- noric::getLatestEntry(registryName)
+  }
+
+  # Ask for all variables from AORTAKLAFFVAR in time interval
+  # Add selected variables from ForlopsOversikt
+  # 2 variables to match on: AvdRESH, ForlopsID
+
+  query <- paste0("
+SELECT
+    AortaklaffVar.*,
+    ForlopsOversikt.Sykehusnavn,
+    ForlopsOversikt.PasientID,
+    ForlopsOversikt.FodselsDato,
+    ForlopsOversikt.Kommune,
+    ForlopsOversikt.KommuneNr,
+    ForlopsOversikt.Fylke,
+    ForlopsOversikt.Fylkenr,
+    ForlopsOversikt.PasientKjonn,
+    ForlopsOversikt.PasientAlder,
+    ForlopsOversikt.ForlopsType1,
+    ForlopsOversikt.ForlopsType2,
+    ForlopsOversikt.KobletForlopsID,
+    ForlopsOversikt.Avdod
+FROM
+    AortaklaffVar
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'
+LEFT JOIN ForlopsOversikt ON
+    AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
+    AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+ ")
+
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for AortaklaffVar"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for AortaklaffVar"
+  }
+
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+
+  aK <- rapbase::loadRegData(registryName, query, dbType)
+
+
+
+  list(aK = aK)
+}

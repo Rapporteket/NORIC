@@ -15,11 +15,11 @@
 #' @param ... Optional arguments to be passed to the function
 #' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek
-#'n
+#'
 #' @return Data frame representing the chosen table. Basic data managment is
 #' done (e.g. added variables from FO, added time-variables, rename hospitals)
 #' @export
-#' @aliases getPrepApData getPrepSOData
+#' @aliases getPrepApData getPrepSOData getPrepAkData
 #' NULL
 #'
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
@@ -62,7 +62,7 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
   . <- ""
 
-  # Hente So-tabell med utvalgte variabler fra FO
+  # Hente So-tabell
   dataListe <- noric::getSo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
@@ -88,7 +88,6 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Utledete variabler:
   sO %<>% dplyr::mutate(
-    # Ferdigstilt, 1= ja, -1 & 0 = nei
     ferdigstilt = as.ordered(ifelse(.data$SkjemaStatus == 1,
                                     yes = "Ferdigstilt",
                                     no = "Ikke ferdigstilt")))
@@ -101,3 +100,45 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
   sO
 }
 
+
+getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  # Hente AP-tabell med utvalgte variabler fra FO
+  dataListe <- noric::getAk(registryName = registryName,
+                            fromDate = fromDate,
+                            toDate = toDate,
+                            singleRow = singleRow)
+  aK <- dataListe$aK
+
+
+  # Gjor datoer om til dato-objekt:
+  aK %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(ymd))
+
+
+  # Endre Sykehusnavn til kortere versjoner:
+  aK %<>% noric::fikse_sykehusnavn(df = .)
+
+
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+  aK %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+
+
+  # Legg til aar, maaned, uke, etc.
+  aK %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+
+
+  # utlede variabler
+  aK %<>% dplyr::mutate(
+    dager_mellom_prosedyre_og_utskr = as.numeric(difftime(.data$UtskrDato,
+                                                          .data$ProsedyreDato,
+                                                          units = "days")))
+
+
+  aK
+}
