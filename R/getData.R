@@ -24,7 +24,7 @@
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getAp getSo getAk getFo
+#' @aliases getAp getSo getAk getFo getAnP getCt
 #' NULL
 #'
 #'
@@ -111,7 +111,7 @@ WHERE
  ")
 
 
-    # SQL for one row only/complete table:
+  # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for SkjemaOversikt"
@@ -135,7 +135,7 @@ WHERE
 
 getAk <- function(registryName, fromDate, toDate, singleRow, ...){
 
-   # SQL possible for defined time-interval:
+  # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
   }
@@ -297,3 +297,58 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+getCt <- function(registryName, fromDate, toDate, singleRow, ...){
+
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- noric::getLatestEntry(registryName)
+  }
+
+  # Ask for all variables from CT in time interval
+  # Add selected variables from ForlopsOversikt
+  # 3 variables to match on: AvdRESH, PasientID, ForlopsID
+
+  query <- paste0("
+SELECT
+    CTAngioVar.*,
+    ForlopsOversikt.Sykehusnavn,
+    ForlopsOversikt.Kommune,
+    ForlopsOversikt.KommuneNr,
+    ForlopsOversikt.Fylke,
+    ForlopsOversikt.Fylkenr,
+    ForlopsOversikt.PasientKjonn,
+    ForlopsOversikt.PasientAlder,
+    ForlopsOversikt.ForlopsType1,
+    ForlopsOversikt.ForlopsType2
+FROM
+    CTAngioVar
+WHERE
+    UndersokDato >= '", fromDate, "' AND
+    UndersokDato <= '", toDate, "'
+LEFT JOIN ForlopsOversikt ON
+    CTAngioVar.AvdRESH = ForlopsOversikt.AvdRESH AND
+    CTAngioVar.ForlopsID = ForlopsOversikt.ForlopsID
+ ")
+
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for CTAngioVar"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for CTAngioVar"
+  }
+
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+
+  cT <- rapbase::loadRegData(registryName, query, dbType)
+
+
+
+  list(cT = cT)
+}

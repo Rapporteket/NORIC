@@ -216,3 +216,82 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
   anP
 }
 
+
+getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  dataListe <- noric::getCt(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = singleRow)
+  cT <- dataListe$cT
+
+
+  # Gjor datoer om til dato-objekt:
+  cT %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(ymd))
+
+
+  # Endre Sykehusnavn til kortere versjoner:
+  cT %<>% noric::fikse_sykehusnavn(df = .)
+
+
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+  cT %<>% noric::fjerne_tulleregistreringer(df = ., var = UndersokDato)
+
+
+  # Legg til aar, maaned, uke, etc.
+  cT %<>% noric::legg_til_tidsvariabler(df = ., var = UndersokDato)
+
+  # Utledete variabler - opptelling av funnkoder i de 20 segmentene (ikke graft)
+  cT %<>%
+    dplyr::mutate(
+      # Opptelling av registrerte funnkoder i segmentene:
+      ant_NA = (select(., starts_with("SEGMENT")) %>%
+                  is.na() %>%
+                  rowSums()),
+      ant_0 = (select(., starts_with("SEGMENT")) %>%
+                 mutate_all(., list(~ (. %in% 0))) %>%
+                 rowSums(., na.rm = TRUE)),
+      ant_10 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 10))) %>%
+                  rowSums(., na.rm = TRUE)),
+      ant_11 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 11))) %>%
+                  rowSums(., na.rm = TRUE)),
+      ant_12 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 12))) %>%
+                  rowSums(., na.rm = TRUE)),
+      ant_13 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 13))) %>%
+                  rowSums(., na.rm = TRUE)),
+      ant_14 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 14))) %>%
+                  rowSums(., na.rm = TRUE)),
+      ant_15 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 15))) %>%
+                  rowSums(., na.rm = TRUE)),
+      ant_16 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 16))) %>%
+                  rowSums(., na.rm = TRUE)),
+      ant_17 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 17))) %>%
+                  rowSums(., na.rm = TRUE)),
+      ant_18 = (select(., starts_with("SEGMENT")) %>%
+                  mutate_all(., list(~ (. %in% 18))) %>%
+                  rowSums(., na.rm = TRUE)),
+      # Per den nyeste nummereringen, så er obstruktiv stenose (>=50%) kodet
+      # med tallene 13,14 og 15:
+      ant_obstruktiv = (
+        select(., starts_with("SEGMENT")) %>%
+          mutate_all(., list(~ (. %in% c(13, 14, 15)))) %>%
+          rowSums(., na.rm = TRUE))
+    )
+
+  cT
+}
+
