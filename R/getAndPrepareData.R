@@ -19,9 +19,15 @@
 #' @return Data frame representing the chosen table. Basic data managment is
 #' done (e.g. added variables from FO, added time-variables, rename hospitals)
 #' @export
-#' @aliases getPrepApData getPrepSOData getPrepAkData getPrepFoData getPrepAnPData
+#' @aliases getPrepApData
+#' getPrepSOData
+#' getPrepAkData
+#' getPrepFoData
+#' getPrepAnPData
+#' getPrepCtData
+#' getPrepAkOppfData
 #' NULL
-#'
+
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -223,9 +229,9 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
   . <- ""
 
   dataListe <- noric::getCt(registryName = registryName,
-                             fromDate = fromDate,
-                             toDate = toDate,
-                             singleRow = singleRow)
+                            fromDate = fromDate,
+                            toDate = toDate,
+                            singleRow = singleRow)
   cT <- dataListe$cT
 
 
@@ -293,5 +299,29 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
     )
 
   cT
+}
+
+getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  dataListe <- noric::getAkOppf(registryName = registryName,
+                                fromDate = fromDate,
+                                toDate = toDate,
+                                singleRow = singleRow)
+  aKoppf <- dataListe$aKoppf
+
+
+  # Gjor datoer om til dato-objekt:
+  aKoppf %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(ymd))
+
+
+  # Endre Sykehusnavn til kortere versjoner:
+  aKoppf %<>% noric::fikse_sykehusnavn(df = .)
+
+
 }
 
