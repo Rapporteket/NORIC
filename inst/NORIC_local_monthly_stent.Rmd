@@ -83,9 +83,10 @@ periode_data %<>%
 
 ```{r GetData,include=FALSE}
 
-SS <- noric::getLocalSSData(params$registryName, 
-                            fromDate  = periode_data$forste_dato, 
-                            toDate = periode_data$siste_dato)
+SS <- noric::getPrepSsData(registryName = params$registryName, 
+                           fromDate  = periode_data$forste_dato, 
+                           toDate = periode_data$siste_dato, 
+                           singleRow = FALSE)
 
 dbType <- "mysql"
 APQuery <- paste0("

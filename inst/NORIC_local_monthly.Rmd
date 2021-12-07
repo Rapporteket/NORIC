@@ -90,18 +90,21 @@ periode_data %<>%
 ```{r GetData, include=FALSE, cache=FALSE}
 
 
-SO <- noric::getLocalSOData(params$registryName, 
-                            fromDate  = periode_data$forste_dato, 
-                            toDate = periode_data$siste_dato)
+SO <- noric::getPrepSoData(registryName = params$registryName, 
+                           fromDate  = periode_data$forste_dato, 
+                           toDate = periode_data$siste_dato, 
+                           singleRow = FALSE)
 
 
-AP <- noric::getLocalAPData(params$registryName, 
-                            fromDate  = periode_data$forste_dato, 
-                            toDate = periode_data$siste_dato)
+AP <- noric::getPrepApData(registryName = params$registryName, 
+                           fromDate  = periode_data$forste_dato, 
+                           toDate = periode_data$siste_dato, 
+                           singleRow = FALSE)
 
-AnP <- noric::getLocalAnPData(params$registryName, 
-                              fromDate  = periode_data$forste_dato, 
-                              toDate = periode_data$siste_dato)
+AnP <- noric::getPrepAnPData(registryName = params$registryName, 
+                             fromDate  = periode_data$forste_dato, 
+                             toDate = periode_data$siste_dato, 
+                             singleRow = FALSE)
 
 evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
 # (TRUE when AnP contains data) 
