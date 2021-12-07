@@ -27,6 +27,7 @@
 #' getPrepCtData
 #' getPrepAkOppfData
 #' getPrepAnDData
+#' getPrepSsData
 #' NULL
 
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
@@ -409,3 +410,74 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
 
   anD
 }
+
+getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  dataListe <- noric::getSs(registryName = registryName,
+                            fromDate = fromDate,
+                            toDate = toDate,
+                            singleRow = singleRow)
+  sS <- dataListe$sS
+
+
+  # Gjor datoer om til dato-objekt:
+  sS %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(ymd))
+
+
+  # Endre Sykehusnavn til kortere versjoner:
+  sS %<>% noric::fikse_sykehusnavn(df = .)
+
+
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+  sS %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+
+
+  # Legg til aar, maaned, uke, etc.
+  sS %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+
+  # Gjøre kategoriske variabler om til factor:
+  # (ikke fullstendig, må legge til mer etter hvert)
+  sS %<>%
+    dplyr::mutate(
+      Graft = factor(.data$Graft,
+                     levels = c("Nei",
+                                "Arteriell",
+                                "Vene"),
+                     exclude = NULL, # inkluderer NA i levels
+                     ordered = TRUE),
+
+      Stenoseklasse = factor(.data$Stenoseklasse,
+                             levels = c("A",
+                                        "B1",
+                                        "B1 Bifurkasjon",
+                                        "B2",
+                                        "B2 Bifurkasjon",
+                                        "C",
+                                        "C Bifurkasjon",
+                                        "Annet"),
+                             ordered = TRUE),
+
+      StenoseType = factor(.data$StenoseType,
+                           levels = c("DeNovo",
+                                      "In-stent restenose",
+                                      "Stenttrombose",
+                                      "Andre restenoser"),
+                           ordered = TRUE))
+  # Utledet variabel:
+  # ant_stent_ila_forlop = antall stenter satt inn ila ett forløp
+  sS %<>%
+    dplyr::group_by(.data$AvdRESH, .data$ForlopsID) %>%
+    dplyr::mutate(antall_stent_ila_forlop = sum(!is.na(.data$StentType))) %>%
+    dplyr::ungroup() %>%
+    dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
+
+  sS
+}
+
+
