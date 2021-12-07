@@ -481,3 +481,114 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
 }
 
 
+getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  dataListe <- noric::getMk(registryName = registryName,
+                            fromDate = fromDate,
+                            toDate = toDate,
+                            singleRow = singleRow)
+  mK <- dataListe$mK
+
+
+  # Gjor datoer om til dato-objekt:
+  mK %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(ymd))
+
+
+  # Endre Sykehusnavn til kortere versjoner:
+  mK %<>% noric::fikse_sykehusnavn(df = .)
+
+
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+  mK %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+
+
+  # Legg til aar, maaned, uke, etc.
+  mK %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+
+
+  # utlede variabler
+  mK %<>% dplyr::mutate(
+    dager_mellom_prosedyre_og_utskr = as.numeric(difftime(.data$UtskrDato,
+                                                          .data$ProsedyreDato,
+                                                          units = "days")))
+
+  # Gjøre kategoriske variabler om til factor:
+  # (ikke fullstendig, må legge til mer etter hvert)
+  mK %<>%
+    dplyr::mutate(
+      ForlopsType2 = factor(.data$ForlopsType2,
+                            levels = c("Akutt",
+                                       "Subakutt",
+                                       "Planlagt"),
+                            ordered = TRUE),
+
+      Frailty = factor(.data$Frailty,
+                       levels = c("Robust",
+                                  "Intermedi\u00e6r",
+                                  "Skr\u00f8pelig",
+                                  "Ukjent",
+                                  NA),
+                       exclude = NULL, # inkluderer NA i levels
+                       ordered = TRUE),
+
+      Hastegrad = factor(.data$Hastegrad,
+                         levels = c("Elektiv",
+                                    "Haster",
+                                    "Akutt",
+                                    "Under p\u00e5g\u00e5ende HLR",
+                                    NA),
+                         exclude = NULL, # inkluderer NA i levels
+                         ordered = TRUE),
+
+      PostVenstreVentrikkelFunksjon = factor(
+        .data$PostVenstreVentrikkelFunksjon,
+        levels = c("Normal",
+                   "Lett nedsatt: EF 40 - 49% ",
+                   "Moderat nedsatt: EF 30 - 39%",
+                   "Betydelig nedsatt: EF 21 - 29%",
+                   "Alvorlig nedsatt: EF <= 20%",
+                   "Ukjent",
+                   NA),
+        exclude = NULL, # inkluderer NA i levels
+        ordered = TRUE),
+
+      PreVenstreVentrikkelFunksjon = factor(
+        .data$PreVenstreVentrikkelFunksjon,
+        levels = c("Normal",
+                   "Lett nedsatt: EF 40 - 49% ",
+                   "Moderat nedsatt: EF 30 - 39%",
+                   "Betydelig nedsatt: EF 21 - 29%",
+                   "Alvorlig nedsatt: EF <= 20%",
+                   "Ukjent",
+                   NA),
+        exclude = NULL,
+        ordered = TRUE),
+
+      ProsedyreEkko = factor(.data$ProsedyreEkko,
+                             levels = c("Nei",
+                                        "TEE",
+                                        "ICE",
+                                        "TTE",
+                                        "IVUS",
+                                        "Annet",
+                                        NA),
+                             exclude = NULL, # inkluderer NA i levels
+                             ordered = TRUE),
+
+      UtskrevetTil = factor(.data$UtskrevetTil,
+                            levels = c("Hjem",
+                                       "Rehabilitering",
+                                       "Annet sykehus",
+                                       "Sykehjem",
+                                       NA),
+                            exclude = NULL, # inkluderer NA i levels
+                            ordered = TRUE))
+  mK
+}
+
