@@ -268,7 +268,8 @@ SELECT
     ForlopsOversikt.PasientKjonn,
     ForlopsOversikt.PasientAlder,
     ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2
+    ForlopsOversikt.ForlopsType2,
+    ForlopsOversikt.KobletForlopsID
 FROM
     AndreProsedyrerVar
 WHERE
@@ -325,7 +326,8 @@ SELECT
     ForlopsOversikt.PasientKjonn,
     ForlopsOversikt.PasientAlder,
     ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2
+    ForlopsOversikt.ForlopsType2,
+    ForlopsOversikt.KobletForlopsID
 FROM
     CTAngioVar
 WHERE
