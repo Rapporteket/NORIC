@@ -30,6 +30,7 @@
 #' getPrepSsData
 #' getPrepMkData
 #' getPrepPsData
+#' getPrepApLightData
 #' NULL
 
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
@@ -719,4 +720,200 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow,...){
 
   pS
 }
+
+
+
+getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  dataListe <- noric::getApLight(registryName = registryName,
+                                 fromDate = fromDate,
+                                 toDate = toDate,
+                                 singleRow = singleRow)
+  ap_light <- dataListe$aP
+  sS <- dataListe$sS
+  # aD <- dataListe$aD
+
+
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+  ap_light %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+
+  # Legg til oppholdsID (samme ID for alle prosedyrer tilknyttet samme sykehus-
+  # opphold)
+  ap_light %<>% noric::utlede_OppholdsID(df = .)
+
+
+  # Gjor datoer om til dato-objekt:
+  ap_light %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
+
+
+  # Utledete tidsvariabler (aar, maaned, uke osv):
+  ap_light %<>% noric::legg_til_tidsvariabler(df = .,
+                                              var = .data$ProsedyreDato)
+
+  # Endre Sykehusnavn til kortere versjoner:
+  ap_light %<>% noric::fikse_sykehusnavn(df = .)
+
+
+
+  # Utlede variabler for ferdigstilt eller ikke,
+  ap_light %<>%
+    noric::utlede_ferdigstilt(df = .,
+                              var = .data$SkjemaStatusStart,
+                              suffix = "StartSkjema") %>%
+
+    noric::utlede_ferdigstilt(df = .,
+                              var = .data$SkjemastatusHovedskjema,
+                              suffix = "HovedSkjema") %>%
+
+    noric::utlede_ferdigstilt(df = .,
+                              var = .data$SkjemaStatusUtskrivelse,
+                              suffix = "UtskrSkjema") %>%
+
+    noric::utlede_ferdigstilt(df = .,
+                              var = .data$SkjemaStatusKomplikasjoner,
+                              suffix = "KomplikSkjema")
+
+  # Utlede aldersklasser
+  ap_light %<>% noric::utlede_aldersklasse(df = .,
+                                           var = .data$PasientAlder)
+
+  # Legger til utledete variabler fra segment Stent til ap_light,
+  # Noen er hjelpevariabler som brukes i KI-funksjonene. Disse fjernes
+  # før de legges i utforsker.
+  ap_light %<>% noric::legg_til_antall_stent(df_ap = .,
+                                             df_ss = sS)
+  ap_light %<>% noric::legg_til_antall_stent_opphold(df_ap = .)
+  ap_light %<>% noric::satt_inn_stent_i_lms(df_ap = .,
+                                            df_ss = sS)
+
+
+  # Legge til kvalitetsindikatorene:
+  ap_light %<>% noric::ki_ferdigstilt_komplikasjoner(df_ap = .)
+  ap_light %<>% noric::ki_trykkmaaling_utfoert(df_ap = .)
+  ap_light %<>% noric::ki_ivus_oct_ved_stenting_lms(df_ap = .)
+  ap_light %<>% noric::ki_foreskr_blodfortynnende(df_ap = .)
+  ap_light %<>% noric::ki_foreskr_kolesterolsenkende(df_ap = .)
+
+  ap_light %<>%
+    noric::legg_til_ventetid_nstemi_timer(df_ap = .) %>%
+    noric::ki_nstemi_utredet_innen24t(df_ap = .) %>%
+    noric::ki_nstemi_utredet_innen72t(df_ap = .)
+  ap_light %<>%
+    noric::legg_til_ventetid_stemi_min(df_ap = .) %>%
+    noric::ki_stemi_pci_innen120min(df_ap = .)
+
+
+
+  # Legg til liggedogn
+  ap_light %<>% noric::legg_til_liggedogn(df_ap = .)
+
+
+  # Fjerne noen variabler.
+  #  Se variablliste fra NORIC
+  ap_light %<>%
+    dplyr::select(
+      # Foretrekker de utledete "ferdigstilt.. " variablene:
+      - .data$SkjemaStatusStart,
+      - .data$SkjemastatusHovedskjema,
+      - .data$SkjemaStatusUtskrivelse,
+      - .data$SkjemaStatusKomplikasjoner,
+
+      # Overflødig, fordi tilhørende kont. verdi er NA:
+      - tidyselect::contains("Ukjent"),
+
+      # Ikke i bruk
+      - .data$PasientRegDato,
+      - .data$Studie,
+
+      # Dobbelt opp av disse, fjerne minst komplette/feil (sept 2021):
+      -.data$BesUtlEKGDato,
+      -.data$BesUtlEKGTid,
+      -.data$KillipKlasseAnkomst,
+      -.data$KardiogentSjokk,
+      -.data$Kreatinin,
+
+      # Fjerne alle init-medikamenter:
+      -.data$InitASA,
+      -.data$InitAntikoagulantia,
+      -.data$InitAndrePlatehemmere,
+      -.data$InitStatiner,
+      -.data$InitNSAID,
+      -.data$InitACEHemmere,
+      -.data$InitA2Blokkere,
+      -.data$InitBetaBlokkere,
+      -.data$InitCaHemmere,
+      -.data$InitDiabetesPrOral,
+      -.data$InitDigitalis,
+      -.data$InitDiuretika,
+      -.data$InitAldosteronantagonist,
+      -.data$InitOvrigLipid,
+      -.data$InitNitroglycerin,
+
+      # Fjerne alle init blodprøver
+      - .data$Infarktmarkoer,
+      - .data$InfarktMarkoerMax,
+      - .data$Kolesterol,
+      - .data$Triglycerider,
+      - .data$HDL,
+      - .data$MaaltLDL,
+      - .data$SGlukose,
+      - .data$HbA1c,
+      - .data$Kreatinin,
+      - .data$CRP,
+      - .data$Hemoglobin,
+
+      # Fjerne komplikasjoner
+      - tidyselect::contains("AvdKomp"),
+      - tidyselect::contains("LabKomp"),
+
+
+      # Mediakmenter ved utskrivelse:
+      - .data$NSAID,
+      - .data$ACEHemmere,
+      - .data$A2Blokkere,
+      - .data$Betablokkere,
+      - .data$CaBlokkere,
+      - .data$DiabetesBehandlingInsulin,
+      - .data$DiabetesBehandlingPerOral,
+      - .data$Digitalis,
+      - .data$Diuretika,
+      - .data$Aldosteronantagonister,
+      - .data$NitroglycerinLangtid,
+
+      - .data$TroponinVerdiFor,
+      - .data$TroponinMetFor,
+      - .data$TroponinVerdiEtter,
+      - .data$TroponinMetEtter,
+      - .data$CKMBFor,
+      - .data$CKMBEtter,
+
+      # Andre variabler utskrivelse
+      - .data$InfarktType,
+      - .data$InfarktSubklasse,
+      - .data$UtskrDiagnoser,
+      - .data$AnnenAlvorligSykdom)
+
+  # Fjerne utledete hjelpevariabler
+  ap_light %<>%
+    dplyr::select(- .data$antall_stent_under_opphold,
+                  - .data$satt_inn_stent_i_LMS)
+
+  # Gjøre kategoriske variabler om til factor:
+  ap_light %<>%
+    dplyr::mutate(
+      Hastegrad = factor(.data$Hastegrad,
+                         levels = c("Akutt",
+                                    "Subakutt",
+                                    "Planlagt"),
+                         ordered = TRUE))
+
+  ap_light
+}
+
 

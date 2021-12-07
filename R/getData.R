@@ -656,3 +656,102 @@ LEFT JOIN ForlopsOversikt ON
 
   list(pS = pS)
 }
+
+
+
+getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
+
+
+  # SQL possible for defined time-interval
+  # If no other date defined, load tables from 3 last years until today:
+  if (is.null(fromDate)) {
+    latest_entry <- noric::getLatestEntry(registryName = registryName)
+    fromDate <- as.Date(
+      paste0(as.numeric(lubridate::year(latest_entry)) - 3, "-01-01"),
+      format = "%Y-%m-%d")
+  }
+  if (is.null(toDate)) {
+    toDate <- noric::getLatestEntry(registryName)
+  }
+
+
+  # QUERY ANGIO PCI + FO
+  # Ask for all variables from ANGIO PCI in time interval
+  # Add selected variables from ForlopsOversikt
+  # 3 variables to match on: AvdRESH, PasientID, ForlopsID
+
+  query <- paste0("
+SELECT
+    AngioPCIVar.*,
+    ForlopsOversikt.Kommune,
+    ForlopsOversikt.KommuneNr,
+    ForlopsOversikt.Fylke,
+    ForlopsOversikt.Fylkenr,
+    ForlopsOversikt.PasientAlder,
+    ForlopsOversikt.KobletForlopsID
+FROM
+    AngioPCIVar
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'
+LEFT JOIN ForlopsOversikt ON
+    AngioPCIVar.AvdRESH = ForlopsOversikt.AvdRESH AND
+    AngioPCIVar.PasientID = ForlopsOversikt.PasientID AND
+    AngioPCIVar.ForlopsID = ForlopsOversikt.ForlopsID
+ ")
+
+
+
+  # Only ask for variables needed in functions:utlede_segment_stent_variabler.R
+  querySs <- paste0("
+SELECT
+    ForlopsID, AvdRESH, StentType, Segment, Graft, ProsedyreType
+FROM
+    SegmentStent
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'
+")
+
+
+#   # Only ask for variables needed in functions: utlede_annen_diag_variabler.R
+#   queryAd <- paste0("
+# SELECT
+#     ForlopsID, AvdRESH, segment, graft, metode
+# FROM
+#     AnnenDiagnostikkVar
+# WHERE
+#     ProsedyreDato >= '", fromDate, "' AND
+#     ProsedyreDato <= '", toDate, "'
+# ")
+
+
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    # queryAd <- paste0(queryAd, "\nLIMIT\n  1;")
+    querySs <- paste0(querySs, "\nLIMIT\n  1;")
+    msg <- "Query single row data for AngioPCI light"
+  } else {
+    query <- paste0(query, ";")
+    # queryAd <- paste0(queryAd, ";")
+    querySs <- paste0(querySs, ";")
+    msg <- "Query data for AngioPCI light"
+  }
+
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+
+  aP <- rapbase::loadRegData(registryName, query, dbType)
+  # aD <- rapbase::loadRegData(registryName, queryAd, dbType)
+  sS <- rapbase::loadRegData(registryName, querySs, dbType)
+
+
+
+  list(aP = aP,
+       # aD = aD,
+       sS = sS)
+}
+
+
