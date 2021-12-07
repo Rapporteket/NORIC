@@ -2,29 +2,35 @@
 #'
 #' Functions for loading data needed by NORIC from a database
 #'
-#' \code{getNameReshId()} returns a mapping of organization name and id in the
-#' form of columns named \emph{name} and \emph{id}. Optionally this function
-#' can also return a list of named values (ids), \emph{e.g.} for use in shiny
-#' selection lists.
+#' The functions \code{getAp}, \code{getSs}, \code{getAk} etc. load the
+#' AP-, SS- and AK- tables etc. respectively. For most tables, the query adds
+#' selected variables from  \emph{ForlopsOversikt}.
 #'
 #' @param registryName Character string defining the registry name.
 #' @param fromDate Character string of format YYYY-MM-DD with start date. Value
 #' NULL if no filter on date.
 #' @param toDate Character string of format YYYY-MM-DD with end date. Value
 #' NULL if no filter on date.
-#' @param asNamedList Logical whether to return a list of named values or not.
-#' Default is FALSE in which case a data frame containing name and id is
-#' returned.
 #' @param singleRow Logical if only one row from the table is to be provided.
 #' Default value is FALSE.
-#' @param reshId Integer dummy/placeholder organization id
 #' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getAp getSo getAk getFo getAnP getCt getAkOppf getAnD getSs getPs
+#' @aliases getAp
+#' getSo
+#' getAk
+#' getFo
+#' getAnP
+#' getCt
+#' getAkOppf
+#' getAnD
+#' getSs
+#' getMk
+#' getPs
+#' getApLight
 #' NULL
 #'
 #'
@@ -84,9 +90,6 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
-
-
-
 getSo <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
@@ -130,7 +133,6 @@ WHERE
   list(sO = sO)
 
 }
-
 
 
 getAk <- function(registryName, fromDate, toDate, singleRow, ...){
@@ -192,6 +194,7 @@ LEFT JOIN ForlopsOversikt ON
 
   list(aK = aK)
 }
+
 
 getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
 
@@ -536,8 +539,6 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
-
-
 getMk <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -600,7 +601,6 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
-
 getPs <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -656,7 +656,6 @@ LEFT JOIN ForlopsOversikt ON
 
   list(pS = pS)
 }
-
 
 
 getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {

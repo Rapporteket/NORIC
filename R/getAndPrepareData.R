@@ -1,4 +1,7 @@
-#' Hent mergede og behandlede datasett
+#' Data managment on tables
+#'
+#' Load data and apply data-managment operations. Tables can be used
+#' in \emph{pivot-table} or in monthly reports.
 #'
 #' @param registryName String providing the registry name
 #' @param fromDate A Date or character class object  of format "YYYY-MM-DD"
@@ -19,6 +22,7 @@
 #' @return Data frame representing the chosen table. Basic data managment is
 #' done (e.g. added variables from FO, added time-variables, rename hospitals)
 #' @export
+#' @name getPrepData
 #' @aliases getPrepApData
 #' getPrepSOData
 #' getPrepAkData
