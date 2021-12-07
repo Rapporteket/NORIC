@@ -24,7 +24,7 @@
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getAp getSo getAk getFo getAnP getCt getAkOppf getAnD getSs
+#' @aliases getAp getSo getAk getFo getAnP getCt getAkOppf getAnD getSs getPs
 #' NULL
 #'
 #'
@@ -599,3 +599,60 @@ LEFT JOIN ForlopsOversikt ON
   list(mK = mK)
 }
 
+
+
+getPs <- function(registryName, fromDate, toDate, singleRow, ...){
+
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- noric::getLatestEntry(registryName)
+  }
+
+  # Ask for all variables from PAsientstudier in time interval
+  # Add selected variables from ForlopsOversikt
+  # 2 variables to match on: AvdRESH, ForlopsID
+
+  query <- paste0("
+SELECT
+    PasienterStudier.*,
+    ForlopsOversikt.Sykehusnavn,
+    ForlopsOversikt.FodselsDato,
+    ForlopsOversikt.Kommune,
+    ForlopsOversikt.KommuneNr,
+    ForlopsOversikt.Fylke,
+    ForlopsOversikt.Fylkenr,
+    ForlopsOversikt.PasientKjonn,
+    ForlopsOversikt.PasientAlder
+
+FROM
+    PasienterStudier
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'
+LEFT JOIN ForlopsOversikt ON
+    PasienterStudier.AvdRESH = ForlopsOversikt.AvdRESH AND
+    PasienterStudier.PasientID = ForlopsOversikt.PasientID
+ ")
+
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for PasienterStudier"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for PasienterStudier"
+  }
+
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+
+  pS <- rapbase::loadRegData(registryName, query, dbType)
+
+
+
+  list(pS = pS)
+}
