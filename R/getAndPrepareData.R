@@ -26,6 +26,7 @@
 #' getPrepAnPData
 #' getPrepCtData
 #' getPrepAkOppfData
+#' getPrepAnDData
 #' NULL
 
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
@@ -325,3 +326,86 @@ getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
 
 }
 
+
+getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
+
+
+  . <- ""
+
+  dataListe <- noric::getAnD(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = singleRow)
+  anD <- dataListe$anD
+
+
+  # Gjor datoer om til dato-objekt:
+  anD %<>%
+    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+                     list(ymd))
+
+
+  # Endre Sykehusnavn til kortere versjoner:
+  anD %<>% noric::fikse_sykehusnavn(df = .)
+
+
+  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+  anD %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+
+
+  # Legg til aar, maaned, uke, etc.
+  anD %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+
+  # Gjøre kategoriske variabler om til factor:
+  anD %<>%
+    dplyr::mutate(
+      ForlopsType2 = factor(.data$ForlopsType2,
+                            levels = c("Akutt",
+                                       "Subakutt",
+                                       "Planlagt"),
+                            ordered = TRUE),
+
+      segment = factor(.data$segment,
+                       levels = c("Proximale RCA (1)",
+                                  "Midtre RCA (2)",
+                                  "Distale RCA (3)",
+                                  "PDA/RPD (4)",
+                                  "Ve hovedstamme (5)",
+                                  "Proximale LAD (6)",
+                                  "Midtre LAD (7)",
+                                  "Distale LAD (8)",
+                                  "F\u00f8rste diagonal (9)",
+                                  "Andre diagonal (10)",
+                                  "Proximale LCx (11)",
+                                  "F\u00f8rste obtusa marginal (12)",
+                                  "Andre obtusa marginal (13)",
+                                  "Distale LCx (14)",
+                                  "LPD (15)",
+                                  "PLA fra venstre (16)",
+                                  "Intermedi\u00e6r (17)",
+                                  "PLA (18)",
+                                  "H\u00f8yrekammergren (19)",
+                                  "Septal (20)"),
+                       ordered = TRUE),
+
+      graft = factor(.data$graft,
+                     levels = c("Arterie",
+                                "Vene",
+                                "Nei"),
+                     ordered = TRUE),
+      metode = factor(.data$metode,
+                      levels = c("iFR",
+                                 "FFR",
+                                 "OCT",
+                                 "IVUS",
+                                 "CFR",
+                                 "IMR",
+                                 "Pd/Pa",
+                                 "NIRS",
+                                 "Pa-hyperemi",
+                                 "Pd-hyperemi"),
+                      ordered = TRUE))
+
+  anD
+}
