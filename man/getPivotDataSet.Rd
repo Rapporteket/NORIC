@@ -2,7 +2,7 @@
 % Please edit documentation in R/getPivotDataSet.R
 \name{getPivotDataSet}
 \alias{getPivotDataSet}
-\title{Title}
+\title{Get data set for Pivot-table}
 \usage{
 getPivotDataSet(setId = "", registryName, singleRow = FALSE, session, userRole)
 }
@@ -23,5 +23,6 @@ FALSE}
 data frame
 }
 \description{
-Title
+Load dataset for use in pivot table.  Dataset is processed by
+data-managment operations.
 }
