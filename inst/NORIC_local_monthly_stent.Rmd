@@ -185,10 +185,6 @@ PCImedStent <- subset(
 ``` 
 
 
-```{r otherParameters, echo = FALSE}
-showN <- 14
-```
-
 
 
 ## Prosedyre type
