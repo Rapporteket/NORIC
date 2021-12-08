@@ -52,23 +52,23 @@ getAp <- function(registryName, fromDate, toDate, singleRow, ...) {
 
   query <- paste0("
 SELECT
-    AngioPCIVar.*,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.KobletForlopsID
+    a.*,
+    f.Kommune,
+    f.KommuneNr,
+    f.Fylke,
+    f.Fylkenr,
+    f.PasientAlder,
+    f.KobletForlopsID
 FROM
-    AngioPCIVar
+    AngioPCIVar a
+LEFT JOIN ForlopsOversikt f ON
+    a.AvdRESH = f.AvdRESH AND
+    a.PasientID = f.PasientID AND
+    a.ForlopsID = f.ForlopsID
 WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
-LEFT JOIN ForlopsOversikt ON
-    AngioPCIVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    AngioPCIVar.PasientID = ForlopsOversikt.PasientID AND
-    AngioPCIVar.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+    a.ProsedyreDato >= '", fromDate, "' AND
+    a.ProsedyreDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -172,13 +172,13 @@ SELECT
     ForlopsOversikt.Avdod
 FROM
     AortaklaffVar
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
     AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -281,13 +281,13 @@ SELECT
     ForlopsOversikt.KobletForlopsID
 FROM
     AndreProsedyrerVar
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     AndreProsedyrerVar.AvdRESH = ForlopsOversikt.AvdRESH AND
     AndreProsedyrerVar.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+WHERE
+    AndreProsedyrerVar.ProsedyreDato >= '", fromDate, "' AND
+    AndreProsedyrerVar.ProsedyreDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -341,13 +341,13 @@ SELECT
     ForlopsOversikt.KobletForlopsID
 FROM
     CTAngioVar
-WHERE
-    UndersokDato >= '", fromDate, "' AND
-    UndersokDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     CTAngioVar.AvdRESH = ForlopsOversikt.AvdRESH AND
     CTAngioVar.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+WHERE
+    CTAngioVar.UndersokDato >= '", fromDate, "' AND
+    CTAngioVar.UndersokDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -410,13 +410,13 @@ SELECT
     ForlopsOversikt.OppflgRegStatus
 FROM
     AortaklaffOppfVar
-WHERE
-    BasisProsedyreDato >= '", fromDate, "' AND
-    BasisProsedyreDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     AortaklaffOppfVar.AvdRESH = ForlopsOversikt.AvdRESH AND
     AortaklaffOppfVar.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+WHERE
+    AortaklaffOppfVar.BasisProsedyreDato >= '", fromDate, "' AND
+    AortaklaffOppfVar.BasisProsedyreDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -469,13 +469,13 @@ SELECT
     ForlopsOversikt.KobletForlopsID
 FROM
     AnnenDiagnostikkVar
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     AnnenDiagnostikkVar.AvdRESH = ForlopsOversikt.AvdRESH AND
     AnnenDiagnostikkVar.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+WHERE
+    AnnenDiagnostikkVar.ProsedyreDato >= '", fromDate, "' AND
+    AnnenDiagnostikkVar.ProsedyreDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -529,13 +529,13 @@ SELECT
     ForlopsOversikt.KobletForlopsID
 FROM
     SegmentStent
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     SegmentStent.AvdRESH = ForlopsOversikt.AvdRESH AND
     SegmentStent.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+WHERE
+    SegmentStent.ProsedyreDato >= '", fromDate, "' AND
+    SegmentStent.ProsedyreDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -593,13 +593,13 @@ SELECT
 
 FROM
     MitralklaffVar
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     MitralklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
     MitralklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+WHERE
+    MitralklaffVar.ProsedyreDato >= '", fromDate, "' AND
+    MitralklaffVar.ProsedyreDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -652,13 +652,13 @@ SELECT
 
 FROM
     PasienterStudier
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     PasienterStudier.AvdRESH = ForlopsOversikt.AvdRESH AND
     PasienterStudier.PasientID = ForlopsOversikt.PasientID
- ")
+WHERE
+    PasienterStudier.ProsedyreDato >= '", fromDate, "' AND
+    PasienterStudier.ProsedyreDato <= '", toDate, "'"
+  )
 
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -715,14 +715,14 @@ SELECT
     ForlopsOversikt.KobletForlopsID
 FROM
     AngioPCIVar
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
 LEFT JOIN ForlopsOversikt ON
     AngioPCIVar.AvdRESH = ForlopsOversikt.AvdRESH AND
     AngioPCIVar.PasientID = ForlopsOversikt.PasientID AND
     AngioPCIVar.ForlopsID = ForlopsOversikt.ForlopsID
- ")
+WHERE
+    AngioPCIVar.ProsedyreDato >= '", fromDate, "' AND
+    AngioPCIVar.ProsedyreDato <= '", toDate, "'"
+  )
 
 
 
