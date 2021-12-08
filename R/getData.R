@@ -58,7 +58,8 @@ SELECT
     f.Fylke,
     f.Fylkenr,
     f.PasientAlder,
-    f.KobletForlopsID
+    f.KobletForlopsID,
+    f.ForlopsType2
 FROM
     AngioPCIVar a
 LEFT JOIN ForlopsOversikt f ON
