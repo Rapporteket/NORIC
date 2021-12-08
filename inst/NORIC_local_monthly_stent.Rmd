@@ -109,14 +109,11 @@ AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 
 
 AP %<>%
-  noric::legg_til_antall_stent(., df_ss = SS) %>% 
-  dplyr::mutate(Nstents = dplyr::if_else(
-    condition = is.na(.data$ant_stent), 
-    true = 0, 
-    false = .data$ant_stent))
- 
-
-# AP$Nstents[is.na(AP$Nstents)] <- 0
+  noric::legg_til_antall_stent(df_ap =  ., df_ss = SS) %>% 
+  dplyr::mutate(
+    Nstents = ifelse(is.na(.data$antall_stent), 
+                     0, 
+                     .data$antall_stent))
 
 
 SS %<>% dplyr::mutate(Indikasjon = factor(
