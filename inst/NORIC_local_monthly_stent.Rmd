@@ -92,7 +92,7 @@ WHERE
   ProsedyreDato <= '", periode_data$siste_dato, "'
 ")
 
-SS <- rapbase::LoadRegData(params$registryName, SSQuery, dbType)
+SS <- rapbase::loadRegData(params$registryName, SSQuery)
 
 APQuery <- paste0("
 SELECT
@@ -104,7 +104,7 @@ WHERE
   ProsedyreDato >= '", periode_data$forste_dato, "' AND
   ProsedyreDato <= '", periode_data$siste_dato, "' 
  ")
-AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
+AP <- rapbase::loadRegData(params$registryName, APQuery)
 
 
 AP %<>%
