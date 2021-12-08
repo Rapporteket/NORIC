@@ -84,7 +84,8 @@ periode_data %<>%
 ```{r GetData,include=FALSE}
 
 SSQuery <- paste0("
-SELECT * 
+SELECT 
+  AvdRESH, ForlopsID, ProsedyreDato, Indikasjon, ProsedyreType,  Stentnavn, StentType
 FROM SegmentStent
 WHERE 
   ProsedyreDato >= '", periode_data$forste_dato, "' AND
@@ -94,31 +95,28 @@ WHERE
 SS <- rapbase::LoadRegData(params$registryName, SSQuery, dbType)
 
 
-dbType <- "mysql"
 APQuery <- paste0("
 SELECT
-  A.ForlopsID ,
-  min(A.Sykehusnavn) AS Sykehusnavn ,
-  min(A.ProsedyreDato) AS ProsedyreDato ,
-  SUM(S.ForlopsID>0) AS Nstents
+  AvdRESH, ForlopsID, ProsedyreType, ProsedyreDato
 FROM
-  AngioPCIVar A
-LEFT JOIN SegmentStent S ON
-  A.ForlopsID = S.ForlopsID AND
-  S.StentType IS NOT NULL
+  AngioPCIVar
 WHERE
-  A.ProsedyreType  != 'Angio' AND
-  A.ProsedyreDato >= '", periode_data$forste_dato, "' AND
-  A.ProsedyreDato <= '", periode_data$siste_dato, "' 
-GROUP BY
-  A.ForlopsID;"
-)
-
-
+  ProsedyreType  != 'Angio' AND
+  ProsedyreDato >= '", periode_data$forste_dato, "' AND
+  ProsedyreDato <= '", periode_data$siste_dato, "' 
+ ")
 AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
 
 
-AP$Nstents[is.na(AP$Nstents)] <- 0
+AP %<>%
+  noric::legg_til_antall_stent(., df_ss = SS) %>% 
+  dplyr::mutate(Nstents = dplyr::if_else(
+    condition = is.na(.data$ant_stent), 
+    true = 0, 
+    false = .data$ant_stent))
+ 
+
+# AP$Nstents[is.na(AP$Nstents)] <- 0
 
 
 SS %<>% dplyr::mutate(Indikasjon = factor(
