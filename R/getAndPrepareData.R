@@ -100,7 +100,7 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
   # "tøyseregistreringer")
-  sO %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+  sO %<>% noric::fjerne_tulleregistreringer(df = ., var = HovedDato)
 
 
   # Utledete variabler:
@@ -112,7 +112,7 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
   # Legg til aar, maaned, uke, etc.
-  sO %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+  sO %<>% noric::legg_til_tidsvariabler(df = ., var = HovedDato)
 
   sO
 }
