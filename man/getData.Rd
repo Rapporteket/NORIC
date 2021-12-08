@@ -14,7 +14,6 @@
 \alias{getMk}
 \alias{getPs}
 \alias{getApLight}
-\alias{getSS}
 \title{Load data for NORIC}
 \usage{
 getAp(registryName, fromDate, toDate, singleRow, ...)
@@ -33,7 +32,7 @@ getAkOppf(registryName, fromDate, toDate, singleRow, ...)
 
 getAnD(registryName, fromDate, toDate, singleRow, ...)
 
-getSS(registryName, fromDate, toDate, singleRow, ...)
+getSs(registryName, fromDate, toDate, singleRow, ...)
 
 getMk(registryName, fromDate, toDate, singleRow, ...)
 

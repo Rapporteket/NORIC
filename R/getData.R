@@ -500,7 +500,7 @@ WHERE
 
 #' @rdname getData
 #' @export
-getSS <- function(registryName, fromDate, toDate, singleRow, ...) {
+getSs <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
   # SQL possible for defined time-interval:
