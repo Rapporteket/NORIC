@@ -31,9 +31,10 @@
 #' getMk
 #' getPs
 #' getApLight
-#' NULL
-#'
-#'
+NULL
+
+#' @rdname getData
+#' @export
 getAp <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
@@ -90,6 +91,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getSo <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
@@ -135,6 +138,8 @@ WHERE
 }
 
 
+#' @rdname getData
+#' @export
 getAk <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -196,6 +201,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
@@ -241,6 +248,8 @@ WHERE
 }
 
 
+#' @rdname getData
+#' @export
 getAnP <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -301,6 +310,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getCt <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -359,6 +370,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getAkOppf <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -426,6 +439,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getAnD <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -483,6 +498,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getSS <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
@@ -541,6 +558,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getMk <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -603,6 +622,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getPs <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # SQL possible for defined time-interval:
@@ -660,6 +681,8 @@ LEFT JOIN ForlopsOversikt ON
 }
 
 
+#' @rdname getData
+#' @export
 getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
@@ -754,5 +777,3 @@ WHERE
        # aD = aD,
        sS = sS)
 }
-
-

@@ -21,7 +21,7 @@
 #'
 #' @return Data frame representing the chosen table. Basic data managment is
 #' done (e.g. added variables from FO, added time-variables, rename hospitals)
-#' @export
+#'
 #' @name getPrepData
 #' @aliases getPrepApData
 #' getPrepSOData
@@ -35,8 +35,10 @@
 #' getPrepMkData
 #' getPrepPsData
 #' getPrepApLightData
-#' NULL
+NULL
 
+#' @rdname getPrepData
+#' @export
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -71,6 +73,8 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
 }
 
 
+#' @rdname getPrepData
+#' @export
 getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -114,6 +118,8 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 }
 
 
+#' @rdname getPrepData
+#' @export
 getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -155,6 +161,8 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
   aK
 }
 
+#' @rdname getPrepData
+#' @export
 getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -189,6 +197,8 @@ getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
   fO
 }
 
+#' @rdname getPrepData
+#' @export
 getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -232,6 +242,8 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
 }
 
 
+#' @rdname getPrepData
+#' @export
 getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -310,6 +322,8 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
   cT
 }
 
+#' @rdname getPrepData
+#' @export
 getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -335,6 +349,8 @@ getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
 }
 
 
+#' @rdname getPrepData
+#' @export
 getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -418,6 +434,8 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
   anD
 }
 
+#' @rdname getPrepData
+#' @export
 getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -488,6 +506,8 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
 }
 
 
+#' @rdname getPrepData
+#' @export
 getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -600,7 +620,9 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
 }
 
 
-getPrepPsData <- function(registryName, fromDate, toDate, singleRow,...){
+#' @rdname getPrepData
+#' @export
+getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
 
 
   . <- ""
@@ -725,8 +747,8 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow,...){
   pS
 }
 
-
-
+#' @rdname getPrepData
+#' @export
 getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
 
 
@@ -919,5 +941,3 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
 
   ap_light
 }
-
-
