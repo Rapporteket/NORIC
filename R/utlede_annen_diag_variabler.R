@@ -180,8 +180,9 @@ legg_til_trykk_bilde_per_kar <- function(df_ap,
                   .data$RCA,
                   .data$CX,
                   .data$Graft) %>%
-    dplyr::rename_at(vars(.data$LMS:.data$Graft),
-                     function(x) paste0(metodeType, "_", x))
+    dplyr::rename_with(.data = .,
+                       .fn = function(x) paste0(metodeType, "_", x),
+                       .cols =  .data$LMS:.data$Graft)
 
 
   # Returnere df_ap, hvor de 5 nye variablene er lagt til.

@@ -94,7 +94,6 @@ WHERE
 
 SS <- rapbase::LoadRegData(params$registryName, SSQuery, dbType)
 
-
 APQuery <- paste0("
 SELECT
   AvdRESH, ForlopsID, ProsedyreType, ProsedyreDato

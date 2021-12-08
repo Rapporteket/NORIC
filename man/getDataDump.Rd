@@ -11,11 +11,13 @@ getDataDump(registryName, tableName, fromDate, toDate, ...)
 
 \item{tableName}{String with name of table to query from}
 
-\item{fromDate}{String with start period, endpoint included}
+\item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
+NULL if no filter on date.}
 
-\item{toDate}{String with end period, endpont included}
+\item{toDate}{Character string of format YYYY-MM-DD with end date. Value
+NULL if no filter on date.}
 
-\item{...}{Additional parmeters to be passed to the function}
+\item{...}{Additional parameters to be passed to the function}
 }
 \value{
 A data frame with registry data

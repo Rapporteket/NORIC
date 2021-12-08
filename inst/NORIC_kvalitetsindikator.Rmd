@@ -107,23 +107,27 @@ periode_data %<>%
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-sO_nasjonalt <- noric::getLocalSOData(params$registryName, 
-                                      fromDate  = periode_data$forste_dato, 
-                                      toDate = periode_data$siste_dato)
+sO_nasjonalt <- noric::getPrepSoData(registryName = params$registryName, 
+                                     fromDate  = periode_data$forste_dato, 
+                                     toDate = periode_data$siste_dato, 
+                                     singleRow = FALSE)
 
-sS_nasjonalt <- noric::getLocalSSData(params$registryName, 
-                                      fromDate  = periode_data$forste_dato, 
-                                      toDate = periode_data$siste_dato)
+sS_nasjonalt <- noric::getPrepSsData(registryName = params$registryName, 
+                                     fromDate  = periode_data$forste_dato, 
+                                     toDate = periode_data$siste_dato, 
+                                     singleRow = FALSE)
 
 # Hardkodet 2018- dags dato pga figur 4,5 og 6
-aP_nasjonalt <- noric::getLocalAPData(
+aP_nasjonalt <- noric::getPrepApData(
   params$registryName, 
   fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),  
-  toDate = periode_data$siste_dato)
+  toDate = periode_data$siste_dato, 
+  singleRow = FALSE)
 
-aK_nasjonalt <- noric::getAKData(params$registryName, 
-                                 fromDate  = periode_data$forste_dato, 
-                                 toDate = periode_data$siste_dato)
+aK_nasjonalt <- noric::getPrepAkData(registryName = params$registryName, 
+                                     fromDate  = periode_data$forste_dato, 
+                                     toDate = periode_data$siste_dato, 
+                                     singleRow = FALSE)
 ```
 
 

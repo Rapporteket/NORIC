@@ -2,7 +2,7 @@
 % Please edit documentation in R/getPivotDataSet.R
 \name{getPivotDataSet}
 \alias{getPivotDataSet}
-\title{Title}
+\title{Get data set for Pivot-table}
 \usage{
 getPivotDataSet(setId = "", registryName, singleRow = FALSE, session, userRole)
 }
@@ -12,8 +12,8 @@ getPivotDataSet(setId = "", registryName, singleRow = FALSE, session, userRole)
 \item{registryName}{String naming the registry data}
 
 \item{singleRow}{Logical defining if only one row is to be returned. A
-relevant usecase will be when only description is needed. By default set to
-FALSE}
+relevant usecase will be when only description/variable-list is needed.
+By default set to FALSE}
 
 \item{session}{List shiny session object}
 
@@ -23,5 +23,5 @@ FALSE}
 data frame
 }
 \description{
-Title
+Load pre-processed dataset into pivot table.
 }

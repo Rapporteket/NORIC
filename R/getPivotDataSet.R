@@ -1,10 +1,12 @@
-#' Title
+#' Get data set for Pivot-table
+#'
+#' Load pre-processed dataset into pivot table.
 #'
 #' @param setId String defining name of data set to be returned
 #' @param registryName String naming the registry data
 #' @param singleRow Logical defining if only one row is to be returned. A
-#' relevant usecase will be when only description is needed. By default set to
-#' FALSE
+#' relevant usecase will be when only description/variable-list is needed.
+#' By default set to FALSE
 #' @param session List shiny session object
 #' @param userRole String naming the user role
 #'
@@ -22,55 +24,93 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                   "MK", "PS", "SO", "SS")
 
   if (setId %in% validSetId) {
+
     if (setId == "ApLight") {
-      dat <- noric::getAPDataLight(registryName, singleRow = singleRow,
-                                    session = session)
+      dat <- noric::getPrepApLightData(registryName = registryName,
+                                       fromDate = NULL,
+                                       toDate = NULL,
+                                       singleRow = singleRow,
+                                       session = session)
     }
 
     if (setId == "AnP") {
-      dat <- noric::getLocalAnPData(registryName, singleRow = singleRow,
-                                    session = session)
+      dat <- noric::getPrepAnPData(registryName = registryName,
+                                   fromDate = NULL,
+                                   toDate = NULL,
+                                   singleRow = singleRow,
+                                   session = session)
     }
     if (setId == "AnD") {
-      dat <- noric::getAnDData(registryName, singleRow = singleRow,
-                              session = session)
+      dat <- noric::getPrepAnDData(registryName = registryName,
+                                   fromDate = NULL,
+                                   toDate = NULL,
+                                   singleRow = singleRow,
+                                   session = session)
     }
     if (setId == "AP") {
-      dat <- noric::getLocalAPData(registryName, singleRow = singleRow,
-                                   session = session)
+      dat <- noric::getPrepApData(registryName = registryName,
+                                  fromDate = NULL,
+                                  toDate = NULL,
+                                  singleRow = singleRow,
+                                  session = session)
     }
     if (setId == "AK") {
-      dat <- noric::getAKData(registryName, singleRow = singleRow,
-                              session = session)
+      dat <- noric::getPrepAkData(registryName = registryName,
+                                  fromDate = NULL,
+                                  toDate = NULL,
+                                  singleRow = singleRow,
+                                  session = session)
     }
     if (setId == "AKOppf") {
-      dat <- noric::getAKOppfData(registryName, singleRow = singleRow,
-                              session = session)
+      dat <- noric::getPrepAkOppfData(registryName = registryName,
+                                      fromDate = NULL,
+                                      toDate = NULL,
+                                      singleRow = singleRow,
+                                      session = session)
     }
     if (setId == "CT") {
-      dat <- noric::getLocalCTData(registryName, singleRow = singleRow,
-                                   session = session)
+      dat <- noric::getPrepCtData(registryName = registryName,
+                                  fromDate = NULL,
+                                  toDate = NULL,
+                                  singleRow = singleRow,
+                                  session = session)
     }
     if (setId == "FO") {
-      dat <- noric::getFOData(registryName, singleRow = singleRow,
-                              session = session)
+      dat <- noric::getPrepFoData(registryName = registryName,
+                                  fromDate = NULL,
+                                  toDate = NULL,
+                                  singleRow = singleRow,
+                                  session = session)
     }
     if (setId == "MK") {
-      dat <- noric::getMKData(registryName, singleRow = singleRow,
-                              session = session)
+      dat <- noric::getPrepMkData(registryName = registryName,
+                                  fromDate = NULL,
+                                  toDate = NULL,
+                                  singleRow = singleRow,
+                                  session = session)
     }
     if (setId == "PS") {
-      dat <- noric::getPSData(registryName, singleRow = singleRow,
-                              session = session)
+      dat <- noric::getPrepPsData(registryName = registryName,
+                                  fromDate = NULL,
+                                  toDate = NULL,
+                                  singleRow = singleRow,
+                                  session = session)
     }
     if (setId == "SO") {
-      dat <- noric::getLocalSOData(registryName, singleRow = singleRow,
-                                   session = session)
+      dat <- noric::getPrepSoData(registryName = registryName,
+                                  fromDate = NULL,
+                                  toDate = NULL,
+                                  singleRow = singleRow,
+                                  session = session)
     }
     if (setId == "SS") {
-      dat <- noric::getLocalSSData(registryName, singleRow = singleRow,
-                                   session = session)
+      dat <- noric::getPrepSsData(registryName = registryName,
+                                  fromDate = NULL,
+                                  toDate = NULL,
+                                  singleRow = singleRow,
+                                  session = session)
     }
+
   } else {
     dat <- NULL
   }
