@@ -83,7 +83,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  aP <- rapbase::loadRegData(registryName, query, dbType)
+  aP <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -130,7 +130,7 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  sO <- rapbase::loadRegData(registryName, query, dbType)
+  sO <- rapbase::loadRegData(registryName, query)
 
 
   list(sO = sO)
@@ -193,7 +193,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  aK <- rapbase::loadRegData(registryName, query, dbType)
+  aK <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -240,7 +240,7 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  fO <- rapbase::loadRegData(registryName, query, dbType)
+  fO <- rapbase::loadRegData(registryName, query)
 
 
   list(fO = fO)
@@ -302,7 +302,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  anP <- rapbase::loadRegData(registryName, query, dbType)
+  anP <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -362,7 +362,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  cT <- rapbase::loadRegData(registryName, query, dbType)
+  cT <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -431,7 +431,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  aKoppf <- rapbase::loadRegData(registryName, query, dbType)
+  aKoppf <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -490,7 +490,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  AnD <- rapbase::loadRegData(registryName, query, dbType)
+  AnD <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -550,7 +550,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  sS <- rapbase::loadRegData(registryName, query, dbType)
+  sS <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -614,7 +614,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  mK <- rapbase::loadRegData(registryName, query, dbType)
+  mK <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -673,7 +673,7 @@ LEFT JOIN ForlopsOversikt ON
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  pS <- rapbase::loadRegData(registryName, query, dbType)
+  pS <- rapbase::loadRegData(registryName, query)
 
 
 
@@ -767,9 +767,9 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  aP <- rapbase::loadRegData(registryName, query, dbType)
+  aP <- rapbase::loadRegData(registryName, query)
   # aD <- rapbase::loadRegData(registryName, queryAd, dbType)
-  sS <- rapbase::loadRegData(registryName, querySs, dbType)
+  sS <- rapbase::loadRegData(registryName, querySs)
 
 
 
