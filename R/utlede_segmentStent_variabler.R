@@ -420,7 +420,7 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
                   .data$CX_veneGraft) %>%
       dplyr::rename_with(.data = .,
                        .fn = function(x) paste0("PCI_", x),
-                       .cols =  .data$LMS:.data$CX_veneGraf)
+                       .cols =  .data$LMS:.data$CX_veneGraft)
 
 
 
