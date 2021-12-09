@@ -491,11 +491,11 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
 
-  AnD <- rapbase::loadRegData(registryName, query)
+  anD <- rapbase::loadRegData(registryName, query)
 
 
 
-  list(AnD = AnD)
+  list(anD = anD)
 }
 
 

@@ -86,7 +86,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                               fromDate = fromDate,
                               toDate = toDate,
                               singleRow = FALSE)
-    tab <- tab_list$AnD
+    tab <- tab_list$anD
   }
 
   if (tableName %in% "SegmentStent") {
