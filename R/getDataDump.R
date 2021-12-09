@@ -20,7 +20,9 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              "CTAngioVar",
                              "AortaklaffOppfVar",
                              "AnnenDiagnostikkVar",
-                             "SegmentStent"))
+                             "SegmentStent",
+                             "MitralklaffVar",
+                             "PasienterStudier"))
 
 
   if (tableName %in% "AngioPCIVar"){
@@ -92,6 +94,23 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                         toDate = toDate,
                         singleRow = FALSE)
   }
+
+
+  if (tableName %in% "MitralklaffVar") {
+    tab <- noric::getMk(registryName = registryName,
+                        fromDate = fromDate,
+                        toDate = toDate,
+                        singleRow = FALSE)
+  }
+
+  if (tableName %in% "PasienterStudier") {
+    tab <- noric::getPs(registryName = registryName,
+                        fromDate = fromDate,
+                        toDate = toDate,
+                        singleRow = FALSE)
+  }
+
+
 
   tab
 
