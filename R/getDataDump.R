@@ -23,55 +23,70 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              "SegmentStent"))
 
 
-  if(tableName == "AngioPCIVar"){
+  if (tableName %in% "AngioPCIVar"){
     tab <- noric::getAP(registryName = registryName,
                         fromDate = fromDate,
                         toDate = toDate,
                         singleRow = FALSE)
+  }
 
- } else if (tableName == "SkjemaOversikt") {
+  if (tableName %in% "SkjemaOversikt") {
     tab <- noric::getSo(registryName = registryName,
                         fromDate = fromDate,
                         toDate = toDate,
                         singleRow = FALSE)
 
- } else if (tableName == "AortaklaffVar") {
+  }
+
+  if (tableName %in% "AortaklaffVar") {
     tab <- noric::getAK(registryName = registryName,
                         fromDate = fromDate,
                         toDate = toDate,
                         singleRow = FALSE)
 
- } else if (tableName == "ForlopsOversikt") {
+  }
+
+  if (tableName %in% "ForlopsOversikt") {
     tab <- noric::getFo(registryName = registryName,
                         fromDate = fromDate,
                         toDate = toDate,
                         singleRow = FALSE)
 
-  } else if (tableName == "AndreProsedyrerVar") {
+  }
+
+  if (tableName %in% "AndreProsedyrerVar") {
     tab <- noric::getAnP(registryName = registryName,
                          fromDate = fromDate,
                          toDate = toDate,
                          singleRow = FALSE)
 
- } else if (tableName == "CTAngioVar") {
+  }
+
+  if (tableName %in% "CTAngioVar") {
     tab <- noric::getCt(registryName = registryName,
                         fromDate = fromDate,
                         toDate = toDate,
                         singleRow = FALSE)
 
- } else if (tableName == "AortaklaffOppfVar") {
+  }
+
+  if (tableName %in% "AortaklaffOppfVar") {
     tab <- noric::getAkOppf(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = FALSE)
 
- } else if (tableName == "AnnenDiagnostikkVar") {
+  }
+
+  if (tableName %in% "AnnenDiagnostikkVar") {
     tab <- noric::getAnD(registryName = registryName,
                          fromDate = fromDate,
                          toDate = toDate,
                          singleRow = FALSE)
 
-  } else if (tableName == "SegmentStent") {
+  }
+
+  if (tableName %in% "SegmentStent") {
     tab <- noric::getSs(registryName = registryName,
                         fromDate = fromDate,
                         toDate = toDate,
