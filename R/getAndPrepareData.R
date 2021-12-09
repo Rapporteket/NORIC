@@ -53,8 +53,8 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   aP %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -134,8 +134,8 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   aK %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -177,8 +177,8 @@ getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   fO %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -213,8 +213,8 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   anP %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -258,8 +258,8 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   cT %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -338,8 +338,8 @@ getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   aKoppf %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -365,8 +365,8 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   anD %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -450,8 +450,8 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   sS %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -522,8 +522,8 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   mK %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -636,8 +636,8 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
 
   # Gjor datoer om til dato-objekt:
   pS %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
-                     list(ymd))
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
+                     list(lubridate::ymd))
 
 
   # Endre Sykehusnavn til kortere versjoner:
@@ -774,7 +774,7 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
 
   # Gjor datoer om til dato-objekt:
   ap_light %<>%
-    dplyr::mutate_at(vars(ends_with("dato", ignore.case = TRUE)),
+    dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
 
 
