@@ -24,7 +24,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
 
 
   if (tableName %in% "AngioPCIVar"){
-    tab <- noric::getAP(registryName = registryName,
+    tab <- noric::getAp(registryName = registryName,
                         fromDate = fromDate,
                         toDate = toDate,
                         singleRow = FALSE)
@@ -39,7 +39,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   }
 
   if (tableName %in% "AortaklaffVar") {
-    tab <- noric::getAK(registryName = registryName,
+    tab <- noric::getAk(registryName = registryName,
                         fromDate = fromDate,
                         toDate = toDate,
                         singleRow = FALSE)
