@@ -26,88 +26,92 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
 
 
   if (tableName %in% "AngioPCIVar"){
-    tab <- noric::getAp(registryName = registryName,
-                        fromDate = fromDate,
-                        toDate = toDate,
-                        singleRow = FALSE)
+    tab_list <- noric::getAp(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$aP
   }
 
   if (tableName %in% "SkjemaOversikt") {
-    tab <- noric::getSo(registryName = registryName,
-                        fromDate = fromDate,
-                        toDate = toDate,
-                        singleRow = FALSE)
-
+    tab_list <- noric::getSo(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$sO
   }
 
   if (tableName %in% "AortaklaffVar") {
-    tab <- noric::getAk(registryName = registryName,
-                        fromDate = fromDate,
-                        toDate = toDate,
-                        singleRow = FALSE)
-
+    tab_list <- noric::getAk(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$aK
   }
 
   if (tableName %in% "ForlopsOversikt") {
-    tab <- noric::getFo(registryName = registryName,
-                        fromDate = fromDate,
-                        toDate = toDate,
-                        singleRow = FALSE)
-
+    tab_list <- noric::getFo(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$fO
   }
 
   if (tableName %in% "AndreProsedyrerVar") {
-    tab <- noric::getAnP(registryName = registryName,
-                         fromDate = fromDate,
-                         toDate = toDate,
-                         singleRow = FALSE)
-
+    tab_list <- noric::getAnP(registryName = registryName,
+                              fromDate = fromDate,
+                              toDate = toDate,
+                              singleRow = FALSE)
+    tab <- tab_list$anP
   }
 
   if (tableName %in% "CTAngioVar") {
-    tab <- noric::getCt(registryName = registryName,
-                        fromDate = fromDate,
-                        toDate = toDate,
-                        singleRow = FALSE)
-
+    tab_list <- noric::getCt(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$cT
   }
 
   if (tableName %in% "AortaklaffOppfVar") {
-    tab <- noric::getAkOppf(registryName = registryName,
-                            fromDate = fromDate,
-                            toDate = toDate,
-                            singleRow = FALSE)
-
+    tab_list <- noric::getAkOppf(registryName = registryName,
+                                 fromDate = fromDate,
+                                 toDate = toDate,
+                                 singleRow = FALSE)
+    tab <- tab_list$aKoppf
   }
 
   if (tableName %in% "AnnenDiagnostikkVar") {
-    tab <- noric::getAnD(registryName = registryName,
-                         fromDate = fromDate,
-                         toDate = toDate,
-                         singleRow = FALSE)
-
+    tab_list <- noric::getAnD(registryName = registryName,
+                              fromDate = fromDate,
+                              toDate = toDate,
+                              singleRow = FALSE)
+    tab <- tab_list$AnD
   }
 
   if (tableName %in% "SegmentStent") {
-    tab <- noric::getSs(registryName = registryName,
-                        fromDate = fromDate,
-                        toDate = toDate,
-                        singleRow = FALSE)
+    tab_list <- noric::getSs(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$sS
   }
 
 
   if (tableName %in% "MitralklaffVar") {
-    tab <- noric::getMk(registryName = registryName,
-                        fromDate = fromDate,
-                        toDate = toDate,
-                        singleRow = FALSE)
+    tab_list <- noric::getMk(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$mK
   }
 
   if (tableName %in% "PasienterStudier") {
-    tab <- noric::getPs(registryName = registryName,
-                        fromDate = fromDate,
-                        toDate = toDate,
-                        singleRow = FALSE)
+    tab_list <- noric::getPs(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$pS
   }
 
 
