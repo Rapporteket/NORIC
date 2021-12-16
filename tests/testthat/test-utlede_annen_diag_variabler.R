@@ -27,7 +27,7 @@ test_that("utlede_kar_annen_diag is correct", {
                   segment_num = c(1:4, 18:19, 6:10, 20, 11:17, 5, NA, 17, 5),
                   graft = c(rep("Nei", 20), "Arterie", "Vene", NA))
 
-  x %<>% utlede_kar_annen_diag(.)
+  x %<>% noric::utlede_kar_annen_diag(.)
 
   testthat::expect_equal(c(23, 6), dim(x))
   testthat::expect_true("kar" %in% names(x))
@@ -100,22 +100,23 @@ test_that("legg_til_trykk_bilde_per_kar is correct", {
   test_ap <- data.frame(ForlopsID = c(1:5),
                         AvdRESH = c(1, 1, 1, 2, 2))
 
-  x_ffr <- legg_til_trykk_bilde_per_kar(df_ap = test_ap,
-                                             df_ad = test_ad)
+  x_ffr <- noric::legg_til_trykk_bilde_per_kar(df_ap = test_ap,
+                                               df_ad = test_ad,
+                                               metodeType = "FFR")
 
-  x_ffr_ifr_ivus_oct <- legg_til_trykk_bilde_per_kar(df_ap = test_ap,
-                                                          df_ad = test_ad,
-                                                          metode = "FFR") %>%
-    legg_til_trykk_bilde_per_kar(df_ap = .,
-                                      df_ad = test_ad,
-                                      metode = "iFR") %>%
+  x_ffr_ifr_ivus_oct <-  noric::legg_til_trykk_bilde_per_kar(df_ap = test_ap,
+                                                             df_ad = test_ad,
+                                                             metodeType = "FFR") %>%
+    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
+                                        df_ad = test_ad,
+                                        metodeType = "iFR") %>%
 
-    legg_til_trykk_bilde_per_kar(df_ap = .,
-                                      df_ad = test_ad,
-                                      metode = "IVUS") %>%
-    legg_til_trykk_bilde_per_kar(df_ap = .,
-                                      df_ad = test_ad,
-                                      metode = "OCT")
+    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
+                                        df_ad = test_ad,
+                                        metodeType = "IVUS") %>%
+    noric::legg_til_trykk_bilde_per_kar(df_ap = .,
+                                        df_ad = test_ad,
+                                        metodeType = "OCT")
 
 
 
@@ -191,19 +192,19 @@ test_that("legg_til_trykk_bilde_per_kar is correct", {
 
 
   testthat::expect_error(
-    legg_til_ffr_per_kar(df_ap = test_ap %>% dplyr::select(-ForlopsID),
-                         df_ad = test_ad,
-                         metodeType = "FFR"))
+    noric::legg_til_ffr_per_kar(df_ap = test_ap %>% dplyr::select(-ForlopsID),
+                                df_ad = test_ad,
+                                metodeType = "FFR"))
 
   testthat::expect_error(
-    legg_til_ffr_per_kar(df_ap = test_ap,
-                         df_ad = test_ad %>% dplyr::select(-metode),
-                         metodeType = "iFR"))
+    noric::legg_til_ffr_per_kar(df_ap = test_ap,
+                                df_ad = test_ad %>% dplyr::select(-metode),
+                                metodeType = "iFR"))
 
   testthat::expect_error(
-    legg_til_ffr_per_kar(df_ap = test_ap,
-                         df_ad = test_ad,
-                         metodeType = "tulleType"))
+    noric::legg_til_ffr_per_kar(df_ap = test_ap,
+                                df_ad = test_ad,
+                                metodeType = "tulleType"))
 
 
 

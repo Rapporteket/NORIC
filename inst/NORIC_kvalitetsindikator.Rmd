@@ -66,13 +66,71 @@ colKontrast <- "#FF7260"
 
 
 
+```{r latest_entry, include=FALSE, eval=TRUE}
+# DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+
+# NYESTE DATO: 
+# Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# overføringer har stoppet opp
+
+# ELDSTE DATO: 
+# Januar fra i fjor (hele foregående år skal vise i rapporten)
+nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+
+periode_data <- data.frame(
+  siste_dato = min((as.Date(Sys.time()) - 1), 
+                   nyeste_reg)) 
+
+periode_data %<>% 
+  dplyr::mutate(
+    
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = .data$nyesteRegYear -1, 
+    
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"), format = "%Y-%m-%d"))
+```
+
+
+
+
+
+
+
+
+
 ```{r GetData, include=FALSE, cache=FALSE}
 
-sO_nasjonalt <- noric::getLocalSOData(params$registryName)
-sS_nasjonalt <- noric::getLocalSSData(params$registryName)
-aP_nasjonalt <- noric::getLocalAPData(params$registryName)
-aK_nasjonalt <- noric::getAKData(params$registryName)
+sO_nasjonalt <- noric::getPrepSoData(registryName = params$registryName, 
+                                     fromDate  = periode_data$forste_dato, 
+                                     toDate = periode_data$siste_dato, 
+                                     singleRow = FALSE)
+
+sS_nasjonalt <- noric::getPrepSsData(registryName = params$registryName, 
+                                     fromDate  = periode_data$forste_dato, 
+                                     toDate = periode_data$siste_dato, 
+                                     singleRow = FALSE)
+
+# Hardkodet 2018- dags dato pga figur 4,5 og 6
+aP_nasjonalt <- noric::getPrepApData(
+  params$registryName, 
+  fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),  
+  toDate = periode_data$siste_dato, 
+  singleRow = FALSE)
+
+aK_nasjonalt <- noric::getPrepAkData(registryName = params$registryName, 
+                                     fromDate  = periode_data$forste_dato, 
+                                     toDate = periode_data$siste_dato, 
+                                     singleRow = FALSE)
 ```
+
+
 
 ```{r nyesteRegistrering_ap, include=FALSE, eval=TRUE}
 nyeste_registrering_ap <- aP_nasjonalt %>% 
@@ -89,7 +147,7 @@ nyeste_registrering_ap <- aP_nasjonalt %>%
 
 ```{r yearTabPrepare, include=FALSE, eval=TRUE}
 timeTableYear <- data.frame(
-  Year = 2017:nyeste_registrering_ap$sisteHeleYear)
+  Year = 2018:nyeste_registrering_ap$sisteHeleYear)
 ```
 
 
@@ -966,12 +1024,12 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
 
 ```{r prep_nstemi_year_lokalt, results='asis', warning=FALSE}
 
-nstemiAP_fra2017_lokalt <- aP_nasjonalt %>% 
+nstemiAP_fra2018_lokalt <- aP_nasjonalt %>% 
   dplyr::filter(.data$AvdRESH == params$reshID) %>% 
   dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja",
                 .data$ventetidNstemi_gyldigTid == "ja") %>% 
   dplyr::filter(
-    .data$Year >= 2017 , 
+    .data$Year >= 2018 , 
     .data$Year < nyeste_registrering_ap$nyesteRegYear) %>% 
   
   
@@ -1012,7 +1070,7 @@ nstemiAP_fra2017_lokalt <- aP_nasjonalt %>%
   dplyr::distinct()
 
 # Dersom data ikke komplett, bytte ut verdiene med NA
-nstemiAP_fra2017_lokalt %<>% 
+nstemiAP_fra2018_lokalt %<>% 
   dplyr::left_join(., 
                    nstemi_komplett_year_lokalt %>% 
                      dplyr::select(.data$Year, 
@@ -1029,11 +1087,11 @@ nstemiAP_fra2017_lokalt %<>%
 ```{r prep_nstemi_year_nasjonalt, results='asis', warning=FALSE}
 # 
 # #Nasjonalt
-nstemiAP_fra2017_nasjonalt <- aP_nasjonalt %>% 
+nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>% 
   dplyr::filter(.data$ventetidNstemi_datagrunnlag == "ja", 
                 .data$ventetidNstemi_gyldigTid == "ja") %>% 
   dplyr::filter(
-    .data$Year >= 2017 , 
+    .data$Year >= 2018 , 
     .data$Year < nyeste_registrering_ap$nyesteRegYear) %>% 
   
   
@@ -1086,7 +1144,7 @@ timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
 timeTableYear_SDO <- rbind(timeTableYear_Samlet, 
                            timeTableYear_Direkte,
                            timeTableYear_Overflyttet)
-nstemiAP_fra2017_lokalt %<>% 
+nstemiAP_fra2018_lokalt %<>% 
   dplyr::left_join(timeTableYear_SDO,
                    .,
                    by= c("Year", "name")) %>% 
@@ -1095,8 +1153,8 @@ nstemiAP_fra2017_lokalt %<>%
 
 
 prep_figVentetid24t_year <-
-  rbind(as.data.frame(nstemiAP_fra2017_nasjonalt),
-        nstemiAP_fra2017_lokalt) %>%
+  rbind(as.data.frame(nstemiAP_fra2018_nasjonalt),
+        nstemiAP_fra2018_lokalt) %>%
   dplyr::select(.data$Sykehus,
                 .data$Year,
                 .data$name,
@@ -1112,7 +1170,7 @@ prep_figVentetid24t_year <-
 
 
 
-```{r fig_ventetid24T_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 forløp."}
+```{r fig_ventetid24T_samlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap="Andel forløp med maks 24 timer ventetid fra 2018 til siste hele år. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 forløp."}
 
 fig_samlet <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Samlet")
@@ -1141,7 +1199,7 @@ fig_samlet  %>% ggplot2::ggplot(
 
 ```
 
-```{r fig_ventetid24T_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 direkte forløp.")}
+```{r fig_ventetid24T_direkte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2018 til siste hele år. Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 direkte forløp.")}
 
 fig_direkte <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Direkte")
@@ -1172,7 +1230,7 @@ fig_direkte %>% ggplot2::ggplot(
 ```
 
 
-```{r fig_ventetid24T_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2017 til siste hele år. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 overflyttede forløp.")}
+```{r fig_ventetid24T_overflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=paste0("Andel forløp med maks 24 timer ventetid fra 2018 til siste hele år. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 overflyttede forløp.")}
 
 fig_overflyttet <- prep_figVentetid24t_year %>% 
   dplyr::filter(.data$name == "Overflyttet")

@@ -418,8 +418,10 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
                   .data$LAD_veneGraft,
                   .data$RCA_veneGraft,
                   .data$CX_veneGraft) %>%
-    dplyr::rename_at(vars(.data$LMS:.data$CX_veneGraft),
-                     function(x) paste0("PCI_", x))
+      dplyr::rename_with(.data = .,
+                       .fn = function(x) paste0("PCI_", x),
+                       .cols =  .data$LMS:.data$CX_veneGraft)
+
 
 
   # Legg til 10 nye variabler i AP. Forløp i AP som ikke har rader i SS,
@@ -497,8 +499,10 @@ legg_til_wireforsok_per_kar <- function(df_ap, df_ss) {
                   .data$LAD_veneGraft,
                   .data$RCA_veneGraft,
                   .data$CX_veneGraft) %>%
-    dplyr::rename_at(vars(.data$LMS:.data$CX_veneGraft),
-                     function(x) paste0("wireforsok_", x))
+    dplyr::rename_with(.data = .,
+                       .fn = function(x) paste0("wireforsok_", x),
+                       .cols =  .data$LMS:.data$CX_veneGraft)
+
 
 
   # Legg til 10 nye variabler i AP. Forløp i AP som ikke har rader i SS,

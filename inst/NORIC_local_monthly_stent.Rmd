@@ -49,31 +49,70 @@ colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
 ``` 
 
+```{r parametre}
+showN <- 14
+```
+
+
+```{r latest_entry, include=FALSE, eval=TRUE}
+# DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+
+# NYESTE DATO: 
+# Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# overføringer har stoppet opp
+
+# ELDSTE DATO: 
+# Januar fra i fjor (hele foregående år skal vise i rapporten)
+nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+
+periode_data <- data.frame(
+  siste_dato = min((as.Date(Sys.time()) - 1), 
+                   nyeste_reg)) 
+
+periode_data %<>% 
+  dplyr::mutate(
+    forste_dato  = lubridate::floor_date(.data$siste_dato, 
+                                         "month") - months(showN))
+```
+
+
+
 
 ```{r GetData,include=FALSE}
 
-dbType <- "mysql"
+SSQuery <- paste0("
+SELECT 
+  AvdRESH, ForlopsID, ProsedyreDato, Indikasjon, ProsedyreType,  Stentnavn, StentType
+FROM SegmentStent
+WHERE 
+  ProsedyreDato >= '", periode_data$forste_dato, "' AND
+  ProsedyreDato <= '", periode_data$siste_dato, "'
+")
 
-SSQuery <- "SELECT * FROM SegmentStent"
-SS <- rapbase::LoadRegData(params$registryName, SSQuery, dbType)
+SS <- rapbase::loadRegData(params$registryName, SSQuery)
 
-APQuery <- "
+APQuery <- paste0("
 SELECT
-   A.ForlopsID ,
-   min(A.Sykehusnavn) AS Sykehusnavn ,
-   min(A.ProsedyreDato) AS ProsedyreDato ,
-   SUM(S.ForlopsID>0) AS Nstents
-FROM AngioPCIVar A
-LEFT JOIN SegmentStent S
-ON A.ForlopsID=S.ForlopsID AND S.StentType <> ''
-WHERE A.ProsedyreType  != 'Angio'
-GROUP BY ForlopsID;
-"
-
-AP <- rapbase::LoadRegData(params$registryName, APQuery, dbType)
+  AvdRESH, ForlopsID, ProsedyreType, ProsedyreDato
+FROM
+  AngioPCIVar
+WHERE
+  ProsedyreType  != 'Angio' AND
+  ProsedyreDato >= '", periode_data$forste_dato, "' AND
+  ProsedyreDato <= '", periode_data$siste_dato, "' 
+ ")
+AP <- rapbase::loadRegData(params$registryName, APQuery)
 
 
-AP$Nstents[is.na(AP$Nstents)] <- 0
+AP %<>%
+  noric::legg_til_antall_stent(df_ap =  ., df_ss = SS) %>% 
+  dplyr::mutate(
+    Nstents = ifelse(is.na(.data$antall_stent), 
+                     0, 
+                     .data$antall_stent))
 
 
 SS %<>% dplyr::mutate(Indikasjon = factor(
@@ -91,10 +130,10 @@ SS %<>% dplyr::mutate(ProsedyreType2 = factor(
                      c("Direktestent",
                        "Ballong + Stent",
                        "Medikamentell ballong + Stent") ~ "Stent",
-            ProsedyreType == "Ballongdilatasjon" ~ "POBA", 
-            ProsedyreType == "Wireforsøk" ~ "Wireforsøk", 
-            ProsedyreType == "Rotablator" ~ "Rotablator",
-            TRUE ~ "Annet"),
+                   ProsedyreType == "Ballongdilatasjon" ~ "POBA", 
+                   ProsedyreType == "Wireforsøk" ~ "Wireforsøk", 
+                   ProsedyreType == "Rotablator" ~ "Rotablator",
+                   TRUE ~ "Annet"),
   levels = c("Stent", "POBA", "Wireforsøk", "Rotablator", "Annet")))
 
 
@@ -122,13 +161,13 @@ SS$YearMonth <- factor(
 AP$ProsedyreDato <- as.Date(
   x = AP$ProsedyreDato,
   format = "%Y-%m-%d")
-                       
+
 AP$Month <- as.numeric(
   format(
     x = AP$ProsedyreDato,
     format = "%m"))
 
-                         
+
 AP$Year <- as.numeric(
   format( 
     x = AP$ProsedyreDato,
@@ -142,13 +181,9 @@ AP$YearMonth <- factor(
 PCImedStent <- subset(
   AP,
   Nstents > 0
-  )
+)
 ``` 
 
-
-```{r otherParameters, echo = FALSE}
-showN <- 14
-```
 
 
 
@@ -222,18 +257,18 @@ align<- c("l", rep("c", dim(tab_stent)[2]-1))
 
 if(params$tableFormat == "html"){
   knitr::kable(x=tab_stent, caption = cap, align = align) %>% 
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                            full_width = F) %>% 
-  kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>% 
-  kableExtra::column_spec(column = 1, width = "7em")  
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                              full_width = F) %>% 
+    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>% 
+    kableExtra::column_spec(column = 1, width = "7em")  
 } else if(params$tableFormat == "latex"){
   knitr::kable(x = tab_stent, 
                format = params$tableFormat, 
                caption = cap,
                booktabs = TRUE,
                align = align) %>%
-  kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
-  kableExtra::row_spec(row = 0, angle = 90)
+    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
+    kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
 

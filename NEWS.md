@@ -1,8 +1,14 @@
 # noric 2.4.1
 
-Bugfix monthly quality indicator-reports
+## Bugfix monthly quality indicator-reports
 * more than 10 TAVI needed last 3 years to create pacemaker-table
 * use mst from noric library
+
+## Improvements
+* split get functions in two functions: One function does the SQL query, 
+the other processes the tables. 
+* both functions have arguments fromDate and toDate. Allows us to ask for 
+data in restrained time-interval. 
 
 
 
