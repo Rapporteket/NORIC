@@ -61,12 +61,7 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("stentbruk", inline = TRUE) %>%
-            shinycssloaders::withSpinner(color = "#18bc9c",
-                                         color.background = "#ffffff",
-                                         type = 2,
-                                         size = 1,
-                                         proxy.height = "1px")
+          htmlOutput("stentbruk", inline = TRUE)
         )
       )
     ),
@@ -82,13 +77,7 @@ ui <- tagList(
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer", inline = TRUE) %>%
-          shinycssloaders::withSpinner(color = "#18bc9c",
-                                       color.background = "#ffffff",
-                                       type = 2,
-                                       size = 1,
-                                       proxy.height = "1px")
-
+          htmlOutput("prosedyrer", inline = TRUE)
         )
       )
     ),
@@ -144,7 +133,7 @@ ui <- tagList(
         )
       )
     ),
-    
+
     shiny::tabPanel(
       "Abonnement",
       shiny::sidebarLayout(
@@ -159,14 +148,14 @@ ui <- tagList(
 
     shiny::navbarMenu(
       "Verktøy",
-      
+
       tabPanel("Metadata",
                sidebarLayout(
                  sidebarPanel(uiOutput("metaControl")),
                  mainPanel(htmlOutput("metaData"))
                )
       ),
-      
+
       shiny::tabPanel(
         "Utsending",
         shiny::sidebarLayout(
@@ -179,7 +168,7 @@ ui <- tagList(
           )
         )
       ),
-      
+
       shiny::tabPanel(
         "Bruksstatistikk",
         shiny::sidebarLayout(
@@ -190,7 +179,7 @@ ui <- tagList(
           shiny::mainPanel(rapbase::statsUI("noricStats"))
         )
       ),
-      
+
       shiny::tabPanel(
         "Eksport",
         shiny::sidebarLayout(
