@@ -1,3 +1,8 @@
+# noric 2.4.2
+* missing export of getPrepSoData() hopefully fixed
+* removed spinner from local reports
+* use stats now only for national registry with sc role 
+
 # noric 2.4.1
 
 ## Bugfix monthly quality indicator-reports
