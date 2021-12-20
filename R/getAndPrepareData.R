@@ -24,7 +24,7 @@
 #'
 #' @name getPrepData
 #' @aliases getPrepApData
-#' getPrepSOData
+#' getPrepSoData
 #' getPrepAkData
 #' getPrepFoData
 #' getPrepAnPData
