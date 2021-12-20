@@ -43,9 +43,10 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Abonnement")
   }
 
-  ## dispatchment when not national registry
+  ## dispatchment and use stats when not national registry
   if (!isNationalReg(reshId)) {
     shiny::hideTab(inputId = "tabs", target = "Utsending")
+    shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
   }
 
   # html rendering function for re-use
@@ -422,8 +423,11 @@ shinyServer(function(input, output, session) {
 
 
   # Use stats
-  rapbase::statsServer("noricStats", registryName = "noric",
-                       eligible = all(userRole == "SC"))
+  rapbase::statsServer(
+    "noricStats",
+    registryName = "noric",
+    eligible = all(c(userRole == "SC", isNationalReg(reshId)))
+  )
   rapbase::statsGuideServer("noricStatsGuide", registryName = registryName)
 
   # Export
