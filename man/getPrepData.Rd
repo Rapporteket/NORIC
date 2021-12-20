@@ -3,7 +3,7 @@
 \name{getPrepData}
 \alias{getPrepData}
 \alias{getPrepApData}
-\alias{getPrepSOData}
+\alias{getPrepSoData}
 \alias{getPrepAkData}
 \alias{getPrepFoData}
 \alias{getPrepAnPData}
@@ -14,7 +14,6 @@
 \alias{getPrepMkData}
 \alias{getPrepPsData}
 \alias{getPrepApLightData}
-\alias{getPrepSoData}
 \title{Data managment on tables}
 \usage{
 getPrepApData(registryName, fromDate, toDate, singleRow, ...)
