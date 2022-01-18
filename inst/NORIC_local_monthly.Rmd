@@ -835,7 +835,7 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 ### Angiografør
 
 ```{r PrepareDataAngigrafor, include = FALSE}
-angiografor_AP <- AP %>% filter((maaned_nr >= "08" & aar == 2021) | aar > 2021,
+angiografor_AP <- AP %>% dplyr::filter((maaned_nr >= "08" & aar == 2021) | aar > 2021,
                               ProsedyreType %in% c("Angio", "Angio + PCI"))
 ``` 
 
@@ -866,7 +866,7 @@ if(params$tableFormat == "html"){
 ### PCI-operatører
 
 ```{r PrepareDataOperator, include = FALSE}
-pciOperator_AP <- AP %>% filter((maaned_nr >= "08" & aar == 2021) | aar > 2021,
+pciOperator_AP <- AP %>% dplyr::filter((maaned_nr >= "08" & aar == 2021) | aar > 2021,
                               ProsedyreType %in% c("Angio + PCI", "PCI"))
 ``` 
 
