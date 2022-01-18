@@ -1,3 +1,6 @@
+# noric 2.4.3
+* added two tables (angioprosedyrer pr angiograf and pci pr pci-operator) in local monthly report
+
 # noric 2.4.2
 * missing export of getPrepSoData() hopefully fixed
 * removed spinner from local reports
