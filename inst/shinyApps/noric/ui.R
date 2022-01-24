@@ -82,21 +82,18 @@ ui <- tagList(
       )
     ),
     tabPanel(
-      "Prosedyrer2",
+      "Aktivitet",
       sidebarLayout(
         sidebarPanel(
-          radioButtons("formatProsedyrer2",
+          radioButtons("formatAktivitet",
                        "Format for nedlasting",
                        c("PDF", "HTML"),
                        inline = FALSE),
-          downloadButton("downloadReportProsedyrer2", "Hent!"),
+          downloadButton("downloadReportAktivitet", "Hent!"),
           width = 2
         ),
         mainPanel(
-          htmlOutput("prosedyrer2", inline = TRUE) #%>%
-            # shinycssloaders::withSpinner(color = "#18bc9c",
-            #                              color.background = "#ffffff",
-            #                              type = 2)
+          htmlOutput("aktivitet", inline = TRUE)
         )
       )
     ),
