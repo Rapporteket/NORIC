@@ -143,16 +143,6 @@ AP$Day <- as.numeric(
 
 ```{r subsetting,include=FALSE, eval=TRUE}
 
-NSTEMI <- subset(
-  x = AP,
-  subset = (Indikasjon == "NSTEMI"))
-
-NSTEMI$Month <- as.factor(
-  format(
-    x = NSTEMI$ProsedyreDato,
-    format = "%y-%m"))
-
-
 AP <- subset(
   x = AP,
   subset = nMonth >= max(nMonth , na.rm = TRUE) - showN)
