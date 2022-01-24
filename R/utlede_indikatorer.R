@@ -22,8 +22,8 @@
 #' \itemize{
 #' \item denominator \code{indik_trykkmaaling_data} (datagrunnlag) is \emph{ja}
 #' when \emph{Indikasjon = Stabil koronarsykdom}.
-#' \item numerator \code{indik_trykkmaaling} has value \emph{ja} if FFR and/or
-#'  iFR has been performed.}
+#' \item numerator \code{indik_trykkmaaling} has value \emph{ja} if one of FFR,
+#'  iFR, Pd/Pa, IMR, Pa or Pd has been performed.}
 #'
 #' \code{ki_ivus_oct_ved_stenting_lms()}
 #' \itemize{
@@ -143,7 +143,11 @@
 #'  x <- data.frame(
 #'       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
 #'       FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-#'       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+#'       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA),
+#'       PdPa = rep(NA, 6),
+#'       IMR = rep(NA, 6),
+#'       Pa = rep(NA, 6),
+#'       Pd = rep(NA, 6))
 #'  noric::ki_trykkmaaling_utfoert(df_ap = x)
 #'
 #'  x <- data.frame(
@@ -229,7 +233,14 @@ ki_ferdigstilt_komplikasjoner <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_trykkmaaling_utfoert <- function(df_ap) {
-  stopifnot(all(c("Indikasjon", "FFR", "IFR") %in% names(df_ap)))
+
+  stopifnot(all(c("Indikasjon",
+                  "FFR",
+                  "IFR",
+                  "PdPa",
+                  "IMR",
+                  "Pa",
+                  "Pd") %in% names(df_ap)))
 
 
   df_ap %>%
@@ -242,27 +253,26 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
         false = "nei",
         missing = "nei"),
 
-      # utlede verdi for indikatoren dersom datagrunnlag = "ja"
-      # IFR og/eller FFR er utført
+
+      # CAse when starter nederst.
+      # Default er NA, deretter er alle med datagrunnlag "nei" NA
+      # Alle med datagrunnlag "ja" blir først "Nei", til sist bytter de med
+      # minst en trykkmåling til "ja".
+
       indik_trykkmaaling = dplyr::case_when(
 
+        # utlede verdi for indikatoren dersom datagrunnlag = "ja"
+        # og minst en trykkmåling utført
         .data$indik_trykkmaaling_data == "ja" &
-          (.data$FFR == "Ja" | .data$IFR == "Ja") ~ "ja",
+          (.data$FFR == "Ja" |
+             .data$IFR == "Ja" |
+             .data$PdPa == "Ja" |
+             .data$IMR == "Ja" |
+             .data$Pa == "Ja" |
+             .data$Pd == "Ja" ) ~ "ja",
 
-        .data$indik_trykkmaaling_data == "ja" &
-          (.data$FFR != "Ja" & .data$IFR != "Ja") ~ "nei",
-
-        .data$indik_trykkmaaling_data == "ja" &
-          is.na(.data$FFR) & .data$IFR != "Ja" ~ "nei",
-
-        .data$indik_trykkmaaling_data == "ja" &
-          .data$FFR != "Ja" & is.na(.data$IFR) ~ "nei",
-
-        .data$indik_trykkmaaling_data == "ja" &
-          is.na(.data$FFR) & is.na(.data$IFR) ~ "nei",
-
+        .data$indik_trykkmaaling_data == "ja"  ~ "nei",
         .data$indik_trykkmaaling_data == "nei" ~ NA_character_,
-
         FALSE ~ NA_character_))
 }
 
@@ -509,8 +519,8 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
 
         .data$indik_nstemi_angio_innen24t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
-            .data$ventetid_nstemi_timer > 0.0 &
-          .data$ventetid_nstemi_timer <= 24.0) ~ "ja",
+             .data$ventetid_nstemi_timer > 0.0 &
+             .data$ventetid_nstemi_timer <= 24.0) ~ "ja",
 
         .data$indik_nstemi_angio_innen24t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
