@@ -223,7 +223,7 @@ testthat::test_that("legg_til_trykkmaalinger fungerer", {
     ForlopsID = c(1, 1, 1, 1, 1, 1, 3, 4, 5, 6, 7, 8, 8, 8),
     AvdRESH = rep(1, 14),
     metode = c("FFR", "iFR", "IMR", "Pd/Pa", "Pa-hyperemi", "Pd-hyperemi",
-               "IMR", "Pd/Pa", "Pd-hyperemi", "Pa-hyperemi",
+               "IMR", "Pd/Pa", "Pa-hyperemi", "Pd-hyperemi",
                NA, "tull", "tull", "tull"))
 
   test_out <- noric::legg_til_trykkmaalinger(df_ap = test_ap, df_ad = test_ad)
@@ -238,19 +238,19 @@ testthat::test_that("legg_til_trykkmaalinger fungerer", {
   testthat::expect_true(all(
     test_out %>%
       dplyr::filter(.data$ForlopsID == 1,.data$ AvdRESH ==1) %>%
-      dplyr::select(.data$IMR, .data$PdPa, .data$Pd, .data$Pa)  == "Ja"))
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd)  == "Ja"))
 
 
   testthat::expect_true(all(
     test_out %>%
       dplyr::filter(.data$ForlopsID == 2,.data$ AvdRESH ==1) %>%
-      dplyr::select(.data$IMR, .data$PdPa, .data$Pd, .data$Pa) %>% is.na()))
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>% is.na()))
 
 
   testthat::expect_equal(
     test_out %>%
       dplyr::filter(.data$ForlopsID == 3, .data$ AvdRESH ==1) %>%
-      dplyr::select(.data$IMR, .data$PdPa, .data$Pd, .data$Pa) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
       as.character(),
     c("Ja", "Nei", "Nei", "Nei"))
 
@@ -258,31 +258,31 @@ testthat::test_that("legg_til_trykkmaalinger fungerer", {
   testthat::expect_equal(
     test_out %>%
       dplyr::filter(.data$ForlopsID == 4, .data$ AvdRESH ==1) %>%
-      dplyr::select(.data$IMR, .data$PdPa, .data$Pd, .data$Pa) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
       as.character(),
     c("Nei", "Ja", "Nei", "Nei"))
 
   testthat::expect_equal(
     test_out %>%
       dplyr::filter(.data$ForlopsID == 5, .data$ AvdRESH ==1) %>%
-      dplyr::select(.data$IMR, .data$PdPa, .data$Pd, .data$Pa) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
       as.character(),
-    c("Nei", "Nei", "Nei",  "Ja"))
+    c("Nei", "Nei", "Ja", "Nei"))
 
 
   testthat::expect_equal(
     test_out %>%
       dplyr::filter(.data$ForlopsID == 6, .data$ AvdRESH ==1) %>%
-      dplyr::select(.data$IMR, .data$PdPa, .data$Pd, .data$Pa) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
       as.character(),
-    c("Nei",  "Nei","Ja", "Nei"))
+    c("Nei",  "Nei", "Nei","Ja"))
 
 
 
   testthat::expect_true(all(
     test_out %>%
       dplyr::filter(.data$ForlopsID %in% 7:8,.data$ AvdRESH ==1) %>%
-      dplyr::select(.data$IMR, .data$PdPa, .data$Pd, .data$Pa) == "Nei"))
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) == "Nei"))
 
 
 
