@@ -21,6 +21,14 @@
 #' For procedures where no measures are done on segment-level (e.g. no entries
 #' available in \code{df_ad}), the values for the 5 new variables are <NA>.
 #'
+#' The function \code{legg_til_trykkmaalinger()} adds variables \code{PdPa},
+#' \code{IMR}, \code{Pa} and \code{Pd} to \code{df_ap}-table. Values of these 4
+#' new variables (measures of pressure) depends on the \code{df_ad}-table:
+#' value "Ja" is attributed if the method is registered for the procedure,
+#' value "Nei" is attributed if no if this method not is performed.
+#' For procedures where no measures are done on segment-level (e.g. no entries
+#' available in \code{df_ad}), the values for the 4 new variables are <NA>.
+#'
 #' @param df_ad NORIC's \emph{AnnenDiag}-table, must contain variables
 #' \code{ForlopsID}, \code{AVdRESH}, \code{segment}, \code{graft} and
 #' \code{metode}
@@ -37,6 +45,7 @@
 #' @aliases
 #' utlede_kar_annen_diag
 #' legg_til_trykk_bilde_per_kar
+#' legg_til_trykkmaalinger
 #'
 #' @examples
 #' df_ad <- data.frame(
@@ -64,6 +73,13 @@
 #' legg_til_trykk_bilde_per_kar(df_ap = df_ap,
 #'                              df_ad = df_ad,
 #'                              metodeType = "FFR")
+#'
+#' df_ad <- data.frame(
+#'     ForlopsID = c(1, 1, 3, 3, 5),
+#'     AvdRESH = rep(1,5),
+#'     metode = c("FFR", "FFR", NA, "test", "Pd/Pa"))
+#' noric::legg_til_trykkmaalinger(df_ap = df_ap,
+#'                                df_ad = df_ad)
 NULL
 
 
@@ -190,5 +206,110 @@ legg_til_trykk_bilde_per_kar <- function(df_ap,
   dplyr::left_join(df_ap,
                    ad_wide,
                    by = c("AvdRESH", "ForlopsID"))
+
+}
+
+
+
+
+
+
+
+
+#' @rdname utlede_annenDiag_variabler
+#' @export
+legg_til_trykkmaalinger <- function(df_ap, df_ad) {
+
+
+
+  . <- ""
+  # Must contain matching-variables + variables needed for calculations
+  stopifnot(all(c("ForlopsID", "AvdRESH", "metode") %in% names(df_ad)))
+
+
+  # Must contain matching-variables + variables needed for calculations
+  stopifnot(all(c("ForlopsID", "AvdRESH") %in% names(df_ap)))
+
+
+
+
+  # Count number of entries with metode == "IMR" for each procedure, if at
+  # least one entry, say yes to method.
+  ant_imr <- df_ad %>%
+    dplyr::select(.data$ForlopsID,
+                  .data$AvdRESH,
+                  .data$metode) %>%
+    dplyr::arrange(., .data$AvdRESH)  %>%
+    dplyr::group_by(.data$AvdRESH) %>%
+    dplyr::count(.data$ForlopsID,
+                 wt = .data$metode == "IMR") %>%
+    dplyr::mutate(IMR = ifelse(test = .data$n > 0,
+                               yes = "Ja",
+                               no = "Nei")) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-.data$n)
+
+
+
+  ant_pdpa <- df_ad %>%
+    dplyr::select(.data$ForlopsID,
+                  .data$AvdRESH,
+                  .data$metode) %>%
+    dplyr::arrange(., .data$AvdRESH)  %>%
+    dplyr::group_by(.data$AvdRESH) %>%
+    dplyr::count(.data$ForlopsID,
+                 wt = .data$metode == "Pd/Pa") %>%
+    dplyr::mutate(PdPa = ifelse(test = .data$n > 0,
+                                yes = "Ja",
+                                no = "Nei")) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-.data$n)
+
+
+  ant_pd <- df_ad %>%
+    dplyr::select(.data$ForlopsID,
+                  .data$AvdRESH,
+                  .data$metode) %>%
+    dplyr::arrange(., .data$AvdRESH)  %>%
+    dplyr::group_by(.data$AvdRESH) %>%
+    dplyr::count(.data$ForlopsID,
+                 wt = .data$metode == "Pd-hyperemi") %>%
+    dplyr::mutate(Pd = ifelse(test = .data$n > 0,
+                              yes = "Ja",
+                              no = "Nei")) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-n)
+
+
+  ant_pa <- df_ad %>%
+    dplyr::select(.data$ForlopsID,
+                  .data$AvdRESH,
+                  .data$metode) %>%
+    dplyr::arrange(., .data$AvdRESH)  %>%
+    dplyr::group_by(.data$AvdRESH) %>%
+    dplyr::count(.data$ForlopsID,
+                 wt = .data$metode == "Pa-hyperemi") %>%
+    dplyr::mutate(Pa = ifelse(test = .data$n > 0,
+                              yes = "Ja",
+                              no = "Nei")) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-.data$n)
+
+
+  # Add new variables to df_ap before returning df_ap
+  df_ap %>%
+    dplyr::left_join(.,
+                     ant_imr,
+                     by = c("AvdRESH", "ForlopsID")) %>%
+    dplyr::left_join(.,
+                     ant_pdpa,
+                     by = c("AvdRESH", "ForlopsID")) %>%
+    dplyr::left_join(.,
+                     ant_pa,
+                     by = c("AvdRESH", "ForlopsID")) %>%
+    dplyr::left_join(.,
+                     ant_pd,
+                     by = c("AvdRESH", "ForlopsID")) %>%
+    dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
 
 }
