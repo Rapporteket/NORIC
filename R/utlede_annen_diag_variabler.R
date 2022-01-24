@@ -265,6 +265,20 @@ legg_til_trykkmaalinger <- function(df_ap, df_ad) {
     dplyr::ungroup() %>%
     dplyr::select(-.data$n)
 
+  ant_pa <- df_ad %>%
+    dplyr::select(.data$ForlopsID,
+                  .data$AvdRESH,
+                  .data$metode) %>%
+    dplyr::arrange(., .data$AvdRESH)  %>%
+    dplyr::group_by(.data$AvdRESH) %>%
+    dplyr::count(.data$ForlopsID,
+                 wt = .data$metode == "Pa-hyperemi") %>%
+    dplyr::mutate(Pa = ifelse(test = .data$n > 0,
+                              yes = "Ja",
+                              no = "Nei")) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-.data$n)
+
 
   ant_pd <- df_ad %>%
     dplyr::select(.data$ForlopsID,
@@ -281,19 +295,6 @@ legg_til_trykkmaalinger <- function(df_ap, df_ad) {
     dplyr::select(-n)
 
 
-  ant_pa <- df_ad %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$metode) %>%
-    dplyr::arrange(., .data$AvdRESH)  %>%
-    dplyr::group_by(.data$AvdRESH) %>%
-    dplyr::count(.data$ForlopsID,
-                 wt = .data$metode == "Pa-hyperemi") %>%
-    dplyr::mutate(Pa = ifelse(test = .data$n > 0,
-                              yes = "Ja",
-                              no = "Nei")) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-.data$n)
 
 
   # Add new variables to df_ap before returning df_ap
