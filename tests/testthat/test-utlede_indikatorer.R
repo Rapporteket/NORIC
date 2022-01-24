@@ -4,9 +4,9 @@ testthat::test_that("ki_ferdigstilt_komplikasjoner works", {
   x_out <- noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
 
   testthat::expect_equal(names(x_out),
-               c("SkjemaStatusKomplikasjoner",
-                 "indik_komplik_ferdig_data",
-                 "indik_komplik_ferdig"))
+                         c("SkjemaStatusKomplikasjoner",
+                           "indik_komplik_ferdig_data",
+                           "indik_komplik_ferdig"))
 
   testthat::expect_equal(
     x_out %>%
@@ -31,18 +31,26 @@ testthat::test_that("ki_ferdigstilt_komplikasjoner works", {
 testthat::test_that("ki_trykkmaaling_utfoert works", {
 
   x <- data.frame(
-    Indikasjon = c(rep("Stabil koronarsykdom", 6), NA, NA, "Annet"),
-    FFR = c(NA, "Ja", "Ja", NA, "Ja", "Ukjent", "Nei", "Ja", "Ja"),
-    IFR = c(NA, "Ja", "Nei", "Ja", "Ukjent", NA, NA, "Ja", NA))
+    Indikasjon = c(rep("Stabil koronarsykdom", 6), NA, NA, "Annet",
+                   rep("Stabil koronarsykdom", 6)),
+    FFR = c(NA, "Ja", "Ja", NA, "Ja", "Ukjent", "Nei", "Ja", "Ja", rep(NA, 6)),
+    IFR = c(NA, "Ja", "Nei", "Ja", "Ukjent", NA, NA, "Ja", NA,  rep(NA, 6)),
+    IMR = c(rep(NA, 9),  "Ja","Ja", "Ja", "Ukjent", "Nei", "Nei"),
+    PdPa = c(rep(NA, 9), "Ja","Ja", "Ja" , "Ukjent", "Nei", "Nei"),
+    Pa = c(rep(NA, 9),   "Ja","Ja", "Nei" , "Ukjent","Nei", "Nei"),
+    Pd = c(rep(NA, 9),   "Ja", "Nei", "Nei", "Ukjent", "Ja", NA))
+
 
   x_out <- noric::ki_trykkmaaling_utfoert(df_ap = x)
 
-  testthat::expect_equal(names(x_out),
-               c("Indikasjon",
-                 "FFR",
-                 "IFR",
-                 "indik_trykkmaaling_data",
-                 "indik_trykkmaaling"))
+  testthat::expect_equal(
+    names(x_out),
+    c("Indikasjon",
+      "FFR",
+      "IFR",
+      "IMR", "PdPa", "Pa", "Pd",
+      "indik_trykkmaaling_data",
+      "indik_trykkmaaling"))
 
   testthat::expect_true(all(
     x_out %>%
@@ -77,9 +85,36 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
 
   testthat::expect_true(all(
     x_out %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$IMR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+
+
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$PdPa == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$Pa == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+
+
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$Pd == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+
+
+   testthat::expect_true(all(
+    x_out %>%
       dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
                       (.data$FFR != "Ja" | is.na(.data$FFR)) &
-                      (.data$IFR != "Ja" | is.na(.data$IFR))) %>%
+                      (.data$IFR != "Ja" | is.na(.data$IFR)) &
+                      (.data$IMR != "Ja" | is.na(.data$IMR)) &
+                      (.data$PdPa != "Ja" | is.na(.data$PdPa)) &
+                      (.data$Pa!= "Ja" | is.na(.data$Pa)) &
+                      (.data$Pd != "Ja" | is.na(.data$Pd))) %>%
       dplyr::pull(.data$indik_trykkmaaling) == "nei"))
 
 
@@ -949,7 +984,7 @@ test_that("ki_stemi_pci_innen120min works", {
       dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
       dplyr::pull(.data$AvdRESH) != 106944))
 
-    # Forventer Indikasjon STEMI dersom datagrunnlag = ja
+  # Forventer Indikasjon STEMI dersom datagrunnlag = ja
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
@@ -1001,7 +1036,7 @@ test_that("ki_stemi_pci_innen120min works", {
       dplyr::pull(.data$indik_stemi_pci_innen2t_data)  == "nei"))
 
 
-   # Forventer at datagrunnlag er nei, dersom sekundærforløp
+  # Forventer at datagrunnlag er nei, dersom sekundærforløp
   expect_true(all(
     x_out %>%
       dplyr::filter(!.data$Regtype == "Primær") %>%

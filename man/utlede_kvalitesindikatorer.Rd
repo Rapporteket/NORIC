@@ -60,8 +60,8 @@ Following variables are created for the different functions:
 \itemize{
 \item denominator \code{indik_trykkmaaling_data} (datagrunnlag) is \emph{ja}
 when \emph{Indikasjon = Stabil koronarsykdom}.
-\item numerator \code{indik_trykkmaaling} has value \emph{ja} if FFR and/or
- iFR has been performed.}
+\item numerator \code{indik_trykkmaaling} has value \emph{ja} if one of FFR,
+ iFR, Pd/Pa, IMR, Pa or Pd has been performed.}
 
 \code{ki_ivus_oct_ved_stenting_lms()}
 \itemize{
@@ -161,7 +161,11 @@ longer than 24h,  missing or if \code{BeslutningsutlosendeEKG} has value
  x <- data.frame(
       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
       FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-      IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+      IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA),
+      PaPd = rep(NA, 6),
+      IMR = rep(NA, 6),
+      Pa = rep(NA, 6),
+      Pd = rep(NA, 6))
  noric::ki_trykkmaaling_utfoert(df_ap = x)
 
  x <- data.frame(
