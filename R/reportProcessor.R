@@ -50,7 +50,10 @@ reportProcessor <- function(report,
                             userRole = "unknown role",
                             userOperator = "unknown operator") {
 
-  stopifnot(report %in% c("veiledning", "local_monthly"))
+  stopifnot(report %in% c("veiledning",
+                          "NORIC_local_monthly",
+                          "NORIC_local_monthly_stent",
+                          "NORIC_local_monthly_activity"))
 
   stopifnot(outputType %in% c("html", "pdf"))
 
@@ -60,21 +63,42 @@ reportProcessor <- function(report,
     warning("No title given! Reports should have a title...")
   }
 
-  if (report == "veiledning") {
+
+  if (report == "NORIC_local_monthly") {
     filePath <- rapbase::renderRmd(
-      system.file("veiledning.Rmd", package = "noric"),
+      system.file("NORIC_local_monthly.Rmd", package = "noric"),
       outputType = outputType,
       params = list(
-        title = title,
         author = author,
-        hospitalName = orgName,
+        hospitalName = noric::getHospitalName("noric", orgId),
         tableFormat = outputType,
-        reshId = orgId
+        reshId = orgId,
+        registryName = registryName,
+        userRole = userRole,
+        userOperator = userOperator
       )
     )
   }
 
-  if (report == "local_monthly" & userRole == "SC") {
+
+  if (report == "NORIC_local_monthly_stent") {
+    filePath <- rapbase::renderRmd(
+      system.file("NORIC_local_monthly_stent.Rmd", package = "noric"),
+      outputType = outputType,
+      params = list(
+        author = author,
+        hospitalName = noric::getHospitalName("noric", orgId),
+        tableFormat = outputType,
+        reshId = orgId,
+        registryName = registryName,
+        userRole = userRole,
+        userOperator = userOperator
+      )
+    )
+  }
+
+
+  if (report == "NORIC_local_monthly_activity") {
     filePath <- rapbase::renderRmd(
       system.file("NORIC_local_monthly_activity.Rmd", package = "noric"),
       outputType = outputType,
