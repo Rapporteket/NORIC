@@ -40,6 +40,9 @@ Denne rapporten inneholder opplysninger om hvilke stenter som er brukt.
 #### Prosedyrer
 Denne rapporten gir en oversikt over opptellinger relatert til utførte prosedyrer fra Andre prosedyrer- og AngioPCI-modulen.
 
+#### Aktivitet
+Denne rapporten inneholder opptellinger av angiograførenes og operatørenes aktivitet. Rapporten er kun tilgjengelig pålogget lokalt som SC-bruker.
+
 
 ### Datadump
   
