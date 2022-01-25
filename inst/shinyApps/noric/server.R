@@ -380,6 +380,13 @@ shinyServer(function(input, output, session) {
       fun = "subscriptionLocalMonthlyReps",
       paramNames = pn,
       paramValues = c("NORIC_local_monthly_stent", pv)
+    ),
+    Aktivitet = list(
+      synopsis = "M\u00E5nedlig oppsummering av aktiviteter siste \u00E5r",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title", "orgId", "orgName", "userRole"),
+      paramValues = c("local_monthly", "pdf", "Månedsresultater", reshId,
+                      hospitalName, userRole)
     )
   )
 
