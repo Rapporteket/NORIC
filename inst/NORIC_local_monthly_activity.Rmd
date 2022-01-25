@@ -99,9 +99,9 @@ AP <- noric::getPrepApData(registryName = params$registryName,
 
 
 
-
-
 ```{r APprepare,include=FALSE, eval=TRUE}
+
+AP$ProsedyreDato <- as.Date(AP$ProsedyreDato)
 
 AP$Sykehusnavn <- factor(AP$Sykehusnavn)
 
