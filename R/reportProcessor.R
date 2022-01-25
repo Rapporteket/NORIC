@@ -74,7 +74,7 @@ reportProcessor <- function(report,
     )
   }
 
-  if (report == "local_monthly") {
+  if (report == "local_monthly" & userRole == "SC") {
     filePath <- rapbase::renderRmd(
       system.file("NORIC_local_monthly_activity.Rmd", package = "noric"),
       outputType = outputType,
