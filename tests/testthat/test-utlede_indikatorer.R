@@ -337,7 +337,7 @@ test_that("ki_foreskr_blodfortynnende works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$indik_blodfortynnende_data == "ja") %>%
-      dplyr::pull(.data$UtskrevetDod) %in% c("Nei")))
+      dplyr::pull(.data$UtskrevetDod) %in% c("Nei", NA_character_)))
 
 
   # Forventer at datagrunnlag er nei, dersom ingen stent
@@ -358,7 +358,7 @@ test_that("ki_foreskr_blodfortynnende works", {
   # Forventer at datagrunnlag er nei, dersom ikke levende
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$UtskrevetDod %in% c("Ja", "Ukjent", NA)) %>%
+      dplyr::filter(.data$UtskrevetDod %in% c("Ja", "Ukjent")) %>%
       dplyr::pull(.data$indik_blodfortynnende_data)  == "nei"))
 
 
@@ -537,7 +537,7 @@ test_that("ki_foreskr_kolesterolsenkende works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(.data$indik_kolesterolsenkende_data == "ja") %>%
-      dplyr::pull(.data$UtskrevetDod) %in% c("Nei")))
+      dplyr::pull(.data$UtskrevetDod) %in% c("Nei", NA_character_)))
 
 
   # Forventer at datagrunnlag er nei, dersom ingen stent
@@ -557,7 +557,7 @@ test_that("ki_foreskr_kolesterolsenkende works", {
   # Forventer at datagrunnlag er nei, dersom ikke levende
   expect_true(all(
     x_out %>%
-      dplyr::filter(.data$UtskrevetDod %in% c("Ja", "Ukjent", NA)) %>%
+      dplyr::filter(.data$UtskrevetDod %in% c("Ja", "Ukjent")) %>%
       dplyr::pull(.data$indik_kolesterolsenkende_data)  == "nei"))
 
 

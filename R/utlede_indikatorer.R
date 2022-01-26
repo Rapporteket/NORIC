@@ -48,7 +48,7 @@
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
 #'   \item \code{Regtype} = "Primær"
-#'   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
+#'   \item \code{UtskrevetDod}  = {"Nei","NA"}. Which means that  "Ja" or
 #'   "Ukjent" are excluded
 #'   }
 #' \item numerator \code{indik_blodfortynnende} has value \emph{ja} if
@@ -69,7 +69,7 @@
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
 #'   \item \code{Regtype} = "Primær"
-#'   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
+#'   \item \code{UtskrevetDod}  = {"Nei", NA} . Which means that "Ja" or
 #'   "Ukjent" are excluded
 #'   }
 #' \item numerator \code{indik_kolesterolsenkende} has value \emph{ja}
@@ -366,12 +366,12 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
       #  ~ Minst en stent satt inn i løpet av oppholdet (primær eller
       #    sekundær)
       #  ~ Primærforløp
-      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent, NA}
+      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent}, {Nei, NA} mulig
       indik_blodfortynnende_data = dplyr::if_else(
         condition =
           (.data$antall_stent_under_opphold > 0 &
              .data$Regtype == "Primær" &
-             .data$UtskrevetDod == "Nei"),
+             .data$UtskrevetDod %in% c("Nei", NA)),
 
         true = "ja",
         false = "nei",
@@ -461,12 +461,12 @@ ki_foreskr_kolesterolsenkende <- function(df_ap) {
       # Datagrunnlag for indikatoren
       #  ~ Minst en stent satt inn i løpet av oppholdet
       #  ~ Primærforløp
-      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent, NA}
+      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent}, {"nei", NA} mulig
       indik_kolesterolsenkende_data = dplyr::if_else(
         condition =
           (.data$antall_stent_under_opphold > 0 &
              .data$Regtype == "Primær" &
-             .data$UtskrevetDod == "Nei" ),
+             .data$UtskrevetDod %in% c("Nei", NA)),
 
         true = "ja",
         false = "nei",
