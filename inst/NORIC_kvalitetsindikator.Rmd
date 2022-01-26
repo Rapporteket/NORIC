@@ -1169,83 +1169,82 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
-## Trykkmåling (FFR/iFR) ved innsnevringer i kransårene
+## Trykkmåling ved innsnevringer i kransårene
 
-Bruk av trykkmålinger (FFR og iFR) i kransårer med innsnevringer har vist seg 
+Bruk av trykkmålinger (FFR, iFR, IMR, Pd, Pa og Pd/Pa) i kransårer med 
+innsnevringer har vist seg 
 å gi nyttig informasjon for å bedømme om en innsnevring er av betydning eller 
 ikke og hvorvidt det bør utføres utblokking av åren eller ei. Europeiske 
 retningslinjer har en sterk anbefaling om bruk av nevnte metoder. Indikatoren 
 viser antall og andel prosedyrer der det har blitt utført trykkmåling ved 
 kransårerøntgen hos pasienter med stabil angina pectoris.  (Mål $\geq$ 30 %)
 
-```{r aP_trykkmaaling, include=FALSE, eval=TRUE}
-
-trykkmaalingAP_nasjonal <- aP_nasjonalt %>% 
-  dplyr::filter(.data$Indikasjon == "Stabil koronarsykdom") %>% 
-  dplyr::select(.data$Month,
-                .data$Trykkmaaling,
-                .data$Sykehusnavn,
-                .data$AvdRESH)
-
-trykkmaalingAP <- trykkmaalingAP_nasjonal %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID)
-
-```
 
 ```{r TabNtrykkmaaling, results='asis', warning=FALSE}
+
+cap <- paste0(
+  "Antall og andel prosedyrer der det ved indikasjon stabil ", 
+  "koronarsykdom har blitt utført trykkmåling i form av enten", 
+  "fractional flow reserve (FFR), ", 
+  "instantaneous wave-free ratio (iFR), ", 
+  "index of microvascular resistance (IMR), ",
+  "resting distal coronary pressure to aortic pressure ratio (Pd/Pa), ", 
+  "coronary artery aortic pressure (Pa-hyperemi) eller ",
+  "coronary artery distal pressure (Pd-hyperemi). ", 
+  "Måneder med mindre enn 5 observasjoner er markert med N.")
+
+
 #Lokal
-nTrykkmaalingAP <- trykkmaalingAP %>% 
-  dplyr::count(.data$Month, .data$Trykkmaaling) %>% 
-  tidyr::pivot_wider(names_from = .data$Trykkmaaling, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
+nTrykkmaalingAP <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$indik_trykkmaaling_data == "ja") %>% 
+  dplyr::select(.data$maaned,
+                .data$indik_trykkmaaling) %>%
+  janitor::tabyl(.data$maaned, 
+                 .data$indik_trykkmaaling,
+                 show_missing_levels = TRUE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
-    prosentUtfort = paste0(
-      round(.data$`Utført trykkmåling`/.data$Totalt*100, 1), 
-      " %"),
+    
+    Prosent = paste0(round(.data$ja / .data$Totalt * 100, 1)," %"),
+    
     Totalt = ifelse(.data$Totalt < 5,
                     yes = "N",
                     no = .data$Totalt),
+    
     utfortTrykkmaaling = ifelse(.data$Totalt == "N",
                                 yes = NA,
-                                no = .data$`Utført trykkmåling`),
-    prosentUtfort = ifelse(.data$Totalt == "N",
-                           yes = NA,
-                           no = .data$prosentUtfort)) %>% 
-  dplyr::select(.data$Month, 
+                                no = .data$ja),
+    
+    Prosent = ifelse(.data$Totalt == "N",
+                     yes = NA,
+                     no = .data$Prosent)) %>% 
+  
+  dplyr::select(.data$maaned, 
                 .data$Totalt, 
                 .data$utfortTrykkmaaling, 
-                .data$prosentUtfort) %>% 
-  dplyr::rename("Prosent" = .data$prosentUtfort)
-
+                .data$Prosent)
 
 #Nasjonal
-nTrykkmaalingAP_nasj <- trykkmaalingAP_nasjonal %>% 
-  dplyr::count(.data$Month, .data$Trykkmaaling) %>% 
-  tidyr::pivot_wider(names_from = .data$Trykkmaaling, 
-                     values_from = .data$n, 
-                     values_fill = list(n =0)) %>%
+nTrykkmaalingAP_nasj <- aP_nasjonalt %>% 
+  dplyr::filter(.data$indik_trykkmaaling_data == "ja") %>% 
+  dplyr::select(.data$maaned,
+                .data$indik_trykkmaaling) %>%
+  janitor::tabyl(.data$maaned, 
+                 .data$indik_trykkmaaling, 
+                 show_missing_levels = TRUE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::mutate(
-    prosentUtfort = paste0(
-      round(.data$`Utført trykkmåling`/.data$Totalt*100, 1), 
-      " %")) %>% 
-  dplyr::select(.data$Month, .data$prosentUtfort) %>% 
-  dplyr::rename("Nasjonalt" = .data$prosentUtfort)
-
+  dplyr::transmute(
+    maaned = .data$maaned,
+    Nasjonalt = paste0(round(.data$ja / .data$Totalt * 100, 1)," %")) 
 
 #Tabell
 tabTrykkmaalingAP <- timeTableMonth %>% 
-  dplyr::left_join(., nTrykkmaalingAP, by = c("Month")) %>% 
-  dplyr::left_join(., nTrykkmaalingAP_nasj, by = c("Month")) %>% 
-  dplyr::rename("Måned" = .data$Month,
+  dplyr::left_join(., nTrykkmaalingAP, by = c("maaned")) %>% 
+  dplyr::left_join(., nTrykkmaalingAP_nasj, by = c("maaned")) %>% 
+  dplyr::rename("Måned" = .data$maaned,
                 "Utført trykkmåling" = .data$utfortTrykkmaaling) %>% 
   replace(is.na(.), "-")
-
-
-
-cap <- "Antall og andel prosedyrer der det ved indikasjon stabil koronarsykdom har blitt utført trykkmåling i form av fractional flow reserve (FFR) eller instantaneous wave-free ratio (iFR). Måneder med mindre enn 5 observasjoner er markert med N."
 
 noric::mst(tab = tabTrykkmaalingAP, 
            type = params$tableFormat, 
