@@ -386,7 +386,7 @@ dim_ak_lokalt <- aK_nasjonalt %>%
 ```{r kvartalTabPrepare_AK, include=FALSE, eval=TRUE}
 if (dim_ak_lokalt[1] > 10) {
   
-  # 5 siste ferdige kvartal
+   # 5 siste ferdige kvartal
   forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
                                                "quarter") 
   timeTableQuarterAK <- data.frame(
@@ -394,7 +394,7 @@ if (dim_ak_lokalt[1] > 10) {
                                by = "-1 quarter",
                                length.out = 6)[2:6])) %>% 
     dplyr::transmute(
-      Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
+      kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
                        " Q", 
                        lubridate::quarter(.data$KvartalDatoStart, 
                                           with_year = FALSE)))
@@ -437,67 +437,54 @@ og risiko. Dersom de aktuelle registreringsskjemaene ikke er ferdigutfylt, blir
 datagrunnlaget for videre analysearbeid for dårlig. Indikatoren måler andel
 ferdigstilte registreringsskjema for komplikasjoner oppstått på sykehus etter
 prosedyre. Alle pasientforløp er inkludert. (Mål $\geq$ 95 %)
-```{r ferdigstiltKompl, include=FALSE, eval=TRUE}
-
-ferdigstilt_so_nasj <- sO_nasjonalt %>% 
-  dplyr::filter(.data$Skjemanavn == "Kompl") %>% 
-  dplyr::select(.data$SkjemastatusTekst,
-                .data$Month, 
-                .data$Sykehusnavn, 
-                .data$AvdRESH)
-
-ferdigstilt_so <- ferdigstilt_so_nasj %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID)
-
-```
 
 ```{r TabNFerdigstiltKompl, results='asis', warning=FALSE}
 
 #Lokalt
-nSO <- ferdigstilt_so %>% 
-  dplyr::count(.data$Month, .data$SkjemastatusTekst, .drop = FALSE) %>% 
-  tidyr::pivot_wider(names_from = .data$SkjemastatusTekst, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
+ferdigstilt_lokalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$indik_komplik_ferdig_data == "ja") %>% 
+  janitor::tabyl(.data$maaned, 
+                 .data$indik_komplik_ferdig, 
+                 show_missing_levels = TRUE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::mutate(
-    prosentFerdig = paste0(round(.data$Ferdigstilt / .data$Totalt * 100, 1), 
-                           " %"),
+    
+    Prosent = paste0(round(.data$ja / .data$Totalt * 100, 1), 
+                     " %"),
+    
     Totalt = ifelse(.data$Totalt < 5,
                     yes = "N",
                     no = .data$Totalt),
+    
     Ferdigstilt = ifelse(.data$Totalt == "N",
                          yes = NA,
-                         no = .data$Ferdigstilt),
-    prosentFerdig = ifelse(.data$Totalt == "N",
-                           yes = NA,
-                           no = .data$prosentFerdig)) %>% 
-  dplyr::select(.data$Month, 
-                .data$Totalt, 
-                .data$Ferdigstilt, 
-                .data$prosentFerdig) %>% 
-  dplyr::rename("Prosent" = .data$prosentFerdig)
+                         no = .data$ja),
+    
+    Prosent = ifelse(.data$Totalt == "N",
+                     yes = NA,
+                     no = .data$Prosent)) %>% 
+  dplyr::select(.data$maaned, .data$Totalt, .data$Ferdigstilt, .data$Prosent)
 
 
 #Nasjonalt
-n_so_nasjonalt <- ferdigstilt_so_nasj %>% 
-  dplyr::count(.data$Month, .data$SkjemastatusTekst, .drop = FALSE) %>% 
-  tidyr::pivot_wider(names_from = .data$SkjemastatusTekst, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
+ferdigstilt_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$indik_komplik_ferdig_data == "ja") %>% 
+  janitor::tabyl(.data$maaned,
+                 indik_komplik_ferdig,
+                 show_missing_levels = TRUE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::mutate(
-    prosentFerdig = paste0(round(.data$Ferdigstilt / .data$Totalt * 100, 1),
-                           " %")) %>% 
-  dplyr::select(.data$Month, .data$prosentFerdig) %>% 
-  dplyr::rename("Nasjonalt" = .data$prosentFerdig)
+  dplyr::transmute(
+    maaned = as.factor(.data$maaned), 
+    Nasjonalt = paste0(round(.data$ja / .data$Totalt * 100, 1), " %")) 
+
 
 
 #Tabell
 tabFerdigtiltKompl <- timeTableMonth %>% 
-  dplyr::left_join(., nSO, by = c("Month")) %>% 
-  dplyr::left_join(., n_so_nasjonalt, by = "Month") %>% 
-  dplyr::rename("Måned" = .data$Month) %>% 
+  dplyr::left_join(., ferdigstilt_lokalt, by = c("maaned")) %>% 
+  dplyr::left_join(., ferdigstilt_nasjonalt, by = "maaned") %>% 
+  dplyr::rename("Måned" = .data$maaned) %>% 
   replace(is.na(.), "-")
 
 
