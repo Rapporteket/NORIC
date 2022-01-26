@@ -86,13 +86,18 @@ IVUS and/or OCT has been performed.
 \enumerate{
   \item \code{antall_stent_under_opphold} is at least 1
   \item \code{Regtype} = "Primær"
-  \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
   "Ukjent" are excluded
   }
 \item numerator \code{indik_blodfortynnende} has value \emph{ja} if
 at least two of \code{ASA}, \code{AndrePlatehemmere} or
- \code{Antikoagulantia} are prescribed.
+ \code{Antikoagulantia} are prescribed and \code{SkjemaStatusUtskrivelse}
+ is 1 (ferdigstilt). \code{indik_blodfortynnende} has value \emph{nei} if
+at less than two of \code{ASA}, \code{AndrePlatehemmere} or
+ \code{Antikoagulantia} are prescribed and \code{SkjemaStatusUtskrivelse}
+ is 1 (ferdigstilt). \code{indik_blodfortynnende} has value
+  \emph{ikke ferdigstilt} if  \code{SkjemaStatusUtskrivelse} is different
+  from 1 (ikke ferdigstilt).
 }
 
 \code{ki_foreskr_kolesterolsenkende()}
@@ -102,13 +107,18 @@ at least two of \code{ASA}, \code{AndrePlatehemmere} or
 \enumerate{
   \item \code{antall_stent_under_opphold} is at least 1
   \item \code{Regtype} = "Primær"
-  \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
   "Ukjent" are excluded
   }
 \item numerator \code{indik_kolesterolsenkende} has value \emph{ja}
-if \code{UtskrStatiner} is "Ja".
+if \code{UtskrStatiner} is "Ja" and \code{SkjemaStatusUtskrivelse}
+ is 1 (ferdigstilt). \code{indik_kolesterolsenkende} has value \emph{nei} if
+\code{UtskrStatiner} is different from "Ja" and \code{SkjemaStatusUtskrivelse}
+ is 1 (ferdigstilt). \code{indik_kolesterolsenkende} has value
+  \emph{ikke ferdigstilt} if  \code{SkjemaStatusUtskrivelse} is different
+  from 1 (ikke ferdigstilt).
 }
+
 
 \code{ki_nstemi_utredet_innen24t()}
 \itemize{
@@ -162,7 +172,7 @@ longer than 24h,  missing or if \code{BeslutningsutlosendeEKG} has value
       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
       FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA),
-      PaPd = rep(NA, 6),
+      PdPa = rep(NA, 6),
       IMR = rep(NA, 6),
       Pa = rep(NA, 6),
       Pd = rep(NA, 6))

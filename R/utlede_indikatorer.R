@@ -69,13 +69,18 @@
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
 #'   \item \code{Regtype} = "Primær"
-#'   \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
 #'   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
 #'   "Ukjent" are excluded
 #'   }
 #' \item numerator \code{indik_kolesterolsenkende} has value \emph{ja}
-#' if \code{UtskrStatiner} is "Ja".
+#' if \code{UtskrStatiner} is "Ja" and \code{SkjemaStatusUtskrivelse}
+#'  is 1 (ferdigstilt). \code{indik_kolesterolsenkende} has value \emph{nei} if
+#' \code{UtskrStatiner} is different from "Ja" and \code{SkjemaStatusUtskrivelse}
+#'  is 1 (ferdigstilt). \code{indik_kolesterolsenkende} has value
+#'   \emph{ikke ferdigstilt} if  \code{SkjemaStatusUtskrivelse} is different
+#'   from 1 (ikke ferdigstilt).
 #' }
+#'
 #'
 #' \code{ki_nstemi_utredet_innen24t()}
 #' \itemize{
@@ -468,7 +473,9 @@ ki_foreskr_kolesterolsenkende <- function(df_ap) {
         missing = "nei"),
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
-      # og utskrevet Statiner
+      # "ja": Dersom ferdigstilt og utskrevet statiner
+      # "nei": Dersom ferdigstilte, men ikke utskr statiner
+      # "ikke ferdigstilt": Manglende ferdigstilt utskrivelsesskjema
       indik_kolesterolsenkende = dplyr::case_when(
 
         .data$indik_kolesterolsenkende_data == "ja" &
