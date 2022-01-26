@@ -107,11 +107,6 @@ periode_data %<>%
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-sO_nasjonalt <- noric::getPrepSoData(registryName = params$registryName, 
-                                     fromDate  = periode_data$forste_dato, 
-                                     toDate = periode_data$siste_dato, 
-                                     singleRow = FALSE)
-
 sS_nasjonalt <- noric::getPrepSsData(registryName = params$registryName, 
                                      fromDate  = periode_data$forste_dato, 
                                      toDate = periode_data$siste_dato, 
@@ -128,39 +123,31 @@ aK_nasjonalt <- noric::getPrepAkData(registryName = params$registryName,
                                      fromDate  = periode_data$forste_dato, 
                                      toDate = periode_data$siste_dato, 
                                      singleRow = FALSE)
+
+anD_nasjonalt <- noric::getPrepAnDData(registryName = params$registryName, 
+                                       fromDate  = periode_data$forste_dato, 
+                                       toDate = periode_data$siste_dato, 
+                                       singleRow = FALSE)
 ```
 
-
-
-```{r nyesteRegistrering_ap, include=FALSE, eval=TRUE}
-nyeste_registrering_ap <- aP_nasjonalt %>% 
-  summarise(nyesteReg_max = max(.data$ProsedyreDato)) %>% 
-  # Bruke gårsdagens dato som referanse. Dersom ingen nye registreringer 
-  # (eller overføringer har stoppet opp), brukes nyeste registrering som ref.
-  # Unngår at forhåndsregisrerte planlagte forløp kommer med i rapporten.
-  mutate(nyesteReg = min((as.Date(Sys.time())-1), 
-                         .data$nyesteReg_max), 
-         nyesteRegYear = as.numeric(format(nyesteReg, format="%Y")), 
-         sisteHeleYear = nyesteRegYear -1)
-```
 
 
 ```{r yearTabPrepare, include=FALSE, eval=TRUE}
 timeTableYear <- data.frame(
-  Year = 2018:nyeste_registrering_ap$sisteHeleYear)
+  Year = 2018:periode_data$sisteHeleYear)
 ```
 
 
 ```{r kvartalTabPrepare, include=FALSE, eval=TRUE}
 # 5 siste ferdige kvartal
-forsteDatoKvartal <- lubridate::floor_date(nyeste_registrering_ap$nyesteReg, 
+forsteDatoKvartal <- lubridate::floor_date(periode_data$siste_dato, 
                                            "quarter") 
 timeTableQuarter <- data.frame(
   KvartalDatoStart = rev(seq(forsteDatoKvartal, 
                              by = "-1 quarter",
                              length.out = 6)[2:6])) %>% 
   dplyr::transmute(
-    Kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
+    kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
                      " Q", 
                      lubridate::quarter(.data$KvartalDatoStart, 
                                         with_year = FALSE)))
@@ -168,62 +155,30 @@ timeTableQuarter <- data.frame(
 
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
 # Hele forrige år og alle påbegynte måneder hittil i år
-forsteDatoSisteMonth <- lubridate::floor_date(nyeste_registrering_ap$nyesteReg, 
+forsteDatoSisteMonth <- lubridate::floor_date(periode_data$siste_dato, 
                                               "month") 
 timeTableMonth <- data.frame(
-  monthDato = seq(as.Date(paste0(nyeste_registrering_ap$sisteHeleYear, 
+  monthDato = seq(as.Date(paste0(periode_data$sisteHeleYear, 
                                  "-01-01")), 
                   forsteDatoSisteMonth,
                   by = "month")) %>% 
-  dplyr::transmute(Month = as.factor(format(x = .data$monthDato, 
-                                            format = "%Y-%m")))
+  dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
+                                             format = "%Y-%m")))
 ```
-
-
-```{r sOPrepare,include=FALSE, eval=TRUE}
-
-sO_nasjonalt %<>% dplyr::mutate(
-  RegDate = as.Date(HovedDato), 
-  Year = as.numeric(format(x = .data$RegDate,
-                           format = "%Y")),
-  Kvartal = paste0(lubridate::year(x = .data$RegDate),
-                   " Q",
-                   lubridate::quarter(x = .data$RegDate, with_year = FALSE)))
-
-
-# crude fix for Ahu Gardermoen and Rikshospitalet which have meaningless test  
-# data before 2015
-sO_nasjonalt %<>% dplyr::filter(
-  ! (.data$AvdRESH %in%  c(106944, 700722) &
-       .data$Year < 2015))
-
-sO_nasjonalt %<>%dplyr::mutate(
-  Month = as.factor(format(x = .data$RegDate, format = "%Y-%m")), 
-  SkjemastatusTekst = dplyr::recode_factor(.data$SkjemaStatus, 
-                                           `-1` = "Ikke opprettet", 
-                                           `0` = "Kladd", 
-                                           `1` = "Ferdigstilt"))
-```
-
 
 
 ```{r sSPrepare,include=FALSE, eval=TRUE}
 sS_nasjonalt %<>% 
-  dplyr::select(
-    .data$ProsedyreDato,
-    .data$StentType, 
-    .data$Segment, 
-    .data$ForlopsID,
-    .data$Sykehusnavn, 
-    .data$AvdRESH) %>% 
-  dplyr::mutate(
-    RegDate = as.Date(.data$ProsedyreDato, format = "%Y-%m-%d"),
-    Year = as.numeric(format(.data$ProsedyreDato, format = "%Y")),
-    Month = as.numeric(format(.data$ProsedyreDato, format = "%m")),
-    YearMonth = factor(format(.data$ProsedyreDato, format = "%Y-%m")),
-    Kvartal = paste0(lubridate::year(.data$RegDate),
-                     " Q",
-                     lubridate::quarter(.data$RegDate, with_year = FALSE)))
+  dplyr::select(.data$ProsedyreDato,
+                .data$StentType, 
+                .data$Segment, 
+                .data$Graft,
+                .data$ForlopsID,
+                .data$Sykehusnavn, 
+                .data$AvdRESH, 
+                .data$aar, 
+                .data$maaned, 
+                .data$kvartal) 
 ```
 
 
@@ -233,9 +188,11 @@ aP_nasjonalt %<>%
   dplyr::select(
     .data$AvdRESH,
     .data$Sykehusnavn,
+    .data$Regtype, 
+    .data$PrimaerForlopsID,
     .data$ProsedyreDato,
     .data$ProsedyreTid,
-    .data$AvdRESH, 
+    .data$ProsedyreType,
     .data$OverflyttetFra, 
     .data$AnkomstPCIDato,
     .data$AnkomstPCITid, 
@@ -243,6 +200,12 @@ aP_nasjonalt %<>%
     .data$InnleggelseHenvisendeSykehusTid,
     .data$Innkomstarsak,
     .data$Indikasjon, 
+    .data$Hastegrad,
+    .data$BesUtlEKGDato, 
+    .data$BesUtlEKGTid,
+    .data$BeslutningsutlosendeEKG,
+    .data$GittTrombolyse, 
+    .data$HLRForSykehus,
     .data$KobletForlopsID,
     .data$ForlopsType2, 
     .data$IFR, 
@@ -256,193 +219,64 @@ aP_nasjonalt %<>%
     .data$Antikoagulantia,
     .data$UtskrStatiner, 
     .data$TidlABC, 
-    .data$UtskrevetDod) %>%
+    .data$UtskrevetDod, 
+    .data$SkjemaStatusStart, 
+    .data$SkjemastatusHovedskjema, 
+    .data$SkjemaStatusUtskrivelse, 
+    .data$SkjemaStatusKomplikasjoner
+  ) %>% 
+  
+  noric::utlede_OppholdsID(.) %>% 
+  
+  noric::utlede_ferdigstilt(df = .,
+                            var = .data$SkjemaStatusStart,
+                            suffix = "StartSkjema") %>%
+  noric::utlede_ferdigstilt(df = .,
+                            var = .data$SkjemastatusHovedskjema,
+                            suffix = "HovedSkjema") %>%
+  noric::utlede_ferdigstilt(df = .,
+                            var = .data$SkjemaStatusUtskrivelse,
+                            suffix = "UtskrSkjema") %>%
+  noric::utlede_ferdigstilt(df = .,
+                            var = .data$SkjemaStatusKomplikasjoner,
+                            suffix = "KomplikSkjema") %>% 
+  
+  noric::legg_til_antall_stent(df_ap = ., df_ss = sS_nasjonalt) %>% 
+  noric::legg_til_antall_stent_opphold(df_ap = .) %>% 
+  noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>% 
+  
+  #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
+  # trykkmåling. Disse fjernes før tabellen legges i utforsker
+  noric::legg_til_trykkmaalinger(df_ap = .,
+                                 df_ad = anD_nasjonalt) %>% 
+  
+  # LEgg til hjelpevariabler for ventetider
+  noric::legg_til_ventetid_nstemi_timer(.) %>% 
+  noric::legg_til_ventetid_stemi_min(.) %>% 
+  
+  # Legge til kvalitetsindikatorene:
+  noric::ki_ferdigstilt_komplikasjoner(df_ap = .) %>% 
+  noric::ki_trykkmaaling_utfoert(df_ap = .) %>% 
+  noric::ki_ivus_oct_ved_stenting_lms(df_ap = .) %>% 
+  noric::ki_foreskr_blodfortynnende(df_ap = .) %>% 
+  noric::ki_foreskr_kolesterolsenkende(df_ap = .) %>%
+  noric::ki_nstemi_utredet_innen24t() %>% 
+  noric::ki_nstemi_utredet_innen72t() %>% 
+  noric::ki_stemi_pci_innen120min() %>% 
   
   dplyr::mutate(
-    RegDate = as.Date(.data$ProsedyreDato),
-    Year = as.numeric(format(.data$RegDate, format = "%Y")),
-    Kvartal = paste0(lubridate::year(.data$RegDate),
-                     " Q",
-                     lubridate::quarter(.data$RegDate, with_year = FALSE)))
-
-
-
-# crude fix for Feiring (Gardermoen) and Rikshospitalet which have meaningless 
-# test data before 2015
-aP_nasjonalt %<>% dplyr::filter(
-  ! (.data$AvdRESH %in%  c(106944, 700722) &
-       .data$Year < 2015))
-
-
-aP_nasjonalt %<>%  dplyr::mutate(
-  Month = as.factor(format(x = .data$RegDate, format = "%Y-%m")))
-
-
-# Ventetid - NSTEMI
-aP_nasjonalt$AdmissionType <- car::recode(
-  var = aP_nasjonalt$OverflyttetFra,
-  recodes = "
-        'Annet sykehus'='Referred';
-        '' = NA;
-        'Annen  avdeling på sykehuset' = NA;
-        'Nei, direkte inn til dette sykehus' = 'Directly admitted';
-        'Omdirigert ambulanse' = 'Directly admitted';
-        ")
-
-aP_nasjonalt %<>% dplyr::mutate(
-  
-  ProsedyreDatoTid = paste(.data$ProsedyreDato, .data$ProsedyreTid),
-  ProsedyreTidspunkt = lubridate::parse_date_time2(
-    .data$ProsedyreDatoTid,
-    "%Y-%m-%d %H:%M:%S"), 
-  
-  AnkomstDatoTid = paste(.data$AnkomstPCIDato, .data$AnkomstPCITid),
-  AnkomstTidspunkt = lubridate::parse_date_time2(
-    .data$AnkomstDatoTid,
-    "%Y-%m-%d %H:%M:%S"),
-  
-  HenvisendeSykehusDatoTid = paste(
-    .data$InnleggelseHenvisendeSykehusDato,
-    .data$InnleggelseHenvisendeSykehusTid),
-  
-  HenvisendeSykehusTidspunkt = lubridate::parse_date_time2(
-    .data$HenvisendeSykehusDatoTid,
-    "%Y-%m-%d %H:%M:%S"),
-  
-  TidsDiffSek = dplyr::if_else(
-    .data$AdmissionType == "Directly admitted",
-    true = as.numeric(difftime(.data$ProsedyreTidspunkt,
-                               .data$AnkomstTidspunkt, 
-                               units = "secs")),
-    false = as.numeric(difftime(.data$ProsedyreTidspunkt,
-                                .data$HenvisendeSykehusTidspunkt, 
-                                units = "secs"))),
-  
-  TidsDiffTimer = round((.data$TidsDiffSek / 60) / 60, 1),
-  
-  Ventetid24T = ifelse(.data$TidsDiffTimer <= 24,
-                       yes = "Innen 24t",
-                       no = "Over 24t"), 
-  
-  Ventetid72T = ifelse(.data$TidsDiffTimer <= 72,
-                       yes = "Innen 72t",
-                       no = "Over 72t"),
-  
-  innkomstaarsak = ifelse(is.na(.data$Innkomstarsak),
-                          yes = "Ukjent",
-                          no = .data$Innkomstarsak))
-# Datagrunnlag for ventetid ved NSTEMI
-aP_nasjonalt %<>%
-  dplyr::mutate(
-    ventetidNstemi_datagrunnlag = dplyr::if_else(
-      condition = (.data$Indikasjon == "NSTEMI" & 
-                     is.na(.data$KobletForlopsID) &
-                     .data$innkomstaarsak!="Øvrig" &
-                     .data$ForlopsType2!="Planlagt" &
-                     !is.na(.data$AdmissionType)), 
-      true = "ja", 
-      false = "nei", 
-      missing = "nei"), 
-    
-    ventetidNstemi_gyldigTid = dplyr::if_else(
-      condition = (ventetidNstemi_datagrunnlag == "ja" &
-                     !is.na(.data$AdmissionType) &
-                     !is.na(.data$TidsDiffSek) &
-                     .data$TidsDiffSek > 0 & 
-                     .data$TidsDiffSek <= 14 * 24 * 60 * 60),
-      true = "ja", 
-      false = "nei", 
-      missing = "nei"))
-
-# Trykkmåling
-aP_nasjonalt %<>% dplyr::mutate(
-  Trykkmaaling = dplyr::if_else(
-    .data$FFR == "Ja" | .data$IFR == "Ja",
-    true = "Utført trykkmåling",
-    false = "Ikke utført trykkmåling",
-    missing = "Ikke registrert"))
-
-
-# Stenting Venstre Hovedstamme
-aP_nasjonalt %<>% dplyr::mutate(
-  IvusOct = dplyr::if_else(
-    .data$IVUS == "Ja" | .data$OCT == "Ja",
-    true = "Utført IVUS/OCT",
-    false = "Ikke utført IVUS/OCT",
-    missing = "Ikke registrert"))
-
-# Foreskriving av medisiner
-aP_nasjonalt %<>% dplyr::mutate(
-  regType = ifelse(is.na(.data$KobletForlopsID),
-                   yes = "primaer", 
-                   no = "sekundaer"), 
-  
-  primFID = ifelse(
-    .data$regType == "primaer",
-    yes = .data$ForlopsID, 
-    no = .data$KobletForlopsID))
-
-
-# Foreskriving av blodfortynnende medisiner
-aP_nasjonalt %<>% dplyr::mutate(
-  ASABin = as.numeric(dplyr::if_else(
-    .data$ASA == "Ja",
-    true = 1, false = 0, missing = 0)),
-  
-  
-  AndrePlatehemmerebBin = as.numeric(
-    dplyr::if_else(
-      .data$AndrePlatehemmere == "Nei" | .data$AndrePlatehemmere == "Ukjent",
-      true = 0, false = 1, missing = 0)),
-  
-  AntikoagulantiaBin = as.numeric(
-    dplyr::if_else(.data$Antikoagulantia == "Nei" | 
-                     .data$Antikoagulantia == "Ukjent",
-                   true = 0, false = 1, missing = 0)))
-
-
-aP_nasjonalt %<>% dplyr::mutate(
-  Tapt = dplyr::recode(4 * .data$AntikoagulantiaBin
-                       + 2 * .data$AndrePlatehemmerebBin
-                       + 1 * .data$ASABin,
-                       "3" = "DAPT",
-                       "7" = "TAPT",
-                       "6" = "OAC + andre PH",
-                       "5" = "OAC + ASA",
-                       "4" = "Kun OAC",
-                       "2" = "Kun andre PH",
-                       "1" = "Kun ASA",
-                       "0" = "Ingen"))
-
-
-aP_nasjonalt %<>% dplyr::mutate(
-  BlodfortynnendeKategori = dplyr::recode(
-    .data$Tapt,
-    "TAPT" = "DAPT og OAC",
-    "DAPT" = "DAPT",
-    "OAC + andre PH" = "SAPT og OAC",
-    "OAC + ASA" = "SAPT og OAC",
-    "Kun OAC" = "SAPT eller OAC",
-    "Kun andre PH" = "SAPT eller OAC",
-    "Kun ASA" = "SAPT eller OAC",
-    "Ingen" = "Ingen"))
-
-aP_nasjonalt %<>% dplyr::mutate(
-  flereBlodFMed = ifelse(
-    .data$BlodfortynnendeKategori == "DAPT" |
-      .data$BlodfortynnendeKategori == "DAPT og OAC" |
-      .data$BlodfortynnendeKategori == "SAPT og OAC",
-    yes = "Ja",
-    no = "Nei"))
-
-
-# Foreskriving av kolesterolsenkende medisiner
-aP_nasjonalt %<>% dplyr::mutate(
-  ForskrStatiner = dplyr::if_else(
-    .data$UtskrStatiner == "Ja",
-    true = "Forskrevet statiner",
-    false = "Ikke forskrevet statiner",
-    missing = "Ikke forskrevet statiner"))
+    maaned = as.factor(format(x = .data$ProsedyreDato, format = "%Y-%m")), 
+    aar = lubridate::year(.data$ProsedyreDato), 
+    kvartal = paste0(lubridate::year(.data$ProsedyreDato), 
+                     " Q", 
+                     lubridate::quarter(.data$ProsedyreDato, 
+                                        with_year = FALSE))) %>% 
+  dplyr::mutate(admissionType = dplyr::case_when(
+    .data$OverflyttetFra == "Annet sykehus" ~ "Overflyttet", 
+    .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus", 
+                                "Omdirigert ambulanse") ~ "Direkte",
+    TRUE ~ NA_character_
+  ))
 
 ```
 
@@ -459,30 +293,74 @@ aK_nasjonalt %<>%
     .data$Sykehusnavn, 
     .data$AvdRESH, 
     .data$ForlopsID, 
-    .data$Pacemaker)
+    .data$Pacemaker,
+    .data$SkjemaStatusHovedskjema,
+    .data$aar)
 
-
-aK_nasjonalt  %<>% 
+aK_nasjonalt %<>%
+  dplyr::filter(.data$aar >= 2019) %>% 
   dplyr::mutate(
-    RegDate = as.Date(.data$ProsedyreDato)) %>% 
-  dplyr::filter(RegDate >= as.Date("2019-01-01"))
-
-
-aK_nasjonalt %<>% dplyr::mutate(
-  Year = as.numeric(format(x = .data$RegDate, format = "%Y")),
-  Kvartal = paste0(lubridate::year(x = .data$RegDate),
-                   " Q",
-                   lubridate::quarter(x = .data$RegDate, 
-                                      with_year = FALSE)), 
-  Month = as.factor(format(x = .data$RegDate, format = "%Y-%m")))
-
-# Pacemakerbehov etter kateterbasert innsetting av aortaklaff
-aK_nasjonalt %<>% dplyr::mutate(
-  Pacemakerbehov = dplyr::if_else(
-    .data$AvdKompPacemaker == "Ja",
-    true = "Implantert perm. pacemaker",
-    false = "Ikke implantert perm. pacemaker",
-    missing = "Ikke implantert perm. pacemaker"))
+    
+    kvartal = paste0(
+      lubridate::year(.data$ProsedyreDato),
+      " Q",
+      lubridate::quarter(.data$ProsedyreDato, with_year = FALSE)), 
+    
+    ProsedyreType = factor(
+      x = dplyr::case_when(
+        
+        .data$ScreeningBeslutning %in% c("TAVI + PCI", "TAVI") &
+          !is.na(.data$TypeKlaffeprotese) ~ "TAVI med klaff", 
+        
+        .data$ScreeningBeslutning %in% c("TAVI + PCI", "TAVI") &
+          is.na(.data$TypeKlaffeprotese) ~ "TAVI uten klaff", 
+        
+        ScreeningBeslutning %in% c("BAV") &
+          !is.na(TypeKlaffeprotese) ~ "BAV med klaff", 
+        
+        
+        .data$ScreeningBeslutning %in% c("BAV") &
+          is.na(.data$TypeKlaffeprotese) ~ "BAV uten klaff",
+        
+        TRUE ~ NA_character_), 
+      levels = c("TAVI med klaff", 
+                 "TAVI uten klaff", 
+                 "BAV med klaff", 
+                 "BAV uten klaff"), 
+      ordered =TRUE), 
+    
+    indik_ak_pacemakerbehov_data = dplyr::if_else(
+      
+      # Ekskluderer de som døde grunnet komplikasjon på lab siden det ikke går an
+      # å registrere AvdKomplikasjon hvis det forekom en komplikasjon på lab:
+      !.data$LabKompDod %in% "Ja" &
+        
+        # Alle som har fått satt inn klaff, uansett ScreeningBeslutning
+        .data$ProsedyreType %in% c("TAVI med klaff", "BAV med klaff") &
+        
+        # Ekskluder de som allerede hadde PM:
+        # Pacemaker %in% c("Nei", NA, "Ukjent),
+        !.data$Pacemaker %in% "Ja",
+      
+      true = "ja", 
+      false = "nei", 
+      missing = "nei"), 
+    
+    # Pacemakerbehov etter kateterbasert innsetting av aortaklaff
+    indik_ak_pacemakerbehov = dplyr::case_when(
+      
+      .data$indik_ak_pacemakerbehov_data == "ja" & 
+        .data$SkjemaStatusHovedskjema == 1 & 
+        .data$AvdKompPacemaker == "Ja" ~ "ja", 
+      
+      .data$indik_ak_pacemakerbehov_data == "ja" &
+        .data$SkjemaStatusHovedskjema == 1 & 
+        ! .data$AvdKompPacemaker %in% "Ja" ~ "nei", 
+      
+      .data$indik_ak_pacemakerbehov_data == "ja" &
+        .data$SkjemaStatusHovedskjema %in% c(-1, 0) ~ "ikke ferdigstilt", 
+      
+      TRUE ~ NA_character_))
 
 ```
 
@@ -1630,6 +1508,7 @@ medisinerAP <- medisinerAP_nasjonalt %>%
   dplyr::filter(.data$AvdRESH == params$reshID)
 
 ```
+
 
 ### Foreskriving av blodfortynnende medisiner
 
