@@ -106,7 +106,7 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
       dplyr::pull(.data$indik_trykkmaaling) == "ja"))
 
 
-   testthat::expect_true(all(
+  testthat::expect_true(all(
     x_out %>%
       dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
                       (.data$FFR != "Ja" | is.na(.data$FFR)) &
@@ -332,11 +332,6 @@ test_that("ki_foreskr_blodfortynnende works", {
       dplyr::filter(.data$indik_blodfortynnende_data == "ja") %>%
       dplyr::pull(.data$Regtype) == "Primær"))
 
-  # Forventer ferdigstilt dersom datagrunnlag = ja
-  expect_true(all(
-    x_out %>%
-      dplyr::filter(.data$indik_blodfortynnende_data == "ja") %>%
-      dplyr::pull(.data$SkjemaStatusUtskrivelse)  == 1))
 
   # Forventer Ikke død dersom datagrunnlag = ja
   expect_true(all(
@@ -358,11 +353,6 @@ test_that("ki_foreskr_blodfortynnende works", {
       dplyr::filter(!.data$Regtype == "Primær") %>%
       dplyr::pull(.data$indik_blodfortynnende_data)  == "nei"))
 
-  # Forventer at datagrunnlag er nei, dersom ikke ferdigstilt
-  expect_true(all(
-    x_out %>%
-      dplyr::filter(.data$SkjemaStatusUtskrivelse != 1) %>%
-      dplyr::pull(.data$indik_blodfortynnende_data)  == "nei"))
 
 
   # Forventer at datagrunnlag er nei, dersom ikke levende
@@ -387,6 +377,7 @@ test_that("ki_foreskr_blodfortynnende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           .data$ASA == "Ja" &
           !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_)) %>%
       dplyr::pull(.data$indik_blodfortynnende) == "ja"))
@@ -395,6 +386,7 @@ test_that("ki_foreskr_blodfortynnende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           .data$ASA == "Ja" &
           !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_)) %>%
       dplyr::pull(.data$indik_blodfortynnende) == "ja"))
@@ -403,6 +395,7 @@ test_that("ki_foreskr_blodfortynnende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))) %>%
       dplyr::pull(.data$indik_blodfortynnende) == "ja"))
@@ -414,6 +407,7 @@ test_that("ki_foreskr_blodfortynnende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           .data$ASA == "Ja" &
           .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
           .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_)) %>%
@@ -424,6 +418,7 @@ test_that("ki_foreskr_blodfortynnende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           .data$ASA != "Ja" &
           !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
           .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_)) %>%
@@ -434,6 +429,7 @@ test_that("ki_foreskr_blodfortynnende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           .data$ASA != "Ja" &
           .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
           !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_)) %>%
@@ -444,6 +440,7 @@ test_that("ki_foreskr_blodfortynnende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           .data$ASA != "Ja" &
           .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
           .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_)) %>%
@@ -454,9 +451,25 @@ test_that("ki_foreskr_blodfortynnende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))) %>%
       dplyr::pull(.data$indik_blodfortynnende) == "ja"))
+
+
+
+  expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$SkjemaStatusUtskrivelse != 1,
+                    .data$indik_blodfortynnende_data == "ja") %>%
+      dplyr::pull(.data$indik_blodfortynnende)  == "ikke ferdigstilt"))
+
+  # Forventer "ikke ferdigstilt" dersom datagrunnlag = ja, men ikke ferdigsilt
+  expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_blodfortynnende == "ikke ferdigstilt",
+                    .data$indik_blodfortynnende_data == "ja") %>%
+      dplyr::pull(.data$SkjemaStatusUtskrivelse) %in% c(-1, 0)))
 
 
   # Forventer feilmelding dersom variabler mangler
@@ -519,11 +532,6 @@ test_that("ki_foreskr_kolesterolsenkende works", {
       dplyr::filter(.data$indik_kolesterolsenkende_data == "ja") %>%
       dplyr::pull(.data$Regtype) == "Primær"))
 
-  # Forventer ferdigstilt dersom datagrunnlag = ja
-  expect_true(all(
-    x_out %>%
-      dplyr::filter(.data$indik_kolesterolsenkende_data == "ja") %>%
-      dplyr::pull(.data$SkjemaStatusUtskrivelse)  == 1))
 
   # Forventer Ikke død dersom datagrunnlag = ja
   expect_true(all(
@@ -543,12 +551,6 @@ test_that("ki_foreskr_kolesterolsenkende works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(!.data$Regtype == "Primær") %>%
-      dplyr::pull(.data$indik_kolesterolsenkende_data)  == "nei"))
-
-  # Forventer at datagrunnlag er nei, dersom ikke ferdigstilt
-  expect_true(all(
-    x_out %>%
-      dplyr::filter(.data$SkjemaStatusUtskrivelse != 1) %>%
       dplyr::pull(.data$indik_kolesterolsenkende_data)  == "nei"))
 
 
@@ -573,6 +575,7 @@ test_that("ki_foreskr_kolesterolsenkende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_kolesterolsenkende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           .data$UtskrStatiner == "Ja") %>%
       dplyr::pull(.data$indik_kolesterolsenkende) == "ja"))
 
@@ -581,8 +584,28 @@ test_that("ki_foreskr_kolesterolsenkende works", {
     x_out %>%
       dplyr::filter(
         .data$indik_kolesterolsenkende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           ! .data$UtskrStatiner == "Ja") %>%
       dplyr::pull(.data$indik_kolesterolsenkende) == "nei"))
+
+
+  # Forventer "ikke ferdigstilt" dersom datagrunnlag = ja, men ikke ferdigsilt
+  expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$SkjemaStatusUtskrivelse != 1,
+                    .data$indik_kolesterolsenkende_data == "ja") %>%
+      dplyr::pull(.data$indik_kolesterolsenkende)  == "ikke ferdigstilt"))
+
+  # Forventer "ikke ferdigstilt" dersom datagrunnlag = ja, men ikke ferdigsilt
+  expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_kolesterolsenkende == "ikke ferdigstilt",
+                    .data$indik_kolesterolsenkende_data == "ja") %>%
+      dplyr::pull(.data$SkjemaStatusUtskrivelse) %in% c(-1, 0)))
+
+
+
+
 
   # Forventer feilmelding dersom variabler mangler
   expect_error(
