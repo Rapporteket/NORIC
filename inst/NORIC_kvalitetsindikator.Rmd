@@ -1271,95 +1271,62 @@ Pasienter som tidligere har fått utført ACB-operasjon og pasienter som blir
 behandlet for akutt hjerteinfarkt av typen STEMI er ikke medregnet i analysene.
 (Mål $\geq$ 60 %)
 
-```{r stentingVH, include=FALSE, eval=TRUE}
-
-#Nasjonalt
-stentVH_sS_nasjonalt <- sS_nasjonalt %>% 
-  dplyr::filter(!is.na(.data$StentType) & .data$Segment == 5) %>% 
-  dplyr::select(.data$ForlopsID, 
-                .data$Sykehusnavn,
-                .data$AvdRESH) 
-
-
-stentVH_aP_nasjonalt <- aP_nasjonalt %>% 
-  dplyr::filter(!.data$TidlABC %in% "Ja" &
-                  .data$Indikasjon %in% c("Vitieutredning",
-                                          "Uklare brystsmerter",
-                                          "Annet",
-                                          "Hjertestans uten STEMI",
-                                          "Hjertesvikt/kardiomyopati",
-                                          "Komplettering av tidligere PCI",
-                                          "UAP",
-                                          "NSTEMI",
-                                          "Stabil koronarsykdom"))%>% 
-  dplyr::select(.data$ForlopsID, 
-                .data$Sykehusnavn, 
-                .data$IvusOct, 
-                .data$Kvartal,
-                .data$AvdRESH)
-
-
-stentVH_nasjonalt <- stentVH_sS_nasjonalt %>%
-  dplyr::inner_join(., 
-                    stentVH_aP_nasjonalt, 
-                    by = c("ForlopsID", "AvdRESH"))
-#Lokalt
-stentVH <- stentVH_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID)
-
-```
-
-
 ```{r TabNstentingVH, results='asis', warning=FALSE}
+cap <- paste0("Antall og andel prosedyrer der det er brukt supplerende ", 
+              "billeddiagnostike metoder (IVUS og/eller OCT). ", 
+              "Kvartaler med mindre enn 5 observasjoner er markert med N.")
+
+
 
 #Lokalt
-nStentVH <- stentVH %>%
-  dplyr::count(.data$Kvartal, .data$IvusOct, .drop = FALSE) %>%
-  tidyr::pivot_wider(names_from = .data$IvusOct, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
+nStentVH <- aP_nasjonalt %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja") %>% 
+  dplyr::select(.data$kvartal,
+                .data$indik_ivus_oct_v_stent_lms) %>% 
+  janitor::tabyl(.data$kvartal,
+                 .data$indik_ivus_oct_v_stent_lms,
+                 show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
-    prosentUtfort = paste0(
-      round(.data$`Utført IVUS/OCT`/.data$Totalt*100, 1), " %"),
+    
+    Prosent = paste0(round(.data$ja / .data$Totalt * 100, 1), " %"),
     Totalt = ifelse(.data$Totalt < 5,
                     yes = "N",
                     no = .data$Totalt),
+    
     utfortIvusOct = ifelse(.data$Totalt == "N",
                            yes = NA,
-                           no = .data$`Utført IVUS/OCT`),
-    prosentUtfort = ifelse(Totalt == "N",
-                           yes = NA,
-                           no = .data$prosentUtfort)) %>%
-  dplyr::select(.data$Kvartal, 
+                           no = .data$ja),
+    
+    Prosent = ifelse(Totalt == "N",
+                     yes = NA,
+                     no = .data$Prosent)) %>%
+  dplyr::select(.data$kvartal, 
                 .data$Totalt, 
                 .data$utfortIvusOct, 
-                .data$prosentUtfort) %>%
-  dplyr::rename("Prosent" = .data$prosentUtfort)
-
+                .data$Prosent) 
 
 #Nasjonalt
-nStentVH_nasjonalt <- stentVH_nasjonalt %>%
-  dplyr::count(.data$Kvartal, .data$IvusOct, .drop = FALSE) %>%
-  tidyr::pivot_wider(names_from = .data$IvusOct, 
-                     values_from = .data$n, 
-                     values_fill = list(n = 0)) %>%
+nStentVH_nasjonalt <- aP_nasjonalt %>% 
+  dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja") %>% 
+  dplyr::select(.data$kvartal,
+                .data$indik_ivus_oct_v_stent_lms) %>% 
+  janitor::tabyl(.data$kvartal,
+                 .data$indik_ivus_oct_v_stent_lms,
+                 show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
-  dplyr::mutate(
-    prosentUtfort = paste0(
-      round(.data$`Utført IVUS/OCT`/.data$Totalt*100, 1), 
-      " %")) %>%
-  dplyr::select(.data$Kvartal, .data$prosentUtfort) %>%
-  dplyr::rename("Nasjonalt" = .data$prosentUtfort)
+  dplyr::transmute(
+    kvartal = .data$kvartal,
+    Nasjonalt = paste0(round(.data$ja / .data$Totalt * 100, 1), " %"))
 
 #Tabell
 tabStentVH <- timeTableQuarter %>%
-  dplyr::left_join(., nStentVH, by = c("Kvartal")) %>%
-  dplyr::left_join(., nStentVH_nasjonalt, by = c("Kvartal")) %>% 
+  dplyr::left_join(., nStentVH, by = c("kvartal")) %>%
+  dplyr::left_join(., nStentVH_nasjonalt, by = c("kvartal")) %>% 
   dplyr::rename("Utført IVUS/OCT" = .data$utfortIvusOct) %>% 
   replace(is.na(.), "-")
 
-cap <- "Antall og andel prosedyrer der det er brukt supplerende billeddiagnostike metoder (IVUS og/eller OCT). Kvartaler med mindre enn 5 observasjoner er markert med N."
 
 noric::mst(tab = tabStentVH, 
            type = params$tableFormat,
@@ -1367,9 +1334,7 @@ noric::mst(tab = tabStentVH,
            digs = c(0,0,1,1), 
            align = rep("c", 4), 
            label = "tabStentVH")
-
 ```
-
 
 ```{r pagebreakStentingVH, results = "asis", eval = (params$tableFormat == "latex")}
 cat("\n\n\\pagebreak\n")
