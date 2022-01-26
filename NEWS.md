@@ -1,3 +1,12 @@
+## Revisjon av kvalitetsindikatorene
+* Trykkmålinger: 4 nye trykkmålinger skal være med i indikatoren 
+(IMR, Pd, Pa, Pd/Pa)
+* Foreskrevet kolesterolsenkende og blodfortynnende. Vi har nå 3 nivåer dersom 
+forløpet er i datagrunnlaget : ja, nei og ikke ferdigstilt. Synliggjør de 
+ikke-ferdigstilte. 
+* Oppdatere månedlig utsending med disse endringene
+* Oppdatere månedlig utsendign med bruk av noric funksjonene fra versjon 2.3.0
+
 # noric 2.4.2
 * missing export of getPrepSoData() hopefully fixed
 * removed spinner from local reports
