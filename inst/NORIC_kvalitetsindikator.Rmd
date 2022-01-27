@@ -430,7 +430,7 @@ cat("\n\n\\pagebreak\n")
 
 
 
-## Grad av ferdigstilt komplikasjonsskjema
+# Grad av ferdigstilt komplikasjonsskjema
 
 Opplysninger om komplikasjoner er viktig for å kunne vurdere behandlingskvalitet
 og risiko. Dersom de aktuelle registreringsskjemaene ikke er ferdigutfylt, blir 
@@ -439,6 +439,8 @@ ferdigstilte registreringsskjema for komplikasjoner oppstått på sykehus etter
 prosedyre. Alle pasientforløp er inkludert. (Mål $\geq$ 95 %)
 
 ```{r TabNFerdigstiltKompl, results='asis', warning=FALSE}
+cap <- paste0("Antall og andel ferdigstilte komplikasjonsskjemaer etter måned.", 
+              " Måneder med mindre enn 5 observasjoner er markert med N.")
 
 #Lokalt
 ferdigstilt_lokalt <- aP_nasjonalt %>% 
@@ -488,7 +490,6 @@ tabFerdigtiltKompl <- timeTableMonth %>%
   replace(is.na(.), "-")
 
 
-cap <- "Antall og andel ferdigstilte komplikasjonsskjemaer etter måned. Måneder med mindre enn 5 observasjoner er markert med N."
 
 noric::mst(tab = tabFerdigtiltKompl, 
            type = params$tableFormat,
@@ -503,7 +504,7 @@ noric::mst(tab = tabFerdigtiltKompl,
 cat("\n\n\\pagebreak\n")
 ```
 
-## Invasiv utredning ved NSTEMI
+# Invasiv utredning ved NSTEMI
 
 Ved hjerteinfarkt uten ST-elevasjon i EKG (NSTEMI) er blodåren ofte ikke helt 
 tett, men det er risiko for at den kan bli det. Europeiske retningslinjer
@@ -516,7 +517,7 @@ ulike kvalitetsindikatorer som gjelder for ventetid på utredning ved NSTEMI
 med målnivå på henholdsvis 50 % og 80 %.
 
 
-### Invasiv utredning ved NSTEMI innen 24 timer
+## Invasiv utredning ved NSTEMI innen 24 timer
 
 ```{r ventetid24t_NSTEMI, results='asis', warning=FALSE}
 cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
@@ -576,8 +577,8 @@ tabVentetid24t <- timeTableMonth %>%
   dplyr::left_join(., nstemi_24t_nasjonalt, by = c("maaned")) %>% 
   dplyr::rename(
     "Måned" = .data$maaned,
-    "Antall komplette data av totale antall data" = .data$komplette_tekst,
-    "Antall NSTEMI innen 24t av komplett data" = .data$nstemi_24t_tekst) %>%
+    "Antall komplette data av datagrunnlaget" = .data$komplette_tekst,
+    "Antall NSTEMI innen 24t av komplette" = .data$nstemi_24t_tekst) %>%
   replace(is.na(.), "-")
 
 
@@ -596,7 +597,7 @@ noric::mst(tab = tabVentetid24t,
 cat("\n\n\\pagebreak\n")
 ```
 
-### Figurer - Invasiv utredning ved NSTEMI innen 24 timer
+## Figurer - Invasiv utredning ved NSTEMI innen 24 timer
 
 ```{r nstemi_komplette, results='asis', warning=FALSE}
 # Lokalt: Andel komplette under 50% per måned? 
@@ -1089,7 +1090,7 @@ fig_overflyttet %>% ggplot2::ggplot(
 
 
 
-### Invasiv utredning ved NSTEMI innen 72 timer
+## Invasiv utredning ved NSTEMI innen 72 timer
 
 ```{r ventetid72t_NSTEMI, results='asis', warning=FALSE}
 cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
@@ -1149,8 +1150,8 @@ tabVentetid72t <- timeTableMonth %>%
   dplyr::left_join(., nstemi_72t_nasjonalt, by = c("maaned")) %>% 
   dplyr::rename(
     "Måned" = .data$maaned,
-    "Antall komplette data av totale antall data" = .data$komplette_tekst,
-    "Antall NSTEMI innen 72t av komplett data" = .data$nstemi_72t_tekst) %>%
+    "Antall komplette data av datagrunnlaget" = .data$komplette_tekst,
+    "Antall NSTEMI innen 72t av komplette" = .data$nstemi_72t_tekst) %>%
   replace(is.na(.), "-")
 
 
@@ -1169,7 +1170,7 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
-## Trykkmåling ved innsnevringer i kransårene
+# Trykkmåling ved innsnevringer i kransårene
 
 Bruk av trykkmålinger (FFR, iFR, IMR, Pd, Pa og Pd/Pa) i kransårer med 
 innsnevringer har vist seg 
@@ -1259,7 +1260,7 @@ noric::mst(tab = tabTrykkmaalingAP,
 cat("\n\n\\pagebreak\n")
 ```
 
-## Billeddiagnostikk ved stenting av venstre hovedstamme
+# Billeddiagnostikk ved stenting av venstre hovedstamme
 
 Europeiske retningslinjer anbefaler bruk av tilleggsundersøkelser for å gi
 supplerende bildeframstilling i tilknytning til PCI av venstre hovedstamme.
@@ -1340,13 +1341,13 @@ noric::mst(tab = tabStentVH,
 cat("\n\n\\pagebreak\n")
 ```
 
-## Foreskriving av medisiner
+# Foreskriving av medisiner
 
 Datagrunnlag for indikatoren: primærforløp der minst en stent er satt inn under
 oppholdet og der pasienten ikke er utskrevet død. Kun forløp der 
 utskrivelsesskjemaet er ferdigstilt brukes for å regne ut måloppnåelse. 
 
-### Foreskriving av blodfortynnende medisiner
+## Foreskriving av blodfortynnende medisiner
 
 Blodfortynnende medisiner er viktig for å hindre blodproppdannelse etter 
 innsetting av stent. Europeiske retningslinjer anbefaler samtidig bruk av to 
@@ -1432,7 +1433,7 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
-### Foreskriving av kolesterolsenkende medisiner
+## Foreskriving av kolesterolsenkende medisiner
 
 Kolesterolsenkende behandling er viktig for å hindre progresjon av koronarsykdom
 hos pasienter som har fått påvist dette. Europeiske retningslinjer har en sterk
@@ -1519,7 +1520,7 @@ cat("\n\n\\pagebreak\n")
 
 
 `r if (dim_ak_lokalt[1] <= 10 | aK_nasjonalt %>% nrow() == 0) {"<!--"}`
-## Pacemakerbehov etter kateterbasert innsetting av aortaklaff
+# Pacemakerbehov etter kateterbasert innsetting av aortaklaff
 
 Denne indikatoren 
 viser andel pasienter som har fått implantert permanent pacemaker under 
