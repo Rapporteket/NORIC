@@ -98,57 +98,6 @@ AP <- noric::getPrepApData(registryName = params$registryName,
 ```
 
 
-
-```{r APprepare,include=FALSE, eval=TRUE}
-
-AP$ProsedyreDato <- as.Date(AP$ProsedyreDato)
-
-AP$Sykehusnavn <- factor(AP$Sykehusnavn)
-
-```
-
-
-
-```{r Daterecodes,include=FALSE, eval=TRUE}
-
-AP$Year <- as.numeric(
-  format(
-    x = AP $ ProsedyreDato,
-    format = "%Y"))
-
-AP$Week <- as.numeric(
-  format(
-    x = AP $ ProsedyreDato,
-    format = "%W"))
-
-
-AP$nMonth <- as.numeric(
-  as.factor(
-    format(
-      AP$ProsedyreDato,
-      format = "%y-%m")))
-
-AP$Day <- as.numeric(
-  AP$ProsedyreDato - min(AP$ProsedyreDato, na.rm = TRUE))
-
-```
-
-```{r subsetting,include=FALSE, eval=TRUE}
-
-AP <- subset(
-  x = AP,
-  subset = nMonth >= max(nMonth , na.rm = TRUE) - showN)
-
-# crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
-if(AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP[which( AP$Year >= 2015), ]
-
-AP$Month <- as.factor(
-  format(
-    x = AP$ProsedyreDato,
-    format = "%y-%m"))
-
-```
-
 ## Angiografør og PCI-hovedoperatør
 ### Angiografør
 
