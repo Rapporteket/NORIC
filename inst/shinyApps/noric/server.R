@@ -396,7 +396,7 @@ shinyServer(function(input, output, session) {
                        "orgName",
                        "userRole"
                        ),
-        paramValues = c("local_monthly",
+        paramValues = c("NORIC_local_monthly_ativity",
                         "pdf",
                         "Månedsresultater",
                         reshId,
