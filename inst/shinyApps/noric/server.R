@@ -96,7 +96,7 @@ shinyServer(function(input, output, session) {
       HTML = rmarkdown::html_document(),
       BEAMER = rmarkdown::beamer_presentation(theme = "Hannover"),
       REVEAL = revealjs::revealjs_presentation(theme = "sky")
-        #css = normalizePath(system.file("bootstrap.css", package = "noric")))
+      #css = normalizePath(system.file("bootstrap.css", package = "noric")))
     ), params = list(tableFormat = switch(
       type,
       PDF = "latex",
@@ -158,7 +158,7 @@ shinyServer(function(input, output, session) {
                      `PasientStudier` = "PS",
                      `Skjemaoversikt` = "SO",
                      `Segment stent` = "SS"
-                     )
+    )
   } else {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Angio PCI med utledete variabler, 3 siste år` = "ApLight",
@@ -280,7 +280,7 @@ shinyServer(function(input, output, session) {
   output$downloadReportStentbruk <- downloadHandler(
     filename = function() {
       downloadFilename("NORIC_local_monthly_stent",
-                                input$formatStentbruk)
+                       input$formatStentbruk)
     },
 
     content = function(file) {
@@ -394,16 +394,30 @@ shinyServer(function(input, output, session) {
   dispatch <- list(
     `KI: sykehus mot resten av landet` = list(
       synopsis = paste("NORIC kvalitetsindikatorer: eget sykehus",
-                        "sammenlignet med resten av landet"),
-      fun = "dispatchMonthlyKi",
-      paramNames = c("baseName", "hospitalName", "reshID", "author",
-                     "userRole", "type", "registryName"),
-      paramValues = c(
-        "NORIC_kvalitetsindikator", "udefName", 999999, userFullName,
-        userRole, "pdf", registryName
+                       "sammenlignet med resten av landet"),
+      fun = "reportProcessor",
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "author",
+                     "orgName",
+                     "orgId",
+                     "registryName",
+                     "userFullName",
+                     "userRole",
+                     "userOperator"),
+      paramValues = c("NORIC_kvalitetsindikator_v2",
+                      "pdf",
+                      "Månedsresultater",
+                      "unknown author",
+                      "unknown organization",
+                      reshId,
+                      registryName,
+                      userFullName,
+                      userRole,
+                      "unknown operator")
       )
     )
-  )
 
   org <- rapbase::autoReportOrgServer("noricDispatch", orgs)
 
