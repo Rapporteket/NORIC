@@ -65,70 +65,70 @@ reportProcessor <- function(report,
   }
 
 
-  if (report == "NORIC_local_monthly") {
-    filePath <- rapbase::renderRmd(
-      system.file("NORIC_local_monthly.Rmd", package = "noric"),
-      outputType = outputType,
-      params = list(
-        author = author,
-        hospitalName = noric::getHospitalName("noric", orgId),
-        tableFormat = outputType,
-        reshId = orgId,
-        registryName = registryName,
-        userRole = userRole,
-        userOperator = userOperator
-      )
-    )
-  }
-
-
-  if (report == "NORIC_local_monthly_stent") {
-    filePath <- rapbase::renderRmd(
-      system.file("NORIC_local_monthly_stent.Rmd", package = "noric"),
-      outputType = outputType,
-      params = list(
-        author = author,
-        hospitalName = noric::getHospitalName("noric", orgId),
-        tableFormat = outputType,
-        reshId = orgId,
-        registryName = registryName,
-        userRole = userRole,
-        userOperator = userOperator
-      )
-    )
-  }
-
-
-  if (report == "NORIC_local_monthly_activity") {
-    filePath <- rapbase::renderRmd(
-      system.file("NORIC_local_monthly_activity.Rmd", package = "noric"),
-      outputType = outputType,
-      params = list(
-        author = author,
-        hospitalName = noric::getHospitalName("noric", orgId),
-        tableFormat = outputType,
-        reshId = orgId,
-        registryName = registryName,
-        userRole = userRole,
-        userOperator = userOperator
-      )
-    )
-  }
+  # if (report == "NORIC_local_monthly") {
+  #   filePath <- rapbase::renderRmd(
+  #     system.file("NORIC_local_monthly.Rmd", package = "noric"),
+  #     outputType = outputType,
+  #     params = list(
+  #       author = author,
+  #       hospitalName = noric::getHospitalName("noric", orgId),
+  #       tableFormat = outputType,
+  #       reshId = orgId,
+  #       registryName = registryName,
+  #       userRole = userRole,
+  #       userOperator = userOperator
+  #     )
+  #   )
+  # }
+  #
+  #
+  # if (report == "NORIC_local_monthly_stent") {
+  #   filePath <- rapbase::renderRmd(
+  #     system.file("NORIC_local_monthly_stent.Rmd", package = "noric"),
+  #     outputType = outputType,
+  #     params = list(
+  #       author = author,
+  #       hospitalName = noric::getHospitalName("noric", orgId),
+  #       tableFormat = outputType,
+  #       reshId = orgId,
+  #       registryName = registryName,
+  #       userRole = userRole,
+  #       userOperator = userOperator
+  #     )
+  #   )
+  # }
+  #
+  #
+  # if (report == "NORIC_local_monthly_activity") {
+  #   filePath <- rapbase::renderRmd(
+  #     system.file("NORIC_local_monthly_activity.Rmd", package = "noric"),
+  #     outputType = outputType,
+  #     params = list(
+  #       author = author,
+  #       hospitalName = noric::getHospitalName("noric", orgId),
+  #       tableFormat = outputType,
+  #       reshId = orgId,
+  #       registryName = registryName,
+  #       userRole = userRole,
+  #       userOperator = userOperator
+  #     )
+  #   )
+  # }
 
 
   if (report == "NORIC_kvalitetsindikator") {
     filePath <- rapbase::renderRmd(
       sourceFile =  system.file("NORIC_kvalitetsindikator_v2.Rmd",
                                 package = "noric"),
-      outputType = "pdf",
+      outputType = outputType,
       params = list(
         author = author,
-        hospitalName = noric::getHospitalName("noric", orgId),
+        hospitalName = hospitalName,
         tableFormat = "latex",
         reshID = orgId,
         registryName = registryName,
-        userRole = userRole,
-        userFullName = userFullName
+        userFullName = userFullName,
+        userRole = userRole
       )
     )
   }
