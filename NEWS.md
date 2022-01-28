@@ -6,6 +6,7 @@ forløpet er i datagrunnlaget : ja, nei og ikke ferdigstilt. Synliggjør de
 ikke-ferdigstilte. 
 * Oppdatere månedlig utsending med disse endringene
 * Oppdatere månedlig utsendign med bruk av noric funksjonene fra versjon 2.3.0
+* Bruke reportProcessor() for utsending av KI-rapporten, men rapbase-layout
 
 # noric 2.4.2
 * missing export of getPrepSoData() hopefully fixed
