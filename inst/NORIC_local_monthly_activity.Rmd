@@ -104,13 +104,14 @@ AP <- noric::getPrepApData(registryName = params$registryName,
 ### Angiografør
 
 ```{r PrepareDataAngigrafor, include = FALSE}
-angiografor_AP <- AP %>% dplyr::filter((maaned_nr >= "07" & aar == 2021) | aar > 2021,
-                              ProsedyreType %in% c("Angio", "Angio + PCI"))
+angiografor_AP <- AP %>% dplyr::filter(
+  (.data$maaned_nr >= "07" & .data$aar == 2021) | .data$aar > 2021,
+  .data$ProsedyreType %in% c("Angio", "Angio + PCI"))
 ``` 
 
 ```{r TabNAngiogrforMonth, echo = FALSE, results = "asis"}
 cap <- "Antall angioprosedyrer etter angiografør og måned. Opptellingen er gjort ved å legge sammen prosedyretypene Angio og Angio+PCI. Kun 1. angiograf er med i opptellingen."
-tab_angiografor<- addmargins(xtabs(formula = ~ Angiografor1 + maaned,
+tab_angiografor<- addmargins(xtabs(formula = ~ .data$Angiografor1 + .data$maaned,
                              data = angiografor_AP,
                              drop.unused.levels = TRUE))
 align<- c("l", rep("c", dim(tab_angiografor)[2]-1))
@@ -135,8 +136,9 @@ if(params$tableFormat == "html"){
 ### PCI-operatører
 
 ```{r PrepareDataOperator, include = FALSE}
-pciOperator_AP <- AP %>% dplyr::filter((maaned_nr >= "07" & aar == 2021) | aar > 2021,
-                              ProsedyreType %in% c("Angio + PCI", "PCI"))
+pciOperator_AP <- AP %>% dplyr::filter(
+  (.data$maaned_nr >= "07" & .data$aar == 2021) | .data$aar > 2021,
+  .data$ProsedyreType %in% c("Angio + PCI", "PCI"))
 ``` 
 
 ```{r TabNOperatorMonth, echo = FALSE, results = "asis"}
