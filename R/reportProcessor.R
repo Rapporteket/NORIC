@@ -118,7 +118,7 @@ reportProcessor <- function(report,
 
   if (report == "NORIC_kvalitetsindikator") {
     filePath <- rapbase::renderRmd(
-      sourceFile =  system.file("NORIC_kvalitetsindikator_v2.Rmd",
+      sourceFile =  system.file("NORIC_kvalitetsindikator.Rmd",
                                 package = "noric"),
       outputType = outputType,
       params = list(
