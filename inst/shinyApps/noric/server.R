@@ -406,7 +406,7 @@ shinyServer(function(input, output, session) {
                      "userFullName",
                      "userRole",
                      "userOperator"),
-      paramValues = c("NORIC_kvalitetsindikator_v2",
+      paramValues = c("NORIC_kvalitetsindikator",
                       "pdf",
                       "Månedsresultater",
                       "unknown author",
