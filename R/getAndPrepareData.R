@@ -933,11 +933,14 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   # Fjerne utledete hjelpevariabler
   ap_light %<>%
     dplyr::select(- .data$antall_stent_under_opphold,
-                  - .data$satt_inn_stent_i_LMS,
-                  - .data$IMR,
-                  - .data$PdPa,
-                  - .data$Pa,
-                  - .data$Pd)
+                  - .data$satt_inn_stent_i_LMS)
+
+
+  # Må fjerne disse etter oppdatering av innreg-prod.. De vil komme av seg selv
+                  # - .data$IMR,
+                  # - .data$PdPa,
+                  # - .data$Pa,
+                  # - .data$Pd)
 
   # Gjøre kategoriske variabler om til factor:
   ap_light %<>%
