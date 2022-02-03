@@ -38,6 +38,7 @@ Imports:
   lubridate,
   magrittr,
   markdown,
+  nloptr (< 2.0.0),
   rapbase,
   RColorBrewer,
   readr,
