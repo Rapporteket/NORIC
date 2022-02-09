@@ -123,7 +123,7 @@ reportProcessor <- function(report,
       outputType = outputType,
       params = list(
         author = author,
-        hospitalName = hospitalName,
+        hospitalName = orgName,
         tableFormat = "latex",
         reshID = orgId,
         registryName = registryName,

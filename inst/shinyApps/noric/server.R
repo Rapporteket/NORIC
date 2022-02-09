@@ -411,7 +411,7 @@ shinyServer(function(input, output, session) {
                       "Månedsresultater",
                       "unknown author",
                       "unknown organization",
-                      reshId,
+                      999999,
                       registryName,
                       userFullName,
                       userRole,
@@ -422,7 +422,7 @@ shinyServer(function(input, output, session) {
   org <- rapbase::autoReportOrgServer("noricDispatch", orgs)
 
   dispatchParamNames <- shiny::reactive(
-    c("hospitalName", "reshID")
+    c("orgName", "orgId")
   )
   dispatchParamValues <- shiny::reactive(
     c(org$name(), org$value())
