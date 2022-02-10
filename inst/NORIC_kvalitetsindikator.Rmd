@@ -13,7 +13,13 @@ header-includes:
   - \usepackage{rotating}
   - \usepackage{float}
   - \usepackage{booktabs}
-title:  '`r paste0("Kvalitetsindikatorer fra NORIC. ", "Månedsrapport for ",  params$hospitalName)`' 
+title:   | 
+  | Kvalitetsindikatorer fra NORIC
+  |
+  | __`r paste0("Månedsrapport for ", params$hospitalName)`__
+  |
+  |
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen Rapporteket og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, " samt nasjonale data for bedre sammenligningsgrunnlag. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene presenteres per måned hittil i år, samt det siste hele året, mens figurene inneholder resultater baretil og med foregående måned. Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: '`r params$registryName`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -399,32 +405,32 @@ if (dim_ak_lokalt[1] > 10) {
 
 
 # Datagrunnlag 
-\
-Denne rapporten er generert ved hjelp av resultatløsningen 
-_Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd 
-har bestilt denne tjenesten. Rapporten er kun ment til internt bruk!
+<!-- \ -->
+<!-- Denne rapporten er generert ved hjelp av resultatløsningen  -->
+<!-- _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd  -->
+<!-- har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! -->
 
-\
-Rapporten inneholder tabeller og figurer med resultater basert på forløp 
-registrert ved `r paste0(params$hospitalName)`, samt nasjonale data for 
-bedre sammenligningsgrunnlag. Opptellinger og statistikker er gjort per 
-forløp/prosedyre, og ikke per individ. 
+<!-- \ -->
+<!-- Rapporten inneholder tabeller og figurer med resultater basert på forløp  -->
+<!-- registrert ved `r paste0(params$hospitalName)`, samt nasjonale data for  -->
+<!-- bedre sammenligningsgrunnlag. Opptellinger og statistikker er gjort per  -->
+<!-- forløp/prosedyre, og ikke per individ.  -->
 
-\
-De fleste tabellene presenteres per måned hittil i år, samt
-det siste hele året, mens figurene inneholder resultater bare til og med
-foregående måned. Siste
-innregistrering som teller med i datagrunnlaget for denne rapporten er 
+<!-- \ -->
+<!-- De fleste tabellene presenteres per måned hittil i år, samt -->
+<!-- det siste hele året, mens figurene inneholder resultater bare til og med -->
+<!-- foregående måned. -->
+Siste innregistrering som teller med i datagrunnlaget for denne rapporten er 
 `r format(periode_data$siste_dato, '%d. %B %Y')`. 
 
-\
-Eventuelle spørsmål knyttet til rapporten kan rettes til 
-[noric@helse-bergen.no](mailto:noric@helse-bergen.no)
+<!-- \ -->
+<!-- Eventuelle spørsmål knyttet til rapporten kan rettes til  -->
+<!-- [noric@helse-bergen.no](mailto:noric@helse-bergen.no) -->
 
 
-```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")}
-cat("\n\n\\pagebreak\n")
-```
+<!-- ```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")} -->
+<!-- cat("\n\n\\pagebreak\n") -->
+<!-- ``` -->
 
 
 # Ferdigstilte komplikasjonsskjema
