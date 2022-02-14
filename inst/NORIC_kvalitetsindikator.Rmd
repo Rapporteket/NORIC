@@ -1175,10 +1175,19 @@ cat("\n\n\\pagebreak\n")
 
 # PCI innen 120 minutter ved STEMI
 
-Ved ST-elevasjonsinfarkt (STEMI) er det av stor betydning å få åpnet den tette
-blodåren så raskt som mulig for å redusere skaden på hjertet. Kortere tid fra 
-beslutningsutløsende EKG til PCI er forbundet med bedre prognose, og er derfor 
-et godt mål på logistikken ved behandling av denne pasientgruppen.
+Kortere tid fra beslutningsutløsende EKG til PCI er forbundet med bedre prognose
+for pasienter med ST-elevasjonsinfarkt (STEMI). Europeiske retningslinjer 
+anbefaler at behandlingsvalget mellom primær PCI eller trombolyse gjøres på 
+grunnlag av et estimat på hvorvidt forventet tid til PCI er
+over eller under 120 minutter. Bare dersom estimert tid er under 120 minutter
+sendes pasienten direkte til PCI-behandling.
+
+Indikatoren er basert på pasientgruppen som sendes direkte til PCI-behandlig og 
+angir hvorvidt pasienten ble behandlet innnen 120 minutter eller ikke. 
+Indikatoren er et  godt mål på logistikken ved behandling av denne
+pasientgruppen. Tabell \@ref(tab:tabSTEMI120min) viser måloppnåelse per måned for 
+`r params$hospitalName` og nasjonalt (Mål $\geq$ 80%). 
+
 
 
 Tabell \@ref(tab:tabSTEMI120min) viser 
@@ -1186,7 +1195,19 @@ måloppnåelse per måned for `r params$hospitalName` og nasjonalt (Mål $\geq$ 
 
 
 ```{r tabIndikStemi, results='asis', warning=FALSE}
-cap <- paste0("STEMI (Målnivå: 80 \\%)")
+cap <- paste0(
+  "Antall og andel pasienter med indikasjon STEMI der tid for arteriepunksjon, ", 
+  "som indikerer start på den invasive prosedyren, ", 
+  "er mindre enn 120 minutter etter tidspunkt for beslutningsutløsende EKG. ", 
+  "Kun akutte primærforløp er med i datagrunnlaget. ",
+  "Pasienter som har fått trombolyse eller har hatt hjertestans før innleggelse ", 
+  "er utelatt fra analysen. ", 
+  "Ekskludert er også pasienter som kun har fått utført angiografi, og ikke PCI. ",
+  "Med 'komplette' menes forløp der både tidspunkt for arteriepunksjon og ", 
+  " beslutningsutløsende EKG er registrert og gyldige. ", 
+  "Måneder med mindre enn 50\\% komplette data eller færre enn 5 forløp blir ", 
+  "markert med stjerne og andel pasienter med PCI innen 120 minutter ", 
+  "regnes ikke ut for disse. (Målnivå: 80 \\%)")
 
 
 stemi_120min_lokalt <- aP_nasjonalt %>%
