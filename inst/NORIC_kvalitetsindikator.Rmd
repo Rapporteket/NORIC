@@ -1203,7 +1203,7 @@ grunnlag av et estimat på hvorvidt forventet tid til PCI er
 over eller under 120 minutter. Bare dersom estimert tid er under 120 minutter
 sendes pasienten direkte til PCI-behandling.
 
-Indikatoren er basert på pasientgruppen som sendes direkte til PCI-behandlig og 
+Indikatoren er basert på pasientgruppen som sendes direkte til PCI-behandling og 
 angir hvorvidt pasienten ble behandlet innnen 120 minutter eller ikke. 
 Indikatoren er et  godt mål på logistikken ved behandling av denne
 pasientgruppen. Tabell \@ref(tab:tabSTEMI120min) viser måloppnåelse per måned for 
