@@ -309,11 +309,9 @@ aK_nasjonalt %<>%
     .data$AvdRESH, 
     .data$ForlopsID, 
     .data$Pacemaker,
-    .data$SkjemaStatusHovedskjema) %>% 
-  dplyr::mutate(aar = lubridate::year(.data$ProsedyreDato))
+    .data$SkjemaStatusHovedskjema)
 
 aK_nasjonalt %<>%
-  dplyr::filter(.data$aar %in% 2019:periode_data$nyesteRegYear) %>% 
   dplyr::mutate(
     
     kvartal = paste0(
