@@ -105,7 +105,7 @@ periode_data %<>%
     
     # Aortaklaff + Segment stent (indikator per kvartal): 
     forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
-                             format = "%Y-%m-%d")
+                                format = "%Y-%m-%d")
   )
 ```
 
@@ -1209,90 +1209,101 @@ sendes pasienten direkte til PCI-behandling.
 Indikatoren er basert på pasientgruppen som sendes direkte til PCI-behandling og 
 angir hvorvidt pasienten ble behandlet innnen 120 minutter eller ikke. 
 Indikatoren er et  godt mål på logistikken ved behandling av denne
-pasientgruppen. Tabell \@ref(tab:tabSTEMI120min) viser måloppnåelse per måned for 
+pasientgruppen. 
+
+`r if (params$reshID == 106944) {"<!--"}`
+Tabell \@ref(tab:tabSTEMI120min) viser måloppnåelse per måned for 
 `r params$hospitalName` og nasjonalt (Mål $\geq$ 80%). 
+`r if (params$reshID == 106944) {"-->"}`
+
+`r if (params$reshID != 106944) {"<!--"}`
+Denne indikatoren er ikke regnet ut for `r aP_nasjonalt %>% dplyr::filter(AvdRESH == params$reshID) %>%   dplyr::distinct(Sykehusnavn) %>% dplyr::pull()` da dette sykehuset kun
+unntaksvis har STEMI pasienter. 
+`r if (params$reshID != 106944) {"-->"}`
 
 
 
-Tabell \@ref(tab:tabSTEMI120min) viser 
-måloppnåelse per måned for `r params$hospitalName` og nasjonalt (Mål $\geq$ %). 
 
 
 ```{r tabIndikStemi, results='asis', warning=FALSE}
-cap <- paste0(
-  "Antall og andel pasienter med indikasjon STEMI der tid for arteriepunksjon, ", 
-  "som indikerer start på den invasive prosedyren, ", 
-  "er mindre enn 120 minutter etter tidspunkt for beslutningsutløsende EKG. ", 
-  "Kun akutte primærforløp er med i datagrunnlaget. ",
-  "Pasienter som har fått trombolyse eller har hatt hjertestans før innleggelse ", 
-  "er utelatt fra analysen. ", 
-  "Ekskludert er også pasienter som kun har fått utført angiografi, og ikke PCI. ",
-  "Med 'komplette' menes forløp der både tidspunkt for arteriepunksjon og ", 
-  " beslutningsutløsende EKG er registrert og gyldige. ", 
-  "Måneder med mindre enn 50\\% komplette data eller færre enn 5 forløp blir ", 
-  "markert med stjerne og andel pasienter med PCI innen 120 minutter ", 
-  "regnes ikke ut for disse. (Målnivå: 80 \\%)")
 
-
-stemi_120min_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_stemi_pci_innen2t,
-                 show_missing_levels = TRUE ) %>%
-  janitor::adorn_totals("col", name = "Total") %>%
-  dplyr::mutate(
-    # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
-    komplette_antall = .data$ja + .data$nei,
-    komplette_prosent =  .data$komplette_antall / .data$Total,
-    komplette_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$komplette_antall, " av ", .data$Total, "*"),
-      false = paste0(.data$komplette_antall, " av ", .data$Total),
-      missing = NA_character_),
-    
-    # Blandt komplette: Antall NTSTEMI innen 24 t ,
-    stemi_120min_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
-      false = paste0(.data$ja, " av ", .data$komplette_antall, " (",
-                     round(100 * .data$ja / .data$komplette_antall, 1), "%)"),
-      missing = NA_character_)) %>%
-  dplyr::select(.data$maaned,
-                .data$komplette_tekst,
-                .data$stemi_120min_tekst)
-
-
-stemi_120min_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja",
-                .data$indik_stemi_pci_innen2t %in% c("ja", "nei")) %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_stemi_pci_innen2t,
-                 show_missing_levels = TRUE) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  dplyr::transmute(
-    maaned = .data$maaned,
-    Nasjonalt = paste0(round(100 * .data$ja / .data$Totalt, 1), "%"))
-
-# Forberede tabell, bruke kompletthet og ventetid
-tabSTEMI_120min <- timeTableMonth %>%
-  dplyr::left_join(., stemi_120min_lokalt, by = c("maaned")) %>%
-  dplyr::left_join(., stemi_120min_nasjonalt, by = c("maaned")) %>%
-  dplyr::rename(
-    "Måned" = .data$maaned,
-    "Komplette av datagrunnlaget" = .data$komplette_tekst,
-    "PCI innen 120min av komplette" = .data$stemi_120min_tekst) %>%
-  replace(is.na(.), "-")
-
-
-
-
-noric::mst(tab = tabSTEMI_120min,
-           type = params$tableFormat,
-           cap = cap,
-           digs = c(0, 0, 0, 1, 1),
-           align = rep("c", 5),
-           label = "tabSTEMI120min")
+if (params$reshID != 106944) {
+  
+  cap <- paste0(
+    "Antall og andel pasienter med indikasjon STEMI der tid for arteriepunksjon, ", 
+    "som indikerer start på den invasive prosedyren, ", 
+    "er mindre enn 120 minutter etter tidspunkt for beslutningsutløsende EKG. ", 
+    "Kun akutte primærforløp er med i datagrunnlaget. ",
+    "Pasienter som har fått trombolyse eller har hatt hjertestans før innleggelse ", 
+    "er utelatt fra analysen. ", 
+    "Ekskludert er også pasienter som kun har fått utført angiografi, og ikke PCI. ",
+    "Med 'komplette' menes forløp der både tidspunkt for arteriepunksjon og ", 
+    " beslutningsutløsende EKG er registrert og gyldige. ", 
+    "Måneder med mindre enn 50\\% komplette data eller færre enn 5 forløp blir ", 
+    "markert med stjerne og andel pasienter med PCI innen 120 minutter ", 
+    "regnes ikke ut for disse. (Målnivå: 80 \\%)")
+  
+  
+  stemi_120min_lokalt <- aP_nasjonalt %>%
+    dplyr::filter(.data$AvdRESH == params$reshID) %>%
+    dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
+    janitor::tabyl(.data$maaned,
+                   .data$indik_stemi_pci_innen2t,
+                   show_missing_levels = TRUE ) %>%
+    janitor::adorn_totals("col", name = "Total") %>%
+    dplyr::mutate(
+      # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
+      komplette_antall = .data$ja + .data$nei,
+      komplette_prosent =  .data$komplette_antall / .data$Total,
+      komplette_tekst = dplyr::if_else(
+        .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
+        true = paste0(.data$komplette_antall, " av ", .data$Total, "*"),
+        false = paste0(.data$komplette_antall, " av ", .data$Total),
+        missing = NA_character_),
+      
+      # Blandt komplette: Antall NTSTEMI innen 24 t ,
+      stemi_120min_tekst = dplyr::if_else(
+        .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
+        true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
+        false = paste0(.data$ja, " av ", .data$komplette_antall, " (",
+                       round(100 * .data$ja / .data$komplette_antall, 1), "%)"),
+        missing = NA_character_)) %>%
+    dplyr::select(.data$maaned,
+                  .data$komplette_tekst,
+                  .data$stemi_120min_tekst)
+  
+  
+  stemi_120min_nasjonalt <- aP_nasjonalt %>%
+    dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja",
+                  .data$indik_stemi_pci_innen2t %in% c("ja", "nei")) %>%
+    janitor::tabyl(.data$maaned,
+                   .data$indik_stemi_pci_innen2t,
+                   show_missing_levels = TRUE) %>%
+    janitor::adorn_totals("col", name = "Totalt") %>% 
+    dplyr::transmute(
+      maaned = .data$maaned,
+      Nasjonalt = paste0(round(100 * .data$ja / .data$Totalt, 1), "%"))
+  
+  # Forberede tabell, bruke kompletthet og ventetid
+  tabSTEMI_120min <- timeTableMonth %>%
+    dplyr::left_join(., stemi_120min_lokalt, by = c("maaned")) %>%
+    dplyr::left_join(., stemi_120min_nasjonalt, by = c("maaned")) %>%
+    dplyr::rename(
+      "Måned" = .data$maaned,
+      "Komplette av datagrunnlaget" = .data$komplette_tekst,
+      "PCI innen 120min av komplette" = .data$stemi_120min_tekst) %>%
+    replace(is.na(.), "-")
+  
+  
+  
+  
+  noric::mst(tab = tabSTEMI_120min,
+             type = params$tableFormat,
+             cap = cap,
+             digs = c(0, 0, 0, 1, 1),
+             align = rep("c", 5),
+             label = "tabSTEMI120min")
+}
 ```
 
 
