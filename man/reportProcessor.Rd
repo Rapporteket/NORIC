@@ -37,7 +37,7 @@ Default is "unknown organization".}
 999999.}
 
 \item{registryName}{Character string with registry name. Default is
-"ablanor".}
+"noric".}
 
 \item{userFullName}{Character string giving the person name, normally the
 user requesting the report. Default is "unknown person name".}

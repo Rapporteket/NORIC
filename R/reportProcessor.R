@@ -22,7 +22,7 @@
 #' @param orgId Integer (?) with the id of the organization/hospital. Default is
 #' 999999.
 #' @param registryName Character string with registry name. Default is
-#' "ablanor".
+#' "noric".
 #' @param userFullName Character string giving the person name, normally the
 #' user requesting the report. Default is "unknown person name".
 #' @param userRole Character string giving a user role, normally the one of the
