@@ -414,7 +414,10 @@ if (dim_ak_lokalt[1] > 10) {
 }
 ```
 
-\bigskip \bigskip  \bigskip
+\bigskip \bigskip \bigskip
+
+# Datagrunnlag
+
 Siste innregistrering som teller med i datagrunnlaget for denne rapporten er 
 `r format(periode_data$siste_dato, '%d. %B %Y')`. 
 
