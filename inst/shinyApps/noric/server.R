@@ -412,7 +412,7 @@ shinyServer(function(input, output, session) {
                       "unknown author",
                       "unknown organization",
                       999999,
-                      registryName,
+                      "noric",
                       userFullName,
                       userRole,
                       "unknown operator")
