@@ -1197,6 +1197,8 @@ noric::mst(tab = tabVentetid72t,
 cat("\n\n\\pagebreak\n")
 ```
 
+`r if (params$reshID == 106944) {"<!--"}`
+
 # PCI innen 120 minutter ved STEMI
 
 Kortere tid fra beslutningsutløsende EKG til PCI er forbundet med bedre prognose
@@ -1211,15 +1213,8 @@ angir hvorvidt pasienten ble behandlet innnen 120 minutter eller ikke.
 Indikatoren er et  godt mål på logistikken ved behandling av denne
 pasientgruppen. 
 
-`r if (params$reshID == 106944) {"<!--"}`
-Tabell \@ref(tab:tabSTEMI120min) viser måloppnåelse per måned for 
-`r params$hospitalName` og nasjonalt (Mål $\geq$ 80%). 
 `r if (params$reshID == 106944) {"-->"}`
 
-`r if (params$reshID != 106944) {"<!--"}`
-Denne indikatoren er ikke regnet ut for `r aP_nasjonalt %>% dplyr::filter(AvdRESH == params$reshID) %>%   dplyr::distinct(Sykehusnavn) %>% dplyr::pull()` da dette sykehuset kun
-unntaksvis har STEMI pasienter. 
-`r if (params$reshID != 106944) {"-->"}`
 
 
 
