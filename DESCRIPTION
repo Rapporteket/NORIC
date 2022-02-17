@@ -52,7 +52,7 @@ Imports:
   xtable,
   yaml
 Remotes:
-  Rapporteket/rapbase,
+  Rapporteket/rapbase@*release,
   andrewsali/shinycssloaders
 VignetteBuilder: knitr
 RoxygenNote: 7.1.2
