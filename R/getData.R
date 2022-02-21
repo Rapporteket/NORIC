@@ -598,8 +598,8 @@ LEFT JOIN ForlopsOversikt ON
     MitralklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
     MitralklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
 WHERE
-    MitralklaffVar.HovedDato >= '", fromDate, "' AND
-    MitralklaffVar.HovedDato <= '", toDate, "'"
+    MitralklaffVar.ProsedyreDato >= '", fromDate, "' AND
+    MitralklaffVar.ProsedyreDato <= '", toDate, "'"
   )
 
   # SQL for one row only/complete table:
