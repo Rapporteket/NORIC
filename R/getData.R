@@ -657,8 +657,8 @@ LEFT JOIN ForlopsOversikt ON
     PasienterStudier.AvdRESH = ForlopsOversikt.AvdRESH AND
     PasienterStudier.PasientID = ForlopsOversikt.PasientID
 WHERE
-    PasienterStudier.ProsedyreDato >= '", fromDate, "' AND
-    PasienterStudier.ProsedyreDato <= '", toDate, "'"
+    PasienterStudier.PasInklDato >= '", fromDate, "' AND
+    PasienterStudier.PasInklDato <= '", toDate, "'"
   )
 
   # SQL for one row only/complete table:
