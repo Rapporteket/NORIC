@@ -1,4 +1,4 @@
-# noric 2.4.3
+# noric 2.5.0
 
 ## Oppdatering kvalitetsindikatorer
 * Trykkmålinger: 4 nye trykkmålinger skal være med i indikatoren 
@@ -14,6 +14,8 @@ ikke-ferdigstilte
 * Ny funksjon: reportProcessor() 
 * bruke rapbase-layout med reportProcessor for utsending av KI-rapporten
 
+## Bugfix
+* Rette getMk og GetPs. Filter på riktig dato-variabel
 
 
 # noric 2.4.2
