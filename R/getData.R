@@ -590,7 +590,7 @@ SELECT
     ForlopsOversikt.ForlopsType1,
     ForlopsOversikt.ForlopsType2,
     ForlopsOversikt.KobletForlopsID,
-    ForlopsOversikt.BasisRegStatus,
+    ForlopsOversikt.BasisRegStatus
 
 FROM
     MitralklaffVar
