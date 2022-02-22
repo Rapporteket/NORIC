@@ -29,7 +29,6 @@ jobs:
       - name: Set up MySQL, ubuntu only
         run: |
           sudo /etc/init.d/mysql start
-          mysql -e 'CREATE DATABASE IF NOT EXISTS testDb;' -uroot -proot
 
       - name: Query dependencies
         run: |
