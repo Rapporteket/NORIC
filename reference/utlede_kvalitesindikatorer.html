@@ -22,7 +22,7 @@ variables names are suffixed by _data (datagrunnlag)."><!-- mathjax --><script s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.0</span>
       </span>
     </div>
 
@@ -93,8 +93,8 @@ contain some of the variables <code>SkjemaStatusKomplikasjoner</code>,
  complications form is completed (komplikasjons-skjema er ferdigstilt).</p></li>
 </ul><p><code>ki_trykkmaaling_utfoert()</code></p><ul><li><p>denominator <code>indik_trykkmaaling_data</code> (datagrunnlag) is <em>ja</em>
 when <em>Indikasjon = Stabil koronarsykdom</em>.</p></li>
-<li><p>numerator <code>indik_trykkmaaling</code> has value <em>ja</em> if FFR and/or
- iFR has been performed.</p></li>
+<li><p>numerator <code>indik_trykkmaaling</code> has value <em>ja</em> if one of FFR,
+ iFR, Pd/Pa, IMR, Pa or Pd has been performed.</p></li>
 </ul><p><code>ki_ivus_oct_ved_stenting_lms()</code></p><ul><li><p>denominator <code>indik_ivus_oct_v_stent_lms_data</code> (datagrunnlag) is
 <em>ja</em> when all of these conditions are fulfilled:</p><ol><li><p><code>Indikasjon</code> is one of "Vitieutredning", "Uklare brystsmerter",
  "Annet", "Hjertestans uten STEMI", "Hjertesvikt/kardiomyopati",
@@ -108,22 +108,31 @@ IVUS and/or OCT has been performed.</p></li>
 </ul><p><code>ki_foreskr_blodfortynnende()</code></p><ul><li><p>denominator <code>indik_blodfortynnende_data</code> (datagrunnlag) is
 <em>ja</em> when all of these conditions are fulfilled:</p><ol><li><p><code>antall_stent_under_opphold</code> is at least 1</p></li>
 <li><p><code>Regtype</code> = "Primær"</p></li>
-<li><p><code>SkjemaStatusUtskrivelse</code> is 1 (ferdigstilt)</p></li>
-<li><p><code>UtskrevetDod</code>  = "Nei". Which means that "NA", "Ja" or
+<li><p><code>UtskrevetDod</code>  = "Nei","NA". Which means that  "Ja" or
   "Ukjent" are excluded</p></li>
 </ol></li>
 <li><p>numerator <code>indik_blodfortynnende</code> has value <em>ja</em> if
 at least two of <code>ASA</code>, <code>AndrePlatehemmere</code> or
- <code>Antikoagulantia</code> are prescribed.</p></li>
+ <code>Antikoagulantia</code> are prescribed and <code>SkjemaStatusUtskrivelse</code>
+ is 1 (ferdigstilt). <code>indik_blodfortynnende</code> has value <em>nei</em> if
+at less than two of <code>ASA</code>, <code>AndrePlatehemmere</code> or
+ <code>Antikoagulantia</code> are prescribed and <code>SkjemaStatusUtskrivelse</code>
+ is 1 (ferdigstilt). <code>indik_blodfortynnende</code> has value
+  <em>ikke ferdigstilt</em> if  <code>SkjemaStatusUtskrivelse</code> is different
+  from 1 (ikke ferdigstilt).</p></li>
 </ul><p><code>ki_foreskr_kolesterolsenkende()</code></p><ul><li><p>denominator <code>indik_kolesterolsenkende_data</code>
 (datagrunnlag) is <em>ja</em> when all of these conditions are fulfilled:</p><ol><li><p><code>antall_stent_under_opphold</code> is at least 1</p></li>
 <li><p><code>Regtype</code> = "Primær"</p></li>
-<li><p><code>SkjemaStatusUtskrivelse</code> is 1 (ferdigstilt)</p></li>
-<li><p><code>UtskrevetDod</code>  = "Nei". Which means that "NA", "Ja" or
+<li><p><code>UtskrevetDod</code>  = "Nei", NA . Which means that "Ja" or
   "Ukjent" are excluded</p></li>
 </ol></li>
 <li><p>numerator <code>indik_kolesterolsenkende</code> has value <em>ja</em>
-if <code>UtskrStatiner</code> is "Ja".</p></li>
+if <code>UtskrStatiner</code> is "Ja" and <code>SkjemaStatusUtskrivelse</code>
+ is 1 (ferdigstilt). <code>indik_kolesterolsenkende</code> has value <em>nei</em> if
+<code>UtskrStatiner</code> is different from "Ja" and <code>SkjemaStatusUtskrivelse</code>
+ is 1 (ferdigstilt). <code>indik_kolesterolsenkende</code> has value
+  <em>ikke ferdigstilt</em> if  <code>SkjemaStatusUtskrivelse</code> is different
+  from 1 (ikke ferdigstilt).</p></li>
 </ul><p><code>ki_nstemi_utredet_innen24t()</code></p><ul><li><p>denominator <code>indik_nstemi_angio_innen24t_data</code>
 (datagrunnlag) is <em>ja</em> when all of these conditions are fulfilled:</p><ol><li><p><code>Indikasjone</code> is "NSTEMI"</p></li>
 <li><p><code>Regtype</code> = "Primær"</p></li>
@@ -173,15 +182,26 @@ longer than 24h,  missing or if <code>BeslutningsutlosendeEKG</code> has value
 <span class="r-in"> <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span class="r-in">      Indikasjon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Stabil koronarsykdom"</span>, <span class="fl">4</span><span class="op">)</span>, <span class="cn">NA</span>, <span class="st">"annet"</span><span class="op">)</span>,</span>
 <span class="r-in">      FFR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ja"</span>, <span class="st">"Ja"</span>, <span class="cn">NA</span>, <span class="st">"Ukjent"</span>, <span class="st">"Nei"</span>, <span class="st">"Ja"</span><span class="op">)</span>,</span>
-<span class="r-in">      IFR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ja"</span>, <span class="st">"Nei"</span>, <span class="st">"Ukjent"</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in">      IFR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ja"</span>, <span class="st">"Nei"</span>, <span class="st">"Ukjent"</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span class="r-in">      PdPa <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span>,</span>
+<span class="r-in">      IMR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span>,</span>
+<span class="r-in">      Pa <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span>,</span>
+<span class="r-in">      Pd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"> <span class="fu">noric</span><span class="fu">::</span><span class="fu">ki_trykkmaaling_utfoert</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Indikasjon    FFR    IFR indik_trykkmaaling_data indik_trykkmaaling</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Stabil koronarsykdom     Ja     Ja                      ja                 ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Stabil koronarsykdom     Ja    Nei                      ja                 ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Stabil koronarsykdom   &lt;NA&gt; Ukjent                      ja                nei</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Stabil koronarsykdom Ukjent   &lt;NA&gt;                      ja                nei</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 &lt;NA&gt;    Nei   &lt;NA&gt;                     nei               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                annet     Ja   &lt;NA&gt;                     nei               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Indikasjon    FFR    IFR PdPa IMR Pa Pd indik_trykkmaaling_data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Stabil koronarsykdom     Ja     Ja   NA  NA NA NA                      ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Stabil koronarsykdom     Ja    Nei   NA  NA NA NA                      ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Stabil koronarsykdom   &lt;NA&gt; Ukjent   NA  NA NA NA                      ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Stabil koronarsykdom Ukjent   &lt;NA&gt;   NA  NA NA NA                      ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 &lt;NA&gt;    Nei   &lt;NA&gt;   NA  NA NA NA                     nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                annet     Ja   &lt;NA&gt;   NA  NA NA NA                     nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   indik_trykkmaaling</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                 ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6               &lt;NA&gt;</span>
 <span class="r-in"></span>
 <span class="r-in"> <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span class="r-in">      Indikasjon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Stabil koronarsykdom"</span>, <span class="fl">4</span><span class="op">)</span>, <span class="cn">NA</span>, <span class="st">"Annet"</span><span class="op">)</span>,</span>
@@ -360,7 +380,7 @@ longer than 24h,  missing or if <code>BeslutningsutlosendeEKG</code> has value
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer></div>

@@ -19,7 +19,7 @@ variables ForlopsID and AvdRESH."><!-- mathjax --><script src="https://cdnjs.clo
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.0</span>
       </span>
     </div>
 
@@ -53,7 +53,9 @@ variables <code>ForlopsID</code> and <code>AvdRESH</code>.</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">utlede_kar_annen_diag</span><span class="op">(</span>df_ad <span class="op">=</span> <span class="va">ad</span><span class="op">)</span>
 
-<span class="fu">legg_til_trykk_bilde_per_kar</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ad</span>, metodeType <span class="op">=</span> <span class="st">"FFR"</span><span class="op">)</span></code></pre></div>
+<span class="fu">legg_til_trykk_bilde_per_kar</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ad</span>, metodeType <span class="op">=</span> <span class="st">"FFR"</span><span class="op">)</span>
+
+<span class="fu">legg_til_trykkmaalinger</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ad</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -87,6 +89,13 @@ is performed in each <code>kar</code>. If at least one measure is done in a
 merged into <code>df_ap</code>, before <code>df_ap</code> is returned from the function.
 For procedures where no measures are done on segment-level (e.g. no entries
 available in <code>df_ad</code>), the values for the 5 new variables are &lt;NA&gt;.</p>
+<p>The function <code>legg_til_trykkmaalinger()</code> adds variables <code>PdPa</code>,
+<code>IMR</code>, <code>Pa</code> and <code>Pd</code> to <code>df_ap</code>-table. Values of these 4
+new variables (measures of pressure) depends on the <code>df_ad</code>-table:
+value "Ja" is attributed if the method is registered for the procedure,
+value "Nei" is attributed if no if this method not is performed.
+For procedures where no measures are done on segment-level (e.g. no entries
+available in <code>df_ad</code>), the values for the 4 new variables are &lt;NA&gt;.</p>
     </div>
 
     <div id="ref-examples">
@@ -128,6 +137,19 @@ available in <code>df_ad</code>), the values for the 5 new variables are &lt;NA&
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3         3       1     nei     nei     nei    nei       nei</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4         4       1    &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;   &lt;NA&gt;      &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5         5       1      ja     nei     nei    nei       nei</span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">df_ad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span class="r-in">    ForlopsID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span>,</span>
+<span class="r-in">    AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span><span class="op">)</span>,</span>
+<span class="r-in">    metode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FFR"</span>, <span class="st">"FFR"</span>, <span class="cn">NA</span>, <span class="st">"test"</span>, <span class="st">"Pd/Pa"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu">noric</span><span class="fu">::</span><span class="fu">legg_til_trykkmaalinger</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">df_ap</span>,</span>
+<span class="r-in">                               df_ad <span class="op">=</span> <span class="va">df_ad</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ForlopsID AvdRESH  IMR PdPa   Pa   Pd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         1       1  Nei  Nei  Nei  Nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         2       1 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         3       1  Nei  Nei  Nei  Nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4         4       1 &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5         5       1  Nei   Ja  Nei  Nei</span>
 </code></pre></div>
     </div>
   </div>
@@ -142,7 +164,7 @@ available in <code>df_ad</code>), the values for the 5 new variables are &lt;NA&
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer></div>

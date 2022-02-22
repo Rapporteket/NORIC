@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.4.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.0</span>
       </span>
     </div>
 
@@ -41,6 +41,27 @@
       
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.5.0" id="noric-250">noric 2.5.0<a class="anchor" aria-label="anchor" href="#noric-250"></a></h2>
+<div class="section level3">
+<h3 id="oppdatering-kvalitetsindikatorer-2-5-0">Oppdatering kvalitetsindikatorer<a class="anchor" aria-label="anchor" href="#oppdatering-kvalitetsindikatorer-2-5-0"></a></h3>
+<ul><li>Trykkmålinger: 4 nye trykkmålinger skal være med i indikatoren (IMR, Pd, Pa, Pd/Pa)</li>
+<li>Foreskrevet kolesterolsenkende og blodfortynnende. Vi har nå 3 nivåer dersom forløpet er i datagrunnlaget : ja, nei og ikke ferdigstilt. Synliggjør de ikke-ferdigstilte</li>
+<li>Oppdatere månedlig utsending med disse endringene</li>
+<li>Oppdatere månedlig utsendign med bruk av noric funksjonene fra versjon 2.3.0</li>
+<li>Bugfix i IVUS-OCT tabellen i KI-rapporten (riktig i ki_ivus_oct_ved_stenting_lms())</li>
+</ul></div>
+<div class="section level3">
+<h3 id="nytt-2-5-0">Nytt<a class="anchor" aria-label="anchor" href="#nytt-2-5-0"></a></h3>
+<ul><li>Ny funksjon: reportProcessor()</li>
+<li>bruke rapbase-layout med reportProcessor for utsending av KI-rapporten</li>
+<li>testmiljø for getData-funksjonene</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bugfix-2-5-0">Bugfix<a class="anchor" aria-label="anchor" href="#bugfix-2-5-0"></a></h3>
+<ul><li>Rette getMk og GetPs. Filter på riktig dato-variabel</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.4.2" id="noric-242">noric 2.4.2<a class="anchor" aria-label="anchor" href="#noric-242"></a></h2>
 <ul><li>missing export of getPrepSoData() hopefully fixed</li>
@@ -98,7 +119,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer></div>
