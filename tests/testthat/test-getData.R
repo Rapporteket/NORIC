@@ -86,6 +86,15 @@ test_that("mitralklaff data can be provided", {
   expect_equal(class(res$mK), "data.frame")
 })
 
+test_that("pasientstudier data can be provided", {
+  check_db()
+  res <- getPs("testReg", fromDate = "1900-01-01", toDate = Sys.Date(),
+               singleRow = TRUE)
+  expect_equal(class(res), "list")
+  expect_equal(class(res$pS), "data.frame")
+})
+
+
 
 ###
 
