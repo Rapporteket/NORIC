@@ -30,7 +30,7 @@ jobs:
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}
-      GITHUB_PAT: ${{ secrets.GT }}
+      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2
@@ -40,6 +40,24 @@ jobs:
           r-version: ${{ matrix.config.r }}
 
       - uses: r-lib/actions/setup-pandoc@v1
+      
+      - name: Db unit tests in ubuntu/linux only
+        if: runner.os != 'Windows'
+        run: |
+          if [[ ${{ runner.os }} == Linux ]]; then
+            echo "GITHUB_ACTIONS_RUN_DB_UNIT_TESTS=true" >> $GITHUB_ENV
+            echo "DB_HOST=localhost" >> $GITHUB_ENV
+            echo "DB_NAME=testDb" >> $GITHUB_ENV
+            echo "DB_USER=root" >> $GITHUB_ENV
+            echo "DB_PASS=root" >> $GITHUB_ENV
+          else
+            echo "GITHUB_ACTIONS_RUN_DB_UNIT_TESTS=false" >> $GITHUB_ENV
+          fi
+      - name: Set up MySQL, ubuntu only
+        if: runner.os == 'Linux'
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE IF NOT EXISTS testdb;' -uroot -proot
 
       - name: Query dependencies
         run: |
