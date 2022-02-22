@@ -30,7 +30,6 @@ vignettes/*.pdf
 # intermediate markdown files
 *.html
 *.htm
-*.png
 inst/shinyApps/noric/*.md
 inst/shinyApps/noric/cache
 

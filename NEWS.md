@@ -1,3 +1,24 @@
+# noric 2.5.0
+
+## Oppdatering kvalitetsindikatorer
+* Trykkmålinger: 4 nye trykkmålinger skal være med i indikatoren 
+(IMR, Pd, Pa, Pd/Pa)
+* Foreskrevet kolesterolsenkende og blodfortynnende. Vi har nå 3 nivåer dersom 
+forløpet er i datagrunnlaget : ja, nei og ikke ferdigstilt. Synliggjør de 
+ikke-ferdigstilte
+* Oppdatere månedlig utsending med disse endringene
+* Oppdatere månedlig utsendign med bruk av noric funksjonene fra versjon 2.3.0
+* Bugfix i IVUS-OCT tabellen i KI-rapporten  (riktig i ki_ivus_oct_ved_stenting_lms())
+
+## Nytt
+* Ny funksjon: reportProcessor() 
+* bruke rapbase-layout med reportProcessor for utsending av KI-rapporten
+* testmiljø for getData-funksjonene
+
+## Bugfix
+* Rette getMk og GetPs. Filter på riktig dato-variabel
+
+
 # noric 2.4.2
 * missing export of getPrepSoData() hopefully fixed
 * removed spinner from local reports

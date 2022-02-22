@@ -760,7 +760,7 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                                  singleRow = singleRow)
   ap_light <- dataListe$aP
   sS <- dataListe$sS
-  # aD <- dataListe$aD
+  aD <- dataListe$aD
 
 
   # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
@@ -818,6 +818,11 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   ap_light %<>% noric::satt_inn_stent_i_lms(df_ap = .,
                                             df_ss = sS)
 
+
+  #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
+  # trykkmåling. Disse fjernes før tabellen legges i utforsker
+  ap_light %<>% noric::legg_til_trykkmaalinger(df_ap = .,
+                                               df_ad = aD)
 
   # Legge til kvalitetsindikatorene:
   ap_light %<>% noric::ki_ferdigstilt_komplikasjoner(df_ap = .)
@@ -929,6 +934,13 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   ap_light %<>%
     dplyr::select(- .data$antall_stent_under_opphold,
                   - .data$satt_inn_stent_i_LMS)
+
+
+  # Må fjerne disse etter oppdatering av innreg-prod.. De vil komme av seg selv
+                  # - .data$IMR,
+                  # - .data$PdPa,
+                  # - .data$Pa,
+                  # - .data$Pd)
 
   # Gjøre kategoriske variabler om til factor:
   ap_light %<>%

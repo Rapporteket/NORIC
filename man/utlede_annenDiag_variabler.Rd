@@ -4,11 +4,14 @@
 \alias{utlede_annenDiag_variabler}
 \alias{utlede_kar_annen_diag}
 \alias{legg_til_trykk_bilde_per_kar}
+\alias{legg_til_trykkmaalinger}
 \title{New variables from NORIC's AnnenDiag-table}
 \usage{
 utlede_kar_annen_diag(df_ad = ad)
 
 legg_til_trykk_bilde_per_kar(df_ap, df_ad, metodeType = "FFR")
+
+legg_til_trykkmaalinger(df_ap, df_ad)
 }
 \arguments{
 \item{df_ad}{NORIC's \emph{AnnenDiag}-table, must contain variables
@@ -44,6 +47,14 @@ is performed in each \code{kar}. If at least one measure is done in a
 merged into \code{df_ap}, before \code{df_ap} is returned from the function.
 For procedures where no measures are done on segment-level (e.g. no entries
 available in \code{df_ad}), the values for the 5 new variables are <NA>.
+
+The function \code{legg_til_trykkmaalinger()} adds variables \code{PdPa},
+\code{IMR}, \code{Pa} and \code{Pd} to \code{df_ap}-table. Values of these 4
+new variables (measures of pressure) depends on the \code{df_ad}-table:
+value "Ja" is attributed if the method is registered for the procedure,
+value "Nei" is attributed if no if this method not is performed.
+For procedures where no measures are done on segment-level (e.g. no entries
+available in \code{df_ad}), the values for the 4 new variables are <NA>.
 }
 \examples{
 df_ad <- data.frame(
@@ -71,4 +82,11 @@ utlede_kar_annen_diag(df_ad)
 legg_til_trykk_bilde_per_kar(df_ap = df_ap,
                              df_ad = df_ad,
                              metodeType = "FFR")
+
+df_ad <- data.frame(
+    ForlopsID = c(1, 1, 3, 3, 5),
+    AvdRESH = rep(1,5),
+    metode = c("FFR", "FFR", NA, "test", "Pd/Pa"))
+noric::legg_til_trykkmaalinger(df_ap = df_ap,
+                               df_ad = df_ad)
 }
