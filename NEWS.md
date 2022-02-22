@@ -13,6 +13,7 @@ ikke-ferdigstilte
 ## Nytt
 * Ny funksjon: reportProcessor() 
 * bruke rapbase-layout med reportProcessor for utsending av KI-rapporten
+* testmiljø for getData-funksjonene
 
 ## Bugfix
 * Rette getMk og GetPs. Filter på riktig dato-variabel
