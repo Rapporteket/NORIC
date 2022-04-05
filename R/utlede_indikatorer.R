@@ -132,6 +132,9 @@
 #' \code{Indikasjon}, \code{FFR}, \code{IFR},
 #' \code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
 #' \code{antall_stent_under_opphold}, ...
+#' @param df_ak NORIC's \code{AortaklaffVar}-table. Depending on indicators, must
+#' contain some of the variables \code{Screeningbeslutning},
+#' \code{TypeKlaffeprotese}, ...
 #'
 #'
 #' @name utlede_kvalitesindikatorer
@@ -144,6 +147,7 @@
 #' ki_nstemi_utredet_innen24t
 #' ki_nstemi_utredet_innen72t
 #' ki_stemi_pci_innen120min
+#' ki_ak_pacemakerbehov
 #'
 #' @examples
 #'  x <- data.frame(
@@ -707,4 +711,16 @@ ki_stemi_pci_innen120min <- function(df_ap) {
         .data$indik_stemi_pci_innen2t_data == "nei" ~ NA_character_,
 
         FALSE ~ NA_character_))
+}
+
+
+#' @rdname utlede_kvalitesindikatorer
+#' @export
+ki_ak_pacemakerbehov <- function(df_ak){
+  
+  stopifnot(c("ScreeningBeslutning", 
+              "TypeKlaffeprotese", 
+              "LabKompDod", 
+              "Pacemaker") %in% names(df_ak))
+  
 }

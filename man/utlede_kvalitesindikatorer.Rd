@@ -10,6 +10,7 @@
 \alias{ki_nstemi_utredet_innen24t}
 \alias{ki_nstemi_utredet_innen72t}
 \alias{ki_stemi_pci_innen120min}
+\alias{ki_ak_pacemakerbehov}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
@@ -27,6 +28,8 @@ ki_nstemi_utredet_innen24t(df_ap)
 ki_nstemi_utredet_innen72t(df_ap)
 
 ki_stemi_pci_innen120min(df_ap)
+
+ki_ak_pacemakerbehov(df_ak)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -35,6 +38,10 @@ contain some of the variables \code{SkjemaStatusKomplikasjoner},
 \code{Indikasjon}, \code{FFR}, \code{IFR},
 \code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
 \code{antall_stent_under_opphold}, ...}
+
+\item{df_ak}{NORIC's \code{AortaklaffVar}-table. Depending on indicators, must
+contain some of the variables \code{Screeningbeslutning},
+\code{TypeKlaffeprotese}, ...}
 }
 \description{
 Functions for creating two new variables for each indicator:
