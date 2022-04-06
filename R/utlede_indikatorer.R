@@ -230,8 +230,18 @@
 #'       BeslutningsutlosendeEKG = rep("Prehospitalt", 6),
 #'       ventetid_stemi_min = c(-10, 20, 110, 120, 1150, 1480))
 #' noric::ki_stemi_pci_innen120min(df_ap = x)
+#' 
+#' 
+#' x <- data.frame(
+#'       AvdRESH = c(NA, 0,102966, 101619, 109880, rep(106944,7)), 
+#'       TypeKlaffeprotese = c(rep("CoreValve", 2), NA, rep("CoreValve", 9)),
+#'       LabKompDod = c("Nei", "Nei", "Nei", "Ja", NA, rep("Nei", 7)), 
+#'       Pacemaker = c(rep("Nei", 4), "Ja", rep("Nei", 7)), 
+#'       SkjemaStatusHovedskjema = c(rep(1, 5), 0, -1, rep(1, 5)), 
+#'       AvdKompPacemaker = rep(c("Ja", "Nei", "Ukjent", NA), 3))
+#' noric::ki_ak_pacemakerbehov(df_ak = x)
 
-
+#' 
 NULL
 
 #' @rdname utlede_kvalitesindikatorer
