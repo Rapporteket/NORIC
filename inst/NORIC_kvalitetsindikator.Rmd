@@ -313,68 +313,15 @@ aK_nasjonalt %<>%
 
 aK_nasjonalt %<>%
   dplyr::mutate(
-    
     kvartal = paste0(
       lubridate::year(.data$ProsedyreDato),
       " Q",
-      lubridate::quarter(.data$ProsedyreDato, with_year = FALSE)), 
+      lubridate::quarter(.data$ProsedyreDato, with_year = FALSE))) %>% 
+  noric::ki_ak_pacemakerbehov(df_ak = .)
     
-    ProsedyreType = factor(
-      x = dplyr::case_when(
-        
-        .data$ScreeningBeslutning %in% c("TAVI + PCI", "TAVI") &
-          !is.na(.data$TypeKlaffeprotese) ~ "TAVI med klaff", 
-        
-        .data$ScreeningBeslutning %in% c("TAVI + PCI", "TAVI") &
-          is.na(.data$TypeKlaffeprotese) ~ "TAVI uten klaff", 
-        
-        ScreeningBeslutning %in% c("BAV") &
-          !is.na(TypeKlaffeprotese) ~ "BAV med klaff", 
-        
-        
-        .data$ScreeningBeslutning %in% c("BAV") &
-          is.na(.data$TypeKlaffeprotese) ~ "BAV uten klaff",
-        
-        TRUE ~ NA_character_), 
-      levels = c("TAVI med klaff", 
-                 "TAVI uten klaff", 
-                 "BAV med klaff", 
-                 "BAV uten klaff"), 
-      ordered =TRUE), 
+  
     
-    indik_ak_pacemakerbehov_data = dplyr::if_else(
-      
-      # Ekskluderer de som døde grunnet komplikasjon på lab siden det ikke går an
-      # å registrere AvdKomplikasjon hvis det forekom en komplikasjon på lab:
-      !.data$LabKompDod %in% "Ja" &
-        
-        # Alle som har fått satt inn klaff, uansett ScreeningBeslutning
-        .data$ProsedyreType %in% c("TAVI med klaff", "BAV med klaff") &
-        
-        # Ekskluder de som allerede hadde PM:
-        # Pacemaker %in% c("Nei", NA, "Ukjent),
-        !.data$Pacemaker %in% "Ja",
-      
-      true = "ja", 
-      false = "nei", 
-      missing = "nei"), 
-    
-    # Pacemakerbehov etter kateterbasert innsetting av aortaklaff
-    indik_ak_pacemakerbehov = dplyr::case_when(
-      
-      .data$indik_ak_pacemakerbehov_data == "ja" & 
-        .data$SkjemaStatusHovedskjema == 1 & 
-        .data$AvdKompPacemaker == "Ja" ~ "ja", 
-      
-      .data$indik_ak_pacemakerbehov_data == "ja" &
-        .data$SkjemaStatusHovedskjema == 1 & 
-        ! .data$AvdKompPacemaker %in% "Ja" ~ "nei", 
-      
-      .data$indik_ak_pacemakerbehov_data == "ja" &
-        .data$SkjemaStatusHovedskjema %in% c(-1, 0) ~ "ikke ferdigstilt", 
-      
-      TRUE ~ NA_character_))
-
+  
 ```
 
 ```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
@@ -1700,12 +1647,13 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
   
   prep_tab_pacemaker_lokalt <- aK_nasjonalt %>%
     dplyr::filter(.data$AvdRESH == params$reshID) %>%
-    dplyr::filter(.data$indik_ak_pacemakerbehov_data  == "ja") %>%
+    dplyr::filter(.data$indik_pacemakerbehov_data  == "ja") %>%
     janitor::tabyl(.data$kvartal,
-                   .data$indik_ak_pacemakerbehov,
+                   .data$indik_pacemakerbehov,
                    show_missing_levels = TRUE ) %>%
     janitor::adorn_totals("col", name = "Total") %>%
     dplyr::mutate(
+      
       # Komplette er alle som er ja/nei, men ikkje "ikke ferdigstilt"
       komplette_antall = .data$ja + .data$nei,
       komplette_prosent =  .data$komplette_antall / .data$Total,
@@ -1715,7 +1663,7 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
         false = paste0(.data$komplette_antall, " av ", .data$Total),
         missing = NA_character_),
       
-      # Blandt komplette: Antall NTSTEMI innen 24 t ,
+      # Blandt komplette: Antall med pacemakerbehov,
       pacemaker_tekst = dplyr::if_else(
         .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
         true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
@@ -1728,10 +1676,10 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
   
   
   prep_tab_pacemaker_nasjonalt <- aK_nasjonalt %>%
-    dplyr::filter(.data$indik_ak_pacemakerbehov_data  == "ja",
-                  .data$indik_ak_pacemakerbehov %in% c("ja", "nei")) %>%
+    dplyr::filter(.data$indik_pacemakerbehov_data  == "ja",
+                  .data$indik_pacemakerbehov %in% c("ja", "nei")) %>%
     janitor::tabyl(.data$kvartal,
-                   .data$indik_ak_pacemakerbehov,
+                   .data$indik_pacemakerbehov,
                    show_missing_levels = TRUE ) %>%
     janitor::adorn_totals("col", name = "Total") %>%
     dplyr::transmute(
