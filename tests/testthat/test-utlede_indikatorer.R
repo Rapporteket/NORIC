@@ -1193,6 +1193,7 @@ testthat::test_that("ki_pacemakerbehov works", {
     TypeKlaffeprotese = c(rep("CoreValve", 2), NA, rep("CoreValve", 11)),
     LabKompDod = c("Nei", "Nei", "Nei", "Ja", NA, "Ukjent", rep("Nei", 8)), 
     Pacemaker = c(rep("Nei", 4), "Ja", rep("Nei", 9)), 
+    SkjemaStatusHovedskjema = c(rep(1, 5), 0, -1, rep(1,7)), 
     AvdKompPacemaker = c(rep(c("Ja", "Nei", "Ukjent", NA), 3), "Ja", "Nei")
   )
   x_out <- noric::ki_ak_pacemakerbehov(df_ak = x)
@@ -1201,7 +1202,8 @@ testthat::test_that("ki_pacemakerbehov works", {
   # FORVENTEDE NAVN
   testthat::expect_equal(names(x_out),
                          c("AvdRESH", "TypeKlaffeprotese", "LabKompDod", 
-                           "Pacemaker", "AvdKompPacemaker",
+                           "Pacemaker", "SkjemaStatusHovedskjema", 
+                           "AvdKompPacemaker",
                            "indik_pacemakerbehov_data",
                            "indik_pacemakerbehov"))
   
@@ -1247,22 +1249,32 @@ testthat::test_that("ki_pacemakerbehov works", {
         !.data$Pacemaker %in% "Ja") %>%
       dplyr::pull(.data$indik_pacemakerbehov_data) == "ja"))
   
-  # Forventede verdier for indikatoren
+  # FORVENTEDE VERDIER
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_pacemakerbehov_data %in% "ja", 
+      dplyr::filter(.data$indik_pacemakerbehov_data %in% "ja",
+                    .data$SkjemaStatusHovedskjema %in% c(-1, 0)) %>%
+      dplyr::pull(.data$indik_pacemakerbehov) == "ikke ferdigstilt"))
+  
+  
+  
+   testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_pacemakerbehov_data %in% "ja",
+                    .data$SkjemaStatusHovedskjema %in% 1,
                     .data$AvdKompPacemaker %in% "Ja") %>%
       dplyr::pull(.data$indik_pacemakerbehov) == "ja"))
   
   testthat::expect_true(all(
     x_out %>%
     dplyr::filter(.data$indik_pacemakerbehov_data %in% "ja", 
+                  .data$SkjemaStatusHovedskjema %in% 1,
                   !.data$AvdKompPacemaker %in% "Ja") %>%
     dplyr::pull(.data$indik_pacemakerbehov) == "nei"))
  
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_pacemakerbehov_data %in% "nei") %>%
+      dplyr::filter(.data$indik_pacemakerbehov_data %in% "nei",) %>%
       dplyr::pull(.data$indik_pacemakerbehov) %>% is.na()))
   
   # FORVENTER FEILMELDING

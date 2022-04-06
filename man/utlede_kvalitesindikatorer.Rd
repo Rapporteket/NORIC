@@ -40,7 +40,7 @@ contain some of the variables \code{SkjemaStatusKomplikasjoner},
 \code{antall_stent_under_opphold}, ...}
 
 \item{df_ak}{NORIC's \code{AortaklaffVar}-table. Depending on indicators, must
-contain some of the variables \code{Screeningbeslutning},
+contain some of the variables \code{AvdKompPacemaker},
 \code{TypeKlaffeprotese}, ...}
 }
 \description{
@@ -172,18 +172,23 @@ longer than 24h,  missing or if \code{BeslutningsutlosendeEKG} has value
 
 \code{ki_ak_pacemakerbehov()}
 \itemize{
-\item denominator \code{indik_pacemakerbehov_data}
-(datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+\item nevneren \code{indik_pacemakerbehov_data}
+(datagrunnlag) er \emph{ja} når alle disse kriteriene er oppfylt:
 \enumerate{
   \item \code{AvdRESH} tilhører sykehusene som utfører tavi :
   (HUS, UNN, Ullevål,St.Olavs, Rikshospitalet, Ahus Gardermoen)
   \item \code{TypeKlaffeprotese} ikke manglende (satt inn klaff)
-  \item \code{LabKompDod} ulik "ja"
-  \item \code{Pacemaker}  ulik "Ja"
+  \item \code{LabKompDod} ulik \emph{ja}
+  \item \code{Pacemaker}  ulik \emph{ja}
   }
-\item numerator \code{indik_pacemakerbehov} has value \emph{ja}
-if \code{AvdKompPacemaker} is \emph{ja} and
-value \emph{nei} if  \code{AvdKompPacemaker} is \emph{nei} or missing.
+\item telleren \code{indik_pacemakerbehov} har verdien \emph{ja}
+dersom \code{AvdKompPacemaker} er \emph{ja} og 
+\code{SkjemaStatusHovedskjema} er \emph{1} (ferdigstilte). 
+ \code{indik_pacemakerbehov} har verdien \emph{nei} dersom 
+ \code{AvdKompPacemaker} er \emph{nei} eller mangler, og ders
+  \code{SkjemaStatusHovedskjema} er \emph{1} (ferdigstilte). 
+\code{indik_pacemakerbehov} har verdien \emph{ikke ferdigstilte} dersom 
+\code{SkjemaStatusHoveskjema} er \emph{-1} eller \emph{0}.
 }
 }
 \examples{

@@ -127,18 +127,23 @@
 #' 
 #' \code{ki_ak_pacemakerbehov()}
 #' \itemize{
-#' \item denominator \code{indik_pacemakerbehov_data}
-#' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+#' \item nevneren \code{indik_pacemakerbehov_data}
+#' (datagrunnlag) er \emph{ja} når alle disse kriteriene er oppfylt:
 #' \enumerate{
 #'   \item \code{AvdRESH} tilhører sykehusene som utfører tavi :
 #'   (HUS, UNN, Ullevål,St.Olavs, Rikshospitalet, Ahus Gardermoen)
 #'   \item \code{TypeKlaffeprotese} ikke manglende (satt inn klaff)
-#'   \item \code{LabKompDod} ulik "ja"
-#'   \item \code{Pacemaker}  ulik "Ja"
+#'   \item \code{LabKompDod} ulik \emph{ja}
+#'   \item \code{Pacemaker}  ulik \emph{ja}
 #'   }
-#' \item numerator \code{indik_pacemakerbehov} has value \emph{ja}
-#' if \code{AvdKompPacemaker} is \emph{ja} and
-#' value \emph{nei} if  \code{AvdKompPacemaker} is \emph{nei} or missing.
+#' \item telleren \code{indik_pacemakerbehov} har verdien \emph{ja}
+#' dersom \code{AvdKompPacemaker} er \emph{ja} og 
+#' \code{SkjemaStatusHovedskjema} er \emph{1} (ferdigstilte). 
+#'  \code{indik_pacemakerbehov} har verdien \emph{nei} dersom 
+#'  \code{AvdKompPacemaker} er \emph{nei} eller mangler, og ders
+#'   \code{SkjemaStatusHovedskjema} er \emph{1} (ferdigstilte). 
+#' \code{indik_pacemakerbehov} har verdien \emph{ikke ferdigstilte} dersom 
+#' \code{SkjemaStatusHoveskjema} er \emph{-1} eller \emph{0}.
 #' }
 
 #'
@@ -150,7 +155,7 @@
 #' \code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
 #' \code{antall_stent_under_opphold}, ...
 #' @param df_ak NORIC's \code{AortaklaffVar}-table. Depending on indicators, must
-#' contain some of the variables \code{Screeningbeslutning},
+#' contain some of the variables \code{AvdKompPacemaker},
 #' \code{TypeKlaffeprotese}, ...
 #'
 #'
@@ -739,7 +744,8 @@ ki_ak_pacemakerbehov <- function(df_ak){
               "TypeKlaffeprotese", 
               "LabKompDod", 
               "Pacemaker", 
-              "AvdKompPacemaker") %in% names(df_ak))
+              "AvdKompPacemaker", 
+              "SkjemaStatusHovedskjema") %in% names(df_ak))
   
   df_ak %>% 
     dplyr::mutate(
@@ -765,11 +771,17 @@ ki_ak_pacemakerbehov <- function(df_ak){
       indik_pacemakerbehov = dplyr::case_when(
         
         .data$indik_pacemakerbehov_data %in% "ja"  & 
+          .data$SkjemaStatusHovedskjema %in% 1 & 
           .data$AvdKompPacemaker %in% "Ja" ~ "ja", 
         
         .data$indik_pacemakerbehov_data %in% "ja"  & 
+          .data$SkjemaStatusHovedskjema %in% 1 & 
           !.data$AvdKompPacemaker %in% "Ja" ~ "nei", 
         
+        .data$indik_pacemakerbehov_data %in% "ja"  & 
+          .data$SkjemaStatusHovedskjema %in% c(-1, 0)  ~ "ikke ferdigstilt", 
+        
+            
         .data$indik_pacemakerbehov_data %in% "nei" ~ NA_character_,
         
         TRUE ~ NA_character_))
