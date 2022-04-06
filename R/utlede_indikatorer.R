@@ -124,6 +124,23 @@
 #' "Prehospitalt" and \code{ventetid_stemi_min} is 0 minutes. See also function
 #'  \link[noric]{legg_til_ventetid_stemi_min}.
 #' }
+#' 
+#' \code{ki_ak_pacemakerbehov()}
+#' \itemize{
+#' \item denominator \code{indik_pacemakerbehov_data}
+#' (datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+#' \enumerate{
+#'   \item \code{AvdRESH} tilhører sykehusene som utfører tavi :
+#'   (HUS, UNN, Ullevål,St.Olavs, Rikshospitalet, Ahus Gardermoen)
+#'   \item \code{TypeKlaffeprotese} ikke manglende (satt inn klaff)
+#'   \item \code{LabKompDod} ulik "ja"
+#'   \item \code{Pacemaker}  ulik "Ja"
+#'   }
+#' \item numerator \code{indik_pacemakerbehov} has value \emph{ja}
+#' if \code{AvdKompPacemaker} is \emph{ja} and
+#' value \emph{nei} if  \code{AvdKompPacemaker} is \emph{nei} or missing.
+#' }
+
 #'
 #'
 #'@param df_ap NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -215,31 +232,31 @@ NULL
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_ferdigstilt_komplikasjoner <- function(df_ap) {
-
+  
   stopifnot("SkjemaStatusKomplikasjoner" %in% names(df_ap))
-
-
+  
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag for indikatoren
       indik_komplik_ferdig_data = dplyr::if_else(
         condition = .data$SkjemaStatusKomplikasjoner %in% c(-1, 0, 1),
         true = "ja",
         false = "nei",
         missing = "nei"),
-
+      
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       indik_komplik_ferdig = dplyr::case_when(
-
+        
         .data$indik_komplik_ferdig_data == "ja" &
           .data$SkjemaStatusKomplikasjoner == 1 ~ "ja",
-
+        
         .data$indik_komplik_ferdig_data == "ja" &
           .data$SkjemaStatusKomplikasjoner %in% c(-1, 0) ~ "nei",
-
+        
         .data$indik_komplik_ferdig_data == "nei" ~ NA_character_,
-
+        
         FALSE ~ NA_character_))
 }
 
@@ -247,7 +264,7 @@ ki_ferdigstilt_komplikasjoner <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_trykkmaaling_utfoert <- function(df_ap) {
-
+  
   stopifnot(all(c("Indikasjon",
                   "FFR",
                   "IFR",
@@ -255,26 +272,26 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
                   "IMR",
                   "Pa",
                   "Pd") %in% names(df_ap)))
-
-
+  
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag for indikatoren
       indik_trykkmaaling_data = dplyr::if_else(
         condition = .data$Indikasjon %in% c("Stabil koronarsykdom"),
         true = "ja",
         false = "nei",
         missing = "nei"),
-
-
+      
+      
       # CAse when starter nederst.
       # Default er NA, deretter er alle med datagrunnlag "nei" NA
       # Alle med datagrunnlag "ja" blir først "Nei", til sist bytter de med
       # minst en trykkmåling til "ja".
-
+      
       indik_trykkmaaling = dplyr::case_when(
-
+        
         # utlede verdi for indikatoren dersom datagrunnlag = "ja"
         # og minst en trykkmåling utført
         .data$indik_trykkmaaling_data == "ja" &
@@ -284,7 +301,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
              .data$IMR == "Ja" |
              .data$Pa == "Ja" |
              .data$Pd == "Ja" ) ~ "ja",
-
+        
         .data$indik_trykkmaaling_data == "ja"  ~ "nei",
         .data$indik_trykkmaaling_data == "nei" ~ NA_character_,
         FALSE ~ NA_character_))
@@ -297,11 +314,11 @@ ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
   stopifnot(all(c("Indikasjon", "TidlABC", "IVUS",
                   "OCT", "satt_inn_stent_i_LMS")
                 %in% names(df_ap)))
-
-
+  
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag for indikatoren
       #  ~ IKKE tidligere ACB-operert
       #  ~ en av indikasjonene i listen
@@ -319,32 +336,32 @@ ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
                                   "NSTEMI",
                                   "Stabil koronarsykdom") &
           .data$satt_inn_stent_i_LMS == "ja",
-
+        
         true = "ja",
         false = "nei",
         missing = "nei"),
-
+      
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # IVUS og/eller OCT er utført
       indik_ivus_oct_v_stent_lms = dplyr::case_when(
-
+        
         .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           (.data$IVUS == "Ja" | .data$OCT == "Ja") ~ "ja",
-
+        
         .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           (.data$IVUS != "Ja" & .data$OCT != "Ja") ~ "nei",
-
+        
         .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           is.na(.data$IVUS) & .data$OCT != "Ja" ~ "nei",
-
+        
         .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           .data$IVUS != "Ja" & is.na(.data$OCT) ~ "nei",
-
+        
         .data$indik_ivus_oct_v_stent_lms_data == "ja" &
           is.na(.data$IVUS) & is.na(.data$OCT) ~ "nei",
-
+        
         .data$indik_ivus_oct_v_stent_lms_data == "nei" ~ NA_character_,
-
+        
         FALSE ~ NA_character_))
 }
 
@@ -361,11 +378,11 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
                   "AndrePlatehemmere",
                   "Antikoagulantia")
                 %in% names(df_ap)))
-
-
+  
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag for indikatoren
       #  ~ Minst en stent satt inn i løpet av oppholdet (primær eller
       #    sekundær)
@@ -376,36 +393,36 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
           (.data$antall_stent_under_opphold > 0 &
              .data$Regtype == "Primær" &
              .data$UtskrevetDod %in% c("Nei", NA)),
-
+        
         true = "ja",
         false = "nei",
         missing = "nei"),
-
+      
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # "ja":En av de anbefalte kobinasjonene av blodfortynnende medisiner
       # "nei": Ikke anbefalt kombinasjon
       # "ikke ferdigstilt": Manglende ferdigstilt utskrivelsesskjema
       indik_blodfortynnende = dplyr::case_when(
-
+        
         # Gyldige kominasjoner:
         .data$indik_blodfortynnende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
           (.data$ASA == "Ja" &
              !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
-
+        
         .data$indik_blodfortynnende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
           (.data$ASA == "Ja" &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
-
+        
         .data$indik_blodfortynnende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
-
+        
         # Ugyldige kombinasjoner
         .data$indik_blodfortynnende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
@@ -413,21 +430,21 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
-
+        
         .data$indik_blodfortynnende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$ASA %in% "Ja" &
              !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
-
+        
         .data$indik_blodfortynnende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$ASA %in% "Ja" &
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
-
+        
         # Ingen blodfortynnende foreskrevet
         .data$indik_blodfortynnende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
@@ -435,13 +452,13 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
-
+        
         .data$indik_blodfortynnende_data == "ja" &
           .data$SkjemaStatusUtskrivelse %in% c(-1, 0) ~ "ikke ferdigstilt",
-
-
+        
+        
         .data$indik_blodfortynnende_data == "nei" ~ NA_character_,
-
+        
         FALSE ~ NA_character_))
 }
 
@@ -450,18 +467,18 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_foreskr_kolesterolsenkende <- function(df_ap) {
-
+  
   stopifnot(all(c("antall_stent_under_opphold",
                   "Regtype",
                   "UtskrevetDod",
                   "SkjemaStatusUtskrivelse",
                   "UtskrStatiner")
                 %in% names(df_ap)))
-
-
+  
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag for indikatoren
       #  ~ Minst en stent satt inn i løpet av oppholdet
       #  ~ Primærforløp
@@ -471,33 +488,33 @@ ki_foreskr_kolesterolsenkende <- function(df_ap) {
           (.data$antall_stent_under_opphold > 0 &
              .data$Regtype == "Primær" &
              .data$UtskrevetDod %in% c("Nei", NA)),
-
+        
         true = "ja",
         false = "nei",
         missing = "nei"),
-
+      
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # "ja": Dersom ferdigstilt og utskrevet statiner
       # "nei": Dersom ferdigstilte, men ikke utskr statiner
       # "ikke ferdigstilt": Manglende ferdigstilt utskrivelsesskjema
       indik_kolesterolsenkende = dplyr::case_when(
-
+        
         .data$indik_kolesterolsenkende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
           .data$UtskrStatiner == "Ja" ~ "ja",
-
+        
         .data$indik_kolesterolsenkende_data == "ja" &
           .data$SkjemaStatusUtskrivelse == 1 &
           (.data$UtskrStatiner == "Nei" |
              is.na(.data$UtskrStatiner) |
              .data$UtskrStatiner == "Ukjent") ~ "nei",
-
+        
         .data$indik_kolesterolsenkende_data == "ja" &
           .data$SkjemaStatusUtskrivelse %in% c(-1, 0) ~ "ikke ferdigstilt",
-
-
+        
+        
         .data$indik_kolesterolsenkende_data == "nei" ~ NA_character_,
-
+        
         FALSE ~ NA_character_))
 }
 
@@ -510,18 +527,18 @@ ki_foreskr_kolesterolsenkende <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_nstemi_utredet_innen24t <- function(df_ap) {
-
+  
   stopifnot(all(c("Indikasjon",
                   "Regtype",
                   "Innkomstarsak",
                   "Hastegrad",
                   "OverflyttetFra",
                   "ventetid_nstemi_timer") %in% names(df_ap)))
-
-
+  
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag for indikatoren
       #  ~ Indikasjon NSTEMI
       #  ~ Primærforløp
@@ -536,37 +553,37 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
              !.data$Innkomstarsak %in% "Øvrig" &  # NA tillates
              !.data$Hastegrad %in% "Planlagt" &
              .data$OverflyttetFra != "Annen  avdeling på sykehuset"), # - NA,
-
+        
         true = "ja",
         false = "nei",
         missing = "nei"),
-
+      
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # Ugyldig tid (negativ, over 14dg, manglende)
       # Gyldig tid 0 timer til 14 dager.
       # Næyaktig 0.00 timer er ugyldig tid.
       indik_nstemi_angio_innen24t = dplyr::case_when(
-
+        
         .data$indik_nstemi_angio_innen24t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
              .data$ventetid_nstemi_timer > 0.0 &
              .data$ventetid_nstemi_timer <= 24.0) ~ "ja",
-
+        
         .data$indik_nstemi_angio_innen24t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
              .data$ventetid_nstemi_timer > 24.0 &
              .data$ventetid_nstemi_timer <= 14 * 24.0) ~ "nei",
-
-
+        
+        
         .data$indik_nstemi_angio_innen24t_data == "ja" &
           (is.na(.data$ventetid_nstemi_timer) |
              .data$ventetid_nstemi_timer <= 0.0 |
              .data$ventetid_nstemi_timer > 14 * 24) ~ "ugyldig/manglende",
-
-
-
+        
+        
+        
         .data$indik_nstemi_angio_innen24t_data == "nei" ~ NA_character_,
-
+        
         FALSE ~ NA_character_))
 }
 
@@ -576,18 +593,18 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_nstemi_utredet_innen72t <- function(df_ap) {
-
+  
   stopifnot(all(c("Indikasjon",
                   "Regtype",
                   "Innkomstarsak",
                   "Hastegrad",
                   "OverflyttetFra",
                   "ventetid_nstemi_timer") %in% names(df_ap)))
-
-
+  
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag for indikatoren
       #  ~ Indikasjon NSTEMI
       #  ~ Primærforløp
@@ -602,36 +619,36 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
              !.data$Innkomstarsak %in% "Øvrig" &  # NA tillates
              !.data$Hastegrad %in% "Planlagt" &
              .data$OverflyttetFra != "Annen  avdeling på sykehuset"), # - NA,
-
+        
         true = "ja",
         false = "nei",
         missing = "nei"),
-
+      
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # gylsig ventetid innen 72t.
       # NB: Dersom ugyldig tid (negativ, over 14dg, manglende) --> NA
       indik_nstemi_angio_innen72t = dplyr::case_when(
-
+        
         .data$indik_nstemi_angio_innen72t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
              .data$ventetid_nstemi_timer > 0.0 &
              .data$ventetid_nstemi_timer <= 72.0) ~ "ja",
-
+        
         .data$indik_nstemi_angio_innen72t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
              .data$ventetid_nstemi_timer > 72.0 &
              .data$ventetid_nstemi_timer <= 14 * 24) ~ "nei",
-
-
+        
+        
         .data$indik_nstemi_angio_innen72t_data == "ja" &
           (is.na(.data$ventetid_nstemi_timer) |
              .data$ventetid_nstemi_timer <= 0.0 |
              .data$ventetid_nstemi_timer > 14 * 24) ~ "ugyldig/manglende",
-
-
-
+        
+        
+        
         .data$indik_nstemi_angio_innen72t_data == "nei" ~ NA_character_,
-
+        
         FALSE ~ NA_character_))
 }
 
@@ -645,7 +662,7 @@ ki_nstemi_utredet_innen72t <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_stemi_pci_innen120min <- function(df_ap) {
-
+  
   stopifnot(all(c("AvdRESH",
                   "Indikasjon",
                   "Regtype",
@@ -655,11 +672,11 @@ ki_stemi_pci_innen120min <- function(df_ap) {
                   "ProsedyreType",
                   "BeslutningsutlosendeEKG",
                   "ventetid_stemi_min") %in% names(df_ap)))
-
-
+  
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag for indikatoren
       #  ~ Ikke AHUS GARDERMOEN
       #  ~ Indikasjon STEMI
@@ -677,39 +694,39 @@ ki_stemi_pci_innen120min <- function(df_ap) {
              .data$Hastegrad %in% "Akutt" &
              !.data$HLRForSykehus %in% c("Ja", "Ukjent") &
              .data$ProsedyreType != "Angio"),
-
-
+        
+        
         true = "ja",
         false = "nei",
         missing = "nei"),
-
+      
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
       # gylsig ventetid innen 24t.
       # BeslutningsutlosendeEKG ikke gitt prehospitalt og 0 minutter ventetid
       # NB: Dersom ugyldig tid (negativ, over 24t, manglende) --> NA
       indik_stemi_pci_innen2t = dplyr::case_when(
-
+        
         .data$indik_stemi_pci_innen2t_data == "ja" &
           .data$BeslutningsutlosendeEKG %in% "Prehospitalt" &
           .data$ventetid_stemi_min == 0 ~ "ugyldig/manglende",
-
+        
         .data$indik_stemi_pci_innen2t_data == "ja" &
           (!is.na(.data$ventetid_stemi_min) &
              .data$ventetid_stemi_min >= 0 &
              .data$ventetid_stemi_min <= 120) ~ "ja",
-
+        
         .data$indik_stemi_pci_innen2t_data == "ja" &
           (!is.na(.data$ventetid_stemi_min) &
              .data$ventetid_stemi_min > 120 &
              .data$ventetid_stemi_min <= 24 * 60) ~ "nei",
-
+        
         .data$indik_stemi_pci_innen2t_data == "ja" &
           (is.na(.data$ventetid_stemi_min) |
              .data$ventetid_stemi_min < 0 |
              .data$ventetid_stemi_min > 24 * 60) ~ "ugyldig/manglende",
-
+        
         .data$indik_stemi_pci_innen2t_data == "nei" ~ NA_character_,
-
+        
         FALSE ~ NA_character_))
 }
 
@@ -718,9 +735,44 @@ ki_stemi_pci_innen120min <- function(df_ap) {
 #' @export
 ki_ak_pacemakerbehov <- function(df_ak){
   
-  stopifnot(c("ScreeningBeslutning", 
+  stopifnot(c("AvdRESH",
               "TypeKlaffeprotese", 
               "LabKompDod", 
-              "Pacemaker") %in% names(df_ak))
+              "Pacemaker", 
+              "AvdKompPacemaker") %in% names(df_ak))
   
+  df_ak %>% 
+    dplyr::mutate(
+      
+      # datagrunnlag
+      # - Kun TAVI sykehusene
+      # - satt inn klaff (uansett screenign beslutning)
+      # - Ikke død på lab
+      # - ikke allerede satt inn pacemaker
+      indik_pacemakerbehov_data = dplyr::case_when(
+        
+        (!is.na(.data$TypeKlaffeprotese) & 
+           .data$AvdRESH %in% c(102966, # HUS
+                                101619, # UNN
+                                109880, # Ullevål
+                                104284, # St.Olavs
+                                700422, # Riksen
+                                106944) & #  ahus Gardermoen 
+           !.data$LabKompDod %in% "Ja" &
+           !.data$Pacemaker %in% "Ja") ~ "ja", 
+        TRUE ~ "nei"), 
+      
+      indik_pacemakerbehov = dplyr::case_when(
+        
+        .data$indik_pacemakerbehov_data %in% "ja"  & 
+          .data$AvdKompPacemaker %in% "Ja" ~ "ja", 
+        
+        .data$indik_pacemakerbehov_data %in% "ja"  & 
+          !.data$AvdKompPacemaker %in% "Ja" ~ "nei", 
+        
+        .data$indik_pacemakerbehov_data %in% "nei" ~ NA_character_,
+        
+        TRUE ~ NA_character_))
+      
+      
 }

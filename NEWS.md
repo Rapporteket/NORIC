@@ -1,3 +1,14 @@
+
+# noric 2.5.1
+
+## Nytt
+* Legge til indikator for Aortaklaff-tabellen (Pacemakerbehov)
+* Bruke indikatoren i månedlig utsending
+* Legge til indikatoren i Utforsker (aortaklaff)
+
+
+
+
 # noric 2.5.0
 
 ## Oppdatering kvalitetsindikatorer

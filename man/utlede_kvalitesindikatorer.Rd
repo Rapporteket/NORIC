@@ -169,6 +169,22 @@ longer than 24h,  missing or if \code{BeslutningsutlosendeEKG} has value
 "Prehospitalt" and \code{ventetid_stemi_min} is 0 minutes. See also function
  \link[noric]{legg_til_ventetid_stemi_min}.
 }
+
+\code{ki_ak_pacemakerbehov()}
+\itemize{
+\item denominator \code{indik_pacemakerbehov_data}
+(datagrunnlag) is \emph{ja} when all of these conditions are fulfilled:
+\enumerate{
+  \item \code{AvdRESH} tilhører sykehusene som utfører tavi :
+  (HUS, UNN, Ullevål,St.Olavs, Rikshospitalet, Ahus Gardermoen)
+  \item \code{TypeKlaffeprotese} ikke manglende (satt inn klaff)
+  \item \code{LabKompDod} ulik "ja"
+  \item \code{Pacemaker}  ulik "Ja"
+  }
+\item numerator \code{indik_pacemakerbehov} has value \emph{ja}
+if \code{AvdKompPacemaker} is \emph{ja} and
+value \emph{nei} if  \code{AvdKompPacemaker} is \emph{nei} or missing.
+}
 }
 \examples{
  x <- data.frame(
