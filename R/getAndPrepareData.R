@@ -156,7 +156,8 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
     dager_mellom_prosedyre_og_utskr = as.numeric(difftime(.data$UtskrDato,
                                                           .data$ProsedyreDato,
                                                           units = "days")))
-
+  # Indikator pacemakerbehov
+  aK %<>% noric::ki_ak_pacemakerbehov(df_ak = .) 
 
   aK
 }
