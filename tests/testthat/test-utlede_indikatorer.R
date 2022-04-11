@@ -1,24 +1,44 @@
 testthat::test_that("ki_ferdigstilt_komplikasjoner works", {
   
-  x <- data.frame(SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
+  x <- data.frame(SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, 1, 0), 
+                  Regtype = c(rep("Primær", 4), NA, "Sekundær"))
   x_out <- noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
   
   testthat::expect_equal(names(x_out),
                          c("SkjemaStatusKomplikasjoner",
+                           "Regtype",
                            "indik_komplik_ferdig_data",
                            "indik_komplik_ferdig"))
   
-  testthat::expect_equal(
+  testthat::expect_true(all(
     x_out %>%
       dplyr::filter(is.na(.data$SkjemaStatusKomplikasjoner)) %>%
-      dplyr::pull(.data$indik_komplik_ferdig_data),
-    c("nei", "nei", "nei"))
+      dplyr::pull(.data$indik_komplik_ferdig_data) == "nei"))
+
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(!.data$Regtype %in% "Primær") %>%
+      dplyr::pull(.data$indik_komplik_ferdig_data) == "nei"))
   
+  
+    
   testthat::expect_true(
     all(x_out %>%
           dplyr::filter(.data$indik_komplik_ferdig_data == "nei") %>%
           dplyr::select(.data$indik_komplik_ferdig) %>%
           is.na()))
+
+  testthat::expect_true(all(
+    x_out %>%
+          dplyr::filter(.data$indik_komplik_ferdig_data %in% "ja", 
+                        .data$SkjemaStatusKomplikasjoner %in% 1) %>%
+          dplyr::select(.data$indik_komplik_ferdig) == "ja"))
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_komplik_ferdig_data %in% "ja", 
+                    .data$SkjemaStatusKomplikasjoner %in% c(-1, 0)) %>%
+      dplyr::select(.data$indik_komplik_ferdig) == "nei"))
   
   
   testthat::expect_error(

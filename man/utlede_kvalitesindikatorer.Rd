@@ -57,7 +57,8 @@ Following variables are created for the different functions:
 \code{ki_ferdigstilt_komplikasjoner()}
  \itemize{
  \item denominator \code{indik_komplik_ferdig_data} (datagrunnlag) is
- \emph{ja} when \emph{Regtype = Primaer}.
+ \emph{ja} when \emph{Regtype = Primaer} and 
+ \code{SkjemaStatusKomplikasjoner} is \emph{-1, 0, 1}. 
  \item numerator \code{indik_komplik_ferdig} has value \emph{ja} if the
  complications form is completed (komplikasjons-skjema er ferdigstilt).}
 
@@ -193,7 +194,8 @@ dersom \code{AvdKompPacemaker} er \emph{ja} og
 }
 \examples{
  x <- data.frame(
-      SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
+      SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA), 
+      Regtype = c(rep("Primær", 5), NA))
  noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
 
  x <- data.frame(
