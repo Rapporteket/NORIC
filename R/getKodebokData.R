@@ -5,7 +5,12 @@
 #' @return data.frame med kodebok for NORIC med utledete variabler
 #' @export
 #'
-#' @examples
-getKodebokMedUtledeteVariabler <- function() {
-  noric::def_utledete_var
+getKodebokMedUtledetedVar <- function() {
+  noric::def_utledete_var %>% 
+    dplyr::select(.data$skjemanavn, 
+                  .data$fysisk_feltnavn, 
+                  .data$ledetekst, 
+                  .data$listeverdier, 
+                  .data$listetekst) %>% 
+    dplyr::mutate(listeverdier = as.character(.data$listeverdier))
 }
