@@ -1,10 +1,16 @@
 
-# noric 2.5.1
+# noric 2.6.0
 
-## Nytt
+## Oppdatering kvalitetsindikatorene
 * Legge til indikator for Aortaklaff-tabellen (Pacemakerbehov)
 * Bruke indikatoren i månedlig utsending
 * Legge til indikatoren i Utforsker (aortaklaff)
+* Bugfix i datagrunnlag for indikatoren "ferdigstilt komplikasjonsskjema"
+
+## Nytt
+* Intern data-fil med beskrivelse av utledete variabler 
+* Ny fane i Rapporteket: Kodebok
+* Kodeboken lister opp utvalge variabler fra data-filen
 
 
 
