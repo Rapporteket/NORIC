@@ -76,8 +76,9 @@
 #' \item numerator \code{indik_kolesterolsenkende} has value \emph{ja}
 #' if \code{UtskrStatiner} is "Ja" and \code{SkjemaStatusUtskrivelse}
 #'  is 1 (ferdigstilt). \code{indik_kolesterolsenkende} has value \emph{nei} if
-#' \code{UtskrStatiner} is different from "Ja" and \code{SkjemaStatusUtskrivelse}
-#'  is 1 (ferdigstilt). \code{indik_kolesterolsenkende} has value
+#' \code{UtskrStatiner} is different from "Ja" and 
+#' \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt).
+#'  \code{indik_kolesterolsenkende} has value
 #'   \emph{ikke ferdigstilt} if  \code{SkjemaStatusUtskrivelse} is different
 #'   from 1 (ikke ferdigstilt).
 #' }
@@ -155,9 +156,9 @@
 #' \code{Indikasjon}, \code{FFR}, \code{IFR},
 #' \code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
 #' \code{antall_stent_under_opphold}, ...
-#' @param df_ak NORIC's \code{AortaklaffVar}-table. Depending on indicators, must
-#' contain some of the variables \code{AvdKompPacemaker},
-#' \code{TypeKlaffeprotese}, ...
+#' @param df_ak NORIC's \code{AortaklaffVar}-table. 
+#' Depending on indicators, must contain some of the variables
+#'  \code{AvdKompPacemaker}, \code{TypeKlaffeprotese}, ...
 #'
 #'
 #' @name utlede_kvalitesindikatorer
@@ -318,7 +319,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
              .data$PdPa == "Ja" |
              .data$IMR == "Ja" |
              .data$Pa == "Ja" |
-             .data$Pd == "Ja" ) ~ "ja",
+             .data$Pd == "Ja") ~ "ja",
         
         .data$indik_trykkmaaling_data == "ja"  ~ "nei",
         .data$indik_trykkmaaling_data == "nei" ~ NA_character_,
@@ -751,7 +752,7 @@ ki_stemi_pci_innen120min <- function(df_ap) {
 
 #' @rdname utlede_kvalitesindikatorer
 #' @export
-ki_ak_pacemakerbehov <- function(df_ak){
+ki_ak_pacemakerbehov <- function(df_ak) {
   
   stopifnot(c("AvdRESH",
               "TypeKlaffeprotese", 

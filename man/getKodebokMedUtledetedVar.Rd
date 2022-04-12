@@ -12,3 +12,10 @@ data.frame med kodebok for NORIC med utledete variabler
 \description{
 Legg til utledete variabler i kodebok for NORIC
 }
+\examples{
+ noric::getKodebokMedUtledetedVar() \%>\%  
+ dplyr::filter(fysisk_feltnavn \%in\% c("uke",
+                                      "maaned",
+                                      "indik_trykkmaaling_data",
+                                      "indik_trykkmaaling"))
+}
