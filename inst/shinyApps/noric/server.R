@@ -392,17 +392,23 @@ shinyServer(function(input, output, session) {
         paramNames = c("report",
                        "outputType",
                        "title",
-                       "orgId",
+                       "author",
                        "orgName",
-                       "userRole"
-                       ),
+                       "orgId",
+                       "registryName",
+                       "userFullName",
+                       "userRole",
+                       "userOperator"),
         paramValues = c("NORIC_local_monthly_ativity",
                         "pdf",
                         "Månedsresultater",
-                        reshId,
-                        hospitalName,
-                        userRole
-                        )
+                        "unknown author",
+                        "unknown organization",
+                        999999,
+                        registryName,
+                        userFullName,
+                        userRole,
+                        "unknown operator")
         )
       )
   }
