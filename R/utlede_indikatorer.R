@@ -22,8 +22,8 @@
 #' \itemize{
 #' \item denominator \code{indik_trykkmaaling_data} (datagrunnlag) is \emph{ja}
 #' when \emph{Indikasjon = Stabil koronarsykdom}.
-#' \item numerator \code{indik_trykkmaaling} has value \emph{ja} if FFR and/or
-#'  iFR has been performed.}
+#' \item numerator \code{indik_trykkmaaling} has value \emph{ja} if one of FFR,
+#'  iFR, Pd/Pa, IMR, Pa or Pd has been performed.}
 #'
 #' \code{ki_ivus_oct_ved_stenting_lms()}
 #' \itemize{
@@ -48,13 +48,18 @@
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
 #'   \item \code{Regtype} = "Primær"
-#'   \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
-#'   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
+#'   \item \code{UtskrevetDod}  = {"Nei","NA"}. Which means that  "Ja" or
 #'   "Ukjent" are excluded
 #'   }
 #' \item numerator \code{indik_blodfortynnende} has value \emph{ja} if
 #' at least two of \code{ASA}, \code{AndrePlatehemmere} or
-#'  \code{Antikoagulantia} are prescribed.
+#'  \code{Antikoagulantia} are prescribed and \code{SkjemaStatusUtskrivelse}
+#'  is 1 (ferdigstilt). \code{indik_blodfortynnende} has value \emph{nei} if
+#' at less than two of \code{ASA}, \code{AndrePlatehemmere} or
+#'  \code{Antikoagulantia} are prescribed and \code{SkjemaStatusUtskrivelse}
+#'  is 1 (ferdigstilt). \code{indik_blodfortynnende} has value
+#'   \emph{ikke ferdigstilt} if  \code{SkjemaStatusUtskrivelse} is different
+#'   from 1 (ikke ferdigstilt).
 #' }
 #'
 #' \code{ki_foreskr_kolesterolsenkende()}
@@ -64,13 +69,18 @@
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
 #'   \item \code{Regtype} = "Primær"
-#'   \item \code{SkjemaStatusUtskrivelse} is 1 (ferdigstilt)
-#'   \item \code{UtskrevetDod}  = "Nei". Which means that "NA", "Ja" or
+#'   \item \code{UtskrevetDod}  = {"Nei", NA} . Which means that "Ja" or
 #'   "Ukjent" are excluded
 #'   }
 #' \item numerator \code{indik_kolesterolsenkende} has value \emph{ja}
-#' if \code{UtskrStatiner} is "Ja".
+#' if \code{UtskrStatiner} is "Ja" and \code{SkjemaStatusUtskrivelse}
+#'  is 1 (ferdigstilt). \code{indik_kolesterolsenkende} has value \emph{nei} if
+#' \code{UtskrStatiner} is different from "Ja" and \code{SkjemaStatusUtskrivelse}
+#'  is 1 (ferdigstilt). \code{indik_kolesterolsenkende} has value
+#'   \emph{ikke ferdigstilt} if  \code{SkjemaStatusUtskrivelse} is different
+#'   from 1 (ikke ferdigstilt).
 #' }
+#'
 #'
 #' \code{ki_nstemi_utredet_innen24t()}
 #' \itemize{
@@ -143,7 +153,11 @@
 #'  x <- data.frame(
 #'       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
 #'       FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-#'       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+#'       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA),
+#'       PdPa = rep(NA, 6),
+#'       IMR = rep(NA, 6),
+#'       Pa = rep(NA, 6),
+#'       Pd = rep(NA, 6))
 #'  noric::ki_trykkmaaling_utfoert(df_ap = x)
 #'
 #'  x <- data.frame(
@@ -229,7 +243,14 @@ ki_ferdigstilt_komplikasjoner <- function(df_ap) {
 #' @rdname utlede_kvalitesindikatorer
 #' @export
 ki_trykkmaaling_utfoert <- function(df_ap) {
-  stopifnot(all(c("Indikasjon", "FFR", "IFR") %in% names(df_ap)))
+
+  stopifnot(all(c("Indikasjon",
+                  "FFR",
+                  "IFR",
+                  "PdPa",
+                  "IMR",
+                  "Pa",
+                  "Pd") %in% names(df_ap)))
 
 
   df_ap %>%
@@ -242,27 +263,26 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
         false = "nei",
         missing = "nei"),
 
-      # utlede verdi for indikatoren dersom datagrunnlag = "ja"
-      # IFR og/eller FFR er utført
+
+      # CAse when starter nederst.
+      # Default er NA, deretter er alle med datagrunnlag "nei" NA
+      # Alle med datagrunnlag "ja" blir først "Nei", til sist bytter de med
+      # minst en trykkmåling til "ja".
+
       indik_trykkmaaling = dplyr::case_when(
 
+        # utlede verdi for indikatoren dersom datagrunnlag = "ja"
+        # og minst en trykkmåling utført
         .data$indik_trykkmaaling_data == "ja" &
-          (.data$FFR == "Ja" | .data$IFR == "Ja") ~ "ja",
+          (.data$FFR == "Ja" |
+             .data$IFR == "Ja" |
+             .data$PdPa == "Ja" |
+             .data$IMR == "Ja" |
+             .data$Pa == "Ja" |
+             .data$Pd == "Ja" ) ~ "ja",
 
-        .data$indik_trykkmaaling_data == "ja" &
-          (.data$FFR != "Ja" & .data$IFR != "Ja") ~ "nei",
-
-        .data$indik_trykkmaaling_data == "ja" &
-          is.na(.data$FFR) & .data$IFR != "Ja" ~ "nei",
-
-        .data$indik_trykkmaaling_data == "ja" &
-          .data$FFR != "Ja" & is.na(.data$IFR) ~ "nei",
-
-        .data$indik_trykkmaaling_data == "ja" &
-          is.na(.data$FFR) & is.na(.data$IFR) ~ "nei",
-
+        .data$indik_trykkmaaling_data == "ja"  ~ "nei",
         .data$indik_trykkmaaling_data == "nei" ~ NA_character_,
-
         FALSE ~ NA_character_))
 }
 
@@ -346,53 +366,59 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
       #  ~ Minst en stent satt inn i løpet av oppholdet (primær eller
       #    sekundær)
       #  ~ Primærforløp
-      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent, NA}
-      #  ~ Ferdigstilt utskrivelsesskjema
+      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent}, {Nei, NA} mulig
       indik_blodfortynnende_data = dplyr::if_else(
         condition =
           (.data$antall_stent_under_opphold > 0 &
              .data$Regtype == "Primær" &
-             .data$UtskrevetDod == "Nei" &
-             .data$SkjemaStatusUtskrivelse == 1),
+             .data$UtskrevetDod %in% c("Nei", NA)),
 
         true = "ja",
         false = "nei",
         missing = "nei"),
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
-      # En av de anbefalte kobinasjonene av blodfortynnende medisiner
+      # "ja":En av de anbefalte kobinasjonene av blodfortynnende medisiner
+      # "nei": Ikke anbefalt kombinasjon
+      # "ikke ferdigstilt": Manglende ferdigstilt utskrivelsesskjema
       indik_blodfortynnende = dplyr::case_when(
 
         # Gyldige kominasjoner:
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (.data$ASA == "Ja" &
              !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
 
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (.data$ASA == "Ja" &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
 
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "ja",
 
         # Ugyldige kombinasjoner
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (.data$ASA == "Ja" &
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
 
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$ASA %in% "Ja" &
              !.data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
 
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$ASA %in% "Ja" &
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              !.data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
@@ -400,10 +426,15 @@ ki_foreskr_blodfortynnende <- function(df_ap) {
 
         # Ingen blodfortynnende foreskrevet
         .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (!.data$ASA %in% "Ja" &
              .data$AndrePlatehemmere %in% c("Nei", "Ukjent", NA_character_) &
              .data$Antikoagulantia %in% c("Nei", "Ukjent", NA_character_))
         ~ "nei",
+
+        .data$indik_blodfortynnende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse %in% c(-1, 0) ~ "ikke ferdigstilt",
+
 
         .data$indik_blodfortynnende_data == "nei" ~ NA_character_,
 
@@ -430,30 +461,35 @@ ki_foreskr_kolesterolsenkende <- function(df_ap) {
       # Datagrunnlag for indikatoren
       #  ~ Minst en stent satt inn i løpet av oppholdet
       #  ~ Primærforløp
-      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent, NA}
-      #  ~ Ferdigstilt utskrivelsesskjema
+      #  ~ Ikke utskrevet død, IKKE {Ja, Ukjent}, {"nei", NA} mulig
       indik_kolesterolsenkende_data = dplyr::if_else(
         condition =
           (.data$antall_stent_under_opphold > 0 &
              .data$Regtype == "Primær" &
-             .data$UtskrevetDod == "Nei" &
-             .data$SkjemaStatusUtskrivelse == 1),
+             .data$UtskrevetDod %in% c("Nei", NA)),
 
         true = "ja",
         false = "nei",
         missing = "nei"),
 
       # utlede verdi for indikatoren dersom datagrunnlag = "ja"
-      # og utskrevet Statiner
+      # "ja": Dersom ferdigstilt og utskrevet statiner
+      # "nei": Dersom ferdigstilte, men ikke utskr statiner
+      # "ikke ferdigstilt": Manglende ferdigstilt utskrivelsesskjema
       indik_kolesterolsenkende = dplyr::case_when(
 
         .data$indik_kolesterolsenkende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           .data$UtskrStatiner == "Ja" ~ "ja",
 
         .data$indik_kolesterolsenkende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse == 1 &
           (.data$UtskrStatiner == "Nei" |
              is.na(.data$UtskrStatiner) |
              .data$UtskrStatiner == "Ukjent") ~ "nei",
+
+        .data$indik_kolesterolsenkende_data == "ja" &
+          .data$SkjemaStatusUtskrivelse %in% c(-1, 0) ~ "ikke ferdigstilt",
 
 
         .data$indik_kolesterolsenkende_data == "nei" ~ NA_character_,
@@ -509,8 +545,8 @@ ki_nstemi_utredet_innen24t <- function(df_ap) {
 
         .data$indik_nstemi_angio_innen24t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &
-            .data$ventetid_nstemi_timer > 0.0 &
-          .data$ventetid_nstemi_timer <= 24.0) ~ "ja",
+             .data$ventetid_nstemi_timer > 0.0 &
+             .data$ventetid_nstemi_timer <= 24.0) ~ "ja",
 
         .data$indik_nstemi_angio_innen24t_data == "ja" &
           (!is.na(.data$ventetid_nstemi_timer) &

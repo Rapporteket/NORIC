@@ -22,7 +22,7 @@
 #' @param orgId Integer (?) with the id of the organization/hospital. Default is
 #' 999999.
 #' @param registryName Character string with registry name. Default is
-#' "ablanor".
+#' "noric".
 #' @param userFullName Character string giving the person name, normally the
 #' user requesting the report. Default is "unknown person name".
 #' @param userRole Character string giving a user role, normally the one of the
@@ -71,7 +71,7 @@ reportProcessor <- function(report,
   #     outputType = outputType,
   #     params = list(
   #       author = author,
-  #       hospitalName = orgName,
+  #       hospitalName = noric::getHospitalName("noric", orgId),
   #       tableFormat = outputType,
   #       reshId = orgId,
   #       registryName = registryName,
@@ -88,7 +88,7 @@ reportProcessor <- function(report,
   #     outputType = outputType,
   #     params = list(
   #       author = author,
-  #       hospitalName = orgName,
+  #       hospitalName = noric::getHospitalName("noric", orgId),
   #       tableFormat = outputType,
   #       reshId = orgId,
   #       registryName = registryName,
@@ -97,7 +97,23 @@ reportProcessor <- function(report,
   #     )
   #   )
   # }
-
+  #
+  #
+  # if (report == "NORIC_local_monthly_activity") {
+  #   filePath <- rapbase::renderRmd(
+  #     system.file("NORIC_local_monthly_activity.Rmd", package = "noric"),
+  #     outputType = outputType,
+  #     params = list(
+  #       author = author,
+  #       hospitalName = noric::getHospitalName("noric", orgId),
+  #       tableFormat = outputType,
+  #       reshId = orgId,
+  #       registryName = registryName,
+  #       userRole = userRole,
+  #       userOperator = userOperator
+  #     )
+  #   )
+  # }
 
   if (report == "NORIC_local_monthly_activity") {
     filePath <- rapbase::renderRmd(
@@ -121,14 +137,15 @@ reportProcessor <- function(report,
 
   if (report == "NORIC_kvalitetsindikator") {
     filePath <- rapbase::renderRmd(
-      sourceFile = system.file("NORIC_kvalitetsindikator.Rmd",
-                               package = "noric"),
+      sourceFile =  system.file("NORIC_kvalitetsindikator.Rmd",
+                                package = "noric"),
       outputType = outputType,
       params = list(
         author = author,
         hospitalName = orgName,
         tableFormat = "latex",
-        reshId = orgId,
+
+        reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
         userRole = userRole

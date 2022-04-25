@@ -207,7 +207,87 @@ test_that("legg_til_trykk_bilde_per_kar is correct", {
                                 metodeType = "tulleType"))
 
 
+})
 
 
 
+testthat::test_that("legg_til_trykkmaalinger fungerer", {
+
+
+
+  test_ap <- data.frame(ForlopsID = c(1:8),
+                        AvdRESH = rep(1, 8))
+
+
+  test_ad <- data.frame(
+    ForlopsID = c(1, 1, 1, 1, 1, 1, 3, 4, 5, 6, 7, 8, 8, 8),
+    AvdRESH = rep(1, 14),
+    metode = c("FFR", "iFR", "IMR", "Pd/Pa", "Pa-hyperemi", "Pd-hyperemi",
+               "IMR", "Pd/Pa", "Pa-hyperemi", "Pd-hyperemi",
+               NA, "tull", "tull", "tull"))
+
+  test_out <- noric::legg_til_trykkmaalinger(df_ap = test_ap, df_ad = test_ad)
+
+
+
+  testthat::expect_equal(
+    names(test_out),
+    c("ForlopsID", "AvdRESH", "IMR", "PdPa", "Pa", "Pd"))
+
+
+  testthat::expect_true(all(
+    test_out %>%
+      dplyr::filter(.data$ForlopsID == 1,.data$ AvdRESH ==1) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd)  == "Ja"))
+
+
+  testthat::expect_true(all(
+    test_out %>%
+      dplyr::filter(.data$ForlopsID == 2,.data$ AvdRESH ==1) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>% is.na()))
+
+
+  testthat::expect_equal(
+    test_out %>%
+      dplyr::filter(.data$ForlopsID == 3, .data$ AvdRESH ==1) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
+      as.character(),
+    c("Ja", "Nei", "Nei", "Nei"))
+
+
+  testthat::expect_equal(
+    test_out %>%
+      dplyr::filter(.data$ForlopsID == 4, .data$ AvdRESH ==1) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
+      as.character(),
+    c("Nei", "Ja", "Nei", "Nei"))
+
+  testthat::expect_equal(
+    test_out %>%
+      dplyr::filter(.data$ForlopsID == 5, .data$ AvdRESH ==1) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
+      as.character(),
+    c("Nei", "Nei", "Ja", "Nei"))
+
+
+  testthat::expect_equal(
+    test_out %>%
+      dplyr::filter(.data$ForlopsID == 6, .data$ AvdRESH ==1) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
+      as.character(),
+    c("Nei",  "Nei", "Nei","Ja"))
+
+
+
+  testthat::expect_true(all(
+    test_out %>%
+      dplyr::filter(.data$ForlopsID %in% 7:8,.data$ AvdRESH ==1) %>%
+      dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) == "Nei"))
+
+
+
+  testthat::expect_error(
+    noric::legg_til_trykkmaalinger(df_ap = test_ap,
+                                   df_ad = data.frame(feil_navn = 1:10))
+  )
 })

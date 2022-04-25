@@ -590,7 +590,7 @@ SELECT
     ForlopsOversikt.ForlopsType1,
     ForlopsOversikt.ForlopsType2,
     ForlopsOversikt.KobletForlopsID,
-    ForlopsOversikt.BasisRegStatus,
+    ForlopsOversikt.BasisRegStatus
 
 FROM
     MitralklaffVar
@@ -657,8 +657,8 @@ LEFT JOIN ForlopsOversikt ON
     PasienterStudier.AvdRESH = ForlopsOversikt.AvdRESH AND
     PasienterStudier.PasientID = ForlopsOversikt.PasientID
 WHERE
-    PasienterStudier.ProsedyreDato >= '", fromDate, "' AND
-    PasienterStudier.ProsedyreDato <= '", toDate, "'"
+    PasienterStudier.PasInklDato >= '", fromDate, "' AND
+    PasienterStudier.PasInklDato <= '", toDate, "'"
   )
 
   # SQL for one row only/complete table:
@@ -739,28 +739,28 @@ WHERE
 ")
 
 
-#   # Only ask for variables needed in functions: utlede_annen_diag_variabler.R
-#   queryAd <- paste0("
-# SELECT
-#     ForlopsID, AvdRESH, segment, graft, metode
-# FROM
-#     AnnenDiagnostikkVar
-# WHERE
-#     ProsedyreDato >= '", fromDate, "' AND
-#     ProsedyreDato <= '", toDate, "'
-# ")
+  # Only ask for variables needed in functions: utlede_annen_diag_variabler.R
+  queryAd <- paste0("
+SELECT
+    ForlopsID, AvdRESH, metode
+FROM
+    AnnenDiagnostikkVar
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'
+")
 
 
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    # queryAd <- paste0(queryAd, "\nLIMIT\n  1;")
     querySs <- paste0(querySs, "\nLIMIT\n  1;")
+    queryAd <- paste0(queryAd, "\nLIMIT\n  1;")
     msg <- "Query single row data for AngioPCI light"
   } else {
     query <- paste0(query, ";")
-    # queryAd <- paste0(queryAd, ";")
     querySs <- paste0(querySs, ";")
+    queryAd <- paste0(queryAd, ";")
     msg <- "Query data for AngioPCI light"
   }
 
@@ -769,12 +769,12 @@ WHERE
   }
 
   aP <- rapbase::loadRegData(registryName, query)
-  # aD <- rapbase::loadRegData(registryName, queryAd, dbType)
+  aD <- rapbase::loadRegData(registryName, queryAd)
   sS <- rapbase::loadRegData(registryName, querySs)
 
 
 
   list(aP = aP,
-       # aD = aD,
+       aD = aD,
        sS = sS)
 }
