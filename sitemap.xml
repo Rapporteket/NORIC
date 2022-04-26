@@ -25,6 +25,9 @@
     <loc>/reference/compound_assignment_pipe.html</loc>
   </url>
   <url>
+    <loc>/reference/def_utledete_var.html</loc>
+  </url>
+  <url>
     <loc>/reference/describeRegistryDb.html</loc>
   </url>
   <url>
@@ -47,6 +50,9 @@
   </url>
   <url>
     <loc>/reference/getHospitalName.html</loc>
+  </url>
+  <url>
+    <loc>/reference/getKodebokMedUtledetedVar.html</loc>
   </url>
   <url>
     <loc>/reference/getLatestEntry.html</loc>

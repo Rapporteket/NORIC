@@ -22,7 +22,7 @@ variables names are suffixed by _data (datagrunnlag)."><!-- mathjax --><script s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.6.0</span>
       </span>
     </div>
 
@@ -71,7 +71,9 @@ variables names are suffixed by <em>_data</em> (datagrunnlag).</p>
 
 <span class="fu">ki_nstemi_utredet_innen72t</span><span class="op">(</span><span class="va">df_ap</span><span class="op">)</span>
 
-<span class="fu">ki_stemi_pci_innen120min</span><span class="op">(</span><span class="va">df_ap</span><span class="op">)</span></code></pre></div>
+<span class="fu">ki_stemi_pci_innen120min</span><span class="op">(</span><span class="va">df_ap</span><span class="op">)</span>
+
+<span class="fu">ki_ak_pacemakerbehov</span><span class="op">(</span><span class="va">df_ak</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -83,12 +85,17 @@ contain some of the variables <code>SkjemaStatusKomplikasjoner</code>,
 <code>Indikasjon</code>, <code>FFR</code>, <code>IFR</code>,
 <code>satt_inn_stent_i_LMS</code>, <code>TidlABC</code>, <code>IVUS</code>, <code>OCT</code>,
 <code>antall_stent_under_opphold</code>, ...</p></dd>
+<dt>df_ak</dt>
+<dd><p>NORIC's <code>AortaklaffVar</code>-table. Depending on indicators, must
+contain some of the variables <code>AvdKompPacemaker</code>,
+<code>TypeKlaffeprotese</code>, ...</p></dd>
 </dl></div>
     <div id="details">
     <h2>Details</h2>
     <p>Following variables are created for the different functions:</p>
 <p><code>ki_ferdigstilt_komplikasjoner()</code></p><ul><li><p>denominator <code>indik_komplik_ferdig_data</code> (datagrunnlag) is
- <em>ja</em> when <em>Regtype = Primaer</em>.</p></li>
+ <em>ja</em> when <em>Regtype = Primaer</em> and 
+ <code>SkjemaStatusKomplikasjoner</code> is <em>-1, 0, 1</em>.</p></li>
 <li><p>numerator <code>indik_komplik_ferdig</code> has value <em>ja</em> if the
  complications form is completed (komplikasjons-skjema er ferdigstilt).</p></li>
 </ul><p><code>ki_trykkmaaling_utfoert()</code></p><ul><li><p>denominator <code>indik_trykkmaaling_data</code> (datagrunnlag) is <em>ja</em>
@@ -164,20 +171,43 @@ to 24h (86400 min) and value <em>ugyldig/manglende</em> if time is negative,
 longer than 24h,  missing or if <code>BeslutningsutlosendeEKG</code> has value
 "Prehospitalt" and <code>ventetid_stemi_min</code> is 0 minutes. See also function
  <a href="legg_til_ventetid_stemi_min.html">legg_til_ventetid_stemi_min</a>.</p></li>
+</ul><p><code>ki_ak_pacemakerbehov()</code></p><ul><li><p>nevneren <code>indik_pacemakerbehov_data</code>
+(datagrunnlag) er <em>ja</em> når alle disse kriteriene er oppfylt:</p><ol><li><p><code>AvdRESH</code> tilhører sykehusene som utfører tavi :
+  (HUS, UNN, Ullevål,St.Olavs, Rikshospitalet, Ahus Gardermoen)</p></li>
+<li><p><code>TypeKlaffeprotese</code> ikke manglende (satt inn klaff)</p></li>
+<li><p><code>LabKompDod</code> ulik <em>ja</em></p></li>
+<li><p><code>Pacemaker</code>  ulik <em>ja</em></p></li>
+</ol></li>
+<li><p>telleren <code>indik_pacemakerbehov</code> har verdien <em>ja</em>
+dersom <code>AvdKompPacemaker</code> er <em>ja</em> og 
+<code>SkjemaStatusHovedskjema</code> er <em>1</em> (ferdigstilte). 
+ <code>indik_pacemakerbehov</code> har verdien <em>nei</em> dersom 
+ <code>AvdKompPacemaker</code> er <em>nei</em> eller mangler, og ders
+  <code>SkjemaStatusHovedskjema</code> er <em>1</em> (ferdigstilte). 
+<code>indik_pacemakerbehov</code> har verdien <em>ikke ferdigstilte</em> dersom 
+<code>SkjemaStatusHoveskjema</code> er <em>-1</em> eller <em>0</em>.</p></li>
 </ul></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"> <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span class="r-in">      SkjemaStatusKomplikasjoner <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in">      SkjemaStatusKomplikasjoner <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>, </span>
+<span class="r-in">      Regtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Primær"</span>, <span class="fl">5</span><span class="op">)</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"> <span class="fu">noric</span><span class="fu">::</span><span class="fu">ki_ferdigstilt_komplikasjoner</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SkjemaStatusKomplikasjoner indik_komplik_ferdig_data indik_komplik_ferdig</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         -1                        ja                  nei</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                          1                        ja                   ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                          0                        ja                  nei</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                         NA                       nei                 &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                         NA                       nei                 &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                         NA                       nei                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SkjemaStatusKomplikasjoner Regtype indik_komplik_ferdig_data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         -1  Primær                        ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                          1  Primær                        ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                          0  Primær                        ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                         NA  Primær                       nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                         NA  Primær                       nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                         NA    &lt;NA&gt;                       nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   indik_komplik_ferdig</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                   ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                  nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                 &lt;NA&gt;</span>
 <span class="r-in"></span>
 <span class="r-in"> <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span class="r-in">      Indikasjon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Stabil koronarsykdom"</span>, <span class="fl">4</span><span class="op">)</span>, <span class="cn">NA</span>, <span class="st">"annet"</span><span class="op">)</span>,</span>
@@ -366,6 +396,43 @@ longer than 24h,  missing or if <code>BeslutningsutlosendeEKG</code> has value
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4                           ja                      ja</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5                           ja                     nei</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6                           ja       ugyldig/manglende</span>
+<span class="r-in"></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span class="r-in">      AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">0</span>,<span class="fl">102966</span>, <span class="fl">101619</span>, <span class="fl">109880</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">106944</span>,<span class="fl">7</span><span class="op">)</span><span class="op">)</span>, </span>
+<span class="r-in">      TypeKlaffeprotese <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"CoreValve"</span>, <span class="fl">2</span><span class="op">)</span>, <span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"CoreValve"</span>, <span class="fl">9</span><span class="op">)</span><span class="op">)</span>,</span>
+<span class="r-in">      LabKompDod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Nei"</span>, <span class="st">"Nei"</span>, <span class="st">"Nei"</span>, <span class="st">"Ja"</span>, <span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Nei"</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span>, </span>
+<span class="r-in">      Pacemaker <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Nei"</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"Ja"</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Nei"</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span>, </span>
+<span class="r-in">      SkjemaStatusHovedskjema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span>, </span>
+<span class="r-in">      AvdKompPacemaker <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ja"</span>, <span class="st">"Nei"</span>, <span class="st">"Ukjent"</span>, <span class="cn">NA</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu">noric</span><span class="fu">::</span><span class="fu">ki_ak_pacemakerbehov</span><span class="op">(</span>df_ak <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    AvdRESH TypeKlaffeprotese LabKompDod Pacemaker SkjemaStatusHovedskjema</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       NA         CoreValve        Nei       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        0         CoreValve        Nei       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   102966              &lt;NA&gt;        Nei       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   101619         CoreValve         Ja       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   109880         CoreValve       &lt;NA&gt;        Ja                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   106944         CoreValve        Nei       Nei                       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   106944         CoreValve        Nei       Nei                      -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   106944         CoreValve        Nei       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   106944         CoreValve        Nei       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10  106944         CoreValve        Nei       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11  106944         CoreValve        Nei       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  106944         CoreValve        Nei       Nei                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    AvdKompPacemaker indik_pacemakerbehov_data indik_pacemakerbehov</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                Ja                       nei                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               Nei                       nei                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3            Ukjent                       nei                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4              &lt;NA&gt;                       nei                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                Ja                       nei                 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6               Nei                        ja     ikke ferdigstilt</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7            Ukjent                        ja     ikke ferdigstilt</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8              &lt;NA&gt;                        ja                  nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                Ja                        ja                   ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10              Nei                        ja                  nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11           Ukjent                        ja                  nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12             &lt;NA&gt;                        ja                  nei</span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>
@@ -376,7 +443,7 @@ longer than 24h,  missing or if <code>BeslutningsutlosendeEKG</code> has value
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Kristina Skaare, Mary Autenried, Ellisif Nygaard, Are Edvardsen.</p>
+  <p></p><p>Developed by Kristina Skaare, Mary Autenried, Are Edvardsen.</p>
 </div>
 
 <div class="pkgdown">
