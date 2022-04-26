@@ -49,6 +49,12 @@ ui <- tagList(
              )
     ),
 
+    shiny::tabPanel("Kodebok",
+                    sidebarLayout(
+                      sidebarPanel(uiOutput("kbControl")),
+                      mainPanel(htmlOutput("kbdData"))
+                    )),
+    
     tabPanel(
       "Stentbruk",
       sidebarLayout(

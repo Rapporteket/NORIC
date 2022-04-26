@@ -1,19 +1,15 @@
 Package: noric
 Title: Provide R Resources for NORIC at Rapporteket
-Version: 2.5.0
+Version: 2.6.0
 Authors@R: c(
   person("Kristina",
          "Skaare",
-         role = c("aut"),
+         role = c("aut", "cre"),
          email = "kristina.skare@helse-bergen.no"),
   person("Mary",
          "Autenried",
          role = c("aut"),
          email = "mary.gerina.autenried@helse-bergen.no"),
-  person("Ellisif",
-         "Nygaard",
-         role = c("aut", "cre"),
-         email = "ellisif.nygaard@helse-vest.no"),
   person("Are",
          "Edvardsen",
          role = c("aut"),

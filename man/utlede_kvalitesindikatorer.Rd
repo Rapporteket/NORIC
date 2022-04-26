@@ -10,6 +10,7 @@
 \alias{ki_nstemi_utredet_innen24t}
 \alias{ki_nstemi_utredet_innen72t}
 \alias{ki_stemi_pci_innen120min}
+\alias{ki_ak_pacemakerbehov}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
@@ -27,6 +28,8 @@ ki_nstemi_utredet_innen24t(df_ap)
 ki_nstemi_utredet_innen72t(df_ap)
 
 ki_stemi_pci_innen120min(df_ap)
+
+ki_ak_pacemakerbehov(df_ak)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must
@@ -35,6 +38,10 @@ contain some of the variables \code{SkjemaStatusKomplikasjoner},
 \code{Indikasjon}, \code{FFR}, \code{IFR},
 \code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
 \code{antall_stent_under_opphold}, ...}
+
+\item{df_ak}{NORIC's \code{AortaklaffVar}-table. Depending on indicators, must
+contain some of the variables \code{AvdKompPacemaker},
+\code{TypeKlaffeprotese}, ...}
 }
 \description{
 Functions for creating two new variables for each indicator:
@@ -50,7 +57,8 @@ Following variables are created for the different functions:
 \code{ki_ferdigstilt_komplikasjoner()}
  \itemize{
  \item denominator \code{indik_komplik_ferdig_data} (datagrunnlag) is
- \emph{ja} when \emph{Regtype = Primaer}.
+ \emph{ja} when \emph{Regtype = Primaer} and 
+ \code{SkjemaStatusKomplikasjoner} is \emph{-1, 0, 1}. 
  \item numerator \code{indik_komplik_ferdig} has value \emph{ja} if the
  complications form is completed (komplikasjons-skjema er ferdigstilt).}
 
@@ -162,10 +170,32 @@ longer than 24h,  missing or if \code{BeslutningsutlosendeEKG} has value
 "Prehospitalt" and \code{ventetid_stemi_min} is 0 minutes. See also function
  \link[noric]{legg_til_ventetid_stemi_min}.
 }
+
+\code{ki_ak_pacemakerbehov()}
+\itemize{
+\item nevneren \code{indik_pacemakerbehov_data}
+(datagrunnlag) er \emph{ja} når alle disse kriteriene er oppfylt:
+\enumerate{
+  \item \code{AvdRESH} tilhører sykehusene som utfører tavi :
+  (HUS, UNN, Ullevål,St.Olavs, Rikshospitalet, Ahus Gardermoen)
+  \item \code{TypeKlaffeprotese} ikke manglende (satt inn klaff)
+  \item \code{LabKompDod} ulik \emph{ja}
+  \item \code{Pacemaker}  ulik \emph{ja}
+  }
+\item telleren \code{indik_pacemakerbehov} har verdien \emph{ja}
+dersom \code{AvdKompPacemaker} er \emph{ja} og 
+\code{SkjemaStatusHovedskjema} er \emph{1} (ferdigstilte). 
+ \code{indik_pacemakerbehov} har verdien \emph{nei} dersom 
+ \code{AvdKompPacemaker} er \emph{nei} eller mangler, og ders
+  \code{SkjemaStatusHovedskjema} er \emph{1} (ferdigstilte). 
+\code{indik_pacemakerbehov} har verdien \emph{ikke ferdigstilte} dersom 
+\code{SkjemaStatusHoveskjema} er \emph{-1} eller \emph{0}.
+}
 }
 \examples{
  x <- data.frame(
-      SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA))
+      SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA), 
+      Regtype = c(rep("Primær", 5), NA))
  noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
 
  x <- data.frame(
@@ -222,4 +252,15 @@ noric::ki_nstemi_utredet_innen72t(df_ap = x)
       BeslutningsutlosendeEKG = rep("Prehospitalt", 6),
       ventetid_stemi_min = c(-10, 20, 110, 120, 1150, 1480))
 noric::ki_stemi_pci_innen120min(df_ap = x)
+
+
+x <- data.frame(
+      AvdRESH = c(NA, 0,102966, 101619, 109880, rep(106944,7)), 
+      TypeKlaffeprotese = c(rep("CoreValve", 2), NA, rep("CoreValve", 9)),
+      LabKompDod = c("Nei", "Nei", "Nei", "Ja", NA, rep("Nei", 7)), 
+      Pacemaker = c(rep("Nei", 4), "Ja", rep("Nei", 7)), 
+      SkjemaStatusHovedskjema = c(rep(1, 5), 0, -1, rep(1, 5)), 
+      AvdKompPacemaker = rep(c("Ja", "Nei", "Ukjent", NA), 3))
+noric::ki_ak_pacemakerbehov(df_ak = x)
+
 }
