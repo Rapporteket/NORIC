@@ -28,6 +28,7 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Utforsker")
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
+    shiny::hideTab(inputId = "tabs", target = "Kodebok")
   } else if (userRole == "LC") {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
