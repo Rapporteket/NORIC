@@ -39,8 +39,7 @@ shinyServer(function(input, output, session) {
   
   ## local reports/tabs for national registry
   if (isNationalReg(reshId)) {
-    shiny::hideTab(inputId = "tabs", target = "Stentbruk")
-    shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
+    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::hideTab(inputId = "tabs", target = "Abonnement")
   }
   
