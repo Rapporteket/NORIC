@@ -14,6 +14,7 @@
 
 ## Annet
 * Oppdatering startsiden 
+* Samle alle månedsrapportene i en fane
 
 
 # noric 2.5.0
