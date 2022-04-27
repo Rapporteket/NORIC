@@ -12,7 +12,8 @@
 * Ny fane i Rapporteket: Kodebok
 * Kodeboken lister opp utvalge variabler fra data-filen
 
-
+## Annet
+* Oppdatering startsiden 
 
 
 # noric 2.5.0
