@@ -11,51 +11,76 @@ date: '`r format(Sys.time(), "%d. %B %Y")`'
 
 ---
 
-## Rapporteket for NORIC `r params$hospitalName`
+# Rapporteket for NORIC `r params$hospitalName`
+Rapportekets innhold avhenger av pålogget brukers rolle. 
+Vi bruker følgende forkortelser:  
 
+* Systemkoordinator (SC) 
+* Lokal koordinator (LC)
+* Lokal bruker (LU) 
 
+Der SC har tilgang til alle sykehusets data, LC har noe begrenset tilgang og 
+LU kun har tilgang på aggregerte data (månedsrapportene).
 
-### Utforsker
+### Utforsker 
+Her kan LC/SC-brukere ved sykehusene laste inn datasett med sitt sykehus sin
+lokale aktivitet. Ansatte i registeret kan laste inn nasjonal aktivitet.
+Datasettene kan derettes utforskes i tabell-format eller grafisk format.
+__Den enkleste måten å bli kjent med verktøyet på er å prøve seg frem!__
 
-__Tilgjengelig for brukere med tilgang som  "Systemkoordinator" (SC) og "Lokal koordinator" (LC) i Rapporteket.__
-
-Denne siden inneholder en ny løsning som erstatter det som tidligere het "*Ad Hoc View*". Løsningen benytter en R-pakke som heter `rpivotTable`.
   
-Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
+Løsningen benytter R-pakken `rpivotTable`.
+Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").
 Man kan i tillegg finne mer informasjon om pakken på [hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
 
-__Den enkleste måten å bli kjent med verktøyet på er å prøve seg frem!__
     
-  
-
-### Månedsrapporter
-
-Månedsrapporter inneholder oppsummeringer av viktige aktiviteter ved enheten det siste året.  
-Du kan få tilsendt rapportene automatisk per e-post (se Abonnement).
+### Kodebok 
+For LC/SC-brukere. 
+Kodeboken inneholder forlaringer til de utledete variablene som finnes i hver av 
+tabellene i Utforsker.
 
 
-#### Stentbruk
-Denne rapporten inneholder opplysninger om hvilke stenter som er brukt.
+### Månedsrapporter 
+For LU/LC/SC-brukere. 
+Månedsrapporter inneholder oppsummeringer av viktige aktiviteter ved 
+enheten det siste året: 
 
-#### Prosedyrer
-Denne rapporten gir en oversikt over opptellinger relatert til utførte prosedyrer fra Andre prosedyrer- og AngioPCI-modulen.
+* __Stentbruk__: Inneholder opplysninger om hvilke stenter som er brukt.
 
+* __Prosedyrer__: Opptellinger relatert til utførte prosedyrer fra 
+_Andre prosedyrer_ - og _AngioPCI_-modulen.
+
+For automatisk tilsending av rapportene per e-post se Abonnement.
 
 ### Datadump
-  
-__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) i Rapporteket.__
+SC-rolle. 
+Nedlasting av datadumper (excel-format) som inneholder rådata. 
 
-### Metadata
-__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) i Rapporteket.__
+### Abonnement 
+LU/LC/SC-rolle.
+Her kan man administrere sine abonnement på månedsrapportene. 
+Man kan selv velge frekvens (ukentlig, månedlig, kvartal, ...) og ønsket 
+format (html eller pdf).
 
-Denne siden inneholder metadata ("data om data") om de forskjellige tabellene som utgjør datagrunnlaget for Rapporteket (AndreProsedyrerVar, AngioPCIVar osv.). Hvis du for eksempel lurer på om datadumpen *SegmentStent* har en variabel som heter "Okklusjon", så kan du bruke søkeordet "okklusjon" i søkeboksen oppe i høyre hjørne.
-  
-Merk at disse tabellene er et resultat av spørringer mot databasen. Tabellene har derfor ikke samme struktur og variabelnavn som databasen. 
+### Verktøy
+Brukere med SC-rolle har tilgang på følgende verktøy:
 
-### Abonnement
+* __Metadata__: Denne siden inneholder metadata ("data om data") om de 
+forskjellige tabellene som utgjør datagrunnlaget for Rapporteket 
+(AndreProsedyrerVar, AngioPCIVar osv.). Hvis man for eksempel lurer på om 
+datadumpen *SegmentStent*  har en variabel som heter "Okklusjon", så kan man
+bruke søkeordet "okklusjon" i søkeboksen oppe i høyre hjørne. 
+Merk at disse tabellene er et resultat av spørringer mot databasen. 
+Tabellene har derfor ikke samme struktur og variabelnavn som databasen. 
 
-Her kan du administrere dine abonnement på månedsrapportene.  
-Du kan selv velge hvor ofte du får dem tilsendt (frekvens) og ønsket format (html eller pdf).
+* __Eksport__: Tilgjengelig kun for statistikerne i registeret. 
+
+* __Utsendinger__ : Her kan ansatte i registeret administrere utsending av
+månedlige resultater per sykehus, sammenlignet med nasjonale tall. 
+
+* __Bruksstatistikk__: Her kan ansatte i registeret holde oversikt over 
+innlogginger og annen aktivitet på Rapporteket. 
 
 ### Kontaktinformasjon
-Ta gjerne kontakt ved spørsmål eller innspill til rapporter eller annet innhold på rapporteket. E-post: noric@helse-bergen.no
+Ta gjerne kontakt ved spørsmål eller innspill til rapporter eller annet
+innhold på rapporteket. E-post: noric@helse-bergen.no
