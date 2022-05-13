@@ -18,18 +18,18 @@ ui <- tagList(
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
     id = "tabs",
-
+    
     tabPanel("Start",
-      useShinyalert(),
-      mainPanel(width = 12,
-        htmlOutput("veiledning", inline = TRUE),
-        appNavbarUserWidget(user = uiOutput("appUserName"),
-                           organization = uiOutput("appOrgName"),
-                           addUserInfo = TRUE),
-        tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
-      )
+             useShinyalert(),
+             mainPanel(width = 12,
+                       htmlOutput("veiledning", inline = TRUE),
+                       appNavbarUserWidget(user = uiOutput("appUserName"),
+                                           organization = uiOutput("appOrgName"),
+                                           addUserInfo = TRUE),
+                       tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
+             )
     ),
-
+    
     tabPanel("Utforsker",
              fluidRow(
                column(6, uiOutput("selectDataSet")),
@@ -41,49 +41,40 @@ ui <- tagList(
              fluidRow(
                column(12,
                       rpivotTableOutput("pivotSurvey") #%>%
-                        # shinycssloaders::withSpinner(
-                        #   color = "#18bc9c",
-                        #   color.background = "#ffffff",
-                        #   type = 2)
-                      )
+                      # shinycssloaders::withSpinner(
+                      #   color = "#18bc9c",
+                      #   color.background = "#ffffff",
+                      #   type = 2)
+               )
              )
     ),
-
+    
     shiny::tabPanel("Kodebok",
                     sidebarLayout(
                       sidebarPanel(uiOutput("kbControl")),
                       mainPanel(htmlOutput("kbdData"))
                     )),
     
-    tabPanel(
-      "Stentbruk",
-      sidebarLayout(
-        sidebarPanel(
-          radioButtons("formatStentbruk",
-                       "Format for nedlasting",
-                       c("PDF", "HTML"),
-                       inline = FALSE),
-          downloadButton("downloadReportStentbruk", "Hent!"),
-          width = 2
-        ),
-        mainPanel(
-          htmlOutput("stentbruk", inline = TRUE)
-        )
-      )
-    ),
-    tabPanel(
-      "Prosedyrer",
-      sidebarLayout(
-        sidebarPanel(
-          radioButtons("formatProsedyrer",
-                       "Format for nedlasting",
-                       c("PDF", "HTML"),
-                       inline = FALSE),
-          downloadButton("downloadReportProsedyrer", "Hent!"),
-          width = 2
-        ),
-        mainPanel(
-          htmlOutput("prosedyrer", inline = TRUE)
+    
+    
+    
+    shiny::navbarMenu(
+      "Månedsrapporter",
+      
+      tabPanel(
+        "Stentbruk",
+        sidebarLayout(
+          sidebarPanel(
+            radioButtons("formatStentbruk",
+                         "Format for nedlasting",
+                         c("PDF", "HTML"),
+                         inline = FALSE),
+            downloadButton("downloadReportStentbruk", "Hent!"),
+            width = 2
+          ),
+          mainPanel(
+            htmlOutput("stentbruk", inline = TRUE)
+          )
         )
       )
     ),
@@ -100,96 +91,130 @@ ui <- tagList(
         ),
         mainPanel(
           htmlOutput("aktivitet", inline = TRUE)
-        )
-      )
-    ),
-
-
-    tabPanel("Datadump",
-      sidebarLayout(
-        sidebarPanel(width = 4,
-                     selectInput("dumpDataSet", "Velg datasett:",
-                                 c("AndreProsedyrerVar",
-                                   "AnnenDiagnostikkVar",
-                                   "AngioPCIVar",
-                                   "AortaklaffVar",
-                                   "AortaklaffOppfVar",
-                                   "CTAngioVar",
-                                   "ForlopsOversikt",
-                                   "MitralklaffVar",
-                                   "PasienterStudier",
-                                   "SegmentStent",
-                                   "SkjemaOversikt")),
-                     dateRangeInput("dumpDateRange", "Velg periode:",
-                                    start = ymd(Sys.Date()) - years(1),
-                                    end = Sys.Date(), separator = "-",
-                                    weekstart = 1),
-                     radioButtons("dumpFormat", "Velg filformat:",
-                                  choices = c("csv", "xlsx-csv")),
-                     downloadButton("dumpDownload", "Hent!")
-                     ),
-        mainPanel(
-          htmlOutput("dataDumpInfo") #%>%
-            # shinycssloaders::withSpinner(color = "#18bc9c",
-            #                              color.background = "#ffffff",
-            #                              type = 2)
-        )
-      )
-    ),
-
-    shiny::tabPanel(
-      "Abonnement",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          rapbase::autoReportInput("noricSubscription")
-        ),
-        shiny::mainPanel(
-          rapbase::autoReportUI("noricSubscription")
-        )
-      )
-    ),
-
-    shiny::navbarMenu(
-      "Verktøy",
-
-      tabPanel("Metadata",
-               sidebarLayout(
-                 sidebarPanel(uiOutput("metaControl")),
-                 mainPanel(htmlOutput("metaData"))
-               )
       ),
-
-      shiny::tabPanel(
-        "Utsending",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            rapbase::autoReportOrgInput("noricDispatch"),
-            rapbase::autoReportInput("noricDispatch")
+      tabPanel(
+        "Prosedyrer",
+        sidebarLayout(
+          sidebarPanel(
+            radioButtons("formatProsedyrer",
+                         "Format for nedlasting",
+                         c("PDF", "HTML"),
+                         inline = FALSE),
+            downloadButton("downloadReportProsedyrer", "Hent!"),
+            width = 2
           ),
-          shiny::mainPanel(
-            rapbase::autoReportUI("noricDispatch")
+          mainPanel(
+            htmlOutput("prosedyrer", inline = TRUE)
           )
         )
       ),
-
+      tabPanel(
+        "Prosedyrer2",
+        sidebarLayout(
+          sidebarPanel(
+            radioButtons("formatProsedyrer2",
+                         "Format for nedlasting",
+                         c("PDF", "HTML"),
+                         inline = FALSE),
+            downloadButton("downloadReportProsedyrer2", "Hent!"),
+            width = 2
+          ),
+          mainPanel(
+            htmlOutput("prosedyrer2", inline = TRUE) #%>%
+            # shinycssloaders::withSpinner(color = "#18bc9c",
+            #                              color.background = "#ffffff",
+            #                              type = 2)
+          )
+        )
+      )) ,
+      
+      
+      tabPanel("Datadump",
+               sidebarLayout(
+                 sidebarPanel(width = 4,
+                              selectInput("dumpDataSet", "Velg datasett:",
+                                          c("AndreProsedyrerVar",
+                                            "AnnenDiagnostikkVar",
+                                            "AngioPCIVar",
+                                            "AortaklaffVar",
+                                            "AortaklaffOppfVar",
+                                            "CTAngioVar",
+                                            "ForlopsOversikt",
+                                            "MitralklaffVar",
+                                            "PasienterStudier",
+                                            "SegmentStent",
+                                            "SkjemaOversikt")),
+                              dateRangeInput("dumpDateRange", "Velg periode:",
+                                             start = ymd(Sys.Date()) - years(1),
+                                             end = Sys.Date(), separator = "-",
+                                             weekstart = 1),
+                              radioButtons("dumpFormat", "Velg filformat:",
+                                           choices = c("csv", "xlsx-csv")),
+                              downloadButton("dumpDownload", "Hent!")
+                 ),
+                 mainPanel(
+                   htmlOutput("dataDumpInfo") #%>%
+                   # shinycssloaders::withSpinner(color = "#18bc9c",
+                   #                              color.background = "#ffffff",
+                   #                              type = 2)
+                 )
+               )
+      ),
+      
       shiny::tabPanel(
-        "Bruksstatistikk",
+        "Abonnement",
         shiny::sidebarLayout(
           shiny::sidebarPanel(
-            rapbase::statsInput("noricStats"),
-            rapbase::statsGuideUI("noricStatsGuide")
+            rapbase::autoReportInput("noricSubscription")
           ),
-          shiny::mainPanel(rapbase::statsUI("noricStats"))
+          shiny::mainPanel(
+            rapbase::autoReportUI("noricSubscription")
+          )
         )
       ),
-
-      shiny::tabPanel(
-        "Eksport",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
-          shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
+      
+      shiny::navbarMenu(
+        "Verktøy",
+        
+        tabPanel("Metadata",
+                 sidebarLayout(
+                   sidebarPanel(uiOutput("metaControl")),
+                   mainPanel(htmlOutput("metaData"))
+                 )
+        ),
+        
+        shiny::tabPanel(
+          "Utsending",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(
+              rapbase::autoReportOrgInput("noricDispatch"),
+              rapbase::autoReportInput("noricDispatch")
+            ),
+            shiny::mainPanel(
+              rapbase::autoReportUI("noricDispatch")
+            )
+          )
+        ),
+        
+        shiny::tabPanel(
+          "Bruksstatistikk",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(
+              rapbase::statsInput("noricStats"),
+              rapbase::statsGuideUI("noricStatsGuide")
+            ),
+            shiny::mainPanel(rapbase::statsUI("noricStats"))
+          )
+        ),
+        
+        shiny::tabPanel(
+          "Eksport",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
+            shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
+          )
         )
       )
     )
   )
-)
+  

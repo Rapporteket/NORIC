@@ -29,6 +29,8 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
     shiny::hideTab(inputId = "tabs", target = "Aktivitet")
+    shiny::hideTab(inputId = "tabs", target = "Kodebok")
+    
   } else if (userRole == "LC") {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
@@ -37,9 +39,11 @@ shinyServer(function(input, output, session) {
 
   ## local reports/tabs for national registry
   if (isNationalReg(reshId)) {
+
     shiny::hideTab(inputId = "tabs", target = "Stentbruk")
     shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
     shiny::hideTab(inputId = "tabs", target = "Aktivitet")
+    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::hideTab(inputId = "tabs", target = "Abonnement")
   }
   
