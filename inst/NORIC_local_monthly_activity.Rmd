@@ -111,7 +111,7 @@ angiografor_AP <- AP %>% dplyr::filter(
 
 ```{r TabNAngiogrforMonth, echo = FALSE, results = "asis"}
 cap <- "Antall angioprosedyrer etter angiografør og måned. Opptellingen er gjort ved å legge sammen prosedyretypene Angio og Angio+PCI. Kun 1. angiograf er med i opptellingen."
-tab_angiografor<- addmargins(xtabs(formula = ~ .data$Angiografor1 + .data$maaned,
+tab_angiografor<- addmargins(xtabs(formula = ~ Angiografor1 + maaned,
                              data = angiografor_AP,
                              drop.unused.levels = TRUE))
 align<- c("l", rep("c", dim(tab_angiografor)[2]-1))
