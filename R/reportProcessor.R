@@ -111,8 +111,7 @@ reportProcessor <- function(report,
         reshId = orgId,
         registryName = registryName,
         userRole = userRole,
-        userFullName = userFullName,
-        userOperator = userOperator
+        userFullName = userFullName
       )
     )
   }
