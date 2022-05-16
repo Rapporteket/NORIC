@@ -18,7 +18,7 @@ ui <- tagList(
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
     id = "tabs",
-    
+
     tabPanel("Start",
              useShinyalert(),
              mainPanel(width = 12,
@@ -29,7 +29,7 @@ ui <- tagList(
                        tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
              )
     ),
-    
+
     tabPanel("Utforsker",
              fluidRow(
                column(6, uiOutput("selectDataSet")),
@@ -48,19 +48,19 @@ ui <- tagList(
                )
              )
     ),
-    
+
     shiny::tabPanel("Kodebok",
                     sidebarLayout(
                       sidebarPanel(uiOutput("kbControl")),
                       mainPanel(htmlOutput("kbdData"))
                     )),
-    
-    
-    
-    
+
+
+
+
     shiny::navbarMenu(
       "Månedsrapporter",
-      
+
       tabPanel(
         "Stentbruk",
         sidebarLayout(
@@ -76,9 +76,8 @@ ui <- tagList(
             htmlOutput("stentbruk", inline = TRUE)
           )
         )
-      )
-    ),
-    tabPanel(
+      ),
+      tabPanel(
       "Aktivitet",
       sidebarLayout(
         sidebarPanel(
@@ -87,12 +86,13 @@ ui <- tagList(
                        c("PDF", "HTML"),
                        inline = FALSE),
           downloadButton("downloadReportAktivitet", "Hent!"),
-          width = 2
-        ),
+          width = 2),
         mainPanel(
           htmlOutput("aktivitet", inline = TRUE)
-      ),
-      tabPanel(
+        )
+      )
+    ),
+    tabPanel(
         "Prosedyrer",
         sidebarLayout(
           sidebarPanel(
@@ -107,29 +107,10 @@ ui <- tagList(
             htmlOutput("prosedyrer", inline = TRUE)
           )
         )
-      ),
-      tabPanel(
-        "Prosedyrer2",
-        sidebarLayout(
-          sidebarPanel(
-            radioButtons("formatProsedyrer2",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
-            downloadButton("downloadReportProsedyrer2", "Hent!"),
-            width = 2
-          ),
-          mainPanel(
-            htmlOutput("prosedyrer2", inline = TRUE) #%>%
-            # shinycssloaders::withSpinner(color = "#18bc9c",
-            #                              color.background = "#ffffff",
-            #                              type = 2)
-          )
-        )
-      )) ,
-      
-      
-      tabPanel("Datadump",
+      )
+    ),
+
+    tabPanel("Datadump",
                sidebarLayout(
                  sidebarPanel(width = 4,
                               selectInput("dumpDataSet", "Velg datasett:",
@@ -160,7 +141,7 @@ ui <- tagList(
                  )
                )
       ),
-      
+
       shiny::tabPanel(
         "Abonnement",
         shiny::sidebarLayout(
@@ -172,17 +153,17 @@ ui <- tagList(
           )
         )
       ),
-      
+
       shiny::navbarMenu(
         "Verktøy",
-        
+
         tabPanel("Metadata",
                  sidebarLayout(
                    sidebarPanel(uiOutput("metaControl")),
                    mainPanel(htmlOutput("metaData"))
                  )
         ),
-        
+
         shiny::tabPanel(
           "Utsending",
           shiny::sidebarLayout(
@@ -195,7 +176,7 @@ ui <- tagList(
             )
           )
         ),
-        
+
         shiny::tabPanel(
           "Bruksstatistikk",
           shiny::sidebarLayout(
@@ -206,7 +187,7 @@ ui <- tagList(
             shiny::mainPanel(rapbase::statsUI("noricStats"))
           )
         ),
-        
+
         shiny::tabPanel(
           "Eksport",
           shiny::sidebarLayout(
@@ -217,4 +198,3 @@ ui <- tagList(
       )
     )
   )
-  
