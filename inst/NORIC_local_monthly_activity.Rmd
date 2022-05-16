@@ -6,10 +6,12 @@ output: pdf_document
 params:
   title: Emty tite
   author: Anon author
-  hospitalName: Ukjent sykehus
+  hospitalName: "Ukjent sykehus"
   tableFormat: html
   reshId: '999999'
   registryName: rapbase
+  userFullName: "Ukjent bruker"
+  userRole: "Ukjent rolle"
 header-includes:
 - \usepackage[english, norsk]{babel}
 - \usepackage{booktabs}
