@@ -485,6 +485,55 @@ shinyServer(function(input, output, session) {
   )
   
   
+  
+  
+  
+  
+  
+  
+  
+  # Download reports
+  ## innhold kontrollpanel:
+  output$dwnldControl <- renderUI({
+    selectInput(inputId = "dwldSykehus",
+                label = "Velg sykehus for ki-rapporten:",
+                choices = c(list("Velg sykehus" = "info"), 
+                            orgs))
+  })
+  
+  output$dwldInfo <- renderUI({
+    p(paste("Valgt for nedlasting:",
+            input$dwldSykehus))
+    # noric::getHospitalName(reshID = input$dwldSykehus)))
+  })
+  
+  output$dwnldReport <- downloadHandler(
+    filename = function() {
+      downloadFilename(fileBaseName = "NORIC_kvalitetsindikator",
+                       type = "PDF")
+    },
+    
+    content = function(file) {
+      noric::reportProcessor(report = "veiledning", 
+                              outputType = "html", 
+                              title = "toto",
+                              author = "KS",
+                              orgId =  "toto")
+      # report = "NORIC_kvalitetsindikator", 
+      #                      outputType = "pdf", 
+      #                      title = "title", 
+      #                      author = UserFullName,
+      #                      orgName = "HUS"  , 
+      #                      orgId =toto , 
+      #                      registryName = registryName,
+      #                      userFullName = userFullName, 
+      #                      userRole = userRole,
+      #                      userOperator = "unknown operator")
+    }
+  )
+  
+  
+  
   # Use stats
   rapbase::statsServer(
     "noricStats",
