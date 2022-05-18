@@ -441,29 +441,11 @@ shinyServer(function(input, output, session) {
       subReports,
       Aktivitet = list(
         synopsis = "M\u00E5nedlig oppsummering av aktiviteter siste \u00E5r",
-        fun = "reportProcessor",
-        paramNames = c("report",
-                       "outputType",
-                       "title",
-                       "author",
-                       "orgName",
-                       "orgId",
-                       "registryName",
-                       "userFullName",
-                       "userRole",
-                       "userOperator"),
-        paramValues = c("NORIC_local_monthly_activity",
-                        "pdf",
-                        "Månedsresultater",
-                        "unknown author",
-                        "unknown organization",
-                        999999,
-                        registryName,
-                        userFullName,
-                        userRole,
-                        "unknown operator")
-        )
+        fun = "subscriptionLocalMonthlyReps",
+        paramNames = pn,
+        paramValues = c("NORIC_local_monthly_activity", pv)
       )
+    )
   }
 
 
