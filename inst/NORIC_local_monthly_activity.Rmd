@@ -113,7 +113,7 @@ angiografor_AP <- AP %>% dplyr::filter(
 
 ```{r TabNAngiogrforMonth, echo = FALSE, results = "asis"}
 cap <- "Antall angioprosedyrer etter angiografør og måned. Opptellingen er gjort ved å legge sammen prosedyretypene Angio og Angio+PCI. Kun 1. angiograf er med i opptellingen."
-tab_angiografor<- addmargins(xtabs(formula = ~ Angiografor1 + maaned,
+tab_angiografor<- addmargins(xtabs(formula = ~ maaned + Angiografor1,
                              data = angiografor_AP,
                              drop.unused.levels = TRUE))
 align<- c("l", rep("c", dim(tab_angiografor)[2]-1))
@@ -145,7 +145,7 @@ pciOperator_AP <- AP %>% dplyr::filter(
 
 ```{r TabNOperatorMonth, echo = FALSE, results = "asis"}
 cap <- "Antall PCI-prosedyrer etter PCI-operatør og måned. Opptellingen er gjort ved å legge sammen prosedyretypene Angio+PCI og PCI. Kun 1. operator er med i opptellingen."
-tab_pciOperator<- addmargins(xtabs(formula = ~ PCIHovedOperator + maaned,
+tab_pciOperator<- addmargins(xtabs(formula = ~ maaned + PCIHovedOperator,
                              data = pciOperator_AP,
                              drop.unused.levels = TRUE))
 align<- c("l", rep("c", dim(tab_pciOperator)[2]-1))
