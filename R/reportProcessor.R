@@ -66,7 +66,7 @@ reportProcessor <- function(report,
 
 
  
-  
+  # For testing: 
   if (report == "veiledning") {
     filePath <- rapbase::renderRmd(
       sourceFile =  system.file("veiledning.Rmd",
