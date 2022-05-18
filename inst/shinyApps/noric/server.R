@@ -82,7 +82,7 @@ shinyServer(function(input, output, session) {
   }
   
   # render file function for re-use
-  contentFile <- function(file, srcFile, tmpFile, type, useReportProcessor = FALSE) {
+  contentFile <- function(file, srcFile, tmpFile, type, useReportProcessor = FALSE, orgId = reshId, orgName = hospitalName) {
     src <- normalizePath(system.file(srcFile, package = "noric"))
     # temporarily switch to the temp dir, in case we do not have write
     # permission to the current working directory
@@ -118,16 +118,18 @@ shinyServer(function(input, output, session) {
     
     if(useReportProcessor){
       out <- noric::reportProcessor(
-        report = "veiledning",
-        outputType = "html", 
-        title = "toto", 
-        author = "KS", 
-        orgName = "HUS", 
-        orgId = 0,
-        registryName = "tyl",
-        userFullName = "kousti", 
-        userRole = "LYS", 
-        userOperator = "gtid") 
+        report = sub(pattern  = ".Rmd", 
+                     replacement =  "",
+                     x = srcFile),
+        outputType = "pdf", 
+        title = "unknown title", 
+        author = "unknown author", 
+        orgName = orgName, 
+        orgId = orgId,
+        registryName = registryName,
+        userFullName = userFullName, 
+        userRole = userRole, 
+        userOperator = "unknown operator") 
     }
     
     file.rename(out, file)
@@ -522,27 +524,29 @@ shinyServer(function(input, output, session) {
   output$dwnldControl <- renderUI({
     selectInput(inputId = "dwldSykehus",
                 label = "Velg sykehus for ki-rapporten:",
-                choices = c(list("Velg sykehus" = "info"), 
-                            orgs))
+                choices = orgs)
   })
   
   output$dwldInfo <- renderUI({
     p(paste("Valgt for nedlasting:",
-            input$dwldSykehus))
-    # noric::getHospitalName(reshID = input$dwldSykehus)))
+            input$dwldSykehus, 
+            noric::getHospitalName(reshID = input$dwldSykehus)))
   })
   
   output$dwnldReport <- shiny::downloadHandler(
     filename = function() {
-      downloadFilename(fileBaseName = "veiledning",
-                       type = "HTML")
+      downloadFilename(fileBaseName = "NORIC_kvalitetsindikator",
+                       type = "PDF")
     },
     
     
     content = function(file) {
-      contentFile(file, "veiledning.Rmd",
-                  basename(tempfile(fileext = ".Rmd")),
-                  type = "HTML", 
+      contentFile(file, 
+                  srcFile = "NORIC_kvalitetsindikator.Rmd",
+                  tmpFile = basename(tempfile(fileext = ".Rmd")),
+                  type = "PDF", 
+                  orgId = input$dwldSykehus, 
+                  orgName = noric::getHospitalName(reshID = input$dwldSykehus),
                   useReportProcessor = TRUE)
     }
   )
