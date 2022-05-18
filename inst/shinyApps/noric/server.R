@@ -82,7 +82,7 @@ shinyServer(function(input, output, session) {
   }
   
   # render file function for re-use
-  contentFile <- function(file, srcFile, tmpFile, type) {
+  contentFile <- function(file, srcFile, tmpFile, type, useReportProcessor = FALSE) {
     src <- normalizePath(system.file(srcFile, package = "noric"))
     # temporarily switch to the temp dir, in case we do not have write
     # permission to the current working directory
@@ -90,24 +90,46 @@ shinyServer(function(input, output, session) {
     on.exit(setwd(owd))
     file.copy(src, tmpFile, overwrite = TRUE)
     
-    out <- rmarkdown::render(tmpFile, output_format = switch(
-      type,
-      PDF = rmarkdown::pdf_document(),
-      HTML = rmarkdown::html_document(),
-      BEAMER = rmarkdown::beamer_presentation(theme = "Hannover"),
-      REVEAL = revealjs::revealjs_presentation(theme = "sky")
-      #css = normalizePath(system.file("bootstrap.css", package = "noric")))
-    ), params = list(tableFormat = switch(
-      type,
-      PDF = "latex",
-      HTML = "html",
-      BEAMER = "latex",
-      REVEAL = "html"),
-      hospitalName = hospitalName,
-      author = author,
-      reshId = reshId,
-      registryName = registryName
-    ), output_dir = tempdir())
+    
+    if(!useReportProcessor){
+      out <- rmarkdown::render(
+        tmpFile, 
+        output_format = switch(
+          type,
+          PDF = rmarkdown::pdf_document(),
+          HTML = rmarkdown::html_document(),
+          BEAMER = rmarkdown::beamer_presentation(theme = "Hannover"),
+          REVEAL = revealjs::revealjs_presentation(theme = "sky")),
+        
+        params = list(
+          tableFormat = switch(
+            type,
+            PDF = "latex",
+            HTML = "html",
+            BEAMER = "latex",
+            REVEAL = "html"),
+          hospitalName = hospitalName,
+          author = author,
+          reshId = reshId,
+          registryName = registryName), 
+        output_dir = tempdir())  
+    } 
+    
+    
+    if(useReportProcessor){
+      out <- noric::reportProcessor(
+        report = "veiledning",
+        outputType = "html", 
+        title = "toto", 
+        author = "KS", 
+        orgName = "HUS", 
+        orgId = 0,
+        registryName = "tyl",
+        userFullName = "kousti", 
+        userRole = "LYS", 
+        userOperator = "gtid") 
+    }
+    
     file.rename(out, file)
   }
   
@@ -335,7 +357,8 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       contentFile(file, "NORIC_local_monthly_stent.Rmd",
                   basename(tempfile(fileext = ".Rmd")),
-                  input$formatStentbruk)
+                  input$formatStentbruk, 
+                  useReportProcessor = FALSE)
     }
   )
   
@@ -347,7 +370,8 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       contentFile(file, "NORIC_local_monthly.Rmd",
                   basename(tempfile(fileext = ".Rmd")),
-                  input$formatProsedyrer)
+                  input$formatProsedyrer, 
+                  useReportProcessor = FALSE)
     }
   )
   
@@ -360,7 +384,8 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       contentFile(file, "NORIC_local_monthly.Rmd",
                   basename(tempfile(fileext = ".Rmd")),
-                  input$formatProsedyrer2)
+                  input$formatProsedyrer2, 
+                  useReportProcessor = FALSE)
     }
   )
   
@@ -507,28 +532,18 @@ shinyServer(function(input, output, session) {
     # noric::getHospitalName(reshID = input$dwldSykehus)))
   })
   
-  output$dwnldReport <- downloadHandler(
+  output$dwnldReport <- shiny::downloadHandler(
     filename = function() {
-      downloadFilename(fileBaseName = "NORIC_kvalitetsindikator",
-                       type = "PDF")
+      downloadFilename(fileBaseName = "veiledning",
+                       type = "HTML")
     },
     
+    
     content = function(file) {
-      noric::reportProcessor(report = "veiledning", 
-                              outputType = "html", 
-                              title = "toto",
-                              author = "KS",
-                              orgId =  "toto")
-      # report = "NORIC_kvalitetsindikator", 
-      #                      outputType = "pdf", 
-      #                      title = "title", 
-      #                      author = UserFullName,
-      #                      orgName = "HUS"  , 
-      #                      orgId =toto , 
-      #                      registryName = registryName,
-      #                      userFullName = userFullName, 
-      #                      userRole = userRole,
-      #                      userOperator = "unknown operator")
+      contentFile(file, "veiledning.Rmd",
+                  basename(tempfile(fileext = ".Rmd")),
+                  type = "HTML", 
+                  useReportProcessor = TRUE)
     }
   )
   
