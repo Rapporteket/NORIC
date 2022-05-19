@@ -14,7 +14,8 @@ reportProcessor(
   registryName = "noric",
   userFullName = "unknown person name",
   userRole = "unknown role",
-  userOperator = "unknown operator"
+  userOperator = "unknown operator",
+  rendered_by_shiny = FALSE
 )
 }
 \arguments{
@@ -47,6 +48,9 @@ user requesting the report. Default is "unknown role".}
 
 \item{userOperator}{Character string with some name of an operator, whatever
 that is... Default is "unknown operator".}
+
+\item{rendered_by_shiny}{boolean. if TRUE progression-bar is shown when 
+charging report}
 }
 \value{
 A character string with a path to where the produced file is located.

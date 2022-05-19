@@ -29,6 +29,8 @@
 #' user requesting the report. Default is "unknown role".
 #' @param userOperator Character string with some name of an operator, whatever
 #' that is... Default is "unknown operator".
+#' @param rendered_by_shiny boolean. if TRUE progression-bar is shown when 
+#' charging report
 #'
 #' @return A character string with a path to where the produced file is located.
 #' @export
@@ -48,7 +50,8 @@ reportProcessor <- function(report,
                             registryName = "noric",
                             userFullName = "unknown person name",
                             userRole = "unknown role",
-                            userOperator = "unknown operator") {
+                            userOperator = "unknown operator", 
+                            rendered_by_shiny = FALSE) {
 
   stopifnot(report %in% c("veiledning",
                           "NORIC_local_monthly",
@@ -97,7 +100,8 @@ reportProcessor <- function(report,
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
-        userRole = userRole
+        userRole = userRole, 
+        rendered_by_shiny = rendered_by_shiny
       )
     )
   }
