@@ -29,8 +29,8 @@
 #' user requesting the report. Default is "unknown role".
 #' @param userOperator Character string with some name of an operator, whatever
 #' that is... Default is "unknown operator".
-#' @param rendered_by_shiny boolean. if TRUE progression-bar is shown when 
-#' charging report
+#' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
+#' returned.
 #'
 #' @return A character string with a path to where the produced file is located.
 #' @export
