@@ -29,9 +29,12 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
     shiny::hideTab(inputId = "tabs", target = "Kodebok")
+    shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
   } else if (userRole == "LC") {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
+    shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+    
   }
   
   ## 'Prosedyrer2', regardless
@@ -47,6 +50,7 @@ shinyServer(function(input, output, session) {
   if (!isNationalReg(reshId)) {
     shiny::hideTab(inputId = "tabs", target = "Utsending")
     shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
+    shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
   }
   
   # html rendering function for re-use
