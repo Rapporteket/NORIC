@@ -524,6 +524,9 @@ shinyServer(function(input, output, session) {
   
   
   # Download reports
+  orgs_df <- noric::mapOrgReshId(registryName = registryName,
+                                 asNamedList = FALSE)
+  
   ## innhold kontrollpanel:
   output$dwnldControl <- renderUI({
     selectInput(inputId = "dwldSykehus",
@@ -534,7 +537,7 @@ shinyServer(function(input, output, session) {
   output$dwldInfo <- renderUI({
     p(paste("Valgt for nedlasting:",
             input$dwldSykehus, 
-            noric::getHospitalName(reshID = input$dwldSykehus)))
+            orgs_df[orgs_df$id == input$dwldSykehus, "name"]))
   })
   
   output$dwnldReport <- shiny::downloadHandler(
@@ -550,7 +553,7 @@ shinyServer(function(input, output, session) {
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
                   type = "PDF", 
                   orgId = input$dwldSykehus, 
-                  orgName = noric::getHospitalName(reshID = input$dwldSykehus),
+                  orgName = orgs_df[orgs_df$id == input$dwldSykehus, "name"],
                   useReportProcessor = TRUE)
     }
   )
