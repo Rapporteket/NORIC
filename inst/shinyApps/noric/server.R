@@ -121,6 +121,7 @@ shinyServer(function(input, output, session) {
     
     
     if(useReportProcessor){
+      withProgress(message = 'Rendering, please wait!', {
       out <- noric::reportProcessor(
         report = sub(pattern  = ".Rmd", 
                      replacement =  "",
@@ -133,7 +134,8 @@ shinyServer(function(input, output, session) {
         registryName = registryName,
         userFullName = userFullName, 
         userRole = userRole, 
-        userOperator = "unknown operator") 
+        userOperator = "unknown operator", 
+        rendered_by_shiny = TRUE) })
     }
     
     file.rename(out, file)
@@ -524,6 +526,7 @@ shinyServer(function(input, output, session) {
   
   
   # Download reports
+  # Tabell med sykehusnavn - orgID
   orgs_df <- noric::mapOrgReshId(registryName = registryName,
                                  asNamedList = FALSE)
   
@@ -536,7 +539,6 @@ shinyServer(function(input, output, session) {
   
   output$dwldInfo <- renderUI({
     p(paste("Valgt for nedlasting:",
-            input$dwldSykehus, 
             orgs_df[orgs_df$id == input$dwldSykehus, "name"]))
   })
   
