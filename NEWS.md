@@ -1,3 +1,15 @@
+# noric 2.6.2
+
+# Nytt
+* Ny fane under verktøy - mulighet for nasjonal SC til å laste ned ki-rapporten
+for valgt sykehus
+* Tilrettelegging i server.R for nedlasting av rapport ved bruk av 
+reportProcessor
+* reportProcessor viser melding 'Rendering, please wait!' mens rapporten lages
+* Fremgang i generering vises
+* ki-rapporten returnerer fremgang ved ulike 'sjekkpunter' i rapporten
+
+
 
 # noric 2.6.0
 
