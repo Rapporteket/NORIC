@@ -7,6 +7,7 @@ params:
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
+  rendered_by_shiny: FALSE
 header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
@@ -146,6 +147,11 @@ anD_nasjonalt <- noric::getPrepAnDData(
 ```
 
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.1)  # set progress to 10%
+```
+
 
 ```{r yearTabPrepare, include=FALSE, eval=TRUE}
 timeTableYear <- data.frame(
@@ -179,6 +185,11 @@ timeTableMonth <- data.frame(
                   by = "month")) %>% 
   dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
                                              format = "%Y-%m")))
+```
+
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.15)  # set progress to 15%
 ```
 
 
@@ -295,6 +306,11 @@ aP_nasjonalt %<>%
 
 ```
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.2)  # set progress to 10%
+```
+
 
 ```{r aKPrepare,include=FALSE, eval=TRUE}
 
@@ -360,6 +376,12 @@ if (dim_ak_lokalt[1] > 10) {
                                           with_year = FALSE)))
 }
 ```
+
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.25)  # set progress to 25%
+```
+
 
 \bigskip \bigskip \bigskip
 
@@ -448,6 +470,12 @@ noric::mst(tab = tabFerdigtiltKompl,
 
 ```{r pagebreakFerdigstilt, results = "asis", eval = (params$tableFormat == "latex")}
 cat("\n\n\\pagebreak\n")
+```
+
+
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.35)  # set progress to 35%
 ```
 
 # Invasiv utredning ved NSTEMI
@@ -1144,6 +1172,12 @@ noric::mst(tab = tabVentetid72t,
 cat("\n\n\\pagebreak\n")
 ```
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.75)  # set progress to 75%
+```
+
+
 `r if (params$reshID == 106944) {"<!--"}`
 
 # PCI innen 120 minutter ved STEMI
@@ -1437,6 +1471,10 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.90)  # set progress to 90%
+```
 
 
 # Foreskriving av blodfortynnende medisiner
@@ -1710,3 +1748,7 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
 }
 ```
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(1)  # set progress to 100%
+```
