@@ -78,21 +78,6 @@ ui <- tagList(
         )
       ),
       tabPanel(
-      "Aktivitet",
-      sidebarLayout(
-        sidebarPanel(
-          radioButtons("formatAktivitet",
-                       "Format for nedlasting",
-                       c("PDF", "HTML"),
-                       inline = FALSE),
-          downloadButton("downloadReportAktivitet", "Hent!"),
-          width = 2),
-        mainPanel(
-          htmlOutput("aktivitet", inline = TRUE)
-        )
-      )
-    ),
-    tabPanel(
         "Prosedyrer",
         sidebarLayout(
           sidebarPanel(
@@ -105,6 +90,21 @@ ui <- tagList(
           ),
           mainPanel(
             htmlOutput("prosedyrer", inline = TRUE)
+          )
+        )
+      ),
+      tabPanel(
+        "Aktivitet",
+        sidebarLayout(
+          sidebarPanel(
+            radioButtons("formatAktivitet",
+                         "Format for nedlasting",
+                         c("PDF", "HTML"),
+                         inline = FALSE),
+            downloadButton("downloadReportAktivitet", "Hent!"),
+            width = 2),
+          mainPanel(
+            htmlOutput("aktivitet", inline = TRUE)
           )
         )
       )
