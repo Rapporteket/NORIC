@@ -437,8 +437,7 @@ shinyServer(function(input, output, session) {
   )
 
   if(!isNationalReg(reshId) & userRole == "SC"){
-    subReports <- list(
-      subReports,
+    liste_aktivitet <- list(
       Aktivitet = list(
         synopsis = "M\u00E5nedlig oppsummering av aktiviteter siste \u00E5r",
         fun = "subscriptionLocalMonthlyReps",
@@ -446,6 +445,8 @@ shinyServer(function(input, output, session) {
         paramValues = c("NORIC_local_monthly_activity", pv)
       )
     )
+
+    subReports <- c(subReports, liste_aktivitet)
   }
 
 
