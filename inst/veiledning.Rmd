@@ -50,10 +50,8 @@ enheten det siste året:
 * __Prosedyrer__: Opptellinger relatert til utførte prosedyrer fra 
 _Andre prosedyrer_ - og _AngioPCI_-modulen.
 
-
-#### Aktivitet
-Denne rapporten inneholder opptellinger av angiograførenes og operatørenes aktivitet. Rapporten er kun tilgjengelig pålogget lokalt som SC-bruker.
-For automatisk tilsending av rapportene per e-post se Abonnement.
+* __Aktivitet__(Kun for SC-rolle): Inneholder opptellinger av angiograførenes 
+og operatørenes aktivitet.
 
 
 ### Datadump
