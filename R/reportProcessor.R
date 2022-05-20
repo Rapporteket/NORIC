@@ -97,23 +97,25 @@ reportProcessor <- function(report,
   #     )
   #   )
   # }
-  #
-  #
+
+
   # if (report == "NORIC_local_monthly_activity") {
   #   filePath <- rapbase::renderRmd(
-  #     system.file("NORIC_local_monthly_activity.Rmd", package = "noric"),
+  #     system.file("NORIC_local_monthly_activity.Rmd",
+  #                 package = "noric"),
   #     outputType = outputType,
   #     params = list(
   #       author = author,
-  #       hospitalName = noric::getHospitalName("noric", orgId),
+  #       hospitalName = orgName,
   #       tableFormat = outputType,
   #       reshId = orgId,
   #       registryName = registryName,
   #       userRole = userRole,
-  #       userOperator = userOperator
+  #       userFullName = userFullName
   #     )
   #   )
   # }
+
 
 
   if (report == "NORIC_kvalitetsindikator") {
@@ -125,6 +127,7 @@ reportProcessor <- function(report,
         author = author,
         hospitalName = orgName,
         tableFormat = "latex",
+
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,

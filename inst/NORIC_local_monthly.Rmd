@@ -21,6 +21,7 @@ header-includes:
 library(magrittr)
 library(knitr)
 library(kableExtra)
+library(dplyr)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
@@ -828,4 +829,3 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            digs = c(0,0,0,1), align = rep("r", 4))
 
 ```
-

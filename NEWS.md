@@ -1,3 +1,10 @@
+# noric 2.6.1
+
+## Nytt
+* Ny månedsrapport: Aktivitet - Teller antall prosedyrer pr angiografør/operator
+pr måned
+* Ny rapport gjelder kun for SC-rollen på lokalt nivå
+
 
 # noric 2.6.0
 
