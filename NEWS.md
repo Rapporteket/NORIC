@@ -1,10 +1,17 @@
-# noric 2.6.1
+# noric 2.7.0
 
 ## Nytt
-* Ny månedsrapport: Aktivitet - Teller antall prosedyrer pr angiografør/operator
-pr måned
-* Ny rapport gjelder kun for SC-rollen på lokalt nivå
+* Ny fane: Månedsrapporter: Samler alle rapporter - Stent, Prosedyre og Aktivitet (Ny)
+* Ny Rapport: Aktivitet – Gir en oversikt over antall prosedyrer pr angiografør/operatør pr måned
+* Ny fane: Kodebok
+* Kodebok – Lister opp utvalgte variabler fra ny data-fil som beskriver de utledede variablene
 
+## Oppdateringer og endringer
+* Ny indikator for Aortaklaff-tabellen (Pacemakerbehov)
+* Bruker indikatoren i månedlig utsending
+* Bruker indikatoren i Utforsker
+* Bugfix i indikatoren «Ferdigstilt komplikasjonsskjemaer»
+* Oppdatert startside.
 
 # noric 2.6.0
 
