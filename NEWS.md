@@ -1,4 +1,5 @@
-# noric 2.6.2
+
+# noric 2.8.0
 
 # Nytt
 * Ny fane under verktøy - mulighet for nasjonal SC til å laste ned ki-rapporten
@@ -9,6 +10,22 @@ reportProcessor
 * Fremgang i generering vises
 * ki-rapporten returnerer fremgang ved ulike 'sjekkpunter' i rapporten
 
+
+=======
+# noric 2.7.0
+
+## Nytt
+* Ny fane: Månedsrapporter: Samler alle rapporter - Stent, Prosedyre og Aktivitet (Ny)
+* Ny Rapport: Aktivitet – Gir en oversikt over antall prosedyrer pr angiografør/operatør pr måned
+* Ny fane: Kodebok
+* Kodebok – Lister opp utvalgte variabler fra ny data-fil som beskriver de utledede variablene
+
+## Oppdateringer og endringer
+* Ny indikator for Aortaklaff-tabellen (Pacemakerbehov)
+* Bruker indikatoren i månedlig utsending
+* Bruker indikatoren i Utforsker
+* Bugfix i indikatoren «Ferdigstilt komplikasjonsskjemaer»
+* Oppdatert startside.
 
 
 # noric 2.6.0

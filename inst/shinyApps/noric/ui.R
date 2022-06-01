@@ -18,7 +18,7 @@ ui <- tagList(
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
     id = "tabs",
-    
+
     tabPanel("Start",
              useShinyalert(),
              mainPanel(width = 12,
@@ -29,7 +29,7 @@ ui <- tagList(
                        tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
              )
     ),
-    
+
     tabPanel("Utforsker",
              fluidRow(
                column(6, uiOutput("selectDataSet")),
@@ -48,19 +48,19 @@ ui <- tagList(
                )
              )
     ),
-    
+
     shiny::tabPanel("Kodebok",
                     sidebarLayout(
                       sidebarPanel(uiOutput("kbControl")),
                       mainPanel(htmlOutput("kbdData"))
                     )),
-    
-    
-    
-    
+
+
+
+
     shiny::navbarMenu(
       "Månedsrapporter",
-      
+
       tabPanel(
         "Stentbruk",
         sidebarLayout(
@@ -94,21 +94,17 @@ ui <- tagList(
         )
       ),
       tabPanel(
-        "Prosedyrer2",
+        "Aktivitet",
         sidebarLayout(
           sidebarPanel(
-            radioButtons("formatProsedyrer2",
+            radioButtons("formatAktivitet",
                          "Format for nedlasting",
                          c("PDF", "HTML"),
                          inline = FALSE),
-            downloadButton("downloadReportProsedyrer2", "Hent!"),
-            width = 2
-          ),
+            downloadButton("downloadReportAktivitet", "Hent!"),
+            width = 2),
           mainPanel(
-            htmlOutput("prosedyrer2", inline = TRUE) #%>%
-            # shinycssloaders::withSpinner(color = "#18bc9c",
-            #                              color.background = "#ffffff",
-            #                              type = 2)
+            htmlOutput("aktivitet", inline = TRUE)
           )
         )
       )) ,
@@ -167,7 +163,7 @@ ui <- tagList(
                  mainPanel(htmlOutput("metaData"))
                )
       ),
-      
+
       shiny::tabPanel(
         "Utsending",
         shiny::sidebarLayout(
@@ -207,8 +203,11 @@ ui <- tagList(
         shiny::sidebarLayout(
           shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
           shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
+
+
         )
       )
     )
   )
 )
+

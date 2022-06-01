@@ -67,7 +67,6 @@ reportProcessor <- function(report,
     warning("No title given! Reports should have a title...")
   }
 
-
  
   # For testing: 
   if (report == "veiledning") {
@@ -85,8 +84,60 @@ reportProcessor <- function(report,
   }
   
   
-  
-  
+
+  # if (report == "NORIC_local_monthly") {
+  #   filePath <- rapbase::renderRmd(
+  #     system.file("NORIC_local_monthly.Rmd", package = "noric"),
+  #     outputType = outputType,
+  #     params = list(
+  #       author = author,
+  #       hospitalName = noric::getHospitalName("noric", orgId),
+  #       tableFormat = outputType,
+  #       reshId = orgId,
+  #       registryName = registryName,
+  #       userRole = userRole,
+  #       userOperator = userOperator
+  #     )
+  #   )
+  # }
+  #
+  #
+  # if (report == "NORIC_local_monthly_stent") {
+  #   filePath <- rapbase::renderRmd(
+  #     system.file("NORIC_local_monthly_stent.Rmd", package = "noric"),
+  #     outputType = outputType,
+  #     params = list(
+  #       author = author,
+  #       hospitalName = noric::getHospitalName("noric", orgId),
+  #       tableFormat = outputType,
+  #       reshId = orgId,
+  #       registryName = registryName,
+  #       userRole = userRole,
+  #       userOperator = userOperator
+  #     )
+  #   )
+  # }
+
+
+  # if (report == "NORIC_local_monthly_activity") {
+  #   filePath <- rapbase::renderRmd(
+  #     system.file("NORIC_local_monthly_activity.Rmd",
+  #                 package = "noric"),
+  #     outputType = outputType,
+  #     params = list(
+  #       author = author,
+  #       hospitalName = orgName,
+  #       tableFormat = outputType,
+  #       reshId = orgId,
+  #       registryName = registryName,
+  #       userRole = userRole,
+  #       userFullName = userFullName
+  #     )
+  #   )
+  # }
+
+
+
 
   if (report == "NORIC_kvalitetsindikator") {
     filePath <- rapbase::renderRmd(
@@ -97,6 +148,7 @@ reportProcessor <- function(report,
         author = author,
         hospitalName = orgName,
         tableFormat = "latex",
+
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
