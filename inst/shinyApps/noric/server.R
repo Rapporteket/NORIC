@@ -393,8 +393,8 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       contentFile(file, "NORIC_local_monthly_activity.Rmd",
                   basename(tempfile(fileext = ".Rmd")),
-                  useReportProcessor = FALSE)
-                  input$formatAktivitet)
+                  useReportProcessor = FALSE, 
+                  type = input$formatAktivitet)
     }
   )
 
