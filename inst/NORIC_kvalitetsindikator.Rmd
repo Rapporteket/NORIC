@@ -762,7 +762,8 @@ fig1 %>%
   ggplot2::geom_point(aes(colour = .data$Sykehus))  +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
                  legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2])) +
+  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
+                              drop = FALSE) +
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
@@ -777,7 +778,7 @@ fig1 %>%
 cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi.  Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Per måned, fra hele siste året til og med siste hele måned. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."
 
 prep_fig_ventetid24t %>%
-  dplyr::filter(name == "Direkte") %>%
+  dplyr::filter(name %in% "Direkte") %>%
   ggplot2::ggplot(aes(x = .data$maaned,
                       y = .data$value,
                       group = .data$Sykehus)) +
@@ -786,7 +787,8 @@ prep_fig_ventetid24t %>%
   ggplot2::geom_point(aes(colour = .data$Sykehus))  +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
                  legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2])) +
+  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
+                              drop = FALSE) +
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
@@ -809,7 +811,8 @@ prep_fig_ventetid24t %>%
   ggplot2::geom_point(aes(colour =.data$ Sykehus))  +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
                  legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2])) +
+  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
+                              drop = FALSE) +
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
@@ -1030,7 +1033,7 @@ fig_samlet  %>% ggplot2::ggplot(
 cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi.  Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 direkte forløp."
 
 fig_direkte <- prep_figVentetid24t_year %>%
-  dplyr::filter(.data$name == "Direkte")
+  dplyr::filter(.data$name %in% "Direkte")
 
 fig_direkte %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$aar,

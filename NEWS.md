@@ -1,7 +1,7 @@
 
 # noric 2.8.0
 
-# Nytt
+## Nytt
 * Ny fane under verktøy - mulighet for nasjonal SC til å laste ned ki-rapporten
 for valgt sykehus
 * Tilrettelegging i server.R for nedlasting av rapport ved bruk av 
@@ -10,8 +10,11 @@ reportProcessor
 * Fremgang i generering vises
 * ki-rapporten returnerer fremgang ved ulike 'sjekkpunter' i rapporten
 
+## Bugfix
+* Fjerne mulighet for NA som nivå i NSTEMI-figurer
+* Lik fargekode på sykehus/nasjonalt for NSTEMI-figurer
 
-=======
+
 # noric 2.7.0
 
 ## Nytt
