@@ -18,7 +18,7 @@ in pivot-table or in monthly reports."><!-- mathjax --><script src="https://cdnj
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.7.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.8.0</span>
       </span>
     </div>
 
@@ -78,26 +78,37 @@ in <em>pivot-table</em> or in monthly reports.</p>
     <h2>Arguments</h2>
     <dl><dt>registryName</dt>
 <dd><p>String providing the registry name</p></dd>
+
+
 <dt>fromDate</dt>
 <dd><p>A Date or character class object  of format "YYYY-MM-DD"
 defining start of the period from which data will be collected. Default is
 <code>NULL</code> in which case til will be set to the assumed pre-historic date of
 "1900-01-01".</p></dd>
+
+
 <dt>toDate</dt>
 <dd><p>A Date or character class object  of format "YYYY-MM-DD"
 defining end of the period from which data will be collected. Default is
 <code>NULL</code> in which case til will be set to the last known registration date
 for NORIC.</p></dd>
+
+
 <dt>singleRow</dt>
 <dd><p>Logical defining if only one row is to be returned. A
 relevant usecase will be when only description is needed. By default set to
 FALSE</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Optional arguments to be passed to the function</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Data frame representing the chosen table. Basic data managment is
+    
+
+<p>Data frame representing the chosen table. Basic data managment is
 done (e.g. added variables from FO, added time-variables, rename hospitals)</p>
     </div>
 
@@ -113,7 +124,7 @@ done (e.g. added variables from FO, added time-variables, rename hospitals)</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.7.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.8.0</span>
       </span>
     </div>
 
@@ -66,14 +66,22 @@
     <h2>Arguments</h2>
     <dl><dt>tab</dt>
 <dd><p>Data frame or matrix represetnting the table</p></dd>
+
+
 <dt>col_names</dt>
 <dd><p>Character vector with column names. Defaults
 <code>colnames(tab)</code></p></dd>
+
+
 <dt>type</dt>
 <dd><p>Character string defining output, either 'html' or 'latex'.
 Default is 'latex'</p></dd>
+
+
 <dt>cap</dt>
 <dd><p>Character string with table caption. Empty string by default</p></dd>
+
+
 <dt>label</dt>
 <dd><p>Character string defining the label in case the table needs to
 be referenced elsewhere in the overall document. For instance, setting this
@@ -82,25 +90,38 @@ to 'my_table' the corresponding inline rmarkdown reference to use is
 LaTex and HTML the bookdown document processing functions must be used,
 <em>i.e.</em> bookdown:pdf_document2() and bookdown::html_document2(),
 respectively. Default value is <code>knitr::opts_current$get("label")</code>.</p></dd>
+
+
 <dt>digs</dt>
 <dd><p>Numeric number of digits to use. = by default</p></dd>
+
+
 <dt>align</dt>
 <dd><p>Character vector specifying column alignment in the LaTeX way,
 <em>e.g.</em> <code>c("l", "c", "r")</code> will align the first column to the left,
 center the second and right-aling the last one. Default is NULL in which case</p></dd>
+
+
 <dt>fs</dt>
 <dd><p>Numeric providing the font size. Only apply for LaTeX output.
 Default value is 8</p></dd>
+
+
 <dt>lsd</dt>
 <dd><p>Logical if table is to be scaled down. Only apply for LaTeX
 output. FALSE by default</p></dd>
+
+
 <dt>add_totals</dt>
 <dd><p>Logical if a column of sums is to be added to the table.
 Defaults to FALSE</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Character string containing RMarkdown table code or an R data object</p>
+    
+
+<p>Character string containing RMarkdown table code or an R data object</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -183,7 +204,7 @@ totals and observations optinally with a marginal row count</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

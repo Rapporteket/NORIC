@@ -19,7 +19,7 @@ sykehus."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/ma
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.7.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.8.0</span>
       </span>
     </div>
 
@@ -60,14 +60,22 @@ sykehus.</p>
 <dd><p>data.frame med Angio PCI data fra noric. Maa inneholde
 variablene <code>AnkomstPCIDato</code>, <code>UtskrivingsDato</code>,
 <code>OverflyttetFra</code> og <code>Regtype</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returnerer <code>df_ap</code> med to nye variabler
-<code>liggedogn</code> og <code>liggedogn_data</code>. Variabelen <code>liggedogn</code> inneholder antall dager mellom AnkomstPCI-sykehus og utskrivelse, denne
+    
+
+<p>Returnerer <code>df_ap</code> med to nye variabler</p>
+<p></p>
+<p><code>liggedogn</code> og <code>liggedogn_data</code>. Variabelen <code>liggedogn</code></p>
+
+
+<p>inneholder antall dager mellom AnkomstPCI-sykehus og utskrivelse, denne
  kan ogsaa inneholde negative tider og tider over 60 dager.
- Variabelne <code>liggetid_dg</code> inneholder datagrunnlaget for
-<code>liggedogn</code> og har verdiene:</p><ul><li><p>"nei" for pasienter overfoert fra annen avdeling paa sykehuset eller
+ Variabelne <code>liggetid_dg</code> inneholder datagrunnlaget for</p>
+<p></p>
+<p><code>liggedogn</code> og har verdiene:</p><ul><li><p>"nei" for pasienter overfoert fra annen avdeling paa sykehuset eller
 der denne informasjonen er manglende.</p></li>
 <li><p>"nei" for sekundaerforlop, da disse ikke har utskrivelsesskjema.</p></li>
 <li><p>"ja" for primaerforlop hos direkte innlagte pasienter eller pasienter
@@ -93,7 +101,7 @@ AnkomstPCIDato mangler.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

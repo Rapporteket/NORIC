@@ -22,7 +22,7 @@ variables names are suffixed by _data (datagrunnlag)."><!-- mathjax --><script s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.7.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.8.0</span>
       </span>
     </div>
 
@@ -85,10 +85,13 @@ contain some of the variables <code>SkjemaStatusKomplikasjoner</code>,
 <code>Indikasjon</code>, <code>FFR</code>, <code>IFR</code>,
 <code>satt_inn_stent_i_LMS</code>, <code>TidlABC</code>, <code>IVUS</code>, <code>OCT</code>,
 <code>antall_stent_under_opphold</code>, ...</p></dd>
+
+
 <dt>df_ak</dt>
-<dd><p>NORIC's <code>AortaklaffVar</code>-table. Depending on indicators, must
-contain some of the variables <code>AvdKompPacemaker</code>,
-<code>TypeKlaffeprotese</code>, ...</p></dd>
+<dd><p>NORIC's <code>AortaklaffVar</code>-table. 
+Depending on indicators, must contain some of the variables
+ <code>AvdKompPacemaker</code>, <code>TypeKlaffeprotese</code>, ...</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -136,8 +139,9 @@ at less than two of <code>ASA</code>, <code>AndrePlatehemmere</code> or
 <li><p>numerator <code>indik_kolesterolsenkende</code> has value <em>ja</em>
 if <code>UtskrStatiner</code> is "Ja" and <code>SkjemaStatusUtskrivelse</code>
  is 1 (ferdigstilt). <code>indik_kolesterolsenkende</code> has value <em>nei</em> if
-<code>UtskrStatiner</code> is different from "Ja" and <code>SkjemaStatusUtskrivelse</code>
- is 1 (ferdigstilt). <code>indik_kolesterolsenkende</code> has value
+<code>UtskrStatiner</code> is different from "Ja" and 
+<code>SkjemaStatusUtskrivelse</code> is 1 (ferdigstilt).
+ <code>indik_kolesterolsenkende</code> has value
   <em>ikke ferdigstilt</em> if  <code>SkjemaStatusUtskrivelse</code> is different
   from 1 (ikke ferdigstilt).</p></li>
 </ul><p><code>ki_nstemi_utredet_innen24t()</code></p><ul><li><p>denominator <code>indik_nstemi_angio_innen24t_data</code>
@@ -447,7 +451,7 @@ dersom <code>AvdKompPacemaker</code> er <em>ja</em> og
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
