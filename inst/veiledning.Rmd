@@ -50,7 +50,7 @@ enheten det siste året:
 * __Prosedyrer__: Opptellinger relatert til utførte prosedyrer fra 
 _Andre prosedyrer_ - og _AngioPCI_-modulen.
 
-* __Aktivitet__(Kun for SC-rolle): Inneholder opptellinger av angiograførenes 
+* __Aktivitet__ (Kun for SC-rolle): Inneholder opptellinger av angiograførenes 
 og operatørenes aktivitet.
 
 
@@ -82,6 +82,9 @@ månedlige resultater per sykehus, sammenlignet med nasjonale tall.
 
 * __Bruksstatistikk__: Her kan ansatte i registeret holde oversikt over 
 innlogginger og annen aktivitet på Rapporteket. 
+
+* __Nedlasting rapporter__: Her kan ansatte i registeret hente de månedlige
+resultatene for sykehusene.
 
 ### Kontaktinformasjon
 Ta gjerne kontakt ved spørsmål eller innspill til rapporter eller annet

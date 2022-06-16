@@ -29,6 +29,8 @@
 #' user requesting the report. Default is "unknown role".
 #' @param userOperator Character string with some name of an operator, whatever
 #' that is... Default is "unknown operator".
+#' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
+#' returned.
 #'
 #' @return A character string with a path to where the produced file is located.
 #' @export
@@ -48,7 +50,8 @@ reportProcessor <- function(report,
                             registryName = "noric",
                             userFullName = "unknown person name",
                             userRole = "unknown role",
-                            userOperator = "unknown operator") {
+                            userOperator = "unknown operator", 
+                            rendered_by_shiny = FALSE) {
 
   stopifnot(report %in% c("veiledning",
                           "NORIC_local_monthly",
@@ -64,6 +67,23 @@ reportProcessor <- function(report,
     warning("No title given! Reports should have a title...")
   }
 
+ 
+  # For testing: 
+  if (report == "veiledning") {
+    filePath <- rapbase::renderRmd(
+      sourceFile =  system.file("veiledning.Rmd",
+                                package = "noric"),
+      outputType = "html",
+      params = list(
+        author = "author",
+        hospitalName = "orgName",
+        tableFormat = "html",
+        reshId = "orgId"
+      )
+    )
+  }
+  
+  
 
   # if (report == "NORIC_local_monthly") {
   #   filePath <- rapbase::renderRmd(
@@ -118,6 +138,7 @@ reportProcessor <- function(report,
 
 
 
+
   if (report == "NORIC_kvalitetsindikator") {
     filePath <- rapbase::renderRmd(
       sourceFile =  system.file("NORIC_kvalitetsindikator.Rmd",
@@ -131,7 +152,8 @@ reportProcessor <- function(report,
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
-        userRole = userRole
+        userRole = userRole, 
+        rendered_by_shiny = rendered_by_shiny
       )
     )
   }

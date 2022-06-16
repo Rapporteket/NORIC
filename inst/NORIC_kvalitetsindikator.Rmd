@@ -7,6 +7,7 @@ params:
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
+  rendered_by_shiny: FALSE
 header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
@@ -146,6 +147,11 @@ anD_nasjonalt <- noric::getPrepAnDData(
 ```
 
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.1)  # set progress to 10%
+```
+
 
 ```{r yearTabPrepare, include=FALSE, eval=TRUE}
 timeTableYear <- data.frame(
@@ -179,6 +185,11 @@ timeTableMonth <- data.frame(
                   by = "month")) %>% 
   dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
                                              format = "%Y-%m")))
+```
+
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.15)  # set progress to 15%
 ```
 
 
@@ -287,12 +298,17 @@ aP_nasjonalt %<>%
                      lubridate::quarter(.data$ProsedyreDato, 
                                         with_year = FALSE))) %>% 
   dplyr::mutate(admissionType = dplyr::case_when(
-    .data$OverflyttetFra == "Annet sykehus" ~ "Overflyttet", 
+    .data$OverflyttetFra %in% "Annet sykehus" ~ "Overflyttet", 
     .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus", 
                                 "Omdirigert ambulanse") ~ "Direkte",
     TRUE ~ NA_character_
   ))
 
+```
+
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.2)  # set progress to 10%
 ```
 
 
@@ -338,7 +354,7 @@ nyeste_registrering_ak <- aK_nasjonalt %>%
 
 ```{r dimAK_lokalt, include=FALSE, eval=TRUE}
 dim_ak_lokalt <- aK_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>% 
   dim(.)
 ```
 
@@ -360,6 +376,12 @@ if (dim_ak_lokalt[1] > 10) {
                                           with_year = FALSE)))
 }
 ```
+
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.25)  # set progress to 25%
+```
+
 
 \bigskip \bigskip \bigskip
 
@@ -387,8 +409,8 @@ Tabell \@ref(tab:tabFerdigtiltKompl) viser måloppnåelse per måned for
 
 #Lokalt
 ferdigstilt_lokalt <- aP_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID) %>% 
-  dplyr::filter(.data$indik_komplik_ferdig_data == "ja") %>% 
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>% 
+  dplyr::filter(.data$indik_komplik_ferdig_data %in% "ja") %>% 
   janitor::tabyl(.data$maaned, 
                  .data$indik_komplik_ferdig, 
                  show_missing_levels = TRUE) %>% 
@@ -404,11 +426,11 @@ ferdigstilt_lokalt <- aP_nasjonalt %>%
                     yes = "N",
                     no = .data$Totalt),
     
-    Ferdigstilt = ifelse(.data$Totalt == "N",
+    Ferdigstilt = ifelse(.data$Totalt %in% "N",
                          yes = NA,
                          no = .data$ja),
     
-    Prosent = ifelse(.data$Totalt == "N",
+    Prosent = ifelse(.data$Totalt %in% "N",
                      yes = NA,
                      no = .data$Prosent)) %>% 
   dplyr::select(.data$maaned, .data$Totalt, .data$Ferdigstilt, .data$Prosent)
@@ -416,7 +438,7 @@ ferdigstilt_lokalt <- aP_nasjonalt %>%
 
 #Nasjonalt
 ferdigstilt_nasjonalt <- aP_nasjonalt %>% 
-  dplyr::filter(.data$indik_komplik_ferdig_data == "ja") %>% 
+  dplyr::filter(.data$indik_komplik_ferdig_data %in% "ja") %>% 
   janitor::tabyl(.data$maaned,
                  indik_komplik_ferdig,
                  show_missing_levels = TRUE) %>% 
@@ -448,6 +470,12 @@ noric::mst(tab = tabFerdigtiltKompl,
 
 ```{r pagebreakFerdigstilt, results = "asis", eval = (params$tableFormat == "latex")}
 cat("\n\n\\pagebreak\n")
+```
+
+
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.35)  # set progress to 35%
 ```
 
 # Invasiv utredning ved NSTEMI
@@ -483,8 +511,8 @@ Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus o
 
 
 nstemi_24t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data == "ja") %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_nstemi_angio_innen24t,
                  show_missing_levels = TRUE ) %>%
@@ -512,7 +540,7 @@ nstemi_24t_lokalt <- aP_nasjonalt %>%
 
 
 nstemi_24t_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data == "ja",
+  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_nstemi_angio_innen24t,
@@ -559,8 +587,8 @@ cat("\n\n\\pagebreak\n")
 ```{r nstemi_komplette, results='asis', warning=FALSE}
 # Lokalt: Andel komplette under 50% per måned?
 nstemi_komplette <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID,
-                .data$indik_nstemi_angio_innen24t_data == "ja") %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshID,
+                .data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_nstemi_angio_innen24t,
                  show_missing_levels = TRUE) %>%
@@ -583,8 +611,8 @@ sisteDagFigur_ventetid <- lubridate::floor_date(x = periode_data$siste_dato,
 
 # LOKALT : For NSTEMI med komplette forløp
 prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data == "ja",
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
   dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
                 .data$ProsedyreDato < sisteDagFigur_ventetid) %>%
@@ -592,7 +620,7 @@ prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
   #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$maaned) %>%
   dplyr::mutate(
-    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t == "ja",
+    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
                            na.rm = TRUE)/n(),
     n_samlet = n()) %>%
   dplyr::ungroup() %>%
@@ -600,7 +628,7 @@ prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
   # per admission type (Direkte / OVerflyttet)
   dplyr::group_by(.data$maaned, .data$admissionType) %>%
   dplyr::mutate(
-    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t == "ja",
+    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
                          na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
@@ -613,23 +641,23 @@ prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), names_to = "Type") %>%
   dplyr::mutate(name = dplyr::case_when(
     
-    .data$admissionType == "Direkte" &
-      .data$Type == "innen_24t_type" ~ "Direkte",
+    .data$admissionType %in% "Direkte" &
+      .data$Type %in% "innen_24t_type" ~ "Direkte",
     
-    .data$admissionType == "Overflyttet" &
-      .data$Type == "innen_24t_type" ~ "Overflyttet",
+    .data$admissionType %in% "Overflyttet" &
+      .data$Type %in% "innen_24t_type" ~ "Overflyttet",
     
-    .data$admissionType == "Direkte" &
-      .data$Type == "innen_24t_samlet" ~ "Samlet",
+    .data$admissionType %in% "Direkte" &
+      .data$Type %in% "innen_24t_samlet" ~ "Samlet",
     
-    .data$admissionType == "Overflyttet" &
-      .data$Type == "innen_24t_samlet" ~ "Samlet"
+    .data$admissionType %in% "Overflyttet" &
+      .data$Type %in% "innen_24t_samlet" ~ "Samlet"
   ),
   
   # antall forløp per type, brukes for å fjerne måneder med <5 forløp i figur
   antall_komplette = dplyr::case_when(
-    .data$Type == "innen_24t_type" ~ n,
-    .data$Type == "innen_24t_samlet" ~ n_samlet
+    .data$Type %in% "innen_24t_type" ~ n,
+    .data$Type %in% "innen_24t_samlet" ~ n_samlet
   )) %>%
   dplyr::select(.data$maaned,
                 .data$name,
@@ -656,7 +684,7 @@ prep_figVentetid24t_lokalt %<>%
 ```{r fig_hittilIAar_24T_nasj, results='asis', warning=FALSE}
 # NASJONALT
 prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data == "ja",
+  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei"))  %>%
   dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
                 .data$ProsedyreDato < sisteDagFigur_ventetid) %>%
@@ -664,14 +692,14 @@ prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
   #Samlet (Direkte og overflyttet)
   dplyr::group_by(.data$maaned) %>%
   dplyr::mutate(
-    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t == "ja",
+    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
                            na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # per admission type (Direkte / OVerflyttet)
   dplyr::group_by(.data$maaned, .data$admissionType) %>%
   dplyr::mutate(
-    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t == "ja",
+    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
                          na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
@@ -683,17 +711,17 @@ prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), names_to = "Type") %>%
   dplyr::mutate(name = dplyr::case_when(
     
-    .data$admissionType == "Direkte" &
-      .data$Type == "innen_24t_type" ~ "Direkte",
+    .data$admissionType %in% "Direkte" &
+      .data$Type %in% "innen_24t_type" ~ "Direkte",
     
-    .data$admissionType == "Overflyttet" &
-      .data$Type == "innen_24t_type" ~ "Overflyttet",
+    .data$admissionType %in% "Overflyttet" &
+      .data$Type %in% "innen_24t_type" ~ "Overflyttet",
     
-    .data$admissionType == "Direkte" &
-      .data$Type == "innen_24t_samlet" ~ "Samlet",
+    .data$admissionType %in% "Direkte" &
+      .data$Type %in% "innen_24t_samlet" ~ "Samlet",
     
-    .data$admissionType == "Overflyttet" &
-      .data$Type == "innen_24t_samlet" ~ "Samlet"  )) %>%
+    .data$admissionType %in% "Overflyttet" &
+      .data$Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
   dplyr::select(.data$maaned, .data$name, .data$value) %>%
   dplyr::group_by(.data$maaned, .data$name) %>%
   dplyr::distinct() %>%
@@ -723,7 +751,7 @@ prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
 cap <- paste0("Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Per måned, fra hele siste året til og med siste hele måned. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet.")
 
 fig1 <- prep_fig_ventetid24t %>%
-  dplyr::filter(name == "Samlet")
+  dplyr::filter(name %in% "Samlet")
 
 fig1 %>%
   ggplot2::ggplot(aes(x = .data$maaned,
@@ -734,7 +762,8 @@ fig1 %>%
   ggplot2::geom_point(aes(colour = .data$Sykehus))  +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
                  legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2])) +
+  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
+                              drop = FALSE) +
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
@@ -749,7 +778,7 @@ fig1 %>%
 cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi.  Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Per måned, fra hele siste året til og med siste hele måned. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."
 
 prep_fig_ventetid24t %>%
-  dplyr::filter(name == "Direkte") %>%
+  dplyr::filter(name %in% "Direkte") %>%
   ggplot2::ggplot(aes(x = .data$maaned,
                       y = .data$value,
                       group = .data$Sykehus)) +
@@ -758,7 +787,8 @@ prep_fig_ventetid24t %>%
   ggplot2::geom_point(aes(colour = .data$Sykehus))  +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
                  legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2])) +
+  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
+                              drop = FALSE) +
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
@@ -772,7 +802,7 @@ cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggel
 
 
 prep_fig_ventetid24t %>%
-  dplyr::filter(name == "Overflyttet") %>%
+  dplyr::filter(name %in% "Overflyttet") %>%
   ggplot2::ggplot(aes(x = .data$maaned,
                       y = .data$value,
                       group = .data$Sykehus)) +
@@ -781,7 +811,8 @@ prep_fig_ventetid24t %>%
   ggplot2::geom_point(aes(colour =.data$ Sykehus))  +
   ggplot2::theme(axis.title = ggplot2::element_blank(),
                  legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2])) +
+  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
+                              drop = FALSE) +
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                               limits = c(0, 1)) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
@@ -798,8 +829,8 @@ cat("\n\n\\pagebreak\n")
 
 # Per ÅR: Blant alle NSTEMI, antall komplette forløp (med gyldig tid)
 nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data == "ja") %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(.data$aar,
                  .data$indik_nstemi_angio_innen24t,
                  show_missing_levels = TRUE) %>%
@@ -813,8 +844,8 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
 ```{r prep_nstemi_year_lokalt, results='asis', warning=FALSE}
 
 nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data == "ja",
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
   dplyr::filter(.data$aar %in% 2018:periode_data$sisteHeleYear) %>%
   
@@ -822,14 +853,14 @@ nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
   #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$aar) %>%
   dplyr::mutate(
-    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t == "ja",
+    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
                            na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # per admission type (Direkte / OVerflyttet)
   dplyr::group_by(.data$aar, .data$admissionType) %>%
   dplyr::mutate(
-    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t == "ja",
+    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
                          na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
@@ -841,17 +872,17 @@ nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), names_to = "Type") %>%
   dplyr::mutate(name = dplyr::case_when(
     
-    .data$admissionType == "Direkte" &
-      .data$Type == "innen_24t_type" ~ "Direkte",
+    .data$admissionType %in% "Direkte" &
+      .data$Type %in% "innen_24t_type" ~ "Direkte",
     
-    .data$admissionType == "Overflyttet" &
-      .data$Type == "innen_24t_type" ~ "Overflyttet",
+    .data$admissionType %in% "Overflyttet" &
+      .data$Type %in% "innen_24t_type" ~ "Overflyttet",
     
-    .data$admissionType == "Direkte" &
-      .data$Type == "innen_24t_samlet" ~ "Samlet",
+    .data$admissionType %in% "Direkte" &
+      .data$Type %in% "innen_24t_samlet" ~ "Samlet",
     
-    .data$admissionType == "Overflyttet" &
-      .data$Type == "innen_24t_samlet" ~ "Samlet"  )) %>%
+    .data$admissionType %in% "Overflyttet" &
+      .data$Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
   
   
   dplyr::select(.data$aar, .data$name, .data$value) %>%
@@ -871,8 +902,7 @@ nstemiAP_fra2018_lokalt %<>%
     name = .data$name,
     value = ifelse(.data$komplette_andel < 0.5,
                    yes = NA_real_,
-                   no = .data$value),
-    Sykehus = params$hospitalName)
+                   no = .data$value))
 
 
 ```
@@ -883,7 +913,7 @@ nstemiAP_fra2018_lokalt %<>%
 
 # #Nasjonalt
 nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data == "ja",
+  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
   dplyr::filter(.data$aar %in% 2018:periode_data$sisteHeleYear) %>%
   
@@ -891,14 +921,14 @@ nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
   #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$aar) %>%
   dplyr::mutate(
-    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t == "ja",
+    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
                            na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # per admission type (Direkte / OVerflyttet)
   dplyr::group_by(.data$aar, .data$admissionType) %>%
   dplyr::mutate(
-    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t == "ja",
+    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
                          na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
@@ -910,17 +940,17 @@ nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), names_to = "Type") %>%
   dplyr::mutate(name = dplyr::case_when(
     
-    .data$admissionType == "Direkte" &
-      .data$Type == "innen_24t_type" ~ "Direkte",
+    .data$admissionType %in% "Direkte" &
+      .data$Type %in% "innen_24t_type" ~ "Direkte",
     
-    .data$admissionType == "Overflyttet" &
-      .data$Type == "innen_24t_type" ~ "Overflyttet",
+    .data$admissionType %in% "Overflyttet" &
+      .data$Type %in% "innen_24t_type" ~ "Overflyttet",
     
-    .data$admissionType == "Direkte" &
-      .data$Type == "innen_24t_samlet" ~ "Samlet",
+    .data$admissionType %in% "Direkte" &
+      .data$Type %in% "innen_24t_samlet" ~ "Samlet",
     
-    .data$admissionType == "Overflyttet" &
-      .data$Type == "innen_24t_samlet" ~ "Samlet"  )) %>%
+    .data$admissionType %in% "Overflyttet" &
+      .data$Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
   
   dplyr::select(.data$aar, .data$name, .data$value) %>%
   dplyr::group_by(.data$aar, .data$name) %>%
@@ -946,7 +976,8 @@ nstemiAP_fra2018_lokalt %<>%
   dplyr::left_join(timeTableYear_SDO,
                    .,
                    by = c("aar", "name")) %>%
-  dplyr::select(.data$aar, .data$name, .data$value, .data$Sykehus)
+  dplyr::select(.data$aar, .data$name, .data$value) %>% 
+  dplyr::mutate(Sykehus = params$hospitalName)
 
 
 prep_figVentetid24t_year <-
@@ -971,7 +1002,7 @@ cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggel
 
 
 fig_samlet <- prep_figVentetid24t_year %>%
-  dplyr::filter(.data$name == "Samlet")
+  dplyr::filter(.data$name %in% "Samlet")
 
 fig_samlet  %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$aar,
@@ -990,7 +1021,7 @@ fig_samlet  %>% ggplot2::ggplot(
     position = position_dodge(width = 1),
     vjust = 1.2,
     size = 3,
-    colour =  ifelse(fig_samlet$Sykehus == "Nasjonalt",
+    colour =  ifelse(fig_samlet$Sykehus %in% "Nasjonalt",
                      "white", "black")) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
 
@@ -1002,7 +1033,7 @@ fig_samlet  %>% ggplot2::ggplot(
 cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi.  Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 direkte forløp."
 
 fig_direkte <- prep_figVentetid24t_year %>%
-  dplyr::filter(.data$name == "Direkte")
+  dplyr::filter(.data$name %in% "Direkte")
 
 fig_direkte %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$aar,
@@ -1020,7 +1051,7 @@ fig_direkte %>% ggplot2::ggplot(
     position = position_dodge(width = 1),
     vjust = 1.2,
     size = 3,
-    colour =  ifelse(fig_samlet$Sykehus == "Nasjonalt",
+    colour =  ifelse(fig_samlet$Sykehus %in% "Nasjonalt",
                      "white", "black")) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
 
@@ -1034,7 +1065,7 @@ cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggel
 
 
 fig_overflyttet <- prep_figVentetid24t_year %>%
-  dplyr::filter(.data$name == "Overflyttet")
+  dplyr::filter(.data$name %in% "Overflyttet")
 
 fig_overflyttet %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$aar,
@@ -1052,7 +1083,7 @@ fig_overflyttet %>% ggplot2::ggplot(
     position = position_dodge(width = 1),
     vjust = 1.2,
     size = 3,
-    colour =  ifelse(fig_samlet$Sykehus == "Nasjonalt",
+    colour =  ifelse(fig_samlet$Sykehus %in% "Nasjonalt",
                      "white", "black")) +
   ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
 
@@ -1069,8 +1100,8 @@ Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus o
 
 
 nstemi_72t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen72t_data == "ja") %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_nstemi_angio_innen72t_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_nstemi_angio_innen72t,
                  show_missing_levels = TRUE ) %>%
@@ -1098,7 +1129,7 @@ nstemi_72t_lokalt <- aP_nasjonalt %>%
 
 
 nstemi_72t_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen72t_data == "ja",
+  dplyr::filter(.data$indik_nstemi_angio_innen72t_data %in% "ja",
                 .data$indik_nstemi_angio_innen72t %in% c("ja", "nei")) %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_nstemi_angio_innen72t,
@@ -1144,6 +1175,12 @@ noric::mst(tab = tabVentetid72t,
 cat("\n\n\\pagebreak\n")
 ```
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.75)  # set progress to 75%
+```
+
+
 `r if (params$reshID == 106944) {"<!--"}`
 
 # PCI innen 120 minutter ved STEMI
@@ -1187,8 +1224,8 @@ if (params$reshID != 106944) {
   
   
   stemi_120min_lokalt <- aP_nasjonalt %>%
-    dplyr::filter(.data$AvdRESH == params$reshID) %>%
-    dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja") %>%
+    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+    dplyr::filter(.data$indik_stemi_pci_innen2t_data %in% "ja") %>%
     janitor::tabyl(.data$maaned,
                    .data$indik_stemi_pci_innen2t,
                    show_missing_levels = TRUE ) %>%
@@ -1216,7 +1253,7 @@ if (params$reshID != 106944) {
   
   
   stemi_120min_nasjonalt <- aP_nasjonalt %>%
-    dplyr::filter(.data$indik_stemi_pci_innen2t_data == "ja",
+    dplyr::filter(.data$indik_stemi_pci_innen2t_data %in% "ja",
                   .data$indik_stemi_pci_innen2t %in% c("ja", "nei")) %>%
     janitor::tabyl(.data$maaned,
                    .data$indik_stemi_pci_innen2t,
@@ -1285,8 +1322,8 @@ cap <- paste0(
 
 #Lokal
 nTrykkmaalingAP <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_trykkmaaling_data == "ja") %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_trykkmaaling_data %in% "ja") %>%
   dplyr::select(.data$maaned,
                 .data$indik_trykkmaaling) %>%
   janitor::tabyl(.data$maaned,
@@ -1301,11 +1338,11 @@ nTrykkmaalingAP <- aP_nasjonalt %>%
                     yes = "N",
                     no = .data$Totalt),
     
-    utfortTrykkmaaling = ifelse(.data$Totalt == "N",
+    utfortTrykkmaaling = ifelse(.data$Totalt %in% "N",
                                 yes = NA,
                                 no = .data$ja),
     
-    Prosent = ifelse(.data$Totalt == "N",
+    Prosent = ifelse(.data$Totalt %in% "N",
                      yes = NA,
                      no = .data$Prosent)) %>%
   
@@ -1316,7 +1353,7 @@ nTrykkmaalingAP <- aP_nasjonalt %>%
 
 #Nasjonal
 nTrykkmaalingAP_nasj <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_trykkmaaling_data == "ja") %>%
+  dplyr::filter(.data$indik_trykkmaaling_data %in% "ja") %>%
   dplyr::select(.data$maaned,
                 .data$indik_trykkmaaling) %>%
   janitor::tabyl(.data$maaned,
@@ -1375,8 +1412,8 @@ cap <- paste0("Antall og andel prosedyrer der det er brukt supplerende ",
 
 #Lokalt
 nStentVH <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja") %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
   dplyr::select(.data$kvartal,
                 .data$indik_ivus_oct_v_stent_lms) %>%
   janitor::tabyl(.data$kvartal,
@@ -1390,11 +1427,11 @@ nStentVH <- aP_nasjonalt %>%
                     yes = "N",
                     no = .data$Totalt),
     
-    utfortIvusOct = ifelse(.data$Totalt == "N",
+    utfortIvusOct = ifelse(.data$Totalt %in% "N",
                            yes = NA,
                            no = .data$ja),
     
-    Prosent = ifelse(Totalt == "N",
+    Prosent = ifelse(Totalt %in% "N",
                      yes = NA,
                      no = .data$Prosent)) %>%
   dplyr::select(.data$kvartal,
@@ -1404,7 +1441,7 @@ nStentVH <- aP_nasjonalt %>%
 
 #Nasjonalt
 nStentVH_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja") %>%
+  dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
   dplyr::select(.data$kvartal,
                 .data$indik_ivus_oct_v_stent_lms) %>%
   janitor::tabyl(.data$kvartal,
@@ -1437,6 +1474,10 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(0.90)  # set progress to 90%
+```
 
 
 # Foreskriving av blodfortynnende medisiner
@@ -1464,8 +1505,8 @@ cap <- paste0("Antall og andel pasienter per opphold der det er dokumentert ",
               "markert med N.")
 
 blodfortynnende_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_blodfortynnende_data == "ja") %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_blodfortynnende_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_blodfortynnende,
                  show_missing_levels = TRUE ) %>%
@@ -1492,7 +1533,7 @@ blodfortynnende_lokalt <- aP_nasjonalt %>%
 
 
 blodfortynnende_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_blodfortynnende_data == "ja",
+  dplyr::filter(.data$indik_blodfortynnende_data %in% "ja",
                 .data$indik_blodfortynnende %in% c("ja", "nei")) %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_blodfortynnende,
@@ -1555,8 +1596,8 @@ cap <- paste0(
 
 #Lokalt
 kolesterolsenkende_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH == params$reshID) %>%
-  dplyr::filter(.data$indik_kolesterolsenkende_data == "ja") %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$indik_kolesterolsenkende_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_kolesterolsenkende,
                  show_missing_levels = TRUE ) %>%
@@ -1583,7 +1624,7 @@ kolesterolsenkende_lokalt <- aP_nasjonalt %>%
 
 
 kolesterolsenkende_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_kolesterolsenkende_data == "ja",
+  dplyr::filter(.data$indik_kolesterolsenkende_data %in% "ja",
                 .data$indik_kolesterolsenkende %in% c("ja", "nei")) %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_kolesterolsenkende,
@@ -1646,8 +1687,8 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     "permanente pacemaker for disse.")
   
   prep_tab_pacemaker_lokalt <- aK_nasjonalt %>%
-    dplyr::filter(.data$AvdRESH == params$reshID) %>%
-    dplyr::filter(.data$indik_pacemakerbehov_data  == "ja") %>%
+    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+    dplyr::filter(.data$indik_pacemakerbehov_data  %in% "ja") %>%
     janitor::tabyl(.data$kvartal,
                    .data$indik_pacemakerbehov,
                    show_missing_levels = TRUE ) %>%
@@ -1676,7 +1717,7 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
   
   
   prep_tab_pacemaker_nasjonalt <- aK_nasjonalt %>%
-    dplyr::filter(.data$indik_pacemakerbehov_data  == "ja",
+    dplyr::filter(.data$indik_pacemakerbehov_data  %in% "ja",
                   .data$indik_pacemakerbehov %in% c("ja", "nei")) %>%
     janitor::tabyl(.data$kvartal,
                    .data$indik_pacemakerbehov,
@@ -1710,3 +1751,7 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
 }
 ```
 
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(1)  # set progress to 100%
+```
