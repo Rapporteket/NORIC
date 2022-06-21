@@ -89,17 +89,6 @@ periode_data %<>%
 
 
 ```{r GetData, include=FALSE, cache=FALSE}
-SSQuery <- paste0("
-SELECT 
-  AvdRESH, ForlopsID, ProsedyreDato, Indikasjon, ProsedyreType,  Stentnavn, StentType
-FROM SegmentStent
-WHERE 
-  ProsedyreDato >= '", periode_data$forste_dato, "' AND
-  ProsedyreDato <= '", periode_data$siste_dato, "'
-")
-
-SS <- rapbase::loadRegData(params$registryName, SSQuery)
-
 
 SO <- noric::getPrepSoData(registryName = params$registryName, 
                            fromDate  = periode_data$forste_dato, 
@@ -119,6 +108,12 @@ AnP <- noric::getPrepAnPData(registryName = params$registryName,
 
 evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
 # (TRUE when AnP contains data) 
+
+
+SS <- noric::getPrepSsData(registryName = params$registryName, 
+                           fromDate  = periode_data$forste_dato, 
+                           toDate = periode_data$siste_dato, 
+                           singleRow = FALSE)
 
 ```
 
@@ -240,6 +235,21 @@ AP %<>%
   dplyr::mutate(Hastegrad = factor(Hastegrad, levels=c("Akutt", "Subakutt", "Planlagt", NA)))
 ```
 
+
+```{r SSprepare,include=FALSE, eval=TRUE}
+
+SS %<>% dplyr::select(AvdRESH,
+                      ForlopsID,
+                      ProsedyreDato,
+                      Indikasjon,
+                      ProsedyreType,
+                      Stentnavn,
+                      StentType)
+
+
+
+
+```
 
 
 ```{r Daterecodes,include=FALSE, eval=TRUE}
