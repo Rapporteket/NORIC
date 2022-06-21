@@ -89,6 +89,16 @@ periode_data %<>%
 
 
 ```{r GetData, include=FALSE, cache=FALSE}
+SSQuery <- paste0("
+SELECT 
+  AvdRESH, ForlopsID, ProsedyreDato, Indikasjon, ProsedyreType,  Stentnavn, StentType
+FROM SegmentStent
+WHERE 
+  ProsedyreDato >= '", periode_data$forste_dato, "' AND
+  ProsedyreDato <= '", periode_data$siste_dato, "'
+")
+
+SS <- rapbase::loadRegData(params$registryName, SSQuery)
 
 
 SO <- noric::getPrepSoData(registryName = params$registryName, 
