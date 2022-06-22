@@ -1,0 +1,364 @@
+---
+params:
+  author: ukjent forfatter
+  hospitalName: ukjent sykehus
+  tableFormat: html
+  reshID: 999999
+  registryName: rapbase
+  userFullName: Ukjent bruker
+  userRole: ukjent rolle
+  rendered_by_shiny: FALSE
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
+  - \usepackage{float}
+  - \usepackage{booktabs}
+title:  "toto"
+abstract:  '`r paste0("NORIC lanserte i starten av 2022 et kvalitetsforbedrings-prosjekt. Prosjektet har som mål å forbedre registreringen av _komplikasjoner_ og _avdød_. Vi ønsker å sette fokus på denne delen av registreringen og enten utarbeide retningslinjer som kan hjelpe sykehusene eller å bedre tilrettelegge innregistreringsløsningen. I denne sammenheng sender vi i en periode ut denne månedsrapporten til de ulike NORIC-sykehusene. Rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og distribueres per e-post til utvalgte personer per sykehus.", "\\newline ", "\\newline ", " Rapporten inneholder lister med forløp som sykehusene bes om å sjekke og eventuelt komplettere i innregistreringsløsningen. Vi oppfordrer sykehusene til å ta kontakt med NORIC på [noric@helse-bergen.no](mailto:noric@helse-bergen.no) dersom dere støter på problemer med registreringen dersom noe er vanskelig, uklart eller ikke tilrettelagt for. Vi har behov for deres tilbakemeldinger for å kunne forbedre innregistreringsløsningen!") `'
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
+registryName: NORIC
+regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
+reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
+userFullName: '`r params$userFullName`'
+linkcolor: darkblue
+output:
+  fig_caption: yes
+---
+
+```{r knitrOptions, include=FALSE}
+library(magrittr)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(noric)
+# library(gridExtra) Sjekk om rapporten fungerer uten denne pakken
+
+
+# make sure to use a temporary directory AND absolute paths, e.g. that figs
+# can be found also when deployed at a server. See below link for explanation
+# https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
+# Also make sure we use tempdir() as working directory so we do not clutter
+# the package of the hosting shiny app
+# workDir <- tempdir()
+# knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
+
+# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
+# for each kable call
+# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
+options(knitr.table.format = params$tableFormat)
+
+knitr::opts_chunk$set(warnings = FALSE, echo = FALSE)
+options(stringsAsFactors = FALSE)
+``` 
+
+
+```{r SKDEcol, include=FALSE}
+colPrimary <- c("#000059", "#084594", "#2171b5", 
+                "#4292c6", "#6baed6", "#c6dbef")
+colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
+colKontrast <- "#FF7260"
+``` 
+
+
+
+```{r latest_entry, include=FALSE, eval=TRUE}
+# DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+
+# NYESTE DATO: 
+# Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# overføringer har stoppet opp
+
+# ELDSTE DATO: 
+# generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
+# AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i 
+#     starten av året. 
+# SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
+# "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
+nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+
+periode_data <- data.frame(
+  siste_dato = min((as.Date(Sys.time()) - 1), 
+                   nyeste_reg)) 
+
+periode_data %<>% 
+  dplyr::mutate(
+    
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = .data$nyesteRegYear - 1, 
+    
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                           format = "%Y-%m-%d"), 
+    
+    # Aortaklaff + Segment stent (indikator per kvartal): 
+    forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
+                                format = "%Y-%m-%d")
+  )
+```
+
+
+
+
+
+
+
+
+
+```{r GetData, include=FALSE, cache=FALSE}
+
+aP <- noric::getPrepApData(
+  registryName = params$registryName, 
+  fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),  
+  toDate = periode_data$siste_dato, 
+  singleRow = FALSE)
+
+```
+
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.1)  # set progress to 10%
+```
+
+
+```{r monthTabPrepare, include=FALSE, eval=TRUE}
+# Hele forrige år og alle påbegynte måneder hittil i år
+forsteDatoSisteMonth <- lubridate::floor_date(periode_data$siste_dato, 
+                                              "month") 
+timeTableMonth <- data.frame(
+  monthDato = seq(as.Date(paste0(periode_data$sisteHeleYear, 
+                                 "-01-01")), 
+                  forsteDatoSisteMonth,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
+                                             format = "%Y-%m")))
+```
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.15)  # set progress to 15%
+```
+
+
+
+```{r aPPrepare,include=FALSE, eval=TRUE}
+
+aP %<>% 
+  dplyr::select(
+    .data$AvdRESH,
+    .data$Sykehusnavn,
+    .data$Regtype, 
+    .data$ForlopsID,
+    .data$PrimaerForlopsID,
+    .data$ProsedyreDato,
+    .data$ProsedyreTid,
+    .data$ProsedyreType,
+    .data$Indikasjon, 
+    .data$Hastegrad,
+    .data$UtskrevetDod,
+    .data$UtskrevetDodsdato,
+    .data$LabKompDod, 
+    .data$AvdKompDod,
+    .data$Avdod, 
+    .data$AvdodDato,
+    .data$Utskrivningsdato,
+    .data$SkjemaStatusStart, 
+    .data$SkjemastatusHovedskjema, 
+    .data$SkjemaStatusUtskrivelse, 
+    .data$SkjemaStatusKomplikasjoner
+  ) %>% 
+  noric::legg_til_tidsvariabler(.) %>% 
+  noric::utlede_OppholdsID(.) %>% 
+  noric::utlede_dod_noric(.) %>% 
+  noric::avdod_opphold(.) %>% 
+  
+  #TIdsdifferanser
+  dplyr:: mutate(
+    dager_proc_avdod = as.numeric(difftime(.data$AvdodDato,
+                                           .data$ProsedyreDato,
+                                           units = "days")),
+    
+    dager_proc_utskr = as.numeric(difftime(.data$Utskrivningsdato,
+                                           .data$ProsedyreDato,
+                                           units = "days")),
+    
+    dager_utskr_dod = as.numeric(difftime(.data$AvdodDato,
+                                          .data$Utskrivningsdato,
+                                          units = "days")))
+
+
+```
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.2)  # set progress to 10%
+```
+
+
+
+\bigskip \bigskip \bigskip
+
+# Datagrunnlag
+
+Siste innregistrering som teller med i datagrunnlaget for denne rapporten er 
+`r format(periode_data$siste_dato, '%d. %B %Y')`. 
+
+```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")}
+cat("\n\n\\pagebreak\n")
+```
+
+
+# Død før utskrivelse, men ikke registrert som død i NORIC
+
+Følgende pasienter er avdøde (i folkeregisteret) før utskrivelses-dato, men 
+hverken registrert død på lab/avdeling eller ved utskrivelse. 
+
+```{r tab1, results='asis', warning=FALSE}
+
+aP %>%  
+  dplyr::filter(.data$dod_opphold == "Nei", 
+                !is.na(.data$Utskrivningsdato), 
+                .data$AvdodDato <= .data$Utskrivningsdato) %>%
+  select(.data$Sykehusnavn,
+         .data$OppholdsID,  
+         .data$ProsedyreDato,
+         .data$Utskrivningsdato,
+         .data$dod_opphold,
+         .data$AvdodDato, 
+         .data$Indikasjon) %>%
+  noric::mst(tab = .,
+           type = params$tableFormat,
+           cap = "test",
+           label = "tes1t")
+  # mst(., type = "html" , fs = 9) %>%
+  # scroll_box( height = "700px",  width ="1000px")
+
+
+# noric::mst(tab = tabFerdigtiltKompl, 
+#            type = params$tableFormat,
+#            cap = cap,
+#            digs = c(0, 0, 1, 1), 
+#            align = rep("c", 4), 
+#            label = "tabFerdigtiltKompl")
+```
+
+
+```{r pagebreakFerdigstilt, results = "asis", eval = (params$tableFormat == "latex")}
+cat("\n\n\\pagebreak\n")
+```
+
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.35)  # set progress to 35%
+```
+
+# Død 1-2 dager etter utskrivelse, mangler i NORIC
+Følgende pasienter er avdøde (i folkeregisteret) like etter utskrivelses-dato, 
+men hverken registrert død på lab/avdeling eller ved utskrivelse. Sjekk om de
+burde vært registrert i NORIC.
+```{r tab2, results='asis', warning=FALSE}
+
+aP %>%  
+  dplyr::filter(.data$dod_opphold == "Nei", 
+                !is.na(.data$Utskrivningsdato), 
+                dager_utskr_dod %in% 1:2) %>%
+  select(.data$Sykehusnavn,
+         .data$OppholdsID,  
+         .data$ProsedyreDato,
+         .data$Utskrivningsdato,
+         .data$dod_opphold,
+         .data$dager_utskr_dod, 
+         .data$AvdodDato, 
+         .data$Indikasjon) %>%
+noric::mst(tab = .,
+           type = params$tableFormat,
+           cap = "test",
+           label = "tes2t")
+# mst(., type = "html" , fs = 9) %>%
+  # scroll_box( height = "700px",  width ="1000px")
+
+
+# noric::mst(tab = tabFerdigtiltKompl, 
+#            type = params$tableFormat,
+#            cap = cap,
+#            digs = c(0, 0, 1, 1), 
+#            align = rep("c", 4), 
+#            label = "tabFerdigtiltKompl")
+```
+
+
+# Mangler utskrivelse, men død før prosedyren eller inntil 2 dager etter
+Følgende pasienter er avdøde (i folkeregisteret) inntil 2 dager etter 
+prosedyren, men hverken registrert død på lab eller på avdeling. De mangler
+utskrivelsskjema.
+```{r tab3, results='asis', warning=FALSE}
+
+aP %>%  
+  dplyr::filter(.data$dod_opphold == "Nei", 
+                is.na(.data$Utskrivningsdato), 
+                dager_proc_avdod %in% 0:2 | dager_proc_avdod < 0) %>%
+  select(.data$Sykehusnavn,
+         .data$OppholdsID,  
+         .data$ProsedyreDato,
+         .data$Utskrivningsdato,
+         .data$dod_opphold,
+         .data$dager_proc_avdod, 
+         .data$AvdodDato, 
+         .data$Indikasjon) %>%
+noric::mst(tab = .,
+           type = params$tableFormat,
+           cap = "test",
+           label = "tes3t")
+# mst(., type = "html" , fs = 9) %>%
+  # scroll_box( height = "700px",  width ="1000px")
+
+
+# noric::mst(tab = tabFerdigtiltKompl, 
+#            type = params$tableFormat,
+#            cap = cap,
+#            digs = c(0, 0, 1, 1), 
+#            align = rep("c", 4), 
+#            label = "tabFerdigtiltKompl")
+```
+
+# Donorutredning, men ikke avdod
+```{r tab4, results='asis', warning=FALSE}
+
+aP %>%  
+  dplyr::filter(.data$dod_opphold == "Nei", 
+                .data$Indikasjon %in% "Donorutredning") %>%
+  select(.data$Sykehusnavn,
+         .data$OppholdsID,  
+         .data$ProsedyreDato,
+         .data$Utskrivningsdato,
+         .data$dod_opphold,
+         .data$dager_proc_avdod, 
+         .data$AvdodDato, 
+         .data$Indikasjon) %>%
+
+noric::mst(tab = .,
+           type = params$tableFormat,
+           cap = "test",
+           label = "tes4t")
+
+  # mst(., type = "html" , fs = 9) %>%
+  # scroll_box( height = "700px",  width ="1000px")
+
+
+# noric::mst(tab = tabFerdigtiltKompl, 
+#            type = params$tableFormat,
+#            cap = cap,
+#            digs = c(0, 0, 1, 1), 
+#            align = rep("c", 4), 
+#            label = "tabFerdigtiltKompl")
+```
