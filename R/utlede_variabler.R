@@ -111,3 +111,45 @@ utlede_ferdigstilt <- function(df,
 
 
 
+
+
+#' @export
+avdod_opphold <- function(df_ap) {
+  
+  stopifnot(all(c("AvdRESH",
+                  "OppholdsID",
+                  "dod_noric") %in% names(df_ap)))
+  
+  # Minst en registrering av død under opphold:
+  df_ap %>%
+    
+    # Gruppere oppholdene sammen
+    dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
+    
+    # Minst et forløp under oppholdet med regsitrering av død
+    dplyr::mutate(
+      dod_opphold = ifelse(
+        all(.data$dod_noric == "Nei"),
+        "Nei",
+        "Ja")) %>%
+    
+    dplyr::ungroup()
+  
+}
+
+#' @export
+# utlede variablen "dod_opphold" : dersom mins en registrering av død under oppholdet
+utlede_dod_noric <- function(df){
+df %>% mutate(
+  dod_noric = if_else(
+    condition = (AvdKompDod %in% "Ja" |
+                   LabKompDod %in% "Ja" |
+                   UtskrevetDod %in% "Ja"),
+    true = "Ja",
+    false = "Nei",
+    missing = "Nei"))
+  # %>%
+  # avdod_opphold()
+}
+
+
