@@ -49,8 +49,8 @@ user requesting the report. Default is "unknown role".}
 \item{userOperator}{Character string with some name of an operator, whatever
 that is... Default is "unknown operator".}
 
-\item{rendered_by_shiny}{boolean. if TRUE progression-bar is shown when 
-charging report}
+\item{rendered_by_shiny}{boolean. if TRUE progression of pdf-generation is
+returned.}
 }
 \value{
 A character string with a path to where the produced file is located.
