@@ -278,7 +278,24 @@ SS %<>% dplyr::mutate(ProsedyreType2 = factor(
   levels = c("Stent", "POBA", "Wireforsøk", "Rotablator", "Annet")))
 
 
+SS$ProsedyreDato <- as.Date(
+  x = SS$ProsedyreDato,
+  format = "%Y-%m-%d")
 
+SS$Month <- as.numeric(
+  format(
+    x = SS$ProsedyreDato,
+    format = "%m" ))
+
+SS$Year <- as.numeric(
+  format(
+    x = SS$ProsedyreDato,
+    format = "%y"))
+
+SS$YearMonth <- factor(
+  format(
+    x = SS$ProsedyreDato,
+    format = "%y-%m"))
 
 
 ```
