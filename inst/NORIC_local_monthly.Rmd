@@ -916,5 +916,94 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            digs = c(0,0,0,1), align = rep("r", 4))
 
 ```
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
 # Stentbruk - månedsrapport
+
+## Prosedyre type
+```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
+cap <- "Antall (prosent) behandlede segmenter etter prosedyretype og måned"
+tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
+     n = showN + 1) %>%
+  noric::prettyTab(., add_totals = TRUE) %>% 
+  noric::mst(., type = params$tableFormat, cap = cap, digs = 0, align = rep("r", 7))
+```
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+## Stenter per prosedyre
+Antall stenter per prosedyre i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
+```{r Barplot_Nstent_per_Prosedyre, fig.width = 12, fig.height = 8, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = "Antall stenter per prosedyre"}
+
+op <- par(
+  mfcol = c(1,1),
+  xpd = NA,
+  mar = c(5.1, 4.1, 4.1, 13.1),
+  bg = "#EEEEEE")
+
+
+TabNStent <- xtabs(
+  formula = ~ Nstents,
+  data = PCImedStent)
+
+barplot(
+  TabNStent,
+  ylab = "Antall prosedyrer",
+  xlab = "Antall stenter per prosedyre",
+  border = NA,
+  col = colPrimary[3])
+
+SumStat <- round(summary(PCImedStent$Nstents), 1)
+
+legend(
+  "right",
+  inset = -.28,
+  bty = "n",
+  legend = paste(attr(SumStat,"names"), ": ", SumStat, sep = ""))
+``` 
+
+
+
+## Stent - merke
+```{r prepare-data-SS-pci, include = FALSE}
+# Siste showN måneder. Ikke vise historiske stenter 
+SS %<>% dplyr::mutate(nMonth = 
+                        as.numeric(
+                          as.factor(
+                            format(
+                              ProsedyreDato,
+                              format = "%y-%m"))))
+SSpci <-  SS %>% dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>% 
+  dplyr::filter(ProsedyreType2 == "Stent")
+``` 
+
+
+```{r TabNstentNameMonth, echo = FALSE, results = "asis"}
+cap <- "Antall  stenter etter merke og måned"
+tab_stent<- addmargins(xtabs(formula = ~ YearMonth + Stentnavn,
+                             data = SSpci,
+                             drop.unused.levels = TRUE)) 
+align<- c("l", rep("c", dim(tab_stent)[2]-1))
+
+if(params$tableFormat == "html"){
+  knitr::kable(x=tab_stent, caption = cap, align = align) %>% 
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                              full_width = F) %>% 
+    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>% 
+    kableExtra::column_spec(column = 1, width = "7em")  
+} else if(params$tableFormat == "latex"){
+  knitr::kable(x = tab_stent, 
+               format = params$tableFormat, 
+               caption = cap,
+               booktabs = TRUE,
+               align = align) %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
+    kableExtra::row_spec(row = 0, angle = 90)
+}
+```
+
