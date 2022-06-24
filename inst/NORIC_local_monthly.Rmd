@@ -256,6 +256,29 @@ SS %<>% dplyr::select(AvdRESH,
                       StentType)
 
 
+SS %<>% dplyr::mutate(Indikasjon = factor(
+  dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP", 
+                   Indikasjon == "UAP" ~ "UAP", 
+                   Indikasjon == "NSTEMI" ~ "NSTEMI", 
+                   Indikasjon %in% c("STEMI", "STEMI > 24h", "STEMI/Rescue PCI")
+                   ~ "STEMI", 
+                   is.na(Indikasjon) ~ NA_character_, 
+                   TRUE ~ "Annet"), 
+  levels = c("SAP", "UAP", "NSTEMI", "STEMI", "Annet", NA))) 
+
+SS %<>% dplyr::mutate(ProsedyreType2 = factor(
+  dplyr::case_when(ProsedyreType %in% 
+                     c("Direktestent",
+                       "Ballong + Stent",
+                       "Medikamentell ballong + Stent") ~ "Stent",
+                   ProsedyreType == "Ballongdilatasjon" ~ "POBA", 
+                   ProsedyreType == "Wireforsøk" ~ "Wireforsøk", 
+                   ProsedyreType == "Rotablator" ~ "Rotablator",
+                   TRUE ~ "Annet"),
+  levels = c("Stent", "POBA", "Wireforsøk", "Rotablator", "Annet")))
+
+
+
 
 
 ```
