@@ -4,7 +4,7 @@ author: ""
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 output: pdf_document
 params:
-  title: Emty tite
+  title: Emty title
   author: Anon author
   hospitalName: Ukjent sykehus
   tableFormat: html
@@ -233,6 +233,15 @@ AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
 
 AP %<>% 
   dplyr::mutate(Hastegrad = factor(Hastegrad, levels=c("Akutt", "Subakutt", "Planlagt", NA)))
+
+
+AP %<>%
+  noric::legg_til_antall_stent(df_ap =  ., df_ss = SS) %>% 
+  dplyr::mutate(
+    Nstents = ifelse(is.na(.data$antall_stent), 
+                     0, 
+                     .data$antall_stent))
+
 ```
 
 
