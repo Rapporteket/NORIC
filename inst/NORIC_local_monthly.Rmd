@@ -201,6 +201,40 @@ SO$Month <- as.factor(
 ```
 
 
+```{r SSprepare,include=FALSE, eval=TRUE}
+
+SS %<>% dplyr::select(AvdRESH,
+                      ForlopsID,
+                      ProsedyreDato,
+                      Indikasjon,
+                      ProsedyreType,
+                      Stentnavn,
+                      StentType)
+
+
+SS %<>% dplyr::mutate(Indikasjon = factor(
+  dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP", 
+                   Indikasjon == "UAP" ~ "UAP", 
+                   Indikasjon == "NSTEMI" ~ "NSTEMI", 
+                   Indikasjon %in% c("STEMI", "STEMI > 24h", "STEMI/Rescue PCI")
+                   ~ "STEMI", 
+                   is.na(Indikasjon) ~ NA_character_, 
+                   TRUE ~ "Annet"), 
+  levels = c("SAP", "UAP", "NSTEMI", "STEMI", "Annet", NA))) 
+
+SS %<>% dplyr::mutate(ProsedyreType2 = factor(
+  dplyr::case_when(ProsedyreType %in% 
+                     c("Direktestent",
+                       "Ballong + Stent",
+                       "Medikamentell ballong + Stent") ~ "Stent",
+                   ProsedyreType == "Ballongdilatasjon" ~ "POBA", 
+                   ProsedyreType == "Wireforsøk" ~ "Wireforsøk", 
+                   ProsedyreType == "Rotablator" ~ "Rotablator",
+                   TRUE ~ "Annet"),
+  levels = c("Stent", "POBA", "Wireforsøk", "Rotablator", "Annet")))
+
+```
+
 
 
 ```{r APprepare,include=FALSE, eval=TRUE}
@@ -245,60 +279,7 @@ AP %<>%
 ```
 
 
-```{r SSprepare,include=FALSE, eval=TRUE}
 
-SS %<>% dplyr::select(AvdRESH,
-                      ForlopsID,
-                      ProsedyreDato,
-                      Indikasjon,
-                      ProsedyreType,
-                      Stentnavn,
-                      StentType)
-
-
-SS %<>% dplyr::mutate(Indikasjon = factor(
-  dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP", 
-                   Indikasjon == "UAP" ~ "UAP", 
-                   Indikasjon == "NSTEMI" ~ "NSTEMI", 
-                   Indikasjon %in% c("STEMI", "STEMI > 24h", "STEMI/Rescue PCI")
-                   ~ "STEMI", 
-                   is.na(Indikasjon) ~ NA_character_, 
-                   TRUE ~ "Annet"), 
-  levels = c("SAP", "UAP", "NSTEMI", "STEMI", "Annet", NA))) 
-
-SS %<>% dplyr::mutate(ProsedyreType2 = factor(
-  dplyr::case_when(ProsedyreType %in% 
-                     c("Direktestent",
-                       "Ballong + Stent",
-                       "Medikamentell ballong + Stent") ~ "Stent",
-                   ProsedyreType == "Ballongdilatasjon" ~ "POBA", 
-                   ProsedyreType == "Wireforsøk" ~ "Wireforsøk", 
-                   ProsedyreType == "Rotablator" ~ "Rotablator",
-                   TRUE ~ "Annet"),
-  levels = c("Stent", "POBA", "Wireforsøk", "Rotablator", "Annet")))
-
-
-SS$ProsedyreDato <- as.Date(
-  x = SS$ProsedyreDato,
-  format = "%Y-%m-%d")
-
-SS$Month <- as.numeric(
-  format(
-    x = SS$ProsedyreDato,
-    format = "%m" ))
-
-SS$Year <- as.numeric(
-  format(
-    x = SS$ProsedyreDato,
-    format = "%y"))
-
-SS$YearMonth <- factor(
-  format(
-    x = SS$ProsedyreDato,
-    format = "%y-%m"))
-
-
-```
 
 
 ```{r Daterecodes,include=FALSE, eval=TRUE}
@@ -320,8 +301,39 @@ AP$nMonth <- as.numeric(
       AP$ProsedyreDato,
       format = "%y-%m")))
 
+AP$Month <- as.numeric(
+  format(
+    x = AP$ProsedyreDato,
+    format = "%m"))
+
+AP$YearMonth <- factor(
+  format(
+    x = AP$ProsedyreDato,
+    format = "%y-%m"))
+
 AP$Day <- as.numeric(
   AP$ProsedyreDato - min(AP$ProsedyreDato, na.rm = TRUE))
+
+
+
+SS$ProsedyreDato <- as.Date(
+  x = SS$ProsedyreDato,
+  format = "%Y-%m-%d")
+
+SS$Month <- as.numeric(
+  format(
+    x = SS$ProsedyreDato,
+    format = "%m" ))
+
+SS$Year <- as.numeric(
+  format(
+    x = SS$ProsedyreDato,
+    format = "%y"))
+
+SS$YearMonth <- factor(
+  format(
+    x = SS$ProsedyreDato,
+    format = "%y-%m"))
 
 ```
 
@@ -336,6 +348,10 @@ NSTEMI$Month <- as.factor(
     x = NSTEMI$ProsedyreDato,
     format = "%y-%m"))
 
+PCImedStent <- subset(
+  AP,
+  Nstents > 0
+)
 
 AP <- subset(
   x = AP,
@@ -350,6 +366,8 @@ AP$Month <- as.factor(
     format = "%y-%m"))
 
 ```
+
+# Prosedyrer - månedsrapport
 
 ## Hastegrad
 ```{r FigNHastegrad, fig.cap = "Antall prosedyrer etter hastegrad og måned", fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
@@ -898,3 +916,5 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            digs = c(0,0,0,1), align = rep("r", 4))
 
 ```
+
+# Stentbruk - månedsrapport
