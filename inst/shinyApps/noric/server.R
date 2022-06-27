@@ -40,8 +40,6 @@ shinyServer(function(input, output, session) {
 
   ## local reports/tabs for national registry
   if (isNationalReg(reshId)) {
-
-    shiny::hideTab(inputId = "tabs", target = "Stentbruk")
     shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
     shiny::hideTab(inputId = "tabs", target = "Aktivitet")
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
@@ -94,18 +92,18 @@ shinyServer(function(input, output, session) {
     # permission to the current working directory
     owd <- setwd(tempdir())
     on.exit(setwd(owd))
-    file.copy(src, tmpFile, overwrite = TRUE)    
-    
+    file.copy(src, tmpFile, overwrite = TRUE)
+
     if(!useReportProcessor){
       out <- rmarkdown::render(
-        tmpFile, 
+        tmpFile,
         output_format = switch(
           type,
           PDF = rmarkdown::pdf_document(),
           HTML = rmarkdown::html_document(),
           BEAMER = rmarkdown::beamer_presentation(theme = "Hannover"),
           REVEAL = revealjs::revealjs_presentation(theme = "sky")),
-        
+
         params = list(
           tableFormat = switch(
             type,
@@ -116,29 +114,29 @@ shinyServer(function(input, output, session) {
           hospitalName = hospitalName,
           author = author,
           reshId = reshId,
-          registryName = registryName), 
-        output_dir = tempdir())  
-    } 
-    
-    
+          registryName = registryName),
+        output_dir = tempdir())
+    }
+
+
     if(useReportProcessor){
       withProgress(message = 'Rendering, please wait!', {
       out <- noric::reportProcessor(
-        report = sub(pattern  = ".Rmd", 
+        report = sub(pattern  = ".Rmd",
                      replacement =  "",
                      x = srcFile),
-        outputType = "pdf", 
-        title = "unknown title", 
-        author = "unknown author", 
-        orgName = orgName, 
+        outputType = "pdf",
+        title = "unknown title",
+        author = "unknown author",
+        orgName = orgName,
         orgId = orgId,
         registryName = registryName,
-        userFullName = userFullName, 
-        userRole = userRole, 
-        userOperator = "unknown operator", 
+        userFullName = userFullName,
+        userRole = userRole,
+        userOperator = "unknown operator",
         rendered_by_shiny = TRUE) })
     }
-    
+
     file.rename(out, file)
   }
 
@@ -344,9 +342,6 @@ shinyServer(function(input, output, session) {
 
 
   # Samlerapporter
-  output$stentbruk <- renderUI({
-    htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
-  })
 
   output$prosedyrer <- renderUI({
     htmlRenderRmd("NORIC_local_monthly.Rmd")
@@ -358,19 +353,6 @@ shinyServer(function(input, output, session) {
 
   })
 
-  output$downloadReportStentbruk <- downloadHandler(
-    filename = function() {
-      downloadFilename("NORIC_local_monthly_stent",
-                       input$formatStentbruk)
-    },
-
-    content = function(file) {
-      contentFile(file, "NORIC_local_monthly_stent.Rmd",
-                  basename(tempfile(fileext = ".Rmd")),
-                  input$formatStentbruk, 
-                  useReportProcessor = FALSE)
-    }
-  )
 
   output$downloadReportProsedyrer <- downloadHandler(
     filename = function() {
@@ -380,7 +362,7 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       contentFile(file, "NORIC_local_monthly.Rmd",
                   basename(tempfile(fileext = ".Rmd")),
-                  input$formatProsedyrer, 
+                  input$formatProsedyrer,
                   useReportProcessor = FALSE)
     }
   )
@@ -393,7 +375,7 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       contentFile(file, "NORIC_local_monthly_activity.Rmd",
                   basename(tempfile(fileext = ".Rmd")),
-                  useReportProcessor = FALSE, 
+                  useReportProcessor = FALSE,
                   type = input$formatAktivitet)
     }
   )
@@ -457,12 +439,6 @@ shinyServer(function(input, output, session) {
       fun = "subscriptionLocalMonthlyReps",
       paramNames = pn,
       paramValues = c("NORIC_local_monthly", pv)
-    ),
-    Stentbruk = list(
-      synopsis = "M\u00E5nedlig oppsummering av stentbruk siste \u00E5r",
-      fun = "subscriptionLocalMonthlyReps",
-      paramNames = pn,
-      paramValues = c("NORIC_local_monthly_stent", pv)
     )
   )
 
@@ -536,32 +512,32 @@ shinyServer(function(input, output, session) {
   # Tabell med sykehusnavn - orgID
   orgs_df <- noric::mapOrgReshId(registryName = registryName,
                                  asNamedList = FALSE)
-  
+
   ## innhold kontrollpanel:
   output$dwnldControl <- renderUI({
     selectInput(inputId = "dwldSykehus",
                 label = "Velg sykehus for ki-rapporten:",
                 choices = orgs)
   })
-  
+
   output$dwldInfo <- renderUI({
     p(paste("Valgt for nedlasting:",
             orgs_df[orgs_df$id == input$dwldSykehus, "name"]))
   })
-  
+
   output$dwnldReport <- shiny::downloadHandler(
     filename = function() {
       downloadFilename(fileBaseName = "NORIC_kvalitetsindikator",
                        type = "PDF")
     },
-    
-    
+
+
     content = function(file) {
-      contentFile(file, 
+      contentFile(file,
                   srcFile = "NORIC_kvalitetsindikator.Rmd",
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
-                  type = "PDF", 
-                  orgId = input$dwldSykehus, 
+                  type = "PDF",
+                  orgId = input$dwldSykehus,
                   orgName = orgs_df[orgs_df$id == input$dwldSykehus, "name"],
                   useReportProcessor = TRUE)
     }
