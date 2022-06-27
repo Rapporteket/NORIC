@@ -1,3 +1,9 @@
+# noric 2.9.0
+
+## Nytt
+* Innholdet i stent-rapporten ligger nå under prosedyre-rapporten.
+* Stent-rapporten er eksisterer ikke lengre.
+
 
 # noric 2.8.0
 
