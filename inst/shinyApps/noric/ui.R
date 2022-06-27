@@ -60,23 +60,6 @@ ui <- tagList(
 
     shiny::navbarMenu(
       "Månedsrapporter",
-
-      tabPanel(
-        "Stentbruk",
-        sidebarLayout(
-          sidebarPanel(
-            radioButtons("formatStentbruk",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
-            downloadButton("downloadReportStentbruk", "Hent!"),
-            width = 2
-          ),
-          mainPanel(
-            htmlOutput("stentbruk", inline = TRUE)
-          )
-        )
-      ),
       tabPanel(
         "Prosedyrer",
         sidebarLayout(
@@ -108,8 +91,8 @@ ui <- tagList(
           )
         )
       )) ,
-    
-    
+
+
     tabPanel("Datadump",
              sidebarLayout(
                sidebarPanel(width = 4,
@@ -141,7 +124,7 @@ ui <- tagList(
                )
              )
     ),
-    
+
     shiny::tabPanel(
       "Abonnement",
       shiny::sidebarLayout(
@@ -153,10 +136,10 @@ ui <- tagList(
         )
       )
     ),
-    
+
     shiny::navbarMenu(
       "Verktøy",
-      
+
       tabPanel("Metadata",
                sidebarLayout(
                  sidebarPanel(uiOutput("metaControl")),
@@ -176,8 +159,8 @@ ui <- tagList(
           )
         )
       ),
-      
-      
+
+
       tabPanel("Nedlasting rapporter",
                sidebarLayout(
                  sidebarPanel(uiOutput("dwnldControl")),
@@ -186,7 +169,7 @@ ui <- tagList(
                    downloadButton("dwnldReport", "Hent rapport!"))
                )
       ),
-      
+
       shiny::tabPanel(
         "Bruksstatistikk",
         shiny::sidebarLayout(
@@ -197,7 +180,7 @@ ui <- tagList(
           shiny::mainPanel(rapbase::statsUI("noricStats"))
         )
       ),
-      
+
       shiny::tabPanel(
         "Eksport",
         shiny::sidebarLayout(
