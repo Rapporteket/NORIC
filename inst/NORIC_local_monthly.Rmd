@@ -47,7 +47,12 @@ Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
 
 ```{r SKDEcol, include=FALSE}
 
-colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
+colPrimary <- c("#000059", 
+                "#084594", 
+                "#2171b5", 
+                "#4292c6", 
+                "#6baed6", 
+                "#c6dbef")
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
 
@@ -191,7 +196,9 @@ SO <- subset(
 
 
 # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
-if (SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) SO <- SO [which( SO$Year >= 2015), ]
+if (SO$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")){
+  SO <- SO [which( SO$Year >= 2015), ]
+}
 
 SO$Month <- as.factor(
   format(
@@ -266,7 +273,12 @@ AP$Funn[which(AP$Funn %in% c("","Ikke konklusiv undersøkelse"))] <- NA
 AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
 
 AP %<>% 
-  dplyr::mutate(Hastegrad = factor(Hastegrad, levels=c("Akutt", "Subakutt", "Planlagt", NA)))
+  dplyr::mutate(
+    Hastegrad = factor(Hastegrad, 
+                       levels = c("Akutt",
+                                  "Subakutt",
+                                  "Planlagt",
+                                  NA)))
 
 
 AP %<>%
@@ -358,7 +370,9 @@ AP <- subset(
   subset = nMonth >= max(nMonth , na.rm = TRUE) - showN)
 
 # crude fix for Feiring and Rikshospitalet which have meaningless test data before 2015
-if(AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) AP <- AP[which( AP$Year >= 2015), ]
+if(AP$Sykehusnavn[1] %in% c("Feiring","Rikshospitalet")) {
+  AP <- AP[which( AP$Year >= 2015), ]
+}
 
 AP$Month <- as.factor(
   format(
@@ -399,7 +413,8 @@ legend(
 ```
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
-cap <- "Antall og prosentvis fordeling av registrerte prosedyrer etter hastegrad og måned"
+cap <- paste0("Antall og prosentvis fordeling av registrerte prosedyrer etter",  
+              " hastegrad og måned")
 xtabs(formula = ~ Month + Hastegrad, data = AP) %>% 
   noric::prettyTab(., add_totals=TRUE) %>% 
   noric::mst(., type = params$tableFormat, cap = cap, digs = 0, align = rep("r", 5))
@@ -439,7 +454,8 @@ legend(
 
 
 ```{r TabNProsedyreType,  results = 'asis'}
-cap <- "Antall og prosentvis fordeling av prosedyrer etter prosedyretype og måned"
+cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter",
+              " prosedyretype og måned")
 xtabs(formula = ~ Month + ProsedyreType, data = AP) %>% 
   noric::prettyTab(., add_totals=TRUE) %>% 
   noric::mst(., type = params$tableFormat, cap = cap, digs = 0)
@@ -603,7 +619,13 @@ TabTillegg %<>%
 ### Annen diagnostikk ved angiografi
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
 cap <- "Antall (prosent) tilleggsprosedyrer per måned"
-noric::mst(TabTillegg[,c("FFR", "IFR", "Doppler", "OCT", "IVUS", "NIRS", "N")],
+noric::mst(TabTillegg[,c("FFR", 
+                         "IFR", 
+                         "Doppler", 
+                         "OCT", 
+                         "IVUS", 
+                         "NIRS", 
+                         "N")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
@@ -615,7 +637,9 @@ noric::mst(TabTillegg[,c("FFR", "IFR", "Doppler", "OCT", "IVUS", "NIRS", "N")],
 ### Tilleggsprosedyrer
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- "Antall (prosent) tilleggsprosedyrer per måned"
-noric::mst(TabTillegg[,c("Høyre kat.", "Perikardiocentese", "N")],
+noric::mst(TabTillegg[,c("Høyre kat.", 
+                         "Perikardiocentese", 
+                         "N")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
@@ -627,8 +651,14 @@ noric::mst(TabTillegg[,c("Høyre kat.", "Perikardiocentese", "N")],
 ### Adjuvant terapi
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 cap <- "Antall (prosent) tilleggsprosedyrer per måned"
-noric::mst(TabTillegg[, c("PM", "IABP", "Impella", "Trombectomy", "ECMO", "Annen",
-                          "Ingen", "N")],
+noric::mst(TabTillegg[, c("PM", 
+                          "IABP", 
+                          "Impella", 
+                          "Trombectomy", 
+                          "ECMO", 
+                          "Annen",
+                          "Ingen", 
+                          "N")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
@@ -928,7 +958,11 @@ cap <- "Antall (prosent) behandlede segmenter etter prosedyretype og måned"
 tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
      n = showN + 1) %>%
   noric::prettyTab(., add_totals = TRUE) %>% 
-  noric::mst(., type = params$tableFormat, cap = cap, digs = 0, align = rep("r", 7))
+  noric::mst(., 
+             type = params$tableFormat, 
+             cap = cap, 
+             digs = 0, 
+             align = rep("r", 7))
 ```
 
 
@@ -978,7 +1012,8 @@ SS %<>% dplyr::mutate(nMonth =
                             format(
                               ProsedyreDato,
                               format = "%y-%m"))))
-SSpci <-  SS %>% dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>% 
+SSpci <-  SS %>% 
+  dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>% 
   dplyr::filter(ProsedyreType2 == "Stent")
 ``` 
 
@@ -992,7 +1027,9 @@ align<- c("l", rep("c", dim(tab_stent)[2]-1))
 
 if(params$tableFormat == "html"){
   knitr::kable(x=tab_stent, caption = cap, align = align) %>% 
-    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+    kableExtra::kable_styling(bootstrap_options = c("striped", 
+                                                    "hover", 
+                                                    "condensed"),
                               full_width = F) %>% 
     kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>% 
     kableExtra::column_spec(column = 1, width = "7em")  
