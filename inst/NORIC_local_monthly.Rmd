@@ -402,7 +402,7 @@ op <- par(
   bg = "#EEEEEE")
 
 barplot(
-  xtabs(formula = ~ Hastegrad + Month, data = AP),
+  xtabs(formula = ~ Hastegrad + maaned, data = AP),
   las = 1,
   xlab = "Måned",
   ylab = "Antall",
@@ -423,7 +423,7 @@ legend(
 ```{r TabNHastegrad, results='asis', eval=TRUE}
 cap <- paste0("Antall og prosentvis fordeling av registrerte prosedyrer etter",
               " hastegrad og måned")
-xtabs(formula = ~ Month + Hastegrad, data = AP) %>%
+xtabs(formula = ~ maaned + Hastegrad, data = AP) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
   noric::mst(.,
              type = params$tableFormat,
@@ -446,7 +446,7 @@ op <- par(
   bg = "#EEEEEE")
 
 barplot(
-  xtabs(formula = ~ ProsedyreType + Month, data = AP),
+  xtabs(formula = ~ ProsedyreType + maaned, data = AP),
   las = 1,
   xlab = "Måned",
   ylab = "Antall",
@@ -468,7 +468,7 @@ legend(
 ```{r TabNProsedyreType,  results = 'asis'}
 cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter",
               " prosedyretype og måned")
-xtabs(formula = ~ Month + ProsedyreType, data = AP) %>%
+xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
   noric::mst(., type = params$tableFormat, cap = cap, digs = 0)
 ```
@@ -487,7 +487,7 @@ op <- par(
   bg = "#EEEEEE")
 
 barplot(
-  xtabs(formula = ~ Indikasjon2 + Month, data = AP),
+  xtabs(formula = ~ Indikasjon2 + maaned, data = AP),
   las = 1,
   xlab = "Måned",
   ylab = "Antall",
@@ -509,7 +509,7 @@ legend(
 
 ```{r TabNIndikasjon,  results = 'asis'}
 cap <- "Antall og prosentvis fordeling av prosedyrer etter indikasjon og måned"
-xtabs(formula = ~ Month + Indikasjon2, data = AP) %>%
+xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
   noric::mst(.,
              type = params$tableFormat,
@@ -527,7 +527,7 @@ xtabs(formula = ~ Month + Indikasjon2, data = AP) %>%
 PrintTabTilleggCol <- function(VAR) {
   nVAR <- addmargins(
     table(
-      AP$Month,
+      AP$maaned,
       addNA(factor(
         AP[, VAR],
         levels = c("Ja", "Nei", "")))),
@@ -621,7 +621,7 @@ colnames(TabTillegg) <- c(TilleggLabels)
 
 TabTillegg %<>%
   cbind(., AP %>%
-          dplyr::count(Month) %>%
+          dplyr::count(maaned) %>%
           janitor::adorn_totals("row") %>%
           dplyr::transmute(N = n))
 ```
@@ -686,7 +686,7 @@ noric::mst(TabTillegg[, c("PM",
 cap <- paste0("Antall andre prosedyrer (utført uten direkte tilknytning",
               " til Angio/PCI)  etter prosedyretype og måned")
 TabNAndreProsedyrer <- addmargins(
-  xtabs(formula = ~ Month + AnnenProsType,
+  xtabs(formula = ~ maaned + AnnenProsType,
         data = AnP)
 )
 
@@ -717,7 +717,7 @@ if (params$tableFormat == "latex") {
 
 
 ## Komplikasjoner
-### Komplikasjoner på lab i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' til ' )`
+### Komplikasjoner på lab i perioden `r paste0(range(AP$ProsedyreDato), collapse = ' til ' )`
 ```{r TabLabKompl,results='asis'}
 
 LabKomplikasjoner <- data.frame(
@@ -910,7 +910,7 @@ text(
 nSOA <- with(
   SO[which(SO$Skjemanavn == "AngioPCI"), ],
   table(
-    Month,
+    maaned,
     factor(
       SkjemaStatus,
       levels = c(0, -1, 1),
@@ -939,7 +939,7 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 nSOU <- with(
   SO[which(SO$Skjemanavn == "Utskrivelse"), ],
   table(
-    Month,
+    maaned,
     factor(SkjemaStatus,
            levels = c(0, -1, 1),
            labels = c("Tomt", "Begynt", "Ferdigstilt"))))
@@ -971,7 +971,7 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 ## Prosedyre type
 ```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
 cap <- "Antall (prosent) behandlede segmenter etter prosedyretype og måned"
-tail(xtabs(formula = ~ YearMonth + ProsedyreType2, data = SS),
+tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
      n = showN + 1) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
   noric::mst(.,
@@ -1027,7 +1027,7 @@ SS %<>% dplyr::mutate(nMonth =
                           as.factor(
                             format(
                               ProsedyreDato,
-                              format = "%y-%m"))))
+                              format = "%Y-%m"))))
 SSpci <-  SS %>%
   dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>%
   dplyr::filter(ProsedyreType2 == "Stent")
@@ -1036,7 +1036,7 @@ SSpci <-  SS %>%
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis"}
 cap <- "Antall  stenter etter merke og måned"
-tab_stent <- addmargins(xtabs(formula = ~ YearMonth + Stentnavn,
+tab_stent <- addmargins(xtabs(formula = ~ maaned + Stentnavn,
                              data = SSpci,
                              drop.unused.levels = TRUE))
 align <- c("l", rep("c", dim(tab_stent)[2] - 1))
