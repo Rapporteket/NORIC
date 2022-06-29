@@ -32,16 +32,18 @@ library(dplyr)
 # https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
 # Also make sure we use tempdir() as working directory so we do not clutter
 # the package of the hosting shiny app
-#workDir <- tempdir()
-#knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
+# workDir <- tempdir()
+# knitr::opts_knit$set(base.dir = workDir,
+#                      base.url = file.path(paste0(tempdir(), "/")),
+#                      root.dir = workDir)
 
 # Handle both html and latex (pdf) output. Actually to avoid setting 'format'
 # for each kable call
 # inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
 options(knitr.table.format = params$tableFormat)
 
-knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
-options(stringsAsFactors=FALSE)
+knitr::opts_chunk$set(warnings = FALSE, echo = FALSE)
+options(stringsAsFactors = FALSE)
 
 # For some reason Shiny Server does not get the server locale settings right.
 # To display dates correct, enforce locale here:
@@ -51,7 +53,12 @@ Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
 
 ```{r SKDEcol, include=FALSE}
 
-colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
+colPrimary <- c("#000059",
+                "#084594",
+                "#2171b5",
+                "#4292c6",
+                "#6baed6",
+                "#c6dbef")
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
 
@@ -68,24 +75,24 @@ showN <- 14
 ```{r latest_entry, include=FALSE, eval=TRUE}
 # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
 
-# NYESTE DATO: 
-# Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+# NYESTE DATO:
+# Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at
 # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
-# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .
 # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
 # overføringer har stoppet opp
 
-# ELDSTE DATO: 
+# ELDSTE DATO:
 # Januar fra i fjor (hele foregående år skal vise i rapporten)
 nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
 
 periode_data <- data.frame(
-  siste_dato = min((as.Date(Sys.time()) - 1), 
-                   nyeste_reg)) 
+  siste_dato = min((as.Date(Sys.time()) - 1),
+                   nyeste_reg))
 
-periode_data %<>% 
+periode_data %<>%
   dplyr::mutate(
-    forste_dato  = lubridate::floor_date(.data$siste_dato, 
+    forste_dato  = lubridate::floor_date(.data$siste_dato,
                                          "month") - months(showN))
 ```
 
@@ -94,9 +101,9 @@ periode_data %<>%
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-AP <- noric::getPrepApData(registryName = params$registryName, 
-                           fromDate  = periode_data$forste_dato, 
-                           toDate = periode_data$siste_dato, 
+AP <- noric::getPrepApData(registryName = params$registryName,
+                           fromDate  = periode_data$forste_dato,
+                           toDate = periode_data$siste_dato,
                            singleRow = FALSE)
 
 ```
@@ -112,25 +119,29 @@ angiografor_AP <- AP %>% dplyr::filter(
 ``` 
 
 ```{r TabNAngiogrforMonth, echo = FALSE, results = "asis"}
-cap <- "Antall angioprosedyrer etter angiografør og måned. Opptellingen er gjort ved å legge sammen prosedyretypene Angio og Angio+PCI. Kun 1. angiograf er med i opptellingen."
-tab_angiografor<- addmargins(xtabs(formula = ~ maaned + Angiografor1,
+cap <- paste0("Antall angioprosedyrer etter angiografør og måned. ",
+              "Opptellingen er gjort ved å legge sammen prosedyretypene Angio ",
+              "og Angio+PCI. Kun 1. angiograf er med i opptellingen.")
+tab_angiografor <- addmargins(xtabs(formula = ~ maaned + Angiografor1,
                              data = angiografor_AP,
                              drop.unused.levels = TRUE))
-align<- c("l", rep("c", dim(tab_angiografor)[2]-1))
+align <- c("l", rep("c", dim(tab_angiografor)[2] - 1))
 
-if(params$tableFormat == "html"){
-  knitr::kable(x=tab_angiografor, caption = cap, align = align) %>% 
-    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                              full_width = F) %>% 
-    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>% 
-    kableExtra::column_spec(column = 1, width = "7em")  
-} else if(params$tableFormat == "latex"){
-  knitr::kable(x = tab_angiografor, 
-               format = params$tableFormat, 
+if (params$tableFormat == "html") {
+  knitr::kable(x = tab_angiografor, caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE) %>%
+    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>%
+    kableExtra::column_spec(column = 1, width = "7em")
+} else if (params$tableFormat == "latex") {
+  knitr::kable(x = tab_angiografor,
+               format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
                align = align) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
+    kableExtra::kable_styling(latex_options = "HOLD_position") %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
@@ -144,25 +155,29 @@ pciOperator_AP <- AP %>% dplyr::filter(
 ``` 
 
 ```{r TabNOperatorMonth, echo = FALSE, results = "asis"}
-cap <- "Antall PCI-prosedyrer etter PCI-operatør og måned. Opptellingen er gjort ved å legge sammen prosedyretypene Angio+PCI og PCI. Kun 1. operator er med i opptellingen."
-tab_pciOperator<- addmargins(xtabs(formula = ~ maaned + PCIHovedOperator,
+cap <- paste0("Antall PCI-prosedyrer etter PCI-operatør og måned. ",
+              "Opptellingen er gjort ved å legge sammen prosedyretypene ",
+              "Angio+PCI og PCI. Kun 1. operator er med i opptellingen.")
+tab_pciOperator <- addmargins(xtabs(formula = ~ maaned + PCIHovedOperator,
                              data = pciOperator_AP,
                              drop.unused.levels = TRUE))
-align<- c("l", rep("c", dim(tab_pciOperator)[2]-1))
+align <- c("l", rep("c", dim(tab_pciOperator)[2] - 1))
 
-if(params$tableFormat == "html"){
-  knitr::kable(x=tab_pciOperator, caption = cap, align = align) %>% 
-    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                              full_width = F) %>% 
-    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>% 
-    kableExtra::column_spec(column = 1, width = "7em")  
-} else if(params$tableFormat == "latex"){
-  knitr::kable(x = tab_pciOperator, 
-               format = params$tableFormat, 
+if (params$tableFormat == "html") {
+  knitr::kable(x = tab_pciOperator, caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE) %>%
+    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>%
+    kableExtra::column_spec(column = 1, width = "7em")
+} else if (params$tableFormat == "latex") {
+  knitr::kable(x = tab_pciOperator,
+               format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
                align = align) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
+    kableExtra::kable_styling(latex_options = "HOLD_position") %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
