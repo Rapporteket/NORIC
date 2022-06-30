@@ -14,8 +14,13 @@ header-includes:
   - \usepackage{rotating}
   - \usepackage{float}
   - \usepackage{booktabs}
-title:  "toto"
-abstract:  '`r paste0("NORIC lanserte i starten av 2022 et kvalitetsforbedrings-prosjekt. Prosjektet har som mål å forbedre registreringen av _komplikasjoner_ og _avdød_. Vi ønsker å sette fokus på denne delen av registreringen og enten utarbeide retningslinjer som kan hjelpe sykehusene eller å bedre tilrettelegge innregistreringsløsningen. I denne sammenheng sender vi i en periode ut denne månedsrapporten til de ulike NORIC-sykehusene. Rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og distribueres per e-post til utvalgte personer per sykehus.", "\\newline ", "\\newline ", " Rapporten inneholder lister med forløp som sykehusene bes om å sjekke og eventuelt komplettere i innregistreringsløsningen. Vi oppfordrer sykehusene til å ta kontakt med NORIC på [noric@helse-bergen.no](mailto:noric@helse-bergen.no) dersom dere støter på problemer med registreringen dersom noe er vanskelig, uklart eller ikke tilrettelagt for. Vi har behov for deres tilbakemeldinger for å kunne forbedre innregistreringsløsningen!") `'
+title:   | 
+  | Registrering av  _død på lab_, _død på avdeling_ og _utskrevet død_  i NORIC.
+  |
+  | __`r paste0("Månedsrapport for ", params$hospitalName)`__
+  |
+  |
+abstract:  '`r paste0("Sommeren 2021 ble endelig arbeidet med overføring av døds-status fra Folkeregisteret til NORIC ferdigstilt. Databasen inneholder nå to ukentlig oppdaterte variabler:  _Avdød_ og _AvdødDato_. Vi har i denne sammenhengen benyttet anledningen til å sette i gang et kvalitetsforbedrings-prosjekt med målsetning å forbedre registreringen av død i NORICs egne variabler: _død på lab_, _død på avdeling_ og _utskrevet død_. ", "\\newline ", "\\newline ", "Vi vet at registrering av komplikasjoner og spesielt død oppleves som vanskelig for mange av sykehusene. Det er stor forskjell i registreringspraksis og andel avdøde pasienter varierer mye mellom sykehusene. Vi har derfor utarbeidet denne rapporten som tilsendes månedlig til utvalgte personer på hvert sykehus. Rapporten inneholder lister med forløpsID-er som sykehusene bes sjekke. Det gjelder pasienter som har _AvdødDato_ fra folkeregisteret svært nær prosedyre-dato i NORIC, men som verken er registrerte som _død på lab_, _død på avdeling_ eller _utskrevet død_ fra NORIC.", "\\newline ", "\\newline ", "I første omgang vil vi sette fokus på disse pasientene hos registratorene ved sykehusene. Alle deres tilbakemeldinger om eventuelle problemstillinger knyttet til registreringene er svært verdifulle for oss og mottas med takk på e-post til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)! Avhengig av tilbakemeldingene vil vi utarbeide retningslinjer som kan benyttes i registreringsarbeidet og/eller forbedre selve innregistreringsløsningen. ", "\\newline ", "\\newline ", "Rapportene er automatisk generert med utgangspunkt i _AvdødDato_, samt variablene _død på lab_, _død på avdeling_ og _utskrevet død_.  Dersom ingen endringer er utført i NORIC-variablene siden sist rapport, vil ForløpsID-ene bli listet opp på nytt hver måned. Pasienter som er rettmessig registrert som levende i NORIC vil derfor blir gjentatt fra måned til måned. Vi ber dere se bort fra disse og vi beklager ulempen med dette!" ) `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -117,7 +122,8 @@ periode_data %<>%
 
 aP <- noric::getPrepApData(
   registryName = params$registryName, 
-  fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),  
+  fromDate  = as.Date(paste0(periode_data$sisteHeleYear, "-01-01"),
+                      format = "%Y-%m-%d"),  
   toDate = periode_data$siste_dato, 
   singleRow = FALSE)
 
@@ -207,54 +213,53 @@ if (params$rendered_by_shiny)
 
 \bigskip \bigskip \bigskip
 
-# Datagrunnlag
-
-Siste innregistrering som teller med i datagrunnlaget for denne rapporten er 
-`r format(periode_data$siste_dato, '%d. %B %Y')`. 
-
-```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreakforste, results = "asis", eval = (params$tableFormat == "latex")}
 cat("\n\n\\pagebreak\n")
 ```
 
 
-# Død før utskrivelse, men ikke registrert som død i NORIC
+# Datagrunnlag
 
-Følgende pasienter er avdøde (i folkeregisteret) før utskrivelses-dato, men 
-hverken registrert død på lab/avdeling eller ved utskrivelse. 
+Denne rapporten inneholder data fra `r params$hospitalName` for hele
+`r periode_data$sisteHeleYear `, og til og med
+`r format(periode_data$siste_dato, '%d. %B %Y')`. 
+
+<!-- ```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")} -->
+<!-- cat("\n\n\\pagebreak\n") -->
+<!-- ``` -->
+
+\bigskip \bigskip \bigskip
+
+# Død før utskrivelse
+
+Følgende pasienter har _AvdodDato_ før utskrivelses-dato, men 
+ er verken registrert _død på lab_, _død på avdeling_ eller
+ _død ved utskrivelse_. Vi ber sykehusene om å sjekke disse registreringene. 
 
 ```{r tab1, results='asis', warning=FALSE}
 
-aP %>%  
+cap <- paste0(params$hospitalName,
+              ": Alle forløp der pasienten er avdød før utskrivelse ", 
+              "i perioden fra 01. jan ", 
+                periode_data$sisteHeleYear,
+                " til og med ",
+                format(periode_data$siste_dato, '%d. %B %Y'))
+
+aP %>% 
   dplyr::filter(.data$dod_opphold == "Nei", 
                 !is.na(.data$Utskrivningsdato), 
                 .data$AvdodDato <= .data$Utskrivningsdato) %>%
-  select(.data$Sykehusnavn,
-         .data$OppholdsID,  
+  select(.data$OppholdsID,  
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$dod_opphold,
          .data$AvdodDato, 
-         .data$Indikasjon) %>%
+         .data$Regtype) %>%
   noric::mst(tab = .,
            type = params$tableFormat,
-           cap = "test",
-           label = "tes1t")
-  # mst(., type = "html" , fs = 9) %>%
-  # scroll_box( height = "700px",  width ="1000px")
-
-
-# noric::mst(tab = tabFerdigtiltKompl, 
-#            type = params$tableFormat,
-#            cap = cap,
-#            digs = c(0, 0, 1, 1), 
-#            align = rep("c", 4), 
-#            label = "tabFerdigtiltKompl")
+           cap = cap,
+           label = "tab1")
 ```
 
-
-```{r pagebreakFerdigstilt, results = "asis", eval = (params$tableFormat == "latex")}
-cat("\n\n\\pagebreak\n")
-```
 
 
 ```{r }
@@ -262,103 +267,108 @@ if (params$rendered_by_shiny)
   shiny::setProgress(0.35)  # set progress to 35%
 ```
 
-# Død 1-2 dager etter utskrivelse, mangler i NORIC
-Følgende pasienter er avdøde (i folkeregisteret) like etter utskrivelses-dato, 
-men hverken registrert død på lab/avdeling eller ved utskrivelse. Sjekk om de
-burde vært registrert i NORIC.
+\bigskip \bigskip \bigskip
+
+
+# Død 1-2 dager etter utskrivelse
+Følgende pasienter har _AvdodDato_ like etter utskrivelses-dato, men 
+ er verken registrert _død på lab_, _død på avdeling_ eller
+ _død ved utskrivelse_. Vi ber sykehusene om å sjekke disse registreringene. 
+
+
 ```{r tab2, results='asis', warning=FALSE}
+cap <- paste0(params$hospitalName,
+              ": Alle forløp der pasienten er avdød 1-2 dager etter ", 
+              "utskrivelse i perioden fra 01. jan ", 
+                periode_data$sisteHeleYear,
+                " til og med ",
+                format(periode_data$siste_dato, '%d. %B %Y'))
+
 
 aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 !is.na(.data$Utskrivningsdato), 
                 dager_utskr_dod %in% 1:2) %>%
-  select(.data$Sykehusnavn,
-         .data$OppholdsID,  
+  select(.data$OppholdsID,  
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$dod_opphold,
          .data$dager_utskr_dod, 
          .data$AvdodDato, 
-         .data$Indikasjon) %>%
+         .data$Regtype) %>%
 noric::mst(tab = .,
            type = params$tableFormat,
            cap = "test",
-           label = "tes2t")
-# mst(., type = "html" , fs = 9) %>%
-  # scroll_box( height = "700px",  width ="1000px")
+           label = "tab2")
 
-
-# noric::mst(tab = tabFerdigtiltKompl, 
-#            type = params$tableFormat,
-#            cap = cap,
-#            digs = c(0, 0, 1, 1), 
-#            align = rep("c", 4), 
-#            label = "tabFerdigtiltKompl")
 ```
 
+\bigskip \bigskip \bigskip
 
-# Mangler utskrivelse, men død før prosedyren eller inntil 2 dager etter
-Følgende pasienter er avdøde (i folkeregisteret) inntil 2 dager etter 
-prosedyren, men hverken registrert død på lab eller på avdeling. De mangler
-utskrivelsskjema.
+
+# Avdød nær prosedyredato men mangler utskrivelsesskjema
+
+Følgende pasienter har _AvdodDato_ enten før prosedyredatoen eller inntil 
+to dager etter. De er verken registrert _død på lab_ eller _død på avdeling_ 
+og _død ved utskrivelse_ mangler.
+Vi ber sykehusene om å sjekke disse registreringene og 
+ferdigstille utskrivelsesskjemaet. 
+
+
+
 ```{r tab3, results='asis', warning=FALSE}
+cap <- paste0(params$hospitalName,
+              ": Alle forløp der pasienten mangler utskrivelse ", 
+              " og er enten ", 
+              "avdød før prosedyren eller inntil 2 dager etter den, ", 
+              "i perioden fra 01. jan ", 
+                periode_data$sisteHeleYear,
+                " til og med ",
+                format(periode_data$siste_dato, '%d. %B %Y'))
+
 
 aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 is.na(.data$Utskrivningsdato), 
                 dager_proc_avdod %in% 0:2 | dager_proc_avdod < 0) %>%
-  select(.data$Sykehusnavn,
-         .data$OppholdsID,  
+  select(.data$OppholdsID,  
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$dod_opphold,
-         .data$dager_proc_avdod, 
          .data$AvdodDato, 
-         .data$Indikasjon) %>%
+         .data$Regtype) %>%
 noric::mst(tab = .,
            type = params$tableFormat,
-           cap = "test",
-           label = "tes3t")
-# mst(., type = "html" , fs = 9) %>%
-  # scroll_box( height = "700px",  width ="1000px")
+           cap = cap,
+           label = "tab3")
 
-
-# noric::mst(tab = tabFerdigtiltKompl, 
-#            type = params$tableFormat,
-#            cap = cap,
-#            digs = c(0, 0, 1, 1), 
-#            align = rep("c", 4), 
-#            label = "tabFerdigtiltKompl")
 ```
 
-# Donorutredning, men ikke avdod
+\bigskip \bigskip \bigskip
+
+
+# Donorutredning
 ```{r tab4, results='asis', warning=FALSE}
+cap <- paste0(params$hospitalName,
+              ": Alle forløp med indikasjon Donorutredning som ikke er ", 
+              "registrert som avdød ", 
+              "i perioden fra 01. jan ", 
+                periode_data$sisteHeleYear,
+                " til og med ",
+                format(periode_data$siste_dato, '%d. %B %Y'))
+
 
 aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 .data$Indikasjon %in% "Donorutredning") %>%
-  select(.data$Sykehusnavn,
-         .data$OppholdsID,  
+  select(.data$OppholdsID,  
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$dod_opphold,
-         .data$dager_proc_avdod, 
          .data$AvdodDato, 
-         .data$Indikasjon) %>%
+         .data$Regtype) %>%
 
 noric::mst(tab = .,
            type = params$tableFormat,
-           cap = "test",
-           label = "tes4t")
-
-  # mst(., type = "html" , fs = 9) %>%
-  # scroll_box( height = "700px",  width ="1000px")
+           cap = cap,
+           label = "tab4")
 
 
-# noric::mst(tab = tabFerdigtiltKompl, 
-#            type = params$tableFormat,
-#            cap = cap,
-#            digs = c(0, 0, 1, 1), 
-#            align = rep("c", 4), 
-#            label = "tabFerdigtiltKompl")
 ```
