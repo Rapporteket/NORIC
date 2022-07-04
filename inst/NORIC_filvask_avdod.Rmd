@@ -102,11 +102,7 @@ periode_data %<>%
     
     # Første dato for SQL -spørring : 01. januar fjoråret
     forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-                           format = "%Y-%m-%d"), 
-    
-    # Aortaklaff + Segment stent (indikator per kvartal): 
-    forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
-                                format = "%Y-%m-%d")
+                           format = "%Y-%m-%d")
   )
 ```
 
@@ -122,10 +118,10 @@ periode_data %<>%
 
 aP <- noric::getPrepApData(
   registryName = params$registryName, 
-  fromDate  = as.Date(paste0(periode_data$sisteHeleYear, "-01-01"),
-                      format = "%Y-%m-%d"),  
+  fromDate  = periode_data$forste_dato,
   toDate = periode_data$siste_dato, 
-  singleRow = FALSE)
+  singleRow = FALSE) %>% 
+  dplyr::filter(.data$AvdRESH == params$reshID)
 
 ```
 
@@ -218,46 +214,48 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
-# Datagrunnlag
+<!-- # Datagrunnlag -->
 
-Denne rapporten inneholder data fra `r params$hospitalName` for hele
-`r periode_data$sisteHeleYear `, og til og med
-`r format(periode_data$siste_dato, '%d. %B %Y')`. 
+<!-- Denne rapporten inneholder data fra `r params$hospitalName` for hele -->
+<!-- `r periode_data$sisteHeleYear `, og til og med -->
+<!-- `r format(periode_data$siste_dato, '%d. %B %Y')`.  -->
 
-<!-- ```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")} -->
-<!-- cat("\n\n\\pagebreak\n") -->
-<!-- ``` -->
+<!-- <!-- ```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")} --> -->
+<!-- <!-- cat("\n\n\\pagebreak\n") --> -->
+<!-- <!-- ``` --> -->
 
-\bigskip \bigskip \bigskip
+<!-- \bigskip \bigskip \bigskip -->
 
 # Død før utskrivelse
 
 Følgende pasienter har _AvdodDato_ før utskrivelses-dato, men 
- er verken registrert _død på lab_, _død på avdeling_ eller
- _død ved utskrivelse_. Vi ber sykehusene om å sjekke disse registreringene. 
+er verken registrert _død på lab_, _død på avdeling_ eller
+_død ved utskrivelse_. Vi ber sykehusene om å sjekke disse registreringene. 
 
 ```{r tab1, results='asis', warning=FALSE}
 
 cap <- paste0(params$hospitalName,
               ": Alle forløp der pasienten er avdød før utskrivelse ", 
               "i perioden fra 01. jan ", 
-                periode_data$sisteHeleYear,
-                " til og med ",
-                format(periode_data$siste_dato, '%d. %B %Y'))
+              periode_data$sisteHeleYear,
+              " til og med ",
+              format(periode_data$siste_dato, '%d. %B %Y'))
 
 aP %>% 
   dplyr::filter(.data$dod_opphold == "Nei", 
                 !is.na(.data$Utskrivningsdato), 
-                .data$AvdodDato <= .data$Utskrivningsdato) %>%
-  select(.data$OppholdsID,  
+                .data$AvdodDato <= .data$Utskrivningsdato,
+                ! .data$Indikasjon %in% "Donorutredning") %>%
+  select(.data$Sykehusnavn, 
+         .data$ForlopsID,
+         .data$Regtype, 
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$AvdodDato, 
-         .data$Regtype) %>%
+         .data$AvdodDato) %>%
   noric::mst(tab = .,
-           type = params$tableFormat,
-           cap = cap,
-           label = "tab1")
+             type = params$tableFormat,
+             cap = cap,
+             label = "tab1")
 ```
 
 
@@ -272,33 +270,34 @@ if (params$rendered_by_shiny)
 
 # Død 1-2 dager etter utskrivelse
 Følgende pasienter har _AvdodDato_ like etter utskrivelses-dato, men 
- er verken registrert _død på lab_, _død på avdeling_ eller
- _død ved utskrivelse_. Vi ber sykehusene om å sjekke disse registreringene. 
+er verken registrert _død på lab_, _død på avdeling_ eller
+_død ved utskrivelse_. Vi ber sykehusene om å sjekke disse registreringene. 
 
 
 ```{r tab2, results='asis', warning=FALSE}
 cap <- paste0(params$hospitalName,
               ": Alle forløp der pasienten er avdød 1-2 dager etter ", 
               "utskrivelse i perioden fra 01. jan ", 
-                periode_data$sisteHeleYear,
-                " til og med ",
-                format(periode_data$siste_dato, '%d. %B %Y'))
+              periode_data$sisteHeleYear,
+              " til og med ",
+              format(periode_data$siste_dato, '%d. %B %Y'))
 
 
 aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 !is.na(.data$Utskrivningsdato), 
-                dager_utskr_dod %in% 1:2) %>%
-  select(.data$OppholdsID,  
+                dager_utskr_dod %in% 1:2, 
+                ! .data$Indikasjon %in% "Donorutredning") %>%
+  select(.data$Sykehusnavn, 
+         .data$ForlopsID,
+         .data$Regtype, 
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$dager_utskr_dod, 
-         .data$AvdodDato, 
-         .data$Regtype) %>%
-noric::mst(tab = .,
-           type = params$tableFormat,
-           cap = "test",
-           label = "tab2")
+         .data$AvdodDato) %>%
+  noric::mst(tab = .,
+             type = params$tableFormat,
+             cap = "test",
+             label = "tab2")
 
 ```
 
@@ -321,24 +320,26 @@ cap <- paste0(params$hospitalName,
               " og er enten ", 
               "avdød før prosedyren eller inntil 2 dager etter den, ", 
               "i perioden fra 01. jan ", 
-                periode_data$sisteHeleYear,
-                " til og med ",
-                format(periode_data$siste_dato, '%d. %B %Y'))
+              periode_data$sisteHeleYear,
+              " til og med ",
+              format(periode_data$siste_dato, '%d. %B %Y'))
 
 
 aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 is.na(.data$Utskrivningsdato), 
-                dager_proc_avdod %in% 0:2 | dager_proc_avdod < 0) %>%
-  select(.data$OppholdsID,  
+                dager_proc_avdod %in% 0:2 | dager_proc_avdod < 0, 
+                ! .data$Indikasjon %in% "Donorutredning") %>%
+  select(.data$Sykehusnavn, 
+         .data$ForlopsID,
+         .data$Regtype, 
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$AvdodDato, 
-         .data$Regtype) %>%
-noric::mst(tab = .,
-           type = params$tableFormat,
-           cap = cap,
-           label = "tab3")
+         .data$AvdodDato) %>%
+  noric::mst(tab = .,
+             type = params$tableFormat,
+             cap = cap,
+             label = "tab3")
 
 ```
 
@@ -351,24 +352,25 @@ cap <- paste0(params$hospitalName,
               ": Alle forløp med indikasjon Donorutredning som ikke er ", 
               "registrert som avdød ", 
               "i perioden fra 01. jan ", 
-                periode_data$sisteHeleYear,
-                " til og med ",
-                format(periode_data$siste_dato, '%d. %B %Y'))
+              periode_data$sisteHeleYear,
+              " til og med ",
+              format(periode_data$siste_dato, '%d. %B %Y'))
 
 
 aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 .data$Indikasjon %in% "Donorutredning") %>%
-  select(.data$OppholdsID,  
+  select(.data$Sykehusnavn, 
+         .data$ForlopsID,
+         .data$Regtype, 
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$AvdodDato, 
-         .data$Regtype) %>%
-
-noric::mst(tab = .,
-           type = params$tableFormat,
-           cap = cap,
-           label = "tab4")
+         .data$AvdodDato) %>%
+  
+  noric::mst(tab = .,
+             type = params$tableFormat,
+             cap = cap,
+             label = "tab4")
 
 
 ```
