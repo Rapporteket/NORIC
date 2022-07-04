@@ -511,6 +511,8 @@ aP %>%
    select(.data$Sykehusnavn, 
          .data$ForlopsID,
          .data$ProsedyreDato,
+         .data$LabKompDod,
+         .data$AvdKompDod, 
          .data$UtskrevetDodsdato) %>% 
       noric::mst(tab = .,
              type = params$tableFormat,
