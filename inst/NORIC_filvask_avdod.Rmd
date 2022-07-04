@@ -419,7 +419,7 @@ pasienten døde (mangler utskrivelse).
 
 Følgende pasienter er registrerte som avdøde både på lab og på avdeling.
 Variabelen _OppholdsID_ grupperer primær og sekundær forløp som henger sammen, 
-der det er flere tilfelle.
+der det er tilfelle.
 Vi ber sykehusene sjekke hvor pasienten døde (på lab eller på avdeling) og 
 korrigere registreringen. Vi ber også sykehusene være spesielt oppmerksomme 
 på variabelen _LabKompProsedyrerelatertDod_. 
@@ -427,7 +427,7 @@ på variabelen _LabKompProsedyrerelatertDod_.
 ```{r tab5, results='asis', warning=FALSE}
 cap <- paste0(params$hospitalName,
               ": Alle forløp med både avdød på lab og på avdeling, under ", 
-              "samme opphold. ", 
+              "samme NORIC-opphold. ", 
               "I perioden fra 01. jan ", 
               periode_data$sisteHeleYear,
               " til og med ",
@@ -506,10 +506,11 @@ aP %>%
   
   # Avdød både på lab og avdeling under samme sykehusopphold
   filter(!(AvdKompDod_opphold == "Ja" & LabKompDod_opphold == "Ja"), 
-         Regtype == "Primær",
+         # Regtype == "Primær",
          is.na(UtskrevetDodsdato)) %>% 
    select(.data$Sykehusnavn, 
          .data$ForlopsID,
+         .data$Regtype,
          .data$ProsedyreDato,
          .data$LabKompDod,
          .data$AvdKompDod, 
