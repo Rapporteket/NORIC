@@ -182,3 +182,87 @@ testthat::test_that("Død under NORIC-forløpet fungerer", {
   
   
 })
+
+
+testthat::test_that("Død under NORIC-oppholdet fungerer", {
+  
+  x <- data.frame(AvdRESH = rep(123456, 8), 
+                  OppholdsID = c(1, 1, 1, 2, 3, 3, 4, 5), 
+                  dod_noric = c("Nei", "Nei", "Ja", "Nei", 
+                                "Nei", "Nei", "Ja", "Nei"))
+  x_out <- noric::avdod_opphold(x)   
+  
+  testthat::expect_equal(
+    object = names(x_out), 
+    expected = c("AvdRESH", "OppholdsID", "dod_noric", "dod_opphold"))
+  
+  testthat::expect_equal(
+    object = x_out %>% 
+      dplyr::select(dod_opphold) %>% 
+      dplyr::distinct() %>% 
+      dplyr::pull(), 
+    expected = c("Ja", "Nei"))
+  
+  testthat::expect_true(all(
+    x_out %>% 
+      dplyr::filter(.data$OppholdsID %in% c(1, 4)) %>% 
+      dplyr::pull(.data$dod_opphold) == "Ja"))
+  
+  testthat::expect_true(all(
+    x_out %>% 
+      dplyr::filter(.data$OppholdsID %in% c(2, 3, 5)) %>% 
+      dplyr::pull(.data$dod_opphold) == "Nei"))
+  
+  
+})
+  
+testthat::test_that("Tester at funksjonene samhandler", {
+    
+    x <- data.frame(AvdRESH = rep(123456, 6), 
+                    ForlopsID = 1:6, 
+                    Regtype = c(rep("Primær", 4), "Sekundær", "Sekundær"), 
+                    PrimaerForlopsID = c(1:4, 4, 4), 
+                    LabKompDod = c("Ja", rep("Nei", 4), "Ja"), 
+                    AvdKompDod = c("Nei", "Nei", "Ja", "Nei", 
+                                   NA_character_, NA_character_), 
+                    UtskrevetDod = c(rep("Nei", 4), 
+                                     NA_character_, NA_character_),
+                    UtskrevetDodsdato = rep(NA_character_, 6))
+    x_out <- x %>%  
+      noric::utlede_OppholdsID(.) %>% 
+      noric::utlede_dod_noric(.) %>% 
+      noric::avdod_opphold(.)                
+    
+    
+
+    testthat::expect_equal(
+      object = names(x_out), 
+      expected = c("AvdRESH", "ForlopsID", "Regtype", "PrimaerForlopsID", 
+                   "LabKompDod", "AvdKompDod", 
+                   "UtskrevetDod", "UtskrevetDodsdato", 
+                   "OppholdsID", "dod_noric", "dod_opphold"))
+    
+    
+    testthat::expect_true(all(
+      x_out %>% 
+        dplyr::filter(.data$ForlopsID %in% c(1, 3, 6)) %>% 
+        dplyr::pull(.data$dod_noric) == "Ja"))
+
+    testthat::expect_true(all(
+      x_out %>% 
+        dplyr::filter(! .data$ForlopsID %in% c(1, 3, 6)) %>% 
+        dplyr::pull(.data$dod_noric) == "Nei"))
+    
+    
+    testthat::expect_true(all(
+      x_out %>% 
+        dplyr::filter(.data$OppholdsID %in% c(1, 3, 4)) %>% 
+        dplyr::pull(.data$dod_opphold) == "Ja"))
+    
+    testthat::expect_true(all(
+      x_out %>% 
+        dplyr::filter(! .data$OppholdsID %in% c(1, 3, 4)) %>% 
+        dplyr::pull(.data$dod_opphold) == "Nei"))
+    
+  })
+  
