@@ -111,8 +111,13 @@ utlede_ferdigstilt <- function(df,
 
 
 
-
-
+#' 
+#'
+#'
+#'
+#'
+#'
+#'
 #' @export
 # utlede variablen "dod_opphold" : dersom mins en registrering av død under oppholdet
 avdod_opphold <- function(df_ap) {
@@ -138,6 +143,31 @@ avdod_opphold <- function(df_ap) {
   
 }
 
+#' Minst en registrering av død under forløpet
+#'
+#'Funksjonen \code{utlede_dod_noric} genererer en ny variabel i AP-datasettet:
+#' \code{dod_noric}. Dersom minst en av variablene 
+#'\code{LabKompDod}, \code{AvdKompDod} eller \code{UtskrevetDod} har verdien 
+#'\emph{Ja}, eller \code{UtskrevetDodsdato} finnes, så regnes pasienten som 
+#'registrert død under forløpet. Gjelder alle typer forløp, primær og sekundær. 
+#'Brukes sammen med funksjonen \code{avdod_opphold} for å gruppere 
+#'NORIC-opphold sammen. 
+#'
+#' @param df_ap data.frame med AngioPCI-data tabellen. Må inneholde variablene 
+#'\code{LabKompDod}, \code{AvdKompDod}, \code{UtskrevetDod} og
+#' \code{UtskrevetDodsdato}.
+#' @return Funksjonen returnerer \code{ap_df}, med en ny kolonne
+#' ved navn \code{dod_noric}.
+#'
+#' @examples
+#' x <- data.frame(LabKompDod = c("Ja", "Nei", "Ukjent"), 
+#'                 AvdKompDod = rep(NA_character_, 3), 
+#'                 UtskrevetDod = c("Nei", "Ja", "Nei"), 
+#'                 UtskrevetDodsdato = as.Date(c(NA_character_, 
+#'                                               "2021-01-01", 
+#'                                               NA_character_), 
+#'                                               format = "%Y-%m-%d"))
+#' noric::utlede_dod_noric(x)                                               
 #' @export
 utlede_dod_noric <- function(df_ap){
   stopifnot(all(c("LabKompDod",
