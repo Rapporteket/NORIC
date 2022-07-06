@@ -219,7 +219,8 @@ SS %<>% dplyr::select(AvdRESH,
                       Indikasjon,
                       ProsedyreType,
                       Stentnavn,
-                      StentType)
+                      StentType,
+                      maaned)
 
 
 SS %<>% dplyr::mutate(Indikasjon = factor(
