@@ -26,7 +26,7 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
         labels = c("18-49", "50-59", "60-69", "70-79", "80-89", "90-99"),
         ordered_result = TRUE)) %>%
     dplyr::relocate(.data$aldersklasse, .after = {{ var }})
-
+  
 }
 
 #' Add variable OppholdsID
@@ -50,14 +50,14 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
 #'    PrimaerForlopsID = c(rep(NA, 4), 1, 3))
 #' utlede_OppholdsID(x)
 utlede_OppholdsID <- function(df) {
-
+  
   stopifnot(c("Regtype", "ForlopsID", "PrimaerForlopsID") %in% names(df))
-
+  
   df %>%
     dplyr::mutate(OppholdsID = ifelse(.data$Regtype == "Primær",
                                       yes = .data$ForlopsID,
                                       no = .data$PrimaerForlopsID))
-
+  
 }
 
 #' Add binary variable for table-status
@@ -99,7 +99,7 @@ utlede_OppholdsID <- function(df) {
 utlede_ferdigstilt <- function(df,
                                var = .data$SkjemaStatusStart,
                                suffix = "startSkjema") {
-
+  
   dplyr::mutate(
     .data = df,
     "ferdigstilt_{suffix}" := dplyr::if_else({{ var }} == 1,
@@ -114,6 +114,7 @@ utlede_ferdigstilt <- function(df,
 
 
 #' @export
+# utlede variablen "dod_opphold" : dersom mins en registrering av død under oppholdet
 avdod_opphold <- function(df_ap) {
   
   stopifnot(all(c("AvdRESH",
@@ -138,18 +139,24 @@ avdod_opphold <- function(df_ap) {
 }
 
 #' @export
-# utlede variablen "dod_opphold" : dersom mins en registrering av død under oppholdet
-utlede_dod_noric <- function(df){
-df %>% mutate(
-  dod_noric = if_else(
-    condition = (AvdKompDod %in% "Ja" |
-                   LabKompDod %in% "Ja" |
-                   UtskrevetDod %in% "Ja"),
-    true = "Ja",
-    false = "Nei",
-    missing = "Nei"))
-  # %>%
-  # avdod_opphold()
+utlede_dod_noric <- function(df_ap){
+  stopifnot(all(c("LabKompDod",
+                  "AvdKompDod", 
+                  "UtskrevetDod", 
+                  "UtskrevetDodsdato") %in% names(df_ap)))
+  
+  
+  df_ap %>% 
+    dplyr::mutate(
+      dod_noric = dplyr::if_else(
+        condition = (.data$AvdKompDod %in% "Ja" |
+                       .data$LabKompDod %in% "Ja" |
+                       .data$UtskrevetDod %in% "Ja" |
+                       !is.na(.data$UtskrevetDodsdato)),
+        true = "Ja",
+        false = "Nei",
+        missing = "Nei"))
+  
 }
 
 
