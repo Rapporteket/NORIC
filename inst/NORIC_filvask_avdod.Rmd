@@ -319,6 +319,11 @@ aP %>%
 \bigskip \bigskip \bigskip
 
 
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.45)
+```
+
 ## Avdød nær prosedyredato men mangler utskrivelsesskjema
 
 Følgende pasienter har _AvdodDato_ enten før prosedyredatoen eller inntil 
@@ -361,6 +366,11 @@ aP %>%
 
 \bigskip \bigskip \bigskip
 
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.50)  
+```
+
 
 ## Donorutredning
 
@@ -402,6 +412,12 @@ aP %>%
 
 ```{r pagebreakTo, results = "asis", eval = (params$tableFormat == "latex")}
 cat("\n\n\\pagebreak\n")
+```
+
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.60) 
 ```
 
 
@@ -470,6 +486,11 @@ aP %>%
 
 \bigskip \bigskip \bigskip 
 
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.80)  
+```
+
 ## Avdød på lab eller avdeling, men mangler utskrivelsesskjema
 
 Følgende pasienter er enten registrerte som avdøde på lab eller på avdeling 
@@ -525,6 +546,13 @@ aP %>%
 ```
 \bigskip \bigskip \bigskip 
 
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.95)
+```
+
+
 ## Utskrevet død, men verken død på lab eller avdeling
 Følgende pasienter er utskreved døde, men pasienten er verken registrert som 
 _død på lab_ eller _død på avdeling_. Vi ber sykehusene komplettere disse 
@@ -579,3 +607,8 @@ aP %>%
 
 ```
 
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(1.0)  
+```
