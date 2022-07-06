@@ -111,38 +111,6 @@ utlede_ferdigstilt <- function(df,
 
 
 
-#' 
-#'
-#'
-#'
-#'
-#'
-#'
-#' @export
-# utlede variablen "dod_opphold" : dersom mins en registrering av død under oppholdet
-avdod_opphold <- function(df_ap) {
-  
-  stopifnot(all(c("AvdRESH",
-                  "OppholdsID",
-                  "dod_noric") %in% names(df_ap)))
-  
-  # Minst en registrering av død under opphold:
-  df_ap %>%
-    
-    # Gruppere oppholdene sammen
-    dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
-    
-    # Minst et forløp under oppholdet med regsitrering av død
-    dplyr::mutate(
-      dod_opphold = ifelse(
-        all(.data$dod_noric == "Nei"),
-        "Nei",
-        "Ja")) %>%
-    
-    dplyr::ungroup()
-  
-}
-
 #' Minst en registrering av død under forløpet
 #'
 #'Funksjonen \code{utlede_dod_noric} genererer en ny variabel i AP-datasettet:
@@ -190,3 +158,61 @@ utlede_dod_noric <- function(df_ap){
 }
 
 
+
+
+#' Minst en gang død under NORIC-oppholdet
+#'
+#' Funksjonen grupperer primær- og sekundærforløp sammen, ved hjelp 
+#' av \code{OppholdsID}. En ny variabel blir generert i AP-tabellen: 
+#' \code{dod_opphold}. Denne variabelen får verdien \emph{Ja} dersom  
+#' \code{dod_noric} har verdien \emph{Ja} for minst et av forløpene med felles
+#' \code{OppholdsID} og får verdien \emph{Nei} dersom ingen av forløpene 
+#' med felles \code{OppholdsID} har registrering av avdød. Funksjonen brukes
+#' sammen med \code{noric::utlede_OppholdsID} og 
+#' \code{noric::utlede_dod_noric}.
+#' 
+#' @param df_ap data.frame med AngioPCI-data tabellen. Må inneholde variablene 
+#'\code{AvdRESH}, \code{OppholdsID} og \code{dod_noric}. 
+#' @return Funksjonen returnerer \code{ap_df}, med en ny kolonne
+#' ved navn \code{dod_opphold}.
+#'
+#' @examples
+#' x <- data.frame(AvdRESH = rep(123456, 8), 
+#'                 OppholdsID = c(1, 1, 1, 2, 3, 3, 4, 5), 
+#'                 dod_noric = c("Nei", "Nei", "Ja", "Nei", 
+#'                               "Nei", "Nei", "Ja", "Nei"))
+#' noric::avdod_opphold(x)   
+#'
+#'x <- data.frame(AvdRESH = rep(123456, 6), 
+#'                ForlopsID = 1:6, 
+#'                Regtype = c(rep("Primær", 4), "Sekundær", "Sekundær"), 
+#'                PrimaerForlopsID = c(1:4, 4, 4), 
+#'                LabKompDod = c("Ja", rep("Nei", 4), "Ja"), 
+#'                AvdKompDod = c("Nei", "Nei", "Ja", "Nei", 
+#'                              NA_character_, NA_character_), 
+#'                UtskrevetDod = c(rep("Nei", 4), 
+#'                                 NA_character_, NA_character_),
+#'                UtskrevetDodsdato = rep(NA_character_, 6))
+#' x %>%  
+#'   noric::utlede_OppholdsID(.) %>% 
+#'   noric::utlede_dod_noric(.) %>% 
+#'   noric::avdod_opphold(.)                
+#'
+#'
+#' @export
+avdod_opphold <- function(df_ap) {
+  
+  stopifnot(all(c("AvdRESH",
+                  "OppholdsID",
+                  "dod_noric") %in% names(df_ap)))
+  
+  df_ap %>%
+      dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
+    dplyr::mutate(
+      dod_opphold = ifelse(
+        all(.data$dod_noric == "Nei"),
+        "Nei",
+        "Ja")) %>%
+    dplyr::ungroup()
+  
+}
