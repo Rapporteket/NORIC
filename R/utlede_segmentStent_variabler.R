@@ -254,7 +254,7 @@ satt_inn_stent_i_lms <- function(df_ap, df_ss) {
                     .data$ForlopsID,
                     .data$LMS) %>%
 
-      dplyr::rename(satt_inn_stent_i_LMS = LMS)
+      dplyr::rename("satt_inn_stent_i_LMS" = .data$LMS)
 
 
     # Legg til 1 ny variablel i AP : stent_i_LMS = ja/nei/NA.
