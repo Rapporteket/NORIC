@@ -1,3 +1,9 @@
+# noric ?? 
+
+## Nytt
+* Funksjonene utlede_dod_noric() og avdod_opphold()
+* Ny rapport: Kvalitetsforbedring - registrering av død i NORIC
+
 
 # noric 2.8.0
 
