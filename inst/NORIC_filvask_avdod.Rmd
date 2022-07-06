@@ -367,7 +367,7 @@ aP %>%
 Følgende pasienter med indikasjon _Donorutredning_ er verken registrert som 
 _død på lab_, _død på avdeling_ eller _død ved utskrivelse_. 
 Vi ber sykehusene om å sjekke disse registreringene. 
-Donorer som var levende på prosedyreDato og dermet korrekt registrert i NORIC 
+Donorer som var levende på prosedyreDato og dermed korrekt registrert i NORIC 
 vil også bli listet opp her, vi beklager dette. 
 
 
