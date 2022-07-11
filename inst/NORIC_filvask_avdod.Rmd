@@ -583,7 +583,7 @@ if (params$rendered_by_shiny)
 
 
 ## Utskrevet død, men verken død på lab eller avdeling
-Følgende pasienter er utskreved døde uten at dødsfallet er registrert i verken 
+Følgende pasienter er utskrevet døde uten at dødsfallet er registrert i verken 
 _død på lab_ eller _død på avdeling_. Vi ønsker å legge bedre til rette for
 registrering av død, også for pasienter der sykehusene ikke ønsker å
 knytte dødsfallet til komplikasjoner på lab eller komplikasjoner på avdeling. 
