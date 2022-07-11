@@ -215,18 +215,6 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
-<!-- # Datagrunnlag -->
-
-<!-- Denne rapporten inneholder data fra `r params$hospitalName` for hele -->
-<!-- `r periode_data$sisteHeleYear `, og til og med -->
-<!-- `r format(periode_data$siste_dato, '%d. %B %Y')`. -->
-
-<!-- ```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")} --> 
-<!-- cat("\n\n\\pagebreak\n") --> 
-<!-- ``` --> 
-
-<!-- \bigskip \bigskip \bigskip -->
-
 
 # Folkeregistrert død rundt prosedyredato, men ikke død i NORIC
 I de fire punktene under ønsker vi at at sykehusene sjekker i journal-systemene
@@ -239,7 +227,7 @@ også er er registrert som avdød i NORIC.
 
 \bigskip \bigskip \bigskip 
 
-## Død før utskrivelse
+## Avdød før utskrivelse
 
 Følgende pasienter har _AvdodDato_ før _Utskrivningsdato_, men 
 er verken registrert _død på lab_, _død på avdeling_ eller
@@ -255,13 +243,19 @@ cap <- paste0(params$hospitalName,
               format(periode_data$siste_dato, '%d. %B %Y'), 
               ". Ikke indikasjon Donorutredning.")
 
-aP %>% 
+dod_for_utskr <- aP %>% 
   dplyr::filter(.data$dod_opphold == "Nei", 
                 !is.na(.data$Utskrivningsdato), 
                 .data$AvdodDato <= .data$Utskrivningsdato,
                 ! .data$Indikasjon %in% "Donorutredning") %>%
-  select(.data$Sykehusnavn, 
-         .data$ForlopsID,
+  dplyr::select(.data$OppholdsID) %>% 
+  dplyr::distinct() %>% 
+  dplyr::pull()
+
+aP %>% 
+  dplyr::filter(.data$OppholdsID %in% dod_for_utskr) %>% 
+  select(.data$ForlopsID, 
+         .data$OppholdsID,
          .data$Regtype, 
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
@@ -282,11 +276,12 @@ if (params$rendered_by_shiny)
 \bigskip \bigskip \bigskip
 
 
-## Død 1-2 dager etter utskrivelse
+## Avdød 1-2 dager etter utskrivelse
 Følgende pasienter har _AvdodDato_ like etter _Utskrivningsdato_, men 
 er verken registrert _død på lab_, _død på avdeling_ eller
 _død ved utskrivelse_. Vi ber sykehusene om å sjekke disse registreringene. 
-
+Variabelen _OppholdsID_ grupperer primær- og sekundærforløp som henger sammen,
+der det er tilfelle.
 
 ```{r tab2, results='asis', warning=FALSE}
 cap <- paste0(params$hospitalName,
@@ -297,18 +292,23 @@ cap <- paste0(params$hospitalName,
               format(periode_data$siste_dato, '%d. %B %Y'), 
               ". Ikke indikasjon Donorutredning.")
 
-
-aP %>%  
+dod_innen2dg_utskr <- aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 !is.na(.data$Utskrivningsdato), 
-                dager_utskr_dod %in% 1:2, 
+                .data$dager_utskr_dod %in% 1:2, 
                 ! .data$Indikasjon %in% "Donorutredning") %>%
-  select(.data$Sykehusnavn, 
-         .data$ForlopsID,
-         .data$Regtype, 
-         .data$ProsedyreDato,
-         .data$Utskrivningsdato,
-         .data$AvdodDato) %>%
+  dplyr::select(.data$OppholdsID) %>%
+  dplyr::distinct() %>% 
+  dplyr::pull()
+
+aP %>% 
+  dplyr::filter(.data$OppholdsID %in% dod_innen2dg_utskr) %>% 
+  dplyr::select(.data$ForlopsID, 
+                .data$OppholdsID,
+                .data$Regtype,
+                .data$ProsedyreDato,
+                .data$Utskrivningsdato,
+                .data$AvdodDato) %>%
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
@@ -331,6 +331,8 @@ to dager etter. De er verken registrert _død på lab_ eller _død på avdeling_
 og _død ved utskrivelse_ mangler.
 Vi ber sykehusene om å sjekke disse registreringene og 
 ferdigstille utskrivelsesskjemaet. 
+Variabelen _OppholdsID_ grupperer primær- og sekundærforløp som henger sammen,
+der det er tilfelle.
 
 
 
@@ -346,14 +348,20 @@ cap <- paste0(params$hospitalName,
               ". Ikke indikasjon Donorutredning.")
 
 
-aP %>%  
+dod_etter_prs <- aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 is.na(.data$Utskrivningsdato), 
                 dager_proc_avdod %in% 0:2 | dager_proc_avdod < 0, 
                 ! .data$Indikasjon %in% "Donorutredning") %>%
-  select(.data$Sykehusnavn, 
-         .data$ForlopsID,
-         .data$Regtype, 
+  dplyr::select(.data$OppholdsID) %>% 
+  dplyr::distinct() %>% 
+  dplyr::pull()
+
+aP %>% 
+  dplyr::filter(.data$OppholdsID %in% dod_etter_prs) %>% 
+  select(.data$ForlopsID, 
+         .data$OppholdsID,
+         .data$Regtype,
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
          .data$AvdodDato) %>%
@@ -372,13 +380,13 @@ if (params$rendered_by_shiny)
 ```
 
 
-## Donorutredning
+## Donorutredning, ikke registrert død i NORIC
 
 Følgende pasienter med indikasjon _Donorutredning_ er verken registrert som 
 _død på lab_, _død på avdeling_ eller _død ved utskrivelse_. 
 Vi ber sykehusene om å sjekke disse registreringene. 
 Donorer som var levende på prosedyreDato og dermed korrekt registrert i NORIC 
-vil også bli listet opp her, vi beklager dette. 
+vil også bli listet opp her, vi ber dere se bort fra disse 
 
 
 ```{r tab4, results='asis', warning=FALSE}
@@ -392,16 +400,22 @@ cap <- paste0(params$hospitalName,
 
 
 
-aP %>%  
+donor_levende <- aP %>%  
   dplyr::filter(.data$dod_opphold == "Nei", 
                 .data$Indikasjon %in% "Donorutredning") %>%
-  select(.data$Sykehusnavn, 
-         .data$ForlopsID,
-         .data$Regtype, 
+  dplyr::select(.data$OppholdsID) %>% 
+  dplyr::distinct() %>% 
+  dplyr::pull()
+
+aP %>% 
+  dplyr::filter(.data$OppholdsID %in% donor_levende) %>% 
+  select(.data$ForlopsID, 
+         .data$OppholdsID,
+         .data$Regtype,
          .data$ProsedyreDato,
          .data$Utskrivningsdato,
-         .data$AvdodDato) %>%
-  
+         .data$AvdodDato, 
+         .data$Indikasjon) %>% 
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
@@ -449,7 +463,7 @@ cap <- paste0(params$hospitalName,
               " til og med ",
               format(periode_data$siste_dato, '%d. %B %Y'), ".")
 
-aP %>%  
+avdod_lab_avd <- aP %>%  
   dplyr::filter(.data$dod_opphold == "Ja") %>%
   dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>% 
   
@@ -469,14 +483,20 @@ aP %>%
   
   # Avdød både på lab og avdeling under samme sykehusopphold
   filter(AvdKompDod_opphold == "Ja" & LabKompDod_opphold == "Ja") %>% 
-  select(.data$Sykehusnavn, 
-         .data$ForlopsID,
-         .data$OppholdsID,
-         .data$Regtype, 
-         .data$ProsedyreDato,
-         .data$LabKompDod,
-         .data$AvdKompDod) %>% 
-    noric::mst(tab = .,
+  dplyr::select(.data$OppholdsID) %>% 
+  dplyr::distinct() %>% 
+  dplyr::pull()
+
+aP %>% 
+  dplyr::filter(OppholdsID %in% avdod_lab_avd) %>% 
+  dplyr::select(.data$Sykehusnavn, 
+                .data$ForlopsID,
+                .data$OppholdsID,
+                .data$Regtype, 
+                .data$ProsedyreDato,
+                .data$LabKompDod,
+                .data$AvdKompDod) %>% 
+  noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
              label = "tab5")
@@ -507,11 +527,11 @@ cap <- paste0(params$hospitalName,
               " til og med ",
               format(periode_data$siste_dato, '%d. %B %Y'), ".")
 
-aP %>%  
+dod_uten_utskr <- aP %>%  
   dplyr::filter(.data$dod_opphold == "Ja") %>%
   dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>% 
   
-  mutate(
+  dplyr::mutate(
     # Minst en gang avdød på lab
     LabKompDod_opphold = ifelse(
       all(.data$LabKompDod %in% c(NA_character_, "Nei")), 
@@ -523,20 +543,26 @@ aP %>%
       all(.data$AvdKompDod %in% c(NA_character_, "Nei")), 
       "Nei", 
       "Ja")) %>% 
-  ungroup() %>% 
+  dplyr::ungroup() %>% 
   
   # Avdød både på lab og avdeling under samme sykehusopphold
-  filter(!(AvdKompDod_opphold == "Ja" & LabKompDod_opphold == "Ja"), 
-         # Regtype == "Primær",
-         is.na(UtskrevetDodsdato)) %>% 
-   select(.data$Sykehusnavn, 
-         .data$ForlopsID,
-         .data$Regtype,
-         .data$ProsedyreDato,
-         .data$LabKompDod,
-         .data$AvdKompDod, 
-         .data$UtskrevetDodsdato) %>% 
-      noric::mst(tab = .,
+  dplyr::filter(!(AvdKompDod_opphold == "Ja" & LabKompDod_opphold == "Ja"), 
+                Regtype == "Primær",
+                is.na(UtskrevetDodsdato)) %>%
+  dplyr::select(.data$OppholdsID) %>% 
+  dplyr::distinct() %>% 
+  dplyr::pull()
+
+aP %>% 
+  dplyr::filter(.data$OppholdsID %in% dod_uten_utskr) %>% 
+  dplyr::select(.data$Sykehusnavn, 
+                .data$ForlopsID,
+                .data$Regtype,
+                .data$ProsedyreDato,
+                .data$LabKompDod,
+                .data$AvdKompDod, 
+                .data$UtskrevetDodsdato) %>% 
+  noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
              label = "tab6")
@@ -555,8 +581,19 @@ if (params$rendered_by_shiny)
 
 ## Utskrevet død, men verken død på lab eller avdeling
 Følgende pasienter er utskreved døde, men pasienten er verken registrert som 
-_død på lab_ eller _død på avdeling_. Vi ber sykehusene komplettere disse 
-variablene. Forløp med indikasjon Donorutredning er fjernet.
+_død på lab_ eller _død på avdeling_. Vi ønsker å legge bedre til rette for
+registrering av død, også i de forløpene der pasienten er død før utskrivelse 
+men  der sykehusene ikke ønsker å knytte dette til komplikasjoner på lab eller
+komplikasjoner på avdeling. 
+For å kartlegge dette behovet er vi interessert i å vite hvorfor disse 
+forløpene er registrert uten _død på lab_ eller _død på avdeling_.  
+Vi ber derfor sykehusene om å sjekke disse
+registreringne i journal-systemene og om at dere sender oss en liste med
+forløpsID og grunn for at pasienten verken er registrertom som avdød på lab 
+eller på avdeling på e-post til noric@helse.bergen.no. 
+Dere må gjerne komplettere 
+_død på lab_ eller _død på avdeling_ i de tilfellene dette manglet uten grunn.
+
 ```{r tab7, results='asis', warning=FALSE}
 
 
@@ -569,11 +606,10 @@ cap <- paste0(params$hospitalName,
               format(periode_data$siste_dato, '%d. %B %Y'), 
               ". Ikke indikasjon Donorutredning.")
 
-aP %>%  
+ikke_avd_lab <- aP %>%  
   dplyr::filter(.data$dod_opphold == "Ja") %>%
-  dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>% 
-  
-  mutate(
+  dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
+  dplyr::mutate(
     # Minst en gang avdød på lab
     LabKompDod_opphold = ifelse(
       all(.data$LabKompDod %in% c(NA_character_, "Nei")), 
@@ -585,20 +621,26 @@ aP %>%
       all(.data$AvdKompDod %in% c(NA_character_, "Nei")), 
       "Nei", 
       "Ja")) %>% 
-  ungroup() %>% 
+  dplyr::ungroup() %>% 
   
-  
-  filter(AvdKompDod_opphold == "Nei", 
-         LabKompDod_opphold == "Nei", 
-         !is.na(UtskrevetDodsdato), 
-         .data$Indikasjon %in% "Donorutredning") %>% 
-   select(.data$Sykehusnavn, 
-         .data$ForlopsID,
-         .data$ProsedyreDato,
-         .data$LabKompDod, 
-         .data$AvdKompDod,
-         .data$UtskrevetDodsdato) %>% 
-      noric::mst(tab = .,
+  dplyr::filter(AvdKompDod_opphold == "Nei", 
+                LabKompDod_opphold == "Nei", 
+                !is.na(UtskrevetDodsdato), 
+                !.data$Indikasjon %in% "Donorutredning") %>% 
+  dplyr::select(.data$OppholdsID) %>% 
+  dplyr::distinct() %>% 
+  dplyr::pull()
+
+aP %>% 
+  dplyr::filter(OppholdsID %in% ikke_avd_lab) %>% 
+  dplyr::select(.data$ForlopsID,
+                .data$OppholdsID,
+                .data$Regtype,
+                .data$ProsedyreDato,
+                .data$LabKompDod, 
+                .data$AvdKompDod,
+                .data$UtskrevetDodsdato) %>% 
+  noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
              label = "tab7")
