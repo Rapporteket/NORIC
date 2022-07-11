@@ -445,7 +445,7 @@ pasienten døde (mangler utskrivelse).
 
 \bigskip \bigskip \bigskip 
 
-## Avdød både på lab og på avdeling
+## Registrert død både på lab og på avdeling
 
 Følgende pasienter er registrerte som avdøde både på lab og på avdeling.
 Variabelen _OppholdsID_ grupperer primær og sekundær forløp som henger sammen, 
@@ -489,13 +489,13 @@ avdod_lab_avd <- aP %>%
 
 aP %>% 
   dplyr::filter(OppholdsID %in% avdod_lab_avd) %>% 
-  dplyr::select(.data$Sykehusnavn, 
-                .data$ForlopsID,
+  dplyr::select(.data$ForlopsID,
                 .data$OppholdsID,
                 .data$Regtype, 
                 .data$ProsedyreDato,
                 .data$LabKompDod,
-                .data$AvdKompDod) %>% 
+                .data$AvdKompDod,
+                .data$UtskrevetDodsdato) %>% 
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
@@ -511,11 +511,14 @@ if (params$rendered_by_shiny)
   shiny::setProgress(0.80)  
 ```
 
-## Avdød på lab eller avdeling, men mangler utskrivelsesskjema
+## Registrert død på lab eller avdeling, men mangler utskrivelsesskjema
 
 Følgende pasienter er enten registrerte som avdøde på lab eller på avdeling 
 men mangler utskrivelssesskjema. Vi ber sykehusene ferdigstille disse
-registreringene. 
+registreringene. Forløp med _Indikasjon_ "Donorutredning” er fjernet. 
+Variabelen _OppholdsID_ grupperer primær- og sekundær-forløp
+som henger sammen, der det er tilfelle.
+
 ```{r tab6, results='asis', warning=FALSE}
 
 
@@ -545,7 +548,7 @@ dod_uten_utskr <- aP %>%
       "Ja")) %>% 
   dplyr::ungroup() %>% 
   
-  # Avdød både på lab og avdeling under samme sykehusopphold
+  # Avdød ikke både på lab og avd under samme sykehusopphold
   dplyr::filter(!(AvdKompDod_opphold == "Ja" & LabKompDod_opphold == "Ja"), 
                 Regtype == "Primær",
                 is.na(UtskrevetDodsdato)) %>%
@@ -555,8 +558,8 @@ dod_uten_utskr <- aP %>%
 
 aP %>% 
   dplyr::filter(.data$OppholdsID %in% dod_uten_utskr) %>% 
-  dplyr::select(.data$Sykehusnavn, 
-                .data$ForlopsID,
+  dplyr::select(.data$ForlopsID,
+                .data$OppholdsID, 
                 .data$Regtype,
                 .data$ProsedyreDato,
                 .data$LabKompDod,
