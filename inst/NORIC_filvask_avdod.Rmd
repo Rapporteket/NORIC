@@ -583,19 +583,22 @@ if (params$rendered_by_shiny)
 
 
 ## Utskrevet død, men verken død på lab eller avdeling
-Følgende pasienter er utskreved døde, men pasienten er verken registrert som 
+Følgende pasienter er utskreved døde uten at dødsfallet er registrert i verken 
 _død på lab_ eller _død på avdeling_. Vi ønsker å legge bedre til rette for
-registrering av død, også i de forløpene der pasienten er død før utskrivelse 
-men  der sykehusene ikke ønsker å knytte dette til komplikasjoner på lab eller
-komplikasjoner på avdeling. 
-For å kartlegge dette behovet er vi interessert i å vite hvorfor disse 
-forløpene er registrert uten _død på lab_ eller _død på avdeling_.  
+registrering av død, også for pasienter der sykehusene ikke ønsker å
+knytte dødsfallet til komplikasjoner på lab eller komplikasjoner på avdeling. 
+For å kartlegge dette behovet er vi interessert i å vite hvorfor opplistede 
+pasienter er registrert uten _død på lab_ eller _død på avdeling_.  
+
+
 Vi ber derfor sykehusene om å sjekke disse
-registreringne i journal-systemene og om at dere sender oss en liste med
-forløpsID og grunn for at pasienten verken er registrertom som avdød på lab 
-eller på avdeling på e-post til noric@helse.bergen.no. 
-Dere må gjerne komplettere 
-_død på lab_ eller _død på avdeling_ i de tilfellene dette manglet uten grunn.
+forløpene i journal-systemene. Videre ønsker vi at dere sender oss en  en liste 
+med _forlopsID_ og noen stikkord som forklarer hvorfor pasienten verken er 
+registrert som som _død på lab_ eller som _død på avdeling_. 
+E-post mottas med takk på 
+[noric@helse-bergen.no](mailto:noric@helse-bergen.no).
+Dere må gjerne komplettere registreringen av _død på lab_ eller
+_død på avdeling_ i de tilfellene dette manglet uten grunn.
 
 ```{r tab7, results='asis', warning=FALSE}
 
