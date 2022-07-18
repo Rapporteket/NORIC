@@ -34,6 +34,7 @@ Imports:
   magrittr,
   markdown,
   rapbase,
+  RcppEigen (<= 0.3.3.9.1),
   RColorBrewer,
   readr,
   revealjs,
