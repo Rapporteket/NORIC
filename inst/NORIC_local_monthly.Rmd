@@ -373,9 +373,18 @@ PCImedStent <- subset(
   Nstents > 0
 )
 
+rangePCImdStentProsDato <- format(
+  range(PCImedStent$ProsedyreDato),
+  format = "%d-%m-%Y")
+
+
 AP <- subset(
   x = AP,
   subset = nMonth >= max(nMonth, na.rm = TRUE) - showN)
+
+
+rangeProsDato <- format(range(AP$ProsedyreDato), 
+                        format = "%d-%m-%Y")
 
 # crude fix for Feiring and Rikshospitalet which have meaningless test data
 # before 2015
