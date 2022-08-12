@@ -432,21 +432,24 @@ legend(
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
 cap <- paste0("Antall og prosentvis fordeling av registrerte prosedyrer etter",
-              " hastegrad og måned")
+              " hastegrad og måned for ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ",
+              rangeProsDato[2], ".")
 xtabs(formula = ~ maaned + Hastegrad, data = AP) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
   noric::mst(.,
              type = params$tableFormat,
              cap = cap,
              digs = 0,
-             align = rep("r", 5))
+             align = rep("r", 5),
+             label = "TabNHastegrad")
 ```
 
 
 
 
 ## Prosedyretype
-```{r FigNProsedyreType, fig.cap = "Antall prosedyrer etter type og måned", fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNProsedyreType, fig.cap =  paste0("Antall prosedyrer etter type og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 pal <- colPrimary[c(1, 3, 5)]
 
 op <- par(
@@ -477,10 +480,13 @@ legend(
 
 ```{r TabNProsedyreType,  results = 'asis'}
 cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter",
-              " prosedyretype og måned")
+              " prosedyretype og måned for ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ",
+              rangeProsDato[2], ".")
 xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
-  noric::mst(., type = params$tableFormat, cap = cap, digs = 0)
+  noric::mst(., type = params$tableFormat, cap = cap, digs = 0,
+             label = "TabNProsedyreType")
 ```
 
 
@@ -488,7 +494,7 @@ xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>%
 
 
 ## Indikasjon
-```{r FigNIndikasjon, fig.cap = "Antall prosedyrer etter indikasjon og måned", fig.width = 12, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
+```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer etter indikasjon og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 12, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
 
 op <- par(
   mfcol = c(1, 1),
@@ -518,7 +524,9 @@ legend(
 
 
 ```{r TabNIndikasjon,  results = 'asis'}
-cap <- "Antall og prosentvis fordeling av prosedyrer etter indikasjon og måned"
+cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter ",
+              "indikasjon og måned for ", params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
   noric::mst(.,
@@ -526,7 +534,8 @@ xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>%
              cap = cap,
              digs = 0,
              align = rep("r", 8),
-             lsd = TRUE)
+             lsd = TRUE,
+             label = "TabNIndikasjon")
 ```
 
 
@@ -640,7 +649,9 @@ TabTillegg %<>%
 
 ### Annen diagnostikk ved angiografi
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
-cap <- "Antall (prosent) tilleggsprosedyrer per måned"
+cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
+              params$hospitalName, " i perioden ", rangeProsDato[1],
+              " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("FFR",
                          "IFR",
                          "Doppler",
@@ -651,28 +662,34 @@ noric::mst(TabTillegg[, c("FFR",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("r", 8))
+           align = rep("r", 8),
+           label = "TabTilleggsProsedyre1")
 
 ```
 
 
 ### Tilleggsprosedyrer
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
-cap <- "Antall (prosent) tilleggsprosedyrer per måned"
+cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
+              params$hospitalName, " i perioden ", rangeProsDato[1],
+              " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("Høyre kat.",
                          "Perikardiocentese",
                          "N")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("r", 4))
+           align = rep("r", 4),
+           label = "TabTilleggsProsedyre2")
 ```
 
 
 
 ### Adjuvant terapi
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
-cap <- "Antall (prosent) tilleggsprosedyrer per måned"
+cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
+              params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("PM",
                           "IABP",
                           "Impella",
@@ -685,7 +702,8 @@ noric::mst(TabTillegg[, c("PM",
            cap = cap,
            digs = 0,
            align = rep("r", 8),
-           lsd = TRUE)
+           lsd = TRUE,
+           label = "TabTilleggsProsedyre3")
 ```
 
 
@@ -694,7 +712,9 @@ noric::mst(TabTillegg[, c("PM",
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
 cap <- paste0("Antall andre prosedyrer (utført uten direkte tilknytning",
-              " til Angio/PCI)  etter prosedyretype og måned")
+              " til Angio/PCI)  etter prosedyretype og måned for ",
+              params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 TabNAndreProsedyrer <- addmargins(
   xtabs(formula = ~ maaned + AnnenProsType,
         data = AnP)
@@ -727,7 +747,7 @@ if (params$tableFormat == "latex") {
 
 
 ## Komplikasjoner
-### Komplikasjoner på lab i perioden `r paste0(range(AP$ProsedyreDato), collapse = ' til ' )`
+### Komplikasjoner på lab i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 ```{r TabLabKompl,results='asis'}
 
 LabKomplikasjoner <- data.frame(
@@ -787,13 +807,14 @@ noric::mst(df,
            type = params$tableFormat,
            cap = NULL,
            digs = 1,
-           align = c("l", "r", "r", "r"))
+           align = c("l", "r", "r", "r"),
+           label = "TabLabKompl")
 ```
 
 
 
 
-```{r FigLabKompl, fig.cap = "Prosentandel komplikasjoner på laboratoriet", echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Prosentandel komplikasjoner på laboratoriet for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -822,7 +843,7 @@ text(
 
 
 
-### Komplikasjoner på avdelingen i perioden `r paste0( range( AP$ProsedyreDato ) , collapse = ' til ' )`
+### Komplikasjoner på avdelingen i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 ```{r TabAvdKompl,results='asis'}
 
 AvdKomplikasjoner <- data.frame(
@@ -886,7 +907,7 @@ noric::mst(df,
 
 
 
-```{r FigAvdKompl, fig.cap = "Prosentandel komplikasjoner på avdelingen", echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl, fig.cap = paste0("Prosentandel komplikasjoner på avdelingen for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -936,9 +957,12 @@ TABkompletthet <- cbind(
   rSOA[, which(colnames(rSOA) == "Ferdigstilt")])
 colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
 
-cap <- "Antall hoved registreringsskjemaer etter måned"
+cap <- past0("Antall hoved registreringsskjemaer etter månedfor ",
+             params$hospitalName, " i perioden ", rangeProsDato[1], 
+             " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
-           digs = c(0, 0, 0, 1), align = rep("r", 4))
+           digs = c(0, 0, 0, 1), align = rep("r", 4),
+           label = "SOtab1")
 ```
 
 
@@ -967,9 +991,11 @@ TABkompletthet <- cbind(
 colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
 
 
-cap <- "Antall utskrivelsesskjemaer etter måned"
+cap <- paste0("Antall utskrivelsesskjemaer etter måned for ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
-           digs = c(0, 0, 0, 1), align = rep("r", 4))
+           digs = c(0, 0, 0, 1), align = rep("r", 4),
+           label = "")
 
 ```
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -980,7 +1006,9 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 
 ## Prosedyre type
 ```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
-cap <- "Antall (prosent) behandlede segmenter etter prosedyretype og måned"
+cap <- paste0("Antall (prosent) behandlede segmenter etter prosedyretype ",
+              "og måned for ", params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
      n = showN + 1) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
@@ -988,7 +1016,8 @@ tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
              type = params$tableFormat,
              cap = cap,
              digs = 0,
-             align = rep("r", 7))
+             align = rep("r", 7),
+             label = "TabNRProsedyreType")
 ```
 
 
@@ -997,7 +1026,7 @@ tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
+Antall stenter per prosedyre i perioden `r paste0(rangePCImdStentProsDato, collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
 ```{r Barplot_Nstent_per_Prosedyre, fig.width = 12, fig.height = 8, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = "Antall stenter per prosedyre"}
 
 op <- par(
@@ -1045,7 +1074,9 @@ SSpci <-  SS %>%
 
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis"}
-cap <- "Antall  stenter etter merke og måned"
+cap <- paste0("Antall stenter etter merke og måned for ", params$hospitalName,
+              " i perioden ", rangePCImdStentProsDato[1], " til ",
+              rangePCImdStentProsDato[2], ".")
 tab_stent <- addmargins(xtabs(formula = ~ maaned + Stentnavn,
                              data = SSpci,
                              drop.unused.levels = TRUE))
