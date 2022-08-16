@@ -1,4 +1,4 @@
-# noric ?? 
+# noric 2.9.0
 
 ## Nytt
 * Funksjonene utlede_dod_noric() og avdod_opphold()
