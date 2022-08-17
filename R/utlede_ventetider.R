@@ -162,7 +162,7 @@ legg_til_ventetid_stemi_min <- function(df_ap) {
         .data$ventetid_stemi_min == 0 &
           .data$BeslutningsutlosendeEKG %in% "Prehospitalt",
         yes = NA,
-        no = ventetid_stemi_min)) %>%
+        no = .data$ventetid_stemi_min)) %>%
 
 
 
