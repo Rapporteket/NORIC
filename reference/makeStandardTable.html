@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.9.0</span>
       </span>
     </div>
 
@@ -47,19 +47,19 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">mst</span><span class="op">(</span>
-  <span class="va">tab</span>,
-  col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span>,
-  type <span class="op">=</span> <span class="st">"latex"</span>,
-  cap <span class="op">=</span> <span class="st">""</span>,
-  label <span class="op">=</span> <span class="st">""</span>,
-  digs <span class="op">=</span> <span class="fl">0</span>,
-  align <span class="op">=</span> <span class="cn">NULL</span>,
-  fs <span class="op">=</span> <span class="fl">8</span>,
-  lsd <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-
-<span class="fu">prettyTab</span><span class="op">(</span><span class="va">tab</span>, add_totals <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">mst</span><span class="op">(</span></span>
+<span>  <span class="va">tab</span>,</span>
+<span>  col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"latex"</span>,</span>
+<span>  cap <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  digs <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  align <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fs <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  lsd <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">prettyTab</span><span class="op">(</span><span class="va">tab</span>, add_totals <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -132,7 +132,7 @@ totals and observations optinally with a marginal row count</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">mst</span><span class="op">(</span>tab <span class="op">=</span> <span class="va">mtcars</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">mst</span><span class="op">(</span>tab <span class="op">=</span> <span class="va">mtcars</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \begin{table}[H]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \caption{\label{tab:}}</span>
@@ -156,7 +156,7 @@ totals and observations optinally with a marginal row count</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \bottomrule</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \end{tabular}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \end{table}</span>
-<span class="r-in"><span class="fu">prettyTab</span><span class="op">(</span>tab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">prettyTab</span><span class="op">(</span>tab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   mpg           cyl           disp          hp           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mazda RX4         " 21 ( 6.4%)" "  6 ( 1.8%)" "160 (48.6%)" "110 (33.4%)"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mazda RX4 Wag     " 21 ( 6.4%)" "  6 ( 1.8%)" "160 (48.5%)" "110 (33.4%)"</span>
@@ -204,7 +204,7 @@ totals and observations optinally with a marginal row count</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

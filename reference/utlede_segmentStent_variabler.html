@@ -19,7 +19,7 @@ variables ForlopsID and AvdRESH."><!-- mathjax --><script src="https://cdnjs.clo
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.9.0</span>
       </span>
     </div>
 
@@ -51,19 +51,19 @@ variables <code>ForlopsID</code> and <code>AvdRESH</code>.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">legg_til_antall_stent</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ss</span><span class="op">)</span>
-
-<span class="fu">legg_til_antall_stent_opphold</span><span class="op">(</span><span class="va">df_ap</span><span class="op">)</span>
-
-<span class="fu">satt_inn_stent_i_lms</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ss</span><span class="op">)</span>
-
-<span class="fu">utlede_kar_segment_stent</span><span class="op">(</span><span class="va">df_ss</span><span class="op">)</span>
-
-<span class="fu">utlede_kar_graft_segment_stent</span><span class="op">(</span><span class="va">df_ss</span><span class="op">)</span>
-
-<span class="fu">legg_til_pci_per_kar</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ss</span><span class="op">)</span>
-
-<span class="fu">legg_til_wireforsok_per_kar</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ss</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">legg_til_antall_stent</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ss</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">legg_til_antall_stent_opphold</span><span class="op">(</span><span class="va">df_ap</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">satt_inn_stent_i_lms</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ss</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">utlede_kar_segment_stent</span><span class="op">(</span><span class="va">df_ss</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">utlede_kar_graft_segment_stent</span><span class="op">(</span><span class="va">df_ss</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">legg_til_pci_per_kar</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ss</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">legg_til_wireforsok_per_kar</span><span class="op">(</span><span class="va">df_ap</span>, <span class="va">df_ss</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -138,31 +138,31 @@ Only procedures of type <em>wireforsoek</em> are counted.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">df_ap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ForlopsID <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span>
-<span class="r-in">                    AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Legg til antall stent i df_ap</span></span>
-<span class="r-in"><span class="va">df_ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span class="r-in">  ForlopsID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span class="r-in">  AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">6</span><span class="op">)</span>,</span>
-<span class="r-in">  Segment <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,</span>
-<span class="r-in">  StentType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DES"</span>,</span>
-<span class="r-in">                <span class="st">"BMS"</span>, <span class="st">"DES"</span>, <span class="st">"Annet"</span>,</span>
-<span class="r-in">                <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">legg_til_antall_stent</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">df_ap</span>, df_ss <span class="op">=</span> <span class="va">df_ss</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">df_ap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ForlopsID <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,</span></span>
+<span class="r-in"><span>                    AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Legg til antall stent i df_ap</span></span></span>
+<span class="r-in"><span><span class="va">df_ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  ForlopsID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">6</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  Segment <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,</span></span>
+<span class="r-in"><span>  StentType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DES"</span>,</span></span>
+<span class="r-in"><span>                <span class="st">"BMS"</span>, <span class="st">"DES"</span>, <span class="st">"Annet"</span>,</span></span>
+<span class="r-in"><span>                <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">legg_til_antall_stent</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">df_ap</span>, df_ss <span class="op">=</span> <span class="va">df_ss</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ForlopsID AvdRESH antall_stent</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1         1       1            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2         2       1           NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3         3       1            3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4         4       1           NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5         5       1            0</span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">13</span><span class="op">)</span>,</span>
-<span class="r-in">                OppholdsID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">101</span><span class="op">:</span><span class="fl">106</span>, <span class="fl">101</span>, <span class="fl">102</span>, <span class="fl">102</span>, <span class="fl">103</span>, <span class="fl">104</span>, <span class="fl">106</span>, <span class="fl">50</span><span class="op">)</span>,</span>
-<span class="r-in">                antall_stent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="cn">NA</span>, <span class="cn">NA</span>,</span>
-<span class="r-in">                                 <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">noric</span><span class="fu">::</span><span class="fu">legg_til_antall_stent_opphold</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">13</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                OppholdsID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">101</span><span class="op">:</span><span class="fl">106</span>, <span class="fl">101</span>, <span class="fl">102</span>, <span class="fl">102</span>, <span class="fl">103</span>, <span class="fl">104</span>, <span class="fl">106</span>, <span class="fl">50</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                antall_stent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="cn">NA</span>, <span class="cn">NA</span>,</span></span>
+<span class="r-in"><span>                                 <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">noric</span><span class="fu">::</span><span class="fu">legg_til_antall_stent_opphold</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 13 × 4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    AvdRESH OppholdsID antall_stent antall_stent_under_opphold</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -179,15 +179,15 @@ Only procedures of type <em>wireforsoek</em> are counted.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span>       1        104           <span style="color: #BB0000;">NA</span>                          1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span>       1        106           <span style="color: #BB0000;">NA</span>                         <span style="color: #BB0000;">NA</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span>       1         50           10                         10</span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Legg til kar ellerkar_graft i df_ss</span></span>
-<span class="r-in"><span class="va">df_ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ForlopsID <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">23</span>,</span>
-<span class="r-in">                    AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">23</span><span class="op">)</span>,</span>
-<span class="r-in">                    Segment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>,</span>
-<span class="r-in">                    Graft<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Nei"</span>, <span class="fl">20</span><span class="op">)</span>, <span class="st">"Arteriell"</span>, <span class="st">"Vene"</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">utlede_kar_segment_stent</span><span class="op">(</span><span class="va">df_ss</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Legg til kar ellerkar_graft i df_ss</span></span></span>
+<span class="r-in"><span><span class="va">df_ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ForlopsID <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">23</span>,</span></span>
+<span class="r-in"><span>                    AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">23</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    Segment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    Graft<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Nei"</span>, <span class="fl">20</span><span class="op">)</span>, <span class="st">"Arteriell"</span>, <span class="st">"Vene"</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">utlede_kar_segment_stent</span><span class="op">(</span><span class="va">df_ss</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    ForlopsID AvdRESH Segment     Graft   kar</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1          1       1       1       Nei   RCA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2          2       1       2       Nei   RCA</span>
@@ -212,7 +212,7 @@ Only procedures of type <em>wireforsoek</em> are counted.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 21        21       1       1 Arteriell Graft</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22        22       1       2      Vene Graft</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23        23       1       3      &lt;NA&gt;   RCA</span>
-<span class="r-in"><span class="fu">utlede_kar_graft_segment_stent</span><span class="op">(</span><span class="va">df_ss</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">utlede_kar_graft_segment_stent</span><span class="op">(</span><span class="va">df_ss</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    ForlopsID AvdRESH Segment     Graft        kar_graft</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1          1       1       1       Nei              RCA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2          2       1       2       Nei              RCA</span>
@@ -237,21 +237,21 @@ Only procedures of type <em>wireforsoek</em> are counted.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 21        21       1       1 Arteriell RCA_arterieGraft</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22        22       1       2      Vene    RCA_veneGraft</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23        23       1       3      &lt;NA&gt;             &lt;NA&gt;</span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Legg til PCI-variabler og wireforsok-variabler per kar_graft i df_ap</span></span>
-<span class="r-in"><span class="va">df_ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ForlopsID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span>,</span>
-<span class="r-in">                    AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span><span class="op">)</span>,</span>
-<span class="r-in">                    Segment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span>,<span class="fl">10</span>,<span class="fl">12</span>,<span class="fl">13</span><span class="op">)</span>,</span>
-<span class="r-in">                    Graft <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Nei"</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span class="r-in">                              <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Arteriell"</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">                              <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Vene"</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">                    ProsedyreType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ballong + Stent"</span>,</span>
-<span class="r-in">                                      <span class="st">"Wireforsøk"</span>,</span>
-<span class="r-in">                                      <span class="st">"Rotablator"</span>,</span>
-<span class="r-in">                                      <span class="st">"Wireforsøk"</span>,</span>
-<span class="r-in">                                      <span class="st">"Direktestent"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">legg_til_pci_per_kar</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">df_ap</span>, df_ss <span class="op">=</span> <span class="va">df_ss</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Legg til PCI-variabler og wireforsok-variabler per kar_graft i df_ap</span></span></span>
+<span class="r-in"><span><span class="va">df_ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ForlopsID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    AvdRESH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    Segment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">5</span>,<span class="fl">10</span>,<span class="fl">12</span>,<span class="fl">13</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    Graft <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Nei"</span>, <span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                              <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Arteriell"</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                              <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Vene"</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    ProsedyreType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ballong + Stent"</span>,</span></span>
+<span class="r-in"><span>                                      <span class="st">"Wireforsøk"</span>,</span></span>
+<span class="r-in"><span>                                      <span class="st">"Rotablator"</span>,</span></span>
+<span class="r-in"><span>                                      <span class="st">"Wireforsøk"</span>,</span></span>
+<span class="r-in"><span>                                      <span class="st">"Direktestent"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">legg_til_pci_per_kar</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">df_ap</span>, df_ss <span class="op">=</span> <span class="va">df_ss</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ForlopsID AvdRESH PCI_LMS PCI_LAD PCI_RCA PCI_CX PCI_LAD_arterieGraft</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1         1       1     nei     nei      ja    nei                  nei</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2         2       1     nei     nei     nei    nei                  nei</span>
@@ -270,7 +270,7 @@ Only procedures of type <em>wireforsoek</em> are counted.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3               ja</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4             &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5             &lt;NA&gt;</span>
-<span class="r-in"><span class="fu">legg_til_wireforsok_per_kar</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">df_ap</span>, df_ss <span class="op">=</span> <span class="va">df_ss</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">legg_til_wireforsok_per_kar</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">df_ap</span>, df_ss <span class="op">=</span> <span class="va">df_ss</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ForlopsID AvdRESH wireforsok_LMS wireforsok_LAD wireforsok_RCA wireforsok_CX</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1         1       1            nei            nei            nei           nei</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2         2       1             ja            nei            nei           nei</span>
@@ -309,7 +309,7 @@ Only procedures of type <em>wireforsoek</em> are counted.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

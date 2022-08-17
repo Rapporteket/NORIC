@@ -21,7 +21,7 @@ må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der."><
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.9.0</span>
       </span>
     </div>
 
@@ -55,7 +55,7 @@ må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der.</p
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">legg_til_ventetid_stemi_min</span><span class="op">(</span><span class="va">df_ap</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">legg_til_ventetid_stemi_min</span><span class="op">(</span><span class="va">df_ap</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -78,17 +78,17 @@ må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der.</p
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span class="r-in"> ProsedyreDato <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-30"</span>, <span class="st">"2021-11-15"</span>,</span>
-<span class="r-in">                           <span class="st">"2020-11-11"</span>, <span class="st">"2021-12-24"</span><span class="op">)</span>,</span>
-<span class="r-in">                         format <span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span>,</span>
-<span class="r-in"> ProsedyreTid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"22:30:00"</span>, <span class="st">"01:10:00"</span>, <span class="st">"13:45:00"</span>, <span class="st">"12:20:00"</span><span class="op">)</span>,</span>
-<span class="r-in"> BesUtlEKGDato <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-30"</span>, <span class="st">"2021-11-14"</span>,</span>
-<span class="r-in">                           <span class="st">"2018-04-24"</span>, <span class="st">"2020-01-01"</span><span class="op">)</span>,</span>
-<span class="r-in">                         format <span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span>,</span>
-<span class="r-in"> BesUtlEKGTid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"21:10:00"</span>, <span class="st">"23:10:00"</span>, <span class="st">"05:20:00"</span>, <span class="cn">NA_character_</span><span class="op">)</span>,</span>
-<span class="r-in"> BeslutningsutlosendeEKG <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Ved annet sykehus"</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">noric</span><span class="fu">::</span><span class="fu">legg_til_ventetid_stemi_min</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span> ProsedyreDato <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-30"</span>, <span class="st">"2021-11-15"</span>,</span></span>
+<span class="r-in"><span>                           <span class="st">"2020-11-11"</span>, <span class="st">"2021-12-24"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                         format <span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> ProsedyreTid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"22:30:00"</span>, <span class="st">"01:10:00"</span>, <span class="st">"13:45:00"</span>, <span class="st">"12:20:00"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> BesUtlEKGDato <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-30"</span>, <span class="st">"2021-11-14"</span>,</span></span>
+<span class="r-in"><span>                           <span class="st">"2018-04-24"</span>, <span class="st">"2020-01-01"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                         format <span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> BesUtlEKGTid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"21:10:00"</span>, <span class="st">"23:10:00"</span>, <span class="st">"05:20:00"</span>, <span class="cn">NA_character_</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> BeslutningsutlosendeEKG <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Ved annet sykehus"</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">noric</span><span class="fu">::</span><span class="fu">legg_til_ventetid_stemi_min</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ProsedyreDato ProsedyreTid BesUtlEKGDato BesUtlEKGTid BeslutningsutlosendeEKG</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    2020-01-30     22:30:00    2020-01-30     21:10:00       Ved annet sykehus</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    2021-11-15     01:10:00    2021-11-14     23:10:00       Ved annet sykehus</span>
@@ -113,7 +113,7 @@ må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der.</p
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

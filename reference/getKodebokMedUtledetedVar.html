@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.9.0</span>
       </span>
     </div>
 
@@ -47,7 +47,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">getKodebokMedUtledetedVar</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getKodebokMedUtledetedVar</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="value">
@@ -59,21 +59,22 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"> <span class="fu">noric</span><span class="fu">::</span><span class="fu">getKodebokMedUtledetedVar</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span>  </span>
-<span class="r-in"> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">fysisk_feltnavn</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uke"</span>,</span>
-<span class="r-in">                                      <span class="st">"maaned"</span>,</span>
-<span class="r-in">                                      <span class="st">"indik_trykkmaaling_data"</span>,</span>
-<span class="r-in">                                      <span class="st">"indik_trykkmaaling"</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span> <span class="fu">noric</span><span class="fu">::</span><span class="fu">getKodebokMedUtledetedVar</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span>  </span></span>
+<span class="r-in"><span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">fysisk_feltnavn</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uke"</span>,</span></span>
+<span class="r-in"><span>                                      <span class="st">"maaned"</span>,</span></span>
+<span class="r-in"><span>                                      <span class="st">"indik_trykkmaaling_data"</span>,</span></span>
+<span class="r-in"><span>                                      <span class="st">"indik_trykkmaaling"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 7 × 5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   skjemanavn       fysisk_feltnavn         ledetekst     listeverdier listetekst</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> utledet_variabel maaned                  <span style="color: #949494;">"</span>Kalender og… <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> utledet_variabel uke                     <span style="color: #949494;">"</span>Ukenummer f… <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> utledet_variabel indik_trykkmaaling_data <span style="color: #949494;">"</span>Datagrunnla… ja           <span style="color: #949494;">"</span>Datagrun…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> utledet_variabel indik_trykkmaaling_data <span style="color: #949494;">"</span>Datagrunnla… nei          <span style="color: #949494;">"</span>Datagrun…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> utledet_variabel indik_trykkmaaling      <span style="color: #949494;">"</span>Kvalitetsin… ja           <span style="color: #949494;">"</span>I datagr…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> utledet_variabel indik_trykkmaaling      <span style="color: #949494;">"</span>Kvalitetsin… nei          <span style="color: #949494;">"</span>I datagr…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> utledet_variabel indik_trykkmaaling      <span style="color: #949494;">"</span>Kvalitetsin… NA           <span style="color: #949494;">"</span>Ikke i d…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   skjemanavn       fysisk_feltnavn         ledetekst             liste…¹ liste…²</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> utledet_variabel maaned                  <span style="color: #949494;">"</span>Kalender og måned f… <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> utledet_variabel uke                     <span style="color: #949494;">"</span>Ukenummer for prose… <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> utledet_variabel indik_trykkmaaling_data <span style="color: #949494;">"</span>Datagrunnlag for kv… ja      <span style="color: #949494;">"</span>Datag…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> utledet_variabel indik_trykkmaaling_data <span style="color: #949494;">"</span>Datagrunnlag for kv… nei     <span style="color: #949494;">"</span>Datag…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> utledet_variabel indik_trykkmaaling      <span style="color: #949494;">"</span>Kvalitetsindikatore… ja      <span style="color: #949494;">"</span>I dat…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> utledet_variabel indik_trykkmaaling      <span style="color: #949494;">"</span>Kvalitetsindikatore… nei     <span style="color: #949494;">"</span>I dat…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> utledet_variabel indik_trykkmaaling      <span style="color: #949494;">"</span>Kvalitetsindikatore… NA      <span style="color: #949494;">"</span>Ikke …</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with abbreviated variable names ¹​listeverdier, ²​listetekst</span></span>
 </code></pre></div>
     </div>
   </div>
@@ -88,7 +89,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
