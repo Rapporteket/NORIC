@@ -375,57 +375,57 @@ if (params$rendered_by_shiny)
 ```
 
 
-# Donorutredning, ikke registrert død i NORIC
+<!-- # Donorutredning, ikke registrert død i NORIC -->
 
-Følgende pasienter med indikasjon _Donorutredning_ er verken registrert som 
-_død på lab_, _død på avdeling_ eller _død ved utskrivelse_. 
-Vi ber sykehusene om å sjekke disse registreringene. 
-Donorer som var levende på prosedyreDato, og dermed korrekt registrert i NORIC, 
-vil også bli listet opp her, vi ber dere se bort fra disse. 
-
-
-```{r tab4, results='asis', warning=FALSE}
-cap <- paste0(params$hospitalName,
-              ": Alle forløp med indikasjon Donorutredning som ikke er ", 
-              "registrert som avdød ", 
-              "i perioden fra 01. jan ", 
-              periode_data$sisteHeleYear,
-              " til og med ",
-              format(periode_data$siste_dato, '%d. %B %Y'), ".")
+<!-- Følgende pasienter med indikasjon _Donorutredning_ er verken registrert som  -->
+<!-- _død på lab_, _død på avdeling_ eller _død ved utskrivelse_.  -->
+<!-- Vi ber sykehusene om å sjekke disse registreringene.  -->
+<!-- Donorer som var levende på prosedyreDato, og dermed korrekt registrert i NORIC,  -->
+<!-- vil også bli listet opp her, vi ber dere se bort fra disse.  -->
 
 
-
-donor_levende <- aP %>%  
-  dplyr::filter(.data$dod_opphold == "Nei", 
-                .data$Indikasjon %in% "Donorutredning") %>%
-  dplyr::select(.data$OppholdsID) %>% 
-  dplyr::distinct() %>% 
-  dplyr::pull()
-
-aP %>% 
-  dplyr::filter(.data$OppholdsID %in% donor_levende) %>% 
-  dplyr::select(.data$ForlopsID, 
-                .data$OppholdsID,
-                .data$Regtype,
-                .data$ProsedyreDato,
-                .data$Utskrivningsdato,
-                .data$AvdodDato, 
-                .data$Indikasjon) %>% 
-  noric::mst(tab = .,
-             type = params$tableFormat,
-             cap = cap,
-             label = "tab4")
+<!-- ```{r tab4, results='asis', warning=FALSE} -->
+<!-- cap <- paste0(params$hospitalName, -->
+<!--               ": Alle forløp med indikasjon Donorutredning som ikke er ",  -->
+<!--               "registrert som avdød ",  -->
+<!--               "i perioden fra 01. jan ",  -->
+<!--               periode_data$sisteHeleYear, -->
+<!--               " til og med ", -->
+<!--               format(periode_data$siste_dato, '%d. %B %Y'), ".") -->
 
 
-```
 
-\bigskip \bigskip \bigskip
+<!-- donor_levende <- aP %>%   -->
+<!--   dplyr::filter(.data$dod_opphold == "Nei",  -->
+<!--                 .data$Indikasjon %in% "Donorutredning") %>% -->
+<!--   dplyr::select(.data$OppholdsID) %>%  -->
+<!--   dplyr::distinct() %>%  -->
+<!--   dplyr::pull() -->
+
+<!-- aP %>%  -->
+<!--   dplyr::filter(.data$OppholdsID %in% donor_levende) %>%  -->
+<!--   dplyr::select(.data$ForlopsID,  -->
+<!--                 .data$OppholdsID, -->
+<!--                 .data$Regtype, -->
+<!--                 .data$ProsedyreDato, -->
+<!--                 .data$Utskrivningsdato, -->
+<!--                 .data$AvdodDato,  -->
+<!--                 .data$Indikasjon) %>%  -->
+<!--   noric::mst(tab = ., -->
+<!--              type = params$tableFormat, -->
+<!--              cap = cap, -->
+<!--              label = "tab4") -->
 
 
-```{r }
-if (params$rendered_by_shiny)
-  shiny::setProgress(0.60) 
-```
+<!-- ``` -->
+
+<!-- \bigskip \bigskip \bigskip -->
+
+
+<!-- ```{r } -->
+<!-- if (params$rendered_by_shiny) -->
+<!--   shiny::setProgress(0.60)  -->
+<!-- ``` -->
 
 
 
