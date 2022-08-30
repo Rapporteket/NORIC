@@ -413,7 +413,7 @@ avdod_lab_avd <- aP %>%
   dplyr::filter(.data$dod_opphold == "Ja") %>%
   dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>% 
   
-  mutate(
+  dplyr::mutate(
     # Minst en gang avdød på lab
     LabKompDod_opphold = ifelse(
       all(.data$LabKompDod %in% c(NA_character_, "Nei")), 
@@ -425,11 +425,11 @@ avdod_lab_avd <- aP %>%
       all(.data$AvdKompDod %in% c(NA_character_, "Nei")), 
       "Nei", 
       "Ja")) %>% 
-  ungroup() %>% 
+  dplyr::ungroup() %>% 
   
   # Avdød både på lab og avdeling under samme sykehusopphold
-  filter(.data$AvdKompDod_opphold == "Ja",
-         .data$LabKompDod_opphold == "Ja") %>% 
+  dplyr::filter(.data$AvdKompDod_opphold == "Ja",
+                .data$LabKompDod_opphold == "Ja") %>% 
   dplyr::select(.data$OppholdsID) %>% 
   dplyr::distinct() %>% 
   dplyr::pull()
