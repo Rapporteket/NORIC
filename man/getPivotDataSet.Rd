@@ -4,7 +4,15 @@
 \alias{getPivotDataSet}
 \title{Get data set for Pivot-table}
 \usage{
-getPivotDataSet(setId = "", registryName, singleRow = FALSE, session, userRole)
+getPivotDataSet(
+  setId = "",
+  registryName,
+  singleRow = FALSE,
+  session,
+  userRole,
+  fromDate,
+  toDate
+)
 }
 \arguments{
 \item{setId}{String defining name of data set to be returned}
