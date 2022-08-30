@@ -33,10 +33,7 @@ ui <- tagList(
     tabPanel("Utforsker",
              fluidRow(
                column(6, uiOutput("selectDataSet")),
-               column(6, dateRangeInput("utforskerDateRange", "Velg periode:",
-                                        start = ymd(Sys.Date()) - years(1),
-                                        end = Sys.Date(), separator = "-",
-                                        weekstart = 1))),
+               column(6, uiOutput("utforskerDateRange"))),
              fluidRow(
                column(12, 
                       uiOutput("selectVars"))),
