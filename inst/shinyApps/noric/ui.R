@@ -33,18 +33,19 @@ ui <- tagList(
     tabPanel("Utforsker",
              fluidRow(
                column(6, uiOutput("selectDataSet")),
-               column(6, uiOutput("selectVars"))
-             ),
+               column(6, dateRangeInput("utforskerDateRange", "Velg periode:",
+                                        start = ymd(Sys.Date()) - years(1),
+                                        end = Sys.Date(), separator = "-",
+                                        weekstart = 1))),
+             fluidRow(
+               column(12, 
+                      uiOutput("selectVars"))),
              fluidRow(
                column(12, uiOutput("togglePivotSurvey"))
              ),
              fluidRow(
                column(12,
-                      rpivotTableOutput("pivotSurvey") #%>%
-                      # shinycssloaders::withSpinner(
-                      #   color = "#18bc9c",
-                      #   color.background = "#ffffff",
-                      #   type = 2)
+                      rpivotTableOutput("pivotSurvey")
                )
              )
     ),
