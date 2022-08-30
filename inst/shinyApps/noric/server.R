@@ -235,7 +235,9 @@ shinyServer(function(input, output, session) {
                            registryName = registryName,
                            singleRow = FALSE,
                            session = session,
-                           userRole = userRole)
+                           userRole = userRole, 
+                           fromDate = input$utforskerDateRange[1],
+                           toDate = input$utforskerDateRange[2])
   })
 
   metaDat <- reactive({
@@ -243,7 +245,9 @@ shinyServer(function(input, output, session) {
                            registryName = registryName,
                            singleRow = TRUE,
                            session = session,
-                           userRole = userRole)
+                           userRole = userRole, 
+                           fromDate = NULL,
+                           toDate = NULL)
   })
 
   ## outputs
@@ -259,6 +263,19 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  output$utforskerDateRange <- renderUI({
+    if (rvals$showPivotTable) {
+      NULL
+    } else {
+      tagList(
+        dateRangeInput("utforskerDateRange", "Velg periode:",
+                                 start = ymd(Sys.Date()) - years(1),
+                                 end = Sys.Date(), separator = "-",
+                                 weekstart = 1))
+    }
+  })
+  
+  
   output$selectVars <- renderUI({
     req(input$selectedDataSet)
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
