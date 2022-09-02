@@ -4,17 +4,26 @@ author: ""
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 output: pdf_document
 params:
-  title: Emty title
-  author: Anon author
-  hospitalName: Ukjent sykehus
+  author: ukjent forfatter
+  hospitalName: ukjent sykehus
   tableFormat: html
-  reshId: '999999'
+  reshID: 999999
   registryName: rapbase
+  userFullName: Ukjent bruker
+  userRole: ukjent rolle
+  rendered_by_shiny: FALSE
 header-includes:
 - \usepackage[english, norsk]{babel}
 - \usepackage{booktabs}
 - \usepackage{rotating}
 - \usepackage{float}
+title:   | 
+  | Månedsrapport (Prosedyrer og stentbruk) fra NORIC
+  |
+  | __`r paste0("Månedsrapport for ", params$hospitalName)`__
+  |
+  |
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 ---
 
 ```{r knitrOptions, include=FALSE}
@@ -1095,3 +1104,8 @@ if (params$tableFormat == "html") {
 }
 ```
 
+
+```{r }
+if (params$rendered_by_shiny)
+    shiny::setProgress(1)  # set progress to 100%
+```
