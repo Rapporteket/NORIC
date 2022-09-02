@@ -197,12 +197,6 @@ SO <- subset(
 )
 
 
-# crude fix for Feiring and Rikshospitalet which have meaningless test data
-# before 2015
-if (SO$Sykehusnavn[1] %in% c("Feiring", "Rikshospitalet")) {
-  SO <- SO [which(SO$Year >= 2015), ]
-}
-
 SO$Month <- as.factor(
   format(
     SO$RegDate,
@@ -957,7 +951,7 @@ TABkompletthet <- cbind(
   rSOA[, which(colnames(rSOA) == "Ferdigstilt")])
 colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
 
-cap <- past0("Antall hoved registreringsskjemaer etter månedfor ",
+cap <- paste0("Antall hoved registreringsskjemaer etter månedfor ",
              params$hospitalName, " i perioden ", rangeProsDato[1], 
              " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
