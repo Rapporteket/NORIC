@@ -31,6 +31,7 @@
 #' getMk
 #' getPs
 #' getApLight
+#' getProm
 NULL
 
 #' @rdname getData
@@ -777,4 +778,49 @@ WHERE
   list(aP = aP,
        aD = aD,
        sS = sS)
+}
+
+
+
+
+#' @rdname getData
+#' @export
+getProm <- function(registryName, fromDate, toDate, singleRow, ...){
+  
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- noric::getLatestEntry(registryName)
+  }
+  
+  # Ask for all variables from PROM in time interval (ProsedyreDato)
+  
+  query <- paste0("
+SELECT
+    PromVar.*
+ WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'"
+  )
+  
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for PromVar"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for PromVar"
+  }
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  prom <- rapbase::loadRegData(registryName, query)
+  
+  
+  
+  list(prom = prom)
 }
