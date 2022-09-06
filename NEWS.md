@@ -1,3 +1,8 @@
+# noric XX
+
+## Nytt
+Hente tabellen med PROM-data og tilgjengeliggjøre den for datadump!
+
 # noric 2.9.0
 
 ## Nytt
