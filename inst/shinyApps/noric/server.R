@@ -211,6 +211,11 @@ shinyServer(function(input, output, session) {
   rvals$togglePivotingText <- "Last valgte data!"
   rvals$selectedDataSet <- "info"
   rvals$selectedVars <- ""
+  rvals$utfDateStart <- as.Date(
+    x = paste0("01-01-", as.integer(format(x = ymd(Sys.Date()) - years(3), 
+      format ="%Y"))), 
+    format = "%d-%m-%Y")
+  rvals$utfDateEnd <- Sys.Date()
   
   ## observers
   observeEvent(input$togglePivoting, {
@@ -220,6 +225,8 @@ shinyServer(function(input, output, session) {
       # persist last choice
       rvals$selectedDataSet <- input$selectedDataSet
       rvals$selectedVars <- input$selectedVars
+      rvals$utfDateStart <- input$utforskerDateRange[1]
+      rvals$utfDateEnd <- input$utforskerDateRange[2]
     } else {
       rvals$showPivotTable <- TRUE
       rvals$togglePivotingText <- "Endre valg av data!"
@@ -270,12 +277,14 @@ shinyServer(function(input, output, session) {
       tagList(dateRangeInput(
         inputId = "utforskerDateRange", 
         label = "Velg periode:",
-        start = as.Date(x = paste0("01-01-", 
-                                   as.integer(format(
-                                     x = ymd(Sys.Date()) - years(3), 
-                                     format ="%Y"))), 
-                        format = "%d-%m-%Y"),
-        end = Sys.Date(),
+        start = rvals$utfDateStart,
+        end = rvals$utfDateEnd,
+        # start = as.Date(x = paste0("01-01-", 
+        #                            as.integer(format(
+        #                              x = ymd(Sys.Date()) - years(3), 
+        #                              format ="%Y"))), 
+        #                 format = "%d-%m-%Y"),
+        # end = Sys.Date(),
         separator = "-",
         weekstart = 1))
     }
