@@ -279,12 +279,8 @@ shinyServer(function(input, output, session) {
         label = "Velg periode:",
         start = rvals$utfDateStart,
         end = rvals$utfDateEnd,
-        # start = as.Date(x = paste0("01-01-", 
-        #                            as.integer(format(
-        #                              x = ymd(Sys.Date()) - years(3), 
-        #                              format ="%Y"))), 
-        #                 format = "%d-%m-%Y"),
-        # end = Sys.Date(),
+        min = as.Date("2013-01-01", format = "%Y-%m-%d"), 
+        max = Sys.Date(),
         separator = "-",
         weekstart = 1))
     }
