@@ -514,27 +514,36 @@ shinyServer(function(input, output, session) {
                                  asNamedList = FALSE)
 
   ## innhold kontrollpanel:
-  output$dwnldControl <- renderUI({
+  output$dwnldControlRap <- renderUI({
+    selectInput(inputId = "dwldRapport",
+                label = "Velg rapport:",
+                choices = list(
+                  "Kvalitetsindikatorer" = "NORIC_kvalitetsindikator", 
+                  "Filvask avdød" = "NORIC_filvask_avdod"))
+  })
+
+    output$dwnldControl <- renderUI({
     selectInput(inputId = "dwldSykehus",
-                label = "Velg sykehus for ki-rapporten:",
+                label = "Velg sykehus:",
                 choices = orgs)
   })
 
   output$dwldInfo <- renderUI({
-    p(paste("Valgt for nedlasting:",
+    p(paste("Valgt for nedlasting:\n",
+            input$dwldRapport, "fra", 
             orgs_df[orgs_df$id == input$dwldSykehus, "name"]))
   })
 
   output$dwnldReport <- shiny::downloadHandler(
     filename = function() {
-      downloadFilename(fileBaseName = "NORIC_kvalitetsindikator",
+      downloadFilename(fileBaseName = input$dwldRapport,
                        type = "PDF")
     },
 
 
     content = function(file) {
-      contentFile(file,
-                  srcFile = "NORIC_kvalitetsindikator.Rmd",
+      contentFile(file, 
+                  srcFile = paste0(input$dwldRapport, ".Rmd"), 
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
                   type = "PDF",
                   orgId = input$dwldSykehus,

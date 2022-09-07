@@ -7,7 +7,7 @@
 \alias{legg_til_trykkmaalinger}
 \title{New variables from NORIC's AnnenDiag-table}
 \usage{
-utlede_kar_annen_diag(df_ad = ad)
+utlede_kar_annen_diag(df_ad)
 
 legg_til_trykk_bilde_per_kar(df_ap, df_ad, metodeType = "FFR")
 

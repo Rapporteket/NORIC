@@ -3,7 +3,9 @@
 ## Nytt
 * Innholdet i stent-rapporten ligger nå under prosedyre-rapporten.
 * Stent-rapporten er eksisterer ikke lengre.
-
+* Funksjonene utlede_dod_noric() og avdod_opphold()
+* Ny rapport: Kvalitetsforbedring - registrering av død i NORIC
+* Tilpasse "Nedlasting Rapporter" til å laste valgfri rapport
 
 # noric 2.8.0
 

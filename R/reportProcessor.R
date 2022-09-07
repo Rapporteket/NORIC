@@ -56,7 +56,8 @@ reportProcessor <- function(report,
   stopifnot(report %in% c("veiledning",
                           "NORIC_local_monthly",
                           "NORIC_local_monthly_activity",
-                          "NORIC_kvalitetsindikator"))
+                          "NORIC_kvalitetsindikator", 
+                          "NORIC_filvask_avdod"))
 
   stopifnot(outputType %in% c("html", "pdf"))
 
@@ -140,5 +141,26 @@ reportProcessor <- function(report,
     )
   }
 
+  
+  if (report == "NORIC_filvask_avdod") {
+    filePath <- rapbase::renderRmd(
+      sourceFile =  system.file("NORIC_filvask_avdod.Rmd",
+                                package = "noric"),
+      outputType = outputType,
+      params = list(
+        author = author,
+        hospitalName = orgName,
+        tableFormat = "latex",
+        
+        reshID = orgId,
+        registryName = registryName,
+        userFullName = userFullName,
+        userRole = userRole, 
+        rendered_by_shiny = rendered_by_shiny
+      )
+    )
+  }
+  
+  
   filePath
 }

@@ -86,7 +86,7 @@ NULL
 
 #' @rdname utlede_annenDiag_variabler
 #' @export
-utlede_kar_annen_diag <- function(df_ad = ad) {
+utlede_kar_annen_diag <- function(df_ad) {
 
   # Must contain matching-variables + variables needed for calculations
   if (!all(c("ForlopsID", "AvdRESH", "segment", "graft") %in% names(df_ad))) {
@@ -292,7 +292,7 @@ legg_til_trykkmaalinger <- function(df_ap, df_ad) {
                               yes = "Ja",
                               no = "Nei")) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-n)
+    dplyr::select(-.data$n)
 
 
 
