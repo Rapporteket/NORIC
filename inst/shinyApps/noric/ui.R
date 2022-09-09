@@ -61,7 +61,7 @@ ui <- tagList(
     shiny::navbarMenu(
       "Månedsrapporter",
       tabPanel(
-        "Prosedyrer",
+        "Prosedyrer og stentbruk",
         sidebarLayout(
           sidebarPanel(
             radioButtons("formatProsedyrer",
