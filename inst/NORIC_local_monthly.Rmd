@@ -1,5 +1,5 @@
 ---
-title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI for ', params$hospitalName) `"
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI og stentbruk for ', params$hospitalName) `"
 author: ""
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 output: pdf_document
@@ -1096,10 +1096,4 @@ if (params$tableFormat == "html") {
     kableExtra::kable_styling(latex_options = "HOLD_position") %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
-```
-
-
-```{r }
-if (params$rendered_by_shiny)
-    shiny::setProgress(1)  # set progress to 100%
 ```
