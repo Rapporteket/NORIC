@@ -45,7 +45,7 @@ For LU/LC/SC-brukere.
 Månedsrapporter inneholder oppsummeringer av viktige aktiviteter ved 
 enheten det siste året: 
 
-* __Prosedyrer__: Opptellinger relatert til utførte prosedyrer fra 
+* __Prosedyrer og stentbruk__: Opptellinger relatert til utførte prosedyrer fra 
 _Andre prosedyrer_ - og _AngioPCI_-modulen. Inneholder også opplysninger om 
 hvilke stenter som er brukt.
 
