@@ -434,7 +434,7 @@ shinyServer(function(input, output, session) {
   pv <- c(reshId, registryName, author, hospitalName, "pdf")
 
   subReports <- list(
-    Prosedyrer = list(
+    `Prosedyrer og stentbruk` = list(
       synopsis = "M\u00E5nedlig oppsummering av prosedyrer siste \u00E5r",
       fun = "subscriptionLocalMonthlyReps",
       paramNames = pn,
