@@ -134,7 +134,11 @@ shinyServer(function(input, output, session) {
         userFullName = userFullName,
         userRole = userRole,
         userOperator = "unknown operator",
-        rendered_by_shiny = TRUE) })
+        rendered_by_shiny = TRUE,
+        tableFormat = switch(
+          type,
+          PDF = "latex",
+          HTML = "html")) })
     }
 
     file.rename(out, file)
@@ -360,9 +364,12 @@ shinyServer(function(input, output, session) {
     },
 
     content = function(file) {
-      contentFile(file, "NORIC_local_monthly.Rmd",
-                  basename(tempfile(fileext = ".Rmd")),
-                  input$formatProsedyrer,
+      contentFile(file, 
+                  srcFile = "NORIC_local_monthly.Rmd", 
+                  tmpFile = basename(tempfile(fileext = ".Rmd")),
+                  type = input$formatProsedyrer,
+                  orgId = reshId,
+                  orgName = hospitalName,
                   useReportProcessor = TRUE)
     }
   )
