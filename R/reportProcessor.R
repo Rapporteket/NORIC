@@ -51,7 +51,8 @@ reportProcessor <- function(report,
                             userFullName = "unknown person name",
                             userRole = "unknown role",
                             userOperator = "unknown operator",
-                            rendered_by_shiny = FALSE) {
+                            rendered_by_shiny = FALSE,
+                            tableFormat = "latex") {
 
   stopifnot(report %in% c("veiledning",
                           "NORIC_local_monthly",
