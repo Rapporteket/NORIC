@@ -137,8 +137,8 @@ shinyServer(function(input, output, session) {
         rendered_by_shiny = TRUE,
         tableFormat = switch(
           type,
-          PDF = "latex",
-          HTML = "html")) })
+          "pdf" = "latex",
+          "html" = "html")) })
     }
 
     file.rename(out, file)
