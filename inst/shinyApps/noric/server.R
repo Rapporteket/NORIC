@@ -125,7 +125,7 @@ shinyServer(function(input, output, session) {
         report = sub(pattern  = ".Rmd",
                      replacement =  "",
                      x = srcFile),
-        outputType = "pdf",
+        outputType = type,
         title = "unknown title",
         author = "unknown author",
         orgName = orgName,
