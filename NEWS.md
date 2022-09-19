@@ -3,6 +3,12 @@ Utforsker har nå en kalender.
 Valgfri start og slutt-dato før innlasting av tabell. 
 Raskere SQL spørring ved kortere intervall!
 
+
+# noric 2.9.1
+
+Bugfix. Fjerne donorutrednign fra avdod-rapporten
+
+
 # noric 2.9.0
 
 ## Nytt
