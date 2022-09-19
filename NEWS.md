@@ -1,3 +1,8 @@
+# noric 2.9.1
+
+Bugfix. Fjerne donorutrednign fra avdod-rapporten
+
+
 # noric 2.9.0
 
 ## Nytt
