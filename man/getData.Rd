@@ -13,6 +13,7 @@
 \alias{getSs}
 \alias{getMk}
 \alias{getPs}
+\alias{getSh}
 \alias{getApLight}
 \title{Load data for NORIC}
 \usage{
@@ -37,6 +38,8 @@ getSs(registryName, fromDate, toDate, singleRow, ...)
 getMk(registryName, fromDate, toDate, singleRow, ...)
 
 getPs(registryName, fromDate, toDate, singleRow, ...)
+
+getSh(registryName, fromDate, toDate, singleRow, ...)
 
 getApLight(registryName, fromDate, toDate, singleRow, ...)
 }

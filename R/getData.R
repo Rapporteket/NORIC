@@ -30,14 +30,15 @@
 #' getSs
 #' getMk
 #' getPs
+#' getSh
 #' getApLight
 NULL
 
 #' @rdname getData
 #' @export
 getAp <- function(registryName, fromDate, toDate, singleRow, ...) {
-
-
+  
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -45,11 +46,11 @@ getAp <- function(registryName, fromDate, toDate, singleRow, ...) {
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from ANGIO PCI in time interval
   # Add selected variables from ForlopsOversikt
   # 3 variables to match on: AvdRESH, PasientID, ForlopsID
-
+  
   query <- paste0("
 SELECT
     a.*,
@@ -70,7 +71,7 @@ WHERE
     a.ProsedyreDato >= '", fromDate, "' AND
     a.ProsedyreDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -79,15 +80,15 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for AngioPCI"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   aP <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(aP = aP)
 }
 
@@ -95,8 +96,8 @@ WHERE
 #' @rdname getData
 #' @export
 getSo <- function(registryName, fromDate, toDate, singleRow, ...) {
-
-
+  
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -104,8 +105,8 @@ getSo <- function(registryName, fromDate, toDate, singleRow, ...) {
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
-
+  
+  
   # Ask for all variables from SKJEMAOVERSIKT, in time interval
   query <- paste0("
 SELECT
@@ -116,8 +117,8 @@ WHERE
     HovedDato >= '", fromDate, "' AND
     HovedDato <= '", toDate, "'
  ")
-
-
+  
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -126,23 +127,23 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for SkjemaOversikt"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   sO <- rapbase::loadRegData(registryName, query)
-
-
+  
+  
   list(sO = sO)
-
+  
 }
 
 
 #' @rdname getData
 #' @export
 getAk <- function(registryName, fromDate, toDate, singleRow, ...){
-
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -150,11 +151,11 @@ getAk <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from AORTAKLAFFVAR in time interval
   # Add selected variables from ForlopsOversikt
   # 2 variables to match on: AvdRESH, ForlopsID
-
+  
   query <- paste0("
 SELECT
     AortaklaffVar.*,
@@ -180,7 +181,7 @@ WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -189,15 +190,15 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for AortaklaffVar"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   aK <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(aK = aK)
 }
 
@@ -205,8 +206,8 @@ WHERE
 #' @rdname getData
 #' @export
 getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
-
-
+  
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -214,8 +215,8 @@ getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
-
+  
+  
   # Ask for all variables from ForlopsOversikt, in time interval
   query <- paste0("
 SELECT
@@ -226,8 +227,8 @@ WHERE
     HovedDato >= '", fromDate, "' AND
     HovedDato <= '", toDate, "'
  ")
-
-
+  
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -236,23 +237,23 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for ForlopsOversikt"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   fO <- rapbase::loadRegData(registryName, query)
-
-
+  
+  
   list(fO = fO)
-
+  
 }
 
 
 #' @rdname getData
 #' @export
 getAnP <- function(registryName, fromDate, toDate, singleRow, ...){
-
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -260,11 +261,11 @@ getAnP <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from AndreProsedyrerVar in time interval
   # Add selected variables from ForlopsOversikt
   # 2 variables to match on: AvdRESH, ForlopsID
-
+  
   query <- paste0("
 SELECT
     AndreProsedyrerVar.*,
@@ -289,7 +290,7 @@ WHERE
     AndreProsedyrerVar.ProsedyreDato >= '", fromDate, "' AND
     AndreProsedyrerVar.ProsedyreDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -298,15 +299,15 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for AndreProsedyrerVar"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   anP <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(anP = anP)
 }
 
@@ -314,7 +315,7 @@ WHERE
 #' @rdname getData
 #' @export
 getCt <- function(registryName, fromDate, toDate, singleRow, ...){
-
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -322,11 +323,11 @@ getCt <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from CT in time interval
   # Add selected variables from ForlopsOversikt
   # 3 variables to match on: AvdRESH, ForlopsID
-
+  
   query <- paste0("
 SELECT
     CTAngioVar.*,
@@ -349,7 +350,7 @@ WHERE
     CTAngioVar.UndersokDato >= '", fromDate, "' AND
     CTAngioVar.UndersokDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -358,15 +359,15 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for CTAngioVar"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   cT <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(cT = cT)
 }
 
@@ -374,7 +375,7 @@ WHERE
 #' @rdname getData
 #' @export
 getAkOppf <- function(registryName, fromDate, toDate, singleRow, ...){
-
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -382,11 +383,11 @@ getAkOppf <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from AortaklaffOppfVar in time interval
   # Add selected variables from ForlopsOversikt
   # 2 variables to match on: AvdRESH, ForlopsID
-
+  
   query <- paste0("
 SELECT
     AortaklaffOppfVar.*,
@@ -418,7 +419,7 @@ WHERE
     AortaklaffOppfVar.BasisProsedyreDato >= '", fromDate, "' AND
     AortaklaffOppfVar.BasisProsedyreDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -427,15 +428,15 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for AortaklaffOppfVar"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   aKoppf <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(aKoppf = aKoppf)
 }
 
@@ -443,7 +444,7 @@ WHERE
 #' @rdname getData
 #' @export
 getAnD <- function(registryName, fromDate, toDate, singleRow, ...){
-
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -451,11 +452,11 @@ getAnD <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from AnnenDiagnostikkVar in time interval
   # Add selected variables from ForlopsOversikt
   # 2 variables to match on: AvdRESH, ForlopsID
-
+  
   query <- paste0("
 SELECT
     AnnenDiagnostikkVar.*,
@@ -477,7 +478,7 @@ WHERE
     AnnenDiagnostikkVar.ProsedyreDato >= '", fromDate, "' AND
     AnnenDiagnostikkVar.ProsedyreDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -486,15 +487,15 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for AnnenDiagnostikkVar"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   anD <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(anD = anD)
 }
 
@@ -502,8 +503,8 @@ WHERE
 #' @rdname getData
 #' @export
 getSs <- function(registryName, fromDate, toDate, singleRow, ...) {
-
-
+  
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -511,11 +512,11 @@ getSs <- function(registryName, fromDate, toDate, singleRow, ...) {
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from Segment STent in time interval
   # Add selected variables from ForlopsOversikt
   # 2 variables to match on: AvdRESH, ForlopsID
-
+  
   query <- paste0("
 SELECT
     SegmentStent.*,
@@ -537,7 +538,7 @@ WHERE
     SegmentStent.ProsedyreDato >= '", fromDate, "' AND
     SegmentStent.ProsedyreDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -546,15 +547,15 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for SegmentStent"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   sS <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(sS = sS)
 }
 
@@ -562,7 +563,7 @@ WHERE
 #' @rdname getData
 #' @export
 getMk <- function(registryName, fromDate, toDate, singleRow, ...){
-
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -570,11 +571,11 @@ getMk <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from mitralklaff in time interval
   # Add selected variables from ForlopsOversikt
   # 2 variables to match on: AvdRESH, ForlopsID
-
+  
   query <- paste0("
 SELECT
     MitralklaffVar.*,
@@ -601,7 +602,7 @@ WHERE
     MitralklaffVar.ProsedyreDato >= '", fromDate, "' AND
     MitralklaffVar.ProsedyreDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -610,15 +611,15 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for MitralklaffVar"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   mK <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(mK = mK)
 }
 
@@ -626,7 +627,7 @@ WHERE
 #' @rdname getData
 #' @export
 getPs <- function(registryName, fromDate, toDate, singleRow, ...){
-
+  
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
@@ -634,11 +635,11 @@ getPs <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   # Ask for all variables from PAsientstudier in time interval
   # Add selected variables from ForlopsOversikt
   # 2 variables to match on: AvdRESH, ForlopsID
-
+  
   query <- paste0("
 SELECT
     PasienterStudier.*,
@@ -660,7 +661,7 @@ WHERE
     PasienterStudier.PasInklDato >= '", fromDate, "' AND
     PasienterStudier.PasInklDato <= '", toDate, "'"
   )
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -669,24 +670,63 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for PasienterStudier"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   pS <- rapbase::loadRegData(registryName, query)
-
-
-
+  
+  
+  
   list(pS = pS)
 }
+
+
+
+
+
+#' @rdname getData
+#' @export
+getSh <- function(registryName, fromDate, toDate, singleRow, ...){
+  
+  
+  # Ask for all variables from Segment History,
+  # no filter on time-interval, must be linked to angioPCI.
+  
+  query <- paste0("
+SELECT *
+FROM
+    segmentHistory"
+  )
+  
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for segment history"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for segment history"
+  }
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  sH <- rapbase::loadRegData(registryName, query)
+  
+  
+  
+  list(sH = sH)
+}
+
 
 
 #' @rdname getData
 #' @export
 getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
-
-
+  
+  
   # SQL possible for defined time-interval
   # If no other date defined, load tables from 3 last years until today:
   if (is.null(fromDate)) {
@@ -698,13 +738,13 @@ getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
-
+  
+  
   # QUERY ANGIO PCI + FO
   # Ask for all variables from ANGIO PCI in time interval
   # Add selected variables from ForlopsOversikt
   # 3 variables to match on: AvdRESH, PasientID, ForlopsID
-
+  
   query <- paste0("
 SELECT
     AngioPCIVar.*,
@@ -724,9 +764,9 @@ WHERE
     AngioPCIVar.ProsedyreDato >= '", fromDate, "' AND
     AngioPCIVar.ProsedyreDato <= '", toDate, "'"
   )
-
-
-
+  
+  
+  
   # Only ask for variables needed in functions:utlede_segment_stent_variabler.R
   querySs <- paste0("
 SELECT
@@ -737,8 +777,8 @@ WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'
 ")
-
-
+  
+  
   # Only ask for variables needed in functions: utlede_annen_diag_variabler.R
   queryAd <- paste0("
 SELECT
@@ -749,8 +789,8 @@ WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'
 ")
-
-
+  
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -763,17 +803,17 @@ WHERE
     queryAd <- paste0(queryAd, ";")
     msg <- "Query data for AngioPCI light"
   }
-
+  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-
+  
   aP <- rapbase::loadRegData(registryName, query)
   aD <- rapbase::loadRegData(registryName, queryAd)
   sS <- rapbase::loadRegData(registryName, querySs)
-
-
-
+  
+  
+  
   list(aP = aP,
        aD = aD,
        sS = sS)

@@ -22,7 +22,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              "AnnenDiagnostikkVar",
                              "SegmentStent",
                              "MitralklaffVar",
-                             "PasienterStudier"))
+                             "PasienterStudier", 
+                             "SegmentHistory"))
 
 
   if (tableName %in% "AngioPCIVar"){
@@ -114,6 +115,14 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab <- tab_list$pS
   }
 
+  if (tableName %in% "SegmentHistory") {
+    tab_list <- noric::getSh(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE)
+    tab <- tab_list$sH
+  }
+  
 
 
   tab

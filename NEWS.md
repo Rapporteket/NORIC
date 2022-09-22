@@ -1,3 +1,7 @@
+# noric XXX
+Ny tabell i datadump: Segment history
+
+
 # noric 2.9.1
 
 Bugfix. Fjerne donorutrednign fra avdod-rapporten
