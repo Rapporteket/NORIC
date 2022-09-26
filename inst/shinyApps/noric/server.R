@@ -360,14 +360,16 @@ shinyServer(function(input, output, session) {
 
   output$downloadReportProsedyrer <- downloadHandler(
     filename = function() {
-      downloadFilename("NORIC_local_monthly", input$formatProsedyrer)
+      downloadFilename(fileBaseName = "NORIC_local_monthly",
+                       type = "PDF" #input$formatProsedyrer
+                       )
     },
 
     content = function(file) {
       contentFile(file, 
                   srcFile = "NORIC_local_monthly.Rmd", 
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
-                  type = input$formatProsedyrer,
+                  type = "pdf", #input$formatProsedyrer,
                   orgId = reshId,
                   orgName = hospitalName,
                   useReportProcessor = TRUE)
