@@ -177,7 +177,6 @@ AnP$AnnenProsType <- factor(
 ```
 
 
-
 ```{r SOPrepare,include=FALSE, eval=TRUE}
 
 SO$RegDate <- as.Date(SO$HovedDato)
@@ -297,8 +296,6 @@ AP %<>%
 
 
 
-
-
 ```{r Daterecodes,include=FALSE, eval=TRUE}
 
 AP$Year <- as.numeric(
@@ -396,10 +393,11 @@ AP$Month <- as.factor(
 
 ```
 
+
 # Prosedyrer - månedsrapport
 
 ## Hastegrad
-```{r FigNHastegrad, fig.cap = "Antall prosedyrer etter hastegrad og måned", fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer etter hastegrad og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 pal <- colPrimary[c(1, 3, 5)]
 
 op <- par(
@@ -427,386 +425,378 @@ legend(
   cex = 1)
 ```
 
-<!-- ```{r TabNHastegrad, results='asis', eval=TRUE} -->
-<!-- cap <- paste0("Antall og prosentvis fordeling av registrerte prosedyrer etter", -->
-<!--               " hastegrad og måned for ", params$hospitalName, -->
-<!--               " i perioden ", rangeProsDato[1], " til ", -->
-<!--               rangeProsDato[2], ".") -->
-<!-- xtabs(formula = ~ maaned + Hastegrad, data = AP) %>% -->
-<!--   noric::prettyTab(., add_totals = TRUE) %>% -->
-<!--   noric::mst(., -->
-<!--              type = params$tableFormat, -->
-<!--              cap = cap, -->
-<!--              digs = 0, -->
-<!--              align = rep("r", 5), -->
-<!--              label = "TabNHastegrad") -->
-<!-- ``` -->
+```{r TabNHastegrad, results='asis', eval=TRUE}
+cap <- paste0("Antall og prosentvis fordeling av registrerte prosedyrer etter",
+              " hastegrad og måned for ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ",
+              rangeProsDato[2], ".")
+xtabs(formula = ~ maaned + Hastegrad, data = AP) %>%
+  noric::prettyTab(., add_totals = TRUE) %>%
+  noric::mst(.,
+             type = params$tableFormat,
+             cap = cap,
+             digs = 0,
+             align = rep("r", 5),
+             label = "TabNHastegrad")
+```
 
 
 
+## Prosedyretype
+```{r FigNProsedyreType, fig.cap =  paste0("Antall prosedyrer etter type og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+pal <- colPrimary[c(1, 3, 5)]
 
-<!-- ## Prosedyretype -->
-<!-- ```{r FigNProsedyreType, fig.cap =  paste0("Antall prosedyrer etter type og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"} -->
-<!-- pal <- colPrimary[c(1, 3, 5)] -->
+op <- par(
+  mfcol = c(1, 1),
+  xpd = NA,
+  mar = c(5.1, 4.1, 4.1, 13.1),
+  bg = "#EEEEEE")
 
-<!-- op <- par( -->
-<!--   mfcol = c(1, 1), -->
-<!--   xpd = NA, -->
-<!--   mar = c(5.1, 4.1, 4.1, 13.1), -->
-<!--   bg = "#EEEEEE") -->
+barplot(
+  xtabs(formula = ~ ProsedyreType + maaned, data = AP),
+  las = 1,
+  xlab = "Måned",
+  ylab = "Antall",
+  col = pal,
+  space = 0.2,
+  border = FALSE)
 
-<!-- barplot( -->
-<!--   xtabs(formula = ~ ProsedyreType + maaned, data = AP), -->
-<!--   las = 1, -->
-<!--   xlab = "Måned", -->
-<!--   ylab = "Antall", -->
-<!--   col = pal, -->
-<!--   space = 0.2, -->
-<!--   border = FALSE) -->
-
-<!-- legend( -->
-<!--   "right", -->
-<!--   inset = -.28, -->
-<!--   bty = "n", -->
-<!--   horiz = FALSE, -->
-<!--   fill = pal[3:1], -->
-<!--   legend = sort(unique(AP$ProsedyreType), decreasing = TRUE), -->
-<!--   cex = 1) -->
-<!-- ``` -->
+legend(
+  "right",
+  inset = -.28,
+  bty = "n",
+  horiz = FALSE,
+  fill = pal[3:1],
+  legend = sort(unique(AP$ProsedyreType), decreasing = TRUE),
+  cex = 1)
+```
 
 
-<!-- ```{r TabNProsedyreType,  results = 'asis'} -->
-<!-- cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter", -->
-<!--               " prosedyretype og måned for ", params$hospitalName, -->
-<!--               " i perioden ", rangeProsDato[1], " til ", -->
-<!--               rangeProsDato[2], ".") -->
-<!-- xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>% -->
-<!--   noric::prettyTab(., add_totals = TRUE) %>% -->
-<!--   noric::mst(., type = params$tableFormat, cap = cap, digs = 0, -->
-<!--              label = "TabNProsedyreType") -->
-<!-- ``` -->
-
+```{r TabNProsedyreType,  results = 'asis'}
+cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter",
+              " prosedyretype og måned for ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ",
+              rangeProsDato[2], ".")
+xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>%
+  noric::prettyTab(., add_totals = TRUE) %>%
+  noric::mst(., type = params$tableFormat, cap = cap, digs = 0,
+             label = "TabNProsedyreType")
+```
 
 
 
+## Indikasjon
+```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer etter indikasjon og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 12, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
 
-<!-- ## Indikasjon -->
-<!-- ```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer etter indikasjon og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 12, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"} -->
+op <- par(
+  mfcol = c(1, 1),
+  xpd = NA,
+  mar = c(5.1, 4.1, 4.1, 13.1),
+  bg = "#EEEEEE")
 
-<!-- op <- par( -->
-<!--   mfcol = c(1, 1), -->
-<!--   xpd = NA, -->
-<!--   mar = c(5.1, 4.1, 4.1, 13.1), -->
-<!--   bg = "#EEEEEE") -->
+barplot(
+  xtabs(formula = ~ Indikasjon2 + maaned, data = AP),
+  las = 1,
+  xlab = "Måned",
+  ylab = "Antall",
+  col = colPrimary[6:1],
+  space = 0.2,
+  border = FALSE)
 
-<!-- barplot( -->
-<!--   xtabs(formula = ~ Indikasjon2 + maaned, data = AP), -->
-<!--   las = 1, -->
-<!--   xlab = "Måned", -->
-<!--   ylab = "Antall", -->
-<!--   col = colPrimary[6:1], -->
-<!--   space = 0.2, -->
-<!--   border = FALSE) -->
-
-<!-- legend( -->
-<!--   "right", -->
-<!--   inset = -.28, -->
-<!--   bty = "n", -->
-<!--   horiz = FALSE, -->
-<!--   fill = colPrimary, -->
-<!--   legend = levels(AP$Indikasjon2)[6:1], -->
-<!--   cex = 1) -->
-<!-- ``` -->
-
-
-
-<!-- ```{r TabNIndikasjon,  results = 'asis'} -->
-<!-- # cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter ", -->
-<!-- #               "indikasjon og måned for ", params$hospitalName, " i perioden ", -->
-<!-- #               rangeProsDato[1], " til ", rangeProsDato[2], ".") -->
-<!-- # xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>% -->
-<!-- #   noric::prettyTab(., add_totals = TRUE) %>% -->
-<!-- #   noric::mst(., -->
-<!-- #              type = params$tableFormat, -->
-<!-- #              cap = cap, -->
-<!-- #              digs = 0, -->
-<!-- #              align = rep("r", 8), -->
-<!-- #              lsd = TRUE, -->
-<!-- #              label = "TabNIndikasjon") -->
-<!-- ``` -->
+legend(
+  "right",
+  inset = -.28,
+  bty = "n",
+  horiz = FALSE,
+  fill = colPrimary,
+  legend = levels(AP$Indikasjon2)[6:1],
+  cex = 1)
+```
 
 
 
-
-<!-- ## Annen diagnostikk -->
-<!-- ```{r TabTillegg,include=FALSE} -->
-<!-- PrintTabTilleggCol <- function(VAR) { -->
-<!--   nVAR <- addmargins( -->
-<!--     table( -->
-<!--       AP$maaned, -->
-<!--       addNA(factor( -->
-<!--         AP[, VAR], -->
-<!--         levels = c("Ja", "Nei", "")))), -->
-<!--     margin = 1) -->
-
-<!--   nVARja <- sprintf( -->
-<!--     "%3.0f", -->
-<!--     nVAR[, which(colnames(nVAR) == "Ja")] -->
-<!--   ) -->
-
-<!--   rVAR <- round( -->
-<!--     100 * prop.table(nVAR, margin = 1), -->
-<!--     digits = 1) -->
-
-<!--   rVARja <- sprintf( -->
-<!--     "%4.1f", -->
-<!--     rVAR[, which(colnames(rVAR) == "Ja")] -->
-<!--   ) -->
-
-<!--   prosentJa <- paste0(nVARja, " (", rVARja, "%)") -->
-<!--   prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    " -->
-
-<!--   return(prosentJa) -->
-<!-- } -->
-
-<!-- TilleggVars <- c( -->
-<!--   "FFR", -->
-<!--   "Doppler", -->
-<!--   "IVUS", -->
-<!--   "OCT", -->
-<!--   "IFR", -->
-<!--   "NIRS", -->
-<!--   "HoyreHjerteKat", -->
-<!--   "Perikardiocentese", -->
-<!--   "Pacemaker", -->
-<!--   "Aortaballongpumpe", -->
-<!--   "Impella", -->
-<!--   "Trombectomy", -->
-<!--   "ECMO", -->
-<!--   "AnnenDiag") -->
-
-<!-- IndexMinEnTillegg <- unique( -->
-<!--   unlist( -->
-<!--     lapply( -->
-<!--       X = TilleggVars, -->
-<!--       FUN = function(X) which(AP[, X] == "Ja") -->
-<!--     ))) -->
-
-<!-- AP$IngenTillegg <- "Ja" -->
-<!-- AP$IngenTillegg[IndexMinEnTillegg] <- "Nei" -->
-
-<!-- TabTillegg <- cbind( -->
-<!--   PrintTabTilleggCol("FFR"), -->
-<!--   PrintTabTilleggCol("Doppler"), -->
-<!--   PrintTabTilleggCol("IVUS"), -->
-<!--   PrintTabTilleggCol("OCT"), -->
-<!--   PrintTabTilleggCol("IFR"), -->
-<!--   PrintTabTilleggCol("NIRS"), -->
-<!--   PrintTabTilleggCol("HoyreHjerteKat"), -->
-<!--   PrintTabTilleggCol("Perikardiocentese"), -->
-<!--   PrintTabTilleggCol("Pacemaker"), -->
-<!--   PrintTabTilleggCol("Aortaballongpumpe"), -->
-<!--   PrintTabTilleggCol("Impella"), -->
-<!--   PrintTabTilleggCol("Trombectomy"), -->
-<!--   PrintTabTilleggCol("ECMO"), -->
-<!--   PrintTabTilleggCol("AnnenDiag"), -->
-<!--   PrintTabTilleggCol("IngenTillegg") -->
-<!-- ) -->
-
-<!-- TilleggLabels <- c( -->
-<!--   "FFR", -->
-<!--   "Doppler", -->
-<!--   "IVUS", -->
-<!--   "OCT", -->
-<!--   "IFR", -->
-<!--   "NIRS", -->
-<!--   "Høyre kat.", -->
-<!--   "Perikardiocentese", -->
-<!--   "PM", -->
-<!--   "IABP", -->
-<!--   "Impella", -->
-<!--   "Trombectomy", -->
-<!--   "ECMO", -->
-<!--   "Annen", -->
-<!--   "Ingen") -->
-
-
-<!-- rownames(TabTillegg) <- c(levels(AP$Month), "Totalt") -->
-<!-- colnames(TabTillegg) <- c(TilleggLabels) -->
-
-
-<!-- TabTillegg %<>% -->
-<!--   cbind(., AP %>% -->
-<!--           dplyr::count(maaned) %>% -->
-<!--           janitor::adorn_totals("row") %>% -->
-<!--           dplyr::transmute(N = n)) -->
-<!-- ``` -->
+```{r TabNIndikasjon,  results = 'asis'}
+cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter ",
+              "indikasjon og måned for ", params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
+xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>%
+  noric::prettyTab(., add_totals = TRUE) %>%
+  noric::mst(.,
+             type = params$tableFormat,
+             cap = cap,
+             digs = 0,
+             align = rep("r", 8),
+             lsd = TRUE,
+             label = "TabNIndikasjon")
+```
 
 
 
-<!-- ### Annen diagnostikk ved angiografi -->
-<!-- ```{r TabTilleggsProsedyre1,  results = 'asis'} -->
-<!-- cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ", -->
-<!--               params$hospitalName, " i perioden ", rangeProsDato[1], -->
-<!--               " til ", rangeProsDato[2], ".") -->
-<!-- noric::mst(TabTillegg[, c("FFR", -->
-<!--                          "IFR", -->
-<!--                          "Doppler", -->
-<!--                          "OCT", -->
-<!--                          "IVUS", -->
-<!--                          "NIRS", -->
-<!--                          "N")], -->
-<!--            type = params$tableFormat, -->
-<!--            cap = cap, -->
-<!--            digs = 0, -->
-<!--            align = rep("r", 8), -->
-<!--            label = "TabTilleggsProsedyre1") -->
+## Annen diagnostikk
+```{r TabTillegg,include=FALSE}
+PrintTabTilleggCol <- function(VAR) {
+  nVAR <- addmargins(
+    table(
+      AP$maaned,
+      addNA(factor(
+        AP[, VAR],
+        levels = c("Ja", "Nei", "")))),
+    margin = 1)
 
-<!-- ``` -->
+  nVARja <- sprintf(
+    "%3.0f",
+    nVAR[, which(colnames(nVAR) == "Ja")]
+  )
 
+  rVAR <- round(
+    100 * prop.table(nVAR, margin = 1),
+    digits = 1)
 
-<!-- ### Tilleggsprosedyrer -->
-<!-- ```{r TabTilleggsProsedyre2,  results = 'asis'} -->
-<!-- cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ", -->
-<!--               params$hospitalName, " i perioden ", rangeProsDato[1], -->
-<!--               " til ", rangeProsDato[2], ".") -->
-<!-- noric::mst(TabTillegg[, c("Høyre kat.", -->
-<!--                          "Perikardiocentese", -->
-<!--                          "N")], -->
-<!--            type = params$tableFormat, -->
-<!--            cap = cap, -->
-<!--            digs = 0, -->
-<!--            align = rep("r", 4), -->
-<!--            label = "TabTilleggsProsedyre2") -->
-<!-- ``` -->
+  rVARja <- sprintf(
+    "%4.1f",
+    rVAR[, which(colnames(rVAR) == "Ja")]
+  )
 
+  prosentJa <- paste0(nVARja, " (", rVARja, "%)")
+  prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
 
+  return(prosentJa)
+}
 
-<!-- ### Adjuvant terapi -->
-<!-- ```{r TabTilleggsProsedyre3,  results = 'asis'} -->
-<!-- cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ", -->
-<!--               params$hospitalName, " i perioden ", -->
-<!--               rangeProsDato[1], " til ", rangeProsDato[2], ".") -->
-<!-- noric::mst(TabTillegg[, c("PM", -->
-<!--                           "IABP", -->
-<!--                           "Impella", -->
-<!--                           "Trombectomy", -->
-<!--                           "ECMO", -->
-<!--                           "Annen", -->
-<!--                           "Ingen", -->
-<!--                           "N")], -->
-<!--            type = params$tableFormat, -->
-<!--            cap = cap, -->
-<!--            digs = 0, -->
-<!--            align = rep("r", 8), -->
-<!--            lsd = TRUE, -->
-<!--            label = "TabTilleggsProsedyre3") -->
-<!-- ``` -->
+TilleggVars <- c(
+  "FFR",
+  "Doppler",
+  "IVUS",
+  "OCT",
+  "IFR",
+  "NIRS",
+  "HoyreHjerteKat",
+  "Perikardiocentese",
+  "Pacemaker",
+  "Aortaballongpumpe",
+  "Impella",
+  "Trombectomy",
+  "ECMO",
+  "AnnenDiag")
 
+IndexMinEnTillegg <- unique(
+  unlist(
+    lapply(
+      X = TilleggVars,
+      FUN = function(X) which(AP[, X] == "Ja")
+    )))
 
-<!-- ## Andre prosedyrer -->
-<!-- `r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}` -->
+AP$IngenTillegg <- "Ja"
+AP$IngenTillegg[IndexMinEnTillegg] <- "Nei"
 
-<!-- ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP} -->
-<!-- cap <- paste0("Antall andre prosedyrer (utført uten direkte tilknytning", -->
-<!--               " til Angio/PCI)  etter prosedyretype og måned for ", -->
-<!--               params$hospitalName, " i perioden ", -->
-<!--               rangeProsDato[1], " til ", rangeProsDato[2], ".") -->
-<!-- TabNAndreProsedyrer <- addmargins( -->
-<!--   xtabs(formula = ~ maaned + AnnenProsType, -->
-<!--         data = AnP) -->
-<!-- ) -->
+TabTillegg <- cbind(
+  PrintTabTilleggCol("FFR"),
+  PrintTabTilleggCol("Doppler"),
+  PrintTabTilleggCol("IVUS"),
+  PrintTabTilleggCol("OCT"),
+  PrintTabTilleggCol("IFR"),
+  PrintTabTilleggCol("NIRS"),
+  PrintTabTilleggCol("HoyreHjerteKat"),
+  PrintTabTilleggCol("Perikardiocentese"),
+  PrintTabTilleggCol("Pacemaker"),
+  PrintTabTilleggCol("Aortaballongpumpe"),
+  PrintTabTilleggCol("Impella"),
+  PrintTabTilleggCol("Trombectomy"),
+  PrintTabTilleggCol("ECMO"),
+  PrintTabTilleggCol("AnnenDiag"),
+  PrintTabTilleggCol("IngenTillegg")
+)
 
-<!-- if (params$tableFormat == "html") { -->
-<!--   kable(TabNAndreProsedyrer, caption = cap) %>% -->
-<!--     kable_styling(bootstrap_options = c("striped", "hover", "condensed"), -->
-<!--                   full_width = FALSE) %>% -->
-<!--     row_spec(row = 0, font_size = 10, angle = -45) %>% -->
-<!--     column_spec(column = 1:(dim(TabNAndreProsedyrer)[2] + 1), width = "3em") -->
-<!-- } -->
-
-<!-- if (params$tableFormat == "latex") { -->
-<!--   xtable::print.xtable( -->
-<!--     x = xtable::xtable( -->
-<!--       x = TabNAndreProsedyrer, -->
-<!--       caption = cap, -->
-<!--       digits = 0) , -->
-<!--     rotate.colnames = TRUE, -->
-<!--     booktabs = TRUE, -->
-<!--     comment = FALSE, -->
-<!--     caption.placement = "top", -->
-<!--     table.placement = "H" -->
-<!--   ) -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- \newpage -->
+TilleggLabels <- c(
+  "FFR",
+  "Doppler",
+  "IVUS",
+  "OCT",
+  "IFR",
+  "NIRS",
+  "Høyre kat.",
+  "Perikardiocentese",
+  "PM",
+  "IABP",
+  "Impella",
+  "Trombectomy",
+  "ECMO",
+  "Annen",
+  "Ingen")
 
 
-<!-- ## Komplikasjoner -->
-<!-- ### Komplikasjoner på lab i perioden `r paste0(rangeProsDato, collapse = ' til ' )` -->
-<!-- ```{r TabLabKompl,results='asis'} -->
-
-<!-- LabKomplikasjoner <- data.frame( -->
-<!--   VarName = c( -->
-<!--     "LabKomplikasjon", -->
-<!--     "LabKompAllergiskLettModerat", -->
-<!--     "LabKompAllergiskAlvorlig", -->
-<!--     "LabKompBehkrevendeArytmi", -->
-<!--     "LabKompHemodynamisk", -->
-<!--     "LabKompNeurologisk", -->
-<!--     "LabKompVaskulaerIkkeKoronar", -->
-<!--     "LabKompMistetStent", -->
-<!--     "LabKompVedvarSidegrensokkl", -->
-<!--     "LabKompPerforasjon", -->
-<!--     "LabKompTamponade", -->
-<!--     "LabKompAkuttACBOperasjon", -->
-<!--     "LabKompAnnenAlv", -->
-<!--     "LabKompDod", -->
-<!--     "LabKompProsedyrerelatertDod" -->
-<!--   ), -->
-<!--   Komplikasjon = c( -->
-<!--     "Alle komplikasjoner", -->
-<!--     "Allergisk reaksjon lett/moderat", -->
-<!--     "Allergisk reaksjon alvorlig", -->
-<!--     "Behandlingskrevende arytmi", -->
-<!--     "Hemodynamisk", -->
-<!--     "Neurologisk", -->
-<!--     "Vaskulaer (men ikke koronar)", -->
-<!--     "Mistet stent", -->
-<!--     "Vedvarende sidegrensokklusjon", -->
-<!--     "Perforasjon", -->
-<!--     "Tamponade", -->
-<!--     "Akutt ACB-operasjon fra lab", -->
-<!--     "Annen alvorlig", -->
-<!--     "Død", -->
-<!--     "Prosedyrerelatert død" -->
-<!--   ) -->
-<!-- ) -->
-
-<!-- LabKomplikasjoner$Antall <- unlist( -->
-<!--   lapply( -->
-<!--     X = LabKomplikasjoner$VarName, -->
-<!--     FUN = function(X) { -->
-<!--       try(sum(AP[, X] == "Ja", na.rm = TRUE)) -->
-<!--     } -->
-<!--   )) -->
-
-<!-- LabKomplikasjoner$Prosent <- round( -->
-<!--   100 * LabKomplikasjoner$Antall / dim(AP)[1], -->
-<!--   digits = 2) -->
+rownames(TabTillegg) <- c(levels(AP$Month), "Totalt")
+colnames(TabTillegg) <- c(TilleggLabels)
 
 
-<!-- df <- LabKomplikasjoner[, -1] -->
-<!-- rownames(df) <- NULL -->
+TabTillegg %<>%
+  cbind(., AP %>%
+          dplyr::count(maaned) %>%
+          janitor::adorn_totals("row") %>%
+          dplyr::transmute(N = n))
+```
 
-<!-- noric::mst(df, -->
-<!--            type = params$tableFormat, -->
-<!--            cap = NULL, -->
-<!--            digs = 1, -->
-<!--            align = c("l", "r", "r", "r"), -->
-<!--            label = "TabLabKompl") -->
-<!-- ``` -->
+
+### Annen diagnostikk ved angiografi
+```{r TabTilleggsProsedyre1,  results = 'asis'}
+cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
+              params$hospitalName, " i perioden ", rangeProsDato[1],
+              " til ", rangeProsDato[2], ".")
+noric::mst(TabTillegg[, c("FFR",
+                         "IFR",
+                         "Doppler",
+                         "OCT",
+                         "IVUS",
+                         "NIRS",
+                         "N")],
+           type = params$tableFormat,
+           cap = cap,
+           digs = 0,
+           align = rep("r", 8),
+           label = "TabTilleggsProsedyre1")
+
+```
+
+
+### Tilleggsprosedyrer
+```{r TabTilleggsProsedyre2,  results = 'asis'}
+cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
+              params$hospitalName, " i perioden ", rangeProsDato[1],
+              " til ", rangeProsDato[2], ".")
+noric::mst(TabTillegg[, c("Høyre kat.",
+                         "Perikardiocentese",
+                         "N")],
+           type = params$tableFormat,
+           cap = cap,
+           digs = 0,
+           align = rep("r", 4),
+           label = "TabTilleggsProsedyre2")
+```
+
+
+
+### Adjuvant terapi
+```{r TabTilleggsProsedyre3,  results = 'asis'}
+cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
+              params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
+noric::mst(TabTillegg[, c("PM",
+                          "IABP",
+                          "Impella",
+                          "Trombectomy",
+                          "ECMO",
+                          "Annen",
+                          "Ingen",
+                          "N")],
+           type = params$tableFormat,
+           cap = cap,
+           digs = 0,
+           align = rep("r", 8),
+           lsd = TRUE,
+           label = "TabTilleggsProsedyre3")
+```
+
+
+## Andre prosedyrer
+`r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
+
+```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
+cap <- paste0("Antall andre prosedyrer (utført uten direkte tilknytning",
+             " til Angio/PCI)  etter prosedyretype og måned for ",
+             params$hospitalName, " i perioden ",
+             rangeProsDato[1], " til ", rangeProsDato[2], ".")
+TabNAndreProsedyrer <- addmargins(
+ xtabs(formula = ~ maaned + AnnenProsType,
+       data = AnP)
+)
+
+if (params$tableFormat == "html") {
+  kable(TabNAndreProsedyrer, caption = cap) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = FALSE) %>%
+    row_spec(row = 0, font_size = 10, angle = -45) %>%
+    column_spec(column = 1:(dim(TabNAndreProsedyrer)[2] + 1), width = "3em")
+}
+
+if (params$tableFormat == "latex") {
+  knitr::kable(x = TabNAndreProsedyrer,
+               format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "l") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
+    kableExtra::kable_styling(latex_options = "scale_down") %>%
+    kableExtra::row_spec(row = 0, angle = 45)
+}
+```
+
+\newpage
+
+
+## Komplikasjoner
+### Komplikasjoner på lab i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
+```{r TabLabKompl,results='asis'}
+
+LabKomplikasjoner <- data.frame(
+  VarName = c(
+    "LabKomplikasjon",
+    "LabKompAllergiskLettModerat",
+    "LabKompAllergiskAlvorlig",
+    "LabKompBehkrevendeArytmi",
+    "LabKompHemodynamisk",
+    "LabKompNeurologisk",
+    "LabKompVaskulaerIkkeKoronar",
+    "LabKompMistetStent",
+    "LabKompVedvarSidegrensokkl",
+    "LabKompPerforasjon",
+    "LabKompTamponade",
+    "LabKompAkuttACBOperasjon",
+    "LabKompAnnenAlv",
+    "LabKompDod",
+    "LabKompProsedyrerelatertDod"
+  ),
+  Komplikasjon = c(
+    "Alle komplikasjoner",
+    "Allergisk reaksjon lett/moderat",
+    "Allergisk reaksjon alvorlig",
+    "Behandlingskrevende arytmi",
+    "Hemodynamisk",
+    "Neurologisk",
+    "Vaskulaer (men ikke koronar)",
+    "Mistet stent",
+    "Vedvarende sidegrensokklusjon",
+    "Perforasjon",
+    "Tamponade",
+    "Akutt ACB-operasjon fra lab",
+    "Annen alvorlig",
+    "Død",
+    "Prosedyrerelatert død"
+  )
+)
+
+LabKomplikasjoner$Antall <- unlist(
+  lapply(
+    X = LabKomplikasjoner$VarName,
+    FUN = function(X) {
+      try(sum(AP[, X] == "Ja", na.rm = TRUE))
+    }
+  ))
+
+LabKomplikasjoner$Prosent <- round(
+  100 * LabKomplikasjoner$Antall / dim(AP)[1],
+  digits = 2)
+
+
+df <- LabKomplikasjoner[, -1]
+rownames(df) <- NULL
+
+noric::mst(df,
+           type = params$tableFormat,
+           cap = NULL,
+           digs = 1,
+           align = c("l", "r", "r", "r"),
+           label = "TabLabKompl")
+```
 
 
 
@@ -930,7 +920,6 @@ legend(
 <!-- ``` -->
 
 
-
 <!-- ## Kompletthet -->
 <!-- ### Kompletthet angio/PCI-skjemaer -->
 <!-- ```{r SOtab1, results = "asis"} -->
@@ -999,6 +988,7 @@ legend(
 <!-- \newpage -->
 <!-- `r if(params$tableFormat !="latex") {"-->"}` -->
 
+
 <!-- # Stentbruk - månedsrapport -->
 
 <!-- ## Prosedyre type -->
@@ -1021,6 +1011,7 @@ legend(
 <!-- `r if(params$tableFormat !="latex") {"<!--"}` -->
 <!-- \newpage -->
 <!-- `r if(params$tableFormat !="latex") {"-->"}` -->
+
 
 <!-- ## Stenter per prosedyre -->
 <!-- Antall stenter per prosedyre i perioden `r paste0(rangePCImdStentProsDato, collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`. -->
@@ -1052,7 +1043,6 @@ legend(
 <!--   bty = "n", -->
 <!--   legend = paste(attr(SumStat, "names"), ": ", SumStat, sep = "")) -->
 <!-- ```  -->
-
 
 
 <!-- ## Stent - merke -->
@@ -1097,3 +1087,4 @@ legend(
 <!--     kableExtra::row_spec(row = 0, angle = 90) -->
 <!-- } -->
 <!-- ``` -->
+
