@@ -332,7 +332,9 @@ shinyServer(function(input, output, session) {
                            registryName = registryName,
                            session = session,
                            userRole = userRole,
-                           singleRow = TRUE)
+                           singleRow = TRUE, 
+                           fromDate = Sys.Date(),
+                           toDate = Sys.Date())
   })
   
   ## innhold kontrollpanel:
