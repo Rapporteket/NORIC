@@ -403,8 +403,7 @@ pal <- colPrimary[c(1, 3, 5)]
 op <- par(
   mfcol = c(1, 1),
   xpd = NA,
-  mar = c(5.1, 4.1, 4.1, 13.1),
-  bg = "#EEEEEE")
+  mar = c(5.1, 4.1, 4.1, 13.1))
 
 barplot(
   xtabs(formula = ~ Hastegrad + maaned, data = AP),
@@ -449,8 +448,7 @@ pal <- colPrimary[c(1, 3, 5)]
 op <- par(
   mfcol = c(1, 1),
   xpd = NA,
-  mar = c(5.1, 4.1, 4.1, 13.1),
-  bg = "#EEEEEE")
+  mar = c(5.1, 4.1, 4.1, 13.1))
 
 barplot(
   xtabs(formula = ~ ProsedyreType + maaned, data = AP),
@@ -491,8 +489,7 @@ xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>%
 op <- par(
   mfcol = c(1, 1),
   xpd = NA,
-  mar = c(5.1, 4.1, 4.1, 13.1),
-  bg = "#EEEEEE")
+  mar = c(5.1, 4.1, 4.1, 13.1))
 
 barplot(
   xtabs(formula = ~ Indikasjon2 + maaned, data = AP),
@@ -817,7 +814,8 @@ xBarplot <- barplot(
   lk,
   xlab = "Andel (%)",
   horiz = TRUE,
-  border = FALSE)
+  border = FALSE),
+  col = colPrimary[3]
 
 text(
   x = LabKomplikasjoner[, 4],
@@ -908,7 +906,8 @@ xBarplot <- barplot(
   ak,
   xlab = "Andel (%)",
   horiz = TRUE,
-  border = FALSE
+  border = FALSE,
+  col = colPrimary[3]
 )
 
 text(
@@ -1008,41 +1007,42 @@ tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
 ```
 
 
-`r if(params$tableFormat !="latex") {"<!--"}`
-\newpage
-`r if(params$tableFormat !="latex") {"-->"}`
+<!-- `r if(params$tableFormat !="latex") {"<!--"}` -->
+<!-- \newpage -->
+<!-- `r if(params$tableFormat !="latex") {"-->"}` -->
 
 
-<!-- ## Stenter per prosedyre -->
-<!-- Antall stenter per prosedyre i perioden `r paste0(rangePCImdStentProsDato, collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`. -->
-<!-- ```{r Barplot_Nstent_per_Prosedyre, fig.width = 12, fig.height = 8, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = "Antall stenter per prosedyre"} -->
+## Stenter per prosedyre
+Antall stenter per prosedyre  for `r params$hospitalName` i perioden `r paste0(rangePCImdStentProsDato, collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
+```{r Barplot_Nstent_per_Prosedyre, fig.width = 12, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2], ".")}
 
-<!-- op <- par( -->
-<!--   mfcol = c(1, 1), -->
-<!--   xpd = NA, -->
-<!--   mar = c(5.1, 4.1, 4.1, 13.1), -->
-<!--   bg = "#EEEEEE") -->
+op <- par(
+  mfcol = c(1, 1),
+  xpd = NA,
+  mar = c(5.1, 4.1, 4.1, 13.1))
 
 
-<!-- TabNStent <- xtabs( -->
-<!--   formula = ~ Nstents, -->
-<!--   data = PCImedStent) -->
+TabNStent <- xtabs(
+  formula = ~ Nstents,
+  data = PCImedStent)
 
-<!-- barplot( -->
-<!--   TabNStent, -->
-<!--   ylab = "Antall prosedyrer", -->
-<!--   xlab = "Antall stenter per prosedyre", -->
-<!--   border = NA, -->
-<!--   col = colPrimary[3]) -->
+# barplot(
+#   TabNStent,
+#   xlab = "Antall stenter per prosedyre",
+#   ylab = "Antall prosedyrer",
+#   border = FALSE,
+#   space = 0.3,
+#   col = colPrimary[3]
+  # )
 
-<!-- SumStat <- round(summary(PCImedStent$Nstents), 1) -->
-
-<!-- legend( -->
-<!--   "right", -->
-<!--   inset = -.28, -->
-<!--   bty = "n", -->
-<!--   legend = paste(attr(SumStat, "names"), ": ", SumStat, sep = "")) -->
-<!-- ``` -->
+# SumStat <- round(summary(PCImedStent$Nstents), 1)
+# 
+# legend(
+#   "right",
+#   inset = -.28,
+#   bty = "n",
+#   legend = paste(attr(SumStat, "names"), ": ", SumStat, sep = ""))
+```
 
 
 <!-- ## Stent - merke -->
