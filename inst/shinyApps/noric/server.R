@@ -137,8 +137,8 @@ shinyServer(function(input, output, session) {
         rendered_by_shiny = TRUE,
         tableFormat = switch(
           type,
-          "pdf" = "latex",
-          "html" = "html")) })
+          "PDF" = "latex",
+          "HTML" = "html")) })
     }
 
     file.rename(out, file)
@@ -361,7 +361,7 @@ shinyServer(function(input, output, session) {
   output$downloadReportProsedyrer <- downloadHandler(
     filename = function() {
       downloadFilename(fileBaseName = "NORIC_local_monthly",
-                       type = "PDF" #input$formatProsedyrer
+                       type = input$formatProsedyrer
                        )
     },
 

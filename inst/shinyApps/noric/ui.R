@@ -66,7 +66,7 @@ ui <- tagList(
           sidebarPanel(
             radioButtons("formatProsedyrer",
                          "Format for nedlasting",
-                         c("pdf", "html"),
+                         c("PDF", "HTML"),
                          inline = FALSE),
             downloadButton("downloadReportProsedyrer", "Hent!"),
             width = 2
