@@ -195,7 +195,7 @@ SO$nMonth <- as.numeric(
 SO <- subset(
   x = SO,
   subset =
-    (nMonth > max(nMonth, na.rm = TRUE) - showN) & (RegDate < Sys.Date())
+    (nMonth >= max(nMonth, na.rm = TRUE) - showN) & (RegDate < Sys.Date())
 )
 
 
