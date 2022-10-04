@@ -64,10 +64,8 @@ ui <- tagList(
         "Prosedyrer og stentbruk",
         sidebarLayout(
           sidebarPanel(
-            radioButtons("formatProsedyrer",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
+            style = "position:fixed;width:150px;",
+            h5("Last ned rapporten i pdf-format"),
             downloadButton("downloadReportProsedyrer", "Hent!"),
             width = 2
           ),
@@ -80,10 +78,8 @@ ui <- tagList(
         "Aktivitet",
         sidebarLayout(
           sidebarPanel(
-            radioButtons("formatAktivitet",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
+            style = "position:fixed;width:150px;",
+            h5("Last ned rapporten i pdf-format"),
             downloadButton("downloadReportAktivitet", "Hent!"),
             width = 2),
           mainPanel(
