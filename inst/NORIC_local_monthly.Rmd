@@ -395,8 +395,24 @@ AP$Month <- as.factor(
 
 ```
 
+```{r sammendragHTML}
+if(params$tableFormat == "html") {
+  p(HTML("<h1>Månedsrapport: Angio/PCI og stentbruk</h1><br/>"),
+    "Denne rapporten er generert ved hjelp av resultatløsningen ", 
+    HTML("<i>Rapporteket</i>"),
+  ". Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", 
+    params$hospitalName,
+    ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med de siste 14 månedene.",
+    HTML("<br/><br/>"),
+    "Eventuelle spørsmål knyttet til rapporten kan rettes til ", 
+    a("noric@helse-bergen.no", href="mailto:noric@helse-bergen.no"),
+    HTML("<br/><br/>"))
+}
+```
 
-# Prosedyrer - månedsrapport
+
+
+# Prosedyrer
 
 ## Hastegrad
 ```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer etter hastegrad og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
@@ -993,7 +1009,7 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 `r if(params$tableFormat !="latex") {"-->"}`
 
 
-# Stentbruk - månedsrapport
+# Stentbruk
 
 ## Prosedyre type
 ```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
