@@ -135,10 +135,8 @@ shinyServer(function(input, output, session) {
         userRole = userRole,
         userOperator = "unknown operator",
         rendered_by_shiny = TRUE,
-        tableFormat = switch(
-          type,
-          "PDF" = "latex",
-          "HTML" = "html")) })
+        tableFormat = "latex"
+        )})
     }
 
     file.rename(out, file)
@@ -361,15 +359,14 @@ shinyServer(function(input, output, session) {
   output$downloadReportProsedyrer <- downloadHandler(
     filename = function() {
       downloadFilename(fileBaseName = "NORIC_local_monthly",
-                       type = input$formatProsedyrer
-                       )
+                       type = "PDF")
     },
 
     content = function(file) {
       contentFile(file, 
                   srcFile = "NORIC_local_monthly.Rmd", 
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
-                  type = "pdf", #input$formatProsedyrer,
+                  type = "pdf",
                   orgId = reshId,
                   orgName = hospitalName,
                   useReportProcessor = TRUE)
@@ -378,14 +375,18 @@ shinyServer(function(input, output, session) {
 
   output$downloadReportAktivitet <- downloadHandler(
     filename = function() {
-      downloadFilename("NORIC_local_monthly_activity", input$formatAktivitet)
+      downloadFilename(fileBaseName = "NORIC_local_monthly_activity",
+                       type = "PDF")
     },
 
     content = function(file) {
-      contentFile(file, "NORIC_local_monthly_activity.Rmd",
-                  basename(tempfile(fileext = ".Rmd")),
-                  useReportProcessor = FALSE,
-                  type = input$formatAktivitet)
+      contentFile(file,
+                  srcFile = "NORIC_local_monthly_activity.Rmd",
+                  tmpFile = basename(tempfile(fileext = ".Rmd")),
+                  type = "pdf",
+                  orgId = reshId,
+                  orgName = hospitalName,
+                  useReportProcessor = TRUE)
     }
   )
 
