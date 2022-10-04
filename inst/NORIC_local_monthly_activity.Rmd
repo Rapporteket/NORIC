@@ -19,7 +19,7 @@ header-includes:
 - \usepackage{float}
 reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene presenteres med de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 ---
 
 ```{r knitrOptions, include=FALSE}
@@ -122,7 +122,7 @@ if(params$tableFormat == "html") {
     HTML("<i>Rapporteket</i>"),
   ". Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", 
     params$hospitalName,
-    ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med de siste 14 månedene.",
+    ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med de siste 14 månedene.",
     HTML("<br/><br/>"),
     "Eventuelle spørsmål knyttet til rapporten kan rettes til ", 
     a("noric@helse-bergen.no", href="mailto:noric@helse-bergen.no"),
