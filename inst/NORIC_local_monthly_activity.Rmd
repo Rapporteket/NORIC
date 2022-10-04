@@ -4,14 +4,14 @@ author: ""
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 output: pdf_document
 params:
-  title: Emty tite
-  author: Anon author
-  hospitalName: "Ukjent sykehus"
+  author: ukjent forfatter
+  hospitalName: ukjent sykehus
   tableFormat: html
-  reshId: '999999'
+  reshID: 999999
   registryName: rapbase
-  userFullName: "Ukjent bruker"
-  userRole: "Ukjent rolle"
+  userFullName: Ukjent bruker
+  userRole: ukjent rolle
+  rendered_by_shiny: FALSE
 header-includes:
 - \usepackage[english, norsk]{babel}
 - \usepackage{booktabs}
@@ -109,8 +109,8 @@ AP <- noric::getPrepApData(registryName = params$registryName,
 ```
 
 
-## Angiografør og PCI-hovedoperatør
-### Angiografør
+# Angiografør og PCI-hovedoperatør
+## Angiografør
 
 ```{r PrepareDataAngigrafor, include = FALSE}
 angiografor_AP <- AP %>% dplyr::filter(
@@ -142,11 +142,12 @@ if (params$tableFormat == "html") {
                booktabs = TRUE,
                align = align) %>%
     kableExtra::kable_styling(latex_options = "HOLD_position") %>%
+    kableExtra::kable_styling(latex_options = "scale_down") %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
 
-### PCI-operatører
+## PCI-operatører
 
 ```{r PrepareDataOperator, include = FALSE}
 pciOperator_AP <- AP %>% dplyr::filter(
@@ -178,6 +179,7 @@ if (params$tableFormat == "html") {
                booktabs = TRUE,
                align = align) %>%
     kableExtra::kable_styling(latex_options = "HOLD_position") %>%
+    kableExtra::kable_styling(latex_options = "scale_down") %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
