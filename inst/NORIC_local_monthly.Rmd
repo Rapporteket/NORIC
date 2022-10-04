@@ -395,6 +395,11 @@ AP$Month <- as.factor(
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.1)  # set progress to 10%
+```
+
 ```{r sammendragHTML}
 if(params$tableFormat == "html") {
   p(HTML("<h1>Månedsrapport: Angio/PCI og stentbruk</h1><br/>"),
@@ -457,7 +462,10 @@ xtabs(formula = ~ maaned + Hastegrad, data = AP) %>%
              label = "TabNHastegrad")
 ```
 
-
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.2)  # set progress to 20%
+```
 
 ## Prosedyretype
 ```{r FigNProsedyreType, fig.cap =  paste0("Antall prosedyrer etter type og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
@@ -499,7 +507,10 @@ xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>%
              label = "TabNProsedyreType")
 ```
 
-
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.3)  # set progress to 30%
+```
 
 ## Indikasjon
 ```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer etter indikasjon og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 12, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
@@ -545,7 +556,10 @@ xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>%
              label = "TabNIndikasjon")
 ```
 
-
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.4)  # set progress to 40%
+```
 
 ## Annen diagnostikk
 ```{r TabTillegg,include=FALSE}
@@ -712,6 +726,11 @@ noric::mst(TabTillegg[, c("PM",
 ```
 
 
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.5)  # set progress to 50%
+```
+
 ## Andre prosedyrer
 `r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
 
@@ -749,6 +768,11 @@ if (params$tableFormat == "latex") {
 
 \newpage
 
+
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.6)  # set progress to 60%
+```
 
 ## Komplikasjoner
 ### Komplikasjoner på lab i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
@@ -939,6 +963,10 @@ text(
   labels = AvdKomplikasjoner[, 3])
 ```
 
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.7)  # set progress to 70%
+```
 
 ## Kompletthet
 ### Kompletthet angio/PCI-skjemaer
@@ -1008,6 +1036,10 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
 
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.8)  # set progress to 80%
+```
 
 # Stentbruk
 
@@ -1064,6 +1096,10 @@ legend(
   legend = paste(attr(SumStat, "names"), ": ", SumStat, sep = ""))
 ```
 
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.9)  # set progress to 90%
+```
 
 ## Stent - merke
 ```{r prepare-data-SS-pci, include = FALSE}
@@ -1108,3 +1144,8 @@ if (params$tableFormat == "html") {
 }
 ```
 
+
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(1)  # set progress to 100%
+```
