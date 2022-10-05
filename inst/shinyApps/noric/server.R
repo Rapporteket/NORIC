@@ -177,10 +177,10 @@ shinyServer(function(input, output, session) {
   ## Data sets available
   if (userRole == "SC") {
     dataSets <- list(`Bruk og valg av data...` = "info",
-                     `Angio PCI med utledete variabler, 3 siste år` = "ApLight",
+                     `Angio PCI med utledete variabler` = "ApLight",
                      `Andre prosedyrer` = "AnP",
                      `Annen diagnostikk` = "AnD",
-                     `Angio PCI` = "AP",
+                     `Angio PCI rådata` = "AP",
                      `Aortaklaff` = "AK",
                      `Aortaklaff oppfølging` = "AKOppf",
                      `CT Angio` = "CT",
@@ -192,10 +192,10 @@ shinyServer(function(input, output, session) {
     )
   } else {
     dataSets <- list(`Bruk og valg av data...` = "info",
-                     `Angio PCI med utledete variabler, 3 siste år` = "ApLight",
+                     `Angio PCI med utledete variabler` = "ApLight",
                      `Andre prosedyrer` = "AnP",
                      `Annen diagnostikk` = "AnD",
-                     `Angio PCI` = "AP",
+                     `Angio PCI rådata` = "AP",
                      `Aortaklaff` = "AK",
                      `CT Angio` = "CT",
                      `Forløpsoversikt` = "FO",
