@@ -19,7 +19,7 @@ header-includes:
 - \usepackage{float}
 reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!" , "\\newline ", "\\newline ", "Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med data fra de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 ---
 
 ```{r knitrOptions, include=FALSE}
@@ -115,28 +115,27 @@ rangeProsDato <- format(range(AP$ProsedyreDato),
 ```
 
 
-```{r sammendragHTML}
-if(params$tableFormat == "html") {
-  p(HTML("<h1>Månedsrapport: Aktiviteter</h1><br/>"),
-    "Denne rapporten er generert ved hjelp av resultatløsningen ", 
-    HTML("<i>Rapporteket</i>"),
-  ". Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", 
-    params$hospitalName,
-    ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med de siste 14 månedene.",
-    HTML("<br/><br/>"),
-    "Eventuelle spørsmål knyttet til rapporten kan rettes til ", 
-    a("noric@helse-bergen.no", href="mailto:noric@helse-bergen.no"),
-    HTML("<br/><br/>"))
-}
-```
+`r if(params$tableFormat !="html") {"<!--"}`
+# Månedsrapport: Aktiviteter {-}
+Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket* og er kun ment til internt bruk!
+<br/> <br/>
+Rapporten inneholder tabeller med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med data fra de siste 14 månedene.
+<br/> <br/>
+Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
+`r if(params$tableFormat !="html") {"-->"}`
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.35)  # set progress to 35%
 ```
 
-# Angiografør og PCI-hovedoperatør
-## Angiografør
+# Angiografør
 
 ```{r PrepareDataAngigrafor, include = FALSE}
 angiografor_AP <- AP %>% dplyr::filter(
@@ -145,12 +144,12 @@ angiografor_AP <- AP %>% dplyr::filter(
 ``` 
 
 ```{r TabNAngiogrforMonth, echo = FALSE, results = "asis"}
-cap <- paste0("Antall angioprosedyrer etter angiografør og måned for ", 
-              params$hospitalName, " i perioden ", rangeProsDato[1],
-              " til ", rangeProsDato[2], ". ",
-              "Opptellingen er gjort ved å legge sammen prosedyretypene Angio ",
-              "og Angio+PCI. Kun 1. angiograf er med i opptellingen.")
-tab_angiografor <- addmargins(xtabs(formula = ~ maaned + Angiografor1,
+cap <- paste0("Antall prosedyrer per måned der det er utført koronar ",
+              "angiografi, sotert etter den angiograføren som først er listet ",
+              "opp i NORIC. Gjelder for ", params$hospitalName, " i perioden ", 
+              rangeProsDato[1], " til ", rangeProsDato[2], ". ",
+              "Opptellingen er basert på prosedyretypene Angio og Angio+PCI.")
+tab_angiografor <- addmargins(xtabs(formula = ~ Angiografor1 + maaned,
                              data = angiografor_AP,
                              drop.unused.levels = TRUE))
 align <- c("l", rep("c", dim(tab_angiografor)[2] - 1))
@@ -180,7 +179,12 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.7)  # set progress to 70%
 ```
 
-## PCI-operatører
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+# PCI-operatør
 
 ```{r PrepareDataOperator, include = FALSE}
 pciOperator_AP <- AP %>% dplyr::filter(
@@ -189,12 +193,12 @@ pciOperator_AP <- AP %>% dplyr::filter(
 ``` 
 
 ```{r TabNOperatorMonth, echo = FALSE, results = "asis"}
-cap <- paste0("Antall PCI-prosedyrer etter PCI-operatør og måned for ", 
-              params$hospitalName, " i perioden ", rangeProsDato[1],
-              " til ", rangeProsDato[2], ". ",
-              "Opptellingen er gjort ved å legge sammen prosedyretypene ",
-              "Angio+PCI og PCI. Kun 1. operator er med i opptellingen.")
-tab_pciOperator <- addmargins(xtabs(formula = ~ maaned + PCIHovedOperator,
+cap <- paste0("Antall prosedyrer per måned der det er utført PCI, ",
+              "sotert etter navn på hovedoperatør. Gjelder for ",
+              params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ". ",
+              "Opptellingen er basert på prosedyretypene Angio+PCI og PCI.")
+tab_pciOperator <- addmargins(xtabs(formula = ~ PCIHovedOperator + maaned,
                              data = pciOperator_AP,
                              drop.unused.levels = TRUE))
 align <- c("l", rep("c", dim(tab_pciOperator)[2] - 1))
