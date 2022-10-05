@@ -333,8 +333,8 @@ shinyServer(function(input, output, session) {
                            session = session,
                            userRole = userRole,
                            singleRow = TRUE, 
-                           fromDate = noric::getLatestEntry(registryName),
-                           toDate = noric::getLatestEntry(registryName))
+                           fromDate = NULL,
+                           toDate = NULL)
   })
   
   ## innhold kontrollpanel:
