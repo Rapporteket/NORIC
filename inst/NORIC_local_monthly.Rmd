@@ -19,7 +19,7 @@ header-includes:
 - \usepackage{float}
 reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med data fra de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 ---
 
 ```{r knitrOptions, include=FALSE}
@@ -417,8 +417,10 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 `r if(params$tableFormat !="html") {"<!--"}`
 # Månedsrapport: Angio/PCI og stentbruk {-}
-Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket*. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med de siste 14 månedene.
+Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket* og er kun ment til internt bruk! 
 <br/> <br/>
+Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med data fra de siste 14 månedene.
+<br/><br/>
 Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
 `r if(params$tableFormat !="html") {"-->"}`
 
@@ -427,6 +429,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
 
+<br/><br/>
 
 # Prosedyrer
 
@@ -478,6 +481,8 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.2)  # set progress to 20%
 ```
 
+<br/>
+
 ## Prosedyretype
 ```{r FigNProsedyreType, fig.cap =  paste0("Antall prosedyrer etter type og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 pal <- colPrimary[c(1, 3, 5)]
@@ -522,6 +527,8 @@ xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>%
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.3)  # set progress to 30%
 ```
+
+<br/>
 
 ## Indikasjon
 ```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer etter indikasjon og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 12, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
@@ -571,6 +578,8 @@ xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>%
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.4)  # set progress to 40%
 ```
+
+<br/>
 
 ## Annen diagnostikk
 ```{r TabTillegg,include=FALSE}
@@ -742,6 +751,8 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.5)  # set progress to 50%
 ```
 
+<br/>
+
 ## Andre prosedyrer
 `r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
 
@@ -784,6 +795,8 @@ if (params$tableFormat == "latex") {
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.6)  # set progress to 60%
 ```
+
+<br/>
 
 ## Komplikasjoner
 ### Komplikasjoner på lab i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
@@ -882,8 +895,6 @@ text(
 ```
 
 
-
-
 ### Komplikasjoner på avdelingen i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 ```{r TabAvdKompl,results='asis'}
 
@@ -944,10 +955,6 @@ noric::mst(df,
 ```
 
 
-
-
-
-
 ```{r FigAvdKompl, fig.cap = paste0("Prosentandel komplikasjoner på avdelingen for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
@@ -978,6 +985,8 @@ text(
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.7)  # set progress to 70%
 ```
+
+<br/>
 
 ## Kompletthet
 ### Kompletthet angio/PCI-skjemaer
@@ -1052,6 +1061,8 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.8)  # set progress to 80%
 ```
 
+<br/><br/>
+
 # Stentbruk
 
 ## Prosedyre type
@@ -1071,6 +1082,8 @@ tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
 ```
 
 
+
+<br/>
 
 ## Stenter per prosedyre
 Antall stenter per prosedyre  for `r params$hospitalName` i perioden `r paste0(rangePCImdStentProsDato, collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
@@ -1111,6 +1124,8 @@ legend(
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.9)  # set progress to 90%
 ```
+
+<br/>
 
 ## Stent - merke
 ```{r prepare-data-SS-pci, include = FALSE}
