@@ -134,6 +134,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.35)  # set progress to 35%
 ```
+<br/><br/>
 
 # Angiografør
 
@@ -183,6 +184,8 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"<!--"}`
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
+
+<br/><br/>
 
 # PCI-operatør
 
