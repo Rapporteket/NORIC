@@ -194,7 +194,7 @@ pciOperator_AP <- AP %>% dplyr::filter(
 
 ```{r TabNOperatorMonth, echo = FALSE, results = "asis"}
 cap <- paste0("Antall prosedyrer per måned der det er utført PCI, ",
-              "sotert etter navn på hovedoperatør. Gjelder for ",
+              "sortert etter navn på hovedoperatør. Gjelder for ",
               params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
               "Opptellingen er basert på prosedyretypene Angio+PCI og PCI.")
