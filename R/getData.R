@@ -688,12 +688,8 @@ getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
 
 
   # SQL possible for defined time-interval
-  # If no other date defined, load tables from 3 last years until today:
   if (is.null(fromDate)) {
-    latest_entry <- noric::getLatestEntry(registryName = registryName)
-    fromDate <- as.Date(
-      paste0(as.numeric(lubridate::year(latest_entry)) - 3, "-01-01"),
-      format = "%Y-%m-%d")
+    fromDate <- as.Date("1900-01-01")
   }
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
