@@ -19,7 +19,7 @@ header-includes:
 - \usepackage{float}
 reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med data fra de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!", "\\newline ", "\\newline ", "Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med data fra de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 ---
 
 ```{r knitrOptions, include=FALSE}
@@ -419,7 +419,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 # Månedsrapport: Angio/PCI og stentbruk {-}
 Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket* og er kun ment til internt bruk! 
 <br/> <br/>
-Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med data fra de siste 14 månedene.
+Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene og figurene presenteres med data fra perioden `r rangeProsDato[1]` til `r rangeProsDato[2]`.
 <br/><br/>
 Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
 `r if(params$tableFormat !="html") {"-->"}`
@@ -799,7 +799,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 <br/>
 
 ## Komplikasjoner
-### Komplikasjoner på lab i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
+### Komplikasjoner på lab for `r params$hospitalName`  i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 ```{r TabLabKompl,results='asis'}
 
 LabKomplikasjoner <- data.frame(
@@ -894,8 +894,11 @@ text(
   labels = LabKomplikasjoner[, 3])
 ```
 
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
-### Komplikasjoner på avdelingen i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
+### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 ```{r TabAvdKompl,results='asis'}
 
 AvdKomplikasjoner <- data.frame(
@@ -985,6 +988,10 @@ text(
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.7)  # set progress to 70%
 ```
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
 <br/>
 
