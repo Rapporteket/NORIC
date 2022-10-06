@@ -119,7 +119,7 @@ rangeProsDato <- format(range(AP$ProsedyreDato),
 # Månedsrapport: Aktiviteter {-}
 Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket* og er kun ment til internt bruk!
 <br/> <br/>
-Rapporten inneholder tabeller med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med data fra de siste 14 månedene.
+Rapporten inneholder tabeller med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med data fra perioden `r rangeProsDato[1]` til `r rangeProsDato[2]`.
 <br/> <br/>
 Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
 `r if(params$tableFormat !="html") {"-->"}`
