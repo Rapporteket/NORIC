@@ -133,7 +133,8 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                                "Studie",
                                                "Granskere",
                                                "OpprettetAv",
-                                               "SistLagretAv"))
+                                               "SistLagretAv", 
+                                               "FnrType"))
   }
 
   dat
