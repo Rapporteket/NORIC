@@ -1,8 +1,13 @@
-# noric XXX
+# noric 2.9.2
+
+## Nytt
 Utforsker har nå en kalender. 
 Valgfri start og slutt-dato før innlasting av tabell. 
 Raskere SQL spørring ved kortere intervall!
 
+## Oppdatering og endringer
+Ny variabel _FnrType_ bare for SC rolle i utforsker
+Litt mer fix i avdod-rapporten
 
 # noric 2.9.1
 
