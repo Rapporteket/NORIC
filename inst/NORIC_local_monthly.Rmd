@@ -419,7 +419,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 # Månedsrapport: Angio/PCI og stentbruk {-}
 Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket* og er kun ment til internt bruk! 
 <br/> <br/>
-Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ.Tabellene og figurene presenteres med data fra perioden `r rangeProsDato[1]` til `r rangeProsDato[2]`.
+Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene og figurene presenteres med data fra perioden `r rangeProsDato[1]` til `r rangeProsDato[2]`.
 <br/><br/>
 Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
 `r if(params$tableFormat !="html") {"-->"}`
@@ -435,6 +435,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 
 ## Hastegrad
 ```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer etter hastegrad og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
 pal <- colPrimary[c(1, 3, 5)]
 
 op <- par(
@@ -693,10 +694,10 @@ cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
               " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("FFR",
                          "IFR",
-                         "Doppler",
+                         # "Doppler",
                          "OCT",
                          "IVUS",
-                         "NIRS",
+                         # "NIRS",
                          "N")],
            type = params$tableFormat,
            cap = cap,
@@ -1027,9 +1028,41 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 ```
 
 
+### Kompletthet komplikasjonsskjemaer
+```{r SOtab2, results = "asis"}
+
+nSOU <- with(
+  SO[which(SO$Skjemanavn == "Kompl"), ],
+  table(
+    maaned,
+    factor(SkjemaStatus,
+           levels = c(0, -1, 1),
+           labels = c("Tomt", "Begynt", "Ferdigstilt"))))
+
+rSOU <- round(
+  100 * prop.table(
+    nSOU,
+    margin = 1),
+  digits = 1)
+
+TABkompletthet <- cbind(
+  rowSums(nSOU),
+  nSOU[, which(colnames(nSOU) == "Ferdigstilt")],
+  rSOU[, which(colnames(rSOU) == "Ferdigstilt")])
+colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
+
+
+cap <- paste0("Antall komplikasjonsskjemaer etter måned for ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
+noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
+           digs = c(0, 0, 0, 1), align = rep("r", 4),
+           label = "SOtab2")
+
+```
+
 
 ### Kompletthet utskrivelsesskjemaer
-```{r SOtab2, results = "asis"}
+```{r SOtab3, results = "asis"}
 
 nSOU <- with(
   SO[which(SO$Skjemanavn == "Utskrivelse"), ],
@@ -1056,7 +1089,7 @@ cap <- paste0("Antall utskrivelsesskjemaer etter måned for ", params$hospitalNa
               " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            digs = c(0, 0, 0, 1), align = rep("r", 4),
-           label = "SOtab2")
+           label = "SOtab3")
 
 ```
 `r if(params$tableFormat !="latex") {"<!--"}`
