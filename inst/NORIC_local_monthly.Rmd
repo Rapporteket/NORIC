@@ -438,10 +438,28 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 
 pal <- colPrimary[c(1, 3, 5)]
 
-op <- par(
-  mfcol = c(1, 1),
-  xpd = NA,
-  mar = c(5.1, 4.1, 4.1, 13.1))
+# hastegradMaaned <- AP %>% 
+#   dplyr::count(.data$maaned,
+#                .data$Hastegrad) %>% 
+#   dplyr::group_by(.data$maaned, .data$Hastegrad)
+# 
+# hastegradMaaned %>% ggplot2::ggplot(
+#   ggplot2::aes(x = .data$maaned,
+#                y = .data$n,
+#                fill = .data$Hastegrad)
+# ) +
+#   ggplot2::geom_bar(position = "stack", stat = "identity") +
+#   ggplot2::theme(axis.title = ggplot2::element_blank(),
+#                  legend.title = ggplot2::element_blank()) +
+#   ggplot2::scale_fill_manual(values = pal) +
+#   ggplot2::theme_minimal() +
+#   ggplot2::xlab("Måned") +
+#   ggplot2::ylab("Antall")
+
+# op <- par(
+#   mfcol = c(1, 1),
+#   xpd = NA,
+#   mar = c(5.1, 4.1, 4.1, 13.1))
 
 barplot(
   xtabs(formula = ~ Hastegrad + maaned, data = AP),
@@ -450,7 +468,12 @@ barplot(
   ylab = "Antall",
   col = pal,
   space = 0.2,
-  border = FALSE)
+  border = FALSE,
+  panel.first = grid(nx = NULL, ny = NULL,
+     lty = 2,
+     col = "gray",
+     lwd = 2))
+
 
 legend(
   "right",
@@ -460,6 +483,13 @@ legend(
   fill = pal[3:1],
   legend = sort(unique(AP$Hastegrad), decreasing = TRUE),
   cex = 1)
+# 
+# grid(nx = NULL, ny = NULL,
+#      lty = 2,
+#      col = "gray",
+#      lwd = 2)
+
+
 ```
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
