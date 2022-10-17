@@ -454,7 +454,9 @@ hastegradMaaned %>% ggplot2::ggplot(
   ggplot2::xlab("Måned") +
   ggplot2::ylab("Antall") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
-                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
+  ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE)) +
+  ggplot2::position_stack(vjust = 1, reverse = TRUE)
 
 ```
 
