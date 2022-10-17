@@ -22,7 +22,9 @@ title:   |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract:  '`r paste0("Sommeren 2021 ble endelig arbeidet med overføring av dødsstatus fra Folkeregisteret til NORIC ferdigstilt. Databasen inneholder nå to ukentlig oppdaterte variabler:  _Avdod_ og _AvdodDato_. Vi har i denne sammenhengen benyttet anledningen til å sette i gang et kvalitetsforbedringsprosjekt med målsetning å forbedre registreringen av død i NORICs egne variabler: _død på lab_, _død på avdeling_ og _utskrevet død_. ", "\\newline ", "\\newline ", "Vi vet at registrering av komplikasjoner og spesielt død oppleves som vanskelig for mange av sykehusene. Det er stor forskjell i andel avdøde pasienter og registreringspraksis varierer mellom sykehusene. Vi har derfor utarbeidet denne rapporten som tilsendes månedlig til utvalgte personer på hvert sykehus. Rapporten inneholder lister med forløpsID-er som sykehusene bes sjekke. For det første gjelder det pasienter som har _AvdodDato_ fra folkeregisteret svært nær prosedyreDato i NORIC, men som verken er registrerte som _død på lab_, _død på avdeling_ eller _utskrevet død_ fra NORIC. For det andre gjelder det pasienter som er registrerte som avdøde i NORIC, men der de tre NORIC-variablene ikke er entydige.", "\\newline ", "\\newline ", "Vi vil i en periode sette fokus på disse pasientene hos registratorene ved sykehusene. Alle deres tilbakemeldinger om eventuelle problemstillinger knyttet til registreringene er svært verdifulle for oss og mottas med takk på e-post til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)! Avhengig av disse tilbakemeldingene vil vi utarbeide retningslinjer som kan benyttes i registreringsarbeidet og/eller forbedre selve innregistreringsløsningen. ", "\\newline ", "\\newline ", "Rapportene er automatisk generert med utgangspunkt i _AvdodDato_, samt variablene _død på lab_, _død på avdeling_ og _utskrevet død_.  Dersom ingen endringer er utført i NORIC-variablene siden sist rapport, vil ForløpsID-ene bli listet opp på nytt hver måned. Pasienter som er rettmessig registrert som levende i NORIC vil derfor blir gjentatt fra måned til måned. Vi ber dere se bort fra disse og vi beklager ulempen med dette!" ) `'
+abstract:  '`r paste0("Sommeren 2021 ble endelig arbeidet med overføring av dødsdato fra Folkeregisteret til NORIC ferdigstilt. Databasen inneholder nå to ukentlig oppdaterte variabler:  _Avdod_ og _AvdodDato_. Vi har i denne sammenhengen benyttet anledningen til å sette i gang et kvalitetsforbedringsprosjekt med målsetning å forbedre registreringen av død i NORICs egne variabler: _død på lab_, _død på avdeling_ og _utskrevet død_. ", "\\newline ", "\\newline ", "Vi vet at registrering av komplikasjoner, og spesielt død, oppleves som vanskelig. Registreringspraksis for død varierer mellom sykehusene. Vi har derfor utarbeidet denne rapporten som tilsendes månedlig til utvalgte personer på hvert sykehus. Rapporten inneholder lister med forløpsID-er som sykehusene bes sjekke. For det første gjelder det pasienter som har _AvdodDato_ fra folkeregisteret svært nær prosedyreDato i NORIC, men som verken er registrerte som _død på lab_, _død på avdeling_ eller _utskrevet død_ fra NORIC. For det andre gjelder det pasienter som er registrerte som avdøde i NORIC, men der de tre NORIC-variablene ikke er entydige. ", "\\newline ", "\\newline ", 
+"Vi vil i en periode sette fokus på disse pasientene hos registratorene ved sykehusene. Alle deres tilbakemeldinger om eventuelle problemstillinger knyttet til registreringene er svært verdifulle for oss og mottas med takk på e-post til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)! Avhengig av disse tilbakemeldingene vil vi utarbeide retningslinjer som kan benyttes i registreringsarbeidet og/eller forbedre selve innregistreringsløsningen.", "\\newline ", "\\newline ", 
+"Etterhvert som forløpene kontrolleres, vil dere muligens komme over pasienter som er helt riktig registrerte i NORIC. Vi ber dere sende oss en e-post med ForløpsID-ene det gjelder, slik at de kan fjernes fra disse listene før produksjon av neste måneds rapport. ")`'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -156,6 +158,7 @@ aP %<>%
     .data$Regtype, 
     .data$ForlopsID,
     .data$PrimaerForlopsID,
+    .data$PasientID,
     .data$ProsedyreDato,
     .data$ProsedyreTid,
     .data$ProsedyreType,
@@ -212,13 +215,19 @@ cat("\n\n\\pagebreak\n")
 
 
 # Folkeregistrert død rundt prosedyredato, men ikke død i NORIC
-I de fire punktene under ønsker vi at at sykehusene sjekker i journalsystemene
-sine om opplistede pasienter kan være avdøde under NORIC-oppholdet. Dersom de 
-er det, ber vi sykehusene om å komplettere registreringen og 
-ferdigstille utskrivelsesskjemaet. Hvis ingen 
+I de tre punktene under ønsker vi at at sykehusene sjekker i journalsystemene
+sine om opplistede pasienter kan være avdøde under NORIC-oppholdet. 
+Dersom det er tilfelle, ber vi sykehusene om å komplettere registreringen og 
+ferdigstille utskrivelsesskjemaet. 
+For pasienter som er korrekt registrert som levende, derimot, ber vi dere 
+sende oss forløpsID-ene per e-post. Vi vil sørge for å fjerne disse fra fremtidige 
+lister. 
+
+Hvis ingen 
 forløp er listet opp betyr det at alle som er folkeregistrert med 
 _AvdodDato_ rundt prosedyredato/utskrivelsesdato
-også er er registrert som avdød i NORIC.
+også er er registrert som avdød i NORIC. 
+
 
 \bigskip \bigskip \bigskip 
 
@@ -249,13 +258,13 @@ dod_for_utskr <- aP %>%
 
 aP %>% 
   dplyr::filter(.data$OppholdsID %in% dod_for_utskr) %>% 
-  dplyr::select(.data$ForlopsID, 
-                .data$OppholdsID,
+  dplyr::arrange(.data$OppholdsID) %>% 
+  dplyr::select(.data$PasientID,
+                .data$ForlopsID, 
                 .data$Regtype, 
                 .data$ProsedyreDato,
                 .data$Utskrivningsdato,
                 .data$AvdodDato) %>%
-  dplyr::arrange(.data$OppholdsID) %>% 
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
@@ -276,8 +285,7 @@ if (params$rendered_by_shiny)
 Følgende pasienter har _AvdodDato_ like etter _Utskrivningsdato_, men 
 er verken registrert _død på lab_, _død på avdeling_ eller
 _død ved utskrivelse_. Vi ber sykehusene om å sjekke disse registreringene. 
-Variabelen _OppholdsID_ grupperer primær- og sekundærforløp som henger sammen,
-der det er tilfelle.
+Merk at alle primær- og/eller sekundærforløp som henger sammen er listet opp.
 
 ```{r tab2, results='asis', warning=FALSE}
 cap <- paste0(params$hospitalName,
@@ -299,13 +307,13 @@ dod_innen2dg_utskr <- aP %>%
 
 aP %>% 
   dplyr::filter(.data$OppholdsID %in% dod_innen2dg_utskr) %>% 
-  dplyr::select(.data$ForlopsID, 
-                .data$OppholdsID,
+  dplyr::arrange(.data$OppholdsID) %>% 
+  dplyr::select(.data$PasientID,
+                .data$ForlopsID, 
                 .data$Regtype,
                 .data$ProsedyreDato,
                 .data$Utskrivningsdato,
                 .data$AvdodDato) %>%
-  dplyr::arrange(.data$OppholdsID) %>% 
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
@@ -328,8 +336,7 @@ to dager etter. De er verken registrert _død på lab_ eller _død på avdeling_
 og _død ved utskrivelse_ mangler.
 Vi ber sykehusene om å sjekke disse registreringene og 
 ferdigstille utskrivelsesskjemaet. 
-Variabelen _OppholdsID_ grupperer primær- og sekundærforløp som henger sammen,
-der det er tilfelle.
+Merk at alle primær- og/eller sekundærforløp som henger sammen er listet opp.
 
 
 
@@ -356,13 +363,13 @@ dod_etter_prs <- aP %>%
 
 aP %>% 
   dplyr::filter(.data$OppholdsID %in% dod_etter_prs) %>% 
-  dplyr::select(.data$ForlopsID, 
-                .data$OppholdsID,
+  dplyr::arrange(.data$OppholdsID) %>% 
+  dplyr::select(.data$PasientID,
+                .data$ForlopsID, 
                 .data$Regtype,
                 .data$ProsedyreDato,
                 .data$Utskrivningsdato,
                 .data$AvdodDato) %>%
-  dplyr::arrange(.data$OppholdsID) %>% 
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
@@ -394,8 +401,7 @@ pasienten døde (mangler utskrivelse).
 ## Registrert død både på lab og på avdeling
 
 Følgende pasienter er registrerte som avdøde både på lab og på avdeling.
-Variabelen _OppholdsID_ grupperer primær- og sekundærforløp som henger sammen, 
-der det er tilfelle.
+Merk at alle primær- og/eller sekundærforløp som henger sammen er listet opp.
 Vi ber sykehusene sjekke hvor pasienten døde (på lab eller på avdeling) og 
 korrigere registreringen. Vi ber også sykehusene være spesielt oppmerksomme 
 på variabelen _LabKompProsedyrerelatertDod_. 
@@ -436,14 +442,14 @@ avdod_lab_avd <- aP %>%
 
 aP %>% 
   dplyr::filter(.data$OppholdsID %in% avdod_lab_avd) %>% 
-  dplyr::select(.data$ForlopsID,
-                .data$OppholdsID,
+  dplyr::arrange(.data$OppholdsID) %>% 
+  dplyr::select(.data$PasientID,
+                .data$ForlopsID, 
                 .data$Regtype, 
                 .data$ProsedyreDato,
                 .data$LabKompDod,
                 .data$AvdKompDod,
                 .data$UtskrevetDodsdato) %>% 
-  dplyr::arrange(.data$OppholdsID) %>% 
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
@@ -464,8 +470,7 @@ if (params$rendered_by_shiny)
 Følgende pasienter er enten registrerte som avdøde på lab eller på avdeling 
 men mangler utskrivelssesskjema. Vi ber sykehusene ferdigstille disse
 registreringene. Forløp med _Indikasjon_ "Donorutredning” er fjernet. 
-Variabelen _OppholdsID_ grupperer primær- og sekundærforløp
-som henger sammen, der det er tilfelle.
+Merk at alle primær- og/eller sekundærforløp som henger sammen er listet opp.
 
 ```{r tab6, results='asis', warning=FALSE}
 
@@ -507,14 +512,14 @@ dod_uten_utskr <- aP %>%
 
 aP %>% 
   dplyr::filter(.data$OppholdsID %in% dod_uten_utskr) %>% 
-  dplyr::select(.data$ForlopsID,
-                .data$OppholdsID, 
+  dplyr::arrange(.data$OppholdsID) %>% 
+  dplyr::select(.data$PasientID,
+                .data$ForlopsID, 
                 .data$Regtype,
                 .data$ProsedyreDato,
                 .data$LabKompDod,
                 .data$AvdKompDod, 
                 .data$UtskrevetDodsdato) %>% 
-  dplyr::arrange(.data$OppholdsID) %>% 
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
@@ -589,14 +594,14 @@ ikke_avd_lab <- aP %>%
 
 aP %>% 
   dplyr::filter(.data$OppholdsID %in% ikke_avd_lab) %>% 
-  dplyr::select(.data$ForlopsID,
-                .data$OppholdsID,
+  dplyr::arrange(.data$OppholdsID) %>% 
+  dplyr::select(.data$PasientID,
+                .data$ForlopsID, 
                 .data$Regtype,
                 .data$ProsedyreDato,
                 .data$LabKompDod, 
                 .data$AvdKompDod,
                 .data$UtskrevetDodsdato) %>% 
-  dplyr::arrange(.data$OppholdsID) %>% 
   noric::mst(tab = .,
              type = params$tableFormat,
              cap = cap,
