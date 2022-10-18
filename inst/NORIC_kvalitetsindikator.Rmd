@@ -69,73 +69,30 @@ colKontrast <- "#FF7260"
 
 
 
-```{r latest_entry, include=FALSE, eval=TRUE}
-# # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
-# 
-# # NYESTE DATO: 
-# # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
-# # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
-# # gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
-# # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
-# # overføringer har stoppet opp
-# 
-# # ELDSTE DATO: 
-# # generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
-# # AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i 
-# #     starten av året. 
-# # SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
-# # "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
-# nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
-# 
-# periode_data <- data.frame(
-#   siste_dato = min((as.Date(Sys.time()) - 1), 
-#                    nyeste_reg)) 
-# 
-# periode_data %<>% 
-#   dplyr::mutate(
-#     
-#     # Inneværende år: 
-#     nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
-#     
-#     # Fjoråret
-#     sisteHeleYear = .data$nyesteRegYear - 1, 
-#     
-#     # Første dato for SQL -spørring : 01. januar fjoråret
-#     forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-#                            format = "%Y-%m-%d"), 
-#     
-#     # Aortaklaff + Segment stent (indikator per kvartal): 
-#     forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
-#                                 format = "%Y-%m-%d")
-#   )
+
+
+
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.05)  # set progress to 5%
 ```
-
-
-
-
-
-
 
 
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
+valid_staging_data <- FALSE
 
+if(length(rapbase::listStagingData(registryName = params$registryName)) > 0) {
+  
+  if(rapbase::listStagingData(registryName = params$registryName) %in% c(
+      "staging_nasjonal_ki")){
+    valid_staging_data <- TRUE
+  }
+  
+} 
 
-valid_staging_data <- dplyr::case_when(
-  
-  # Staging data finnes, og har riktig navn
-  length(rapbase::listStagingData(registryName = params$registryName))> 0 &
-    rapbase::listStagingData(registryName = params$registryName) %in% c(
-      "staging_nasjonal_ki") ~ TRUE,
-  
-  # Staging data finnes ikke
-  length(rapbase::listStagingData(registryName = params$registryName)) == 0 ~ 
-    FALSE, 
-  
-  # default
-  TRUE ~ FALSE
-)
 
 
 
@@ -151,7 +108,7 @@ if(valid_staging_data) {
 } else{ 
   
   
-  # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+  # 1) DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
   
   # NYESTE DATO: 
   # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
@@ -189,7 +146,7 @@ if(valid_staging_data) {
                                   format = "%Y-%m-%d")
     )
   
-  # HENTE DATASETTENE (SQL-spørring)
+  # 2) HENTE DATASETTENE (SQL-spørring)
   sS_nasjonalt <- noric::getPrepSsData(
     registryName = params$registryName,
     fromDate  = periode_data$forste_dato_ak_ss,
@@ -215,7 +172,7 @@ if(valid_staging_data) {
     toDate = periode_data$siste_dato,
     singleRow = FALSE)
   
-  # VELGE KUN DE VARIABLENE VI TRENGER FRA HJELPEDATASETTENE
+  # 3) VELGE KUN DE VARIABLENE VI TRENGER FRA HJELPEDATASETTENE
   sS_nasjonalt %<>%
     dplyr::select(.data$ProsedyreDato,
                   .data$StentType,
@@ -233,7 +190,7 @@ if(valid_staging_data) {
                   .data$AvdRESH,
                   .data$metode)
   
-  # BEARBEIDE OG UTLEDE NYE VARIABLER
+  # 4a) BEARBEIDE OG UTLEDE NYE VARIABLER
   aP_nasjonalt %<>%
     dplyr::select(
       .data$AvdRESH,
@@ -327,7 +284,7 @@ if(valid_staging_data) {
                                   "Omdirigert ambulanse") ~ "Direkte",
       TRUE ~ NA_character_))
   
-  # _BEARBEIDE OG UTLEDE NYE VARIABLER
+  # 4b) BEARBEIDE OG UTLEDE NYE VARIABLER
   aK_nasjonalt %<>%
     dplyr::select(
       .data$ProsedyreDato,
@@ -398,151 +355,6 @@ if (params$rendered_by_shiny)
 ```
 
 
-```{r sSPrepare,include=FALSE, eval=TRUE}
-# sS_nasjonalt %<>% 
-#   dplyr::select(.data$ProsedyreDato,
-#                 .data$StentType, 
-#                 .data$Segment, 
-#                 .data$Graft,
-#                 .data$ForlopsID,
-#                 .data$Sykehusnavn, 
-#                 .data$AvdRESH, 
-#                 .data$aar, 
-#                 .data$maaned, 
-#                 .data$kvartal) 
-```
-
-
-```{r aPPrepare,include=FALSE, eval=TRUE}
-# 
-# aP_nasjonalt %<>% 
-#   dplyr::select(
-#     .data$AvdRESH,
-#     .data$Sykehusnavn,
-#     .data$Regtype, 
-#     .data$PrimaerForlopsID,
-#     .data$ProsedyreDato,
-#     .data$ProsedyreTid,
-#     .data$ProsedyreType,
-#     .data$OverflyttetFra, 
-#     .data$AnkomstPCIDato,
-#     .data$AnkomstPCITid, 
-#     .data$InnleggelseHenvisendeSykehusDato,
-#     .data$InnleggelseHenvisendeSykehusTid,
-#     .data$Innkomstarsak,
-#     .data$Indikasjon, 
-#     .data$Hastegrad,
-#     .data$BesUtlEKGDato, 
-#     .data$BesUtlEKGTid,
-#     .data$BeslutningsutlosendeEKG,
-#     .data$GittTrombolyse, 
-#     .data$HLRForSykehus,
-#     .data$KobletForlopsID,
-#     .data$ForlopsType2, 
-#     .data$IFR, 
-#     .data$FFR, 
-#     .data$IVUS, 
-#     .data$OCT, 
-#     .data$ForlopsID, 
-#     .data$ASA, 
-#     .data$AndrePlatehemmere,
-#     .data$AndrePlatehemmere,
-#     .data$Antikoagulantia,
-#     .data$UtskrStatiner, 
-#     .data$TidlABC, 
-#     .data$UtskrevetDod, 
-#     .data$SkjemaStatusStart, 
-#     .data$SkjemastatusHovedskjema, 
-#     .data$SkjemaStatusUtskrivelse, 
-#     .data$SkjemaStatusKomplikasjoner
-#   ) %>% 
-#   
-#   noric::utlede_OppholdsID(.) %>% 
-#   
-#   noric::utlede_ferdigstilt(df = .,
-#                             var = .data$SkjemaStatusStart,
-#                             suffix = "StartSkjema") %>%
-#   noric::utlede_ferdigstilt(df = .,
-#                             var = .data$SkjemastatusHovedskjema,
-#                             suffix = "HovedSkjema") %>%
-#   noric::utlede_ferdigstilt(df = .,
-#                             var = .data$SkjemaStatusUtskrivelse,
-#                             suffix = "UtskrSkjema") %>%
-#   noric::utlede_ferdigstilt(df = .,
-#                             var = .data$SkjemaStatusKomplikasjoner,
-#                             suffix = "KomplikSkjema") %>% 
-#   
-#   noric::legg_til_antall_stent(df_ap = ., df_ss = sS_nasjonalt) %>% 
-#   noric::legg_til_antall_stent_opphold(df_ap = .) %>% 
-#   noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>% 
-#   
-#   #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
-#   # trykkmåling. Disse fjernes før tabellen legges i utforsker
-#   noric::legg_til_trykkmaalinger(df_ap = .,
-#                                  df_ad = anD_nasjonalt) %>% 
-#   
-#   # LEgg til hjelpevariabler for ventetider
-#   noric::legg_til_ventetid_nstemi_timer(.) %>% 
-#   noric::legg_til_ventetid_stemi_min(.) %>% 
-#   
-#   # Legge til kvalitetsindikatorene:
-#   noric::ki_ferdigstilt_komplikasjoner(df_ap = .) %>% 
-#   noric::ki_trykkmaaling_utfoert(df_ap = .) %>% 
-#   noric::ki_ivus_oct_ved_stenting_lms(df_ap = .) %>% 
-#   noric::ki_foreskr_blodfortynnende(df_ap = .) %>% 
-#   noric::ki_foreskr_kolesterolsenkende(df_ap = .) %>%
-#   noric::ki_nstemi_utredet_innen24t() %>% 
-#   noric::ki_nstemi_utredet_innen72t() %>% 
-#   noric::ki_stemi_pci_innen120min() %>% 
-#   
-#   dplyr::mutate(
-#     maaned = as.factor(format(x = .data$ProsedyreDato, format = "%Y-%m")), 
-#     aar = lubridate::year(.data$ProsedyreDato), 
-#     kvartal = paste0(lubridate::year(.data$ProsedyreDato), 
-#                      " Q", 
-#                      lubridate::quarter(.data$ProsedyreDato, 
-#                                         with_year = FALSE))) %>% 
-#   dplyr::mutate(admissionType = dplyr::case_when(
-#     .data$OverflyttetFra %in% "Annet sykehus" ~ "Overflyttet", 
-#     .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus", 
-#                                 "Omdirigert ambulanse") ~ "Direkte",
-#     TRUE ~ NA_character_
-#   ))
-
-```
-
-```{r }
-if (params$rendered_by_shiny)
-  shiny::setProgress(0.2)  # set progress to 10%
-```
-
-
-```{r aKPrepare,include=FALSE, eval=TRUE}
-
-# aK_nasjonalt %<>% 
-#   dplyr::select(
-#     .data$ProsedyreDato,
-#     .data$AvdKompPacemaker, 
-#     .data$LabKompDod, 
-#     .data$TypeKlaffeprotese,
-#     .data$Sykehusnavn, 
-#     .data$AvdRESH, 
-#     .data$ForlopsID, 
-#     .data$Pacemaker,
-#     .data$SkjemaStatusHovedskjema)
-# 
-# aK_nasjonalt %<>%
-#   dplyr::mutate(
-#     kvartal = paste0(
-#       lubridate::year(.data$ProsedyreDato),
-#       " Q",
-#       lubridate::quarter(.data$ProsedyreDato, with_year = FALSE))) %>% 
-#   noric::ki_ak_pacemakerbehov(df_ak = .)
-# 
-
-
-
-```
 
 ```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
 nyeste_registrering_ak <- aK_nasjonalt %>% 
