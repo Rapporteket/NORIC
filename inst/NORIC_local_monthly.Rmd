@@ -1,5 +1,5 @@
 ---
-title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI og stentbruk for ', params$hospitalName) `"
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport: Angio/PCI og stentbruk for ', params$hospitalName) `"
 author: ""
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 output: pdf_document
@@ -292,7 +292,10 @@ AP %<>%
   dplyr::mutate(
     Nstents = ifelse(is.na(.data$antall_stent),
                      0,
-                     .data$antall_stent))
+                     .data$antall_stent),
+    OpptellingNstents = ifelse(.data$Nstents < 4,
+                               .data$Nstents,
+                               "\u2265 4"))
 
 ```
 
@@ -369,6 +372,11 @@ PCImedStent <- subset(
   Nstents > 0
 )
 
+PCImedStent %<>% mutate(
+  OpptellingNstents = factor(OpptellingNstents, 
+                             levels = c("1", "2", "3", "\u2265 4"))
+) 
+
 rangePCImdStentProsDato <- format(
   range(PCImedStent$ProsedyreDato),
   format = "%d-%m-%Y")
@@ -382,11 +390,6 @@ AP <- subset(
 rangeProsDato <- format(range(AP$ProsedyreDato), 
                         format = "%d-%m-%Y")
 
-# crude fix for Feiring and Rikshospitalet which have meaningless test data
-# before 2015
-if (AP$Sykehusnavn[1] %in% c("Feiring", "Rikshospitalet")) {
-  AP <- AP[which(AP$Year >= 2015), ]
-}
 
 AP$Month <- as.factor(
   format(
@@ -457,6 +460,7 @@ hastegradMaaned %>% ggplot2::ggplot(
   ggplot2::xlab("Måned") +
   ggplot2::ylab("Antall") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
 ```
@@ -494,7 +498,7 @@ prosedyreTypeMaaned <- AP %>%
                .data$ProsedyreType) %>%
   dplyr::group_by(.data$maaned, .data$ProsedyreType)
 
-prosedyreType_levels <- c("PCI", "Angio + PCI", "Angio")
+prosedyreType_levels <- c("Angio", "Angio + PCI", "PCI")
 
 prosedyreTypeMaaned %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$maaned,
@@ -508,30 +512,9 @@ prosedyreTypeMaaned %>% ggplot2::ggplot(
   ggplot2::xlab("Måned") +
   ggplot2::ylab("Antall") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
-# op <- par(
-#   mfcol = c(1, 1),
-#   xpd = NA,
-#   mar = c(5.1, 4.1, 4.1, 13.1))
-# 
-# barplot(
-#   xtabs(formula = ~ ProsedyreType + maaned, data = AP),
-#   las = 1,
-#   xlab = "Måned",
-#   ylab = "Antall",
-#   col = pal,
-#   space = 0.2,
-#   border = FALSE)
-# 
-# legend(
-#   "right",
-#   inset = -.28,
-#   bty = "n",
-#   horiz = FALSE,
-#   fill = pal[3:1],
-#   legend = sort(unique(AP$ProsedyreType), decreasing = TRUE),
-#   cex = 1)
 ```
 
 
@@ -556,28 +539,33 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ## Indikasjon
 ```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer etter indikasjon og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 12, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
 
-op <- par(
-  mfcol = c(1, 1),
-  xpd = NA,
-  mar = c(5.1, 4.1, 4.1, 13.1))
 
-barplot(
-  xtabs(formula = ~ Indikasjon2 + maaned, data = AP),
-  las = 1,
-  xlab = "Måned",
-  ylab = "Antall",
-  col = colPrimary[6:1],
-  space = 0.2,
-  border = FALSE)
+Indikasjon2Maaned <- AP %>%
+  dplyr::count(.data$maaned,
+               .data$Indikasjon2) %>%
+  dplyr::group_by(.data$maaned, .data$Indikasjon2)
 
-legend(
-  "right",
-  inset = -.28,
-  bty = "n",
-  horiz = FALSE,
-  fill = colPrimary,
-  legend = levels(AP$Indikasjon2)[6:1],
-  cex = 1)
+Indikasjon2_levels <- c("Annet",
+                        "STEMI",
+                        "NSTEMI",
+                        "UAP",
+                        "SAP",
+                        "Uklare brystsmerter")
+
+Indikasjon2Maaned %>% ggplot2::ggplot(
+  ggplot2::aes(x = .data$maaned,
+               y = .data$n,
+               fill = factor(.data$Indikasjon2,
+                             levels = Indikasjon2_levels))) +
+  ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::scale_fill_manual(values = colPrimary) +
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("Måned") +
+  ggplot2::ylab("Antall") +
+  ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_text(size = 12),
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
 ```
 
 
@@ -716,15 +704,15 @@ cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
               " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("FFR",
                          "IFR",
-                         # "Doppler",
+                         "Doppler",
                          "OCT",
                          "IVUS",
-                         # "NIRS",
+                         "NIRS",
                          "N")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("r", 8),
+           align = rep("c", 8),
            label = "TabTilleggsProsedyre1")
 
 ```
@@ -741,7 +729,7 @@ noric::mst(TabTillegg[, c("Høyre kat.",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("r", 4),
+           align = rep("c", 4),
            label = "TabTilleggsProsedyre2")
 ```
 
@@ -763,7 +751,7 @@ noric::mst(TabTillegg[, c("PM",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("r", 8),
+           align = rep("c", 8),
            lsd = TRUE,
            label = "TabTilleggsProsedyre3")
 ```
@@ -772,51 +760,6 @@ noric::mst(TabTillegg[, c("PM",
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.5)  # set progress to 50%
-```
-
-<br/>
-
-## Andre prosedyrer
-`r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
-
-```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
-cap <- paste0("Antall andre prosedyrer (utført uten direkte tilknytning",
-             " til Angio/PCI)  etter prosedyretype og måned for ",
-             params$hospitalName, " i perioden ",
-             rangeProsDato[1], " til ", rangeProsDato[2], ".")
-TabNAndreProsedyrer <- addmargins(
- xtabs(formula = ~ maaned + AnnenProsType,
-       data = AnP)
-)
-
-align <- c("l", rep("c", dim(TabNAndreProsedyrer)[2] - 1))
-
-if (params$tableFormat == "html") {
-  kable(TabNAndreProsedyrer, caption = cap) %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
-                  full_width = FALSE) %>%
-    row_spec(row = 0, font_size = 10, angle = -45) %>%
-    column_spec(column = 1:(dim(TabNAndreProsedyrer)[2] + 1), width = "3em")
-}
-
-if (params$tableFormat == "latex") {
-  knitr::kable(x = TabNAndreProsedyrer,
-               format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = align) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
-    kableExtra::kable_styling(latex_options = "scale_down") %>%
-    kableExtra::row_spec(row = 0, angle = 45)
-}
-```
-
-\newpage
-
-
-```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.6)  # set progress to 60%
 ```
 
 <br/>
@@ -1009,7 +952,7 @@ text(
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.7)  # set progress to 70%
+    shiny::setProgress(0.6)  # set progress to 60%
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -1120,6 +1063,57 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.7)  # set progress to 70%
+```
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+<br/><br/>
+
+# Andre prosedyrer
+`r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
+
+```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
+cap <- paste0("Antall andre prosedyrer (utført uten direkte tilknytning",
+             " til Angio/PCI)  etter prosedyretype og måned for ",
+             params$hospitalName, " i perioden ",
+             rangeProsDato[1], " til ", rangeProsDato[2], ".")
+TabNAndreProsedyrer <- addmargins(
+ xtabs(formula = ~ maaned + AnnenProsType,
+       data = AnP)
+)
+
+align <- c("l", rep("c", dim(TabNAndreProsedyrer)[2] - 1))
+
+if (params$tableFormat == "html") {
+  kable(TabNAndreProsedyrer, caption = cap) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                  full_width = FALSE) %>%
+    row_spec(row = 0, font_size = 10, angle = -45) %>%
+    column_spec(column = 1:(dim(TabNAndreProsedyrer)[2] + 1), width = "3em")
+}
+
+if (params$tableFormat == "latex") {
+  knitr::kable(x = TabNAndreProsedyrer,
+               format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = align) %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
+    kableExtra::kable_styling(latex_options = "scale_down") %>%
+    kableExtra::row_spec(row = 0, angle = 45)
+}
+```
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.8)  # set progress to 80%
 ```
 
@@ -1143,44 +1137,55 @@ tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
              label = "TabNRProsedyreType")
 ```
 
-
-
 <br/>
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre  for `r params$hospitalName` i perioden `r paste0(rangePCImdStentProsDato, collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
+Antall stenter per prosedyre for `r params$hospitalName` i perioden `r paste0(rangePCImdStentProsDato, collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)` i denne perioden.
 
-```{r BarplotNstentPerProsedyre, fig.width = 12, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2], ".")}
+```{r BarplotNstentPerProsedyre, fig.width = 10, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Fordeling per måned for antall stenter per prosedyre der stent er satt inn for ", params$hospitalName, " i perioden ", rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2], ".")}
 
-par(
-  mfcol = c(1, 1),
-  xpd = NA,
-  mar = c(5.1, 4.1, 4.1, 13.1),
-  las = 1
-  )
+pal <- colPrimary[c(1,2,3,5)]
 
+opptellingNstentsMaaned <- PCImedStent %>%
+  dplyr::count(.data$maaned,
+               .data$OpptellingNstents) %>%
+  dplyr::group_by(.data$maaned, .data$OpptellingNstents)
 
-TabNStent <- xtabs(
-  formula = ~ Nstents,
-  data = PCImedStent)
+OpptellingNstents_levels <- c("\u2265 4",
+                        "3",
+                        "2",
+                        "1")
 
-barplot(
-  TabNStent,
-  xlab = "Antall stenter per prosedyre",
-  ylab = "Antall prosedyrer",
-  border = FALSE,
-  space = 0.3,
-  col = colPrimary[3]
-)
+opptellingNstentsMaaned %>% ggplot2::ggplot(
+  ggplot2::aes(x = .data$maaned,
+               y = .data$n,
+               fill = factor(.data$OpptellingNstents,
+                             levels = OpptellingNstents_levels))) +
+  ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::scale_fill_manual(values = pal) +
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("Måned") +
+  ggplot2::ylab("Antall prosedyrer") +
+  ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_text(size = 12),
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
-SumStat <- round(summary(PCImedStent$Nstents), 1)
-
-legend(
-  "right",
-  inset = -.28,
-  bty = "n",
-  legend = paste(attr(SumStat, "names"), ": ", SumStat, sep = ""))
 ```
+
+<br/>
+
+```{r TabNstentPerProsedyre, echo = FALSE, results = "asis"}
+cap <- paste0("Antall stenter per prosedyre og prosentvis fordeling ",
+              "per måned for ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ",
+              rangeProsDato[2], ".")
+xtabs(formula = ~ maaned + OpptellingNstents, data = PCImedStent) %>%
+  noric::prettyTab(., add_totals = TRUE) %>%
+  noric::mst(., type = params$tableFormat, cap = cap, digs = 0,
+             label = "TabNstent")
+
+```
+
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
