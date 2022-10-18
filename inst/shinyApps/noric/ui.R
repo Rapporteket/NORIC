@@ -203,11 +203,18 @@ ui <- tagList(
         shiny::sidebarLayout(
           shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
           shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
-          
-          
+        )
+      ), 
+      
+      shiny::tabPanel(
+        "Forvaltning stagingData", 
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(htmlOutput("info1")),
+          shiny::mainPanel(htmlOutput("info2"))
         )
       )
     )
   )
 )
-
+  
+  

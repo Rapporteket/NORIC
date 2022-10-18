@@ -623,4 +623,8 @@ shinyServer(function(input, output, session) {
   rapbase::exportUCServer("noricExport", registryName = registryName,
                           repoName = "noric", eligible = (userRole == "SC"))
   rapbase::exportGuideServer("noricExportGuide", registryName = registryName)
+  
+  
+  # Staging data
+  
 })
