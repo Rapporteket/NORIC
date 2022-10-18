@@ -7,39 +7,81 @@
 #' @examples
 makeStagingDataKi <- function(registryName) {
   
-  # Sjekke om dette kan gjøres i funksjonen etterhvert, 
-  # som periode_data i indikator-rapporten!
-  forste_dato <- as.Date("2018-01-01", format = "%Y-%m-%d")
-  siste_dato <- as.Date(Sys.time()) - 1
+  # # Sjekke om dette kan gjøres i funksjonen etterhvert, 
+  # # som periode_data i indikator-rapporten!
+  # forste_dato <- as.Date("2018-01-01", format = "%Y-%m-%d")
+  # siste_dato <- as.Date(Sys.time()) - 1
+  # 
+  # 
+  # 
+  # 
   
   
+  
+  # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+  
+  # NYESTE DATO: 
+  # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+  # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+  # gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+  # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+  # overføringer har stoppet opp
+  
+  # ELDSTE DATO: 
+  # generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
+  # AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i 
+  #     starten av året. 
+  # SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
+  # "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
+  
+  
+  periode_data <- data.frame(
+    # Nyeste registrering eller gårsdagen
+    siste_dato = min((as.Date(Sys.time()) - 1), 
+                     noric::getLatestEntry(registryName = registryName))) %>% 
+  
+    dplyr::mutate(
+      # Inneværende år: 
+      nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
+      
+      # Fjoråret
+      sisteHeleYear = .data$nyesteRegYear - 1, 
+      
+      # Første dato for SQL -spørring : 01. januar fjoråret
+      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                             format = "%Y-%m-%d"), 
+      
+      # Aortaklaff + Segment stent (indikator per kvartal): 
+      forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
+                                  format = "%Y-%m-%d")
+    )
   
   
   # HENTE DATA:
   sS_nasjonalt <- noric::getPrepSsData(
     registryName = registryName, 
-    fromDate  = forste_dato,  
-    toDate = siste_dato, 
+    fromDate  = periode_data$forste_dato_ak_ss,  
+    toDate = periode_data$siste_dato, 
     singleRow = FALSE) 
   
   
   # Hardkodet 2018- dags dato pga figur 4,5 og 6
   aP_nasjonalt <- noric::getPrepApData(
     registryName = registryName, 
-    fromDate  = forste_dato,  
-    toDate = siste_dato, 
+    fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),  
+    toDate = periode_data$siste_dato, 
     singleRow = FALSE)
   
   aK_nasjonalt <- noric::getPrepAkData(
     registryName = registryName, 
-    fromDate  = forste_dato,  
-    toDate = siste_dato, 
+    fromDate  = periode_data$forste_dato_ak_ss,  
+    toDate = periode_data$siste_dato, 
     singleRow = FALSE)
   
   anD_nasjonalt <- noric::getPrepAnDData(
     registryName = registryName, 
-    fromDate  = forste_dato,  
-    toDate = siste_dato, 
+    fromDate  = periode_data$forste_dato,  
+    toDate = periode_data$siste_dato, 
     singleRow = FALSE)
   
   
@@ -183,5 +225,6 @@ makeStagingDataKi <- function(registryName) {
   rapbase::saveStagingData(registryName = registryName,
                            dataName = "staging_nasjonal_ki", 
                            data = list(aK_nasjonalt = aK_nasjonalt, 
-                                       aP_nasjonalt = aP_nasjonalt))
+                                       aP_nasjonalt = aP_nasjonalt, 
+                                       periode_data = periode_data))
 }

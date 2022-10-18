@@ -70,44 +70,44 @@ colKontrast <- "#FF7260"
 
 
 ```{r latest_entry, include=FALSE, eval=TRUE}
-# DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
-
-# NYESTE DATO: 
-# Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
-# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
-# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
-# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
-# overføringer har stoppet opp
-
-# ELDSTE DATO: 
-# generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
-# AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i 
-#     starten av året. 
-# SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
-# "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
-nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
-
-periode_data <- data.frame(
-  siste_dato = min((as.Date(Sys.time()) - 1), 
-                   nyeste_reg)) 
-
-periode_data %<>% 
-  dplyr::mutate(
-    
-    # Inneværende år: 
-    nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
-    
-    # Fjoråret
-    sisteHeleYear = .data$nyesteRegYear - 1, 
-    
-    # Første dato for SQL -spørring : 01. januar fjoråret
-    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-                           format = "%Y-%m-%d"), 
-    
-    # Aortaklaff + Segment stent (indikator per kvartal): 
-    forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
-                                format = "%Y-%m-%d")
-  )
+# # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+# 
+# # NYESTE DATO: 
+# # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+# # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# # gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# # overføringer har stoppet opp
+# 
+# # ELDSTE DATO: 
+# # generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
+# # AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i 
+# #     starten av året. 
+# # SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
+# # "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
+# nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+# 
+# periode_data <- data.frame(
+#   siste_dato = min((as.Date(Sys.time()) - 1), 
+#                    nyeste_reg)) 
+# 
+# periode_data %<>% 
+#   dplyr::mutate(
+#     
+#     # Inneværende år: 
+#     nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
+#     
+#     # Fjoråret
+#     sisteHeleYear = .data$nyesteRegYear - 1, 
+#     
+#     # Første dato for SQL -spørring : 01. januar fjoråret
+#     forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+#                            format = "%Y-%m-%d"), 
+#     
+#     # Aortaklaff + Segment stent (indikator per kvartal): 
+#     forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
+#                                 format = "%Y-%m-%d")
+#   )
 ```
 
 
@@ -122,12 +122,22 @@ periode_data %<>%
 
 
 
-valid_staging_data <- FALSE
-if(length(rapbase::listStagingData(registryName = params$registryName))>0){
-  if(rapbase::listStagingData(registryName = params$registryName) %in% "staging_nasjonal_ki"){
-    valid_staging_data <- TRUE
-  }
-}
+valid_staging_data <- dplyr::case_when(
+  
+  # Staging data finnes, og har riktig navn
+  length(rapbase::listStagingData(registryName = params$registryName))> 0 &
+    rapbase::listStagingData(registryName = params$registryName) %in% c(
+      "staging_nasjonal_ki") ~ TRUE,
+  
+  # Staging data finnes ikke
+  length(rapbase::listStagingData(registryName = params$registryName)) == 0 ~ 
+    FALSE, 
+  
+  # default
+  TRUE ~ FALSE
+)
+
+
 
 if(valid_staging_data) {
   
@@ -136,19 +146,49 @@ if(valid_staging_data) {
   
   aP_nasjonalt <- stagingData$aP_nasjonalt
   aK_nasjonalt <- stagingData$aK_nasjonalt
-  
-  aP_nasjonalt %<>% 
-    dplyr::filter(
-      .data$ProsedyreDato >= as.Date("2018-01-01", format = "%Y-%m-%d"), 
-      .data$ProsedyreDato <= periode_data$siste_dato)
-  
-  aK_nasjonalt %<>% 
-    dplyr::filter(
-      .data$ProsedyreDato >= periode_data$forste_dato_ak_ss, 
-      .data$ProsedyreDato <= periode_data$siste_dato)
+  periode_data <- stagingData$periode_data
 
-  } else{ 
- 
+} else{ 
+  
+  
+  # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+  
+  # NYESTE DATO: 
+  # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+  # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+  # gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+  # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+  # overføringer har stoppet opp
+  
+  # ELDSTE DATO: 
+  # generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
+  # AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i 
+  #     starten av året. 
+  # SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
+  # "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
+  
+  periode_data <- data.frame(
+    # Nyeste registrering eller gårsdagen
+    siste_dato = min(
+      (as.Date(Sys.time()) - 1), 
+      noric::getLatestEntry(registryName = params$registryName))) %>% 
+    
+    dplyr::mutate(
+      # Inneværende år: 
+      nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
+      
+      # Fjoråret
+      sisteHeleYear = .data$nyesteRegYear - 1, 
+      
+      # Første dato for SQL -spørring : 01. januar fjoråret
+      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                             format = "%Y-%m-%d"), 
+      
+      # Aortaklaff + Segment stent (indikator per kvartal): 
+      forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
+                                  format = "%Y-%m-%d")
+    )
+  
   # HENTE DATASETTENE (SQL-spørring)
   sS_nasjonalt <- noric::getPrepSsData(
     registryName = params$registryName,
