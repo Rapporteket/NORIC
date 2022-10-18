@@ -209,8 +209,8 @@ ui <- tagList(
       shiny::tabPanel(
         "Forvaltning stagingData", 
         shiny::sidebarLayout(
-          shiny::sidebarPanel(htmlOutput("info1")),
-          shiny::mainPanel(htmlOutput("info2"))
+          shiny::sidebarPanel(htmlOutput("stagingControl")),
+          shiny::mainPanel(shiny::htmlOutput("stagingData"))
         )
       )
     )

@@ -213,7 +213,7 @@ shinyServer(function(input, output, session) {
   rvals$selectedVars <- ""
   rvals$utfDateStart <- as.Date(
     x = paste0("01-01-", as.integer(format(x = ymd(Sys.Date()) - years(3), 
-      format ="%Y"))), 
+                                           format ="%Y"))), 
     format = "%d-%m-%Y")
   rvals$utfDateEnd <- Sys.Date()
   
@@ -626,5 +626,35 @@ shinyServer(function(input, output, session) {
   
   
   # Staging data
+  output$stagingControl <- renderUI({
+    actionButton(inputId = "lagNyStaging",
+                 label = "Lag ny staging data ")
+  })
+  
+  shiny::observeEvent(input$lagNyStaging, 
+                      noric::makeStagingDataKi(registryName = registryName)
+                      )
+  
+  staging <- rapbase::mtimeStagingData(registryName = registryName) %>% 
+    as.data.frame() 
+  
+  
+  output$stagingDataTable <- DT::renderDataTable(
+    staging, rownames = TRUE,
+    options = list(
+      lengthMenu = c(25, 50, 100, 200, 400),
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      ))
+  )
+  
+  output$stagingData <- renderUI({
+    DT::dataTableOutput("stagingDataTable")
+  })
+  
+  
   
 })
