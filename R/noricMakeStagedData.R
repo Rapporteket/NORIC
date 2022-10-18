@@ -7,15 +7,7 @@
 #' @examples
 makeStagingDataKi <- function(registryName) {
   
-  # # Sjekke om dette kan gjøres i funksjonen etterhvert, 
-  # # som periode_data i indikator-rapporten!
-  # forste_dato <- as.Date("2018-01-01", format = "%Y-%m-%d")
-  # siste_dato <- as.Date(Sys.time()) - 1
-  # 
-  # 
-  # 
-  # 
-  
+
   
   
   # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
