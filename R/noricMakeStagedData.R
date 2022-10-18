@@ -56,6 +56,7 @@ makeStagingDataKi <- function(registryName) {
                                   format = "%Y-%m-%d")
     )
   
+
   
   # HENTE DATA:
   sS_nasjonalt <- noric::getPrepSsData(
@@ -216,10 +217,7 @@ makeStagingDataKi <- function(registryName) {
         lubridate::quarter(.data$ProsedyreDato, with_year = FALSE))) %>% 
     noric::ki_ak_pacemakerbehov(df_ak = .)
   
-  # VELGE UT VARIABLER SOM SKAL BEHOLDES:
-  # Her kan vi begrense antall variabler og rader.., 
-  # velge et navn på datasettes som inneholder dato kanskje.
-  
+
   
   # LAGRE STAGING DATA
   rapbase::saveStagingData(registryName = registryName,

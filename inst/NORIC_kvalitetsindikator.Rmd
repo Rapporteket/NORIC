@@ -80,8 +80,7 @@ if (params$rendered_by_shiny)
 
 
 
-```{r GetData, include=FALSE, cache=FALSE}
-
+```{r check_valid_stagedData, include=FALSE, cache=FALSE}
 valid_staging_data <- FALSE
 
 if(length(rapbase::listStagingData(registryName = params$registryName)) > 0) {
@@ -91,11 +90,11 @@ if(length(rapbase::listStagingData(registryName = params$registryName)) > 0) {
     valid_staging_data <- TRUE
   }
   
-} 
+}
+```
 
 
-
-
+```{r GetData, include=FALSE, cache=FALSE}
 if(valid_staging_data) {
   
   stagingData <- rapbase::loadStagingData(registryName = params$registryName, 
