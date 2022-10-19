@@ -681,7 +681,7 @@ cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
               " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("FFR",
                          "IFR",
-                         "Doppler",
+                         # "Doppler",
                          "OCT",
                          "IVUS",
                          "NIRS",
@@ -844,6 +844,9 @@ text(
 ### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 ```{r TabAvdKompl,results='asis'}
 
+#Kun primærforløp og der SkjemaStatusKomplikasjoner er 1
+AP_avdKomp <- AP %>% dplyr::filter(.data$Regtype %in% "Primær")
+
 AvdKomplikasjoner <- data.frame(
   VarName = c(
     "AvdKomp",
@@ -879,12 +882,12 @@ AvdKomplikasjoner$Antall <- unlist(
   lapply(
     X = AvdKomplikasjoner$VarName,
     FUN = function(X) {
-      try(sum(AP[, X] == "Ja", na.rm = TRUE))
+      try(sum(AP_avdKomp[, X] == "Ja", na.rm = TRUE))
     }
   ))
 
 AvdKomplikasjoner$Prosent <- round(
-  100 * AvdKomplikasjoner$Antall / dim(AP)[1],
+  100 * AvdKomplikasjoner$Antall / dim(AP_avdKomp)[1],
   digits = 2)
 
 i.labkomp <- order(AvdKomplikasjoner$Prosent)
