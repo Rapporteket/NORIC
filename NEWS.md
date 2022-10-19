@@ -1,3 +1,10 @@
+# noric 2.XX
+
+## Nytt
+Lagrer en skyggekopi av staging data som kan brukes til generering av 
+KI-rapporten.
+
+
 # noric 2.9.2
 
 ## Nytt
@@ -9,6 +16,7 @@ Raskere SQL spørring ved kortere intervall!
 Ny variabel _FnrType_ bare for SC rolle i utforsker
 Litt mer fix i avdod-rapporten
 Legge til Avdod og AvdodDato i Mitralklaff
+
 # noric 2.9.1
 
 Bugfix. Fjerne donorutrednign fra avdod-rapporten
