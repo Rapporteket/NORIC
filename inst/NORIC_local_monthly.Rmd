@@ -740,8 +740,15 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 <br/>
 
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
 ## Komplikasjoner
 ### Komplikasjoner på lab for `r params$hospitalName`  i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
+
+Datagrunnlaget for komplikasjoner på lab gjelder alle forløp.
+
 ```{r TabLabKompl,results='asis'}
 
 LabKomplikasjoner <- data.frame(
@@ -841,6 +848,9 @@ text(
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
+
+Datagrunnlaget for komplikasjoner på avdelingen gjelder kun primære forløp.
+
 ```{r TabAvdKompl,results='asis'}
 
 #Kun primærforløp og der SkjemaStatusKomplikasjoner er 1
