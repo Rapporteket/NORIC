@@ -27,6 +27,7 @@ library(magrittr)
 library(knitr)
 library(kableExtra)
 library(dplyr)
+library(stringr)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
@@ -112,6 +113,17 @@ AP <- noric::getPrepApData(registryName = params$registryName,
 ```{r APprepare, include=FALSE, eval=TRUE}
 rangeProsDato <- format(range(AP$ProsedyreDato), 
                         format = "%d-%m-%Y")
+
+AP %<>% mutate(
+  forkortetNavnAngiografor = if_else(is.na(Angiografor1),
+                                     true = NA_character_,
+                                     false = paste0(
+                                       substr(stringr::word(AP$Angiografor1, 1), 1, 1),
+                                       ". ",
+                                       stringr::word(AP$Angiografor1, -1)))
+)
+
+
 ```
 
 
@@ -150,9 +162,10 @@ cap <- paste0("Antall prosedyrer per måned der det er utført koronar ",
               "opp i NORIC. Gjelder for ", params$hospitalName, " i perioden ", 
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
               "Opptellingen er basert på prosedyretypene Angio og Angio+PCI.")
-tab_angiografor <- addmargins(xtabs(formula = ~ Angiografor1 + maaned,
-                             data = angiografor_AP,
-                             drop.unused.levels = TRUE))
+tab_angiografor <- addmargins(xtabs(
+  formula = ~ forkortetNavnAngiografor + maaned,
+  data = angiografor_AP,
+  drop.unused.levels = TRUE))
 align <- c("l", rep("c", dim(tab_angiografor)[2] - 1))
 
 if (params$tableFormat == "html") {
