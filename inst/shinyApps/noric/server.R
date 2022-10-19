@@ -625,22 +625,40 @@ shinyServer(function(input, output, session) {
   rapbase::exportGuideServer("noricExportGuide", registryName = registryName)
   
   
-  # Staging data
+ 
+  
+  
+  
+  
+   # Staging data
   output$stagingControl <- renderUI({
     actionButton(inputId = "lagNyStaging",
                  label = "Lag ny staging data ")
   })
   
-  shiny::observeEvent(input$lagNyStaging, 
-                      noric::makeStagingDataKi(registryName = registryName)
-                      )
+  v <- reactiveValues(
+    
+    # Default verdier
+    staging = rapbase::mtimeStagingData(registryName = registryName) %>% 
+      as.data.frame()
+  )
   
-  staging <- rapbase::mtimeStagingData(registryName = registryName) %>% 
-    as.data.frame() 
+  
+  
+  shiny::observeEvent(input$lagNyStaging,{
+    noric::makeStagingDataKi(registryName = registryName)
+    })
+  
+
+  shiny::eventReactive(input$lagNyStaging, {
+    v$staging <- rapbase::mtimeStagingData(registryName = registryName) %>% 
+      as.data.frame()
+    })
+
   
   
   output$stagingDataTable <- DT::renderDataTable(
-    staging, rownames = TRUE,
+    v$staging, rownames = TRUE,
     options = list(
       lengthMenu = c(25, 50, 100, 200, 400),
       language = list(
