@@ -681,7 +681,6 @@ cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
               " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("FFR",
                          "IFR",
-                         # "Doppler",
                          "OCT",
                          "IVUS",
                          "NIRS",
