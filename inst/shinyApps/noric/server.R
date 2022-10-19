@@ -625,12 +625,12 @@ shinyServer(function(input, output, session) {
   rapbase::exportGuideServer("noricExportGuide", registryName = registryName)
   
   
- 
   
   
   
   
-   # Staging data
+  
+  # Staging data
   output$stagingControl <- renderUI({
     actionButton(inputId = "lagNyStaging",
                  label = "Lag ny staging data ")
@@ -645,16 +645,19 @@ shinyServer(function(input, output, session) {
   
   
   
-  shiny::observeEvent(input$lagNyStaging,{
-    noric::makeStagingDataKi(registryName = registryName)
+  shiny::observeEvent(input$lagNyStaging, {
+    withProgress(message = 'Making new staging data', value = 0, {
+      noric::makeStagingDataKi(registryName = registryName)
     })
+    
+  })
   
-
+  
   shiny::eventReactive(input$lagNyStaging, {
     v$staging <- rapbase::mtimeStagingData(registryName = registryName) %>% 
       as.data.frame()
-    })
-
+  })
+  
   
   
   output$stagingDataTable <- DT::renderDataTable(
