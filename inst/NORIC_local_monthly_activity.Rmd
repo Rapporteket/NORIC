@@ -120,7 +120,14 @@ AP %<>% mutate(
                                      false = paste0(
                                        substr(stringr::word(AP$Angiografor1, 1), 1, 1),
                                        ". ",
-                                       stringr::word(AP$Angiografor1, -1)))
+                                       stringr::word(AP$Angiografor1, -1))),
+  
+    forkortetNavnPCIoperator = if_else(is.na(PCIHovedOperator),
+                                     true = NA_character_,
+                                     false = paste0(
+                                       substr(stringr::word(AP$PCIHovedOperator, 1), 1, 1),
+                                       ". ",
+                                       stringr::word(AP$PCIHovedOperator, -1)))
 )
 
 
@@ -214,9 +221,10 @@ cap <- paste0("Antall prosedyrer per måned der det er utført PCI, ",
               params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
               "Opptellingen er basert på prosedyretypene Angio+PCI og PCI.")
-tab_pciOperator <- addmargins(xtabs(formula = ~ PCIHovedOperator + maaned,
-                             data = pciOperator_AP,
-                             drop.unused.levels = TRUE))
+tab_pciOperator <- addmargins(xtabs(
+  formula = ~ forkortetNavnPCIoperator + maaned,
+  data = pciOperator_AP,
+  drop.unused.levels = TRUE))
 align <- c("l", rep("c", dim(tab_pciOperator)[2] - 1))
 
 if (params$tableFormat == "html") {
