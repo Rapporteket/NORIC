@@ -662,7 +662,7 @@ TilleggLabels <- c(
   "Ingen")
 
 
-rownames(TabTillegg) <- c(levels(AP$Month), "Totalt")
+rownames(TabTillegg) <- c(levels(AP$maaned), "Totalt")
 colnames(TabTillegg) <- c(TilleggLabels)
 
 
@@ -670,7 +670,7 @@ TabTillegg %<>%
   cbind(., AP %>%
           dplyr::count(maaned) %>%
           janitor::adorn_totals("row") %>%
-          dplyr::transmute(N = n))
+          dplyr::transmute(Totalt = n))
 ```
 
 
@@ -684,7 +684,7 @@ noric::mst(TabTillegg[, c("FFR",
                          "OCT",
                          "IVUS",
                          "NIRS",
-                         "N")],
+                         "Totalt")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
@@ -701,7 +701,7 @@ cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
               " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("Høyre kat.",
                          "Perikardiocentese",
-                         "N")],
+                         "Totalt")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
@@ -723,7 +723,7 @@ noric::mst(TabTillegg[, c("PM",
                           "ECMO",
                           "Annen",
                           "Ingen",
-                          "N")],
+                          "Totalt")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
@@ -738,11 +738,11 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.5)  # set progress to 50%
 ```
 
-<br/>
-
 `r if(params$tableFormat !="latex") {"<!--"}`
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
+
+<br/>
 
 ## Komplikasjoner
 ### Komplikasjoner på lab for `r params$hospitalName`  i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
@@ -951,7 +951,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 <br/>
 
 ## Kompletthet
-### Kompletthet angio/PCI-skjemaer
+### Kompletthet angio/PCI-skjemaer {-}
 ```{r SOtab1, results = "asis"}
 
 nSOA <- with(
@@ -981,8 +981,8 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            label = "SOtab1")
 ```
 
-
-### Kompletthet komplikasjonsskjemaer
+<br/>
+<!-- ### Kompletthet komplikasjonsskjemaer -->
 ```{r SOtab2, results = "asis"}
 
 nSOU <- with(
@@ -1014,8 +1014,8 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 
 ```
 
-
-### Kompletthet utskrivelsesskjemaer
+<br/>
+<!-- ### Kompletthet utskrivelsesskjemaer -->
 ```{r SOtab3, results = "asis"}
 
 nSOU <- with(
@@ -1092,7 +1092,7 @@ if (params$tableFormat == "latex") {
                align = align) %>%
     kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
     kableExtra::kable_styling(latex_options = "scale_down") %>%
-    kableExtra::row_spec(row = 0, angle = 45)
+    kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
 
@@ -1185,13 +1185,17 @@ SSpci <-  SS %>%
 ```
 
 
-```{r TabNstentNameMonth, echo = FALSE, results = "asis"}
+```{r TabNstentNameMonth, echo = FALSE, results = "asis", out.width = "\\textwidth"}
 cap <- paste0("Antall stenter etter merke og måned for ", params$hospitalName,
               " i perioden ", rangePCImdStentProsDato[1], " til ",
               rangePCImdStentProsDato[2], ".")
-tab_stent <- addmargins(xtabs(formula = ~ maaned + Stentnavn,
-                             data = SSpci,
-                             drop.unused.levels = TRUE))
+
+
+tab_stent <- addmargins(xtabs(
+  formula = ~ maaned + Stentnavn,
+  data = SSpci,
+  drop.unused.levels = TRUE))
+
 align <- c("l", rep("c", dim(tab_stent)[2] - 1))
 
 if (params$tableFormat == "html") {
