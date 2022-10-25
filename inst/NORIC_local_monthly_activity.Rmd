@@ -164,9 +164,9 @@ angiografor_AP <- AP %>% dplyr::filter(
 ``` 
 
 ```{r TabNAngiogrforMonth, echo = FALSE, results = "asis"}
-cap <- paste0("Antall prosedyrer per måned der det er utført koronar ",
-              "angiografi, sotert etter den angiograføren som først er listet ",
-              "opp i NORIC. Gjelder for ", params$hospitalName, " i perioden ", 
+cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført ",
+              "koronar angiografi, per måned og navn på angiografør 1. ",
+              "Gjelder for ", params$hospitalName, " i perioden ", 
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
               "Opptellingen er basert på prosedyretypene Angio og Angio+PCI.")
 tab_angiografor <- addmargins(xtabs(
@@ -216,9 +216,9 @@ pciOperator_AP <- AP %>% dplyr::filter(
 ``` 
 
 ```{r TabNOperatorMonth, echo = FALSE, results = "asis"}
-cap <- paste0("Antall prosedyrer per måned der det er utført PCI, ",
-              "sortert etter navn på hovedoperatør. Gjelder for ",
-              params$hospitalName, " i perioden ",
+cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført PCI, ",
+              "per måned og navn på hovedoperatør. ",
+              "Gjelder for ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
               "Opptellingen er basert på prosedyretypene Angio+PCI og PCI.")
 tab_pciOperator <- addmargins(xtabs(
