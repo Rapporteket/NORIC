@@ -414,7 +414,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 # Prosedyrer
 
 ## Hastegrad
-```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer etter hastegrad og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -443,8 +443,8 @@ hastegradMaaned %>% ggplot2::ggplot(
 ```
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
-cap <- paste0("Antall og prosentvis fordeling av registrerte prosedyrer etter",
-              " hastegrad og måned for ", params$hospitalName,
+cap <- paste0("Antall (andel) prosedyrer registrert i NORIC per måned ",
+              "og hastegrad ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ",
               rangeProsDato[2], ".")
 xtabs(formula = ~ maaned + Hastegrad, data = AP) %>%
@@ -465,7 +465,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 <br/>
 
 ## Prosedyretype
-```{r FigNProsedyreType, fig.cap =  paste0("Antall prosedyrer etter type og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -496,8 +496,8 @@ prosedyreTypeMaaned %>% ggplot2::ggplot(
 
 
 ```{r TabNProsedyreType,  results = 'asis'}
-cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter",
-              " prosedyretype og måned for ", params$hospitalName,
+cap <- paste0("Antall (andel) koronare angiografier og/eller PCI registrert ",
+              "i NORIC per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ",
               rangeProsDato[2], ".")
 xtabs(formula = ~ maaned + ProsedyreType, data = AP) %>%
@@ -514,7 +514,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 <br/>
 
 ## Indikasjon
-```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer etter indikasjon og måned for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
+```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
 
 
 Indikasjon2Maaned <- AP %>%
@@ -548,8 +548,8 @@ Indikasjon2Maaned %>% ggplot2::ggplot(
 
 
 ```{r TabNIndikasjon,  results = 'asis'}
-cap <- paste0("Antall og prosentvis fordeling av prosedyrer etter ",
-              "indikasjon og måned for ", params$hospitalName, " i perioden ",
+cap <- paste0("Antall (andel) prosedyrer registrert i NORIC per måned ",
+              "og indikasjon ved ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ".")
 xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>%
   noric::prettyTab(., add_totals = TRUE) %>%
@@ -569,7 +569,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 <br/>
 
-## Annen diagnostikk
+## Annen diagnostikk og tilleggsprosedyrer
 ```{r TabTillegg,include=FALSE}
 PrintTabTilleggCol <- function(VAR) {
   nVAR <- addmargins(
@@ -676,9 +676,9 @@ TabTillegg %<>%
 
 ### Annen diagnostikk ved angiografi
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
-cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
-              params$hospitalName, " i perioden ", rangeProsDato[1],
-              " til ", rangeProsDato[2], ".")
+cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
+              "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("FFR",
                          "IFR",
                          "OCT",
@@ -696,9 +696,10 @@ noric::mst(TabTillegg[, c("FFR",
 
 ### Tilleggsprosedyrer
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
-cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
-              params$hospitalName, " i perioden ", rangeProsDato[1],
-              " til ", rangeProsDato[2], ".")
+cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
+              "utført koronare angiografier og/eller PCI per måned ved ",
+              params$hospitalName, " i perioden ", rangeProsDato[1], " til ",
+              rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("Høyre kat.",
                          "Perikardiocentese",
                          "Totalt")],
@@ -713,9 +714,9 @@ noric::mst(TabTillegg[, c("Høyre kat.",
 
 ### Adjuvant terapi
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
-cap <- paste0("Antall (prosent) tilleggsprosedyrer per måned for ",
-              params$hospitalName, " i perioden ",
-              rangeProsDato[1], " til ", rangeProsDato[2], ".")
+cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
+              "invasiv tilleggsbehandling per måned ved ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("PM",
                           "IABP",
                           "Impella",
@@ -784,7 +785,7 @@ LabKomplikasjoner <- data.frame(
     "Akutt ACB-operasjon fra lab",
     "Annen alvorlig",
     "Død",
-    "Prosedyrerelatert død"
+    "Der av prosedyrerelatert død"
   )
 )
 
@@ -800,6 +801,8 @@ LabKomplikasjoner$Prosent <- round(
   100 * LabKomplikasjoner$Antall / dim(AP)[1],
   digits = 2)
 
+i.labkomp <- rev(order(LabKomplikasjoner$Prosent))
+LabKomplikasjoner <- LabKomplikasjoner[i.labkomp, ]
 
 df <- LabKomplikasjoner[, -1]
 rownames(df) <- NULL
@@ -899,8 +902,7 @@ AvdKomplikasjoner$Prosent <- round(
   100 * AvdKomplikasjoner$Antall / dim(AP_avdKomp)[1],
   digits = 2)
 
-i.labkomp <- order(AvdKomplikasjoner$Prosent)
-
+i.labkomp <- rev(order(AvdKomplikasjoner$Prosent))
 AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp, ]
 
 df <- AvdKomplikasjoner[, -1]
@@ -919,6 +921,9 @@ par(
   mar = c(4, 15, 2, 2),
   xpd = NA,
   las = 1)
+
+i.labkomp <- order(AvdKomplikasjoner$Prosent)
+AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp, ]
 
 ak <- AvdKomplikasjoner[, 4]
 names(ak) <- AvdKomplikasjoner[, 2]
@@ -973,7 +978,7 @@ TABkompletthet <- cbind(
   rSOA[, which(colnames(rSOA) == "Ferdigstilt")])
 colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
 
-cap <- paste0("Antall hoved-registreringsskjemaer etter måned for ",
+cap <- paste0("Antall registrerte hovedskjemaer i NORIC per måned ved ",
              params$hospitalName, " i perioden ", rangeProsDato[1],
              " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
