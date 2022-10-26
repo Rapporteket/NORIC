@@ -5,10 +5,12 @@
 #' @export
 #'
 #' @examples
-makeStagingDataKi <- function(registryName) {
+makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
   
-
-  shiny::setProgress(0.05) 
+  
+  if(rendered_by_shiny){
+    shiny::setProgress(0.05)
+  }
   
   # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
   
@@ -31,7 +33,7 @@ makeStagingDataKi <- function(registryName) {
     # Nyeste registrering eller gårsdagen
     siste_dato = min((as.Date(Sys.time()) - 1), 
                      noric::getLatestEntry(registryName = registryName))) %>% 
-  
+    
     dplyr::mutate(
       # Inneværende år: 
       nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
@@ -48,8 +50,10 @@ makeStagingDataKi <- function(registryName) {
                                   format = "%Y-%m-%d")
     )
   
-
-  shiny::setProgress(0.10) 
+  
+  if(rendered_by_shiny){
+    shiny::setProgress(0.10) 
+  }
   
   # HENTE DATA:
   sS_nasjonalt <- noric::getPrepSsData(
@@ -58,7 +62,9 @@ makeStagingDataKi <- function(registryName) {
     toDate = periode_data$siste_dato, 
     singleRow = FALSE) 
   
-  shiny::setProgress(0.20)
+  if(rendered_by_shiny){
+    shiny::setProgress(0.20)
+  }
   
   # Hardkodet 2018- dags dato pga figur 4,5 og 6
   aP_nasjonalt <- noric::getPrepApData(
@@ -67,7 +73,9 @@ makeStagingDataKi <- function(registryName) {
     toDate = periode_data$siste_dato, 
     singleRow = FALSE)
   
-  shiny::setProgress(0.50) 
+  if(rendered_by_shiny){
+    shiny::setProgress(0.50) 
+  }
   
   aK_nasjonalt <- noric::getPrepAkData(
     registryName = registryName, 
@@ -75,7 +83,10 @@ makeStagingDataKi <- function(registryName) {
     toDate = periode_data$siste_dato, 
     singleRow = FALSE)
   
-  shiny::setProgress(0.60) 
+  if(rendered_by_shiny){
+    shiny::setProgress(0.60) 
+  }
+  
   anD_nasjonalt <- noric::getPrepAnDData(
     registryName = registryName, 
     fromDate  = periode_data$forste_dato,  
@@ -83,7 +94,10 @@ makeStagingDataKi <- function(registryName) {
     singleRow = FALSE)
   
   
-  shiny::setProgress(0.70) 
+  if(rendered_by_shiny){
+    shiny::setProgress(0.70) 
+  }
+  
   # BEARBEIDE DATA: 
   sS_nasjonalt %<>% 
     dplyr::select(.data$ProsedyreDato,
@@ -97,7 +111,9 @@ makeStagingDataKi <- function(registryName) {
                   .data$maaned, 
                   .data$kvartal)
   
-  shiny::setProgress(0.80)
+  if(rendered_by_shiny){
+    shiny::setProgress(0.80)
+  }
   
   aP_nasjonalt %<>% 
     dplyr::select(
@@ -194,7 +210,9 @@ makeStagingDataKi <- function(registryName) {
     ))
   
   
-  shiny::setProgress(0.90) 
+  if(rendered_by_shiny){
+    shiny::setProgress(0.90) 
+  }
   
   aK_nasjonalt %<>% 
     dplyr::select(
@@ -216,12 +234,19 @@ makeStagingDataKi <- function(registryName) {
         lubridate::quarter(.data$ProsedyreDato, with_year = FALSE))) %>% 
     noric::ki_ak_pacemakerbehov(df_ak = .)
   
-  shiny::setProgress(0.95) 
-  
+  if(rendered_by_shiny){
+    shiny::setProgress(0.95) 
+  }
   # LAGRE STAGING DATA
-  rapbase::saveStagingData(registryName = registryName,
-                           dataName = "staging_nasjonal_ki2", 
-                           data = list(aK_nasjonalt = aK_nasjonalt, 
-                                       aP_nasjonalt = aP_nasjonalt, 
-                                       periode_data = periode_data))
+  rapbase::saveStagingData(
+    registryName = registryName,
+    dataName = paste0("ki",
+                      as.character(format(Sys.time(),
+                                          format = "%Y%m%d:%H:%M"))), 
+    data = list(aK_nasjonalt = aK_nasjonalt, 
+                aP_nasjonalt = aP_nasjonalt, 
+                periode_data = periode_data))
 }
+
+
+
