@@ -250,3 +250,20 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
 
 
 
+#' Title
+#'
+#' @param registryName 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+makeStagingDataFrame <- function(registryName){
+  
+  rapbase::mtimeStagingData(registryName = registryName) %>% 
+    as.data.frame()%>% 
+    tibble::rownames_to_column(., var = "name") %>%
+    dplyr::rename(., "date"=".") %>% 
+    dplyr::arrange(.data$date)
+  
+}
