@@ -801,10 +801,20 @@ LabKomplikasjoner$Prosent <- round(
   100 * LabKomplikasjoner$Antall / dim(AP)[1],
   digits = 2)
 
-i.labkomp <- rev(order(LabKomplikasjoner$Prosent))
-LabKomplikasjoner <- LabKomplikasjoner[i.labkomp, ]
+prosRelatertDod <- LabKomplikasjoner[LabKomplikasjoner$VarName == "LabKompProsedyrerelatertDod",]
 
-df <- LabKomplikasjoner[, -1]
+LabKomplikasjoner_uPRD <- LabKomplikasjoner[!LabKomplikasjoner$VarName == "LabKompProsedyrerelatertDod", ]
+
+i.labkomp <- rev(order(LabKomplikasjoner_uPRD$Prosent))
+LabKomplikasjoner_uPRD <- LabKomplikasjoner_uPRD[i.labkomp, ]
+
+indeksDod <- which(LabKomplikasjoner_uPRD == "LabKompDod")
+
+LabKomplikasjoner_sortert <- rbind(LabKomplikasjoner_uPRD[1:indeksDod,],
+                               prosRelatertDod,
+                               LabKomplikasjoner_uPRD[-(1:indeksDod),])
+
+df <- LabKomplikasjoner_sortert[, -1]
 rownames(df) <- NULL
 
 noric::mst(df,
@@ -825,10 +835,17 @@ par(
   xpd = NA,
   las = 1)
 
-i.labkomp <- order(LabKomplikasjoner$Prosent)
-LabKomplikasjoner <- LabKomplikasjoner[i.labkomp, ]
-lk <- LabKomplikasjoner[, 4]
-names(lk) <- LabKomplikasjoner[, 2]
+i.labkomp <- order(LabKomplikasjoner_uPRD$Prosent)
+LabKomplikasjoner_uPRD_fig <- LabKomplikasjoner_uPRD[i.labkomp, ]
+
+indeksDod <- which(LabKomplikasjoner_uPRD_fig == "LabKompDod")
+
+LabKomplikasjoner_sortert_fig <- rbind(LabKomplikasjoner_uPRD_fig[1:indeksDod-1,],
+                               prosRelatertDod,
+                               LabKomplikasjoner_uPRD_fig[-(1:indeksDod)-1,])
+
+lk <- LabKomplikasjoner_sortert_fig[, 4]
+names(lk) <- LabKomplikasjoner_sortert_fig[, 2]
 
 xBarplot <- barplot(
   lk,
@@ -839,11 +856,11 @@ xBarplot <- barplot(
   )
 
 text(
-  x = LabKomplikasjoner[, 4],
+  x = LabKomplikasjoner_sortert_fig[, 4],
   y = xBarplot,
   pos = 4,
   col = "#000000AA",
-  labels = LabKomplikasjoner[, 3])
+  labels = LabKomplikasjoner_sortert_fig[, 3])
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
