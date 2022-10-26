@@ -206,15 +206,25 @@ ui <- tagList(
         )
       ), 
       
+      # shiny::tabPanel(
+      #   "Forvaltning stagingData", 
+      #   shiny::sidebarLayout(
+      #     shiny::sidebarPanel(htmlOutput("stagingControl")),
+      #     shiny::mainPanel(shiny::htmlOutput("stagingData"))
+      #   )
+      # )
+      
       shiny::tabPanel(
         "Forvaltning stagingData", 
         shiny::sidebarLayout(
           shiny::sidebarPanel(htmlOutput("stagingControl")),
-          shiny::mainPanel(shiny::htmlOutput("stagingData"))
-        )
-      )
+          shiny::mainPanel(
+            DT::dataTableOutput("stagingDataTable")
+          )
+        ))
+      
+      
     )
   )
 )
-  
-  
+

@@ -633,49 +633,103 @@ shinyServer(function(input, output, session) {
   # Staging data
   output$stagingControl <- renderUI({
     actionButton(inputId = "lagNyStaging",
-                 label = "Lag ny staging data ")
+                 label = "Lag ny staging data nå")
   })
   
-  v <- reactiveValues(
-    
-    # Default verdier
-    staging = rapbase::mtimeStagingData(registryName = registryName) %>% 
-      as.data.frame()
-  )
   
+  rv <- reactiveValues(
+    staged = noric::makeStagingDataFrame(registryName = registryName)
+  )
   
   
   shiny::observeEvent(input$lagNyStaging, {
     withProgress(message = 'Making new staging data', value = 0, {
-      noric::makeStagingDataKi(registryName = registryName)
+      noric::makeStagingDataKi(registryName = registryName,
+                               rendered_by_shiny = TRUE)
+      
+      rv$staged <- noric::makeStagingDataFrame(registryName = registryName)
+
     })
     
   })
   
   
-  shiny::eventReactive(input$lagNyStaging, {
-    v$staging <- rapbase::mtimeStagingData(registryName = registryName) %>% 
-      as.data.frame()
+ 
+  
+  
+  # v$staging, rownames = TRUE,
+  # options = list(
+  #   lengthMenu = c(25, 50, 100, 200, 400),
+  #   language = list(
+  #     lengthMenu = "Vis _MENU_ rader per side",
+  #     search = "S\u00f8k:",
+  #     info = "Rad _START_ til _END_ av totalt _TOTAL_",
+  #     paginate = list(previous = "Forrige", `next` = "Neste")
+  #   ))
+  # )
+  
+
+  
+  
+  
+  #' A column of delete buttons for each row in the data frame for the first column
+  #'
+  #' @param df data frame
+  #' @param id id prefix to add to each actionButton. The buttons will be id'd as id_INDEX.
+  #' @return A DT::datatable with escaping turned off that has the delete buttons in the first column and \code{df} in the other
+  deleteButtonColumn <- function(df, id, ...) {
+    # function to create one action button as string
+    f <- function(i) {
+      as.character(
+        actionButton(
+          # The id prefix with index
+          paste(id, i, sep="_"),
+          label = NULL,
+          icon = icon('trash'),
+          onclick = 'Shiny.setInputValue(\"deletePressed\", this.id, {priority: "event"})'))
+    }
+    
+    deleteCol <- unlist(lapply(seq_len(nrow(df)), f))
+    
+    # Return a data table
+    DT::datatable(cbind(delete = deleteCol, df),
+                  # Need to disable escaping for html as string to work
+                  escape = FALSE,
+                  options = list(
+                    # Disable sorting for the delete column
+                    columnDefs = list(
+                      list(targets = 1, sortable = FALSE))
+                  ))
+    
+    
+  }
+  
+  #' Extracts the row id number from the id string
+  #' @param idstr the id string formated as id_INDEX
+  #' @return INDEX from the id string id_INDEX
+  parseDeleteEvent <- function(idstr) {
+    res <- as.integer(sub(".*_([0-9]+)", "\\1", idstr))
+    if (! is.na(res)) res
+  }
+  
+  
+  
+  
+  observeEvent(input$deletePressed, {
+    rowNum <- parseDeleteEvent(input$deletePressed)
+    # rowNum <- strsplit(input$deletePressed, "_")[[1]][2]
+    
+    rowName <- rapbase::listStagingData(registryName = registryName)[rowNum]
+    rapbase::deleteStagingData(registryName = registryName, 
+                               dataName = rowName)
+    # Delete the row from the data frame
+    # rv$staged <- rv$staged[-rowNum,]
+    rv$staged <- noric::makeStagingDataFrame(registryName = registryName)
+
   })
-  
-  
   
   output$stagingDataTable <- DT::renderDataTable(
-    v$staging, rownames = TRUE,
-    options = list(
-      lengthMenu = c(25, 50, 100, 200, 400),
-      language = list(
-        lengthMenu = "Vis _MENU_ rader per side",
-        search = "S\u00f8k:",
-        info = "Rad _START_ til _END_ av totalt _TOTAL_",
-        paginate = list(previous = "Forrige", `next` = "Neste")
-      ))
-  )
-  
-  output$stagingData <- renderUI({
-    DT::dataTableOutput("stagingDataTable")
-  })
-  
-  
-  
+    # Add the delete button column
+    deleteButtonColumn(rv$staged, 'delete_button')
+  ) 
 })
