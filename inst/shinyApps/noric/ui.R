@@ -219,7 +219,12 @@ ui <- tagList(
         shiny::sidebarLayout(
           shiny::sidebarPanel(htmlOutput("stagingControl")),
           shiny::mainPanel(
-            DT::dataTableOutput("stagingDataTable")
+            DT::dataTableOutput("stagingDataTable"), 
+            
+            rapbase::autoReportInput("noricBulletin"), 
+            rapbase::autoReportUI("noricBulletin")
+            
+      
           )
         ))
       

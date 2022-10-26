@@ -732,4 +732,18 @@ shinyServer(function(input, output, session) {
     # Add the delete button column
     deleteButtonColumn(rv$staged, 'delete_button')
   ) 
+  
+  ## serve subscriptions
+  org <- rapbase::autoReportOrgServer("noricBulletin", orgs)
+  
+  rapbase::autoReportServer(
+    id ="noricBulletin", 
+    registryName = "noric", 
+    type = "bulletin",
+    reports = subReports, 
+    orgs = orgs, 
+    org = org$value
+  )
+  
+  
 })
