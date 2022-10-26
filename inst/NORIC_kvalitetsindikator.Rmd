@@ -85,10 +85,22 @@ valid_staging_data <- FALSE
 
 if(length(rapbase::listStagingData(registryName = params$registryName)) > 0) {
   
-  if(rapbase::listStagingData(registryName = params$registryName) %in% c(
-      "staging_nasjonal_ki")){
-    valid_staging_data <- TRUE
-  }
+  stagingData <- rapbase::mtimeStagingData(registryName = params$registryName) %>% 
+    as.data.frame() %>% 
+    tibble::rownames_to_column(., var = "name") %>%
+    dplyr::rename(., "date"=".") %>% 
+    dplyr::arrange(.data$date)
+  
+  
+  
+  valid_staging_data <- ifelse(
+    test = as.numeric(difftime(time1 = stagingData$date[1],
+                               time2 = Sys.Date(),
+                               units = "days")) < 2,
+    yes = TRUE,
+    no = FALSE)
+  nyeste_staging_data <- stagingData$name[1]
+  
   
 }
 ```
@@ -98,12 +110,12 @@ if(length(rapbase::listStagingData(registryName = params$registryName)) > 0) {
 if(valid_staging_data) {
   
   stagingData <- rapbase::loadStagingData(registryName = params$registryName, 
-                                          dataName = "staging_nasjonal_ki")
+                                          dataName = nyeste_staging_data)
   
   aP_nasjonalt <- stagingData$aP_nasjonalt
   aK_nasjonalt <- stagingData$aK_nasjonalt
   periode_data <- stagingData$periode_data
-
+  
 } else{ 
   
   
