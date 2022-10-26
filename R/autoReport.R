@@ -98,3 +98,15 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
   outFile
 
 }
+
+
+
+
+
+#' @rdname autoReport
+#' @export
+bulletinStaging <- function() {
+  
+
+  
+}
