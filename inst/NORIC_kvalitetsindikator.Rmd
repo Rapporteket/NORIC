@@ -85,21 +85,18 @@ valid_staging_data <- FALSE
 
 if(length(rapbase::listStagingData(registryName = params$registryName)) > 0) {
   
-  stagingData <- rapbase::mtimeStagingData(registryName = params$registryName) %>% 
-    as.data.frame() %>% 
-    tibble::rownames_to_column(., var = "name") %>%
-    dplyr::rename(., "date"=".") %>% 
-    dplyr::arrange(.data$date)
+  stagingData <- noric::makeStagingDataFrame(
+    registryName = params$registryName)
   
   
   
   valid_staging_data <- ifelse(
-    test = as.numeric(difftime(time1 = stagingData$date[1],
+    test = as.numeric(difftime(time1 = stagingData$Dato[1],
                                time2 = Sys.Date(),
                                units = "days")) < 2,
     yes = TRUE,
     no = FALSE)
-  nyeste_staging_data <- stagingData$name[1]
+  nyeste_staging_data <- stagingData$'Staging data'[1]
   
   
 }

@@ -262,8 +262,8 @@ makeStagingDataFrame <- function(registryName){
   
   rapbase::mtimeStagingData(registryName = registryName) %>% 
     as.data.frame()%>% 
-    tibble::rownames_to_column(., var = "name") %>%
-    dplyr::rename(., "date"=".") %>% 
-    dplyr::arrange(.data$date)
+    tibble::rownames_to_column(., var = "Staging data") %>%
+    dplyr::rename(., "Dato"=".") %>% 
+    dplyr::arrange(.data$Dato)
   
 }
