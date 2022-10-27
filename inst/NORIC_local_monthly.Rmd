@@ -785,7 +785,7 @@ LabKomplikasjoner <- data.frame(
     "Akutt ACB-operasjon fra lab",
     "Annen alvorlig",
     "Død",
-    "Der av prosedyrerelatert død"
+    "- Der av prosedyrerelatert død"
   )
 )
 
@@ -801,7 +801,7 @@ LabKomplikasjoner$Prosent <- round(
   100 * LabKomplikasjoner$Antall / dim(AP)[1],
   digits = 2)
 
-prosRelatertDod <- LabKomplikasjoner[LabKomplikasjoner$VarName == "LabKompProsedyrerelatertDod",]
+prosRelatertDodLab <- LabKomplikasjoner[LabKomplikasjoner$VarName == "LabKompProsedyrerelatertDod",]
 
 LabKomplikasjoner_uPRD <- LabKomplikasjoner[!LabKomplikasjoner$VarName == "LabKompProsedyrerelatertDod", ]
 
@@ -811,7 +811,7 @@ LabKomplikasjoner_uPRD <- LabKomplikasjoner_uPRD[i.labkomp, ]
 indeksDod <- which(LabKomplikasjoner_uPRD == "LabKompDod")
 
 LabKomplikasjoner_sortert <- rbind(LabKomplikasjoner_uPRD[1:indeksDod,],
-                               prosRelatertDod,
+                               prosRelatertDodLab,
                                LabKomplikasjoner_uPRD[-(1:indeksDod),])
 
 df <- LabKomplikasjoner_sortert[, -1]
@@ -838,11 +838,11 @@ par(
 i.labkomp <- order(LabKomplikasjoner_uPRD$Prosent)
 LabKomplikasjoner_uPRD_fig <- LabKomplikasjoner_uPRD[i.labkomp, ]
 
-indeksDod <- which(LabKomplikasjoner_uPRD_fig == "LabKompDod")
+indeksDod_fig <- which(LabKomplikasjoner_uPRD_fig == "LabKompDod")
 
-LabKomplikasjoner_sortert_fig <- rbind(LabKomplikasjoner_uPRD_fig[1:indeksDod-1,],
-                               prosRelatertDod,
-                               LabKomplikasjoner_uPRD_fig[-(1:indeksDod)-1,])
+LabKomplikasjoner_sortert_fig <- rbind(LabKomplikasjoner_uPRD_fig[1:indeksDod_fig-1,],
+                               prosRelatertDodLab,
+                               LabKomplikasjoner_uPRD_fig[-(1:indeksDod_fig-1),])
 
 lk <- LabKomplikasjoner_sortert_fig[, 4]
 names(lk) <- LabKomplikasjoner_sortert_fig[, 2]
@@ -869,7 +869,8 @@ text(
 
 ### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 
-Datagrunnlaget for komplikasjoner på avdelingen gjelder kun primære forløp.
+Datagrunnlaget for komplikasjoner på avdelingen gjelder kun primære forløp. 
+Se tabellen om [komplette komplikasjonsskjemaer](#komplSkjema)
 
 ```{r TabAvdKompl,results='asis'}
 
@@ -889,7 +890,8 @@ AvdKomplikasjoner <- data.frame(
     "AvdKompACB",
     "AvdKompHjerteinfarkt",
     "AvdKompAnnenAlvorlig",
-    "AvdKompDod"
+    "AvdKompDod",
+    "AvdKompProsedyrerelatertDod"
   ),
   Komplikasjon = c(
     "Alle komplikasjoner",
@@ -903,7 +905,8 @@ AvdKomplikasjoner <- data.frame(
     "ACB-operasjon (ikke fra lab)",
     "Hjerteinfarkt",
     "Annen alvorlig",
-    "Død"
+    "Død",
+    "- Der av prosedyrerelatert død"
   )
 )
 
@@ -919,10 +922,21 @@ AvdKomplikasjoner$Prosent <- round(
   100 * AvdKomplikasjoner$Antall / dim(AP_avdKomp)[1],
   digits = 2)
 
-i.labkomp <- rev(order(AvdKomplikasjoner$Prosent))
-AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp, ]
+prosRelatertDodAvd <- AvdKomplikasjoner[AvdKomplikasjoner$VarName == "AvdKompProsedyrerelatertDod",]
 
-df <- AvdKomplikasjoner[, -1]
+AvdKomplikasjoner_uPRD <- AvdKomplikasjoner[!AvdKomplikasjoner$VarName == "AvdKompProsedyrerelatertDod", ]
+
+i.avdKomp <- rev(order(AvdKomplikasjoner_uPRD$Prosent))
+AvdKomplikasjoner_uPRD <- AvdKomplikasjoner_uPRD[i.avdKomp, ]
+
+indeksDod <- which(AvdKomplikasjoner_uPRD == "AvdKompDod")
+
+AvdKomplikasjoner_sortert <- rbind(AvdKomplikasjoner_uPRD[1:indeksDod,],
+                               prosRelatertDodAvd,
+                               AvdKomplikasjoner_uPRD[-(1:indeksDod),])
+
+df <- AvdKomplikasjoner_sortert[, -1]
+
 rownames(df) <- NULL
 noric::mst(df,
            type = params$tableFormat,
@@ -939,11 +953,17 @@ par(
   xpd = NA,
   las = 1)
 
-i.labkomp <- order(AvdKomplikasjoner$Prosent)
-AvdKomplikasjoner <- AvdKomplikasjoner[i.labkomp, ]
+i.avdKomp <- order(AvdKomplikasjoner_uPRD$Prosent)
+AvdKomplikasjoner_uPRD_fig <- AvdKomplikasjoner_uPRD[i.avdKomp, ]
 
-ak <- AvdKomplikasjoner[, 4]
-names(ak) <- AvdKomplikasjoner[, 2]
+indeksDod_fig <- which(AvdKomplikasjoner_uPRD_fig == "AvdKompDod")
+
+AvdKomplikasjoner_sortert_fig <- rbind(AvdKomplikasjoner_uPRD_fig[1:indeksDod_fig-1,],
+                               prosRelatertDodAvd,
+                               AvdKomplikasjoner_uPRD_fig[-(1:indeksDod_fig-1),])
+
+ak <- AvdKomplikasjoner_sortert_fig[, 4]
+names(ak) <- AvdKomplikasjoner_sortert_fig[, 2]
 
 xBarplot <- barplot(
   ak,
@@ -954,11 +974,11 @@ xBarplot <- barplot(
 )
 
 text(
-  x = AvdKomplikasjoner[, 4],
+  x = AvdKomplikasjoner_sortert_fig[, 4],
   y = xBarplot,
   pos = 4,
   col = "#000000AA",
-  labels = AvdKomplikasjoner[, 3])
+  labels = AvdKomplikasjoner_sortert_fig[, 3])
 ```
 
 ```{r}
@@ -970,10 +990,9 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
 
-<br/>
-
 ## Kompletthet
 ### Kompletthet angio/PCI-skjemaer {-}
+
 ```{r SOtab1, results = "asis"}
 
 nSOA <- with(
@@ -1003,8 +1022,7 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            label = "SOtab1")
 ```
 
-<br/>
-<!-- ### Kompletthet komplikasjonsskjemaer -->
+### Kompletthet komplikasjonsskjemaer {- #komplSkjema}
 ```{r SOtab2, results = "asis"}
 
 nSOU <- with(
@@ -1036,8 +1054,7 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 
 ```
 
-<br/>
-<!-- ### Kompletthet utskrivelsesskjemaer -->
+### Kompletthet utskrivelsesskjemaer {-}
 ```{r SOtab3, results = "asis"}
 
 nSOU <- with(
