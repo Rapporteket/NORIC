@@ -572,13 +572,13 @@ shinyServer(function(input, output, session) {
     )
   )
   
-  org <- rapbase::autoReportOrgServer("noricDispatch", orgs)
+  orgDispatch <- rapbase::autoReportOrgServer("noricDispatch", orgs)
   
   dispatchParamNames <- shiny::reactive(
     c("orgName", "orgId")
   )
   dispatchParamValues <- shiny::reactive(
-    c(org$name(), org$value())
+    c(orgDispatch$name(), orgDispatch$value())
   )
   
   ## serve dispatchments (Utsending)
@@ -586,7 +586,7 @@ shinyServer(function(input, output, session) {
     id = "noricDispatch",
     registryName = "noric", 
     type = "dispatchment",
-    org = org$value, 
+    org = orgDispatch$value, 
     paramNames = dispatchParamNames,
     paramValues = dispatchParamValues, 
     reports = dispatch, 
@@ -682,9 +682,6 @@ shinyServer(function(input, output, session) {
   })
   
   
-  
-  
-  
   #' A column of delete buttons for each row in the data frame for the first column
   #'
   #' @param df data frame
@@ -747,25 +744,52 @@ shinyServer(function(input, output, session) {
   
   
   # serve bulletins
-  org <- rapbase::autoReportOrgServer("noricBulletin", orgs)
+  orgDataStaging <- rapbase::autoReportOrgServer("noricBulletin", orgs)
 
   bulletinParamNames <- shiny::reactive(
     c("orgName", "orgId")
   )
   bulletinParamValues <- shiny::reactive(
-    c(org$name(), org$value())
+    c(orgDataStaging$name(), orgDataStaging$value())
   )
 
+  
+  bulletins <- list(
+    `KI nasjonal staged data` = list(
+      synopsis = paste("NORIC staged data KI"),
+      fun = "reportProcessor",
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "author",
+                     "orgName",
+                     "orgId",
+                     "registryName",
+                     "userFullName",
+                     "userRole",
+                     "userOperator"),
+      paramValues = c("NORIC_makeStagingKI",
+                      "html",
+                      "Error in staging data",
+                      "unknown author",
+                      "unknown organization",
+                      999999,
+                      registryName,
+                      userFullName,
+                      userRole,
+                      "unknown operator")
+    )
+  )
 
   ## serve bulletin ()
   rapbase::autoReportServer(
     id = "noricBulletin",
     registryName = "noric",
     type = "bulletin",
-    org = org$value,
+    org = orgDataStaging$value,
     paramNames = bulletinParamNames,
     paramValues = bulletinParamValues,
-    reports = NULL,
+    reports = bulletins,
     orgs = orgs,
     eligible = all(c(userRole == "SC", isNationalReg(reshId)))
   )
