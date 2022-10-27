@@ -132,10 +132,7 @@ ui <- tagList(
                             downloadButton("dumpDownload", "Hent!")
                ),
                mainPanel(
-                 htmlOutput("dataDumpInfo") #%>%
-                 # shinycssloaders::withSpinner(color = "#18bc9c",
-                 #                              color.background = "#ffffff",
-                 #                              type = 2)
+                 htmlOutput("dataDumpInfo") 
                )
              )
     ),
@@ -206,27 +203,22 @@ ui <- tagList(
         )
       ), 
       
-      # shiny::tabPanel(
-      #   "Forvaltning stagingData", 
-      #   shiny::sidebarLayout(
-      #     shiny::sidebarPanel(htmlOutput("stagingControl")),
-      #     shiny::mainPanel(shiny::htmlOutput("stagingData"))
-      #   )
-      # )
       
       shiny::tabPanel(
-        "Forvaltning stagingData", 
+        "Staging data", 
         shiny::sidebarLayout(
-          shiny::sidebarPanel(htmlOutput("stagingControl")),
+          
+          shiny::sidebarPanel(
+            htmlOutput("stagingControl")),
+          
           shiny::mainPanel(
             DT::dataTableOutput("stagingDataTable"), 
             
             rapbase::autoReportInput("noricBulletin"), 
             rapbase::autoReportUI("noricBulletin")
-            
-      
           )
-        ))
+        )
+      )
       
       
     )

@@ -673,7 +673,7 @@ shinyServer(function(input, output, session) {
   
   # observers staging data
   shiny::observeEvent(input$lagNyStaging, {
-    shiny::withProgress(message = 'Making new staging data', value = 0, {
+    shiny::withProgress(message = 'Lager ny staging data, vent!', value = 0, {
       noric::makeStagingDataKi(registryName = registryName,
                                rendered_by_shiny = TRUE)
       
@@ -685,59 +685,37 @@ shinyServer(function(input, output, session) {
   
   
   
-  # v$staging, rownames = TRUE,
-  # options = list(
-  #   lengthMenu = c(25, 50, 100, 200, 400),
-  #   language = list(
-  #     lengthMenu = "Vis _MENU_ rader per side",
-  #     search = "S\u00f8k:",
-  #     info = "Rad _START_ til _END_ av totalt _TOTAL_",
-  #     paginate = list(previous = "Forrige", `next` = "Neste")
-  #   ))
-  # )
-  
-  
-  
-  
-  
   #' A column of delete buttons for each row in the data frame for the first column
   #'
   #' @param df data frame
   #' @param id id prefix to add to each actionButton. The buttons will be id'd as id_INDEX.
-  #' @return A DT::datatable with escaping turned off that has the delete buttons in the first column and \code{df} in the other
+  #' @return A DT::datatable that has the delete 
+  #' buttons in the last column and \code{df} in the others
   deleteButtonColumn <- function(df, id, ...) {
     # function to create one action button as string
     f <- function(i) {
-      as.character(
-        actionButton(
-          # The id prefix with index
-          paste(id, i, sep="_"),
-          label = NULL,
-          icon = icon('trash'),
-          onclick = 'Shiny.setInputValue(\"deletePressed\", this.id, {priority: "event"})'))
+      as.character(shiny::actionButton(
+        # The id prefix with index
+        inputId = paste(id, i, sep = "_"),
+        label = NULL,
+        icon = icon('trash'),
+        onclick = 'Shiny.setInputValue(\"deletePressed\", this.id, {priority: "event"})'))
     }
     
     deleteCol <- unlist(lapply(seq_len(nrow(df)), f))
     
     # Return a data table
-    DT::datatable(cbind(delete = deleteCol, df),
-                  # Need to disable escaping for html as string to work
+    DT::datatable(cbind(df, Slett = deleteCol),
                   escape = FALSE,
+                  rownames = FALSE, 
                   options = list(
-                    # Disable sorting for the delete column
-                    # columnDefs = list(
-                    #   list(targets = 1, sortable = FALSE))
-                    # options = list(
-                      lengthMenu = c(25, 50, 100, 200, 400),
-                      language = list(
-                        lengthMenu = "Vis _MENU_ rader per side",
-                        search = "S\u00f8k:",
-                        info = "Rad _START_ til _END_ av totalt _TOTAL_",
-                        paginate = list(previous = "Forrige", `next` = "Neste")
-                    #   ))
-                  )))
-    
-    
+                    lengthMenu = c(25, 50, 100, 200, 400),
+                    language = list(
+                      lengthMenu = "Vis _MENU_ rader per side",
+                      search = "S\u00f8k:",
+                      info = "Rad _START_ til _END_ av totalt _TOTAL_",
+                      paginate = list(previous = "Forrige", `next` = "Neste")
+                    )))
   }
   
   #' Extracts the row id number from the id string
@@ -754,12 +732,12 @@ shinyServer(function(input, output, session) {
   observeEvent(input$deletePressed, {
     rowNum <- parseDeleteEvent(input$deletePressed)
     # rowNum <- strsplit(input$deletePressed, "_")[[1]][2]
-    
+
+    # Slette valgt datasett    
     rowName <- rapbase::listStagingData(registryName = registryName)[rowNum]
     rapbase::deleteStagingData(registryName = registryName, 
                                dataName = rowName)
-    # Delete the row from the data frame
-    # rv$staged <- rv$staged[-rowNum,]
+    # Oppdatere l
     rv$staged <- noric::makeStagingDataFrame(registryName = registryName)
     
   })
@@ -767,7 +745,7 @@ shinyServer(function(input, output, session) {
   output$stagingDataTable <- DT::renderDataTable(
     
     # Add the delete button column
-    expr = deleteButtonColumn(rv$staged, 'delete_button')
+    expr = deleteButtonColumn(df = rv$staged, id = 'delete_button')
   ) 
   
   ## serve subscriptions
