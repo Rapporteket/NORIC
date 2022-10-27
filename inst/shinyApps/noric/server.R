@@ -731,34 +731,50 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$deletePressed, {
     rowNum <- parseDeleteEvent(input$deletePressed)
-    # rowNum <- strsplit(input$deletePressed, "_")[[1]][2]
 
     # Slette valgt datasett    
     rowName <- rapbase::listStagingData(registryName = registryName)[rowNum]
     rapbase::deleteStagingData(registryName = registryName, 
                                dataName = rowName)
-    # Oppdatere l
     rv$staged <- noric::makeStagingDataFrame(registryName = registryName)
     
   })
   
   output$stagingDataTable <- DT::renderDataTable(
-    
-    # Add the delete button column
     expr = deleteButtonColumn(df = rv$staged, id = 'delete_button')
   ) 
   
-  ## serve subscriptions
-  # org <- rapbase::autoReportOrgServer("noricBulletin", orgs)
-  # 
-  # rapbase::autoReportServer(
-  #   id ="noricBulletin", 
-  #   registryName = "noric", 
-  #   type = "bulletin",
-  #   reports = subReports, 
-  #   orgs = orgs, 
-  #   org = org$value
-  # )
   
+  
+  # serve bulletins
+  # org <- rapbase::autoReportOrgServer("noricBulletin", orgs_df)  # ?
+  # format <- autoReportFormatServer("noricBulletin")
+  # 
+  
+  
+
+  org <- rapbase::autoReportOrgServer("noricBulletin", orgs)
+  
+  bulletinParamNames <- shiny::reactive(
+    c("orgName", "orgId")
+  )
+  bulletinParamValues <- shiny::reactive(
+    c(org$name(), org$value())
+  )
+  
+  ## serve dispatchments (Utsending)
+  rapbase::autoReportServer(
+    id = "noricBulletin",
+    registryName = "noric", 
+    type = "bulletin",
+    org = org$value, 
+    paramNames = bulletinParamNames,
+    paramValues = bulletinParamValues, 
+    reports = NULL, 
+    orgs = orgs,
+    eligible = all(c(userRole == "SC", isNationalReg(reshId)))
+  )
+  
+
   
 })
