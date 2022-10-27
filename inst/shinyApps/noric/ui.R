@@ -214,6 +214,7 @@ ui <- tagList(
           shiny::mainPanel(
             DT::dataTableOutput("stagingDataTable"), 
             
+            rapbase::autoReportOrgInput("noricBulletin"),
             rapbase::autoReportInput("noricBulletin"), 
             rapbase::autoReportUI("noricBulletin")
           )

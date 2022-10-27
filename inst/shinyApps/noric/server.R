@@ -747,34 +747,29 @@ shinyServer(function(input, output, session) {
   
   
   # serve bulletins
-  # org <- rapbase::autoReportOrgServer("noricBulletin", orgs_df)  # ?
-  # format <- autoReportFormatServer("noricBulletin")
-  # 
-  
-  
-
   org <- rapbase::autoReportOrgServer("noricBulletin", orgs)
-  
+
   bulletinParamNames <- shiny::reactive(
     c("orgName", "orgId")
   )
   bulletinParamValues <- shiny::reactive(
     c(org$name(), org$value())
   )
-  
-  ## serve dispatchments (Utsending)
+
+
+  ## serve bulletin ()
   rapbase::autoReportServer(
     id = "noricBulletin",
-    registryName = "noric", 
+    registryName = "noric",
     type = "bulletin",
-    org = org$value, 
+    org = org$value,
     paramNames = bulletinParamNames,
-    paramValues = bulletinParamValues, 
-    reports = NULL, 
+    paramValues = bulletinParamValues,
+    reports = NULL,
     orgs = orgs,
     eligible = all(c(userRole == "SC", isNationalReg(reshId)))
   )
-  
+
 
   
 })
