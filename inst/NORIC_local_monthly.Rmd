@@ -869,8 +869,9 @@ text(
 
 ### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 
-Datagrunnlaget for komplikasjoner på avdelingen gjelder kun primære forløp. 
-Se tabellen om [komplette komplikasjonsskjemaer](#komplSkjema)
+Datagrunnlaget for komplikasjoner på avdelingen gjelder kun primære forløp.
+
+[***Her***](#komplSkjema) er en oversikt over antall (andel) ferdigstilte komplikasjonsskjemaer.
 
 ```{r TabAvdKompl,results='asis'}
 
@@ -1105,7 +1106,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
 cap <- paste0("Antall andre prosedyrer (utført uten direkte tilknytning",
-             " til Angio/PCI)  etter prosedyretype og måned for ",
+             " til Angio/PCI)  per måned og prosedyretype ved ",
              params$hospitalName, " i perioden ",
              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 TabNAndreProsedyrer <- addmargins(
