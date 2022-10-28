@@ -738,7 +738,7 @@ noric::mst(TabTillegg[, c("PM",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("c", 8),
+           align = rep("c", 9),
            lsd = TRUE,
            label = "TabTilleggsProsedyre3")
 ```
@@ -838,7 +838,7 @@ noric::mst(df,
 
 
 
-```{r FigLabKompl, fig.cap = paste0("Prosentandel komplikasjoner på laboratoriet for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Andel komplikasjoner på laboratoriet registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -957,7 +957,7 @@ noric::mst(df,
 ```
 
 
-```{r FigAvdKompl, fig.cap = paste0("Prosentandel komplikasjoner på avdelingen for ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl, fig.cap = paste0("Andel komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -1057,7 +1057,7 @@ TABkompletthet <- cbind(
 colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
 
 
-cap <- paste0("Antall komplikasjonsskjemaer etter måned for ", params$hospitalName,
+cap <- paste0("Antall komplikasjonsskjemaer registrert i NORIC per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            digs = c(0, 0, 0, 1), align = rep("r", 4),
@@ -1089,7 +1089,7 @@ TABkompletthet <- cbind(
 colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
 
 
-cap <- paste0("Antall utskrivelsesskjemaer etter måned for ", params$hospitalName,
+cap <- paste0("Antall utskrivelsesskjemaer registrert i NORIC per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            digs = c(0, 0, 0, 1), align = rep("r", 4),
@@ -1115,8 +1115,8 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
-cap <- paste0("Antall andre prosedyrer (utført uten direkte tilknytning",
-             " til Angio/PCI)  per måned og prosedyretype ved ",
+cap <- paste0("Antall registrert andre prosedyrer i NORIC (utført uten direkte ",
+             "tilknytning til Angio/PCI)  per måned og prosedyretype ved ",
              params$hospitalName, " i perioden ",
              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 
@@ -1161,10 +1161,10 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 # Stentbruk
 
-## Prosedyre type
+## Interventsjonstype
 ```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
-cap <- paste0("Antall (prosent) behandlede segmenter etter prosedyretype ",
-              "og måned for ", params$hospitalName, " i perioden ",
+cap <- paste0("Antall (andel) utførte intervensjoner registrert i NORIC per ",
+              "måned ved ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ".")
 tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
      n = showN + 1) %>%
@@ -1237,9 +1237,9 @@ SSpci <-  SS %>%
 
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis", out.width = "\\textwidth"}
-cap <- paste0("Antall stenter etter merke og måned for ", params$hospitalName,
-              " i perioden ", rangePCImdStentProsDato[1], " til ",
-              rangePCImdStentProsDato[2], ".")
+cap <- paste0("Antall stenter registrert i NORIC per måned og merke ved ",
+              params$hospitalName, " i perioden ", rangePCImdStentProsDato[1],
+              " til ", rangePCImdStentProsDato[2], ".")
 
 
 tab_stent <- addmargins(xtabs(
