@@ -15,7 +15,7 @@
 #'
 
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
-                            session, userRole) {
+                            session, userRole, fromDate, toDate) {
 
   # declare dot
   . <- ""
@@ -27,86 +27,86 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
 
     if (setId == "ApLight") {
       dat <- noric::getPrepApLightData(registryName = registryName,
-                                       fromDate = NULL,
-                                       toDate = NULL,
+                                       fromDate = fromDate,
+                                       toDate = toDate,
                                        singleRow = singleRow,
-                                       session = session)
+                                       session = session )
     }
 
     if (setId == "AnP") {
       dat <- noric::getPrepAnPData(registryName = registryName,
-                                   fromDate = NULL,
-                                   toDate = NULL,
+                                   fromDate = fromDate,
+                                   toDate = toDate,
                                    singleRow = singleRow,
                                    session = session)
     }
     if (setId == "AnD") {
       dat <- noric::getPrepAnDData(registryName = registryName,
-                                   fromDate = NULL,
-                                   toDate = NULL,
+                                   fromDate = fromDate,
+                                   toDate = toDate,
                                    singleRow = singleRow,
                                    session = session)
     }
     if (setId == "AP") {
       dat <- noric::getPrepApData(registryName = registryName,
-                                  fromDate = NULL,
-                                  toDate = NULL,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
                                   singleRow = singleRow,
                                   session = session)
     }
     if (setId == "AK") {
       dat <- noric::getPrepAkData(registryName = registryName,
-                                  fromDate = NULL,
-                                  toDate = NULL,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
                                   singleRow = singleRow,
                                   session = session)
     }
     if (setId == "AKOppf") {
       dat <- noric::getPrepAkOppfData(registryName = registryName,
-                                      fromDate = NULL,
-                                      toDate = NULL,
+                                      fromDate = fromDate,
+                                      toDate = toDate,
                                       singleRow = singleRow,
                                       session = session)
     }
     if (setId == "CT") {
       dat <- noric::getPrepCtData(registryName = registryName,
-                                  fromDate = NULL,
-                                  toDate = NULL,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
                                   singleRow = singleRow,
                                   session = session)
     }
     if (setId == "FO") {
       dat <- noric::getPrepFoData(registryName = registryName,
-                                  fromDate = NULL,
-                                  toDate = NULL,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
                                   singleRow = singleRow,
                                   session = session)
     }
     if (setId == "MK") {
       dat <- noric::getPrepMkData(registryName = registryName,
-                                  fromDate = NULL,
-                                  toDate = NULL,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
                                   singleRow = singleRow,
                                   session = session)
     }
     if (setId == "PS") {
       dat <- noric::getPrepPsData(registryName = registryName,
-                                  fromDate = NULL,
-                                  toDate = NULL,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
                                   singleRow = singleRow,
                                   session = session)
     }
     if (setId == "SO") {
       dat <- noric::getPrepSoData(registryName = registryName,
-                                  fromDate = NULL,
-                                  toDate = NULL,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
                                   singleRow = singleRow,
                                   session = session)
     }
     if (setId == "SS") {
       dat <- noric::getPrepSsData(registryName = registryName,
-                                  fromDate = NULL,
-                                  toDate = NULL,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
                                   singleRow = singleRow,
                                   session = session)
     }
@@ -133,7 +133,8 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                                "Studie",
                                                "Granskere",
                                                "OpprettetAv",
-                                               "SistLagretAv"))
+                                               "SistLagretAv", 
+                                               "FnrType"))
   }
 
   dat

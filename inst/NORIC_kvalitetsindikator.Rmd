@@ -320,7 +320,6 @@ aK_nasjonalt %<>%
     .data$AvdKompPacemaker, 
     .data$LabKompDod, 
     .data$TypeKlaffeprotese,
-    .data$ScreeningBeslutning, 
     .data$Sykehusnavn, 
     .data$AvdRESH, 
     .data$ForlopsID, 

@@ -1,3 +1,30 @@
+# noric 2.9.3
+
+## Bugfix
+SQL med singleRow=TRUE må ha _en_ rad i datasettet for å kunne fullføre
+databehandlingen i getAndPrep funksjonene. For enkelte sykehus ble den ene
+raden slettet av "fjerne_tulleregistreringer" før databehandlignen var fullført
+(0 rader i tabell). Dette er rettet opp. 
+
+
+
+# noric 2.9.2
+
+## Nytt
+Utforsker har nå en kalender. 
+Valgfri start og slutt-dato før innlasting av tabell. 
+Raskere SQL spørring ved kortere intervall!
+
+## Oppdatering og endringer
+Ny variabel _FnrType_ bare for SC rolle i utforsker
+Litt mer fix i avdod-rapporten
+Legge til Avdod og AvdodDato i Mitralklaff
+
+# noric 2.9.1
+
+Bugfix. Fjerne donorutrednign fra avdod-rapporten
+
+
 # noric 2.9.0
 
 ## Nytt
