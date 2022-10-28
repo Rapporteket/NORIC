@@ -166,7 +166,12 @@ AnP$AnnenProsType <- factor(
     "Ventilfilming",
     "Lukking av ASD/PFO",
     "Lukking av venstre aurikkel",
-    "Impella"),
+    "Impella",
+    "Plugging av PVL",
+    "PTSMA",
+    "Aortaballongpumpe",
+    "ECMO"
+    ),
   labels = c(
     "Høyre kat.",
     "Temp. pm",
@@ -174,7 +179,11 @@ AnP$AnnenProsType <- factor(
     "Ventilfilming",
     "Lukking ASD/PFO",
     "Lukking v. aurikkel",
-    "Impella")
+    "Impella",
+    "Plugging av PVL",
+    "PTSMA",
+    "Aortaballongpumpe",
+    "ECMO")
 )
 ```
 
