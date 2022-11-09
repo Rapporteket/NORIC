@@ -757,10 +757,8 @@ shinyServer(function(input, output, session) {
   bulletins <- list(
     `KI nasjonal staged data` = list(
       synopsis = paste("NORIC staged data KI"),
-      fun = "reportProcessor",
-      paramNames = c("report",
-                     "outputType",
-                     "title",
+      fun = "bulletinProcessorStaging",
+      paramNames = c("dataset",
                      "author",
                      "orgName",
                      "orgId",
@@ -769,8 +767,6 @@ shinyServer(function(input, output, session) {
                      "userRole",
                      "userOperator"),
       paramValues = c("NORIC_makeStagingKI",
-                      "html",
-                      "Error in staging data",
                       "unknown author",
                       "unknown organization",
                       999999,
