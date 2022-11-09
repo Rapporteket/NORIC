@@ -267,3 +267,44 @@ makeStagingDataFrame <- function(registryName){
     dplyr::arrange(.data$Dato)
   
 }
+
+
+
+#' Process bulletins for staging data
+#' 
+#' make and save staging data. Check validity and send e-mail about
+#' unvalid staging data . Delete old datasets-
+#'
+#' @param dataset 
+#' @param orgName 
+#' @param orgId 
+#' @param registryName 
+#' @param userFullName 
+#' @param userRole 
+#' @param userOperator 
+#' @param rendered_by_shiny 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+bulletinProcessorStaging <- function(dataset = "ki", 
+                                     orgName = "unknown organization",
+                                     orgId = 999999,
+                                     registryName = "noric",
+                                     userFullName = "unknown person name",
+                                     userRole = "unknown role",
+                                     userOperator = "unknown operator", 
+                                     rendered_by_shiny = FALSE){
+  
+  # Lage datasett
+  noric::makeStagingDataKi(registryName = registryName)
+  
+  # sjekke at nyeste er godkjent (ny nok)
+  
+  # Sende e post dersom ikke godkjent
+  
+  # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
+  
+  
+}
