@@ -191,7 +191,8 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført ",
 
 tab_angiografor <- angiografor_AP %>% 
   janitor::tabyl(.data$forkortetNavnAngiografor,
-                 .data$maaned) %>% 
+                 .data$maaned,
+                 show_missing_levels = FALSE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
   janitor::adorn_totals("row", name = "Totalt") %>% 
   dplyr::rename(" " = "forkortetNavnAngiografor")
@@ -249,7 +250,8 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført PCI, ",
 
 tab_pciOperator <- pciOperator_AP %>% 
   janitor::tabyl(.data$forkortetNavnPCIoperator,
-                 .data$maaned) %>% 
+                 .data$maaned,
+                 show_missing_levels = FALSE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
   janitor::adorn_totals("row", name = "Totalt") %>% 
   dplyr::rename(" " = "forkortetNavnPCIoperator")
