@@ -1182,7 +1182,7 @@ tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
 <br/>
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre registrert i NORIC i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
+Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
 
 ```{r BarplotNstentPerProsedyre, fig.width = 10, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2], ".")}
 
