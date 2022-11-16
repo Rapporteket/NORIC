@@ -17,7 +17,7 @@ shinyServer(function(input, output, session) {
     AvdRESH <- reshId
     df_AvdRESH <- noric::fikse_sykehusnavn(data.frame(AvdRESH,
                                                       hospitalName_gammel))
-    hospitalName <- df_AvdRESH[1,2]
+    hospitalName <- df_AvdRESH %>% dplyr::select(Sykehusnavn)
     
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
@@ -574,7 +574,11 @@ shinyServer(function(input, output, session) {
   # Download reports
   # Tabell med sykehusnavn - orgID
   orgs_df <- noric::mapOrgReshId(registryName = registryName,
-                                 asNamedList = FALSE)
+                                 asNamedList = FALSE) %>% 
+    dplyr::mutate(AvdRESH = id) %>% 
+    noric::fikse_sykehusnavn(.) %>% 
+    dplyr::select(id, Sykehusnavn) %>% 
+    dplyr::rename("name" = "Sykehusnavn")
   
   ## innhold kontrollpanel:
   output$dwnldControlRap <- renderUI({
