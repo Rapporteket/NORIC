@@ -9,7 +9,8 @@ test_that("Sykehusnavn is as expected", {
                               104284,
                               105502,
                               109880,
-                              101619))
+                              101619,
+                              0))
 
   testthat::expect_equal(
     object = fikse_sykehusnavn(x)[, 2],
@@ -22,7 +23,8 @@ test_that("Sykehusnavn is as expected", {
                  "St.Olavs hospital",
                  "SUS",
                  "OUS Ullevål",
-                 "UNN Tromsø"))
+                 "UNN Tromsø",
+                 "Nasjonal"))
 })
 
 
