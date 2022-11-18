@@ -190,8 +190,8 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført ",
               "Opptellingen er basert på prosedyretypene Angio og Angio+PCI.")
 
 tab_angiografor <- angiografor_AP %>% 
-  janitor::tabyl(.data$forkortetNavnAngiografor,
-                 .data$maaned,
+  janitor::tabyl(forkortetNavnAngiografor,
+                 maaned,
                  show_missing_levels = FALSE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
   janitor::adorn_totals("row", name = "Totalt") %>% 
@@ -249,8 +249,8 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført PCI, ",
               "Opptellingen er basert på prosedyretypene Angio+PCI og PCI.")
 
 tab_pciOperator <- pciOperator_AP %>% 
-  janitor::tabyl(.data$forkortetNavnPCIoperator,
-                 .data$maaned,
+  janitor::tabyl(forkortetNavnPCIoperator,
+                 maaned,
                  show_missing_levels = FALSE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
   janitor::adorn_totals("row", name = "Totalt") %>% 
