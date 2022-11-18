@@ -406,7 +406,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```
 
 `r if(params$tableFormat !="html") {"<!--"}`
-# Månedsrapport: Angio/PCI og stentbruk {-}
+# Månedsrapport: Prosedyrer og stentbruk {-}
 Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket* og er kun ment til internt bruk! 
 <br/> <br/>
 Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene og figurene presenteres med data fra perioden `r rangeProsDato[1]` til `r rangeProsDato[2]`.
