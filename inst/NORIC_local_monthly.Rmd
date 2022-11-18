@@ -1121,8 +1121,8 @@ cap <- paste0("Antall registrert andre prosedyrer i NORIC (utført uten direkte 
              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 
 TabNAndreProsedyrer <- AnP %>% 
-  janitor::tabyl(.data$maaned,
-                 .data$AnnenProsType,
+  janitor::tabyl(maaned,
+                 AnnenProsType,
                  show_missing_levels = FALSE) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
   janitor::adorn_totals("row", name = "Totalt") %>% 
