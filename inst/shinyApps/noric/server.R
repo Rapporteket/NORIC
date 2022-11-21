@@ -586,7 +586,7 @@ shinyServer(function(input, output, session) {
       contentFile(file, 
                   srcFile = paste0(input$dwldRapport, ".Rmd"), 
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
-                  type = "PDF",
+                  type = "pdf",
                   orgId = input$dwldSykehus,
                   orgName = orgs_df[orgs_df$id == input$dwldSykehus, "name"],
                   useReportProcessor = TRUE)
