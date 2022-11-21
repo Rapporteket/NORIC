@@ -31,6 +31,8 @@
 #' that is... Default is "unknown operator".
 #' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
 #' returned.
+#' @param tableFormat Character string giving the format of the report. Must be 
+#' one of \code{c("html", "latex")}. Default is "latex".
 #'
 #' @return A character string with a path to where the produced file is located.
 #' @export
