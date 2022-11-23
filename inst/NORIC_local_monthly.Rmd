@@ -850,9 +850,14 @@ LabKomplikasjoner_uPRD_fig <- LabKomplikasjoner_uPRD[i.labkomp, ]
 
 indeksDod_fig <- which(LabKomplikasjoner_uPRD_fig == "LabKompDod")
 
-LabKomplikasjoner_sortert_fig <- rbind(LabKomplikasjoner_uPRD_fig[1:indeksDod_fig-1,],
-                               prosRelatertDodLab,
-                               LabKomplikasjoner_uPRD_fig[-(1:indeksDod_fig-1),])
+if (indeksDod_fig == 1) {
+  LabKomplikasjoner_sortert_fig <- rbind(prosRelatertDodLab,
+                               LabKomplikasjoner_uPRD_fig)
+} else {
+  LabKomplikasjoner_sortert_fig <- rbind(LabKomplikasjoner_uPRD_fig[1:indeksDod_fig-1,],
+                                         prosRelatertDodLab,
+                                         LabKomplikasjoner_uPRD_fig[-(1:indeksDod_fig-1),])
+}
 
 lk <- LabKomplikasjoner_sortert_fig[, 4]
 names(lk) <- LabKomplikasjoner_sortert_fig[, 2]
@@ -969,9 +974,16 @@ AvdKomplikasjoner_uPRD_fig <- AvdKomplikasjoner_uPRD[i.avdKomp, ]
 
 indeksDod_fig <- which(AvdKomplikasjoner_uPRD_fig == "AvdKompDod")
 
-AvdKomplikasjoner_sortert_fig <- rbind(AvdKomplikasjoner_uPRD_fig[1:indeksDod_fig-1,],
-                               prosRelatertDodAvd,
-                               AvdKomplikasjoner_uPRD_fig[-(1:indeksDod_fig-1),])
+if (indeksDod_fig == 1) {
+  AvdKomplikasjoner_sortert_fig <- rbind(
+    prosRelatertDodAvd,
+    AvdKomplikasjoner_uPRD_fig)
+} else {
+  AvdKomplikasjoner_sortert_fig <- rbind(
+    AvdKomplikasjoner_uPRD_fig[1:indeksDod_fig-1,],
+    prosRelatertDodAvd,
+    AvdKomplikasjoner_uPRD_fig[-(1:indeksDod_fig-1),])
+}
 
 ak <- AvdKomplikasjoner_sortert_fig[, 4]
 names(ak) <- AvdKomplikasjoner_sortert_fig[, 2]
