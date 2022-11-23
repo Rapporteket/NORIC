@@ -295,7 +295,8 @@ bulletinProcessorStaging <- function(dataset = "ki",
                                      userFullName = "unknown person name",
                                      userRole = "unknown role",
                                      userOperator = "unknown operator", 
-                                     rendered_by_shiny = FALSE){
+                                     rendered_by_shiny = FALSE, 
+                                     author = "ingen"){
   
   # Lage datasett
   noric::makeStagingDataKi(registryName = registryName)
