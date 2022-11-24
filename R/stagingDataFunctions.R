@@ -308,4 +308,17 @@ bulletinProcessorStaging <- function(dataset = "ki",
   # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
   
   
+  # Lage en tekst-fil som returneres av funksjonen
+  owd <- setwd(tempdir())
+  on.exit(setwd(owd))
+ 
+  filename <- paste0(tempfile(pattern = ""), ".txt")
+  base::writeLines(text = "Her er en bulletin, alt gikk bra i dag!", 
+                   con = filename)
+  return(filename)
+  
+  
+  
+  
+  
 }
