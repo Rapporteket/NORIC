@@ -1,10 +1,45 @@
-#' Make staging data for KI-report
+#' NORIC staging data functions
 #'
-#'Make RData dataset needed for national KI-report
-#' @return saved RData-set 
+#' NORIC's handling of staging data at Rapporteket.
+#' 
+#' @details  
+#' [makeStagingDataKi()] Creates staging data for the KI-report
+#' \code{makeStagingDataFrame()}List all of the existing staging data sets.
+#' \code{checkStagingDataValid()} Checks whether any staging data set has been 
+#' created within the \emph{antDagerDiff} days. Returns 
+#' \emph{valid_staging_data} is TRUE and the name of the most recently created
+#' data set \emph{nyeste_staging_data} if this is the case.
+#' \code{bulletinProcessorStaging()} modified version of 
+#' \emph{reportProcessor()} applied to create bulletins for staged data.
+#' 
+#' @param registryName Character string defining the registry name.
+#' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
+#' returned.
+#' @param antDagerDiff numerical. Default values is 0 (today). 
+#' [checkStagingDataValid()] checks if any staging data has been created
+#' within the \emph{antDagerDiff} days. 
+#' @param dataset Which kind of staging data to create
+#' @param orgName Character string with the name of the organization/hospital.
+#' Default is "unknown organization".
+#' @param orgId Integer (?) with the id of the organization/hospital. Default is
+#' 999999.
+#' @param userFullName Character string giving the person name, normally the
+#' user requesting the report. Default is "unknown person name".
+#' @param userRole Character string giving a user role, normally the one of the
+#' user requesting the report. Default is "unknown role".
+#' @param userOperator Character string with some name of an operator, whatever
+#' that is... Default is "unknown operator".
+#' @param author "ukjent"
+#
+#' @name stagingData
+#' @aliases makeStagingDataKi
+#' makeStagingDataFrame
+#' checkStagingDataValid
+#' bulletinProcessorStaging
+NULL
+
+#' @rdname stagingData
 #' @export
-#'
-#' @examples
 makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
   
   
@@ -250,14 +285,8 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
 
 
 
-#' Title
-#'
-#' @param registryName 
-#'
-#' @return
+#' @rdname stagingData
 #' @export
-#'
-#' @examples
 makeStagingDataFrame <- function(registryName){
   
   rapbase::mtimeStagingData(registryName = registryName) %>% 
@@ -270,73 +299,8 @@ makeStagingDataFrame <- function(registryName){
 
 
 
-#' Process bulletins for staging data
-#' 
-#' make and save staging data. Check validity and send e-mail about
-#' unvalid staging data . Delete old datasets-
-#'
-#' @param dataset 
-#' @param orgName 
-#' @param orgId 
-#' @param registryName 
-#' @param userFullName 
-#' @param userRole 
-#' @param userOperator 
-#' @param rendered_by_shiny 
-#'
-#' @return
+#' @rdname stagingData
 #' @export
-#'
-#' @examples
-bulletinProcessorStaging <- function(dataset = "ki", 
-                                     orgName = "unknown organization",
-                                     orgId = 999999,
-                                     registryName = "noric",
-                                     userFullName = "unknown person name",
-                                     userRole = "unknown role",
-                                     userOperator = "unknown operator", 
-                                     rendered_by_shiny = FALSE, 
-                                     author = "ingen"){
-  
-  # Lage datasett
-  noric::makeStagingDataKi(registryName = registryName)
-  
-  # sjekke at det finnes et staging datasett som er opprettet i dag
-  sjekkStaging <- noric::checkStagingDataValid(registryName = registryName, 
-                                               antDagerDiff = 0)
-  
-  # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
-  if(sjekkStaging$valid_staging_data){
-    rapbase::cleanStagingData(eolAge = 7*24*60*60, dryRun = FALSE)
-  }
-  
-  # Sende e post dersom ikke godkjent
-  meldingstekst <- ifelse(
-    test = sjekkStaging$valid_staging_data,
-    yes = paste0("Alt gikk bra i dag og nyeste staging datasett er:", 
-                 sjekkStaging$nyeste_staging_data), 
-    no = "Ingen staging data er laget i dag!")
-  
-  # Lage en tekst-fil som returneres av funksjonen
-  owd <- setwd(tempdir())
-  on.exit(setwd(owd))
-  
-  filename <- paste0(tempfile(pattern = ""), ".txt")
-  base::writeLines(text = meldingstekst, 
-                   con = filename)
-  return(filename)
-  
-}
-
-#' Check if staging data is valid
-#'
-#' @param registryName 
-#' @param antDagerDiff default er 0, det vil si at staging data er laget i dag
-#'
-#' @return
-#' @export
-#'
-#' @examples
 checkStagingDataValid <- function(registryName, antDagerDiff = 0){
   
   
@@ -363,5 +327,51 @@ checkStagingDataValid <- function(registryName, antDagerDiff = 0){
   
   return(list(valid_staging_data = valid_staging_data, 
               nyeste_staging_data = nyeste_staging_data))
+  
+}
+
+
+
+#' @rdname stagingData
+#' @export
+bulletinProcessorStaging <- function(dataset = "ki", 
+                                     orgName = "unknown organization",
+                                     orgId = 999999,
+                                     registryName = "noric",
+                                     userFullName = "unknown person name",
+                                     userRole = "unknown role",
+                                     userOperator = "unknown operator", 
+                                     rendered_by_shiny = FALSE, 
+                                     author = "ingen"){
+  
+  # Lage datasett
+  if(dataset %in% "ki"){
+      noric::makeStagingDataKi(registryName = registryName)
+  }
+  
+  # sjekke at det finnes et staging datasett som er opprettet i dag
+  sjekkStaging <- noric::checkStagingDataValid(registryName = registryName, 
+                                               antDagerDiff = 0)
+  
+  # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
+  if(sjekkStaging$valid_staging_data){
+    rapbase::cleanStagingData(eolAge = 7*24*60*60, dryRun = FALSE)
+  }
+  
+  # Sende e post dersom ikke godkjent
+  meldingstekst <- ifelse(
+    test = sjekkStaging$valid_staging_data,
+    yes = paste0("Alt gikk bra i dag og nyeste staging datasett er:", 
+                 sjekkStaging$nyeste_staging_data), 
+    no = "Ingen staging data er laget i dag!")
+  
+  # Lage en tekst-fil som returneres av funksjonen
+  owd <- setwd(tempdir())
+  on.exit(setwd(owd))
+  
+  filename <- paste0(tempfile(pattern = ""), ".txt")
+  base::writeLines(text = meldingstekst, 
+                   con = filename)
+  return(filename)
   
 }
