@@ -301,8 +301,9 @@ bulletinProcessorStaging <- function(dataset = "ki",
   # Lage datasett
   noric::makeStagingDataKi(registryName = registryName)
   
-  # sjekke at nyeste er godkjent (ny nok)
-  
+  # sjekke at det finnes et staging datasett som er opprettet i dag
+  checkStaging <- noric::checkStagingDataValid(registryName = registryName, 
+                                               antDagerDiff = 0)
   # Sende e post dersom ikke godkjent
   
   # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
@@ -311,14 +312,40 @@ bulletinProcessorStaging <- function(dataset = "ki",
   # Lage en tekst-fil som returneres av funksjonen
   owd <- setwd(tempdir())
   on.exit(setwd(owd))
- 
+  
   filename <- paste0(tempfile(pattern = ""), ".txt")
   base::writeLines(text = "Her er en bulletin, alt gikk bra i dag!", 
                    con = filename)
   return(filename)
   
+}
+
+#' Check if staging data is valid
+#'
+#' @param registryName 
+#' @param antDagerDiff defalt er 0, det vil si at staging data er laget i dag
+#'
+#' @return
+#' @export
+#'
+#' @examples
+checkStagingDataValid <- function(registryName, antDagerDiff = 0){
+  
+  stagingData <- noric::makeStagingDataFrame(registryName = registryName)
+  
+  valid_staging_data <- ifelse(
+    test = as.numeric(difftime(time1 = as.Date(stagingData$Dato[1]),
+                               time2 = Sys.Date(),
+                               units = "days")) < antDagerDiff,
+    yes = TRUE,
+    no = FALSE)
   
   
+  nyeste_staging_data <- ifelse(valid_staging_data, 
+                                stagingData$'Staging data'[1], 
+                                FALSE)
   
+  return(list(valid_staging_data = valid_staging_data, 
+              nyeste_staging_data =  nyeste_staging_data))
   
 }
