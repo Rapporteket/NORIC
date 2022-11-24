@@ -302,19 +302,27 @@ bulletinProcessorStaging <- function(dataset = "ki",
   noric::makeStagingDataKi(registryName = registryName)
   
   # sjekke at det finnes et staging datasett som er opprettet i dag
-  checkStaging <- noric::checkStagingDataValid(registryName = registryName, 
+  sjekkStaging <- noric::checkStagingDataValid(registryName = registryName, 
                                                antDagerDiff = 0)
-  # Sende e post dersom ikke godkjent
   
   # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
+  if(sjekkStaging$valid_staging_data){
+    rapbase::cleanStagingData(eolAge = 7*24*60*60, dryRun = FALSE)
+  }
   
+  # Sende e post dersom ikke godkjent
+  meldingstekst <- ifelse(
+    test = sjekkStaging$valid_staging_data,
+    yes = paste0("Alt gikk bra i dag og nyeste staging datasett er:", 
+                 sjekkStaging$nyeste_staging_data), 
+    no = "Ingen staging data er laget i dag!")
   
   # Lage en tekst-fil som returneres av funksjonen
   owd <- setwd(tempdir())
   on.exit(setwd(owd))
   
   filename <- paste0(tempfile(pattern = ""), ".txt")
-  base::writeLines(text = "Her er en bulletin, alt gikk bra i dag!", 
+  base::writeLines(text = meldingstekst, 
                    con = filename)
   return(filename)
   
