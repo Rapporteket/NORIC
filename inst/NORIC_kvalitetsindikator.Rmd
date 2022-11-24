@@ -81,29 +81,17 @@ if (params$rendered_by_shiny)
 
 
 ```{r check_valid_stagedData, include=FALSE, cache=FALSE}
-valid_staging_data <- FALSE
-
-if(length(rapbase::listStagingData(registryName = params$registryName)) > 0) {
-  
-  stagingData <- noric::makeStagingDataFrame(
-    registryName = params$registryName)
-  
-  
-  
-  valid_staging_data <- ifelse(
-    test = as.numeric(difftime(time1 = stagingData$Dato[1],
-                               time2 = Sys.Date(),
-                               units = "days")) < 2,
-    yes = TRUE,
-    no = FALSE)
-  nyeste_staging_data <- stagingData$'Staging data'[1]
-  
-  
-}
-```
 
 
-```{r GetData, include=FALSE, cache=FALSE}
+sjekkStaging <- noric::checkStagingDataValid(
+  registryName = params$registryName, 
+  antDagerDiff = 2)
+
+
+valid_staging_data <- sjekkStaging$valid_staging_data
+nyeste_staging_data <- sjekkStaging$nyeste_staging_data
+
+
 if(valid_staging_data) {
   
   stagingData <- rapbase::loadStagingData(registryName = params$registryName, 
