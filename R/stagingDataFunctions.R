@@ -331,21 +331,29 @@ bulletinProcessorStaging <- function(dataset = "ki",
 #' @examples
 checkStagingDataValid <- function(registryName, antDagerDiff = 0){
   
-  stagingData <- noric::makeStagingDataFrame(registryName = registryName)
   
-  valid_staging_data <- ifelse(
-    test = as.numeric(difftime(time1 = as.Date(stagingData$Dato[1]),
-                               time2 = Sys.Date(),
-                               units = "days")) <= antDagerDiff,
-    yes = TRUE,
-    no = FALSE)
+  valid_staging_data <- FALSE
+  nyeste_staging_data <- FALSE
   
+  # Dersom minst en staging data, sjekk validitet og returner nyeste
+  if(length(rapbase::listStagingData(registryName = registryName)) > 0){
+    
+    stagingData <- noric::makeStagingDataFrame(registryName = registryName)
+    
+    valid_staging_data <- ifelse(
+      test = as.numeric(difftime(time1 = as.Date(stagingData$Dato[1]),
+                                 time2 = Sys.Date(),
+                                 units = "days")) <= antDagerDiff,
+      yes = TRUE,
+      no = FALSE)
+    
+    nyeste_staging_data <- ifelse(valid_staging_data, 
+                                  stagingData$'Staging data'[1], 
+                                  FALSE)
+  }
   
-  nyeste_staging_data <- ifelse(valid_staging_data, 
-                                stagingData$'Staging data'[1], 
-                                FALSE)
   
   return(list(valid_staging_data = valid_staging_data, 
-              nyeste_staging_data =  nyeste_staging_data))
+              nyeste_staging_data = nyeste_staging_data))
   
 }
