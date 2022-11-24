@@ -341,8 +341,8 @@ checkStagingDataValid <- function(registryName, antDagerDiff = 0){
     stagingData <- noric::makeStagingDataFrame(registryName = registryName)
     
     valid_staging_data <- ifelse(
-      test = as.numeric(difftime(time1 = as.Date(stagingData$Dato[1]),
-                                 time2 = Sys.Date(),
+      test = as.numeric(difftime(time1 = Sys.Date(), 
+                                 time2 = as.Date(stagingData$Dato[1]),
                                  units = "days")) <= antDagerDiff,
       yes = TRUE,
       no = FALSE)
