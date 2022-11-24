@@ -264,7 +264,7 @@ makeStagingDataFrame <- function(registryName){
     as.data.frame()%>% 
     tibble::rownames_to_column(., var = "Staging data") %>%
     dplyr::rename(., "Dato"=".") %>% 
-    dplyr::arrange(.data$Dato)
+    dplyr::arrange(dplyr::desc(.data$Dato))
   
 }
 
@@ -323,7 +323,7 @@ bulletinProcessorStaging <- function(dataset = "ki",
 #' Check if staging data is valid
 #'
 #' @param registryName 
-#' @param antDagerDiff defalt er 0, det vil si at staging data er laget i dag
+#' @param antDagerDiff default er 0, det vil si at staging data er laget i dag
 #'
 #' @return
 #' @export
@@ -336,7 +336,7 @@ checkStagingDataValid <- function(registryName, antDagerDiff = 0){
   valid_staging_data <- ifelse(
     test = as.numeric(difftime(time1 = as.Date(stagingData$Dato[1]),
                                time2 = Sys.Date(),
-                               units = "days")) < antDagerDiff,
+                               units = "days")) <= antDagerDiff,
     yes = TRUE,
     no = FALSE)
   
