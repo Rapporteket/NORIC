@@ -40,35 +40,36 @@ NULL
 #' @rdname getPrepData
 #' @export
 getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getAp(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow)
   aP <- dataListe$aP
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   aP %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   aP %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
-  aP %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
-
-
+  
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+    # (potensielle "tøyseregistreringer")
+    aP %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+  }
+  
   # Legg til aar, maaned, uke, etc.
   aP %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
-
+  
   aP
 }
 
@@ -76,44 +77,45 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
 #' @rdname getPrepData
 #' @export
 getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getSo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow)
   sO <- dataListe$sO
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   sO %<>% dplyr::mutate(
     OpprettetDato = lubridate::ymd_hms(.data$OpprettetDato),
     SistLagretDato = lubridate::ymd_hms(.data$SistLagretDato),
     HovedDato = lubridate::ymd(.data$HovedDato))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   sO %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
-  # "tøyseregistreringer")
-  sO %<>% noric::fjerne_tulleregistreringer(df = ., var = HovedDato)
-
-
+  
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
+    # "tøyseregistreringer")
+    sO %<>% noric::fjerne_tulleregistreringer(df = ., var = HovedDato)
+  }
+  
   # Utledete variabler:
   sO %<>% dplyr::mutate(
     ferdigstilt = as.ordered(ifelse(.data$SkjemaStatus == 1,
                                     yes = "Ferdigstilt",
                                     no = "Ikke ferdigstilt")))
-
-
-
+  
+  
+  
   # Legg til aar, maaned, uke, etc.
   sO %<>% noric::legg_til_tidsvariabler(df = ., var = HovedDato)
-
+  
   sO
 }
 
@@ -121,36 +123,38 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 #' @rdname getPrepData
 #' @export
 getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getAk(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow)
   aK <- dataListe$aK
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   aK %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   aK %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
-  aK %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
-
-
+  
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+    # (potensielle "tøyseregistreringer")
+    aK %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+  }
+  
+  
   # Legg til aar, maaned, uke, etc.
   aK %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
-
-
+  
+  
   # utlede variabler
   aK %<>% dplyr::mutate(
     dager_mellom_prosedyre_og_utskr = as.numeric(difftime(.data$UtskrDato,
@@ -158,78 +162,78 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
                                                           units = "days")))
   # Indikator pacemakerbehov
   aK %<>% noric::ki_ak_pacemakerbehov(df_ak = .) 
-
+  
   aK
 }
 
 #' @rdname getPrepData
 #' @export
 getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getFo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow)
   fO <- dataListe$fO
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   fO %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   fO %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
-  # "tøyseregistreringer")
-  fO %<>% noric::fjerne_tulleregistreringer(df = ., var = HovedDato)
-
-
-
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC (potensielle
+    # "tøyseregistreringer")
+    fO %<>% noric::fjerne_tulleregistreringer(df = ., var = HovedDato)
+  }
+  
+  
   # Legg til aar, maaned, uke, etc.
   fO %<>% noric::legg_til_tidsvariabler(df = ., var = HovedDato)
-
+  
   fO
 }
 
 #' @rdname getPrepData
 #' @export
 getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getAnP(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
                              singleRow = singleRow)
   anP <- dataListe$anP
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   anP %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   anP %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
-  anP %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
-
-
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+    # (potensielle "tøyseregistreringer")
+    anP %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+  }
+  
   # Legg til aar, maaned, uke, etc.
   anP %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
-
+  
   # Gjøre kategoriske variabler om til factor:
   anP %<>%
     dplyr::mutate(
@@ -238,7 +242,7 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
                                        "Subakutt",
                                        "Planlagt"),
                             ordered = TRUE))
-
+  
   anP
 }
 
@@ -246,35 +250,36 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
 #' @rdname getPrepData
 #' @export
 getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getCt(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow)
   cT <- dataListe$cT
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   cT %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   cT %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
-  cT %<>% noric::fjerne_tulleregistreringer(df = ., var = UndersokDato)
-
-
+  
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+    # (potensielle "tøyseregistreringer")
+    cT %<>% noric::fjerne_tulleregistreringer(df = ., var = UndersokDato)
+  }
+  
   # Legg til aar, maaned, uke, etc.
   cT %<>% noric::legg_til_tidsvariabler(df = ., var = UndersokDato)
-
+  
   # Utledete variabler - opptelling av funnkoder i de 20 segmentene (ikke graft)
   cT %<>%
     dplyr::mutate(
@@ -319,69 +324,70 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
           mutate_all(., list(~ (. %in% c(13, 14, 15)))) %>%
           rowSums(., na.rm = TRUE))
     )
-
+  
   cT
 }
 
 #' @rdname getPrepData
 #' @export
 getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getAkOppf(registryName = registryName,
                                 fromDate = fromDate,
                                 toDate = toDate,
                                 singleRow = singleRow)
   aKoppf <- dataListe$aKoppf
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   aKoppf %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   aKoppf %<>% noric::fikse_sykehusnavn(df = .)
-
-
+  
+  
 }
 
 
 #' @rdname getPrepData
 #' @export
 getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getAnD(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
                              singleRow = singleRow)
   anD <- dataListe$anD
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   anD %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   anD %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
   # (potensielle "tøyseregistreringer")
   anD %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
-
-
+  }
+  
   # Legg til aar, maaned, uke, etc.
   anD %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
-
+  
   # Gjøre kategoriske variabler om til factor:
   anD %<>%
     dplyr::mutate(
@@ -390,7 +396,7 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
                                        "Subakutt",
                                        "Planlagt"),
                             ordered = TRUE),
-
+      
       segment = factor(.data$segment,
                        levels = c("Proximale RCA (1)",
                                   "Midtre RCA (2)",
@@ -413,7 +419,7 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
                                   "H\u00f8yrekammergren (19)",
                                   "Septal (20)"),
                        ordered = TRUE),
-
+      
       graft = factor(.data$graft,
                      levels = c("Arterie",
                                 "Vene",
@@ -431,42 +437,43 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
                                  "Pa-hyperemi",
                                  "Pd-hyperemi"),
                       ordered = TRUE))
-
+  
   anD
 }
 
 #' @rdname getPrepData
 #' @export
 getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getSs(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow)
   sS <- dataListe$sS
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   sS %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   sS %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
   # (potensielle "tøyseregistreringer")
   sS %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
-
-
+  }
+  
   # Legg til aar, maaned, uke, etc.
   sS %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
-
+  
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
   sS %<>%
@@ -477,7 +484,7 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
                                 "Vene"),
                      exclude = NULL, # inkluderer NA i levels
                      ordered = TRUE),
-
+      
       Stenoseklasse = factor(.data$Stenoseklasse,
                              levels = c("A",
                                         "B1",
@@ -488,7 +495,7 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
                                         "C Bifurkasjon",
                                         "Annet"),
                              ordered = TRUE),
-
+      
       StenoseType = factor(.data$StenoseType,
                            levels = c("DeNovo",
                                       "In-stent restenose",
@@ -502,7 +509,7 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
     dplyr::mutate(antall_stent_ila_forlop = sum(!is.na(.data$StentType))) %>%
     dplyr::ungroup() %>%
     dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
-
+  
   sS
 }
 
@@ -510,42 +517,43 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
 #' @rdname getPrepData
 #' @export
 getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getMk(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow)
   mK <- dataListe$mK
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   mK %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   mK %<>% noric::fikse_sykehusnavn(df = .)
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
   # (potensielle "tøyseregistreringer")
   mK %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
-
-
+  }
+  
   # Legg til aar, maaned, uke, etc.
   mK %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
-
-
+  
+  
   # utlede variabler
   mK %<>% dplyr::mutate(
     dager_mellom_prosedyre_og_utskr = as.numeric(difftime(.data$UtskrDato,
                                                           .data$ProsedyreDato,
                                                           units = "days")))
-
+  
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
   mK %<>%
@@ -555,7 +563,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                                        "Subakutt",
                                        "Planlagt"),
                             ordered = TRUE),
-
+      
       Frailty = factor(.data$Frailty,
                        levels = c("Robust",
                                   "Intermedi\u00e6r",
@@ -564,7 +572,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                                   NA),
                        exclude = NULL, # inkluderer NA i levels
                        ordered = TRUE),
-
+      
       Hastegrad = factor(.data$Hastegrad,
                          levels = c("Elektiv",
                                     "Haster",
@@ -573,7 +581,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                                     NA),
                          exclude = NULL, # inkluderer NA i levels
                          ordered = TRUE),
-
+      
       PostVenstreVentrikkelFunksjon = factor(
         .data$PostVenstreVentrikkelFunksjon,
         levels = c("Normal",
@@ -585,7 +593,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                    NA),
         exclude = NULL, # inkluderer NA i levels
         ordered = TRUE),
-
+      
       PreVenstreVentrikkelFunksjon = factor(
         .data$PreVenstreVentrikkelFunksjon,
         levels = c("Normal",
@@ -597,7 +605,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                    NA),
         exclude = NULL,
         ordered = TRUE),
-
+      
       ProsedyreEkko = factor(.data$ProsedyreEkko,
                              levels = c("Nei",
                                         "TEE",
@@ -608,7 +616,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                                         NA),
                              exclude = NULL, # inkluderer NA i levels
                              ordered = TRUE),
-
+      
       UtskrevetTil = factor(.data$UtskrevetTil,
                             levels = c("Hjem",
                                        "Rehabilitering",
@@ -624,27 +632,27 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
 #' @rdname getPrepData
 #' @export
 getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getPs(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow)
   pS <- dataListe$pS
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   pS %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Endre Sykehusnavn til kortere versjoner:
   pS %<>% noric::fikse_sykehusnavn(df = .)
-
-
+  
+  
   # Utledete variabler:
   pS %<>%
     dplyr::mutate(
@@ -656,7 +664,7 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
       # (månedsnr er tosifret; 01, 02, ....)
       maaned_nr_pasientinklusjon =
         as.ordered(sprintf(fmt = "%02d", lubridate::month(.data$PasInklDato))),
-
+      
       maaned_pasientinklusjon =
         as.ordered(paste0(.data$aar_pasientinklusjon, "-",
                           .data$maaned_nr_pasientinklusjon)),
@@ -669,7 +677,7 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
       uke_pasientinklusjon =
         as.ordered(sprintf(fmt = "%02d",
                            lubridate::isoweek(.data$PasInklDato))),
-
+      
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
       aar_uke_pasientinklusjon = ifelse(
@@ -742,19 +750,19 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
       ),
       aar_uke_studiestart = as.ordered(.data$aar_uke_studiestart),
     )
-
-
-
+  
+  
+  
   pS
 }
 
 #' @rdname getPrepData
 #' @export
 getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
-
-
+  
+  
   . <- ""
-
+  
   dataListe <- noric::getApLight(registryName = registryName,
                                  fromDate = fromDate,
                                  toDate = toDate,
@@ -762,54 +770,51 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   ap_light <- dataListe$aP
   sS <- dataListe$sS
   aD <- dataListe$aD
-
-
-  # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
-  ap_light %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
-
+  
+  
+  
   # Legg til oppholdsID (samme ID for alle prosedyrer tilknyttet samme sykehus-
   # opphold)
   ap_light %<>% noric::utlede_OppholdsID(df = .)
-
-
+  
+  
   # Gjor datoer om til dato-objekt:
   ap_light %<>%
     dplyr::mutate_at(dplyr::vars(dplyr::ends_with("dato", ignore.case = TRUE)),
                      list(lubridate::ymd))
-
-
+  
+  
   # Utledete tidsvariabler (aar, maaned, uke osv):
   ap_light %<>% noric::legg_til_tidsvariabler(df = .,
                                               var = .data$ProsedyreDato)
-
+  
   # Endre Sykehusnavn til kortere versjoner:
   ap_light %<>% noric::fikse_sykehusnavn(df = .)
-
-
-
+  
+  
+  
   # Utlede variabler for ferdigstilt eller ikke,
   ap_light %<>%
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusStart,
                               suffix = "StartSkjema") %>%
-
+    
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemastatusHovedskjema,
                               suffix = "HovedSkjema") %>%
-
+    
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusUtskrivelse,
                               suffix = "UtskrSkjema") %>%
-
+    
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusKomplikasjoner,
                               suffix = "KomplikSkjema")
-
+  
   # Utlede aldersklasser
   ap_light %<>% noric::utlede_aldersklasse(df = .,
                                            var = .data$PasientAlder)
-
+  
   # Legger til utledete variabler fra segment Stent til ap_light,
   # Noen er hjelpevariabler som brukes i KI-funksjonene. Disse fjernes
   # før de legges i utforsker.
@@ -818,20 +823,20 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   ap_light %<>% noric::legg_til_antall_stent_opphold(df_ap = .)
   ap_light %<>% noric::satt_inn_stent_i_lms(df_ap = .,
                                             df_ss = sS)
-
-
+  
+  
   #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
   # trykkmåling. Disse fjernes før tabellen legges i utforsker
   ap_light %<>% noric::legg_til_trykkmaalinger(df_ap = .,
                                                df_ad = aD)
-
+  
   # Legge til kvalitetsindikatorene:
   ap_light %<>% noric::ki_ferdigstilt_komplikasjoner(df_ap = .)
   ap_light %<>% noric::ki_trykkmaaling_utfoert(df_ap = .)
   ap_light %<>% noric::ki_ivus_oct_ved_stenting_lms(df_ap = .)
   ap_light %<>% noric::ki_foreskr_blodfortynnende(df_ap = .)
   ap_light %<>% noric::ki_foreskr_kolesterolsenkende(df_ap = .)
-
+  
   ap_light %<>%
     noric::legg_til_ventetid_nstemi_timer(df_ap = .) %>%
     noric::ki_nstemi_utredet_innen24t(df_ap = .) %>%
@@ -839,13 +844,13 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   ap_light %<>%
     noric::legg_til_ventetid_stemi_min(df_ap = .) %>%
     noric::ki_stemi_pci_innen120min(df_ap = .)
-
-
-
+  
+  
+  
   # Legg til liggedogn
   ap_light %<>% noric::legg_til_liggedogn(df_ap = .)
-
-
+  
+  
   # Fjerne noen variabler.
   #  Se variablliste fra NORIC
   ap_light %<>%
@@ -855,21 +860,21 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
       - .data$SkjemastatusHovedskjema,
       - .data$SkjemaStatusUtskrivelse,
       - .data$SkjemaStatusKomplikasjoner,
-
+      
       # Overflødig, fordi tilhørende kont. verdi er NA:
       - tidyselect::contains("Ukjent"),
-
+      
       # Ikke i bruk
       - .data$PasientRegDato,
       - .data$Studie,
-
+      
       # Dobbelt opp av disse, fjerne minst komplette/feil (sept 2021):
       -.data$BesUtlEKGDato,
       -.data$BesUtlEKGTid,
       -.data$KillipKlasseAnkomst,
       -.data$KardiogentSjokk,
       -.data$Kreatinin,
-
+      
       # Fjerne alle init-medikamenter:
       -.data$InitASA,
       -.data$InitAntikoagulantia,
@@ -886,7 +891,7 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
       -.data$InitAldosteronantagonist,
       -.data$InitOvrigLipid,
       -.data$InitNitroglycerin,
-
+      
       # Fjerne alle init blodprøver
       - .data$Infarktmarkoer,
       - .data$InfarktMarkoerMax,
@@ -899,12 +904,12 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
       - .data$Kreatinin,
       - .data$CRP,
       - .data$Hemoglobin,
-
+      
       # Fjerne komplikasjoner
       - tidyselect::contains("AvdKomp"),
       - tidyselect::contains("LabKomp"),
-
-
+      
+      
       # Mediakmenter ved utskrivelse:
       - .data$NSAID,
       - .data$ACEHemmere,
@@ -917,32 +922,32 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
       - .data$Diuretika,
       - .data$Aldosteronantagonister,
       - .data$NitroglycerinLangtid,
-
+      
       - .data$TroponinVerdiFor,
       - .data$TroponinMetFor,
       - .data$TroponinVerdiEtter,
       - .data$TroponinMetEtter,
       - .data$CKMBFor,
       - .data$CKMBEtter,
-
+      
       # Andre variabler utskrivelse
       - .data$InfarktType,
       - .data$InfarktSubklasse,
       - .data$UtskrDiagnoser,
       - .data$AnnenAlvorligSykdom)
-
+  
   # Fjerne utledete hjelpevariabler
   ap_light %<>%
     dplyr::select(- .data$antall_stent_under_opphold,
                   - .data$satt_inn_stent_i_LMS)
-
-
+  
+  
   # Må fjerne disse etter oppdatering av innreg-prod.. De vil komme av seg selv
-                  # - .data$IMR,
-                  # - .data$PdPa,
-                  # - .data$Pa,
-                  # - .data$Pd)
-
+  # - .data$IMR,
+  # - .data$PdPa,
+  # - .data$Pa,
+  # - .data$Pd)
+  
   # Gjøre kategoriske variabler om til factor:
   ap_light %<>%
     dplyr::mutate(
@@ -951,6 +956,12 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                                     "Subakutt",
                                     "Planlagt"),
                          ordered = TRUE))
-
+  
+  if(!singleRow){
+    # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
+  # (potensielle "tøyseregistreringer")
+    ap_light %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+  }
+  
   ap_light
 }
