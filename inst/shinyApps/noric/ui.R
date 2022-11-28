@@ -205,23 +205,27 @@ ui <- tagList(
       
       
       shiny::tabPanel(
-        "Staging data", 
+        title = "Staging data", 
+        
+        shiny::titlePanel("Liste alle staging data"),
         shiny::sidebarLayout(
+          shiny::sidebarPanel(htmlOutput("stagingControl")),
           
+          shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))), 
+        
+        
+        
+        shiny::titlePanel("Regelmessing etablering av staging data"),
+        shiny::sidebarLayout(
           shiny::sidebarPanel(
-            htmlOutput("stagingControl")),
+            rapbase::autoReportOrgInput("noricBulletin"),
+            rapbase::autoReportInput("noricBulletin")),
           
           shiny::mainPanel(
-            DT::dataTableOutput("stagingDataTable"), 
-            
-            rapbase::autoReportOrgInput("noricBulletin"),
-            rapbase::autoReportInput("noricBulletin"), 
             rapbase::autoReportUI("noricBulletin")
           )
         )
       )
-      
-      
     )
   )
 )
