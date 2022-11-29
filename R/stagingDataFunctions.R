@@ -5,8 +5,8 @@
 #' @details  
 #' [makeStagingDataKi()] Creates staging data for the KI-report
 #' \code{makeStagingDataFrame()}List all of the existing staging data sets.
-#' \code{checkStagingDataValid()} Checks whether any staging data set has been 
-#' created within the \emph{antDagerDiff} days. Returns 
+#' \code{checkValidStagingData()} Checks whether any staging data set has been 
+#' created within the \emph{diffDaysCheck} days. Returns 
 #' \emph{valid_staging_data} is TRUE and the name of the most recently created
 #' data set \emph{nyeste_staging_data} if this is the case.
 #' \code{bulletinProcessorStaging()} modified version of 
@@ -15,9 +15,9 @@
 #' @param registryName Character string defining the registry name.
 #' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
 #' returned.
-#' @param antDagerDiff numerical. Default values is 0 (today). 
-#' [checkStagingDataValid()] checks if any staging data has been created
-#' within the \emph{antDagerDiff} days. 
+#' @param diffDaysCheck numerical. Default values is 0 (today). 
+#' [checkValidStagingData()] checks if any staging data has been created
+#' within the \emph{diffDaysCheck} days. 
 #' @param dataset Which kind of staging data to create
 #' @param orgName Character string with the name of the organization/hospital.
 #' Default is "unknown organization".
@@ -34,7 +34,8 @@
 #' @name stagingData
 #' @aliases makeStagingDataKi
 #' makeStagingDataFrame
-#' checkStagingDataValid
+#' checkValidStagingData
+#' deleteOldStagingData
 #' bulletinProcessorStaging
 NULL
 
@@ -304,7 +305,7 @@ makeStagingDataFrame <- function(registryName){
 
 #' @rdname stagingData
 #' @export
-checkStagingDataValid <- function(registryName, antDagerDiff = 0){
+checkValidStagingData <- function(registryName, diffDaysCheck = 0){
   
   
   valid_staging_data <- FALSE
@@ -318,7 +319,7 @@ checkStagingDataValid <- function(registryName, antDagerDiff = 0){
     valid_staging_data <- ifelse(
       test = as.numeric(difftime(time1 = Sys.Date(), 
                                  time2 = as.Date(stagingData$Dato[1]),
-                                 units = "days")) <= antDagerDiff,
+                                 units = "days")) <= diffDaysCheck,
       yes = TRUE,
       no = FALSE)
     
@@ -333,7 +334,33 @@ checkStagingDataValid <- function(registryName, antDagerDiff = 0){
   
 }
 
-
+#' @rdname stagingData
+#' @export
+deleteOldStagingData <- function(registryName, diffDaysDelete){
+  
+  
+  allStaging <- noric::makeStagingDataFrame(registryName = registryName)
+  
+  
+  n_old <-  allStaging %>% 
+    dplyr::filter(.data$Dato <= (Sys.Date() - diffDaysDelete )) %>% 
+    nrow()
+  
+  if(n_old > 0){
+    oldStaging <- allStaging %>% 
+      dplyr::filter(.data$Dato <= (Sys.Date() - diffDaysDelete)) %>% 
+      dplyr::pull(.data$'Staging data')
+    
+    i <- 1
+    for(i in 1:n_old){
+      rapbase::deleteStagingData(registryName = registryName,
+                                 dataName = oldStaging[i])
+      i <- i +1 
+    }
+  }
+  
+  
+}
 
 #' @rdname stagingData
 #' @export
@@ -360,15 +387,17 @@ bulletinProcessorStaging <- function(dataset = "ki",
   
   
   # sjekke om det finnes et staging datasett som er opprettet i dag
-  sjekkStaging <- noric::checkStagingDataValid(registryName = registryName, 
-                                               antDagerDiff = 0)
+  sjekkStaging <- noric::checkValidStagingData(registryName = registryName, 
+                                               diffDaysCheck = 0)
   
   # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
   if(sjekkStaging$valid_staging_data){
-    rapbase::cleanStagingData(eolAge = 7*24*60*60, dryRun = FALSE)
+    noric::deleteOldStagingData(registryName = registryName, 
+                                diffDaysDelete = 7)
+    
   }
   
-
+  
   
   meldingstekst <- ifelse(
     test = sjekkStaging$valid_staging_data,
@@ -378,7 +407,7 @@ bulletinProcessorStaging <- function(dataset = "ki",
     no = paste0(stagingDataFilename, 
                 "Sjekk ikke OK, ingen datasett er laget i dag"))
   
-
+  
   # returnerer meldingsfilen i en txt fil, som sendes på e-post
   owd <- setwd(tempdir())
   on.exit(setwd(owd))
