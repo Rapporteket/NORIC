@@ -348,11 +348,18 @@ bulletinProcessorStaging <- function(dataset = "ki",
                                      author = "ingen"){
   
   # Lage datasett
+  stagingDataFilename <- "Denne bulletin'en laget ingen datasett. "
+  
   if(dataset %in% "ki"){
-    noric::makeStagingDataKi(registryName = registryName)
+    stagingDataFilename <- noric::makeStagingDataKi(
+      registryName = registryName)
+    
+    stagingDataFilename <- paste0("Denne bulletin'en laget: ", 
+                                  stagingDataFilename, ". ")
   }
   
-  # sjekke at det finnes et staging datasett som er opprettet i dag
+  
+  # sjekke om det finnes et staging datasett som er opprettet i dag
   sjekkStaging <- noric::checkStagingDataValid(registryName = registryName, 
                                                antDagerDiff = 0)
   
@@ -361,14 +368,18 @@ bulletinProcessorStaging <- function(dataset = "ki",
     rapbase::cleanStagingData(eolAge = 7*24*60*60, dryRun = FALSE)
   }
   
-  # Sende e post dersom ikke godkjent
+
+  
   meldingstekst <- ifelse(
     test = sjekkStaging$valid_staging_data,
-    yes = paste0("Alt gikk bra i dag og nyeste staging datasett er:", 
+    yes = paste0(stagingDataFilename, 
+                 "Sjekk OK og nyeste datasett er: ", 
                  sjekkStaging$nyeste_staging_data), 
-    no = "Ingen staging data er laget i dag!")
+    no = paste0(stagingDataFilename, 
+                "Sjekk ikke OK, ingen datasett er laget i dag"))
   
-  # Lage en tekst-fil som returneres av funksjonen
+
+  # returnerer meldingsfilen i en txt fil, som sendes på e-post
   owd <- setwd(tempdir())
   on.exit(setwd(owd))
   
