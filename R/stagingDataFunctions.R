@@ -9,6 +9,8 @@
 #' created within the \emph{diffDaysCheck} days. Returns 
 #' \emph{valid_staging_data} is TRUE and the name of the most recently created
 #' data set \emph{nyeste_staging_data} if this is the case.
+#' \code{deleteOldStagingData()} deletes staging data older 
+#' than \emph{diffDaysDelete}
 #' \code{bulletinProcessorStaging()} modified version of 
 #' \emph{reportProcessor()} applied to create bulletins for staged data.
 #' 
@@ -18,6 +20,8 @@
 #' @param diffDaysCheck numerical. Default values is 0 (today). 
 #' [checkValidStagingData()] checks if any staging data has been created
 #' within the \emph{diffDaysCheck} days. 
+#' @param diffDaysDelete numerical. No default value. [deleteOldStagingData()]
+#' deletes staging data older than this. 
 #' @param dataset Which kind of staging data to create
 #' @param orgName Character string with the name of the organization/hospital.
 #' Default is "unknown organization".
