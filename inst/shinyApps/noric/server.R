@@ -766,7 +766,7 @@ shinyServer(function(input, output, session) {
                      "userFullName",
                      "userRole",
                      "userOperator"),
-      paramValues = c("NORIC_makeStagingKI",
+      paramValues = c("ki",
                       "unknown author",
                       "unknown organization",
                       999999,
