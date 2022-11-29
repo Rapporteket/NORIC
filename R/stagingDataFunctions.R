@@ -1,38 +1,42 @@
 #' NORIC staging data functions
 #'
 #' NORIC's handling of staging data at Rapporteket.
-#' 
-#' @details  
-#' [makeStagingDataKi()] Creates staging data for the KI-report
-#' \code{makeStagingDataFrame()}List all of the existing staging data sets.
-#' \code{checkValidStagingData()} Checks whether any staging data set has been 
-#' created within the \emph{diffDaysCheck} days. Returns 
-#' \emph{valid_staging_data} is TRUE and the name of the most recently created
-#' data set \emph{nyeste_staging_data} if this is the case.
-#' \code{deleteOldStagingData()} deletes staging data older 
-#' than \emph{diffDaysDelete}
-#' \code{bulletinProcessorStaging()} modified version of 
-#' \emph{reportProcessor()} applied to create bulletins for staged data.
-#' 
+#'
+#' @details
+#'
+#' \itemize{
+#' \item \code{makeStagingDataKi()} creates staging data for the KI-report.
+#' \item \code{makeStagingDataFrame()} lists all of the existing staging data.
+#' \item \code{checkValidStagingData()} checks whether any staging data set has
+#'  been created within the last \code{diffDaysCheck} days. Returns
+#' \code{valid_staging_data} is TRUE and the name of the most recently created
+#' data set \code{nyeste_staging_data} if this is the case, and FALSE elsewhere.
+#' \item \code{deleteOldStagingData()} deletes staging data older than
+#' \code{diffDaysDelete}
+#' \item \code{bulletinProcessorStaging()} is a modified version of
+#' \code{reportProcessor()}. The function is applied to create bulletins for
+#' staged data.
+#' }
+#'
 #' @param registryName Character string defining the registry name.
 #' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
-#' returned.
+#'  returned.
 #' @param diffDaysCheck numerical. Default values is 0 (today). 
-#' [checkValidStagingData()] checks if any staging data has been created
-#' within the \emph{diffDaysCheck} days. 
-#' @param diffDaysDelete numerical. No default value. [deleteOldStagingData()]
-#' deletes staging data older than this. 
+#'   \code{checkValidStagingData()} checks if any staging data has been created 
+#'   within the \code{diffDaysCheck} days.
+#' @param diffDaysDelete numerical. No default value. 
+#'  \code{deleteOldStagingData()} deletes staging data older than this.
 #' @param dataset Which kind of staging data to create
 #' @param orgName Character string with the name of the organization/hospital.
-#' Default is "unknown organization".
-#' @param orgId Integer (?) with the id of the organization/hospital. Default is
-#' 999999.
+#'   Default is "unknown organization".
+#' @param orgId Integer (?) with the id of the organization/hospital. Default
+#'   is 999999.
 #' @param userFullName Character string giving the person name, normally the
-#' user requesting the report. Default is "unknown person name".
+#'   user requesting the report. Default is "unknown person name".
 #' @param userRole Character string giving a user role, normally the one of the
-#' user requesting the report. Default is "unknown role".
+#'   user requesting the report. Default is "unknown role".
 #' @param userOperator Character string with some name of an operator, whatever
-#' that is... Default is "unknown operator".
+#'   that is... Default is "unknown operator".
 #' @param author "ukjent"
 #
 #' @name stagingData
