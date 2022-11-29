@@ -214,7 +214,7 @@ ui <- tagList(
           shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))), 
         
         
-        
+        br(),
         shiny::titlePanel("Regelmessing etablering av staging data"),
         shiny::sidebarLayout(
           shiny::sidebarPanel(
