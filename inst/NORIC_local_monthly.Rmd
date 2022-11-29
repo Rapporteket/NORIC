@@ -704,7 +704,7 @@ noric::mst(TabTillegg[, c("FFR",
 ```
 
 
-### Tilleggsprosedyrer
+### Tilleggsprosedyrer med direkte tilknytning til AngioPCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografier og/eller PCI per måned ved ",
