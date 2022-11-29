@@ -622,6 +622,7 @@ TilleggVars <- c(
   "NIRS",
   "HoyreHjerteKat",
   "Perikardiocentese",
+  "Ventilfilming",
   "Pacemaker",
   "Aortaballongpumpe",
   "Impella",
@@ -648,6 +649,7 @@ TabTillegg <- cbind(
   PrintTabTilleggCol("NIRS"),
   PrintTabTilleggCol("HoyreHjerteKat"),
   PrintTabTilleggCol("Perikardiocentese"),
+  PrintTabTilleggCol("Ventilfilming"),
   PrintTabTilleggCol("Pacemaker"),
   PrintTabTilleggCol("Aortaballongpumpe"),
   PrintTabTilleggCol("Impella"),
@@ -666,6 +668,7 @@ TilleggLabels <- c(
   "NIRS",
   "Høyre kat.",
   "Perikardiocentese",
+  "Ventilfilming",
   "PM",
   "IABP",
   "Impella",
@@ -685,7 +688,7 @@ TabTillegg %<>%
           janitor::adorn_totals("row") %>%
           dplyr::transmute(Totalt = n))
 ```
-
+<br/>
 
 ### Annen diagnostikk ved angiografi
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
@@ -696,16 +699,16 @@ noric::mst(TabTillegg[, c("FFR",
                          "IFR",
                          "OCT",
                          "IVUS",
-                         "NIRS",
                          "Totalt")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("c", 8),
+           align = rep("c", 6),
            label = "TabTilleggsProsedyre1")
 
 ```
 
+<br/>
 
 ### Tilleggsprosedyrer med direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
@@ -715,11 +718,12 @@ cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er "
               rangeProsDato[2], ".")
 noric::mst(TabTillegg[, c("Høyre kat.",
                          "Perikardiocentese",
+                         "Ventilfilming",
                          "Totalt")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("c", 4),
+           align = rep("c", 5),
            label = "TabTilleggsProsedyre2")
 ```
 
@@ -1160,7 +1164,7 @@ tail(xtabs(formula = ~ maaned + ProsedyreType2, data = SS),
 <br/>
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r paste0( range(PCImedStent$ProsedyreDato) , collapse = " til ")`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
+Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r paste0(rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2])`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
 
 ```{r BarplotNstentPerProsedyre, fig.width = 10, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2], ".")}
 
