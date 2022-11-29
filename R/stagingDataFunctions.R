@@ -273,14 +273,17 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
     shiny::setProgress(0.95) 
   }
   # LAGRE STAGING DATA
+  stagingDataFilename <- paste0("ki",
+                                as.character(format(Sys.time(),
+                                                    format = "%Y%m%d:%H:%M")))
   rapbase::saveStagingData(
     registryName = registryName,
-    dataName = paste0("ki",
-                      as.character(format(Sys.time(),
-                                          format = "%Y%m%d:%H:%M"))), 
+    dataName = stagingDataFilename, 
     data = list(aK_nasjonalt = aK_nasjonalt, 
                 aP_nasjonalt = aP_nasjonalt, 
                 periode_data = periode_data))
+  
+  return(stagingDataFilename)
 }
 
 
@@ -346,7 +349,7 @@ bulletinProcessorStaging <- function(dataset = "ki",
   
   # Lage datasett
   if(dataset %in% "ki"){
-      noric::makeStagingDataKi(registryName = registryName)
+    noric::makeStagingDataKi(registryName = registryName)
   }
   
   # sjekke at det finnes et staging datasett som er opprettet i dag
