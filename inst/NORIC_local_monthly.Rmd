@@ -521,9 +521,19 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.3)  # set progress to 30%
 ```
 
-<br/>
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
 ## Indikasjon
+
+I denne figuren er indikasjonene *Hjertestant ved STEMI*, *STEMI > 24h* og 
+*STEMI/Rescue PCI* slått sammen med *STEMI*. 
+
+Indikasjonen *Annet* inkluderer blant annet 
+prosedyrer utført som ledd i utredning av hjerteklaffsykdom
+eller hjerterytmeforstyrrelser. 
+
 ```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
 
 
@@ -532,20 +542,13 @@ Indikasjon2Maaned <- AP %>%
                .data$Indikasjon2) %>%
   dplyr::group_by(.data$maaned, .data$Indikasjon2)
 
-Indikasjon2_levels <- c("Annet",
-                        "STEMI",
-                        "NSTEMI",
-                        "UAP",
-                        "SAP",
-                        "Uklare brystsmerter")
 
 Indikasjon2Maaned %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$maaned,
                y = .data$n,
-               fill = factor(.data$Indikasjon2,
-                             levels = Indikasjon2_levels))) +
+               fill = factor(.data$Indikasjon2))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
-  ggplot2::scale_fill_manual(values = colPrimary) +
+  ggplot2::scale_fill_manual(values = rev(colPrimary)) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("Måned") +
   ggplot2::ylab("Antall") +
@@ -704,7 +707,7 @@ noric::mst(TabTillegg[, c("FFR",
 ```
 
 
-### Tilleggsprosedyrer med direkte tilknytning til AngioPCI
+### Tilleggsprosedyrer med direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografier og/eller PCI per måned ved ",
@@ -1014,7 +1017,12 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ## Kompletthet
+
 ### Kompletthet angio/PCI-skjemaer {-}
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\vspace{-4truemm}
+`r if(params$tableFormat !="latex") {"-->"}`
 
 ```{r SOtab1, results = "asis"}
 
@@ -1046,6 +1054,11 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 ```
 
 ### Kompletthet komplikasjonsskjemaer {- #komplSkjema}
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\vspace{-4truemm}
+`r if(params$tableFormat !="latex") {"-->"}`
+
 ```{r SOtab2, results = "asis"}
 
 nSOU <- with(
@@ -1078,6 +1091,11 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 ```
 
 ### Kompletthet utskrivelsesskjemaer {-}
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\vspace{-4truemm}
+`r if(params$tableFormat !="latex") {"-->"}`
+
 ```{r SOtab3, results = "asis"}
 
 nSOU <- with(
@@ -1256,8 +1274,7 @@ cap <- paste0("Antall registrert andre prosedyrer i NORIC (utført uten direkte 
 
 TabNAndreProsedyrer <- AnP %>% 
   janitor::tabyl(maaned,
-                 AnnenProsType,
-                 show_missing_levels = FALSE) %>% 
+                 AnnenProsType) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
   janitor::adorn_totals("row", name = "Totalt") %>% 
   dplyr::rename(" " = "maaned")
