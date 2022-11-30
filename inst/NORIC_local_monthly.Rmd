@@ -128,7 +128,7 @@ SS <- noric::getPrepSsData(registryName = params$registryName,
                            toDate = periode_data$siste_dato,
                            singleRow = FALSE)
 
-AnP <- noric::getPrepAnDData(registryName = params$registryName,
+AnD <- noric::getPrepAnDData(registryName = params$registryName,
                            fromDate  = periode_data$forste_dato,
                            toDate = periode_data$siste_dato,
                            singleRow = FALSE)
