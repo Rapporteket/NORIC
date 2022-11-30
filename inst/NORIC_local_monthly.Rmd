@@ -552,11 +552,18 @@ Indikasjon2Maaned <- AP %>%
                .data$Indikasjon2) %>%
   dplyr::group_by(.data$maaned, .data$Indikasjon2)
 
+indikasjon2_levels <- c("Annet",
+                        "STEMI",
+                        "NSTEMI",
+                        "UAP",
+                        "SAP",
+                        "Uklare brystsmerter")
 
 Indikasjon2Maaned %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$maaned,
                y = .data$n,
-               fill = factor(.data$Indikasjon2))) +
+               fill = factor(.data$Indikasjon2,
+                             levels = indikasjon2_levels))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
   ggplot2::scale_fill_manual(values = rev(colPrimary)) +
   ggplot2::theme_minimal() +
