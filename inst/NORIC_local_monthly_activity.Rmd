@@ -1,8 +1,5 @@
 ---
 title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI-aktivitet for ', params$hospitalName ) `"
-author: ""
-date: '`r format(Sys.time(), "%d. %B, %Y")`'
-output: pdf_document
 params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
@@ -17,9 +14,15 @@ header-includes:
 - \usepackage{booktabs}
 - \usepackage{rotating}
 - \usepackage{float}
-reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
-regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
 abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!" , "\\newline ", "\\newline ", "Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med data fra de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
+registryName: NORIC
+regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
+reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
+userFullName: '`r params$userFullName`'
+linkcolor: darkblue
+output:
+  fig_caption: yes
 ---
 
 ```{r knitrOptions, include=FALSE}
