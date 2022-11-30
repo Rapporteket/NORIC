@@ -128,6 +128,11 @@ SS <- noric::getPrepSsData(registryName = params$registryName,
                            toDate = periode_data$siste_dato,
                            singleRow = FALSE)
 
+AnP <- noric::getPrepAnDData(registryName = params$registryName,
+                           fromDate  = periode_data$forste_dato,
+                           toDate = periode_data$siste_dato,
+                           singleRow = FALSE)
+
 ```
 
 
@@ -303,6 +308,8 @@ AP %<>%
     Nstents = ifelse(is.na(.data$antall_stent),
                      0,
                      .data$antall_stent))
+
+AP %<>% noric::legg_til_trykkmaalinger(., df_ad = AnD) 
 
 ```
 
