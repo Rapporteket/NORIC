@@ -785,7 +785,7 @@ WHERE
 
 #' @rdname getData
 #' @export
-getProm <- function(registryName, fromDate, toDate, singleRow, ...){
+getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
   
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
@@ -795,23 +795,22 @@ getProm <- function(registryName, fromDate, toDate, singleRow, ...){
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from PROM in time interval (ProsedyreDato)
-  
+  # Ask for all variables from PROM 
   query <- paste0("
 SELECT
-    PromVar.*
- WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'"
-  )
+    *
+FROM
+    TaviProm
+ ")
   
-  # SQL for one row only/complete table:
+  
+   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for PromVar"
+    msg <- "Query single row data for TaviProm"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for PromVar"
+    msg <- "Query data for TaviProm"
   }
   
   if ("session" %in% names(list(...))) {
