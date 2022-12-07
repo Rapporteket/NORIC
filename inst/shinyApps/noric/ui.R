@@ -125,7 +125,7 @@ ui <- tagList(
                                           "PasienterStudier",
                                           "SegmentStent",
                                           "SkjemaOversikt", 
-                                          "PromVar")),
+                                          "TaviProm")),
                             dateRangeInput("dumpDateRange", "Velg periode:",
                                            start = ymd(Sys.Date()) - years(1),
                                            end = Sys.Date(), separator = "-",
