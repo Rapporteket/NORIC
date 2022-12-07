@@ -23,7 +23,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              "SegmentStent",
                              "MitralklaffVar",
                              "PasienterStudier", 
-                             "PromVar"))
+                             "TaviProm"))
   
   
   if (tableName %in% "AngioPCIVar"){
@@ -116,11 +116,11 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   }
   
   
-  if (tableName %in% "PromVar") {
-    tab_list <- noric::getProm(registryName = registryName,
-                               fromDate = fromDate,
-                               toDate = toDate,
-                               singleRow = FALSE)
+  if (tableName %in% "TaviProm") {
+    tab_list <- noric::getTaviProm(registryName = registryName,
+                                   fromDate = fromDate,
+                                   toDate = toDate,
+                                   singleRow = FALSE)
     tab <- tab_list$prom
     
   }
