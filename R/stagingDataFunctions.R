@@ -21,10 +21,10 @@
 #' @param registryName Character string defining the registry name.
 #' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
 #'  returned.
-#' @param diffDaysCheck numerical. Default values is 0 (today). 
-#'   \code{checkValidStagingData()} checks if any staging data has been created 
+#' @param diffDaysCheck numerical. Default values is 0 (today).
+#'   \code{checkValidStagingData()} checks if any staging data has been created
 #'   within the \code{diffDaysCheck} days.
-#' @param diffDaysDelete numerical. No default value. 
+#' @param diffDaysDelete numerical. No default value.
 #'  \code{deleteOldStagingData()} deletes staging data older than this.
 #' @param dataset Which kind of staging data to create
 #' @param orgName Character string with the name of the organization/hospital.
@@ -50,159 +50,159 @@ NULL
 #' @rdname stagingData
 #' @export
 makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
-  
-  
-  if(rendered_by_shiny){
+
+
+  if (rendered_by_shiny) {
     shiny::setProgress(0.05)
   }
-  
+
   # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
-  
-  # NYESTE DATO: 
-  # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+
+  # NYESTE DATO:
+  # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at
   # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
-  # gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+  # gårsdagens dato som referanse, ingen forløp etter denne kommer med .
   # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
   # overføringer har stoppet opp
-  
-  # ELDSTE DATO: 
+
+  # ELDSTE DATO:
   # generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
-  # AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i 
-  #     starten av året. 
-  # SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
-  # "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
-  
-  
+  # AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i
+  #     starten av året.
+  # SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter)
+  # + "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
+
+
   periode_data <- data.frame(
     # Nyeste registrering eller gårsdagen
-    siste_dato = min((as.Date(Sys.time()) - 1), 
-                     noric::getLatestEntry(registryName = registryName))) %>% 
-    
+    siste_dato = min((as.Date(Sys.time()) - 1),
+                     noric::getLatestEntry(registryName = registryName))) %>%
+
     dplyr::mutate(
-      # Inneværende år: 
+      # Inneværende år:
       nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
-      
+
       # Fjoråret
-      sisteHeleYear = .data$nyesteRegYear - 1, 
-      
+      sisteHeleYear = .data$nyesteRegYear - 1,
+
       # Første dato for SQL -spørring : 01. januar fjoråret
       forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-                             format = "%Y-%m-%d"), 
-      
-      # Aortaklaff + Segment stent (indikator per kvartal): 
-      forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
+                             format = "%Y-%m-%d"),
+
+      # Aortaklaff + Segment stent (indikator per kvartal):
+      forste_dato_ak_ss = as.Date(paste0(sisteHeleYear - 1, "-01-01"),
                                   format = "%Y-%m-%d")
     )
-  
-  
-  if(rendered_by_shiny){
-    shiny::setProgress(0.10) 
+
+
+  if (rendered_by_shiny) {
+    shiny::setProgress(0.10)
   }
-  
+
   # HENTE DATA:
   sS_nasjonalt <- noric::getPrepSsData(
-    registryName = registryName, 
-    fromDate  = periode_data$forste_dato_ak_ss,  
-    toDate = periode_data$siste_dato, 
-    singleRow = FALSE) 
-  
-  if(rendered_by_shiny){
+    registryName = registryName,
+    fromDate  = periode_data$forste_dato_ak_ss,
+    toDate = periode_data$siste_dato,
+    singleRow = FALSE)
+
+  if (rendered_by_shiny) {
     shiny::setProgress(0.20)
   }
-  
+
   # Hardkodet 2018- dags dato pga figur 4,5 og 6
   aP_nasjonalt <- noric::getPrepApData(
-    registryName = registryName, 
-    fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),  
-    toDate = periode_data$siste_dato, 
+    registryName = registryName,
+    fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),
+    toDate = periode_data$siste_dato,
     singleRow = FALSE)
-  
-  if(rendered_by_shiny){
-    shiny::setProgress(0.50) 
+
+  if (rendered_by_shiny) {
+    shiny::setProgress(0.50)
   }
-  
+
   aK_nasjonalt <- noric::getPrepAkData(
-    registryName = registryName, 
-    fromDate  = periode_data$forste_dato_ak_ss,  
-    toDate = periode_data$siste_dato, 
+    registryName = registryName,
+    fromDate  = periode_data$forste_dato_ak_ss,
+    toDate = periode_data$siste_dato,
     singleRow = FALSE)
-  
-  if(rendered_by_shiny){
-    shiny::setProgress(0.60) 
+
+  if (rendered_by_shiny) {
+    shiny::setProgress(0.60)
   }
-  
+
   anD_nasjonalt <- noric::getPrepAnDData(
-    registryName = registryName, 
-    fromDate  = periode_data$forste_dato,  
-    toDate = periode_data$siste_dato, 
+    registryName = registryName,
+    fromDate  = periode_data$forste_dato,
+    toDate = periode_data$siste_dato,
     singleRow = FALSE)
-  
-  
-  if(rendered_by_shiny){
-    shiny::setProgress(0.70) 
+
+
+  if (rendered_by_shiny) {
+    shiny::setProgress(0.70)
   }
-  
-  # BEARBEIDE DATA: 
-  sS_nasjonalt %<>% 
+
+  # BEARBEIDE DATA:
+  sS_nasjonalt %<>%
     dplyr::select(.data$ProsedyreDato,
-                  .data$StentType, 
-                  .data$Segment, 
+                  .data$StentType,
+                  .data$Segment,
                   .data$Graft,
                   .data$ForlopsID,
-                  .data$Sykehusnavn, 
-                  .data$AvdRESH, 
-                  .data$aar, 
-                  .data$maaned, 
+                  .data$Sykehusnavn,
+                  .data$AvdRESH,
+                  .data$aar,
+                  .data$maaned,
                   .data$kvartal)
-  
-  if(rendered_by_shiny){
+
+  if (rendered_by_shiny) {
     shiny::setProgress(0.80)
   }
-  
-  aP_nasjonalt %<>% 
+
+  aP_nasjonalt %<>%
     dplyr::select(
       .data$AvdRESH,
       .data$Sykehusnavn,
-      .data$Regtype, 
+      .data$Regtype,
       .data$PrimaerForlopsID,
       .data$ProsedyreDato,
       .data$ProsedyreTid,
       .data$ProsedyreType,
-      .data$OverflyttetFra, 
+      .data$OverflyttetFra,
       .data$AnkomstPCIDato,
-      .data$AnkomstPCITid, 
+      .data$AnkomstPCITid,
       .data$InnleggelseHenvisendeSykehusDato,
       .data$InnleggelseHenvisendeSykehusTid,
       .data$Innkomstarsak,
-      .data$Indikasjon, 
+      .data$Indikasjon,
       .data$Hastegrad,
-      .data$BesUtlEKGDato, 
+      .data$BesUtlEKGDato,
       .data$BesUtlEKGTid,
       .data$BeslutningsutlosendeEKG,
-      .data$GittTrombolyse, 
+      .data$GittTrombolyse,
       .data$HLRForSykehus,
       .data$KobletForlopsID,
-      .data$ForlopsType2, 
-      .data$IFR, 
-      .data$FFR, 
-      .data$IVUS, 
-      .data$OCT, 
-      .data$ForlopsID, 
-      .data$ASA, 
+      .data$ForlopsType2,
+      .data$IFR,
+      .data$FFR,
+      .data$IVUS,
+      .data$OCT,
+      .data$ForlopsID,
+      .data$ASA,
       .data$AndrePlatehemmere,
       .data$AndrePlatehemmere,
       .data$Antikoagulantia,
-      .data$UtskrStatiner, 
-      .data$TidlABC, 
-      .data$UtskrevetDod, 
-      .data$SkjemaStatusStart, 
-      .data$SkjemastatusHovedskjema, 
-      .data$SkjemaStatusUtskrivelse, 
+      .data$UtskrStatiner,
+      .data$TidlABC,
+      .data$UtskrevetDod,
+      .data$SkjemaStatusStart,
+      .data$SkjemastatusHovedskjema,
+      .data$SkjemaStatusUtskrivelse,
       .data$SkjemaStatusKomplikasjoner
-    ) %>% 
-    
-    noric::utlede_OppholdsID(.) %>% 
-    
+    ) %>%
+
+    noric::utlede_OppholdsID(.) %>%
+
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusStart,
                               suffix = "StartSkjema") %>%
@@ -214,72 +214,72 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
                               suffix = "UtskrSkjema") %>%
     noric::utlede_ferdigstilt(df = .,
                               var = .data$SkjemaStatusKomplikasjoner,
-                              suffix = "KomplikSkjema") %>% 
-    
-    noric::legg_til_antall_stent(df_ap = ., df_ss = sS_nasjonalt) %>% 
-    noric::legg_til_antall_stent_opphold(df_ap = .) %>% 
-    noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>% 
-    
+                              suffix = "KomplikSkjema") %>%
+
+    noric::legg_til_antall_stent(df_ap = ., df_ss = sS_nasjonalt) %>%
+    noric::legg_til_antall_stent_opphold(df_ap = .) %>%
+    noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>%
+
     #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
     # trykkmåling. Disse fjernes før tabellen legges i utforsker
     noric::legg_til_trykkmaalinger(df_ap = .,
-                                   df_ad = anD_nasjonalt) %>% 
-    
+                                   df_ad = anD_nasjonalt) %>%
+
     # LEgg til hjelpevariabler for ventetider
-    noric::legg_til_ventetid_nstemi_timer(.) %>% 
-    noric::legg_til_ventetid_stemi_min(.) %>% 
-    
+    noric::legg_til_ventetid_nstemi_timer(.) %>%
+    noric::legg_til_ventetid_stemi_min(.) %>%
+
     # Legge til kvalitetsindikatorene:
-    noric::ki_ferdigstilt_komplikasjoner(df_ap = .) %>% 
-    noric::ki_trykkmaaling_utfoert(df_ap = .) %>% 
-    noric::ki_ivus_oct_ved_stenting_lms(df_ap = .) %>% 
-    noric::ki_foreskr_blodfortynnende(df_ap = .) %>% 
+    noric::ki_ferdigstilt_komplikasjoner(df_ap = .) %>%
+    noric::ki_trykkmaaling_utfoert(df_ap = .) %>%
+    noric::ki_ivus_oct_ved_stenting_lms(df_ap = .) %>%
+    noric::ki_foreskr_blodfortynnende(df_ap = .) %>%
     noric::ki_foreskr_kolesterolsenkende(df_ap = .) %>%
-    noric::ki_nstemi_utredet_innen24t() %>% 
-    noric::ki_nstemi_utredet_innen72t() %>% 
-    noric::ki_stemi_pci_innen120min() %>% 
-    
+    noric::ki_nstemi_utredet_innen24t() %>%
+    noric::ki_nstemi_utredet_innen72t() %>%
+    noric::ki_stemi_pci_innen120min() %>%
+
     dplyr::mutate(
-      maaned = as.factor(format(x = .data$ProsedyreDato, format = "%Y-%m")), 
-      aar = lubridate::year(.data$ProsedyreDato), 
-      kvartal = paste0(lubridate::year(.data$ProsedyreDato), 
-                       " Q", 
-                       lubridate::quarter(.data$ProsedyreDato, 
-                                          with_year = FALSE))) %>% 
+      maaned = as.factor(format(x = .data$ProsedyreDato, format = "%Y-%m")),
+      aar = lubridate::year(.data$ProsedyreDato),
+      kvartal = paste0(lubridate::year(.data$ProsedyreDato),
+                       " Q",
+                       lubridate::quarter(.data$ProsedyreDato,
+                                          with_year = FALSE))) %>%
     dplyr::mutate(admissionType = dplyr::case_when(
-      .data$OverflyttetFra %in% "Annet sykehus" ~ "Overflyttet", 
-      .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus", 
+      .data$OverflyttetFra %in% "Annet sykehus" ~ "Overflyttet",
+      .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                   "Omdirigert ambulanse") ~ "Direkte",
       TRUE ~ NA_character_
     ))
-  
-  
-  if(rendered_by_shiny){
-    shiny::setProgress(0.90) 
+
+
+  if (rendered_by_shiny) {
+    shiny::setProgress(0.90)
   }
-  
-  aK_nasjonalt %<>% 
+
+  aK_nasjonalt %<>%
     dplyr::select(
       .data$ProsedyreDato,
-      .data$AvdKompPacemaker, 
-      .data$LabKompDod, 
+      .data$AvdKompPacemaker,
+      .data$LabKompDod,
       .data$TypeKlaffeprotese,
-      .data$Sykehusnavn, 
-      .data$AvdRESH, 
-      .data$ForlopsID, 
+      .data$Sykehusnavn,
+      .data$AvdRESH,
+      .data$ForlopsID,
       .data$Pacemaker,
       .data$SkjemaStatusHovedskjema)
-  
+
   aK_nasjonalt %<>%
     dplyr::mutate(
       kvartal = paste0(
         lubridate::year(.data$ProsedyreDato),
         " Q",
-        lubridate::quarter(.data$ProsedyreDato, with_year = FALSE))) %>% 
+        lubridate::quarter(.data$ProsedyreDato, with_year = FALSE))) %>%
     noric::ki_ak_pacemakerbehov(df_ak = .)
-  
-  if(rendered_by_shiny){
-    shiny::setProgress(0.95) 
+
+  if (rendered_by_shiny) {
+    shiny::setProgress(0.95)
   }
   # LAGRE STAGING DATA
   stagingDataFilename <- paste0("ki",
@@ -287,11 +287,11 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
                                                     format = "%Y%m%d:%H:%M")))
   rapbase::saveStagingData(
     registryName = registryName,
-    dataName = stagingDataFilename, 
-    data = list(aK_nasjonalt = aK_nasjonalt, 
-                aP_nasjonalt = aP_nasjonalt, 
+    dataName = stagingDataFilename,
+    data = list(aK_nasjonalt = aK_nasjonalt,
+                aP_nasjonalt = aP_nasjonalt,
                 periode_data = periode_data))
-  
+
   return(stagingDataFilename)
 }
 
@@ -299,130 +299,123 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
 
 #' @rdname stagingData
 #' @export
-makeStagingDataFrame <- function(registryName){
-  
-  rapbase::mtimeStagingData(registryName = registryName) %>% 
-    as.data.frame()%>% 
+makeStagingDataFrame <- function(registryName) {
+
+  rapbase::mtimeStagingData(registryName = registryName) %>%
+    as.data.frame()%>%
     tibble::rownames_to_column(., var = "Staging data") %>%
-    dplyr::rename(., "Dato"=".") %>% 
+    dplyr::rename(., "Dato"=".") %>%
     dplyr::arrange(dplyr::desc(.data$Dato))
-  
+
 }
 
 
 
 #' @rdname stagingData
 #' @export
-checkValidStagingData <- function(registryName, diffDaysCheck = 0){
-  
-  
+checkValidStagingData <- function(registryName, diffDaysCheck = 0) {
+
+
   valid_staging_data <- FALSE
   nyeste_staging_data <- FALSE
-  
+
   # Dersom minst en staging data, sjekk validitet og returner nyeste
-  if(length(rapbase::listStagingData(registryName = registryName)) > 0){
-    
+  if (length(rapbase::listStagingData(registryName = registryName)) > 0) {
+
     stagingData <- noric::makeStagingDataFrame(registryName = registryName)
-    
+
     valid_staging_data <- ifelse(
-      test = as.numeric(difftime(time1 = Sys.Date(), 
+      test = as.numeric(difftime(time1 = Sys.Date(),
                                  time2 = as.Date(stagingData$Dato[1]),
                                  units = "days")) <= diffDaysCheck,
       yes = TRUE,
       no = FALSE)
-    
-    nyeste_staging_data <- ifelse(valid_staging_data, 
-                                  stagingData$'Staging data'[1], 
+
+    nyeste_staging_data <- ifelse(valid_staging_data,
+                                  stagingData$'Staging data'[1],
                                   FALSE)
   }
-  
-  
-  return(list(valid_staging_data = valid_staging_data, 
+
+
+  return(list(valid_staging_data = valid_staging_data,
               nyeste_staging_data = nyeste_staging_data))
-  
+
 }
 
 #' @rdname stagingData
 #' @export
-deleteOldStagingData <- function(registryName, diffDaysDelete){
-  
-  
+deleteOldStagingData <- function(registryName, diffDaysDelete) {
+
+
   allStaging <- noric::makeStagingDataFrame(registryName = registryName)
-  
-  
-  n_old <-  allStaging %>% 
-    dplyr::filter(.data$Dato <= (Sys.Date() - diffDaysDelete )) %>% 
+
+
+  n_old <-  allStaging %>%
+    dplyr::filter(.data$Dato <= (Sys.Date() - diffDaysDelete )) %>%
     nrow()
-  
+
   if(n_old > 0){
-    oldStaging <- allStaging %>% 
-      dplyr::filter(.data$Dato <= (Sys.Date() - diffDaysDelete)) %>% 
+    oldStaging <- allStaging %>%
+      dplyr::filter(.data$Dato <= (Sys.Date() - diffDaysDelete)) %>%
       dplyr::pull(.data$'Staging data')
-    
+
     i <- 1
     for(i in 1:n_old){
       rapbase::deleteStagingData(registryName = registryName,
                                  dataName = oldStaging[i])
-      i <- i +1 
+      i <- i +1
     }
   }
-  
-  
+
+
 }
 
 #' @rdname stagingData
 #' @export
-bulletinProcessorStaging <- function(dataset = "ki", 
+bulletinProcessorStaging <- function(dataset = "ki",
                                      orgName = "unknown organization",
                                      orgId = 999999,
                                      registryName = "noric",
                                      userFullName = "unknown person name",
                                      userRole = "unknown role",
-                                     userOperator = "unknown operator", 
-                                     rendered_by_shiny = FALSE, 
-                                     author = "ingen"){
-  
+                                     userOperator = "unknown operator",
+                                     rendered_by_shiny = FALSE,
+                                     author = "ingen") {
+
   # Lage datasett
   stagingDataFilename <- "Denne bulletin'en laget ingen datasett. "
-  
-  if(dataset %in% "ki"){
+
+  if (dataset %in% "ki") {
     stagingDataFilename <- noric::makeStagingDataKi(
       registryName = registryName)
-    
-    stagingDataFilename <- paste0("Denne bulletin'en laget: ", 
+
+    stagingDataFilename <- paste0("Denne bulletin'en laget: ",
                                   stagingDataFilename, ". ")
   }
-  
-  
+
+
   # sjekke om det finnes et staging datasett som er opprettet i dag
-  sjekkStaging <- noric::checkValidStagingData(registryName = registryName, 
+  sjekkStaging <- noric::checkValidStagingData(registryName = registryName,
                                                diffDaysCheck = 0)
-  
+
   # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
-  if(sjekkStaging$valid_staging_data){
-    noric::deleteOldStagingData(registryName = registryName, 
+  if (sjekkStaging$valid_staging_data) {
+    noric::deleteOldStagingData(registryName = registryName,
                                 diffDaysDelete = 7)
-    
+
   }
-  
-  
-  
+
+
+
   meldingstekst <- ifelse(
     test = sjekkStaging$valid_staging_data,
-    yes = paste0(stagingDataFilename, 
-                 "Sjekk OK og nyeste datasett er: ", 
-                 sjekkStaging$nyeste_staging_data), 
-    no = paste0(stagingDataFilename, 
+    yes = paste0(stagingDataFilename,
+                 "Sjekk OK og nyeste datasett er: ",
+                 sjekkStaging$nyeste_staging_data),
+    no = paste0(stagingDataFilename,
                 "Sjekk ikke OK, ingen datasett er laget i dag"))
-  
-  
-  # returnerer meldingsfilen i en txt fil, som sendes på e-post
-  owd <- setwd(tempdir())
-  on.exit(setwd(owd))
-  
-  filename <- paste0(tempfile(pattern = ""), ".txt")
-  base::writeLines(text = meldingstekst, 
-                   con = filename)
-  return(filename)
-  
+
+
+  # returnerer meldingen som skal sendes på e-post
+  return(meldingstekst)
 }
