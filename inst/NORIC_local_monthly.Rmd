@@ -1281,6 +1281,7 @@ if (params$tableFormat == "html") {
                booktabs = TRUE,
                align = "l") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position") %>%
+    kableExtra::kable_styling(latex_options = "scale_down") %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
@@ -1333,6 +1334,7 @@ if (params$tableFormat == "html") {
                booktabs = TRUE,
                align = "l") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position") %>%
+    kableExtra::kable_styling(latex_options = "scale_down") %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
