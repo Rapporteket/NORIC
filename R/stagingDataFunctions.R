@@ -74,11 +74,28 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
 
 
   periode_data <- data.frame(
-    # Nyeste registrering eller gårsdagen
-    siste_dato = min((as.Date(Sys.time()) - 1),
-                     noric::getLatestEntry(registryName = registryName))) %>%
+    # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
+    nyeste_reg = min(
+      (as.Date(Sys.time()) - 1),
+      noric::getLatestEntry(registryName = registryName))) %>%
 
     dplyr::mutate(
+      # siste dato inneværende mnd
+      siste_dato_innevarende_mnd = lubridate::ceiling_date(
+        x = .data$nyeste_reg,
+        unit =  "month") - lubridate::days(1),
+
+      # siste dato i nyeste komplette mdn
+      siste_dato = dplyr::case_when(
+        .data$siste_dato_innevarende_mnd == .data$nyeste_reg ~
+          .data$nyeste_reg,
+
+        .data$siste_dato_innevarende_mnd != .data$nyeste_reg ~
+          lubridate::floor_date(.data$nyeste_reg, "month") -
+          lubridate::days(1),
+
+        TRUE ~ as.Date(NA_character_)),
+
       # Inneværende år:
       nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
 
@@ -90,9 +107,10 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
                              format = "%Y-%m-%d"),
 
       # Aortaklaff + Segment stent (indikator per kvartal):
-      forste_dato_ak_ss = as.Date(paste0(sisteHeleYear - 1, "-01-01"),
+      forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
                                   format = "%Y-%m-%d")
-    )
+    ) %>%
+    dplyr::select(-.data$siste_dato_innevarende_mnd)
 
 
   if (rendered_by_shiny) {
