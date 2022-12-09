@@ -20,7 +20,7 @@ title:   |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, " sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Datagrunnlaget for rapporten er alle fullstendige måneder hittil i år, samt hele fjoråret." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, " sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -417,12 +417,16 @@ if (params$rendered_by_shiny)
 \bigskip \bigskip \bigskip
 
 # Datagrunnlag
-
-Rapporten er laget den  `r format(Sys.time(), '%d. %B %Y')`  basert på 
-en nasjonal NORIC database der den nyeste registrering er fra 
-`r format(periode_data$nyeste_reg, '%d. %B %Y')`. Vi rapporterer kun 
-fullstendige måneder her siste registrering inkludert i rapporten er fra
+Datagrunnlaget for denne rapporten er alle fullstendige måneder hittil i år, 
+samt hele fjoråret. Siste prosedyredato som er med i opptellingene er 
 `r format(periode_data$siste_dato, '%d. %B %Y')`. 
+
+
+Rapporten er generert med utgangspunkt i NORIC's nasjonale 
+database. Den nyeste registreringen overført til Rapporteket er datert
+`r format(periode_data$nyeste_reg, '%d. %B %Y')`.  
+
+
 
 ```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")}
 cat("\n\n\\pagebreak\n")
@@ -637,19 +641,14 @@ nstemi_komplette <- aP_nasjonalt %>%
 
 ```{r fig_hittilIAar_24t_lokalt, results='asis', warning=FALSE}
 
-# Hele siste år + alle fullførte måneder i dette året.
-forsteDagFigur_ventetid <- paste0(periode_data$sisteHeleYear, "-01-01")
-sisteDagFigur_ventetid <- lubridate::floor_date(x = periode_data$siste_dato,
-                                                unit = "month")
-
 
 # LOKALT : For NSTEMI med komplette forløp
 prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
   dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
-                .data$ProsedyreDato < sisteDagFigur_ventetid) %>%
+  dplyr::filter(.data$ProsedyreDato >= periode_data$forste_dato,
+                .data$ProsedyreDato <= periode_data$siste_dato) %>%
   
   #Samlet *(Direkte og overflyttet)
   dplyr::group_by(.data$maaned) %>%
@@ -720,8 +719,8 @@ prep_figVentetid24t_lokalt %<>%
 prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei"))  %>%
-  dplyr::filter(.data$ProsedyreDato >= forsteDagFigur_ventetid,
-                .data$ProsedyreDato < sisteDagFigur_ventetid) %>%
+  dplyr::filter(.data$ProsedyreDato >= periode_data$forste_dato,
+                .data$ProsedyreDato <= periode_data$siste_dato) %>%
   
   #Samlet (Direkte og overflyttet)
   dplyr::group_by(.data$maaned) %>%
