@@ -80,22 +80,44 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
       noric::getLatestEntry(registryName = registryName))) %>%
 
     dplyr::mutate(
-      # siste dato inneværende mnd
+
+      # SISTE DATO AVGJØR SISTE MÅNED:
       siste_dato_innevarende_mnd = lubridate::ceiling_date(
         x = .data$nyeste_reg,
         unit =  "month") - lubridate::days(1),
 
-      # siste dato i nyeste komplette mdn
       siste_dato = dplyr::case_when(
+        # siste dato er nyeste dato --> nyeste mnd er komlett
         .data$siste_dato_innevarende_mnd == .data$nyeste_reg ~
           .data$nyeste_reg,
 
+        # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
         .data$siste_dato_innevarende_mnd != .data$nyeste_reg ~
           lubridate::floor_date(.data$nyeste_reg, "month") -
           lubridate::days(1),
 
         TRUE ~ as.Date(NA_character_)),
 
+
+
+
+      # SISTE DATO AVGJØR SISTE KVARTAL
+      siste_dato_innevarende_kvartal = lubridate::ceiling_date(
+        x = .data$nyeste_reg,
+        unit =  "quarter") - lubridate::days(1),
+
+      kvartal_komplett_start = dplyr::case_when(
+        # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
+        .data$siste_dato_innevarende_kvartal == .data$nyeste_reg ~
+          lubridate::floor_date(.data$nyeste_reg,
+                                unit =  "quarter"),
+
+        # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+        .data$siste_dato_innevarende_kvartal != .data$nyeste_reg ~
+          lubridate::floor_date(.data$nyeste_reg,
+                                unit =  "quarter") - months(3),
+
+        TRUE ~ as.Date(NA_character_)),
       # Inneværende år:
       nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
 
@@ -110,7 +132,8 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
       forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
                                   format = "%Y-%m-%d")
     ) %>%
-    dplyr::select(-.data$siste_dato_innevarende_mnd)
+    dplyr::select(-.data$siste_dato_innevarende_mnd,
+                  -.data$siste_dato_innevarende_kvartal)
 
 
   if (rendered_by_shiny) {

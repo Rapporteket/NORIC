@@ -168,7 +168,6 @@ if(valid_staging_data) {
           lubridate::floor_date(.data$nyeste_reg, 
                                 unit =  "quarter") - months(3), 
         
-        
         TRUE ~ as.Date(NA_character_)),
       
       
