@@ -129,21 +129,49 @@ if(valid_staging_data) {
       noric::getLatestEntry(registryName = params$registryName))) %>% 
     
     dplyr::mutate(
-      # siste dato inneværende mnd 
+      
+      
+      
+      # SISTE DATO AVGJØR SISTE MÅNED: 
       siste_dato_innevarende_mnd = lubridate::ceiling_date(
         x = .data$nyeste_reg, 
         unit =  "month") - lubridate::days(1),
       
-      # siste dato i nyeste komplette mdn
       siste_dato = dplyr::case_when(
+        # siste dato er nyeste dato --> nyeste mnd er komlett
         .data$siste_dato_innevarende_mnd == .data$nyeste_reg ~ 
           .data$nyeste_reg, 
         
+        # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
         .data$siste_dato_innevarende_mnd != .data$nyeste_reg ~ 
           lubridate::floor_date(.data$nyeste_reg, "month") - 
           lubridate::days(1), 
         
         TRUE ~ as.Date(NA_character_)),
+      
+      
+      
+      
+      # SISTE DATO AVGJØR SISTE KVARTAL
+      siste_dato_innevarende_kvartal = lubridate::ceiling_date(
+        x = .data$nyeste_reg, 
+        unit =  "quarter") - lubridate::days(1),
+      
+      kvartal_komplett_start = dplyr::case_when(
+      # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
+        .data$siste_dato_innevarende_kvartal == .data$nyeste_reg ~ 
+          lubridate::floor_date(.data$nyeste_reg, 
+                                unit =  "quarter"), 
+        
+      # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+        .data$siste_dato_innevarende_kvartal != .data$nyeste_reg ~ 
+          lubridate::floor_date(.data$nyeste_reg, 
+                                unit =  "quarter") - months(3), 
+        
+        
+        TRUE ~ as.Date(NA_character_)),
+      
+      
       
       # Inneværende år: 
       nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
@@ -159,7 +187,8 @@ if(valid_staging_data) {
       forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
                                   format = "%Y-%m-%d")
     ) %>% 
-    dplyr::select(-.data$siste_dato_innevarende_mnd)
+    dplyr::select(-.data$siste_dato_innevarende_mnd, 
+                  -.data$siste_dato_innevarende_kvartal)
   
   # 2) HENTE DATASETTENE (SQL-spørring)
   sS_nasjonalt <- noric::getPrepSsData(
@@ -338,12 +367,10 @@ timeTableYear <- data.frame(
 
 ```{r kvartalTabPrepare, include=FALSE, eval=TRUE}
 # 5 siste ferdige kvartal
-forsteDatoKvartal <- lubridate::floor_date(periode_data$siste_dato, 
-                                           "quarter") 
 timeTableQuarter <- data.frame(
-  KvartalDatoStart = rev(seq(forsteDatoKvartal, 
-                             by = "-1 quarter",
-                             length.out = 6)[2:6])) %>% 
+  KvartalDatoStart = rev(seq(periode_data$kvartal_komplett_start, 
+                             by = "-1 quarter", 
+                             length.out = 5))) %>% 
   dplyr::transmute(
     kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
                      " Q", 
@@ -394,17 +421,7 @@ dim_ak_lokalt <- aK_nasjonalt %>%
 if (dim_ak_lokalt[1] > 10) {
   
   # 5 siste ferdige kvartal
-  forsteDatoKvartalAK <- lubridate::floor_date(nyeste_registrering_ak$nyesteReg, 
-                                               "quarter") 
-  timeTableQuarterAK <- data.frame(
-    KvartalDatoStart = rev(seq(forsteDatoKvartalAK, 
-                               by = "-1 quarter",
-                               length.out = 6)[2:6])) %>% 
-    dplyr::transmute(
-      kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
-                       " Q", 
-                       lubridate::quarter(.data$KvartalDatoStart, 
-                                          with_year = FALSE)))
+  timeTableQuarterAK <- timeTableQuarter
 }
 ```
 
