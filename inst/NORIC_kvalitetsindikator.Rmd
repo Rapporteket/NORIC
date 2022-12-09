@@ -20,7 +20,7 @@ title:   |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, " sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. De fleste tabellene presenteres per måned hittil i år, samt det siste hele året, mens figurene inneholder resultater bare til og med foregående måned." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, " sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Datagrunnlaget for rapporten er alle fullstendige måneder hittil i år, samt hele fjoråret." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -85,7 +85,7 @@ if (params$rendered_by_shiny)
 # Staging datasett må være max 2 dager gammelt
 sjekkStaging <- noric::checkValidStagingData(
   registryName = params$registryName, 
-  diffDaysCheck = 2)
+  diffDaysCheck = 1)
 
 
 valid_staging_data <- sjekkStaging$valid_staging_data
@@ -94,7 +94,7 @@ valid_staging_data <- sjekkStaging$valid_staging_data
 if(valid_staging_data) {
   
   nyeste_staging_data <- sjekkStaging$nyeste_staging_data
-
+  
   stagingData <- rapbase::loadStagingData(registryName = params$registryName, 
                                           dataName = nyeste_staging_data)
   
@@ -110,9 +110,10 @@ if(valid_staging_data) {
   # NYESTE DATO: 
   # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
   # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
-  # gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+  # gårsdagens dato som referanse, ingen forløp etter denne kommer med.  
   # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
   # overføringer har stoppet opp
+  # I rapporten bruker vi kun hele (komplette = fullførte måneder)
   
   # ELDSTE DATO: 
   # generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
@@ -122,12 +123,28 @@ if(valid_staging_data) {
   # "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
   
   periode_data <- data.frame(
-    # Nyeste registrering eller gårsdagen
-    siste_dato = min(
+    # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
+    nyeste_reg = min(
       (as.Date(Sys.time()) - 1), 
       noric::getLatestEntry(registryName = params$registryName))) %>% 
     
     dplyr::mutate(
+      # siste dato inneværende mnd 
+      siste_dato_innevarende_mnd = lubridate::ceiling_date(
+        x = .data$nyeste_reg, 
+        unit =  "month") - lubridate::days(1),
+      
+      # siste dato i nyeste komplette mdn
+      siste_dato = dplyr::case_when(
+        .data$siste_dato_innevarende_mnd == .data$nyeste_reg ~ 
+          .data$nyeste_reg, 
+        
+        .data$siste_dato_innevarende_mnd != .data$nyeste_reg ~ 
+          lubridate::floor_date(.data$nyeste_reg, "month") - 
+          lubridate::days(1), 
+        
+        TRUE ~ as.Date(NA_character_)),
+      
       # Inneværende år: 
       nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
       
@@ -141,7 +158,8 @@ if(valid_staging_data) {
       # Aortaklaff + Segment stent (indikator per kvartal): 
       forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
                                   format = "%Y-%m-%d")
-    )
+    ) %>% 
+    dplyr::select(-.data$siste_dato_innevarende_mnd)
   
   # 2) HENTE DATASETTENE (SQL-spørring)
   sS_nasjonalt <- noric::getPrepSsData(
@@ -400,7 +418,10 @@ if (params$rendered_by_shiny)
 
 # Datagrunnlag
 
-Siste innregistrering som teller med i datagrunnlaget for denne rapporten er 
+Rapporten er laget den  `r format(Sys.time(), '%d. %B %Y')`  basert på 
+en nasjonal NORIC database der den nyeste registrering er fra 
+`r format(periode_data$nyeste_reg, '%d. %B %Y')`. Vi rapporterer kun 
+fullstendige måneder her siste registrering inkludert i rapporten er fra
 `r format(periode_data$siste_dato, '%d. %B %Y')`. 
 
 ```{r pagebreakFerdigstiltEtter, results = "asis", eval = (params$tableFormat == "latex")}
