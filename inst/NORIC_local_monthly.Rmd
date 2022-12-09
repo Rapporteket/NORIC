@@ -537,7 +537,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ## Indikasjon
 
-I denne figuren er indikasjonene *Hjertestant ved STEMI*, *STEMI > 24h* og 
+I denne figuren er indikasjonene *Hjertestans ved STEMI*, *STEMI > 24h* og 
 *STEMI/Rescue PCI* slått sammen med *STEMI*. 
 
 Indikasjonen *Annet* inkluderer blant annet 
@@ -798,7 +798,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ## Komplikasjoner
 ### Komplikasjoner på lab for `r params$hospitalName`  i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 
-Datagrunnlaget for komplikasjoner på lab gjelder alle forløp.
+Datagrunnlaget for komplikasjoner på lab gjelder `r AP %>% nrow()` forløp.
 
 ```{r TabLabKompl,results='asis'}
 
@@ -835,7 +835,7 @@ LabKomplikasjoner <- data.frame(
     "Akutt ACB-operasjon fra lab",
     "Annen alvorlig",
     "Død",
-    "- Der av prosedyrerelatert død"
+    "- Derav prosedyrerelatert død"
   )
 )
 
@@ -867,9 +867,15 @@ LabKomplikasjoner_sortert <- rbind(LabKomplikasjoner_uPRD[1:indeksDod,],
 df <- LabKomplikasjoner_sortert[, -1]
 rownames(df) <- NULL
 
+cap <- paste0("Tabellen under gjelder for ",
+              nrow(AP),
+              " forløp og er datagrunnlaget for komplikasjoner på laboratoriet",
+              " registrert i NORIC ved ", params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
+
 noric::mst(df,
            type = params$tableFormat,
-           cap = NULL,
+           cap = cap,
            digs = 1,
            align = c("l", "r", "r", "r"),
            label = "TabLabKompl")
@@ -878,7 +884,7 @@ noric::mst(df,
 
 
 
-```{r FigLabKompl, fig.cap = paste0("Andel komplikasjoner på laboratoriet registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall (andel) komplikasjoner på laboratoriet registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -924,11 +930,12 @@ text(
 
 ### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 
-Datagrunnlaget for komplikasjoner på avdelingen gjelder kun primære forløp.
+Datagrunnlaget for komplikasjoner på avdelingen gjelder kun primære forløp. 
+Dette gjelder altså for `r AP %>% dplyr::filter(.data$Regtype %in% "Primær") %>% nrow()` forløp og er uavhengig av kompletthet.
 
-[***Her***](#komplSkjema) er en oversikt over antall (andel) ferdigstilte komplikasjonsskjemaer.
+[***Klikk her***](#komplSkjema) for å se oversikten over antall (andel) ferdigstilte komplikasjonsskjemaer.
 
-```{r TabAvdKompl,results='asis'}
+```{r TabAvdKompl, results='asis'}
 
 #Kun primærforløp og der SkjemaStatusKomplikasjoner er 1
 AP_avdKomp <- AP %>% dplyr::filter(.data$Regtype %in% "Primær")
@@ -962,7 +969,7 @@ AvdKomplikasjoner <- data.frame(
     "Hjerteinfarkt",
     "Annen alvorlig",
     "Død",
-    "- Der av prosedyrerelatert død"
+    "- Derav prosedyrerelatert død"
   )
 )
 
@@ -994,15 +1001,23 @@ AvdKomplikasjoner_sortert <- rbind(AvdKomplikasjoner_uPRD[1:indeksDod,],
 df <- AvdKomplikasjoner_sortert[, -1]
 
 rownames(df) <- NULL
+
+cap <- paste0("Tabellen under gjelder for ",
+              nrow(AP_avdKomp),
+              " primære forløp og er datagrunnlaget for komplikasjoner på ",
+              " laboratoriet registrert i NORIC ved ", params$hospitalName,
+              " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
+
 noric::mst(df,
            type = params$tableFormat,
-           cap = NULL,
+           cap = cap,
            digs = 1,
-           align = c("l", "r", "r"))
+           align = c("l", "r", "r"),
+           label = "TabAvdKompl")
 ```
 
 
-```{r FigAvdKompl, fig.cap = paste0("Andel komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl, fig.cap = paste0("Antall (andel) komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
