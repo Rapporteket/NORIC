@@ -58,22 +58,7 @@ testthat::test_that("checkValidStagingData works when empty", {
 })
 
 
-testthat::test_that("checkValidStagingData works when not empty", {
 
-  rapbase::cleanStagingData(0)
-  rapbase::saveStagingData(registryName, dataName, d)
-
-  out <- noric::checkValidStagingData(registryName = registryName,
-                                      diffDaysCheck = 0)
-
-
-  testthat::expect_equal(class(out), "list")
-  testthat::expect_true(out$valid_staging_data)
-  testthat::expect_equal(out$nyeste_staging_data,
-                         expected = "testData")
-
-
-})
 
 
 testthat::test_that("deleteOldStagingData works when empty", {
