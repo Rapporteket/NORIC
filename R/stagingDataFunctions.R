@@ -413,8 +413,8 @@ checkValidStagingData <- function(registryName, diffDaysCheck = 0) {
       aK_Shus <- tmp_staging$aK_Shus
       
       stagingData$ap_shus_ok[i] <- ifelse(
-        test = all(aP_Shus %in%  c(102966, 101619, 104284, 105502, 106944,
-                        108141, 109880, 114150, 4210141, 700422)), 
+        test = all(c(102966, 101619, 104284, 105502, 106944,
+                        108141, 109880, 114150, 4210141, 700422) %in% aP_Shus), 
                    yes = TRUE, 
                    no = FALSE)
       
