@@ -82,10 +82,10 @@ if (params$rendered_by_shiny)
 
 ```{r check_valid_stagedData, include=FALSE, cache=FALSE}
 
-# Staging datasett må være max 2 dager gammelt
+# Staging datasett må være max XX dager gammelt
 sjekkStaging <- noric::checkValidStagingData(
   registryName = params$registryName, 
-  diffDaysCheck = 1)
+  diffDaysCheck = 6)
 
 
 valid_staging_data <- sjekkStaging$valid_staging_data
