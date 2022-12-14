@@ -399,18 +399,18 @@ checkValidStagingData <- function(registryName, diffDaysCheck = 0) {
       dplyr::arrange(dplyr::desc(.data$Dato))
     
     
-  if (stagingData %>% nrow() > 0) { 
+  if ((stagingData %>% nrow()) > 0) { 
     # for hvert datasett, sjekk at alle 10 AP sykehusene er representert og 
     # de 5 AK sykehusene
     i <- 1
-    for(i in 1: stagingData %>% nrow()) {
-      aP_Shus <- rapbase::loadStagingData(
+    for(i in 1:(stagingData %>% nrow())) {
+      tmp_staging <- rapbase::loadStagingData(
         registryName = registryName, 
-        dataName = stagingData$'Staging data'[i])$aP_shus
+        dataName = stagingData$'Staging data'[i])
       
-      aK_Shus <- rapbase::loadStagingData(
-        registryName = registryName, 
-        dataName = stagingData$'Staging data'[i])$aK_shus
+      aP_shus <- tmp_staging$aP_shus
+      
+      aK_Shus <- tmp_staging$aK_shus
       
       stagingData$ap_shus_ok[i] <- ifelse(
         test = all(aP_Shus %in%  c(102966, 101619, 104284, 105502, 106944,
