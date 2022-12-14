@@ -419,7 +419,7 @@ checkValidStagingData <- function(registryName, diffDaysCheck = 0) {
                    no = FALSE)
       
       stagingData$ak_shus_ok[i] <- ifelse(
-        test = all(aK_Shus %in%  c(102966, 700422,109880, 104284, 101619)), 
+        test = all(c(102966, 700422,109880, 104284, 101619) %in% aK_Shus), 
                    yes = TRUE, 
                    no = FALSE)
       
@@ -503,9 +503,11 @@ bulletinProcessorStaging <- function(dataset = "ki",
   }
   
   
-  # sjekke om det finnes et staging datasett som er opprettet i dag
+  # sjekke om det finnes et godkjent staging data set og dette er dagens
+  #  se om det er likt som nyeste navn. 
+  # Maks 6 dager tilbake i tid
   sjekkStaging <- noric::checkValidStagingData(registryName = registryName,
-                                               diffDaysCheck = 0)
+                                               diffDaysCheck = 6)
   
   # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
   if (sjekkStaging$valid_staging_data) {
@@ -519,10 +521,10 @@ bulletinProcessorStaging <- function(dataset = "ki",
   meldingstekst <- ifelse(
     test = sjekkStaging$valid_staging_data,
     yes = paste0(stagingDataFilename,
-                 "Sjekk OK og nyeste datasett er: ",
+                 "--> Sjekk OK, nyeste datasett er: ",
                  sjekkStaging$nyeste_staging_data),
     no = paste0(stagingDataFilename,
-                "Sjekk ikke OK, ingen datasett er laget i dag"))
+                "--> Sjekk ikke OK, ingen datasett er gyldige."))
   
   
   # returnerer meldingen som skal sendes på e-post
