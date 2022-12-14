@@ -408,9 +408,9 @@ checkValidStagingData <- function(registryName, diffDaysCheck = 0) {
         registryName = registryName, 
         dataName = stagingData$'Staging data'[i])
       
-      aP_shus <- tmp_staging$aP_shus
+      aP_Shus <- tmp_staging$aP_Shus
       
-      aK_Shus <- tmp_staging$aK_shus
+      aK_Shus <- tmp_staging$aK_Shus
       
       stagingData$ap_shus_ok[i] <- ifelse(
         test = all(aP_Shus %in%  c(102966, 101619, 104284, 105502, 106944,
