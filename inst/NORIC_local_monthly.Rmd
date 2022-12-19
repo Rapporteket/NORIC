@@ -743,7 +743,7 @@ noric::mst(TabTillegg[, c("FFR",
 
 <br/>
 
-### Tilleggsprosedyrer med direkte tilknytning til Angio/PCI
+### Tilleggsprosedyrer i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografier og/eller PCI per måned ved ",
@@ -762,7 +762,7 @@ noric::mst(TabTillegg[, c("Høyre kat.",
 
 
 
-### Adjuvant terapi
+### Adjuvant terapi ved Angio/PCI
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
               "invasiv tilleggsbehandling per måned ved ", params$hospitalName,
@@ -1318,6 +1318,8 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 # Andre prosedyrer
 `r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
+
+Prosedyrer som ikke er utført med tilknytning til Angio/PCI.
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
 cap <- paste0("Antall registrert andre prosedyrer i NORIC (utført uten direkte ",
