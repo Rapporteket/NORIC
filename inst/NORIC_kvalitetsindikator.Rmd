@@ -433,14 +433,17 @@ if (params$rendered_by_shiny)
 \bigskip \bigskip \bigskip
 
 # Datagrunnlag
-Datagrunnlaget for denne rapporten er alle fullstendige måneder hittil i år, 
-samt hele fjoråret. Siste prosedyredato som er med i opptellingene er 
-`r format(periode_data$siste_dato, '%d. %B %Y')`. 
+Rapporten er generert med utgangspunkt i NORIC's nasjonale database. Datasettet
+som ligger til grunn har data fra 
+`r aP_nasjonalt %>% dplyr::select(.data$AvdRESH) %>% dplyr::distinct() %>% nrow()` 
+sykehus og nyeste registrering er datert 
+`r format(periode_data$nyeste_reg, '%d. %B %Y')`.    
 
 
-Rapporten er generert med utgangspunkt i NORIC's nasjonale 
-database. Den nyeste registreringen overført til Rapporteket er datert
-`r format(periode_data$nyeste_reg, '%d. %B %Y')`.  
+Det presenteres månedlige resultater for hele fjorårets produksjon, samt alle
+fullførte måndeder hittil i år. 
+Den siste prosedyredatoen som er med i tabellene og 
+figurene er dermed `r format(periode_data$siste_dato, '%d. %B %Y')`. 
 
 
 
