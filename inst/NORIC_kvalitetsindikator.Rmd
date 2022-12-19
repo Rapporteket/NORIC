@@ -102,6 +102,8 @@ if(valid_staging_data) {
   aK_nasjonalt <- stagingData$aK_nasjonalt
   periode_data <- stagingData$periode_data
   
+  kilde <- "staging"
+  
 } else{ 
   
   
@@ -121,6 +123,7 @@ if(valid_staging_data) {
   #     starten av året. 
   # SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
   # "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
+  kilde <- "prod"
   
   periode_data <- data.frame(
     # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
@@ -158,12 +161,12 @@ if(valid_staging_data) {
         unit =  "quarter") - lubridate::days(1),
       
       kvartal_komplett_start = dplyr::case_when(
-      # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
+        # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
         .data$siste_dato_innevarende_kvartal == .data$nyeste_reg ~ 
           lubridate::floor_date(.data$nyeste_reg, 
                                 unit =  "quarter"), 
         
-      # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+        # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
         .data$siste_dato_innevarende_kvartal != .data$nyeste_reg ~ 
           lubridate::floor_date(.data$nyeste_reg, 
                                 unit =  "quarter") - months(3), 
@@ -433,8 +436,8 @@ if (params$rendered_by_shiny)
 \bigskip \bigskip \bigskip
 
 # Datagrunnlag
-Rapporten er generert med utgangspunkt i NORIC's nasjonale database. Datasettet
-som ligger til grunn har data fra 
+Rapporten er generert med utgangspunkt i NORIC's nasjonale database
+(`r kilde`). Datasettet som ligger til grunn har data fra 
 `r aP_nasjonalt %>% dplyr::select(.data$AvdRESH) %>% dplyr::distinct() %>% nrow()` 
 sykehus og nyeste registrering er datert 
 `r format(periode_data$nyeste_reg, '%d. %B %Y')`.    
