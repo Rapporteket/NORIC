@@ -1,8 +1,13 @@
-# noric 2.XX
+# noric 2.10.0
 
-## Nytt
-Lagrer en skyggekopi av staging data som kan brukes til generering av 
+* Lagrer en skyggekopi av staging data som kan brukes til generering av 
 KI-rapporten.
+* Egne noric-funksjoner for staging data: liste alle staging data,
+sjekke validitet og finne nyeste, slette gamle staging data. 
+* Egen bulletinProcessorStaging for regelmessig (daglig) prosessering av
+staging data. 
+* Brukergrensesnitt i Verktøy-menyen for nasjonal SC rolle.
+
 
 # noric 2.9.3
 
