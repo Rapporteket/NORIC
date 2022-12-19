@@ -101,7 +101,15 @@ periode_data %<>%
                                          "month") - months(showN))
 ```
 
+```{r monthTabPrepare, include=FALSE, eval=TRUE}
 
+timeTableMonth <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
+                                             format = "%Y-%m")))
+```
 
 
 ```{r GetData, include=FALSE, cache=FALSE}
@@ -1327,12 +1335,17 @@ cap <- paste0("Antall registrert andre prosedyrer i NORIC (utført uten direkte 
              params$hospitalName, " i perioden ",
              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 
-TabNAndreProsedyrer <- AnP %>% 
+TabDataAndreProsedyrer <- AnP %>% 
   janitor::tabyl(maaned,
                  AnnenProsType) %>% 
   janitor::adorn_totals("col", name = "Totalt") %>% 
-  janitor::adorn_totals("row", name = "Totalt") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
+
+TabNAndreProsedyrer <- timeTableMonth %>% 
+  left_join(., TabDataAndreProsedyrer, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
+
+TabNAndreProsedyrer[is.na(TabNAndreProsedyrer)] <- 0
 
 align <- c("l", rep("c", dim(TabNAndreProsedyrer)[2] - 1))
 
