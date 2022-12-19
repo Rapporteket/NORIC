@@ -102,7 +102,7 @@ testthat::test_that("bulletinProcessorStaging works", {
   testthat::expect_equal(
     melding,
     paste0("Denne bulletin'en laget ingen datasett. ",
-           "--> Sjekk ikke OK, ingen datasett er gyldige."))
+           " --> Sjekk utført, ingen datasett er gyldige."))
 
 
 })

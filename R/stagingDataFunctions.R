@@ -492,13 +492,13 @@ bulletinProcessorStaging <- function(dataset = "ki",
                                      author = "ingen") {
   
   # Lage datasett
-  stagingDataFilename <- "Denne bulletin'en laget ingen datasett. "
+  melding_start <- "Denne bulletin'en laget ingen datasett. "
   
   if (dataset %in% "ki") {
     stagingDataFilename <- noric::makeStagingDataKi(
       registryName = registryName)
     
-    stagingDataFilename <- paste0("Denne bulletin'en laget: ",
+    melding_start <- paste0("Denne bulletin'en laget: ",
                                   stagingDataFilename, ". ")
   }
   
@@ -509,6 +509,19 @@ bulletinProcessorStaging <- function(dataset = "ki",
   sjekkStaging <- noric::checkValidStagingData(registryName = registryName,
                                                diffDaysCheck = 6)
   
+  if(sjekkStaging$valid_staging_data){
+    melding_sjekk <- paste0("--> Sjekk OK, nyeste gyldige datasett er: ", 
+                           sjekkStaging$nyeste_staging_data)
+    
+    if(! sjekkStaging$nyeste_staging_data %in% stagingDataFilename) {
+      melding_sjekk <- paste0(melding_sjekk, " MERK at nyeste er ikke gyldig!")
+    }
+    
+  } else {
+    melding_sjekk <- " --> Sjekk utført, ingen datasett er gyldige."
+  }
+  
+  
   # slette de som er over 1 uke gamle (kun dersom nyeste er godkjent)
   if (sjekkStaging$valid_staging_data) {
     noric::deleteOldStagingData(registryName = registryName,
@@ -516,17 +529,18 @@ bulletinProcessorStaging <- function(dataset = "ki",
     
   }
   
+  meldingstekst <- paste0(melding_start, melding_sjekk)
   
   
-  meldingstekst <- ifelse(
-    test = sjekkStaging$valid_staging_data,
-    yes = paste0(stagingDataFilename,
-                 "--> Sjekk OK, nyeste datasett er: ",
-                 sjekkStaging$nyeste_staging_data),
-    no = paste0(stagingDataFilename,
-                "--> Sjekk ikke OK, ingen datasett er gyldige."))
-  
-  
+  # meldingstekst <- ifelse(
+  #   test = sjekkStaging$valid_staging_data,
+  #   yes = paste0(melding_start,
+  #                "--> Sjekk OK, nyeste datasett er: ",
+  #                sjekkStaging$nyeste_staging_data),
+  #   no = paste0(melding_start,
+  #               "--> Sjekk ikke OK, ingen datasett er gyldige."))
+  # 
+  # 
   # returnerer meldingen som skal sendes på e-post
   return(meldingstekst)
 }
