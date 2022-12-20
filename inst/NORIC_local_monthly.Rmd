@@ -639,15 +639,36 @@ Indikasjon2Maaned %>% ggplot2::ggplot(
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC per måned ",
               "og indikasjon ved ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ".")
-xtabs(formula = ~ maaned + Indikasjon2, data = AP) %>%
-  noric::prettyTab(., add_totals = TRUE) %>%
-  noric::mst(.,
-             type = params$tableFormat,
-             cap = cap,
-             digs = 0,
-             align = rep("r", 8),
-             lsd = TRUE,
-             label = "TabNIndikasjon")
+
+TabDataIndikasjon <- AP %>% 
+  janitor::tabyl(maaned,
+                 Indikasjon2) %>% 
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
+
+TabNIndikasjon <- timeTableMonth %>% 
+  left_join(., TabDataIndikasjon, by = c("maaned")) %>% 
+  dplyr::rename(" " = "maaned")
+
+TabNIndikasjon[is.na(TabNIndikasjon)] <- 0
+
+align <- c("l", rep("r", dim(TabNIndikasjon)[2] - 1))
+
+if (params$tableFormat == "html") {
+  knitr::kable(x = TabNIndikasjon, caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE) %>%
+    kableExtra::column_spec(column = 1, width = "7em")
+} else if (params$tableFormat == "latex") {
+  knitr::kable(x = TabNIndikasjon,
+               format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position")
+}
 ```
 
 ```{r}
@@ -782,6 +803,7 @@ TabTillegg %<>%
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
               rangeProsDato[1], " til ", rangeProsDato[2], ".")
+
 noric::mst(TabTillegg[, c("FFR",
                          "IFR",
                          "OCT",
@@ -807,6 +829,7 @@ cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er "
               "utført koronare angiografier og/eller PCI per måned ved ",
               params$hospitalName, " i perioden ", rangeProsDato[1], " til ",
               rangeProsDato[2], ".")
+
 noric::mst(TabTillegg[, c("Høyre kat.",
                          "Perikardiocentese",
                          "Ventilfilming",
@@ -825,6 +848,7 @@ noric::mst(TabTillegg[, c("Høyre kat.",
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
               "invasiv tilleggsbehandling per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
+
 noric::mst(TabTillegg[, c("PM",
                           "IABP",
                           "Impella",
