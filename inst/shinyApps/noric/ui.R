@@ -43,8 +43,12 @@ ui <- tagList(
              fluidRow(
                column(12,
                       rpivotTableOutput("pivotSurvey")
-               )
-             )
+               ) 
+             ), 
+             fluidRow(12, 
+                      downloadButton("download_pivot"), 
+                      actionButton("copy_pivot", "kopier"))
+             
     ),
     
     shiny::tabPanel("Kodebok",
