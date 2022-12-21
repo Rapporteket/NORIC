@@ -1,3 +1,9 @@
+# noric 2.11.0
+* Har slått sammen månedsrapportene Prosedyre og Stentbruk.
+* Gjort endringer i figurer, tabeller, figurtekst og tabelltekst.
+* Har endret "last ned"-knappen til å bare laste ned pdf for disse lokale rapportene.
+* De lokale månedsrapportene bruker nå reportProcessor til å generere pdf-rapporter.
+
 # noric 2.9.3
 
 ## Bugfix
@@ -28,6 +34,8 @@ Bugfix. Fjerne donorutrednign fra avdod-rapporten
 # noric 2.9.0
 
 ## Nytt
+* Innholdet i stent-rapporten ligger nå under prosedyre-rapporten.
+* Stent-rapporten er eksisterer ikke lengre.
 * Funksjonene utlede_dod_noric() og avdod_opphold()
 * Ny rapport: Kvalitetsforbedring - registrering av død i NORIC
 * Tilpasse "Nedlasting Rapporter" til å laste valgfri rapport
