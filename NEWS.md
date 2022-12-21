@@ -1,4 +1,4 @@
-# noric 2.10.0
+# noric 2.11.0
 * Har slått sammen månedsrapportene Prosedyre og Stentbruk.
 * Gjort endringer i figurer, tabeller, figurtekst og tabelltekst.
 * Har endret "last ned"-knappen til å bare laste ned pdf for disse lokale rapportene.
