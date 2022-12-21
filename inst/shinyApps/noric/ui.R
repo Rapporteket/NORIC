@@ -5,6 +5,7 @@ library(rpivotTable)
 library(shiny)
 library(shinyalert)
 library(shinycssloaders)
+library(DT)
 
 
 addResourcePath("rap", system.file("www", package = "rapbase"))
@@ -43,6 +44,8 @@ ui <- tagList(
              fluidRow(
                column(12,
                       rpivotTableOutput("pivotSurvey")
+                      # , 
+                      # DT::dataTableOutput("aSummaryTable")
                ) 
              ), 
              fluidRow(12, 

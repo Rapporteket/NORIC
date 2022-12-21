@@ -3,6 +3,7 @@ library(noric)
 library(readr)
 library(rpivotTable)
 library(shiny)
+library(rvest)
 
 shinyServer(function(input, output, session) {
   
@@ -322,53 +323,44 @@ shinyServer(function(input, output, session) {
                   rendererName = "Table",
                   width = "50%",
                   height = "550px",  
-                  onRefresh = htmlwidgets::JS(
-                    "function(config) {
-                            Shiny.onInputChange('pivotSurvey', document.getElementById('pivotSurvey').innerHTML); 
-                        }"))  
-  
+                  onRefresh = 
+                    htmlwidgets::JS("function(config) { 
+                           Shiny.onInputChange('myData', document.getElementById('pivotSurvey').innerHTML); 
+                        }")
+      )
+      
     } else {
       rpivotTable(data.frame())
     }
   })
 
 
-# create an eventReactive dataframe that regenerates anytime the pivot object changes
-# wrapped in a tryCatch to only return table object. errors out when charts are shown
-pivot_tbl <- eventReactive(input$pivotSurvey, {
-  tryCatch({
-    input$pivotSurvey %>%
-      read_html %>%
-      html_table(fill = TRUE) %>%
+  # Clean the html and store as reactive
+  summarydf <- eventReactive(input$myData,{
+    input$myData %>% 
+      read_html %>% 
+      rvest::html_table(fill = TRUE) %>% 
+      # Turns out there are two tables in an rpivotTable, we want the second
       .[[2]]
-  }, error = function(e) {
-    return()
   })
-})
 
-
-# allow the user to download once the pivot_tbl object is available
-# observe({
-#   if (is.data.frame(pivot_tbl()) && nrow(pivot_tbl()) > 0) {
-#     shinyjs::enable("download_pivot")
-#     shinyjs::enable("copy_pivot")
-#   } else {
-#     shinyjs::disable("download_pivot")
-#     shinyjs::disable("copy_pivot")
-#   }
-# })
-
+  # # show df as DT::datatable
+  # output$aSummaryTable <- DT::renderDataTable({
+  #   datatable(summarydf(), rownames = FALSE)
+  # })
+  
+  
 
 # using shiny's download handler to get the data output
 output$download_pivot <- downloadHandler(
   filename = function() {
-    "pivot.xlsx-csv"
+    "pivot.csv"
   },
   content = function(file) {
-      readr::write_excel_csv2(pivot_tbl(), file)
+      # readr::write_excel_csv2(summarydf(), file)
       
-      # readr::write_csv2(x = pivot_tbl(),
-      #                 file = file)
+      readr::write_csv2(x = summarydf(),
+                      file = file)
   }
   
 )
