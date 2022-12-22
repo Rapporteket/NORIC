@@ -482,7 +482,8 @@ shinyServer(function(input, output, session) {
   
   subReports <- list(
     `Prosedyrer og stentbruk` = list(
-      synopsis = "M\u00E5nedlig oppsummering av prosedyrer siste \u00E5r",
+      synopsis = paste0("M\u00E5nedlig oppsummering av prosedyrer og ",
+                        "stentbruk siste \u00E5r"),
       fun = "subscriptionLocalMonthlyReps",
       paramNames = pn,
       paramValues = c("NORIC_local_monthly", pv)
