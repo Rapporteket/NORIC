@@ -15,7 +15,7 @@
 
 getHospitalName <- function(reshID) {
 
-  if (isNationalReg(reshID)) {
+  if (noric::isNationalReg(reshID)) {
     return("NORIC nasjonal")
   } else {
     baseName <- "noricStaging"
@@ -23,7 +23,9 @@ getHospitalName <- function(reshID) {
     dbType <- "mysql"
     query <- "SELECT Sykehusnavn FROM AngioPCIVar LIMIT 1"
 
-    return(rapbase::loadRegData(regName, dbType = dbType, query = query)[1, 1])
+    return(rapbase::loadRegData(registryName = regName,
+                                dbType = dbType, 
+                                query = query)[1, 1])
   }
 
 }

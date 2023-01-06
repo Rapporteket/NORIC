@@ -1,3 +1,14 @@
+# noric 2.10.0
+
+* Lagrer en skyggekopi av staging data som kan brukes til generering av 
+KI-rapporten.
+* Egne noric-funksjoner for staging data: liste alle staging data,
+sjekke validitet og finne nyeste, slette gamle staging data. 
+* Egen bulletinProcessorStaging for regelmessig (daglig) prosessering av
+staging data. 
+* Brukergrensesnitt i Verktøy-menyen for nasjonal SC rolle.
+
+
 # noric 2.9.3
 
 ## Bugfix
@@ -5,6 +16,7 @@ SQL med singleRow=TRUE må ha _en_ rad i datasettet for å kunne fullføre
 databehandlingen i getAndPrep funksjonene. For enkelte sykehus ble den ene
 raden slettet av "fjerne_tulleregistreringer" før databehandlignen var fullført
 (0 rader i tabell). Dette er rettet opp. 
+
 
 
 
