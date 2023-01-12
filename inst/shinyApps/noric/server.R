@@ -476,10 +476,7 @@ shinyServer(function(input, output, session) {
   
   # Ny abonnement kode (med moduler fra rapbase)
   ## currently, function parameters are the same for all reports
-  
-  # pn <- c("baseName", "reshId", "registryName", "author", "hospitalName",
-  #         "outputType")
-  
+
   pn <- c("outputType",
           "title",
           "author",
@@ -489,8 +486,6 @@ shinyServer(function(input, output, session) {
           "userFullName",
           "userRole",
           "userOperator")
-  
-  # pv <- c(reshId, registryName, author, hospitalName, "pdf")
   
   pv <- c("pdf",
           "Månedsresultater",
