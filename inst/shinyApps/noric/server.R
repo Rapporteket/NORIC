@@ -476,16 +476,38 @@ shinyServer(function(input, output, session) {
   
   # Ny abonnement kode (med moduler fra rapbase)
   ## currently, function parameters are the same for all reports
-  pn <- c("baseName", "reshId", "registryName", "author", "hospitalName",
-          "type")
-  pv <- c(reshId, registryName, author, hospitalName, "pdf")
+  
+  # pn <- c("baseName", "reshId", "registryName", "author", "hospitalName",
+  #         "outputType")
+  
+  pn <- c("outputType",
+          "title",
+          "author",
+          "orgName",
+          "orgId",
+          "registryName",
+          "userFullName",
+          "userRole",
+          "userOperator")
+  
+  # pv <- c(reshId, registryName, author, hospitalName, "pdf")
+  
+  pv <- c("pdf",
+          "Månedsresultater",
+          "unknown author",
+          hospitalName,
+          999999,
+          registryName,
+          userFullName,
+          userRole,
+          "unknown operator")
   
   subReports <- list(
     `Prosedyrer og stentbruk` = list(
       synopsis = paste0("M\u00E5nedlig oppsummering av prosedyrer og ",
                         "stentbruk siste \u00E5r"),
-      fun = "subscriptionLocalMonthlyReps",
-      paramNames = pn,
+      fun = "reportProcessor",
+      paramNames = c("report", pn),
       paramValues = c("NORIC_local_monthly", pv)
     )
   )
@@ -494,8 +516,8 @@ shinyServer(function(input, output, session) {
     liste_aktivitet <- list(
       Aktivitet = list(
         synopsis = "M\u00E5nedlig oppsummering av aktiviteter siste \u00E5r",
-        fun = "subscriptionLocalMonthlyReps",
-        paramNames = pn,
+        fun = "reportProcessor",
+        paramNames = c("report", pn),
         paramValues = c("NORIC_local_monthly_activity", pv)
       )
     )
