@@ -1,8 +1,15 @@
-# noric 2.11.0
+# noric 2.10.0
 * Har slått sammen månedsrapportene Prosedyre og Stentbruk.
 * Gjort endringer i figurer, tabeller, figurtekst og tabelltekst.
 * Har endret "last ned"-knappen til å bare laste ned pdf for disse lokale rapportene.
 * De lokale månedsrapportene bruker nå reportProcessor til å generere pdf-rapporter.
+* Lagrer en skyggekopi av staging data som kan brukes til generering av 
+KI-rapporten.
+* Egne noric-funksjoner for staging data: liste alle staging data,
+sjekke validitet og finne nyeste, slette gamle staging data. 
+* Egen bulletinProcessorStaging for regelmessig (daglig) prosessering av
+staging data. 
+* Brukergrensesnitt i Verktøy-menyen for nasjonal SC rolle.
 
 # noric 2.9.3
 
@@ -11,6 +18,7 @@ SQL med singleRow=TRUE må ha _en_ rad i datasettet for å kunne fullføre
 databehandlingen i getAndPrep funksjonene. For enkelte sykehus ble den ene
 raden slettet av "fjerne_tulleregistreringer" før databehandlignen var fullført
 (0 rader i tabell). Dette er rettet opp. 
+
 
 
 

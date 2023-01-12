@@ -85,6 +85,9 @@ innlogginger og annen aktivitet på Rapporteket.
 * __Nedlasting rapporter__: Her kan ansatte i registeret hente de månedlige
 resultatene for sykehusene.
 
+* __Forvaltning staging data__ : Her kan ansatte i registeret holde oversikt
+over staging datasett. 
+
 ### Kontaktinformasjon
 Ta gjerne kontakt ved spørsmål eller innspill til rapporter eller annet
 innhold på rapporteket. E-post: noric@helse-bergen.no

@@ -86,8 +86,6 @@ WHERE
   
   aP <- rapbase::loadRegData(registryName, query)
   
-  
-  
   list(aP = aP)
 }
 

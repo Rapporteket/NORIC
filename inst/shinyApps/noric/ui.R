@@ -111,10 +111,7 @@ ui <- tagList(
                             downloadButton("dumpDownload", "Hent!")
                ),
                mainPanel(
-                 htmlOutput("dataDumpInfo") #%>%
-                 # shinycssloaders::withSpinner(color = "#18bc9c",
-                 #                              color.background = "#ffffff",
-                 #                              type = 2)
+                 htmlOutput("dataDumpInfo") 
                )
              )
     ),
@@ -182,8 +179,30 @@ ui <- tagList(
         shiny::sidebarLayout(
           shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
           shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
+        )
+      ), 
+      
+      
+      shiny::tabPanel(
+        title = "Staging data", 
+        
+        shiny::titlePanel("Liste alle staging data"),
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(htmlOutput("stagingControl")),
           
+          shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))), 
+        
+        
+        br(),
+        shiny::titlePanel("Regelmessing etablering av staging data"),
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::autoReportOrgInput("noricBulletin"),
+            rapbase::autoReportInput("noricBulletin")),
           
+          shiny::mainPanel(
+            rapbase::autoReportUI("noricBulletin")
+          )
         )
       )
     )
