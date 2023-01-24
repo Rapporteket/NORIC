@@ -1,8 +1,11 @@
-# noric 2.10.0
+# noric 2.11.0
 * Har slått sammen månedsrapportene Prosedyre og Stentbruk.
 * Gjort endringer i figurer, tabeller, figurtekst og tabelltekst.
 * Har endret "last ned"-knappen til å bare laste ned pdf for disse lokale rapportene.
 * De lokale månedsrapportene bruker nå reportProcessor til å generere pdf-rapporter.
+
+
+# noric 2.10.0
 * Lagrer en skyggekopi av staging data som kan brukes til generering av 
 KI-rapporten.
 * Egne noric-funksjoner for staging data: liste alle staging data,
