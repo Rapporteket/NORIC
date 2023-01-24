@@ -22,7 +22,7 @@ title:   |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract:  '`r paste0("Vi har nå fått på plass overføring av dødsdato fra Folkeregisteret til NORIC.  Databasen inneholder nå to ukentlig oppdaterte variabler:  _Avdod_ og _AvdodDato_. Vi har i denne sammenhengen benyttet anledningen til å sette i gang et kvalitetsforbedringsprosjekt med målsetning å forbedre registreringen av død i NORICs egne variabler: _død på lab_, _død på avdeling_ og _utskrevet død_. ", "\\newline ", "\\newline ", "Vi vet at registrering av komplikasjoner, og spesielt død, oppleves som vanskelig. Registreringspraksis for død varierer mellom sykehusene. Vi har derfor utarbeidet denne rapporten som tilsendes månedlig til utvalgte personer på hvert sykehus. Rapporten inneholder lister med forløpsID-er som sykehusene bes sjekke. For det første gjelder det pasienter som har _AvdodDato_ fra folkeregisteret svært nær prosedyreDato i NORIC, men som verken er registrerte som _død på lab_, _død på avdeling_ eller _utskrevet død_ fra NORIC. For det andre gjelder det pasienter som er registrerte som avdøde i NORIC, men der de tre NORIC-variablene ikke er entydige. ", "\\newline ", "\\newline ", 
+abstract:  '`r paste0("Vi har fått på plass overføring av dødsdato fra Folkeregisteret til NORIC.  Databasen inneholder nå to ukentlig oppdaterte variabler:  _Avdod_ og _AvdodDato_. Vi har i denne sammenhengen benyttet anledningen til å sette i gang et kvalitetsforbedringsprosjekt med målsetning å forbedre registreringen av død i NORICs egne variabler: _død på lab_, _død på avdeling_ og _utskrevet død_. ", "\\newline ", "\\newline ", "Vi vet at registrering av komplikasjoner, og spesielt død, oppleves som vanskelig. Registreringspraksis for død varierer mellom sykehusene. Vi har derfor utarbeidet denne rapporten som tilsendes månedlig til utvalgte personer på hvert sykehus. Rapporten inneholder lister med forløpsID-er som sykehusene bes sjekke. For det første gjelder det pasienter som har _AvdodDato_ fra folkeregisteret svært nær prosedyreDato i NORIC, men som verken er registrerte som _død på lab_, _død på avdeling_ eller _utskrevet død_ fra NORIC. For det andre gjelder det pasienter som er registrerte som avdøde i NORIC, men der de tre NORIC-variablene ikke er entydige. ", "\\newline ", "\\newline ", 
 "Vi vil i en periode sette fokus på disse pasientene hos registratorene ved sykehusene. Alle deres tilbakemeldinger om eventuelle problemstillinger knyttet til registreringene er svært verdifulle for oss og mottas med takk på e-post til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)! Avhengig av disse tilbakemeldingene vil vi utarbeide retningslinjer som kan benyttes i registreringsarbeidet og/eller forbedre selve innregistreringsløsningen.", "\\newline ", "\\newline ", 
 "Etterhvert som forløpene kontrolleres, vil dere muligens komme over pasienter som er helt riktig registrerte i NORIC. Vi ber dere sende oss en e-post med ForløpsID-ene det gjelder, slik at de kan fjernes fra disse listene før produksjon av neste måneds rapport. ", "\\newline ", "\\newline ", "Rapporten inkluderer forløp fra om med 1. januar i fjoråret og til og med hele inneværende års produksjon. Forløp med indikasjon _Donorutredning_ er ikke med i rapporten.")`'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
@@ -215,7 +215,7 @@ cat("\n\n\\pagebreak\n")
 
 
 # Folkeregistrert død rundt prosedyredato, men ikke død i NORIC
-I de tre punktene under ønsker vi at at sykehusene sjekker i journalsystemene
+I de tre punktene under ønsker vi at sykehusene sjekker i journalsystemene
 sine om opplistede pasienter kan ha dødd under samme opphold i sykehuset som 
 registreringene i NORIC gjelder. 
 Dersom det er tilfelle, ber vi sykehusene om å komplettere registreringen og 
@@ -540,6 +540,8 @@ if (params$rendered_by_shiny)
 Følgende pasienter er utskrevet døde uten at dødsfallet er registrert i verken 
 _død på lab_ eller _død på avdeling_. Vi ønsker å legge bedre til rette for
 registrering av død, også for pasienter der man mener at dødsfallet ikke er 
+prosedyrerelatert og ikke knyttet til til komplikasjoner på lab eller
+avdeling. 
 For å kartlegge dette behovet er vi interessert i å vite hvorfor opplistede 
 pasienter er registrert uten _død på lab_ eller _død på avdeling_.  
 
