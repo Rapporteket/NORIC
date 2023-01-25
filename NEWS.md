@@ -1,7 +1,9 @@
 # noric 
 
-## Nytt
+
+# noric 2.xx - tavi prom
 Hente tabellen med PROM-data og tilgjengeliggjøre den for datadump!
+Kun nasjonal SC
 
 # noric 2.10.1
 

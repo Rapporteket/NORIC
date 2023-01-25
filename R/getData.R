@@ -31,7 +31,7 @@
 #' getMk
 #' getPs
 #' getApLight
-#' getProm
+#' getTaviProm
 NULL
 
 #' @rdname getData
@@ -813,9 +813,9 @@ FROM
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  prom <- rapbase::loadRegData(registryName, query)
+  taviProm <- rapbase::loadRegData(registryName, query)
   
   
   
-  list(prom = prom)
+  list(taviProm = taviProm)
 }
