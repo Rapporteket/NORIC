@@ -442,7 +442,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 
 # Invasive koronare prosedyrer
 
-## Prosedyretype
+## Prosedyretype {#prosedyretype}
 ```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 pal <- colPrimary[c(5, 3, 1)]
@@ -474,7 +474,7 @@ prosedyreTypeMaaned %>% ggplot2::ggplot(
 
 
 ```{r TabNProsedyreType,  results = 'asis'}
-cap <- paste0("Antall (andel) koronare angiografier og/eller PCI registrert ",
+cap <- paste0("Antall koronare angiografier og/eller PCI registrert ",
               "i NORIC per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ",
               rangeProsDato[2], ".")
@@ -552,7 +552,7 @@ hastegradMaaned %>% ggplot2::ggplot(
 ```
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
-cap <- paste0("Antall (andel) prosedyrer registrert i NORIC per måned ",
+cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
               "og hastegrad ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ",
               rangeProsDato[2], ".")
@@ -643,7 +643,7 @@ Indikasjon2Maaned %>% ggplot2::ggplot(
 
 
 ```{r TabNIndikasjon,  results = 'asis'}
-cap <- paste0("Antall (andel) prosedyrer registrert i NORIC per måned ",
+cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
               "og indikasjon ved ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ".")
 
@@ -885,9 +885,9 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 <br/>
 
 ## Komplikasjoner
-### Komplikasjoner på lab for `r params$hospitalName`  i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
+### Komplikasjoner på kat.lab. for `r params$hospitalName`  i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 
-Datagrunnlaget for komplikasjoner på lab gjelder `r AP %>% nrow()` forløp.
+Datagrunnlaget for komplikasjoner på kat.lab. gjelder `r AP %>% nrow()` forløp.
 
 ```{r TabLabKompl,results='asis'}
 
@@ -958,7 +958,7 @@ rownames(df) <- NULL
 
 cap <- paste0("Tabellen under gjelder for ",
               nrow(AP),
-              " forløp og er datagrunnlaget for komplikasjoner på laboratoriet",
+              " forløp og er datagrunnlaget for komplikasjoner på kat.lab.",
               " registrert i NORIC ved ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ".")
 
@@ -973,7 +973,7 @@ noric::mst(df,
 
 
 
-```{r FigLabKompl, fig.cap = paste0("Antall (andel) komplikasjoner på laboratoriet registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner på laboratoriet registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -1094,7 +1094,7 @@ rownames(df) <- NULL
 cap <- paste0("Tabellen under gjelder for ",
               nrow(AP_avdKomp),
               " primære forløp og er datagrunnlaget for komplikasjoner på ",
-              " laboratoriet registrert i NORIC ved ", params$hospitalName,
+              " avdeling registrert i NORIC ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
 
 noric::mst(df,
@@ -1106,7 +1106,7 @@ noric::mst(df,
 ```
 
 
-```{r FigAvdKompl, fig.cap = paste0("Antall (andel) komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl, fig.cap = paste0("Antall komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -1282,9 +1282,15 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 # Stentbruk og intervensjoner
 
+Opptellingene under gjelder prosedyretypene Angio/PCI og PCI. 
+
+[***Her***](#prosedyretype) er en oversikt over antall prosedyrer per måned for disse to prosedyretypene.
+
+
+
 ## Intervensjonstype
 ```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
-cap <- paste0("Antall (andel) utførte intervensjoner registrert i NORIC per ",
+cap <- paste0("Antall utførte intervensjoner registrert i NORIC per ",
               "måned ved ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ".")
 
@@ -1427,7 +1433,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 # Andre prosedyrer (Stand-alone)
 `r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
 
-Prosedyrer som ikke er utført med tilknytning til Angio/PCI.
+Prosedyrer som er utført uten tilknytning til Angio/PCI. 
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
 cap <- paste0("Antall registrert andre prosedyrer i NORIC (utført uten direkte ",
