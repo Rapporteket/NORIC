@@ -1,7 +1,55 @@
-# noric XX
+# noric 
 
 ## Nytt
 Hente tabellen med PROM-data og tilgjengeliggjøre den for datadump!
+
+# noric 2.10.1
+
+## bugfix
+Verktøy-meny "staging data". Riktig staging data blir nå slettet når man bruker
+"delete"-knappen i listen. noric::makeStagingDataFrame sorterer ikke på dato, 
+men lister opp akkurat slik som rapbase::listStagingData.
+Litt finjusteringer i teksten for rapporten avdød filvask. 
+
+
+# noric 2.10.0
+
+* Lagrer en skyggekopi av staging data som kan brukes til generering av 
+KI-rapporten.
+* Egne noric-funksjoner for staging data: liste alle staging data,
+sjekke validitet og finne nyeste, slette gamle staging data. 
+* Egen bulletinProcessorStaging for regelmessig (daglig) prosessering av
+staging data. 
+* Brukergrensesnitt i Verktøy-menyen for nasjonal SC rolle.
+
+
+# noric 2.9.3
+
+## Bugfix
+SQL med singleRow=TRUE må ha _en_ rad i datasettet for å kunne fullføre
+databehandlingen i getAndPrep funksjonene. For enkelte sykehus ble den ene
+raden slettet av "fjerne_tulleregistreringer" før databehandlignen var fullført
+(0 rader i tabell). Dette er rettet opp. 
+
+
+
+
+# noric 2.9.2
+
+## Nytt
+Utforsker har nå en kalender. 
+Valgfri start og slutt-dato før innlasting av tabell. 
+Raskere SQL spørring ved kortere intervall!
+
+## Oppdatering og endringer
+Ny variabel _FnrType_ bare for SC rolle i utforsker
+Litt mer fix i avdod-rapporten
+Legge til Avdod og AvdodDato i Mitralklaff
+
+# noric 2.9.1
+
+Bugfix. Fjerne donorutrednign fra avdod-rapporten
+
 
 # noric 2.9.0
 
