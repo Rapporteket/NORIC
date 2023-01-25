@@ -520,9 +520,9 @@ shinyServer(function(input, output, session) {
           "unknown operator")
   
   subReports <- list(
-    `Prosedyrer og stentbruk` = list(
-      synopsis = paste0("M\u00E5nedlig oppsummering av prosedyrer og ",
-                        "stentbruk siste \u00E5r"),
+    `Invasive prosedyrer` = list(
+      synopsis = paste0("M\u00E5nedlig oppsummering av invasive prosedyrer ",
+                        "siste \u00E5r"),
       fun = "reportProcessor",
       paramNames = c("report", pn),
       paramValues = c("NORIC_local_monthly", pv)

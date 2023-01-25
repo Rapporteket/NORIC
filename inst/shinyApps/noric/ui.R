@@ -59,7 +59,7 @@ ui <- tagList(
     shiny::navbarMenu(
       "Månedsrapporter",
       tabPanel(
-        "Prosedyrer og stentbruk",
+        "Invasive prosedyrer",
         sidebarLayout(
           sidebarPanel(
             style = "position:fixed;width:130px;",
