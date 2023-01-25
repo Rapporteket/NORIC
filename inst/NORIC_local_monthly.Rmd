@@ -1184,9 +1184,9 @@ TABkompletthet <- cbind(
   rowSums(nSOA),
   nSOA[, which(colnames(nSOA) == "Ferdigstilt")],
   rSOA[, which(colnames(rSOA) == "Ferdigstilt")])
-colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
+colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Andel")
 
-cap <- paste0("Antall registrerte hovedskjemaer i NORIC per måned ved ",
+cap <- paste0("Andel ferdigstilte hovedskjemaer i NORIC per måned ved ",
              params$hospitalName, " i perioden ", rangeProsDato[1],
              " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
@@ -1220,10 +1220,11 @@ TABkompletthet <- cbind(
   rowSums(nSOU),
   nSOU[, which(colnames(nSOU) == "Ferdigstilt")],
   rSOU[, which(colnames(rSOU) == "Ferdigstilt")])
-colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
+colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Andel")
 
 
-cap <- paste0("Antall komplikasjonsskjemaer registrert i NORIC per måned ved ", params$hospitalName,
+cap <- paste0("Andel ferdigstilte komplikasjonsskjemaer registrert i NORIC ",
+              "per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            digs = c(0, 0, 0, 1), align = rep("r", 4),
@@ -1257,11 +1258,12 @@ TABkompletthet <- cbind(
   rowSums(nSOU),
   nSOU[, which(colnames(nSOU) == "Ferdigstilt")],
   rSOU[, which(colnames(rSOU) == "Ferdigstilt")])
-colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Prosent")
+colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Andel")
 
 
-cap <- paste0("Antall utskrivelsesskjemaer registrert i NORIC per måned ved ", params$hospitalName,
-              " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
+cap <- paste0("Andel ferdigstilte utskrivelsesskjemaer registrert i NORIC per ", 
+              "måned ved ", params$hospitalName, " i perioden ",
+              rangeProsDato[1], " til ", rangeProsDato[2], ".")
 noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
            digs = c(0, 0, 0, 1), align = rep("r", 4),
            label = "SOtab3")
@@ -1282,7 +1284,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 # Stentbruk og intervensjoner
 
-Opptellingene under gjelder prosedyretypene Angio/PCI og PCI. 
+Opptellingene under gjelder for prosedyretypene Angio/PCI og PCI. 
 
 [***Her***](#prosedyretype) er en oversikt over antall prosedyrer per måned for disse to prosedyretypene.
 
@@ -1292,7 +1294,8 @@ Opptellingene under gjelder prosedyretypene Angio/PCI og PCI.
 ```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
 cap <- paste0("Antall utførte intervensjoner registrert i NORIC per ",
               "måned ved ", params$hospitalName, " i perioden ",
-              rangeProsDato[1], " til ", rangeProsDato[2], ".")
+              rangeProsDato[1], " til ", rangeProsDato[2], ". ",
+              "Merk at flere intervensjoner kan være utført i samme forløp.")
 
 TabDataSsProsedyreType <- SS %>% 
   janitor::tabyl(maaned,
@@ -1451,9 +1454,9 @@ TabNAndreProsedyrer <- timeTableMonth %>%
   left_join(., TabDataAndreProsedyrer, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
 
-TabNAndreProsedyrer[is.na(TabNAndreProsedyrer)] <- 0
+TabNAndreProsedyrer[TabNAndreProsedyrer == 0] <- " - "
 
-align <- c("r", rep("r", dim(TabNAndreProsedyrer)[2] - 1))
+align <- c("r", rep("c", dim(TabNAndreProsedyrer)[2] - 1))
 
 if (params$tableFormat == "html") {
   knitr::kable(x = TabNAndreProsedyrer, caption = cap, align = align) %>%
