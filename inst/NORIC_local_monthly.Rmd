@@ -805,7 +805,7 @@ TabTillegg %<>%
 ```
 <br/>
 
-### Annen diagnostikk ved angiografi
+### Annen diagnostikk ved direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
@@ -830,7 +830,7 @@ noric::mst(TabTillegg[, c("FFR",
 
 <br/>
 
-### Tilleggsprosedyrer i direkte tilknytning til Angio/PCI
+### Tilleggsprosedyrer ved direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografier og/eller PCI per måned ved ",
@@ -859,11 +859,7 @@ cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført "
 noric::mst(TabTillegg[, c("PM",
                           "IABP",
                           "Impella",
-                          "Trombectomy",
-                          "ECMO",
-                          "Annen",
-                          "Ingen",
-                          "Totalt")],
+                          "ECMO")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
@@ -887,7 +883,9 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ## Komplikasjoner
 ### Komplikasjoner på kat.lab. for `r params$hospitalName`  i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 
-Datagrunnlaget for komplikasjoner på kat.lab. gjelder `r AP %>% nrow()` forløp.
+Antall ulike komplikasjoner  oppstått i tilknytning til selve prosedyren mens pasienten fortsatt
+er på hjertekateteriseringslaboratoriet.
+Datagrunnlaget for komplikasjoner på kat.lab. gjelder for `r AP %>% nrow()` forløp.
 
 ```{r TabLabKompl,results='asis'}
 
@@ -924,7 +922,7 @@ LabKomplikasjoner <- data.frame(
     "Akutt ACB-operasjon fra lab",
     "Annen alvorlig",
     "Død",
-    "- Derav prosedyrerelatert død"
+    "- Herav prosedyrerelatert død"
   )
 )
 
@@ -936,7 +934,7 @@ LabKomplikasjoner$Antall <- unlist(
     }
   ))
 
-LabKomplikasjoner$Prosent <- round(
+LabKomplikasjoner$Andel <- round(
   100 * LabKomplikasjoner$Antall / dim(AP)[1],
   digits = 2)
 
@@ -944,7 +942,7 @@ prosRelatertDodLab <- LabKomplikasjoner[LabKomplikasjoner$VarName == "LabKompPro
 
 LabKomplikasjoner_uPRD <- LabKomplikasjoner[!LabKomplikasjoner$VarName == "LabKompProsedyrerelatertDod", ]
 
-i.labkomp <- rev(order(LabKomplikasjoner_uPRD$Prosent))
+i.labkomp <- rev(order(LabKomplikasjoner_uPRD$Andel))
 LabKomplikasjoner_uPRD <- LabKomplikasjoner_uPRD[i.labkomp, ]
 
 indeksDod <- which(LabKomplikasjoner_uPRD == "LabKompDod")
@@ -956,12 +954,12 @@ LabKomplikasjoner_sortert <- rbind(LabKomplikasjoner_uPRD[1:indeksDod,],
 df <- LabKomplikasjoner_sortert[, -1]
 rownames(df) <- NULL
 
-cap <- paste0("Tabellen under gjelder for ",
-              nrow(AP),
-              " forløp og er datagrunnlaget for komplikasjoner på kat.lab.",
-              " registrert i NORIC ved ", params$hospitalName, " i perioden ",
-              rangeProsDato[1], " til ", rangeProsDato[2], ".")
-
+cap <- paste0(
+  "Antall (andel) forløp med komplikasjoner på kat.lab. registrert i NORIC ved ",
+  params$hospitalName, " i perioden ",
+  rangeProsDato[1], " til ", rangeProsDato[2], ". ",
+  "Alle forløp i perioden er med i datagrunnlaget, totalt ", nrow(AP), ".")
+  
 noric::mst(df,
            type = params$tableFormat,
            cap = cap,
@@ -973,14 +971,14 @@ noric::mst(df,
 
 
 
-```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner på laboratoriet registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall forløp med komplikasjoner på kat.lab. registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
   xpd = NA,
   las = 1)
 
-i.labkomp <- order(LabKomplikasjoner_uPRD$Prosent)
+i.labkomp <- order(LabKomplikasjoner_uPRD$Andel)
 LabKomplikasjoner_uPRD_fig <- LabKomplikasjoner_uPRD[i.labkomp, ]
 
 indeksDod_fig <- which(LabKomplikasjoner_uPRD_fig == "LabKompDod")
@@ -1019,7 +1017,9 @@ text(
 
 ### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
 
-Datagrunnlaget for komplikasjoner på avdelingen gjelder kun primære forløp. 
+Antall komplikasjoner oppstått på sengepost under sykehusoppholdet etter avsluttet prosedyre. Hvis det
+er registrert flere komplikasjoner på samme pasient er disse talt opp hver for seg. 
+
 Dette gjelder altså for `r AP %>% dplyr::filter(.data$Regtype %in% "Primær") %>% nrow()` forløp og er uavhengig av kompletthet.
 
 [***Klikk her***](#komplSkjema) for å se oversikten over antall (andel) ferdigstilte komplikasjonsskjemaer.
@@ -1058,7 +1058,7 @@ AvdKomplikasjoner <- data.frame(
     "Hjerteinfarkt",
     "Annen alvorlig",
     "Død",
-    "- Derav prosedyrerelatert død"
+    "- Herav prosedyrerelatert død"
   )
 )
 
@@ -1070,7 +1070,7 @@ AvdKomplikasjoner$Antall <- unlist(
     }
   ))
 
-AvdKomplikasjoner$Prosent <- round(
+AvdKomplikasjoner$Andel <- round(
   100 * AvdKomplikasjoner$Antall / dim(AP_avdKomp)[1],
   digits = 2)
 
@@ -1078,7 +1078,7 @@ prosRelatertDodAvd <- AvdKomplikasjoner[AvdKomplikasjoner$VarName == "AvdKompPro
 
 AvdKomplikasjoner_uPRD <- AvdKomplikasjoner[!AvdKomplikasjoner$VarName == "AvdKompProsedyrerelatertDod", ]
 
-i.avdKomp <- rev(order(AvdKomplikasjoner_uPRD$Prosent))
+i.avdKomp <- rev(order(AvdKomplikasjoner_uPRD$Andel))
 AvdKomplikasjoner_uPRD <- AvdKomplikasjoner_uPRD[i.avdKomp, ]
 
 indeksDod <- which(AvdKomplikasjoner_uPRD == "AvdKompDod")
@@ -1091,11 +1091,11 @@ df <- AvdKomplikasjoner_sortert[, -1]
 
 rownames(df) <- NULL
 
-cap <- paste0("Tabellen under gjelder for ",
-              nrow(AP_avdKomp),
-              " primære forløp og er datagrunnlaget for komplikasjoner på ",
-              " avdeling registrert i NORIC ved ", params$hospitalName,
-              " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
+cap <- paste0(
+  "Antall (andel) forløp med komplikasjoner på avdelingen registrert i NORIC ",
+  "ved ", params$hospitalName, " i perioden ",
+  rangeProsDato[1], " til ", rangeProsDato[2], ". ",
+  "Antall komplikasjoner gjelder per opphold, totalt ", nrow(AP_avdKomp), ".")
 
 noric::mst(df,
            type = params$tableFormat,
@@ -1106,14 +1106,14 @@ noric::mst(df,
 ```
 
 
-```{r FigAvdKompl, fig.cap = paste0("Antall komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl, fig.cap = paste0("Antall forløp med komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
   xpd = NA,
   las = 1)
 
-i.avdKomp <- order(AvdKomplikasjoner_uPRD$Prosent)
+i.avdKomp <- order(AvdKomplikasjoner_uPRD$Andel)
 AvdKomplikasjoner_uPRD_fig <- AvdKomplikasjoner_uPRD[i.avdKomp, ]
 
 indeksDod_fig <- which(AvdKomplikasjoner_uPRD_fig == "AvdKompDod")
