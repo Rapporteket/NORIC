@@ -805,7 +805,7 @@ TabTillegg %<>%
 ```
 <br/>
 
-### Annen diagnostikk ved direkte tilknytning til Angio/PCI
+### Annen diagnostikk i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
@@ -830,7 +830,7 @@ noric::mst(TabTillegg[, c("FFR",
 
 <br/>
 
-### Tilleggsprosedyrer ved direkte tilknytning til Angio/PCI
+### Tilleggsprosedyrer i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografier og/eller PCI per måned ved ",
@@ -850,7 +850,7 @@ noric::mst(TabTillegg[, c("Høyre kat.",
 
 
 
-### Adjuvant terapi ved Angio/PCI
+### Adjuvant terapi i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
               "invasiv tilleggsbehandling per måned ved ", params$hospitalName,
@@ -859,7 +859,8 @@ cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført "
 noric::mst(TabTillegg[, c("PM",
                           "IABP",
                           "Impella",
-                          "ECMO")],
+                          "ECMO",
+                          "Totalt")],
            type = params$tableFormat,
            cap = cap,
            digs = 0,
@@ -1439,7 +1440,8 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 Prosedyrer som er utført uten tilknytning til Angio/PCI. 
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
-cap <- paste0("Antall registrert andre prosedyrer i NORIC (utført uten direkte ",
+cap <- paste0("Antall prosedyrer registrert i modulen for ",
+              "\"Andre prosedyrer\" i NORIC (utført uten direkte ",
              "tilknytning til Angio/PCI)  per måned og prosedyretype ved ",
              params$hospitalName, " i perioden ",
              rangeProsDato[1], " til ", rangeProsDato[2], ".")
