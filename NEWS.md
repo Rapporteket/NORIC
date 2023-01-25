@@ -1,3 +1,12 @@
+# noric 2.10.1
+
+## bugfix
+Verktøy-meny "staging data". Riktig staging data blir nå slettet når man bruker
+"delete"-knappen i listen. noric::makeStagingDataFrame sorterer ikke på dato, 
+men lister opp akkurat slik som rapbase::listStagingData.
+Litt finjusteringer i teksten for rapporten avdød filvask. 
+
+
 # noric 2.10.0
 
 * Lagrer en skyggekopi av staging data som kan brukes til generering av 
