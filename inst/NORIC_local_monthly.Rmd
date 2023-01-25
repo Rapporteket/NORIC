@@ -1290,36 +1290,35 @@ Opptellingene under gjelder for prosedyretypene Angio/PCI og PCI.
 [***Her***](#prosedyretype) er en oversikt over antall prosedyrer per måned for disse to prosedyretypene.
 
 
-
 ## Intervensjonstype
-```{r TabNRProsedyreType, echo = FALSE, results = "asis"}
+```{r TabNRIntervensjonstype, echo = FALSE, results = "asis"}
 cap <- paste0("Antall utførte intervensjoner registrert i NORIC per ",
               "måned ved ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
               "Merk at flere intervensjoner kan være utført i samme forløp.")
 
-TabDataSsProsedyreType <- SS %>% 
+TabDataSsIntervensjonstype <- SS %>% 
   janitor::tabyl(maaned,
                  ProsedyreType2) %>% 
-  janitor::adorn_totals("col", name = "Totalt") 
+  janitor::adorn_totals("col", name = "Totalt antall intervensjoner") 
 
-TabNSsProsedyreType <- timeTableMonth %>% 
-  left_join(., TabDataSsProsedyreType, by = c("maaned")) %>% 
+TabNSsIntervensjonstype <- timeTableMonth %>% 
+  left_join(., TabDataSsIntervensjonstype, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
 
-TabNSsProsedyreType[is.na(TabNSsProsedyreType)] <- 0
+TabNSsIntervensjonstype[is.na(TabNSsIntervensjonstype)] <- 0
 
-align <- c("l", rep("r", dim(TabNSsProsedyreType)[2] - 1))
+align <- c("l", rep("r", dim(TabNSsIntervensjonstype)[2] - 1))
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = TabNSsProsedyreType, caption = cap, align = align) %>%
+  knitr::kable(x = TabNSsIntervensjonstype, caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE) %>%
     kableExtra::column_spec(column = 1, width = "7em")
 } else if (params$tableFormat == "latex") {
-  knitr::kable(x = TabNSsProsedyreType,
+  knitr::kable(x = TabNSsIntervensjonstype,
                format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
