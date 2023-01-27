@@ -485,8 +485,10 @@ TabDataProsedyreType <- AP %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   janitor::adorn_totals("row", name = "Totalt") 
 
-TabNProsedyreType <- timeTableMonth %>% 
-  left_join(., TabDataProsedyreType, by = c("maaned")) %>% 
+TabNProsedyreTypeMaaned <- timeTableMonth %>% 
+  left_join(., TabDataProsedyreType, by = c("maaned"))
+
+TabNProsedyreType <- TabNProsedyreTypeMaaned %>% 
   dplyr::rename(" " = "maaned")
 
 TabNProsedyreType[is.na(TabNProsedyreType)] <- 0
@@ -865,7 +867,6 @@ noric::mst(TabTillegg[, c("PM",
            cap = cap,
            digs = 0,
            align = rep("c", 9),
-           lsd = TRUE,
            label = "TabTilleggsProsedyre3")
 ```
 
@@ -1302,8 +1303,14 @@ TabDataSsIntervensjonstype <- SS %>%
                  ProsedyreType2) %>% 
   janitor::adorn_totals("col", name = "Totalt antall intervensjoner") 
 
+TabNInervProsedyreType <- TabNProsedyreTypeMaaned %>% 
+  dplyr::select(maaned, "Angio + PCI", "PCI") %>% 
+  janitor::adorn_totals("col", name = "Antall gjeldende prosedyrer") %>% 
+  dplyr::select(maaned, "Antall gjeldende prosedyrer")
+
 TabNSsIntervensjonstype <- timeTableMonth %>% 
   left_join(., TabDataSsIntervensjonstype, by = c("maaned")) %>% 
+  right_join(., TabNInervProsedyreType, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
 
 TabNSsIntervensjonstype[is.na(TabNSsIntervensjonstype)] <- 0
@@ -1323,7 +1330,8 @@ if (params$tableFormat == "html") {
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position")
+    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
+    kableExtra::kable_styling(latex_options = "scale_down")
 }
 ```
 
@@ -1396,6 +1404,9 @@ tab_stent <- addmargins(xtabs(
   formula = ~ maaned + Stentnavn,
   data = SSpci,
   drop.unused.levels = TRUE))
+
+
+tab_stent[tab_stent == 0] <- " - "
 
 align <- c("r", rep("r", dim(tab_stent)[2] - 1))
 
