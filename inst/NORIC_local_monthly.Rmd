@@ -835,7 +835,7 @@ noric::mst(TabTillegg[, c("FFR",
 ### Tilleggsprosedyrer i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
-              "utført koronare angiografier og/eller PCI per måned ved ",
+              "utført koronare angiografi og/eller PCI per måned ved ",
               params$hospitalName, " i perioden ", rangeProsDato[1], " til ",
               rangeProsDato[2], ".")
 
@@ -852,10 +852,11 @@ noric::mst(TabTillegg[, c("Høyre kat.",
 
 
 
-### Adjuvant terapi i direkte tilknytning til Angio/PCI
+### Adjuvant terapi i direkte tilknytning til Angio og/eller PCI
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
-              "invasiv tilleggsbehandling per måned ved ", params$hospitalName,
+              "tilleggsbehandling i tilknytning til angiografi og/eller PCI ",
+              "per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
 
 noric::mst(TabTillegg[, c("PM",
@@ -1288,7 +1289,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 Opptellingene under gjelder for prosedyretypene Angio/PCI og PCI. 
 
-[***Her***](#prosedyretype) er en oversikt over antall prosedyrer per måned for disse to prosedyretypene.
+
 
 
 ## Intervensjonstype
@@ -1296,7 +1297,7 @@ Opptellingene under gjelder for prosedyretypene Angio/PCI og PCI.
 cap <- paste0("Antall utførte intervensjoner registrert i NORIC per ",
               "måned ved ", params$hospitalName, " i perioden ",
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
-              "Merk at flere intervensjoner kan være utført i samme forløp.")
+              "Merk at flere intervensjoner kan være utført i samme prosedyre.")
 
 TabDataSsIntervensjonstype <- SS %>% 
   janitor::tabyl(maaned,
@@ -1334,8 +1335,11 @@ if (params$tableFormat == "html") {
     kableExtra::kable_styling(latex_options = "scale_down")
 }
 ```
-
 <br/>
+
+[***Her***](#prosedyretype) er en oversikt over antall prosedyrer per måned.
+
+<br/><br/>
 
 ## Stenter per prosedyre
 Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r paste0(rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2])`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
