@@ -10,14 +10,25 @@ shinyServer(function(input, output, session) {
   
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
-  reshId <- rapbase::getUserReshId(session)
-  hospitalName <- noric::getHospitalName(reshId)
-  userFullName <- rapbase::getUserFullName(session)
-  userRole <- rapbase::getUserRole(session)
-  registryName <- noric::makeRegistryName("noricStaging", reshId)
-  mapOrgId <- mapOrgReshId(registryName)
-  author <- paste0(userFullName, "/", "Rapporteket")
-  
+
+  if (rapbase::isRapContext()) {
+    reshId <- rapbase::getUserReshId(session)
+    
+    hospitalName_gammel <- noric::getHospitalName(reshId)
+    AvdRESH <- reshId
+    df_AvdRESH <- noric::fikse_sykehusnavn(data.frame(AvdRESH,
+                                                      hospitalName_gammel))
+    hospitalName <- df_AvdRESH %>% dplyr::select(Sykehusnavn)
+    
+    userFullName <- rapbase::getUserFullName(session)
+    userRole <- rapbase::getUserRole(session)
+    registryName <- noric::makeRegistryName("noricStaging", reshId)
+    mapOrgId <- mapOrgReshId(registryName)
+    author <- paste0(userFullName, "/", "Rapporteket")
+  } else {
+    ### if need be, define your (local) values here
+  }
+
   
   # Hide tabs
   ## when role is 'LU' or some tabs for role 'LC'
@@ -37,7 +48,6 @@ shinyServer(function(input, output, session) {
   
   ## local reports/tabs for national registry
   if (isNationalReg(reshId)) {
-    shiny::hideTab(inputId = "tabs", target = "Stentbruk")
     shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
     shiny::hideTab(inputId = "tabs", target = "Aktivitet")
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
@@ -95,18 +105,18 @@ shinyServer(function(input, output, session) {
     # permission to the current working directory
     owd <- setwd(tempdir())
     on.exit(setwd(owd))
-    file.copy(src, tmpFile, overwrite = TRUE)    
-    
+    file.copy(src, tmpFile, overwrite = TRUE)
+
     if(!useReportProcessor){
       out <- rmarkdown::render(
-        tmpFile, 
+        tmpFile,
         output_format = switch(
           type,
           PDF = rmarkdown::pdf_document(),
           HTML = rmarkdown::html_document(),
           BEAMER = rmarkdown::beamer_presentation(theme = "Hannover"),
           REVEAL = revealjs::revealjs_presentation(theme = "sky")),
-        
+
         params = list(
           tableFormat = switch(
             type,
@@ -117,30 +127,31 @@ shinyServer(function(input, output, session) {
           hospitalName = hospitalName,
           author = author,
           reshId = reshId,
-          registryName = registryName), 
-        output_dir = tempdir())  
-    } 
-    
-    
-    if(useReportProcessor){
-      shiny::withProgress(message = 'Rendering, please wait!', {
-        out <- noric::reportProcessor(
-          report = sub(pattern  = ".Rmd", 
-                       replacement =  "",
-                       x = srcFile),
-          outputType = "pdf", 
-          title = "unknown title", 
-          author = "unknown author", 
-          orgName = orgName, 
-          orgId = orgId,
-          registryName = registryName,
-          userFullName = userFullName, 
-          userRole = userRole, 
-          userOperator = "unknown operator", 
-          rendered_by_shiny = TRUE) 
-      })
+          registryName = registryName),
+        output_dir = tempdir())
     }
-    
+
+
+    if(useReportProcessor){
+      withProgress(message = 'Rendering, please wait!', {
+      out <- noric::reportProcessor(
+        report = sub(pattern  = ".Rmd",
+                     replacement =  "",
+                     x = srcFile),
+        outputType = type,
+        title = "unknown title",
+        author = "unknown author",
+        orgName = orgName,
+        orgId = orgId,
+        registryName = registryName,
+        userFullName = userFullName,
+        userRole = userRole,
+        userOperator = "unknown operator",
+        rendered_by_shiny = TRUE,
+        tableFormat = "latex"
+        )})
+    }
+
     file.rename(out, file)
   }
   
@@ -394,60 +405,45 @@ shinyServer(function(input, output, session) {
   
   
   # Samlerapporter
-  output$stentbruk <- shiny::renderUI({
-    htmlRenderRmd("NORIC_local_monthly_stent.Rmd")
-  })
-  
-  output$prosedyrer <- shiny::renderUI({
+  output$prosedyrer <- renderUI({
     htmlRenderRmd("NORIC_local_monthly.Rmd")
   })
   
-  output$aktivitet <- shiny::renderUI({
+  output$aktivitet <- renderUI({
     htmlRenderRmd("NORIC_local_monthly_activity.Rmd")
   })
-  
-  output$downloadReportStentbruk <- shiny::downloadHandler(
-    filename = function() {
-      downloadFilename("NORIC_local_monthly_stent",
-                       input$formatStentbruk) 
-    },
-    
-    content = function(file) {
-      contentFile(file = file,
-                  srcFile =  "NORIC_local_monthly_stent.Rmd",
-                  tmpFile = basename(tempfile(fileext = ".Rmd")),
-                  type = input$formatStentbruk, 
-                  useReportProcessor = FALSE)
-    }
-  )
-  
-  output$downloadReportProsedyrer <- shiny::downloadHandler(
+
+  output$downloadReportProsedyrer <- downloadHandler(
     filename = function() {
       downloadFilename(fileBaseName = "NORIC_local_monthly",
-                       type =  input$formatProsedyrer)
+                       type = "PDF")
     },
     
     content = function(file) {
-      contentFile(file = file, 
+      contentFile(file, 
                   srcFile = "NORIC_local_monthly.Rmd", 
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
-                  type = input$formatProsedyrer, 
-                  useReportProcessor = FALSE)
+                  type = "pdf",
+                  orgId = reshId,
+                  orgName = hospitalName,
+                  useReportProcessor = TRUE)
     }
   )
   
   output$downloadReportAktivitet <- shiny::downloadHandler(
     filename = function() {
-      downloadFilename(fileBaseName = "NORIC_local_monthly_activity", 
-                       type = input$formatAktivitet)
+      downloadFilename(fileBaseName = "NORIC_local_monthly_activity",
+                       type = "PDF")
     },
     
     content = function(file) {
-      contentFile(file = file, 
-                  srcFile = "NORIC_local_monthly_activity.Rmd", 
+      contentFile(file,
+                  srcFile = "NORIC_local_monthly_activity.Rmd",
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
-                  type = input$formatAktivitet, 
-                  useReportProcessor = FALSE)
+                  type = "pdf",
+                  orgId = reshId,
+                  orgName = hospitalName,
+                  useReportProcessor = TRUE)
     }
   )
   
@@ -502,22 +498,34 @@ shinyServer(function(input, output, session) {
   orgs <- noric::mapOrgReshId(registryName, asNamedList = TRUE)
   
   ## currently, function parameters are the same for all reports
-  pn <- c("baseName", "reshId", "registryName", "author", "hospitalName", 
-          "type")
-  pv <- c(reshId, registryName, author, hospitalName, "pdf")
+
+  pn <- c("outputType",
+          "title",
+          "author",
+          "orgName",
+          "orgId",
+          "registryName",
+          "userFullName",
+          "userRole",
+          "userOperator")
+  
+  pv <- c("pdf",
+          "Månedsresultater",
+          "unknown author",
+          hospitalName,
+          999999,
+          registryName,
+          userFullName,
+          userRole,
+          "unknown operator")
   
   subReports <- list(
-    Prosedyrer = list(
-      synopsis = "M\u00E5nedlig oppsummering av prosedyrer siste \u00E5r",
-      fun = "subscriptionLocalMonthlyReps",
-      paramNames = pn,
+    `Invasive prosedyrer` = list(
+      synopsis = paste0("M\u00E5nedlig oppsummering av invasive prosedyrer ",
+                        "siste \u00E5r"),
+      fun = "reportProcessor",
+      paramNames = c("report", pn),
       paramValues = c("NORIC_local_monthly", pv)
-    ),
-    Stentbruk = list(
-      synopsis = "M\u00E5nedlig oppsummering av stentbruk siste \u00E5r",
-      fun = "subscriptionLocalMonthlyReps",
-      paramNames = pn,
-      paramValues = c("NORIC_local_monthly_stent", pv)
     )
   )
   
@@ -525,8 +533,8 @@ shinyServer(function(input, output, session) {
     liste_aktivitet <- list(
       Aktivitet = list(
         synopsis = "M\u00E5nedlig oppsummering av aktiviteter siste \u00E5r",
-        fun = "subscriptionLocalMonthlyReps",
-        paramNames = pn,
+        fun = "reportProcessor",
+        paramNames = c("report", pn),
         paramValues = c("NORIC_local_monthly_activity", pv)
       )
     )
@@ -598,8 +606,12 @@ shinyServer(function(input, output, session) {
   
   #Verktøy - nedlasting rapporter
   orgs_df <- noric::mapOrgReshId(registryName = registryName,
-                                 asNamedList = FALSE)
-  
+                                 asNamedList = FALSE) %>% 
+    dplyr::mutate(AvdRESH = id) %>% 
+    noric::fikse_sykehusnavn(.) %>% 
+    dplyr::select(id, Sykehusnavn) %>% 
+    dplyr::rename("name" = "Sykehusnavn")
+
   ## innhold kontrollpanel:
   output$dwnldControlRap <- shiny::renderUI({
     shiny::selectInput(inputId = "dwldRapport",
@@ -614,28 +626,27 @@ shinyServer(function(input, output, session) {
                        label = "Velg sykehus:",
                        choices = orgs)
   })
-  
-  
+    
   output$dwldInfo <- shiny::renderUI({
     p(paste("Valgt for nedlasting:\n",
             input$dwldRapport,
             "fra", 
             orgs_df[orgs_df$id == input$dwldSykehus, "name"]))
   })
-  
+
   output$dwnldReport <- shiny::downloadHandler(
     
     filename = function() {
       downloadFilename(fileBaseName = input$dwldRapport,
                        type = "PDF")
     },
-    
+
     content = function(file) {
       contentFile(file = file, 
                   srcFile = paste0(input$dwldRapport, ".Rmd"), 
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
-                  type = "PDF", 
-                  orgId = input$dwldSykehus, 
+                  type = "pdf",
+                  orgId = input$dwldSykehus,
                   orgName = orgs_df[orgs_df$id == input$dwldSykehus, "name"],
                   useReportProcessor = TRUE)
     })

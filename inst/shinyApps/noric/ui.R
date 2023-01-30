@@ -58,31 +58,12 @@ ui <- tagList(
     
     shiny::navbarMenu(
       "Månedsrapporter",
-      
       tabPanel(
-        "Stentbruk",
+        "Invasive prosedyrer",
         sidebarLayout(
           sidebarPanel(
-            radioButtons("formatStentbruk",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
-            downloadButton("downloadReportStentbruk", "Hent!"),
-            width = 2
-          ),
-          mainPanel(
-            htmlOutput("stentbruk", inline = TRUE)
-          )
-        )
-      ),
-      tabPanel(
-        "Prosedyrer",
-        sidebarLayout(
-          sidebarPanel(
-            radioButtons("formatProsedyrer",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
             downloadButton("downloadReportProsedyrer", "Hent!"),
             width = 2
           ),
@@ -95,10 +76,8 @@ ui <- tagList(
         "Aktivitet",
         sidebarLayout(
           sidebarPanel(
-            radioButtons("formatAktivitet",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
             downloadButton("downloadReportAktivitet", "Hent!"),
             width = 2),
           mainPanel(
@@ -106,8 +85,8 @@ ui <- tagList(
           )
         )
       )) ,
-    
-    
+
+
     tabPanel("Datadump",
              sidebarLayout(
                sidebarPanel(width = 4,
@@ -136,7 +115,7 @@ ui <- tagList(
                )
              )
     ),
-    
+
     shiny::tabPanel(
       "Abonnement",
       shiny::sidebarLayout(
@@ -148,10 +127,10 @@ ui <- tagList(
         )
       )
     ),
-    
+
     shiny::navbarMenu(
       "Verktøy",
-      
+
       tabPanel("Metadata",
                sidebarLayout(
                  sidebarPanel(uiOutput("metaControl")),
@@ -171,8 +150,8 @@ ui <- tagList(
           )
         )
       ),
-      
-      
+
+
       tabPanel("Nedlasting rapporter",
                sidebarLayout(
                  sidebarPanel(
@@ -183,7 +162,7 @@ ui <- tagList(
                    downloadButton("dwnldReport", "Hent rapport!"))
                )
       ),
-      
+
       shiny::tabPanel(
         "Bruksstatistikk",
         shiny::sidebarLayout(
@@ -194,7 +173,7 @@ ui <- tagList(
           shiny::mainPanel(rapbase::statsUI("noricStats"))
         )
       ),
-      
+
       shiny::tabPanel(
         "Eksport",
         shiny::sidebarLayout(
