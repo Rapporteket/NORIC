@@ -14,11 +14,8 @@ shinyServer(function(input, output, session) {
   if (rapbase::isRapContext()) {
     reshId <- rapbase::getUserReshId(session)
     
-    hospitalName_gammel <- noric::getHospitalName(reshId)
-    AvdRESH <- reshId
-    df_AvdRESH <- noric::fikse_sykehusnavn(data.frame(AvdRESH,
-                                                      hospitalName_gammel))
-    hospitalName <- df_AvdRESH %>% dplyr::select(Sykehusnavn)
+    hospitalName <- noric::fikse_sykehusnavn(data.frame(AvdRESH = reshId)) %>%  
+      dplyr::select(Sykehusnavn)
     
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
