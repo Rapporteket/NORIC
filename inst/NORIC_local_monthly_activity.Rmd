@@ -221,8 +221,8 @@ if (params$tableFormat == "html") {
                caption = cap,
                booktabs = TRUE,
                align = align) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position") %>%
-    kableExtra::kable_styling(latex_options = "scale_down") %>%
+    kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                "scale_down")) %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
@@ -283,8 +283,8 @@ if (params$tableFormat == "html") {
                caption = cap,
                booktabs = TRUE,
                align = align) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position") %>%
-    kableExtra::kable_styling(latex_options = "scale_down") %>%
+    kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                "scale_down")) %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
