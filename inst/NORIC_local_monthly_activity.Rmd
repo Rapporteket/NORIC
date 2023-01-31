@@ -200,6 +200,9 @@ tab_angiografor <- angiografor_AP %>%
   janitor::adorn_totals("row", name = "Totalt") %>% 
   dplyr::rename(" " = "forkortetNavnAngiografor")
 
+tab_angiografor[tab_angiografor == 0] <- " - "
+tab_angiografor[is.na(tab_angiografor)] <- " - "
+
 align <- c("l", rep("c", dim(tab_angiografor)[2] - 1))
 
 if (params$tableFormat == "html") {
@@ -259,7 +262,10 @@ tab_pciOperator <- pciOperator_AP %>%
   janitor::adorn_totals("row", name = "Totalt") %>% 
   dplyr::rename(" " = "forkortetNavnPCIoperator")
 
-align <- c("l", rep("c", dim(tab_angiografor)[2] - 1))
+tab_pciOperator[tab_pciOperator == 0] <- " - "
+tab_pciOperator[is.na(tab_pciOperator)] <- " - "
+
+align <- c("l", rep("c", dim(tab_pciOperator)[2] - 1))
 
 if (params$tableFormat == "html") {
   tab_pciOperator %>% 
