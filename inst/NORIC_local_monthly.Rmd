@@ -491,9 +491,10 @@ TabNProsedyreTypeMaaned <- timeTableMonth %>%
 TabNProsedyreType <- TabNProsedyreTypeMaaned %>% 
   dplyr::rename(" " = "maaned")
 
-TabNProsedyreType[is.na(TabNProsedyreType)] <- 0
+TabNProsedyreType[TabNProsedyreType == 0] <- " - "
+TabNProsedyreType[is.na(TabNProsedyreType)] <- " - "
 
-align <- c("l", rep("r", dim(TabNProsedyreType)[2] - 1))
+align <- c("l", rep("c", dim(TabNProsedyreType)[2] - 1))
 
 if (params$tableFormat == "html") {
   knitr::kable(x = TabNProsedyreType, caption = cap, align = align) %>%
@@ -569,9 +570,10 @@ TabNHastegrad <- timeTableMonth %>%
   left_join(., TabDataHastegrad, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
 
-TabNHastegrad[is.na(TabNHastegrad)] <- 0
+TabNHastegrad[TabNHastegrad == 0] <- " - "
+TabNHastegrad[is.na(TabNHastegrad)] <- " - "
 
-align <- c("l", rep("r", dim(TabNHastegrad)[2] - 1))
+align <- c("l", rep("c", dim(TabNHastegrad)[2] - 1))
 
 if (params$tableFormat == "html") {
   knitr::kable(x = TabNHastegrad, caption = cap, align = align) %>%
@@ -659,9 +661,10 @@ TabNIndikasjon <- timeTableMonth %>%
   left_join(., TabDataIndikasjon, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
 
-TabNIndikasjon[is.na(TabNIndikasjon)] <- 0
+TabNIndikasjon[TabNIndikasjon == 0] <- " - "
+TabNIndikasjon[is.na(TabNIndikasjon)] <- " - "
 
-align <- c("l", rep("r", dim(TabNIndikasjon)[2] - 1))
+align <- c("l", rep("c", dim(TabNIndikasjon)[2] - 1))
 
 if (params$tableFormat == "html") {
   knitr::kable(x = TabNIndikasjon, caption = cap, align = align) %>%
@@ -675,7 +678,7 @@ if (params$tableFormat == "html") {
                format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
-               align = "r") %>%
+               align = "c") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position")
 }
 ```
@@ -1314,9 +1317,10 @@ TabNSsIntervensjonstype <- timeTableMonth %>%
   right_join(., TabNInervProsedyreType, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
 
-TabNSsIntervensjonstype[is.na(TabNSsIntervensjonstype)] <- 0
+TabNSsIntervensjonstype[TabNSsIntervensjonstype == 0] <-  " - "
+TabNSsIntervensjonstype[is.na(TabNSsIntervensjonstype)] <- " - "
 
-align <- c("l", rep("r", dim(TabNSsIntervensjonstype)[2] - 1))
+align <- c("l", rep("c", dim(TabNSsIntervensjonstype)[2] - 1))
 
 if (params$tableFormat == "html") {
   knitr::kable(x = TabNSsIntervensjonstype, caption = cap, align = align) %>%
@@ -1331,8 +1335,8 @@ if (params$tableFormat == "html") {
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position") %>% 
-    kableExtra::kable_styling(latex_options = "scale_down")
+    kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                "scale_down"))
 }
 ```
 <br/>
@@ -1411,8 +1415,9 @@ tab_stent <- addmargins(xtabs(
 
 
 tab_stent[tab_stent == 0] <- " - "
+tab_stent[is.na(tab_stent)] <- " - "
 
-align <- c("r", rep("r", dim(tab_stent)[2] - 1))
+align <- c("r", rep("c", dim(tab_stent)[2] - 1))
 
 if (params$tableFormat == "html") {
   knitr::kable(x = tab_stent, caption = cap, align = align) %>%
@@ -1428,7 +1433,9 @@ if (params$tableFormat == "html") {
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position") %>%
+    kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                "scale_down"),
+                              font_size = 5) %>%
     kableExtra::row_spec(row = 0, angle = 90)
 }
 ```
@@ -1451,11 +1458,11 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 # Andre prosedyrer (Stand-alone)
 `r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
 
-Prosedyrer som er utført uten tilknytning til Angio/PCI. 
+`r if(evaluate_AnP == TRUE){"Prosedyrer som er utført uten tilknytning til Angio/PCI."}`
 
 ```{r TabNAndreProsedyrer,  results = 'asis', eval=evaluate_AnP}
 cap <- paste0("Antall prosedyrer registrert i modulen for ",
-              "\"Andre prosedyrer\" i NORIC (utført uten direkte ",
+              "\"Andre prosedyrer\"", " i NORIC (utført uten direkte ",
              "tilknytning til Angio/PCI)  per måned og prosedyretype ved ",
              params$hospitalName, " i perioden ",
              rangeProsDato[1], " til ", rangeProsDato[2], ".")
@@ -1471,6 +1478,7 @@ TabNAndreProsedyrer <- timeTableMonth %>%
   dplyr::rename(" " = "maaned")
 
 TabNAndreProsedyrer[TabNAndreProsedyrer == 0] <- " - "
+TabNAndreProsedyrer[is.na(TabNAndreProsedyrer)] <- " - "
 
 align <- c("r", rep("c", dim(TabNAndreProsedyrer)[2] - 1))
 
