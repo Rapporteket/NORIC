@@ -495,7 +495,9 @@ shinyServer(function(input, output, session) {
   })
   
   # Abonnement og verktøy-utsending
-  orgs <- noric::mapOrgReshId(registryName, asNamedList = TRUE)
+  orgs <- noric::mapOrgReshId(registryName = registry, 
+                              asNamedList = TRUE, 
+                              newNames = TRUE)
   
   ## currently, function parameters are the same for all reports
 
@@ -606,11 +608,8 @@ shinyServer(function(input, output, session) {
   
   #Verktøy - nedlasting rapporter
   orgs_df <- noric::mapOrgReshId(registryName = registryName,
-                                 asNamedList = FALSE) %>% 
-    dplyr::mutate(AvdRESH = id) %>% 
-    noric::fikse_sykehusnavn(.) %>% 
-    dplyr::select(id, Sykehusnavn) %>% 
-    dplyr::rename("name" = "Sykehusnavn")
+                                 asNamedList = FALSE, 
+                                 newNames = TRUE)
 
   ## innhold kontrollpanel:
   output$dwnldControlRap <- shiny::renderUI({

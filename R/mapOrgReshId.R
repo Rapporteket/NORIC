@@ -10,7 +10,7 @@
 #' @return A data frame with columns name and id or a list of named ids
 #' @export
 
-mapOrgReshId <- function(registryName, asNamedList = FALSE) {
+mapOrgReshId <- function(registryName, asNamedList = FALSE, newNames = FALSE) {
 
   query <- "
 SELECT
@@ -24,6 +24,14 @@ GROUP BY
 
   res <- rapbase::loadRegData(registryName, query)
 
+  if(newNames){
+   res %<>%  
+      dplyr::mutate(AvdRESH = id) %>% 
+      noric::fikse_sykehusnavn(.) %>% 
+      dplyr::select(id, Sykehusnavn) %>% 
+      dplyr::rename("name" = "Sykehusnavn")
+  }
+  
   if (asNamedList) {
     res <- setNames(res$id, res$name)
     res <- as.list(res)
