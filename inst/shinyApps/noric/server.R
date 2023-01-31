@@ -495,7 +495,7 @@ shinyServer(function(input, output, session) {
   })
   
   # Abonnement og verktøy-utsending
-  orgs <- noric::mapOrgReshId(registryName = registry, 
+  orgs <- noric::mapOrgReshId(registryName = registryName, 
                               asNamedList = TRUE, 
                               newNames = TRUE)
   

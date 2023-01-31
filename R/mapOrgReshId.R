@@ -1,9 +1,11 @@
 #' Make mapping between unit name and id
 #'
 #' @param registryName Character string providing registry name key
-#' @param asNamedList Logical wether to return a list of named values or not.
+#' @param asNamedList Logical whether to return a list of named values or not.
 #' Default is FALSE in which case a data frame containing name and id is
 #' returned.
+#' @param newNames Logical whether to provide updated hospital names (TRUE) or 
+#' hospital names existing in database (FALSE). Default is FALSE. 
 #'
 #'@importFrom stats setNames
 #'
