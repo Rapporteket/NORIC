@@ -72,7 +72,8 @@ forskjellige tabellene som utgjør datagrunnlaget for Rapporteket
 datadumpen *SegmentStent*  har en variabel som heter "Okklusjon", så kan man
 bruke søkeordet "okklusjon" i søkeboksen oppe i høyre hjørne. 
 Merk at disse tabellene er et resultat av spørringer mot databasen. 
-Tabellene har derfor ikke samme struktur og variabelnavn som databasen. 
+Metadata-tabellene har derfor ikke samme struktur og variabelnavn som de 
+nedlastede datadumpene. 
 
 * __Eksport__: Tilgjengelig kun for statistikerne i registeret. 
 
