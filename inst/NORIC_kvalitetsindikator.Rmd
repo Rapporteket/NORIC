@@ -634,11 +634,7 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
-### Figurer - Invasiv utredning ved NSTEMI innen 24 timer
-
-
-
-
+### Figurer - Invasiv utredning ved NSTEMI innen 24 timer, månedlig måloppnåelse
 
 ```{r nstemi_komplette, results='asis', warning=FALSE}
 # Lokalt: Andel komplette under 50% per måned?
@@ -834,21 +830,21 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
     legend.position = "bottom",
     legend.background = ggplot2::element_blank(),
     legend.key = element_blank(), 
+    legend.text = ggplot2::element_text(size = 14),
 
     # Layout bacgroupd,
-    panel.spacing.y = unit(1.5, "lines"),
-    panel.spacing.x = unit(1.2, "lines"),
-    
-    strip.placement = "outside",
-    strip.background = element_rect(fill = "grey98", 
-                                    colour = "grey98"),
-      
-    panel.background = ggplot2::element_blank(), 
-    # panel.grid = ggplot2::element_line(color = "#cbcbcb"), 
-            #This removes all minor gridlines and adds major y gridlines.
+    panel.spacing.y = unit(2, "lines"),
+    strip.background = element_blank(),
+    # panel.background = element_rect(fill = "white", colour ="#cbcbcb"),
+    panel.background = ggplot2::element_blank(),
+
+    #This removes all minor gridlines and adds major y gridlines.
     panel.grid.minor = ggplot2::element_blank(),
     panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"),
-    panel.grid.major.x = ggplot2::element_line(color = "#cbcbcb")
+    panel.grid.major.x = ggplot2::element_line(color = "#cbcbcb"),
+    # # tab
+    # plot.tag = ggplot2::element_text(
+    #   margin = margin(t=40))
 
 )
 
@@ -863,6 +859,8 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
 ```{r pagebreakVentetidNSTEMIfigSoyle, results = "asis", eval = (params$tableFormat == "latex")}
 cat("\n\n\\pagebreak\n")
 ```
+
+### Figurer - Invasiv utredning ved NSTEMI innen 24 timer,  årlig måloppnåelse
 
 ```{r komplettYear_24timerNSTEMI, results='asis', warning=FALSE}
 
@@ -1070,18 +1068,15 @@ ggplot2::ggplot(
     legend.position = "bottom",
     legend.background = ggplot2::element_blank(),
     legend.key = element_blank(), 
+    legend.text = ggplot2::element_text(size = 14),
 
-    # Layout bacgroupd,
-    panel.spacing.y = unit(1.5, "lines"),
-    panel.spacing.x = unit(1.2, "lines"),
-    
-    strip.placement = "outside",
-    strip.background = element_rect(fill = "grey98", 
-                                    colour = "grey98"),
-      
+    # Layout bacgroupd (mellomrom plot)
+    panel.spacing.y = unit(2, "lines"),
     panel.background = ggplot2::element_blank(), 
     panel.grid = ggplot2::element_line(color = "#cbcbcb"), 
-        #This removes all minor gridlines and adds major y gridlines.
+    strip.background = element_blank(),
+ 
+    #This removes all minor gridlines and adds major y gridlines.
     panel.grid.minor = ggplot2::element_blank(),
     panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"),
     panel.grid.major.x = ggplot2::element_blank()
