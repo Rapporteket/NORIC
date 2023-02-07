@@ -530,8 +530,8 @@ shinyServer(function(input, output, session) {
   
   if(!isNationalReg(reshId) & userRole == "SC"){
     liste_aktivitet <- list(
-      Aktivitet = list(
-        synopsis = "M\u00E5nedlig oppsummering av aktiviteter siste \u00E5r",
+      `Angiografør/Operatør` = list(
+        synopsis = "Angiografør/Operatør siste \u00E5r",
         fun = "reportProcessor",
         paramNames = c("report", pn),
         paramValues = c("NORIC_local_monthly_activity", pv)

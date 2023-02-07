@@ -1,5 +1,5 @@
 ---
-title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport Angio/PCI-aktivitet for ', params$hospitalName ) `"
+title: "`r paste('Norsk register for invasiv kardiologi (NORIC)', 'Månedsrapport: Angiografør/Operatør for ', params$hospitalName ) `"
 params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
@@ -153,7 +153,7 @@ AP %<>% mutate(
 
 
 `r if(params$tableFormat !="html") {"<!--"}`
-# Månedsrapport: Aktiviteter {-}
+# Månedsrapport: Angiografør/Operatør {-}
 Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket* og er 
 kun ment til internt bruk!
 <br/> <br/>
