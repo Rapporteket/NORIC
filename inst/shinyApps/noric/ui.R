@@ -73,7 +73,7 @@ ui <- tagList(
         )
       ),
       tabPanel(
-        "Aktivitet",
+        "Angiografør/Operatør",
         sidebarLayout(
           sidebarPanel(
             style = "position:fixed;width:130px;",
