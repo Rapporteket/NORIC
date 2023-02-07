@@ -1,3 +1,9 @@
+# noric 2.11.1
+
+## bugfix
+Endret fanen "Aktivitet" til "Angiografør/Operatør"
+
+
 # noric 2.11.0
 * Har slått sammen månedsrapportene Prosedyre og Stentbruk.
 * Gjort endringer i figurer, tabeller, figurtekst og tabelltekst.
