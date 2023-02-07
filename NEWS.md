@@ -1,3 +1,8 @@
+# noric 2.11.2
+
+## bugfix2
+Fikset visning av fanen for rollene.
+
 # noric 2.11.1
 
 ## bugfix

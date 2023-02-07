@@ -33,20 +33,20 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Utforsker")
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
-    shiny::hideTab(inputId = "tabs", target = "Aktivitet")
+    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     shiny::hideTab(inputId = "tabs", target = "Kodebok")
     shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
   } else if (userRole == "LC") {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
     shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-    shiny::hideTab(inputId = "tabs", target = "Aktivitet")
+    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
   }
   
   ## local reports/tabs for national registry
   if (isNationalReg(reshId)) {
     shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
-    shiny::hideTab(inputId = "tabs", target = "Aktivitet")
+    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::hideTab(inputId = "tabs", target = "Abonnement")
   }
