@@ -127,25 +127,29 @@ AP %<>% mutate(
                             "Ukjent",
                             .data$PCIHovedOperator),
   
-  forkortetNavnAngiografor = if_else(.data$Angiografor1 %in% c("Ukjent"),
-                                     true = .data$Angiografor1,
-                                     false = paste0(
-                                       substr(
-                                         stringr::word(.data$Angiografor1, 1),
-                                         1,
-                                         1),
-                                       ". ",
-                                       stringr::word(.data$Angiografor1, -1))),
+  forkortetNavnAngiografor = dplyr::if_else(
+    .data$Angiografor1 %in% c("Ukjent"),
+    true = .data$Angiografor1,
+    false = paste0(
+      substr(
+        stringr::word(.data$Angiografor1, 1),
+        1,
+        1),
+      ". ",
+      stringr::word(.data$Angiografor1, -1)),
+    missing = "Missing"),
   
-  forkortetNavnPCIoperator = if_else(.data$PCIHovedOperator %in% c("Ukjent"),
-                                     true = .data$PCIHovedOperator,
-                                     false = paste0(
-                                       substr(
-                                         stringr::word(.data$PCIHovedOperator, 1),
-                                         1,
-                                         1),
-                                       ". ",
-                                       stringr::word(.data$PCIHovedOperator, -1)))
+  forkortetNavnPCIoperator = dplyr::if_else(
+    .data$PCIHovedOperator %in% c("Ukjent"),
+    true = .data$PCIHovedOperator,
+    false = paste0(
+      substr(
+        stringr::word(.data$PCIHovedOperator, 1),
+        1,
+        1),
+      ". ",
+      stringr::word(.data$PCIHovedOperator, -1)),
+    missing = "Missing")
 )
 
 
