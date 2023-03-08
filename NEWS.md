@@ -1,3 +1,8 @@
+# noric 2.11.3
+
+## bugfix
+* Fikset feilen i "Angiografør/Operatør"-rapporten
+
 # noric 2.11.2
 
 ## bugfix2
