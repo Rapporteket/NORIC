@@ -127,29 +127,25 @@ AP %<>% mutate(
                             "Ukjent",
                             .data$PCIHovedOperator),
   
-  forkortetNavnAngiografor = dplyr::if_else(
-    .data$Angiografor1 %in% c("Ukjent"),
-    true = .data$Angiografor1,
-    false = paste0(
-      substr(
-        stringr::word(.data$Angiografor1, 1),
-        1,
-        1),
-      ". ",
-      stringr::word(.data$Angiografor1, -1)),
-    missing = "Missing"),
+  forkortetNavnAngiografor = if_else(.data$Angiografor1 %in% c("Ukjent"),
+                                     true = .data$Angiografor1,
+                                     false = paste0(
+                                       substr(
+                                         stringr::word(.data$Angiografor1, 1),
+                                         1,
+                                         1),
+                                       ". ",
+                                       stringr::word(.data$Angiografor1, -1))),
   
-  forkortetNavnPCIoperator = dplyr::if_else(
-    .data$PCIHovedOperator %in% c("Ukjent"),
-    true = .data$PCIHovedOperator,
-    false = paste0(
-      substr(
-        stringr::word(.data$PCIHovedOperator, 1),
-        1,
-        1),
-      ". ",
-      stringr::word(.data$PCIHovedOperator, -1)),
-    missing = "Missing")
+  forkortetNavnPCIoperator = if_else(.data$PCIHovedOperator %in% c("Ukjent"),
+                                     true = .data$PCIHovedOperator,
+                                     false = paste0(
+                                       substr(
+                                         stringr::word(.data$PCIHovedOperator, 1),
+                                         1,
+                                         1),
+                                       ". ",
+                                       stringr::word(.data$PCIHovedOperator, -1)))
 )
 
 
@@ -185,6 +181,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ```{r PrepareDataAngigrafor, include = FALSE}
 angiografor_AP <- AP %>% dplyr::filter(
+  (.data$maaned_nr >= "07" & .data$aar == 2021) | .data$aar > 2021,
   .data$ProsedyreType %in% c("Angio", "Angio + PCI"))
 ``` 
 
@@ -246,6 +243,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ```{r PrepareDataOperator, include = FALSE}
 pciOperator_AP <- AP %>% dplyr::filter(
+  (.data$maaned_nr >= "07" & .data$aar == 2021) | .data$aar > 2021,
   .data$ProsedyreType %in% c("Angio + PCI", "PCI"))
 ``` 
 

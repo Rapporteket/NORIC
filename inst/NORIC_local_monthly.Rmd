@@ -482,11 +482,11 @@ cap <- paste0("Antall koronare angiografier og/eller PCI registrert ",
 TabDataProsedyreType <- AP %>% 
   janitor::tabyl(maaned,
                  ProsedyreType) %>% 
-  janitor::adorn_totals("col", name = "Totalt")
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
 
 TabNProsedyreTypeMaaned <- timeTableMonth %>% 
-  left_join(., TabDataProsedyreType, by = c("maaned")) %>% 
-  janitor::adorn_totals("row", name = "Totalt")
+  left_join(., TabDataProsedyreType, by = c("maaned"))
 
 TabNProsedyreType <- TabNProsedyreTypeMaaned %>% 
   dplyr::rename(" " = "maaned")
@@ -568,8 +568,7 @@ TabDataHastegrad <- AP %>%
 
 TabNHastegrad <- timeTableMonth %>% 
   left_join(., TabDataHastegrad, by = c("maaned")) %>% 
-  dplyr::rename(" " = "maaned") %>% 
-  janitor::adorn_totals("row", name = "Totalt")
+  dplyr::rename(" " = "maaned")
 
 TabNHastegrad[TabNHastegrad == 0] <- " - "
 TabNHastegrad[is.na(TabNHastegrad)] <- " - "
@@ -655,17 +654,17 @@ cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
 TabDataIndikasjon <- AP %>% 
   janitor::tabyl(maaned,
                  Indikasjon2) %>% 
-  janitor::adorn_totals("col", name = "Totalt") 
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
 
 TabNIndikasjon <- timeTableMonth %>% 
-  left_join(., TabDataIndikasjon, by = c("maaned")) %>%
-  janitor::adorn_totals("row", name = "Totalt") %>% 
+  left_join(., TabDataIndikasjon, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
 
 TabNIndikasjon[TabNIndikasjon == 0] <- " - "
 TabNIndikasjon[is.na(TabNIndikasjon)] <- " - "
 
-align <- c("l", rep("r", dim(TabNIndikasjon)[2] - 1))
+align <- c("l", rep("c", dim(TabNIndikasjon)[2] - 1))
 
 if (params$tableFormat == "html") {
   knitr::kable(x = TabNIndikasjon, caption = cap, align = align) %>%
@@ -1308,10 +1307,8 @@ TabDataSsIntervensjonstype <- SS %>%
                  ProsedyreType2) %>% 
   janitor::adorn_totals("col", name = "Totalt antall intervensjoner") 
 
-TabNInervProsedyreType <- AP %>%
-  filter(ProsedyreType %in% c("Angio + PCI", "PCI")) %>% 
-  janitor::tabyl(maaned,
-                 ProsedyreType) %>% 
+TabNInervProsedyreType <- TabNProsedyreTypeMaaned %>% 
+  dplyr::select(maaned, "Angio + PCI", "PCI") %>% 
   janitor::adorn_totals("col", name = "Antall gjeldende prosedyrer") %>% 
   dplyr::select(maaned, "Antall gjeldende prosedyrer")
 
@@ -1473,11 +1470,11 @@ cap <- paste0("Antall prosedyrer registrert i modulen for ",
 TabDataAndreProsedyrer <- AnP %>% 
   janitor::tabyl(maaned,
                  AnnenProsType) %>% 
-  janitor::adorn_totals("col", name = "Totalt")
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
 
 TabNAndreProsedyrer <- timeTableMonth %>% 
   left_join(., TabDataAndreProsedyrer, by = c("maaned")) %>% 
-  janitor::adorn_totals("row", name = "Totalt") %>% 
   dplyr::rename(" " = "maaned")
 
 TabNAndreProsedyrer[TabNAndreProsedyrer == 0] <- " - "
