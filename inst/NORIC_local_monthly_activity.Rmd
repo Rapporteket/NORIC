@@ -185,7 +185,6 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ```{r PrepareDataAngigrafor, include = FALSE}
 angiografor_AP <- AP %>% dplyr::filter(
-  (.data$maaned_nr >= "07" & .data$aar == 2021) | .data$aar > 2021,
   .data$ProsedyreType %in% c("Angio", "Angio + PCI"))
 ``` 
 
@@ -247,7 +246,6 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ```{r PrepareDataOperator, include = FALSE}
 pciOperator_AP <- AP %>% dplyr::filter(
-  (.data$maaned_nr >= "07" & .data$aar == 2021) | .data$aar > 2021,
   .data$ProsedyreType %in% c("Angio + PCI", "PCI"))
 ``` 
 
