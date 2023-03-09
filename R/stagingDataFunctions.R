@@ -513,7 +513,7 @@ bulletinProcessorStaging <- function(dataset = "ki",
                            sjekkStaging$nyeste_staging_data)
     
     if(! sjekkStaging$nyeste_staging_data %in% stagingDataFilename) {
-      melding_sjekk <- paste0(melding_sjekk, " MERK at nyeste er ikke gyldig!")
+      melding_sjekk <- paste0(" MERK at nyeste er ikke gyldig!", melding_sjekk)
     }
     
   } else {
