@@ -1,3 +1,9 @@
+# noric 2.11.4
+
+## bugfix
+* Fikset feilen som oppstår når tabeller ikke har data for alle månedene i 
+ønsket periode.
+
 # noric 2.11.3
 
 ## bugfix

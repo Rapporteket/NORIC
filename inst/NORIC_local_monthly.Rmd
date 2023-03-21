@@ -485,7 +485,9 @@ TabDataProsedyreType <- AP %>%
   janitor::adorn_totals("col", name = "Totalt")
 
 TabNProsedyreTypeMaaned <- timeTableMonth %>% 
-  left_join(., TabDataProsedyreType, by = c("maaned")) %>% 
+  merge(., TabDataProsedyreType, 
+        by.x = c("maaned"), by.y = c("maaned"),
+        all.x = TRUE, all.y = FALSE) %>%
   janitor::adorn_totals("row", name = "Totalt")
 
 TabNProsedyreType <- TabNProsedyreTypeMaaned %>% 
@@ -566,8 +568,10 @@ TabDataHastegrad <- AP %>%
   janitor::adorn_totals("col", name = "Totalt")
 
 
-TabNHastegrad <- timeTableMonth %>% 
-  left_join(., TabDataHastegrad, by = c("maaned")) %>% 
+TabNHastegrad <- timeTableMonth %>%
+  merge(., TabDataHastegrad, 
+        by.x = c("maaned"), by.y = c("maaned"),
+        all.x = TRUE, all.y = FALSE) %>% 
   dplyr::rename(" " = "maaned") %>% 
   janitor::adorn_totals("row", name = "Totalt")
 
@@ -658,7 +662,9 @@ TabDataIndikasjon <- AP %>%
   janitor::adorn_totals("col", name = "Totalt") 
 
 TabNIndikasjon <- timeTableMonth %>% 
-  left_join(., TabDataIndikasjon, by = c("maaned")) %>%
+  merge(., TabDataIndikasjon, 
+        by.x = c("maaned"), by.y = c("maaned"),
+        all.x = TRUE, all.y = FALSE) %>% 
   janitor::adorn_totals("row", name = "Totalt") %>% 
   dplyr::rename(" " = "maaned")
 
@@ -1316,8 +1322,10 @@ TabNInervProsedyreType <- AP %>%
   dplyr::select(maaned, "Antall gjeldende prosedyrer")
 
 TabNSsIntervensjonstype <- timeTableMonth %>% 
-  left_join(., TabDataSsIntervensjonstype, by = c("maaned")) %>% 
-  right_join(., TabNInervProsedyreType, by = c("maaned")) %>% 
+  merge(., TabDataSsIntervensjonstype, 
+        by.x = c("maaned"), by.y = c("maaned"),
+        all.x = TRUE, all.y = FALSE) %>% 
+  dplyr::right_join(., TabNInervProsedyreType, by = c("maaned")) %>% 
   dplyr::rename(" " = "maaned")
 
 TabNSsIntervensjonstype[TabNSsIntervensjonstype == 0] <-  " - "
@@ -1476,7 +1484,9 @@ TabDataAndreProsedyrer <- AnP %>%
   janitor::adorn_totals("col", name = "Totalt")
 
 TabNAndreProsedyrer <- timeTableMonth %>% 
-  left_join(., TabDataAndreProsedyrer, by = c("maaned")) %>% 
+  merge(., TabDataAndreProsedyrer, 
+        by.x = c("maaned"), by.y = c("maaned"),
+        all.x = TRUE, all.y = FALSE) %>% 
   janitor::adorn_totals("row", name = "Totalt") %>% 
   dplyr::rename(" " = "maaned")
 
