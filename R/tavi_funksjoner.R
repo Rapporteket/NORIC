@@ -27,3 +27,21 @@ legg_til_taviStatus <- function(df){
     TRUE ~ NA_character_)) %>% 
     dplyr::relocate(ePromStatus_tekst, .after = ePromStatus)
 }
+
+legg_til_taviRose <- function(df){
+  
+  stopifnot(all(c("rose01", 
+                  "rose02",
+                  "rose03",
+                  "rose04",
+                  "rose05") %in% names(df)))
+  
+  df %>% dplyr::mutate(ePromStatus_tekst= dplyr::case_when(
+    ePromStatus %in% 0 ~ "created", 
+    ePromStatus %in% 1 ~ "ordered", 
+    ePromStatus %in% 2 ~ "expired", 
+    ePromStatus %in% 3 ~ "completed", 
+    ePromStatus %in% 4 ~ "failed",
+    TRUE ~ NA_character_)) %>% 
+    dplyr::relocate(ePromStatus_tekst, .after = ePromStatus)
+}

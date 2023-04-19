@@ -381,8 +381,8 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
   
   if(!singleRow){
     # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
-  anD %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+    # (potensielle "tøyseregistreringer")
+    anD %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
   }
   
   # Legg til aar, maaned, uke, etc.
@@ -467,8 +467,8 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
   
   if(!singleRow){
     # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
-  sS %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+    # (potensielle "tøyseregistreringer")
+    sS %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
   }
   
   # Legg til aar, maaned, uke, etc.
@@ -540,8 +540,8 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
   
   if(!singleRow){
     # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
-  mK %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
+    # (potensielle "tøyseregistreringer")
+    mK %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
   }
   
   # Legg til aar, maaned, uke, etc.
@@ -959,9 +959,45 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   
   if(!singleRow){
     # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
-  # (potensielle "tøyseregistreringer")
+    # (potensielle "tøyseregistreringer")
     ap_light %<>% noric::fjerne_tulleregistreringer(df = ., var = ProsedyreDato)
   }
   
   ap_light
 }
+
+
+
+
+
+#' @rdname getPrepData
+#' @export
+getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
+  
+  
+  . <- ""
+  
+  dataListe <- noric::getTaviProm(registryName = registryName,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
+                                  singleRow = singleRow)
+  tP <- dataListe$taviProm
+  
+  
+  
+  # Endre Sykehusnavn til kortere versjoner:
+  tP %<>% noric::fikse_sykehusnavn(df = .)
+  
+
+  # Legg til aar, maaned, uke, etc.
+  tP %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+  
+  
+  # LEgg til listestekst
+  
+  tP %<>%
+    noric::legg_til_taviStatus()
+
+  tP
+}
+

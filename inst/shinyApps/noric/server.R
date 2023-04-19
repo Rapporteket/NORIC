@@ -190,14 +190,19 @@ shinyServer(function(input, output, session) {
                      `Andre prosedyrer` = "AnP",
                      `Annen diagnostikk` = "AnD",
                      `Aortaklaff` = "AK",
+                     `Aortaklaff eprom` = "TP",
                      `Aortaklaff oppfølging` = "AKOppf",
                      `CT Angio` = "CT",
                      `Forløpsoversikt` = "FO",
                      `Mitralklaff` = "MK",
                      `PasientStudier` = "PS",
                      `Skjemaoversikt` = "SO",
-                     `Segment stent` = "SS"
-    )
+                     `Segment stent` = "SS")
+    # EPROM is only for nasjoanl
+    if (!isNationalReg(reshId)) {
+      dataSets<- within(dataSets, rm("Aortaklaff eprom"))
+      }
+      
   } else {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Angio PCI med utledete variabler` = "ApLight",
@@ -211,6 +216,10 @@ shinyServer(function(input, output, session) {
                      `Segment stent` = "SS"
     )
   }
+    
+  
+  
+  
   
   
   ## reactive vals for utforsker
@@ -366,7 +375,7 @@ shinyServer(function(input, output, session) {
   selectedkbTabVars <- shiny::reactive({
     if (input$kbdTab %in% c("ApLight", "AnP", "AnD",
                             "AP", "AK", "AKOppf", "CT", "FO",
-                            "MK", "PS", "SO", "SS")) {
+                            "MK", "PS", "SO", "SS", "TP")) {
       metaDatKb() %>% names()
     }
     else {

@@ -16,15 +16,15 @@
 
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                             session, userRole, fromDate, toDate) {
-
+  
   # declare dot
   . <- ""
-
+  
   validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
-                  "MK", "PS", "SO", "SS")
-
+                  "MK", "PS", "SO", "SS", "TP")
+  
   if (setId %in% validSetId) {
-
+    
     if (setId == "ApLight") {
       dat <- noric::getPrepApLightData(registryName = registryName,
                                        fromDate = fromDate,
@@ -32,7 +32,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                        singleRow = singleRow,
                                        session = session )
     }
-
+    
     if (setId == "AnP") {
       dat <- noric::getPrepAnPData(registryName = registryName,
                                    fromDate = fromDate,
@@ -110,13 +110,21 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                   singleRow = singleRow,
                                   session = session)
     }
-
+    
+    if (setId == "TP") {
+      dat <- noric::getPrepTaviPromData(registryName = registryName,
+                                        fromDate = fromDate,
+                                        toDate = toDate,
+                                        singleRow = singleRow,
+                                        session = session)
+    }
+    
   } else {
     dat <- NULL
   }
-
-
-
+  
+  
+  
   #Fjerner variablene som ikke skal vises for LC
   if (userRole == "LC" && !is.null(dat)) {
     dat %<>% dplyr::select_if(!names(.) %in% c("AndreProsOperatorer",
@@ -136,7 +144,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                                "SistLagretAv", 
                                                "FnrType"))
   }
-
+  
   dat
-
+  
 }
