@@ -201,8 +201,8 @@ shinyServer(function(input, output, session) {
     # EPROM is only for nasjoanl
     if (!isNationalReg(reshId)) {
       dataSets<- within(dataSets, rm("Aortaklaff eprom"))
-      }
-      
+    }
+    
   } else {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Angio PCI med utledete variabler` = "ApLight",
@@ -216,7 +216,7 @@ shinyServer(function(input, output, session) {
                      `Segment stent` = "SS"
     )
   }
-    
+  
   
   
   
@@ -462,6 +462,37 @@ shinyServer(function(input, output, session) {
   
   
   # Datadump
+  
+  ## Data sets available for datadump
+  dataSetsDump <- c("AndreProsedyrerVar",
+                    "AnnenDiagnostikkVar",
+                    "AngioPCIVar",
+                    "AortaklaffVar",
+                    "AortaklaffOppfVar",
+                    "AortaklaffProm",
+                    "CTAngioVar",
+                    "ForlopsOversikt",
+                    "MitralklaffVar",
+                    "PasienterStudier",
+                    "SegmentStent",
+                    "SkjemaOversikt")
+  
+  
+  if (!(userRole == "SC" & noric::isNationalReg(reshId = reshId))) {
+      # Remove if not national SC-role
+      dataSetsDump <- dataSetsDump[!dataSetsDump %in% "AortaklaffProm"]
+  }
+  
+  
+  
+  output$selectDumpSet <- shiny::renderUI({ 
+    htmltools::tagList(
+      shiny::selectInput(inputId = "dumpDataSet", 
+                         label = "Velg datasett:",
+                         choices = dataSetsDump))
+  })
+  
+  
   output$dataDumpInfo <- shiny::renderUI({
     p(paste("Valgt for nedlasting:", input$dumpDataSet))
   })
@@ -737,7 +768,7 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$deletePressed, {
     rowNum <- parseDeleteEvent(input$deletePressed)
-
+    
     # Slette valgt datasett    
     rowName <- rapbase::listStagingData(registryName = registryName)[rowNum]
     rapbase::deleteStagingData(registryName = registryName, 
@@ -754,14 +785,14 @@ shinyServer(function(input, output, session) {
   
   # serve bulletins
   orgDataStaging <- rapbase::autoReportOrgServer("noricBulletin", orgs)
-
+  
   bulletinParamNames <- shiny::reactive(
     c("orgName", "orgId")
   )
   bulletinParamValues <- shiny::reactive(
     c(orgDataStaging$name(), orgDataStaging$value())
   )
-
+  
   
   bulletins <- list(
     `KI nasjonal staged data` = list(
@@ -785,7 +816,7 @@ shinyServer(function(input, output, session) {
                       "unknown operator")
     )
   )
-
+  
   ## serve bulletin ()
   rapbase::autoReportServer(
     id = "noricBulletin",
@@ -798,8 +829,8 @@ shinyServer(function(input, output, session) {
     orgs = orgs,
     eligible = all(c(userRole == "SC", isNationalReg(reshId)))
   )
-
-
-
+  
+  
+  
   
 })
