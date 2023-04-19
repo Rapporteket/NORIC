@@ -31,6 +31,8 @@
 #' that is... Default is "unknown operator".
 #' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
 #' returned.
+#' @param tableFormat Character string giving the format of the report. Must be 
+#' one of \code{c("html", "latex")}. Default is "latex".
 #'
 #' @return A character string with a path to where the produced file is located.
 #' @export
@@ -50,12 +52,12 @@ reportProcessor <- function(report,
                             registryName = "noric",
                             userFullName = "unknown person name",
                             userRole = "unknown role",
-                            userOperator = "unknown operator", 
-                            rendered_by_shiny = FALSE) {
+                            userOperator = "unknown operator",
+                            rendered_by_shiny = FALSE,
+                            tableFormat = "latex") {
 
   stopifnot(report %in% c("veiledning",
                           "NORIC_local_monthly",
-                          "NORIC_local_monthly_stent",
                           "NORIC_local_monthly_activity",
                           "NORIC_kvalitetsindikator", 
                           "NORIC_filvask_avdod"))
@@ -68,8 +70,8 @@ reportProcessor <- function(report,
     warning("No title given! Reports should have a title...")
   }
 
- 
-  # For testing: 
+
+  # For testing:
   if (report == "veiledning") {
     filePath <- rapbase::renderRmd(
       sourceFile =  system.file("veiledning.Rmd",
@@ -83,59 +85,47 @@ reportProcessor <- function(report,
       )
     )
   }
-  
-  
-
-  # if (report == "NORIC_local_monthly") {
-  #   filePath <- rapbase::renderRmd(
-  #     system.file("NORIC_local_monthly.Rmd", package = "noric"),
-  #     outputType = outputType,
-  #     params = list(
-  #       author = author,
-  #       hospitalName = noric::getHospitalName("noric", orgId),
-  #       tableFormat = outputType,
-  #       reshId = orgId,
-  #       registryName = registryName,
-  #       userRole = userRole,
-  #       userOperator = userOperator
-  #     )
-  #   )
-  # }
-  #
-  #
-  # if (report == "NORIC_local_monthly_stent") {
-  #   filePath <- rapbase::renderRmd(
-  #     system.file("NORIC_local_monthly_stent.Rmd", package = "noric"),
-  #     outputType = outputType,
-  #     params = list(
-  #       author = author,
-  #       hospitalName = noric::getHospitalName("noric", orgId),
-  #       tableFormat = outputType,
-  #       reshId = orgId,
-  #       registryName = registryName,
-  #       userRole = userRole,
-  #       userOperator = userOperator
-  #     )
-  #   )
-  # }
 
 
-  # if (report == "NORIC_local_monthly_activity") {
-  #   filePath <- rapbase::renderRmd(
-  #     system.file("NORIC_local_monthly_activity.Rmd",
-  #                 package = "noric"),
-  #     outputType = outputType,
-  #     params = list(
-  #       author = author,
-  #       hospitalName = orgName,
-  #       tableFormat = outputType,
-  #       reshId = orgId,
-  #       registryName = registryName,
-  #       userRole = userRole,
-  #       userFullName = userFullName
-  #     )
-  #   )
-  # }
+
+  if (report == "NORIC_local_monthly") {
+    filePath <- rapbase::renderRmd(
+      sourceFile =  system.file("NORIC_local_monthly.Rmd",
+                                package = "noric"),
+      outputType = outputType,
+      params = list(
+        author = author,
+        hospitalName = orgName,
+        tableFormat = "latex",
+        
+        reshID = orgId,
+        registryName = registryName,
+        userFullName = userFullName,
+        userRole = userRole, 
+        rendered_by_shiny = rendered_by_shiny
+      )
+    )
+  }
+
+
+  if (report == "NORIC_local_monthly_activity") {
+    filePath <- rapbase::renderRmd(
+      system.file("NORIC_local_monthly_activity.Rmd",
+                  package = "noric"),
+      outputType = outputType,
+      params = list(
+        author = author,
+        hospitalName = orgName,
+        tableFormat = "latex",
+        
+        reshID = orgId,
+        registryName = registryName,
+        userFullName = userFullName,
+        userRole = userRole, 
+        rendered_by_shiny = rendered_by_shiny
+      )
+    )
+  }
 
 
 
@@ -153,7 +143,7 @@ reportProcessor <- function(report,
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
-        userRole = userRole, 
+        userRole = userRole,
         rendered_by_shiny = rendered_by_shiny
       )
     )

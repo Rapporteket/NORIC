@@ -5,6 +5,35 @@
 Hente tabellen med PROM-data og tilgjengeliggjøre den for datadump og utforsker.
 Kun nasjonal SC
 
+# noric 2.11.4
+
+## bugfix
+* Fikset feilen som oppstår når tabeller ikke har data for alle månedene i 
+ønsket periode.
+
+# noric 2.11.3
+
+## bugfix
+* Fikset feilen i "Angiografør/Operatør"-rapporten
+
+# noric 2.11.2
+
+## bugfix2
+Fikset visning av fanen for rollene.
+
+# noric 2.11.1
+
+## bugfix
+Endret fanen "Aktivitet" til "Angiografør/Operatør"
+
+
+# noric 2.11.0
+* Har slått sammen månedsrapportene Prosedyre og Stentbruk.
+* Gjort endringer i figurer, tabeller, figurtekst og tabelltekst.
+* Har endret "last ned"-knappen til å bare laste ned pdf for disse lokale rapportene.
+* De lokale månedsrapportene bruker nå reportProcessor til å generere pdf-rapporter.
+
+
 # noric 2.10.1
 
 ## bugfix
@@ -13,9 +42,7 @@ Verktøy-meny "staging data". Riktig staging data blir nå slettet når man bruk
 men lister opp akkurat slik som rapbase::listStagingData.
 Litt finjusteringer i teksten for rapporten avdød filvask. 
 
-
 # noric 2.10.0
-
 * Lagrer en skyggekopi av staging data som kan brukes til generering av 
 KI-rapporten.
 * Egne noric-funksjoner for staging data: liste alle staging data,
@@ -23,7 +50,6 @@ sjekke validitet og finne nyeste, slette gamle staging data.
 * Egen bulletinProcessorStaging for regelmessig (daglig) prosessering av
 staging data. 
 * Brukergrensesnitt i Verktøy-menyen for nasjonal SC rolle.
-
 
 # noric 2.9.3
 
@@ -56,6 +82,8 @@ Bugfix. Fjerne donorutrednign fra avdod-rapporten
 # noric 2.9.0
 
 ## Nytt
+* Innholdet i stent-rapporten ligger nå under prosedyre-rapporten.
+* Stent-rapporten er eksisterer ikke lengre.
 * Funksjonene utlede_dod_noric() og avdod_opphold()
 * Ny rapport: Kvalitetsforbedring - registrering av død i NORIC
 * Tilpasse "Nedlasting Rapporter" til å laste valgfri rapport
