@@ -797,10 +797,14 @@ SELECT
     *
 FROM
     TaviProm
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'
+
  ")
   
   
-   # SQL for one row only/complete table:
+  # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for TaviProm"
