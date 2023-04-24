@@ -790,9 +790,36 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
+
   
-  # Ask for all variables from PROM 
-  query <- paste0("
+  queryAk <- paste0("
+SELECT
+    AortaklaffVar.Dodsdato,
+    AortaklaffVar.UtskrevetTil,
+    AortaklaffVar.TypeKlaffeprotese,
+    AortaklaffVar.Prosedyre,
+    AortaklaffVar.ScreeningBeslutning,
+    AortaklaffVar.ProsedyreDato,
+    AortaklaffVar.FnrType, 
+    ForlopsOversikt.PasientID,
+    ForlopsOversikt.PasientKjonn,
+    ForlopsOversikt.PasientAlder,
+    ForlopsOversikt.Avdod, 
+    ForlopsOversikt.AvdRESH, 
+    ForlopsOversikt.ForlopsID
+FROM
+    AortaklaffVar
+LEFT JOIN ForlopsOversikt ON
+    AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
+    AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'"
+  )
+  
+    
+  # Ask for all variables from PROM
+  queryProm <- paste0("
 SELECT
     *
 FROM
@@ -806,10 +833,12 @@ WHERE
   
   # SQL for one row only/complete table:
   if (singleRow) {
-    query <- paste0(query, "\nLIMIT\n  1;")
+    queryProm <- paste0(queryProm, "\nLIMIT\n  1;")
+    queryAk <- paste0(queryAk, "\nLIMIT\n  1;")
     msg <- "Query single row data for TaviProm"
   } else {
-    query <- paste0(query, ";")
+    queryProm <- paste0(queryProm, ";")
+    queryAk <- paste0(queryAk, ";")
     msg <- "Query data for TaviProm"
   }
   
@@ -817,9 +846,11 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  taviProm <- rapbase::loadRegData(registryName, query)
+  taviProm <- rapbase::loadRegData(registryName, queryProm)
+  aK <- rapbase::loadRegData(registryName, queryAk)
   
   
   
-  list(taviProm = taviProm)
+  list(taviProm = taviProm, 
+       aK = aK)
 }
