@@ -49,7 +49,7 @@ ui <- tagList(
     
     shiny::tabPanel("Kodebok",
                     sidebarLayout(
-                      sidebarPanel(uiOutput("kbControl")),
+                      sidebarPanel(uiOutput("kbControl"), width = 2),
                       mainPanel(htmlOutput("kbdData"))
                     )),
     

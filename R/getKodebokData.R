@@ -21,9 +21,9 @@ getKodebokMedUtledetedVar <- function() {
                   .data$ledetekst, 
                   .data$listeverdier, 
                   .data$listetekst, 
-                  .data$aktiverinsspoersmaal, 
-                  .data$underspoersmaal, 
-                  .data$innfoert_dato, 
+                  .data$aktiveringsspm, 
+                  .data$underspm, 
+                  .data$innfort, 
                   .data$tabell) %>% 
     dplyr::mutate(listeverdier = as.character(.data$listeverdier)) %>%
     dplyr::bind_rows(noric::def_utledete_var %>%
@@ -32,10 +32,9 @@ getKodebokMedUtledetedVar <- function() {
                                      .data$ledetekst, 
                                      .data$listeverdier, 
                                      .data$listetekst) %>% 
-                       tidyr::replace_na(replace = list(listeverdier= "NA")))
+                       tidyr::replace_na(replace = list(listeverdier= "NA"))) 
   
   
-
 }
 
 
@@ -51,5 +50,8 @@ getKodebokMedUtledetedVar <- function() {
 #' noric::getKodebokData() %>% 
 #' select(fysisk_feltnavn == "heart01")
 getKodebokData <- function() {
-  noric::kb
+  noric::kb %>% 
+    dplyr::rename("aktiveringsspm" = aktiverinsspoersmaal, 
+                  "underspm" = underspoersmaal, 
+                  "innfort" = innfoert_dato)
 }

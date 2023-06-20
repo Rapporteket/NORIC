@@ -8,9 +8,9 @@ testthat::test_that("getKodebokMedUtledetedVar fungerer", {
                          "ledetekst", 
                          "listeverdier", 
                          "listetekst", 
-                         "aktiverinsspoersmaal", 
-                         "underspoersmaal", 
-                         "innfoert_dato", 
+                         "aktiveringsspm", 
+                         "underspm", 
+                         "innfort", 
                          "tabell"  )))
   
   testthat::expect_true("data.frame" %in% is(kb_var))
@@ -30,9 +30,9 @@ testthat::test_that("getKodebokData fungerer", {
                           "ledetekst", 
                           "listeverdier", 
                           "listetekst", 
-                          "aktiverinsspoersmaal", 
-                          "underspoersmaal", 
-                          "innfoert_dato", 
+                          "aktiveringsspm", 
+                          "underspm", 
+                          "innfort", 
                           "skjemanavn", 
                           "type")))
   
