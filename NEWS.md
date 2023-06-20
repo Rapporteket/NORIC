@@ -3,7 +3,8 @@
 
 # noric 2.12.0 - tavi prom
 Hente tabellen med PROM-data og tilgjengeliggjøre den for datadump og utforsker.
-Kun nasjonal SC
+Kun nasjonal SC. 
+Kodebok (metadata) for tavi-prom tabellen
 
 # noric 2.11.4
 
