@@ -1,3 +1,11 @@
+# noric 
+
+
+# noric 2.12.0 - tavi prom
+Hente tabellen med PROM-data og tilgjengeliggjøre den for datadump og utforsker.
+Kun nasjonal SC. 
+Kodebok (metadata) for tavi-prom tabellen
+
 # noric 2.11.4
 
 ## bugfix
@@ -25,6 +33,7 @@ Endret fanen "Aktivitet" til "Angiografør/Operatør"
 * Gjort endringer i figurer, tabeller, figurtekst og tabelltekst.
 * Har endret "last ned"-knappen til å bare laste ned pdf for disse lokale rapportene.
 * De lokale månedsrapportene bruker nå reportProcessor til å generere pdf-rapporter.
+
 
 # noric 2.10.1
 
