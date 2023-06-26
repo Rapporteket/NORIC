@@ -1,5 +1,8 @@
 # noric 
 
+# noric 2.13.0 - ny noric release
+Ny behandlig av trykkmaalinger i NORIC prod. Nye variabler fra annen 
+diagnostikk til AngioPCIVar. Oppdatere noric-rapporteket. 
 
 # noric 2.12.0 - tavi prom
 Hente tabellen med PROM-data og tilgjengeliggjøre den for datadump og utforsker.
