@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.11.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.13.0</span>
       </span>
     </div>
 
@@ -45,7 +45,7 @@
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="autoReport.html">dispatchMonthlyKi()</a></code> <code><a href="autoReport.html">subscriptionLocalMonthlyReps()</a></code> </p>
+          <p><code><a href="autoReport.html">dispatchMonthlyKi()</a></code> <code><a href="autoReport.html">subscriptionLocalMonthlyReps()</a></code> <code><a href="autoReport.html">bulletinStaging()</a></code> </p>
         </td>
         <td><p>Make sheduled automated reports</p></td>
       </tr><tr><td>
@@ -69,7 +69,7 @@
         </td>
         <td><p>Remove test-registrations</p></td>
       </tr><tr><td>
-          <p><code><a href="getData.html">getAp()</a></code> <code><a href="getData.html">getSo()</a></code> <code><a href="getData.html">getAk()</a></code> <code><a href="getData.html">getFo()</a></code> <code><a href="getData.html">getAnP()</a></code> <code><a href="getData.html">getCt()</a></code> <code><a href="getData.html">getAkOppf()</a></code> <code><a href="getData.html">getAnD()</a></code> <code><a href="getData.html">getSs()</a></code> <code><a href="getData.html">getMk()</a></code> <code><a href="getData.html">getPs()</a></code> <code><a href="getData.html">getApLight()</a></code> </p>
+          <p><code><a href="getData.html">getAp()</a></code> <code><a href="getData.html">getSo()</a></code> <code><a href="getData.html">getAk()</a></code> <code><a href="getData.html">getFo()</a></code> <code><a href="getData.html">getAnP()</a></code> <code><a href="getData.html">getCt()</a></code> <code><a href="getData.html">getAkOppf()</a></code> <code><a href="getData.html">getAnD()</a></code> <code><a href="getData.html">getSs()</a></code> <code><a href="getData.html">getMk()</a></code> <code><a href="getData.html">getPs()</a></code> <code><a href="getData.html">getApLight()</a></code> <code><a href="getData.html">getTaviProm()</a></code> </p>
         </td>
         <td><p>Load data for NORIC</p></td>
       </tr><tr><td>
@@ -80,6 +80,10 @@
           <p><code><a href="getHospitalName.html">getHospitalName()</a></code> </p>
         </td>
         <td><p>Get hospital name from registry data</p></td>
+      </tr><tr><td>
+          <p><code><a href="getKodebokData.html">getKodebokData()</a></code> </p>
+        </td>
+        <td><p>Kodebok</p></td>
       </tr><tr><td>
           <p><code><a href="getKodebokMedUtledetedVar.html">getKodebokMedUtledetedVar()</a></code> </p>
         </td>
@@ -93,7 +97,7 @@
         </td>
         <td><p>Get data set for Pivot-table</p></td>
       </tr><tr><td>
-          <p><code><a href="getPrepData.html">getPrepApData()</a></code> <code><a href="getPrepData.html">getPrepSoData()</a></code> <code><a href="getPrepData.html">getPrepAkData()</a></code> <code><a href="getPrepData.html">getPrepFoData()</a></code> <code><a href="getPrepData.html">getPrepAnPData()</a></code> <code><a href="getPrepData.html">getPrepCtData()</a></code> <code><a href="getPrepData.html">getPrepAkOppfData()</a></code> <code><a href="getPrepData.html">getPrepAnDData()</a></code> <code><a href="getPrepData.html">getPrepSsData()</a></code> <code><a href="getPrepData.html">getPrepMkData()</a></code> <code><a href="getPrepData.html">getPrepPsData()</a></code> <code><a href="getPrepData.html">getPrepApLightData()</a></code> </p>
+          <p><code><a href="getPrepData.html">getPrepApData()</a></code> <code><a href="getPrepData.html">getPrepSoData()</a></code> <code><a href="getPrepData.html">getPrepAkData()</a></code> <code><a href="getPrepData.html">getPrepFoData()</a></code> <code><a href="getPrepData.html">getPrepAnPData()</a></code> <code><a href="getPrepData.html">getPrepCtData()</a></code> <code><a href="getPrepData.html">getPrepAkOppfData()</a></code> <code><a href="getPrepData.html">getPrepAnDData()</a></code> <code><a href="getPrepData.html">getPrepSsData()</a></code> <code><a href="getPrepData.html">getPrepMkData()</a></code> <code><a href="getPrepData.html">getPrepPsData()</a></code> <code><a href="getPrepData.html">getPrepApLightData()</a></code> <code><a href="getPrepData.html">getPrepTaviPromData()</a></code> </p>
         </td>
         <td><p>Data managment on tables</p></td>
       </tr><tr><td>
@@ -144,6 +148,14 @@
           <p><code><a href="reportProcessor.html">reportProcessor()</a></code> </p>
         </td>
         <td><p>Common report processor for Noric</p></td>
+      </tr><tr><td>
+          <p><code><a href="stagingData.html">makeStagingDataKi()</a></code> <code><a href="stagingData.html">makeStagingDataFrame()</a></code> <code><a href="stagingData.html">checkValidStagingData()</a></code> <code><a href="stagingData.html">deleteOldStagingData()</a></code> <code><a href="stagingData.html">bulletinProcessorStaging()</a></code> </p>
+        </td>
+        <td><p>NORIC staging data functions</p></td>
+      </tr><tr><td>
+          <p><code><a href="tavi_funksjoner.html">legg_til_taviStatus()</a></code> </p>
+        </td>
+        <td><p>NORIC tavi prom</p></td>
       </tr><tr><td>
           <p><code><a href="utlede_OppholdsID.html">utlede_OppholdsID()</a></code> </p>
         </td>

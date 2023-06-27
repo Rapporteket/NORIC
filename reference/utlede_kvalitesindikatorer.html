@@ -22,7 +22,7 @@ variables names are suffixed by _data (datagrunnlag)."><!-- mathjax --><script s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.11.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.13.0</span>
       </span>
     </div>
 
@@ -217,25 +217,25 @@ dersom <code>AvdKompPacemaker</code> er <em>ja</em> og
 <span class="r-in"><span>      Indikasjon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Stabil koronarsykdom"</span>, <span class="fl">4</span><span class="op">)</span>, <span class="cn">NA</span>, <span class="st">"annet"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>      FFR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ja"</span>, <span class="st">"Ja"</span>, <span class="cn">NA</span>, <span class="st">"Ukjent"</span>, <span class="st">"Nei"</span>, <span class="st">"Ja"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>      IFR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ja"</span>, <span class="st">"Nei"</span>, <span class="st">"Ukjent"</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>      PdPa <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      PDPA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>      IMR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>      Pa <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>      Pd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>      PA_Hyperemi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      PD_Hyperemi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span> <span class="fu">noric</span><span class="fu">::</span><span class="fu">ki_trykkmaaling_utfoert</span><span class="op">(</span>df_ap <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Indikasjon    FFR    IFR PdPa IMR Pa Pd indik_trykkmaaling_data</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Stabil koronarsykdom     Ja     Ja   NA  NA NA NA                      ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Stabil koronarsykdom     Ja    Nei   NA  NA NA NA                      ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Stabil koronarsykdom   &lt;NA&gt; Ukjent   NA  NA NA NA                      ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Stabil koronarsykdom Ukjent   &lt;NA&gt;   NA  NA NA NA                      ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 &lt;NA&gt;    Nei   &lt;NA&gt;   NA  NA NA NA                     nei</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                annet     Ja   &lt;NA&gt;   NA  NA NA NA                     nei</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   indik_trykkmaaling</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                 ja</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                nei</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                nei</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Indikasjon    FFR    IFR PDPA IMR PA_Hyperemi PD_Hyperemi</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Stabil koronarsykdom     Ja     Ja   NA  NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Stabil koronarsykdom     Ja    Nei   NA  NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Stabil koronarsykdom   &lt;NA&gt; Ukjent   NA  NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Stabil koronarsykdom Ukjent   &lt;NA&gt;   NA  NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 &lt;NA&gt;    Nei   &lt;NA&gt;   NA  NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                annet     Ja   &lt;NA&gt;   NA  NA          NA          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   indik_trykkmaaling_data indik_trykkmaaling</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      ja                 ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                      ja                 ja</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                      ja                nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                      ja                nei</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                     nei               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                     nei               &lt;NA&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span> <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>      Indikasjon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Stabil koronarsykdom"</span>, <span class="fl">4</span><span class="op">)</span>, <span class="cn">NA</span>, <span class="st">"Annet"</span><span class="op">)</span>,</span></span>

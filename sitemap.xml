@@ -55,6 +55,9 @@
     <loc>/reference/getHospitalName.html</loc>
   </url>
   <url>
+    <loc>/reference/getKodebokData.html</loc>
+  </url>
+  <url>
     <loc>/reference/getKodebokMedUtledetedVar.html</loc>
   </url>
   <url>
@@ -110,6 +113,12 @@
   </url>
   <url>
     <loc>/reference/reportProcessor.html</loc>
+  </url>
+  <url>
+    <loc>/reference/stagingData.html</loc>
+  </url>
+  <url>
+    <loc>/reference/tavi_funksjoner.html</loc>
   </url>
   <url>
     <loc>/reference/utlede_OppholdsID.html</loc>
