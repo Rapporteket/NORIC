@@ -824,12 +824,7 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   ap_light %<>% noric::satt_inn_stent_i_lms(df_ap = .,
                                             df_ss = sS)
   
-  
-  #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
-  # trykkmåling. Disse fjernes før tabellen legges i utforsker
-  ap_light %<>% noric::legg_til_trykkmaalinger(df_ap = .,
-                                               df_ad = aD)
-  
+
   # Legge til kvalitetsindikatorene:
   ap_light %<>% noric::ki_ferdigstilt_komplikasjoner(df_ap = .)
   ap_light %<>% noric::ki_trykkmaaling_utfoert(df_ap = .)

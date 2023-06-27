@@ -14,6 +14,7 @@
 \alias{getPrepMkData}
 \alias{getPrepPsData}
 \alias{getPrepApLightData}
+\alias{getPrepTaviPromData}
 \title{Data managment on tables}
 \usage{
 getPrepApData(registryName, fromDate, toDate, singleRow, ...)
@@ -39,6 +40,8 @@ getPrepMkData(registryName, fromDate, toDate, singleRow, ...)
 getPrepPsData(registryName, fromDate, toDate, singleRow, ...)
 
 getPrepApLightData(registryName, fromDate, toDate, singleRow, ...)
+
+getPrepTaviPromData(registryName, fromDate, toDate, singleRow, ...)
 }
 \arguments{
 \item{registryName}{String providing the registry name}

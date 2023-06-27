@@ -2,7 +2,7 @@
 #' 
 #' Functions for adding "listetekst" for variables i \emph{TaviProm}-table. 
 #'
-#' @param df 
+#' @param df AortaklaffVar tabell
 #'
 #' @return df, with new variables suffixed \emph{_tekst}. 
 #'

@@ -9,6 +9,8 @@
 #' By default set to FALSE
 #' @param session List shiny session object
 #' @param userRole String naming the user role
+#' @param fromDate first date to fetch
+#' @param toDate last date to fetch
 #'
 #' @return data frame
 #' @export

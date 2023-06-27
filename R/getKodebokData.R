@@ -48,7 +48,7 @@ getKodebokMedUtledetedVar <- function() {
 #'
 #' @examples
 #' noric::getKodebokData() %>% 
-#' select(fysisk_feltnavn == "heart01")
+#'   dplyr::filter(fysisk_feltnavn == "heart01")
 getKodebokData <- function() {
   noric::kb %>% 
     dplyr::rename("aktiveringsspm" = aktiverinsspoersmaal, 
