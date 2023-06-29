@@ -288,6 +288,14 @@ shinyServer(function(input, output, session) {
   })
   
   
+  
+  output$downloadPivotButton <- renderUI({
+    if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
+      downloadButton(outputId = "download_pivot")
+    }
+  })
+  
+  
   output$selectVars <- renderUI({
     req(input$selectedDataSet)
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
@@ -366,9 +374,9 @@ output$download_pivot <- downloadHandler(
 )
 
 # copy pivot table - works natively on Windows/OSX. Requires xclip on Linux
-observeEvent(input$copy_pivot,  {
-  clipr::write_clip(pivot_tbl(), object_type = "table")
-})  
+# observeEvent(input$copy_pivot,  {
+#   clipr::write_clip(pivot_tbl(), object_type = "table")
+# })  
 
 
 

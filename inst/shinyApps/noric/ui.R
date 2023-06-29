@@ -35,24 +35,23 @@ ui <- tagList(
              fluidRow(
                column(6, uiOutput("selectDataSet")),
                column(6, uiOutput("utforskerDateRange"))),
+            
              fluidRow(
-               column(12, 
-                      uiOutput("selectVars"))),
-             fluidRow(
-               column(12, uiOutput("togglePivotSurvey"))
-             ),
-             fluidRow(
-               column(12,
-                      rpivotTableOutput("pivotSurvey")
-                      # , 
-                      # DT::dataTableOutput("aSummaryTable")
-               ) 
-             ), 
-             fluidRow(12, 
-                      downloadButton("download_pivot"), 
-                      actionButton("copy_pivot", "kopier"))
+               column(6, uiOutput("downloadPivotButton"))),
+               # , 
+                      # 6, uiOutput("copy_pivot"))),
+             # fluidRow(12, downloadButton("download_pivot"), 
+             #           actionButton("copy_pivot", "kopier")),
+              fluidRow(
+               column(12, uiOutput("selectVars"))),
              
-    ),
+             fluidRow(
+               column(12, uiOutput("togglePivotSurvey"))),
+             
+             fluidRow(
+               column(12,rpivotTableOutput("pivotSurvey")) 
+             ) 
+            ),
     
     shiny::tabPanel("Kodebok",
                     sidebarLayout(
