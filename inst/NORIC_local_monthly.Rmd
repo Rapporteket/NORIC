@@ -188,7 +188,9 @@ AnP$AnnenProsType <- factor(
     "Plugging av PVL",
     "PTSMA",
     "Aortaballongpumpe",
-    "ECMO"
+    "ECMO", 
+    "Myokardiell biopsi", 
+    "Tricuspidal klaff TEER"
     ),
   labels = c(
     "Høyre kat.",
@@ -201,7 +203,9 @@ AnP$AnnenProsType <- factor(
     "Plugging av PVL",
     "PTSMA",
     "Aortaballongpumpe",
-    "ECMO")
+    "ECMO", 
+    "Myokardiell biopsi", 
+    "Tricuspidal klaff TEER")
 )
 ```
 

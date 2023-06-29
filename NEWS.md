@@ -1,5 +1,11 @@
 # noric 
 
+# noric 2.13.1 - bugfix
+Staging data bruker også trykkmaling, fikser det. 
+Nye metoder i "Andre prosedyrer"(Myokardiell biopsi og Trikuspidal kladd teer). 
+Disse er lagt til i invasive prosedyrer rapporten, stand alone prosedyrer. 
+
+
 # noric 2.13.0 - ny noric release
 Ny behandlig av trykkmaalinger i NORIC prod. Nye variabler fra annen 
 diagnostikk til AngioPCIVar. Oppdatere noric-rapporteket. 
