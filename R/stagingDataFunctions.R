@@ -172,12 +172,12 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
     shiny::setProgress(0.60)
   }
   
-  anD_nasjonalt <- noric::getPrepAnDData(
-    registryName = registryName,
-    fromDate  = periode_data$forste_dato,
-    toDate = periode_data$siste_dato,
-    singleRow = FALSE)
-  
+  # anD_nasjonalt <- noric::getPrepAnDData(
+  #   registryName = registryName,
+  #   fromDate  = periode_data$forste_dato,
+  #   toDate = periode_data$siste_dato,
+  #   singleRow = FALSE)
+  # 
   
   if (rendered_by_shiny) {
     shiny::setProgress(0.70)
@@ -228,6 +228,10 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
       .data$FFR,
       .data$IVUS,
       .data$OCT,
+      .data$IMR, 
+      .data$PDPA, 
+      .data$PA_Hyperemi,
+      .data$PD_Hyperemi,
       .data$ForlopsID,
       .data$ASA,
       .data$AndrePlatehemmere,
@@ -261,11 +265,11 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
     noric::legg_til_antall_stent_opphold(df_ap = .) %>%
     noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>%
     
-    #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
-    # trykkmåling. Disse fjernes før tabellen legges i utforsker
-    noric::legg_til_trykkmaalinger(df_ap = .,
-                                   df_ad = anD_nasjonalt) %>%
-    
+    # #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
+    # # trykkmåling. Disse fjernes før tabellen legges i utforsker
+    # noric::legg_til_trykkmaalinger(df_ap = .,
+    #                                df_ad = anD_nasjonalt) %>%
+    # 
     # LEgg til hjelpevariabler for ventetider
     noric::legg_til_ventetid_nstemi_timer(.) %>%
     noric::legg_til_ventetid_stemi_min(.) %>%

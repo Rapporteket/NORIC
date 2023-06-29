@@ -937,12 +937,7 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                   - .data$satt_inn_stent_i_LMS)
   
   
-  # Må fjerne disse etter oppdatering av innreg-prod.. De vil komme av seg selv
-  # - .data$IMR,
-  # - .data$PdPa,
-  # - .data$Pa,
-  # - .data$Pd)
-  
+
   # Gjøre kategoriske variabler om til factor:
   ap_light %<>%
     dplyr::mutate(
