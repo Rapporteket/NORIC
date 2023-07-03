@@ -31,6 +31,7 @@
 #' getMk
 #' getPs
 #' getApLight
+#' getTaviProm
 NULL
 
 #' @rdname getData
@@ -85,8 +86,6 @@ WHERE
   }
   
   aP <- rapbase::loadRegData(registryName, query)
-  
-  
   
   list(aP = aP)
 }
@@ -775,4 +774,83 @@ WHERE
   list(aP = aP,
        aD = aD,
        sS = sS)
+}
+
+
+
+
+#' @rdname getData
+#' @export
+getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
+  
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- noric::getLatestEntry(registryName)
+  }
+
+  
+  queryAk <- paste0("
+SELECT
+    AortaklaffVar.Dodsdato,
+    AortaklaffVar.UtskrevetTil,
+    AortaklaffVar.TypeKlaffeprotese,
+    AortaklaffVar.Prosedyre,
+    AortaklaffVar.ScreeningBeslutning,
+    AortaklaffVar.ProsedyreDato,
+    AortaklaffVar.FnrType, 
+    ForlopsOversikt.PasientID,
+    ForlopsOversikt.PasientKjonn,
+    ForlopsOversikt.PasientAlder,
+    ForlopsOversikt.Avdod, 
+    ForlopsOversikt.AvdRESH, 
+    ForlopsOversikt.ForlopsID
+FROM
+    AortaklaffVar
+LEFT JOIN ForlopsOversikt ON
+    AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
+    AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'"
+  )
+  
+    
+  # Ask for all variables from PROM
+  queryProm <- paste0("
+SELECT
+    *
+FROM
+    TaviProm
+WHERE
+    ProsedyreDato >= '", fromDate, "' AND
+    ProsedyreDato <= '", toDate, "'
+
+ ")
+  
+  
+  # SQL for one row only/complete table:
+  if (singleRow) {
+    queryProm <- paste0(queryProm, "\nLIMIT\n  1;")
+    queryAk <- paste0(queryAk, "\nLIMIT\n  1;")
+    msg <- "Query single row data for TaviProm"
+  } else {
+    queryProm <- paste0(queryProm, ";")
+    queryAk <- paste0(queryAk, ";")
+    msg <- "Query data for TaviProm"
+  }
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  taviProm <- rapbase::loadRegData(registryName, queryProm)
+  aK <- rapbase::loadRegData(registryName, queryAk)
+  
+  
+  
+  list(taviProm = taviProm, 
+       aK = aK)
 }

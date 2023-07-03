@@ -14,6 +14,7 @@
 \alias{getMk}
 \alias{getPs}
 \alias{getApLight}
+\alias{getTaviProm}
 \title{Load data for NORIC}
 \usage{
 getAp(registryName, fromDate, toDate, singleRow, ...)
@@ -39,6 +40,8 @@ getMk(registryName, fromDate, toDate, singleRow, ...)
 getPs(registryName, fromDate, toDate, singleRow, ...)
 
 getApLight(registryName, fromDate, toDate, singleRow, ...)
+
+getTaviProm(registryName, fromDate, toDate, singleRow, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}

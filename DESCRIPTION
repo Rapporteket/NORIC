@@ -1,7 +1,6 @@
 Package: noric
 Title: Provide R Resources for NORIC at Rapporteket
-Version: 2.9.3.9000
-Authors@R: c(
+Version: 2.14.0
   person("Kristina",
          "Skaare",
          role = c("aut", "cre"),
@@ -51,7 +50,7 @@ Remotes:
   Rapporteket/rapbase@*release,
   andrewsali/shinycssloaders
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Suggests: 
     covr, 
     testthat

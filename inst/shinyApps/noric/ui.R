@@ -55,7 +55,7 @@ ui <- tagList(
     
     shiny::tabPanel("Kodebok",
                     sidebarLayout(
-                      sidebarPanel(uiOutput("kbControl")),
+                      sidebarPanel(uiOutput("kbControl"), width = 2),
                       mainPanel(htmlOutput("kbdData"))
                     )),
     
@@ -64,31 +64,12 @@ ui <- tagList(
     
     shiny::navbarMenu(
       "Månedsrapporter",
-      
       tabPanel(
-        "Stentbruk",
+        "Invasive prosedyrer",
         sidebarLayout(
           sidebarPanel(
-            radioButtons("formatStentbruk",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
-            downloadButton("downloadReportStentbruk", "Hent!"),
-            width = 2
-          ),
-          mainPanel(
-            htmlOutput("stentbruk", inline = TRUE)
-          )
-        )
-      ),
-      tabPanel(
-        "Prosedyrer",
-        sidebarLayout(
-          sidebarPanel(
-            radioButtons("formatProsedyrer",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
             downloadButton("downloadReportProsedyrer", "Hent!"),
             width = 2
           ),
@@ -98,13 +79,11 @@ ui <- tagList(
         )
       ),
       tabPanel(
-        "Aktivitet",
+        "Angiografør/Operatør",
         sidebarLayout(
           sidebarPanel(
-            radioButtons("formatAktivitet",
-                         "Format for nedlasting",
-                         c("PDF", "HTML"),
-                         inline = FALSE),
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
             downloadButton("downloadReportAktivitet", "Hent!"),
             width = 2),
           mainPanel(
@@ -112,40 +91,32 @@ ui <- tagList(
           )
         )
       )) ,
+
     
     
-    tabPanel("Datadump",
-             sidebarLayout(
-               sidebarPanel(width = 4,
-                            selectInput("dumpDataSet", "Velg datasett:",
-                                        c("AndreProsedyrerVar",
-                                          "AnnenDiagnostikkVar",
-                                          "AngioPCIVar",
-                                          "AortaklaffVar",
-                                          "AortaklaffOppfVar",
-                                          "CTAngioVar",
-                                          "ForlopsOversikt",
-                                          "MitralklaffVar",
-                                          "PasienterStudier",
-                                          "SegmentStent",
-                                          "SkjemaOversikt")),
-                            dateRangeInput("dumpDateRange", "Velg periode:",
-                                           start = ymd(Sys.Date()) - years(1),
-                                           end = Sys.Date(), separator = "-",
-                                           weekstart = 1),
-                            radioButtons("dumpFormat", "Velg filformat:",
-                                         choices = c("csv", "xlsx-csv")),
-                            downloadButton("dumpDownload", "Hent!")
-               ),
-               mainPanel(
-                 htmlOutput("dataDumpInfo") #%>%
-                 # shinycssloaders::withSpinner(color = "#18bc9c",
-                 #                              color.background = "#ffffff",
-                 #                              type = 2)
-               )
-             )
+    shiny::tabPanel("Datadump",
+                    shiny::sidebarLayout(
+                      shiny::sidebarPanel(
+                        width = 4,
+                        shiny::uiOutput(outputId = "selectDumpSet"),
+                        shiny::dateRangeInput(
+                          inputId = "dumpDateRange", 
+                          label = "Velg periode:",
+                          start = ymd(Sys.Date()) - years(1),
+                          end = Sys.Date(), separator = "-",
+                          weekstart = 1),
+                        shiny::radioButtons(inputId = "dumpFormat",
+                                            label = "Velg filformat:",
+                                            choices = c("csv", "xlsx-csv")),
+                        shiny::downloadButton(outputId = "dumpDownload",
+                                              label =  "Hent!")
+                      ),
+                      mainPanel(
+                        htmlOutput("dataDumpInfo") 
+                      )
+                    )
     ),
-    
+
     shiny::tabPanel(
       "Abonnement",
       shiny::sidebarLayout(
@@ -157,10 +128,10 @@ ui <- tagList(
         )
       )
     ),
-    
+
     shiny::navbarMenu(
       "Verktøy",
-      
+
       tabPanel("Metadata",
                sidebarLayout(
                  sidebarPanel(uiOutput("metaControl")),
@@ -180,8 +151,8 @@ ui <- tagList(
           )
         )
       ),
-      
-      
+
+
       tabPanel("Nedlasting rapporter",
                sidebarLayout(
                  sidebarPanel(
@@ -192,7 +163,7 @@ ui <- tagList(
                    downloadButton("dwnldReport", "Hent rapport!"))
                )
       ),
-      
+
       shiny::tabPanel(
         "Bruksstatistikk",
         shiny::sidebarLayout(
@@ -203,14 +174,36 @@ ui <- tagList(
           shiny::mainPanel(rapbase::statsUI("noricStats"))
         )
       ),
-      
+
       shiny::tabPanel(
         "Eksport",
         shiny::sidebarLayout(
           shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
           shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
+        )
+      ), 
+      
+      
+      shiny::tabPanel(
+        title = "Staging data", 
+        
+        shiny::titlePanel("Liste alle staging data"),
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(htmlOutput("stagingControl")),
           
+          shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))), 
+        
+        
+        br(),
+        shiny::titlePanel("Regelmessing etablering av staging data"),
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::autoReportOrgInput("noricBulletin"),
+            rapbase::autoReportInput("noricBulletin")),
           
+          shiny::mainPanel(
+            rapbase::autoReportUI("noricBulletin")
+          )
         )
       )
     )
