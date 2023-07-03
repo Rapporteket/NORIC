@@ -1,6 +1,7 @@
 Package: noric
 Title: Provide R Resources for NORIC at Rapporteket
 Version: 2.14.0
+Authors@R: c(
   person("Kristina",
          "Skaare",
          role = c("aut", "cre"),

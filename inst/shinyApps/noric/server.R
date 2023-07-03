@@ -362,12 +362,14 @@ shinyServer(function(input, output, session) {
   
   output$pivotSurvey <- rpivotTable::renderRpivotTable({
     if (rvals$showPivotTable) {
-      rpivotTable(data = dat()[input$selectedVars], 
-                  rendererName = "Table",
-                  width = "50%",
-                  height = "550px",  
-                  onRefresh = 
-                    htmlwidgets::JS("function(config) { 
+      rpivotTable::rpivotTable(
+        data = dat()[input$selectedVars], 
+        rendererName = "Table",
+        width = "50%",
+        height = "550px", 
+        locale = "en", #amerikansk formatering = default
+        onRefresh = 
+          htmlwidgets::JS("function(config) { 
                            Shiny.onInputChange('myData', document.getElementById('pivotSurvey').innerHTML); 
                         }")
       )
@@ -382,7 +384,7 @@ shinyServer(function(input, output, session) {
   summarydf <- eventReactive(input$myData,{
     input$myData %>% 
       read_html %>% 
-      rvest::html_table(fill = TRUE) %>% 
+      rvest::html_table(fill = TRUE, ) %>% 
       # Turns out there are two tables in an rpivotTable, we want the second
       .[[2]]
   })
@@ -449,10 +451,14 @@ shinyServer(function(input, output, session) {
       "pivot.csv"
     },
     content = function(file) {
-      # readr::write_excel_csv2(summarydf(), file)
+      readr::write_excel_csv2(summarydf(), file = file)
       
-      readr::write_csv2(x = summarydf(),
-                        file = file)
+      # utils::write_table(x = summarydf(),
+      #             file = file,
+      #             sep = ";",
+      #             dec = ".")
+      # # readr::write_csv2(x = data.frame(x = c(1001.2, 1.3, 1.4), y = c("a", "b", "c")),
+      # #                   file = file)
     }
     
   )
