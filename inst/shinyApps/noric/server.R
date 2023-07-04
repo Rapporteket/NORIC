@@ -321,14 +321,17 @@ shinyServer(function(input, output, session) {
   
   
   output$downloadPivotButton <- renderUI({
-    if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
-      shiny::downloadButton(outputId = "download_pivot", 
+    if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable)  {
+      if(input$rend == "Table"){
+         shiny::downloadButton(outputId = "download_pivot", 
                             label = "Last ned tabell")
+      }
+     
     }
   })
   
   
-  
+
   output$selectVars <- shiny::renderUI({
     req(input$selectedDataSet)
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
@@ -369,10 +372,12 @@ shinyServer(function(input, output, session) {
         width = "50%",
         height = "550px", 
         locale = "fr", #fransk, har tabell formatering som vi ønsker
-        onRefresh = 
-          htmlwidgets::JS("function(config) { 
-                           Shiny.onInputChange('myData', document.getElementById('pivotSurvey').innerHTML); 
-                        }")
+        onRefresh=htmlwidgets::JS("function(config) { 
+                                var rend = document.getElementsByClassName('pvtRenderer')['0'].value;
+                                myData = document.getElementById('pivotSurvey').innerHTML;
+                                Shiny.onInputChange('myData',myData);
+                                Shiny.onInputChange('rend',rend);
+                                }")
       )
       
     } else {
@@ -382,12 +387,14 @@ shinyServer(function(input, output, session) {
   
   
   # Clean the html and store as reactive
+  
+  
+  # Clean the html and store as reactive
   summarydf <- eventReactive(input$myData,{
-    input$myData %>% 
-      read_html %>% 
-      rvest::html_table(fill = TRUE, ) %>% 
-      # Turns out there are two tables in an rpivotTable, we want the second
-      .[[2]]
+    input$myData %>%
+      read_html %>%
+      rvest::html_table(fill = TRUE) %>%
+      .[[2]] # second element contains the table, first element contains params
   })
   
   
