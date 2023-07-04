@@ -38,10 +38,7 @@ ui <- tagList(
             
              fluidRow(
                column(6, uiOutput("downloadPivotButton"))),
-               # , 
-                      # 6, uiOutput("copy_pivot"))),
-             # fluidRow(12, downloadButton("download_pivot"), 
-             #           actionButton("copy_pivot", "kopier")),
+             
               fluidRow(
                column(12, uiOutput("selectVars"))),
              

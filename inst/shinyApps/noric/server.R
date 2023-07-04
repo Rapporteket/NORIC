@@ -322,7 +322,8 @@ shinyServer(function(input, output, session) {
   
   output$downloadPivotButton <- renderUI({
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
-      downloadButton(outputId = "download_pivot", label = "Last ned tabell")
+      shiny::downloadButton(outputId = "download_pivot", 
+                            label = "Last ned tabell")
     }
   })
   
@@ -367,7 +368,7 @@ shinyServer(function(input, output, session) {
         rendererName = "Table",
         width = "50%",
         height = "550px", 
-        locale = "en", #amerikansk formatering = default
+        locale = "fr", #fransk, har tabell formatering som vi ønsker
         onRefresh = 
           htmlwidgets::JS("function(config) { 
                            Shiny.onInputChange('myData', document.getElementById('pivotSurvey').innerHTML); 
@@ -438,17 +439,14 @@ shinyServer(function(input, output, session) {
     DT::dataTableOutput("kbdTable")
   })
   
-  # # show df as DT::datatable
-  # output$aSummaryTable <- DT::renderDataTable({
-  #   datatable(summarydf(), rownames = FALSE)
-  # })
+  
   
   
   
   # using shiny's download handler to get the data output
   output$download_pivot <- downloadHandler(
     filename = function() {
-      "pivot.csv"
+      paste0("pivot", Sys.time(), ".csv")
     },
     content = function(file) {
       readr::write_excel_csv2(summarydf(), file = file)
@@ -463,10 +461,7 @@ shinyServer(function(input, output, session) {
     
   )
   
-  # copy pivot table - works natively on Windows/OSX. Requires xclip on Linux
-  # observeEvent(input$copy_pivot,  {
-  #   clipr::write_clip(pivot_tbl(), object_type = "table")
-  # })  
+  
   
   
   
