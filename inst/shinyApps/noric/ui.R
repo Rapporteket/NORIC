@@ -5,6 +5,7 @@ library(rpivotTable)
 library(shiny)
 library(shinyalert)
 library(shinycssloaders)
+library(DT)
 
 
 addResourcePath("rap", system.file("www", package = "rapbase"))
@@ -34,18 +35,20 @@ ui <- tagList(
              fluidRow(
                column(6, uiOutput("selectDataSet")),
                column(6, uiOutput("utforskerDateRange"))),
+            
              fluidRow(
-               column(12, 
-                      uiOutput("selectVars"))),
+               column(6, uiOutput("downloadPivotButton"))),
+             
+              fluidRow(
+               column(12, uiOutput("selectVars"))),
+             
              fluidRow(
-               column(12, uiOutput("togglePivotSurvey"))
-             ),
+               column(12, uiOutput("togglePivotSurvey"))),
+             
              fluidRow(
-               column(12,
-                      rpivotTableOutput("pivotSurvey")
-               )
-             )
-    ),
+               column(12,rpivotTableOutput("pivotSurvey")) 
+             ) 
+            ),
     
     shiny::tabPanel("Kodebok",
                     sidebarLayout(
