@@ -363,7 +363,7 @@ if (params$rendered_by_shiny)
 
 ```{r yearTabPrepare, include=FALSE, eval=TRUE}
 timeTableYear <- data.frame(
-  aar = 2018:periode_data$sisteHeleYear)
+  aar = 2018:periode_data$nyesteRegYear)
 ```
 
 
@@ -929,10 +929,10 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
 if(!params$reshID %in% 106944){
 
   nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  dplyr::filter(.data$aar %in% 2018:periode_data$sisteHeleYear) %>%
+  dplyr::filter(.data$aar %in% 2018:periode_data$nyesteRegYear) %>%
   
   
   #Samlet *(Direkte og overflyttet)
@@ -993,7 +993,6 @@ nstemiAP_fra2018_lokalt %<>%
 ```
 
 
-
 ```{r prep_nstemi_year_nasjonalt, results='asis', warning=FALSE}
 if(!params$reshID %in% 106944){
 
@@ -1001,7 +1000,7 @@ if(!params$reshID %in% 106944){
 nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  dplyr::filter(.data$aar %in% 2018:periode_data$sisteHeleYear) %>%
+  dplyr::filter(.data$aar %in% 2018:periode_data$nyesteRegYear) %>%
   
   
   #Samlet *(Direkte og overflyttet)
@@ -1054,8 +1053,8 @@ nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
 if(!params$reshID %in% 106944){
 
   timeTableYear_Samlet <- cbind(timeTableYear, name = "Samlet")
-timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
-timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
+  timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
+  timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
 
 timeTableYear_SDO <- rbind(timeTableYear_Samlet,
                            timeTableYear_Direkte,
@@ -1094,7 +1093,9 @@ cap <- paste0(
   "overflyttet fra annet sykehus hver for seg og samlet. ", 
   "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
   "Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data ",
-  "eller færre enn 5 forløp.")
+  "eller færre enn 5 forløp. ", 
+  "Merk at søylen for ", periode_data$nyesteRegYear, 
+  " inneholder registreringer hittil i år." )
 
 ggplot2::ggplot(
   data = prep_figVentetid24t_year,
@@ -1113,6 +1114,15 @@ ggplot2::ggplot(
   ggplot2::scale_y_continuous(breaks = seq(from = 0, to =1, length.out = 6),
                               labels = paste0(seq(from = 0, to =1, length.out = 6)*100, "%")) +
 
+  # X-aksen
+  ggplot2::scale_x_continuous(breaks = prep_figVentetid24t_year %>% 
+                             dplyr::select(aar) %>%
+                             dplyr::distinct() %>% 
+                             dplyr::pull(), 
+                            labels = prep_figVentetid24t_year %>% 
+                             dplyr::select(aar) %>%
+                             dplyr::distinct() %>% 
+                             dplyr::pull()) +
   ggplot2::scale_fill_manual(values = c(colPrimary[5], colPrimary[2])) +
 
   #Layout
