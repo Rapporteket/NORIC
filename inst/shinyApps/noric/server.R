@@ -33,20 +33,20 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Utforsker")
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
-    shiny::hideTab(inputId = "tabs", target = "Aktivitet")
+    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     shiny::hideTab(inputId = "tabs", target = "Kodebok")
     shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
   } else if (userRole == "LC") {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
     shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-    shiny::hideTab(inputId = "tabs", target = "Aktivitet")
+    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
   }
   
   ## local reports/tabs for national registry
   if (isNationalReg(reshId)) {
     shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
-    shiny::hideTab(inputId = "tabs", target = "Aktivitet")
+    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::hideTab(inputId = "tabs", target = "Abonnement")
   }
@@ -198,14 +198,19 @@ shinyServer(function(input, output, session) {
                      `Andre prosedyrer` = "AnP",
                      `Annen diagnostikk` = "AnD",
                      `Aortaklaff` = "AK",
+                     `Aortaklaff eprom` = "TP",
                      `Aortaklaff oppfølging` = "AKOppf",
                      `CT Angio` = "CT",
                      `Forløpsoversikt` = "FO",
                      `Mitralklaff` = "MK",
                      `PasientStudier` = "PS",
                      `Skjemaoversikt` = "SO",
-                     `Segment stent` = "SS"
-    )
+                     `Segment stent` = "SS")
+    # EPROM is only for nasjoanl
+    if (!isNationalReg(reshId)) {
+      dataSets<- within(dataSets, rm("Aortaklaff eprom"))
+    }
+    
   } else {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Angio PCI med utledete variabler` = "ApLight",
@@ -219,6 +224,10 @@ shinyServer(function(input, output, session) {
                      `Segment stent` = "SS"
     )
   }
+  
+  
+  
+  
   
   
   ## reactive vals for utforsker
@@ -374,7 +383,7 @@ shinyServer(function(input, output, session) {
   selectedkbTabVars <- shiny::reactive({
     if (input$kbdTab %in% c("ApLight", "AnP", "AnD",
                             "AP", "AK", "AKOppf", "CT", "FO",
-                            "MK", "PS", "SO", "SS")) {
+                            "MK", "PS", "SO", "SS", "TP")) {
       metaDatKb() %>% names()
     }
     else {
@@ -446,6 +455,37 @@ shinyServer(function(input, output, session) {
   
   
   # Datadump
+  
+  ## Data sets available for datadump
+  dataSetsDump <- c("AndreProsedyrerVar",
+                    "AnnenDiagnostikkVar",
+                    "AngioPCIVar",
+                    "AortaklaffVar",
+                    "AortaklaffOppfVar",
+                    "AortaklaffProm",
+                    "CTAngioVar",
+                    "ForlopsOversikt",
+                    "MitralklaffVar",
+                    "PasienterStudier",
+                    "SegmentStent",
+                    "SkjemaOversikt")
+  
+  
+  if (!(userRole == "SC" & noric::isNationalReg(reshId = reshId))) {
+      # Remove if not national SC-role
+      dataSetsDump <- dataSetsDump[!dataSetsDump %in% "AortaklaffProm"]
+  }
+  
+  
+  
+  output$selectDumpSet <- shiny::renderUI({ 
+    htmltools::tagList(
+      shiny::selectInput(inputId = "dumpDataSet", 
+                         label = "Velg datasett:",
+                         choices = dataSetsDump))
+  })
+  
+  
   output$dataDumpInfo <- shiny::renderUI({
     p(paste("Valgt for nedlasting:", input$dumpDataSet))
   })
@@ -530,8 +570,8 @@ shinyServer(function(input, output, session) {
   
   if(!isNationalReg(reshId) & userRole == "SC"){
     liste_aktivitet <- list(
-      Aktivitet = list(
-        synopsis = "M\u00E5nedlig oppsummering av aktiviteter siste \u00E5r",
+      `Angiografør/Operatør` = list(
+        synopsis = "Angiografør/Operatør siste \u00E5r",
         fun = "reportProcessor",
         paramNames = c("report", pn),
         paramValues = c("NORIC_local_monthly_activity", pv)
@@ -735,7 +775,7 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$deletePressed, {
     rowNum <- parseDeleteEvent(input$deletePressed)
-
+    
     # Slette valgt datasett    
     rowName <- rapbase::listStagingData(registryName = registryName)[rowNum]
     rapbase::deleteStagingData(registryName = registryName, 
@@ -752,14 +792,14 @@ shinyServer(function(input, output, session) {
   
   # serve bulletins
   orgDataStaging <- rapbase::autoReportOrgServer("noricBulletin", orgs)
-
+  
   bulletinParamNames <- shiny::reactive(
     c("orgName", "orgId")
   )
   bulletinParamValues <- shiny::reactive(
     c(orgDataStaging$name(), orgDataStaging$value())
   )
-
+  
   
   bulletins <- list(
     `KI nasjonal staged data` = list(
@@ -783,7 +823,7 @@ shinyServer(function(input, output, session) {
                       "unknown operator")
     )
   )
-
+  
   ## serve bulletin ()
   rapbase::autoReportServer(
     id = "noricBulletin",
@@ -796,8 +836,8 @@ shinyServer(function(input, output, session) {
     orgs = orgs,
     eligible = all(c(userRole == "SC", isNationalReg(reshId)))
   )
-
-
-
+  
+  
+  
   
 })

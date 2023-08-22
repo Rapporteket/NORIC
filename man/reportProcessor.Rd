@@ -15,7 +15,8 @@ reportProcessor(
   userFullName = "unknown person name",
   userRole = "unknown role",
   userOperator = "unknown operator",
-  rendered_by_shiny = FALSE
+  rendered_by_shiny = FALSE,
+  tableFormat = "latex"
 )
 }
 \arguments{
@@ -51,6 +52,9 @@ that is... Default is "unknown operator".}
 
 \item{rendered_by_shiny}{boolean. if TRUE progression of pdf-generation is
 returned.}
+
+\item{tableFormat}{Character string giving the format of the report. Must be 
+one of \code{c("html", "latex")}. Default is "latex".}
 }
 \value{
 A character string with a path to where the produced file is located.

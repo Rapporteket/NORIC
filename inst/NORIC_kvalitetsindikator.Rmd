@@ -263,8 +263,12 @@ if(valid_staging_data) {
       .data$ForlopsType2,
       .data$IFR,
       .data$FFR,
+      .data$IMR,
       .data$IVUS,
       .data$OCT,
+      .data$PDPA, 
+      .data$PA_Hyperemi, 
+      .data$PD_Hyperemi,
       .data$ForlopsID,
       .data$ASA,
       .data$AndrePlatehemmere,
@@ -298,11 +302,11 @@ if(valid_staging_data) {
     noric::legg_til_antall_stent_opphold(df_ap = .) %>%
     noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>%
     
-    #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
-    # trykkmåling. Disse fjernes før tabellen legges i utforsker
-    noric::legg_til_trykkmaalinger(df_ap = .,
-                                   df_ad = anD_nasjonalt) %>%
-    
+    # #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
+    # # trykkmåling. Disse fjernes før tabellen legges i utforsker
+    # noric::legg_til_trykkmaalinger(df_ap = .,
+    #                                df_ad = anD_nasjonalt) %>%
+    # 
     # LEgg til hjelpevariabler for ventetider
     noric::legg_til_ventetid_nstemi_timer(.) %>%
     noric::legg_til_ventetid_stemi_min(.) %>%
