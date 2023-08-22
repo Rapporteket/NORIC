@@ -367,7 +367,7 @@ if (params$rendered_by_shiny)
 
 ```{r yearTabPrepare, include=FALSE, eval=TRUE}
 timeTableYear <- data.frame(
-  aar = 2018:periode_data$sisteHeleYear)
+  aar = 2018:periode_data$nyesteRegYear)
 ```
 
 
@@ -542,6 +542,7 @@ if (params$rendered_by_shiny)
   shiny::setProgress(0.35)  # set progress to 35%
 ```
 
+`r if (params$reshID %in% 106944) {"<!--"}`
 # Invasiv utredning ved NSTEMI
 
 Ved hjerteinfarkt uten ST-elevasjon i EKG (NSTEMI) er blodåren ofte ikke helt
@@ -557,21 +558,33 @@ med målnivå på henholdsvis 50 % og 80 %.
 Tabell \@ref(tab:tabVentetid24t) og \@ref(tab:tabVentetid72t) viser 
 måloppnåelse per måned for `r params$hospitalName` og nasjonalt for 24 og 72
 timers utredning, henholdsvis. 
-Figur \@ref(fig:figVentetid24TAarSamlet) viser måloppnåelse for alle forløp i 
-datagrunnlaget, 
-figur \@ref(fig:figVentetid24TAarDirekte) for direkte innlagte pasienter og
-figur \@ref(fig:figVentetid24TAarOverflyttet) for overflyttede pasienter. 
-Figurene \@ref(fig:figVentetid24TSamletAar), 
-\@ref(fig:figVentetid24TDirekteAar) og \@ref(fig:figVentetid24TOverflyttetAar)
-viser årlig måloppnåelse for alle forløp i datagrunnlaget, kun direkte innlagte
-pasienter og kun for overførte pasienter. 
+Figur \@ref(fig:figVentetid24TFacetWrap) viser månedlig måloppnåelse for 
+direkte innlagte og overflyttede pasienter hver for seg og samlet.
+Figur \@ref(fig:figVentetid24TSamletAar) viser årlig måloppnåelse for 
+direkte innlagte og overflyttede pasienter hver for seg og samlet.
 
 
 ## Invasiv utredning ved NSTEMI innen 24 timer
+`r if (params$reshID %in% 106944) {"-->"}`
+
 
 ```{r ventetid24t_NSTEMI, results='asis', warning=FALSE}
-cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
-Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ventetid under 24 timer regnes ikke ut for disse. (Målnivå: 50 \\%)"
+
+if(!params$reshID %in% 106944){
+  
+cap <- paste0(
+  "Antall og andel pasienter med indikasjon NSTEMI som innen 24 timer etter ", 
+  "innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
+  "Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og ", 
+  "pasienter overflyttet fra annet sykehus. ", 
+  "Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert. ", 
+  "Komplett data ved direkte innleggelse er der både tid for ankomst ", 
+  "PCI-sykehus og tid for arteriepunksjon er registrert. ", 
+  "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
+  "er komplett data der både tid for innleggelse i henvisende sykehus og tid ", 
+  "for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett ",
+  " data eller færre enn 5 forløp blir markert med stjerne og prosent forløp ", 
+  "med ventetid under 24 timer regnes ikke ut for disse. (Målnivå: 50 \\%)")
 
 
 nstemi_24t_lokalt <- aP_nasjonalt %>%
@@ -633,22 +646,27 @@ noric::mst(tab = tabVentetid24t,
            digs = c(0, 0, 0, 1, 1),
            align = rep("c", 5),
            label = "tabVentetid24t")
+}
+
 ```
 
 
 
 ```{r pagebreakVentetidNSTEMIfigLinje, results = "asis", eval = (params$tableFormat == "latex")}
-cat("\n\n\\pagebreak\n")
+if(!params$reshID %in% 106944){
+  cat("\n\n\\pagebreak\n")
+}
 ```
 
+`r if (params$reshID %in% 106944) {"<!--"}`
 
-### Figurer - Invasiv utredning ved NSTEMI innen 24 timer
-
-
-
+### Figurer - Invasiv utredning ved NSTEMI innen 24 timer, månedlig måloppnåelse
+`r if (params$reshID %in% 106944) {"-->"}`
 
 
 ```{r nstemi_komplette, results='asis', warning=FALSE}
+if(!params$reshID %in% 106944){
+
 # Lokalt: Andel komplette under 50% per måned?
 nstemi_komplette <- aP_nasjonalt %>%
   dplyr::filter(.data$AvdRESH %in% params$reshID,
@@ -662,11 +680,13 @@ nstemi_komplette <- aP_nasjonalt %>%
     komplette_antall = (.data$ja + .data$nei),
     komplette_andel = .data$komplette_antall / .data$Totalt)
 
-
+}
 ```
+
 
 ```{r fig_hittilIAar_24t_lokalt, results='asis', warning=FALSE}
 
+if(!params$reshID %in% 106944){
 
 # LOKALT : For NSTEMI med komplette forløp
 prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
@@ -737,10 +757,12 @@ prep_figVentetid24t_lokalt %<>%
                    no = .data$value),
     Sykehus = params$hospitalName) %>%
   dplyr::select(.data$maaned, .data$name, .data$value, .data$Sykehus)
+}
 
 ```
 
 ```{r fig_hittilIAar_24T_nasj, results='asis', warning=FALSE}
+if(!params$reshID %in% 106944){
 # NASJONALT
 prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
@@ -798,93 +820,98 @@ prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
   dplyr::mutate(Sykehus = factor(.data$Sykehus,
                                  levels = c(params$hospitalName,
                                             "Nasjonalt")))
-
+}
 ```
 
 
-```{r figVentetid24TAarSamlet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap = cap}
+```{r figVentetid24TFacetWrap, warning=FALSE, fig.width = 8, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap = cap}
+
+if(!params$reshID %in% 106944){
+
+  cap <- paste0(
+    "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter ", 
+    "innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
+    "Figurene viser pasienter innlagt direkte på PCI-sykehus og pasienter ", 
+    "overflyttet fra annet sykehus hver for seg og samlet. ", 
+    "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
+    "Per måned, fra hele siste året til og med siste hele måned. ", 
+    "Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn ", 
+    "5 forløp vises ikke i diagrammet.")
 
 
-
-
-cap <- paste0("Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Per måned, fra hele siste året til og med siste hele måned. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet.")
-
-fig1 <- prep_fig_ventetid24t %>%
-  dplyr::filter(name %in% "Samlet")
-
-fig1 %>%
-  ggplot2::ggplot(aes(x = .data$maaned,
-                      y = .data$value,
-                      group = .data$Sykehus)) +
-  ggplot2::ggtitle("Direkte og overflyttet") +
+ggplot2::ggplot(data = prep_fig_ventetid24t,
+                        aes(x = .data$maaned,
+                            y = .data$value,
+                            group = .data$Sykehus)) +
   ggplot2::geom_line(aes(colour = .data$Sykehus)) +
   ggplot2::geom_point(aes(colour = .data$Sykehus))  +
-  ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 legend.title = ggplot2::element_blank()) +
+  ggplot2::geom_hline(yintercept = 0.5,
+                      colour =  colKontrast,
+                      linetype = "dashed") +
+  ggplot2::facet_wrap(~name, ncol = 1, scales= "free") +
   ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
                               drop = FALSE) +
-  ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                              limits = c(0, 1)) +
-  ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
-  ggplot2::scale_x_discrete(guide = guide_axis(angle = 45))
+  # Y aksen
+  ggplot2::coord_cartesian(ylim = c(0, 1)) +
+  ggplot2::scale_y_continuous(breaks = seq(from = 0, to =1, length.out = 6),
+                              labels = paste0(seq(from = 0, to =1, length.out = 6)*100, "%")) +
+
+  #xaksen
+  ggplot2::scale_x_discrete(guide = guide_axis(angle = 45), name = "") +
+
+  #Layout
+  ggplot2::theme(
+    text = element_text(size = 14),
+    strip.text.x = element_text(size = 16),
+    
+    axis.text.x = element_text(angle=45, vjust =1, hjust=1 ),
+    axis.title = ggplot2::element_blank(),
+    axis.ticks = element_blank(),
+
+    
+    legend.title = ggplot2::element_blank(),
+    legend.position = "bottom",
+    legend.background = ggplot2::element_blank(),
+    legend.key = element_blank(), 
+    legend.text = ggplot2::element_text(size = 14),
+
+    # Layout bacgroupd,
+    panel.spacing.y = unit(2, "lines"),
+    strip.background = element_blank(),
+    # panel.background = element_rect(fill = "white", colour ="#cbcbcb"),
+    panel.background = ggplot2::element_blank(),
+
+    #This removes all minor gridlines and adds major y gridlines.
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"),
+    panel.grid.major.x = ggplot2::element_line(color = "#cbcbcb"),
+    # # tab
+    # plot.tag = ggplot2::element_text(
+    #   margin = margin(t=40))
+
+)
+
+}
 
 ```
 
 
 
-```{r figVentetid24TAarDirekte, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=cap}
-
-cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi.  Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Per måned, fra hele siste året til og med siste hele måned. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."
-
-prep_fig_ventetid24t %>%
-  dplyr::filter(name %in% "Direkte") %>%
-  ggplot2::ggplot(aes(x = .data$maaned,
-                      y = .data$value,
-                      group = .data$Sykehus)) +
-  ggplot2::ggtitle("Direkte") +
-  ggplot2::geom_line(aes(colour = .data$Sykehus)) +
-  ggplot2::geom_point(aes(colour = .data$Sykehus))  +
-  ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
-                              drop = FALSE) +
-  ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                              limits = c(0, 1)) +
-  ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
-  ggplot2::scale_x_discrete(guide = guide_axis(angle = 45))
-
-```
-
-```{r figVentetid24TAarOverflyttet, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap= cap}
-
-cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi.  Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Per måned, fra hele siste året til og med siste hele måned. Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn 5 forløp vises ikke i diagrammet."
-
-
-prep_fig_ventetid24t %>%
-  dplyr::filter(name %in% "Overflyttet") %>%
-  ggplot2::ggplot(aes(x = .data$maaned,
-                      y = .data$value,
-                      group = .data$Sykehus)) +
-  ggplot2::ggtitle("Overflyttet") +
-  ggplot2::geom_line(aes(colour = .data$Sykehus)) +
-  ggplot2::geom_point(aes(colour =.data$ Sykehus))  +
-  ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_color_manual(values=c(colPrimary[5], colPrimary[2]),
-                              drop = FALSE) +
-  ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                              limits = c(0, 1)) +
-  ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed") +
-  ggplot2::scale_x_discrete(guide = guide_axis(angle = 45))
-
-```
 
 
 ```{r pagebreakVentetidNSTEMIfigSoyle, results = "asis", eval = (params$tableFormat == "latex")}
-cat("\n\n\\pagebreak\n")
+if(!params$reshID %in% 106944){
+  cat("\n\n\\pagebreak\n")
+}
 ```
+`r if (params$reshID %in% 106944) {"<!--"}`
+
+### Figurer - Invasiv utredning ved NSTEMI innen 24 timer,  årlig måloppnåelse
+`r if (params$reshID %in% 106944) {"-->"}`
+
 
 ```{r komplettYear_24timerNSTEMI, results='asis', warning=FALSE}
+if(!params$reshID %in% 106944){
 
 # Per ÅR: Blant alle NSTEMI, antall komplette forløp (med gyldig tid)
 nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
@@ -898,15 +925,18 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
     aar = as.numeric(.data$aar),
     komplette_antall =  .data$ja + .data$nei,
     komplette_andel = .data$komplette_antall / .data$Totalt)
+}
 ```
 
 ```{r prep_nstemi_year_lokalt, results='asis', warning=FALSE}
 
-nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+if(!params$reshID %in% 106944){
+
+  nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
+    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  dplyr::filter(.data$aar %in% 2018:periode_data$sisteHeleYear) %>%
+  dplyr::filter(.data$aar %in% 2018:periode_data$nyesteRegYear) %>%
   
   
   #Samlet *(Direkte og overflyttet)
@@ -944,7 +974,7 @@ nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
       .data$Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
   
   
-  dplyr::select(.data$aar, .data$name, .data$value) %>%
+ dplyr::select(.data$aar, .data$name, .data$value) %>%
   dplyr::group_by(.data$aar, .data$name) %>%
   dplyr::distinct()
 
@@ -963,18 +993,18 @@ nstemiAP_fra2018_lokalt %<>%
                    yes = NA_real_,
                    no = .data$value))
 
-
+}
 ```
 
 
-
 ```{r prep_nstemi_year_nasjonalt, results='asis', warning=FALSE}
+if(!params$reshID %in% 106944){
 
 # #Nasjonalt
 nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  dplyr::filter(.data$aar %in% 2018:periode_data$sisteHeleYear) %>%
+  dplyr::filter(.data$aar %in% 2018:periode_data$nyesteRegYear) %>%
   
   
   #Samlet *(Direkte og overflyttet)
@@ -1019,14 +1049,16 @@ nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
     name = .data$name,
     value = .data$value,
     Sykehus = "Nasjonalt")
-
+}
 ```
 
 
 ```{r prep_nstemi_year_nasjonalt_lokalt, results='asis', warning=FALSE}
-timeTableYear_Samlet <- cbind(timeTableYear, name = "Samlet")
-timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
-timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
+if(!params$reshID %in% 106944){
+
+  timeTableYear_Samlet <- cbind(timeTableYear, name = "Samlet")
+  timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
+  timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
 
 timeTableYear_SDO <- rbind(timeTableYear_Samlet,
                            timeTableYear_Direkte,
@@ -1049,113 +1081,113 @@ prep_figVentetid24t_year <-
                   !is.na(.data$value),
                   yes = paste0(sprintf("%.1f", .data$value*100 ), "%"),
                   no = NA_character_))
+}
 ```
 
 
 
-```{r figVentetid24TSamletAar, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=cap}
+```{r figVentetid24TSamletAar, warning=FALSE, fig.width = 8, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=cap}
 
+if(!params$reshID %in% 106944){
 
-cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi.  Analysene inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 forløp."
+cap <- paste0(
+  "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse ",
+  "i sykehus har blitt utredet med invasiv koronar angiografi. ", 
+  "Figurene viser pasienter innlagt direkte på PCI-sykehus og pasienter ", 
+  "overflyttet fra annet sykehus hver for seg og samlet. ", 
+  "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
+  "Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data ",
+  "eller færre enn 5 forløp. ", 
+  "Merk at søylen for ", periode_data$nyesteRegYear, 
+  " inneholder registreringer hittil i år." )
 
-
-
-fig_samlet <- prep_figVentetid24t_year %>%
-  dplyr::filter(.data$name %in% "Samlet")
-
-fig_samlet  %>% ggplot2::ggplot(
+ggplot2::ggplot(
+  data = prep_figVentetid24t_year,
   ggplot2::aes(x = .data$aar,
                y = .data$value,
                fill = .data$Sykehus)) +
+  ggplot2::geom_bar(stat = "identity", position = "dodge") +
+  ggplot2::geom_hline(yintercept = 0.5, 
+                      colour = colKontrast,
+                      linetype = "dashed") +
+
+  ggplot2::facet_wrap(~name, nrow = 3 , scales = "free") +
   
-  ggplot2::ggtitle("Direkte og overflyttet") +
-  ggplot2::geom_bar(stat = "identity", position = "dodge") +
-  ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_fill_manual(values = c(colPrimary[5], colPrimary[2])) +
-  ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                              limits = c(0, 1)) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = .data$value_tekst),
-    position = position_dodge(width = 1),
-    vjust = 1.2,
-    size = 3,
-    colour =  ifelse(fig_samlet$Sykehus %in% "Nasjonalt",
-                     "white", "black")) +
-  ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
+   # Y aksen
+  ggplot2::coord_cartesian(ylim = c(0, 1)) +
+  ggplot2::scale_y_continuous(breaks = seq(from = 0, to =1, length.out = 6),
+                              labels = paste0(seq(from = 0, to =1, length.out = 6)*100, "%")) +
 
+  # X-aksen
+  ggplot2::scale_x_continuous(breaks = prep_figVentetid24t_year %>% 
+                             dplyr::select(aar) %>%
+                             dplyr::distinct() %>% 
+                             dplyr::pull(), 
+                            labels = prep_figVentetid24t_year %>% 
+                             dplyr::select(aar) %>%
+                             dplyr::distinct() %>% 
+                             dplyr::pull()) +
+  ggplot2::scale_fill_manual(values = c(colPrimary[5], colPrimary[2])) +
+
+  #Layout
+  ggplot2::theme(
+    text = element_text(size = 14),
+    strip.text.x = element_text(size = 16),
+    
+    # axis.text.x = element_text(angle=45, vjust =1, hjust=1 ),
+    axis.title = ggplot2::element_blank(),
+    axis.ticks = element_blank(),
+
+    
+    legend.title = ggplot2::element_blank(),
+    legend.position = "bottom",
+    legend.background = ggplot2::element_blank(),
+    legend.key = element_blank(), 
+    legend.text = ggplot2::element_text(size = 14),
+
+    # Layout bacgroupd (mellomrom plot)
+    panel.spacing.y = unit(2, "lines"),
+    panel.background = ggplot2::element_blank(), 
+    panel.grid = ggplot2::element_line(color = "#cbcbcb"), 
+    strip.background = element_blank(),
+ 
+    #This removes all minor gridlines and adds major y gridlines.
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"),
+    panel.grid.major.x = ggplot2::element_blank()
+    
+)
+ 
+} 
+  
 ```
 
-```{r figVentetid24TDirekteAar, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=cap }
-
-
-cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi.  Analysene inkluderer pasienter innlagt direkte på PCI-sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 direkte forløp."
-
-fig_direkte <- prep_figVentetid24t_year %>%
-  dplyr::filter(.data$name %in% "Direkte")
-
-fig_direkte %>% ggplot2::ggplot(
-  ggplot2::aes(x = .data$aar,
-               y = .data$value,
-               fill = .data$Sykehus)) +
-  ggplot2::ggtitle("Direkte") +
-  ggplot2::geom_bar(stat = "identity", position = "dodge") +
-  ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_fill_manual(values = c(colPrimary[5], colPrimary[2])) +
-  ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                              limits = c(0, 1)) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = .data$value_tekst),
-    position = position_dodge(width = 1),
-    vjust = 1.2,
-    size = 3,
-    colour =  ifelse(fig_samlet$Sykehus %in% "Nasjonalt",
-                     "white", "black")) +
-  ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
-
-
-```
-
-
-```{r figVentetid24TOverflyttetAar, warning=FALSE, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=cap}
-
-cap <- "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Analysene inkluderer pasienter overflyttet fra annet sykehus. Vannrett rød stiplet linje markerer forventet måloppnåelse. Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data eller færre enn 5 direkte forløp."
-
-
-fig_overflyttet <- prep_figVentetid24t_year %>%
-  dplyr::filter(.data$name %in% "Overflyttet")
-
-fig_overflyttet %>% ggplot2::ggplot(
-  ggplot2::aes(x = .data$aar,
-               y = .data$value,
-               fill = .data$Sykehus)) +
-  ggplot2::ggtitle("Overflyttet") +
-  ggplot2::geom_bar(stat = "identity", position = "dodge") +
-  ggplot2::theme(axis.title = ggplot2::element_blank(),
-                 legend.title = ggplot2::element_blank()) +
-  ggplot2::scale_fill_manual(values = c(colPrimary[5], colPrimary[2])) +
-  ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                              limits = c(0, 1)) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = .data$value_tekst),
-    position = position_dodge(width = 1),
-    vjust = 1.2,
-    size = 3,
-    colour =  ifelse(fig_samlet$Sykehus %in% "Nasjonalt",
-                     "white", "black")) +
-  ggplot2::geom_hline(yintercept = 0.5, colour = "red", linetype = "dashed")
-
-```
-
-
+`r if (params$reshID %in% 106944) {"<!--"}`
 
 
 ## Invasiv utredning ved NSTEMI innen 72 timer
 
+`r if (params$reshID %in% 106944) {"-->"}`
+
+
 ```{r ventetid72t_NSTEMI, results='asis', warning=FALSE}
-cap <- "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og pasienter overflyttet fra annet sykehus. Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.
-Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus og tid for arteriepunksjon er registrert. For forløp der pasienten har blitt overført fra et annet sykehus, er komplett data der både tid for innleggelse i henvisende sykehus og tid for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ventetid under 72 timer regnes ikke ut for disse. (Målnivå: 80 \\%)"
+
+if(!params$reshID %in% 106944){
+
+cap <- paste0(
+"Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter ", 
+"innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
+"Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og ", 
+"pasienter overflyttet fra annet sykehus. ", 
+"Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.", 
+"Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus ",
+"og tid for arteriepunksjon er registrert. ", 
+"For forløp der pasienten har blitt overført fra et annet sykehus, ", 
+"er komplett data der både tid for innleggelse i henvisende sykehus og tid for ", 
+"arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data ", 
+"eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ", 
+"ventetid under 72 timer regnes ikke ut for disse. (Målnivå: 80 \\%)"
+)
 
 
 nstemi_72t_lokalt <- aP_nasjonalt %>%
@@ -1218,6 +1250,7 @@ noric::mst(tab = tabVentetid72t,
            digs = c(0, 0, 0, 1, 1),
            align = rep("c", 5),
            label = "tabVentetid72t")
+}
 ```
 
 
@@ -1231,7 +1264,9 @@ noric::mst(tab = tabVentetid72t,
 
 
 ```{r pagebreakVentetidNSTEMI72t, results = "asis", eval = (params$tableFormat == "latex")}
-cat("\n\n\\pagebreak\n")
+if(!params$reshID %in% 106944){
+  cat("\n\n\\pagebreak\n")
+}
 ```
 
 ```{r }
