@@ -115,12 +115,6 @@ timeTableMonth <- data.frame(
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-SO <- noric::getPrepSoData(registryName = params$registryName,
-                           fromDate  = periode_data$forste_dato,
-                           toDate = periode_data$siste_dato,
-                           singleRow = FALSE)
-
-
 AP <- noric::getPrepApData(registryName = params$registryName,
                            fromDate  = periode_data$forste_dato,
                            toDate = periode_data$siste_dato,
@@ -150,92 +144,35 @@ AnD <- noric::getPrepAnDData(registryName = params$registryName,
 
 ```{r AnPPrepare,include=evaluate_AnP, eval=evaluate_AnP}
 
-AnP$ProsedyreDato <- as.Date(AnP$ProsedyreDato)
-
-AnP$Year <- as.numeric(
-  format(
-    x = AnP $ ProsedyreDato,
-    format = "%Y"))
-
-AnP$nMonth <- as.numeric(
-  as.factor(
-    format(
-      AnP$ProsedyreDato,
-      format = "%y-%m")))
-
-AnP$Day <- as.numeric(
-  AnP$ProsedyreDato - min(AnP$ProsedyreDato, na.rm = TRUE))
-
-AnP <- subset(
-  x = AnP,
-  subset = nMonth >= max(nMonth, na.rm = TRUE) - showN)
-
-AnP$Month <- as.factor(
-  format(
-    x = AnP$ProsedyreDato,
-    format = "%y-%m"))
-
-AnP$AnnenProsType <- factor(
-  x = AnP$AnnenProsType,
-  levels = c(
-    "Høyre hjertekateterisering",
-    "Temporær pacemaker",
-    "Perikardiocentese",
-    "Ventilfilming",
-    "Lukking av ASD/PFO",
-    "Lukking av venstre aurikkel",
-    "Impella",
-    "Plugging av PVL",
-    "PTSMA",
-    "Aortaballongpumpe",
-    "ECMO", 
-    "Myokardiell biopsi", 
-    "Tricuspidal klaff TEER"
-    ),
-  labels = c(
-    "Høyre kat.",
-    "Temp. pm",
-    "Perikardiocentese",
-    "Ventilfilming",
-    "Lukking ASD/PFO",
-    "Lukking v. aurikkel",
-    "Impella",
-    "Plugging av PVL",
-    "PTSMA",
-    "Aortaballongpumpe",
-    "ECMO", 
-    "Myokardiell biopsi", 
-    "Tricuspidal klaff TEER")
-)
-```
-
-
-```{r SOPrepare,include=FALSE, eval=TRUE}
-
-SO$RegDate <- as.Date(SO$HovedDato)
-
-SO$Year <- as.numeric(
-  format(
-    x = SO$RegDate,
-    format = "%Y"))
-
-SO$nMonth <- as.numeric(
-  as.factor(
-    format(
-      x = SO$RegDate,
-      format = "%y-%m")))
-
-SO <- subset(
-  x = SO,
-  subset =
-    (nMonth >= max(nMonth, na.rm = TRUE) - showN) & (RegDate < Sys.Date())
-)
-
-
-SO$Month <- as.factor(
-  format(
-    SO$RegDate,
-    format = "%y-%m"))
+AnP %<>% 
+  dplyr::mutate(
+    AnnenProsType = factor(x = AnnenProsType,
+                           levels = c("Høyre hjertekateterisering",
+                                      "Temporær pacemaker",
+                                      "Perikardiocentese",
+                                      "Ventilfilming",
+                                      "Lukking av ASD/PFO",
+                                      "Lukking av venstre aurikkel",
+                                      "Impella",
+                                      "Plugging av PVL",
+                                      "PTSMA",
+                                      "Aortaballongpumpe",
+                                      "ECMO", 
+                                      "Myokardiell biopsi", 
+                                      "Tricuspidal klaff TEER"),
+                           labels = c("Høyre kat.",
+                                      "Temp. PM",
+                                      "Perikardiocentese",
+                                      "Ventilfilming",
+                                      "Lukking ASD/PFO",
+                                      "Lukking v. aurikkel",
+                                      "Impella",
+                                      "Plugging av PVL",
+                                      "PTSMA",
+                                      "Aortaballongpumpe",
+                                      "ECMO", 
+                                      "Myokardiell biopsi", 
+                                      "Tricuspidal klaff TEER")))
 
 ```
 
@@ -252,28 +189,30 @@ SS %<>% dplyr::select(AvdRESH,
                       maaned)
 
 
-SS %<>% dplyr::mutate(Indikasjon = factor(
-  dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP",
-                   Indikasjon == "UAP" ~ "UAP",
-                   Indikasjon == "NSTEMI" ~ "NSTEMI",
-                   Indikasjon %in% c("STEMI",
-                                     "STEMI > 24h",
-                                     "STEMI/Rescue PCI")
-                   ~ "STEMI",
-                   is.na(Indikasjon) ~ NA_character_,
-                   TRUE ~ "Annet"),
-  levels = c("SAP", "UAP", "NSTEMI", "STEMI", "Annet", NA)))
-
-SS %<>% dplyr::mutate(ProsedyreType2 = factor(
-  dplyr::case_when(ProsedyreType %in%
-                     c("Direktestent",
-                       "Ballong + Stent",
-                       "Medikamentell ballong + Stent") ~ "Stent",
-                   ProsedyreType == "Ballongdilatasjon" ~ "POBA",
-                   ProsedyreType == "Wireforsøk" ~ "Wireforsøk",
-                   ProsedyreType == "Rotablator" ~ "Rotablator",
-                   TRUE ~ "Annet"),
-  levels = c("Stent", "POBA", "Wireforsøk", "Rotablator", "Annet")))
+SS %<>% dplyr::mutate(
+  
+  Indikasjon = factor(
+    dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP",
+                     Indikasjon == "UAP" ~ "UAP",
+                     Indikasjon == "NSTEMI" ~ "NSTEMI",
+                     Indikasjon %in% c("STEMI",
+                                       "STEMI > 24h",
+                                       "STEMI/Rescue PCI")
+                     ~ "STEMI",
+                     is.na(Indikasjon) ~ NA_character_,
+                     TRUE ~ "Annet"),
+    levels = c("SAP", "UAP", "NSTEMI", "STEMI", "Annet", NA)),
+  
+  ProsedyreType2 = factor(
+    dplyr::case_when(
+      ProsedyreType %in% c("Direktestent",
+                           "Ballong + Stent",
+                           "Medikamentell ballong + Stent") ~ "Stent",
+      ProsedyreType == "Ballongdilatasjon" ~ "POBA",
+      ProsedyreType == "Wireforsøk" ~ "Wireforsøk",
+      ProsedyreType == "Rotablator" ~ "Rotablator",
+      TRUE ~ "Annet"),
+    levels = c("Stent", "POBA", "Wireforsøk", "Rotablator", "Annet")))
 
 ```
 
@@ -281,36 +220,32 @@ SS %<>% dplyr::mutate(ProsedyreType2 = factor(
 
 ```{r APprepare, include=FALSE, eval=TRUE}
 
-AP$FodselsDato <- as.Date(AP$FodselsDato)
 
-AP$InnleggelseHenvisendeSykehusDato <- as.Date(
-  AP$InnleggelseHenvisendeSykehusDato
-  )
 
-AP$AnkomstPCIDato <- as.Date(AP$AnkomstPCIDato)
-
-AP$ProsedyreDato <- as.Date(AP$ProsedyreDato)
-
-AP$Sykehusnavn <- factor(AP$Sykehusnavn)
-
-AP %<>% dplyr::mutate(Indikasjon2 = factor(
-  dplyr::case_when(Indikasjon == "Stabil koronarsykdom" ~ "SAP",
-                   Indikasjon == "UAP" ~ "UAP",
-                   Indikasjon %in% c("STEMI",
-                                     "Hjertestans ved STEMI",
-                                     "STEMI > 24h",
-                                     "STEMI/Rescue PCI") ~ "STEMI",
-                   Indikasjon == "Uklare brystsmerter" ~ "Uklare brystsmerter",
-                   Indikasjon == "NSTEMI" ~ "NSTEMI",
-                   TRUE ~ "Annet"),
-  levels = c("Uklare brystsmerter", "SAP", "UAP", "NSTEMI", "STEMI", "Annet")
-))
-
-AP$Funn[which(AP$Funn %in% c("", "Ikke konklusiv undersøkelse"))] <- NA
-AP$NormaleKar <- as.numeric(AP$Funn == "Normalt /Ateromatos")
-
-AP %<>%
+AP %<>% 
   dplyr::mutate(
+    
+    ProsedyreDato = as.factor(ProsedyreDato), 
+    Sykehusnavn = as.factor(Sykehusnavn),
+    
+    Indikasjon2 = factor(
+      dplyr::case_when(
+        Indikasjon == "Stabil koronarsykdom" ~ "SAP",
+        Indikasjon == "UAP" ~ "UAP",
+        Indikasjon %in% c("STEMI",
+                          "Hjertestans ved STEMI",
+                          "STEMI > 24h",
+                          "STEMI/Rescue PCI") ~ "STEMI",
+        Indikasjon == "Uklare brystsmerter" ~ "Uklare brystsmerter",
+        Indikasjon == "NSTEMI" ~ "NSTEMI",
+        TRUE ~ "Annet"),
+      levels = c("Uklare brystsmerter", 
+                 "SAP", 
+                 "UAP", 
+                 "NSTEMI", 
+                 "STEMI", 
+                 "Annet")), 
+    
     Hastegrad = factor(Hastegrad,
                        levels = c("Akutt",
                                   "Subakutt",
@@ -325,101 +260,24 @@ AP %<>%
                      0,
                      .data$antall_stent))
 
-# AP %<>% noric::legg_til_trykkmaalinger(., df_ad = AnD) 
 
 ```
 
 
-
-```{r Daterecodes,include=FALSE, eval=TRUE}
-
-AP$Year <- as.numeric(
-  format(
-    x = AP $ ProsedyreDato,
-    format = "%Y"))
-
-AP$Week <- as.numeric(
-  format(
-    x = AP $ ProsedyreDato,
-    format = "%W"))
-
-
-AP$nMonth <- as.numeric(
-  as.factor(
-    format(
-      AP$ProsedyreDato,
-      format = "%y-%m")))
-
-AP$Month <- as.numeric(
-  format(
-    x = AP$ProsedyreDato,
-    format = "%m"))
-
-AP$YearMonth <- factor(
-  format(
-    x = AP$ProsedyreDato,
-    format = "%y-%m"))
-
-AP$Day <- as.numeric(
-  AP$ProsedyreDato - min(AP$ProsedyreDato, na.rm = TRUE))
-
-
-
-SS$ProsedyreDato <- as.Date(
-  x = SS$ProsedyreDato,
-  format = "%Y-%m-%d")
-
-SS$Month <- as.numeric(
-  format(
-    x = SS$ProsedyreDato,
-    format = "%m"))
-
-SS$Year <- as.numeric(
-  format(
-    x = SS$ProsedyreDato,
-    format = "%y"))
-
-SS$YearMonth <- factor(
-  format(
-    x = SS$ProsedyreDato,
-    format = "%y-%m"))
-
-```
 
 ```{r subsetting,include=FALSE, eval=TRUE}
-
-NSTEMI <- subset(
-  x = AP,
-  subset = (Indikasjon == "NSTEMI"))
-
-NSTEMI$Month <- as.factor(
-  format(
-    x = NSTEMI$ProsedyreDato,
-    format = "%y-%m"))
 
 PCImedStent <- subset(
   AP,
   Nstents > 0
 )
 
-rangePCImdStentProsDato <- format(
-  range(PCImedStent$ProsedyreDato),
-  format = "%d-%m-%Y")
 
-
-AP <- subset(
-  x = AP,
-  subset = nMonth >= max(nMonth, na.rm = TRUE) - showN)
-
-
-rangeProsDato <- format(range(AP$ProsedyreDato), 
-                        format = "%d-%m-%Y")
-
-
-AP$Month <- as.factor(
-  format(
-    x = AP$ProsedyreDato,
-    format = "%y-%m"))
+rangeProsDato <- paste(format(periode_data$forste_dato, 
+                              "%d/%m-%Y"), 
+                       "til", 
+                       format(periode_data$siste_dato, 
+                              "%d/%m-%Y"))
 
 ```
 
@@ -432,7 +290,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 # Månedsrapport: Invasive prosedyrer {-}
 Denne rapporten er generert ved hjelp av resultatløsningen *Rapporteket* og er kun ment til internt bruk! 
 <br/> <br/>
-Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene og figurene presenteres med data fra perioden `r rangeProsDato[1]` til `r rangeProsDato[2]`.
+Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved `r params$hospitalName`. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene og figurene presenteres med data fra perioden `r rangeProsDato`.
 <br/><br/>
 Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)
 `r if(params$tableFormat !="html") {"-->"}`
@@ -447,7 +305,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 # Invasive koronare prosedyrer
 
 ## Prosedyretype {#prosedyretype}
-```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -480,8 +338,8 @@ prosedyreTypeMaaned %>% ggplot2::ggplot(
 ```{r TabNProsedyreType,  results = 'asis'}
 cap <- paste0("Antall koronare angiografier og/eller PCI registrert ",
               "i NORIC per måned ved ", params$hospitalName,
-              " i perioden ", rangeProsDato[1], " til ",
-              rangeProsDato[2], ".")
+              " i perioden ", 
+              rangeProsDato, ".")
 
 TabDataProsedyreType <- AP %>% 
   janitor::tabyl(maaned,
@@ -532,7 +390,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ## Hastegrad
-```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -563,8 +421,7 @@ hastegradMaaned %>% ggplot2::ggplot(
 ```{r TabNHastegrad, results='asis', eval=TRUE}
 cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
               "og hastegrad ved ", params$hospitalName,
-              " i perioden ", rangeProsDato[1], " til ",
-              rangeProsDato[2], ".")
+              " i perioden ", rangeProsDato, ".")
 
 TabDataHastegrad <- AP %>% 
   janitor::tabyl(maaned,
@@ -622,7 +479,7 @@ Indikasjonen *Annet* inkluderer blant annet
 prosedyrer utført som ledd i utredning av hjerteklaffsykdom
 eller hjerterytmeforstyrrelser. 
 
-```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
+```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
 
 
 Indikasjon2Maaned <- AP %>%
@@ -658,7 +515,7 @@ Indikasjon2Maaned %>% ggplot2::ggplot(
 ```{r TabNIndikasjon,  results = 'asis'}
 cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
               "og indikasjon ved ", params$hospitalName, " i perioden ",
-              rangeProsDato[1], " til ", rangeProsDato[2], ".")
+              rangeProsDato, ".")
 
 TabDataIndikasjon <- AP %>% 
   janitor::tabyl(maaned,
@@ -825,7 +682,7 @@ TabTillegg %<>%
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
-              rangeProsDato[1], " til ", rangeProsDato[2], ".")
+              rangeProsDato, ".")
 
 noric::mst(TabTillegg[, c("FFR",
                          "IFR",
@@ -850,8 +707,7 @@ noric::mst(TabTillegg[, c("FFR",
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
 cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografi og/eller PCI per måned ved ",
-              params$hospitalName, " i perioden ", rangeProsDato[1], " til ",
-              rangeProsDato[2], ".")
+              params$hospitalName, " i perioden ", rangeProsDato, ".")
 
 noric::mst(TabTillegg[, c("Høyre kat.",
                          "Perikardiocentese",
@@ -871,7 +727,7 @@ noric::mst(TabTillegg[, c("Høyre kat.",
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
               "tilleggsbehandling i tilknytning til angiografi og/eller PCI ",
               "per måned ved ", params$hospitalName,
-              " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
+              " i perioden ", rangeProsDato, ".")
 
 noric::mst(TabTillegg[, c("PM",
                           "IABP",
@@ -898,7 +754,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 <br/>
 
 ## Komplikasjoner
-### Komplikasjoner på kat.lab. for `r params$hospitalName`  i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
+### Komplikasjoner på kat.lab. for `r params$hospitalName`  i perioden `r rangeProsDato`
 
 Antall ulike komplikasjoner  oppstått i tilknytning til selve prosedyren mens pasienten fortsatt
 er på hjertekateteriseringslaboratoriet.
@@ -974,7 +830,7 @@ rownames(df) <- NULL
 cap <- paste0(
   "Antall (andel) forløp med komplikasjoner på kat.lab. registrert i NORIC ved ",
   params$hospitalName, " i perioden ",
-  rangeProsDato[1], " til ", rangeProsDato[2], ". ",
+  rangeProsDato, ". ",
   "Alle forløp i perioden er med i datagrunnlaget, totalt ", nrow(AP), ".")
   
 noric::mst(df,
@@ -988,7 +844,7 @@ noric::mst(df,
 
 
 
-```{r FigLabKompl, fig.cap = paste0("Antall forløp med komplikasjoner på kat.lab. registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall forløp med komplikasjoner på kat.lab. registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -1032,7 +888,7 @@ text(
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
 
-### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r paste0(rangeProsDato, collapse = ' til ' )`
+### Komplikasjoner på avdelingen for `r params$hospitalName` i perioden `r rangeProsDato`
 
 Antall komplikasjoner oppstått på sengepost under sykehusoppholdet etter avsluttet prosedyre. Hvis det
 er registrert flere komplikasjoner på samme pasient er disse talt opp hver for seg. 
@@ -1111,7 +967,7 @@ rownames(df) <- NULL
 cap <- paste0(
   "Antall (andel) forløp med komplikasjoner på avdelingen registrert i NORIC ",
   "ved ", params$hospitalName, " i perioden ",
-  rangeProsDato[1], " til ", rangeProsDato[2], ". ",
+  rangeProsDato, ". ",
   "Antall komplikasjoner gjelder per opphold, totalt ", nrow(AP_avdKomp), ".")
 
 noric::mst(df,
@@ -1123,7 +979,7 @@ noric::mst(df,
 ```
 
 
-```{r FigAvdKompl, fig.cap = paste0("Antall forløp med komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl, fig.cap = paste0("Antall forløp med komplikasjoner på avdelingen registrert i NORIC ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), echo=FALSE, fig.pos = "H", fig.width = 10, fig.height = 5, fig.align = "center", out.width = "\\textwidth"}
 
 par(
   mar = c(4, 15, 2, 2),
@@ -1184,29 +1040,22 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ```{r SOtab1, results = "asis"}
 
-nSOA <- with(
-  SO[which(SO$Skjemanavn == "AngioPCI"), ],
-  table(
-    maaned,
-    factor(
-      SkjemaStatus,
-      levels = c(0, -1, 1),
-      labels = c("Tomt", "Begynt", "Ferdigstilt"))))
+tabHovedKomplett <- AP %>% 
+  dplyr::count(maaned, SkjemastatusHovedskjema) %>% 
+  tidyr::pivot_wider(names_from = SkjemastatusHovedskjema, 
+                     values_from = n, 
+                     values_fill = 0) %>% 
+  dplyr::transmute(
+    maaned = maaned,
+    Totalt = `-1`+ `0` + `1`, 
+    Ferdigstilt = `1`, 
+    Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
-rSOA <- round(
-  100 * prop.table(nSOA, margin = 1),
-  digits = 1)
-
-TABkompletthet <- cbind(
-  rowSums(nSOA),
-  nSOA[, which(colnames(nSOA) == "Ferdigstilt")],
-  rSOA[, which(colnames(rSOA) == "Ferdigstilt")])
-colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Andel")
 
 cap <- paste0("Andel ferdigstilte hovedskjemaer i NORIC per måned ved ",
-             params$hospitalName, " i perioden ", rangeProsDato[1],
-             " til ", rangeProsDato[2], ".")
-noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
+             params$hospitalName, " i perioden ", rangeProsDato, ".")
+
+noric::mst(tab = tabHovedKomplett, type = params$tableFormat, cap = cap,
            digs = c(0, 0, 0, 1), align = rep("r", 4),
            label = "SOtab1")
 ```
@@ -1219,32 +1068,32 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 
 ```{r SOtab2, results = "asis"}
 
-nSOU <- with(
-  SO[which(SO$Skjemanavn == "Kompl"), ],
-  table(
-    maaned,
-    factor(SkjemaStatus,
-           levels = c(0, -1, 1),
-           labels = c("Tomt", "Begynt", "Ferdigstilt"))))
 
-rSOU <- round(
-  100 * prop.table(
-    nSOU,
-    margin = 1),
-  digits = 1)
 
-TABkompletthet <- cbind(
-  rowSums(nSOU),
-  nSOU[, which(colnames(nSOU) == "Ferdigstilt")],
-  rSOU[, which(colnames(rSOU) == "Ferdigstilt")])
-colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Andel")
+tabKomplikKomplett <- AP %>% 
+  dplyr::filter(Regtype %in% "Primær") %>% 
+  
+  dplyr::count(maaned, SkjemaStatusKomplikasjoner) %>% 
+  tidyr::pivot_wider(names_from = SkjemaStatusKomplikasjoner, 
+                     values_from = n, 
+                     values_fill = 0) %>% 
+  dplyr::transmute(
+    maaned = maaned,
+    Totalt = `-1`+ `0` + `1`, 
+    Ferdigstilt = `1`, 
+    Andel = (round(Ferdigstilt/Totalt, 2) *100))
+
+
 
 
 cap <- paste0("Andel ferdigstilte komplikasjonsskjemaer registrert i NORIC ",
               "per måned ved ", params$hospitalName,
-              " i perioden ", rangeProsDato[1], " til ", rangeProsDato[2], ".")
-noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
-           digs = c(0, 0, 0, 1), align = rep("r", 4),
+              " i perioden ", rangeProsDato, ".")
+noric::mst(tab = tabKomplikKomplett, 
+           type = params$tableFormat,
+           cap = cap,
+           digs = c(0, 0, 0, 1),
+           align = rep("r", 4),
            label = "SOtab2")
 
 ```
@@ -1257,32 +1106,29 @@ noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
 
 ```{r SOtab3, results = "asis"}
 
-nSOU <- with(
-  SO[which(SO$Skjemanavn == "Utskrivelse"), ],
-  table(
-    maaned,
-    factor(SkjemaStatus,
-           levels = c(0, -1, 1),
-           labels = c("Tomt", "Begynt", "Ferdigstilt"))))
-
-rSOU <- round(
-  100 * prop.table(
-    nSOU,
-    margin = 1),
-  digits = 1)
-
-TABkompletthet <- cbind(
-  rowSums(nSOU),
-  nSOU[, which(colnames(nSOU) == "Ferdigstilt")],
-  rSOU[, which(colnames(rSOU) == "Ferdigstilt")])
-colnames(TABkompletthet) <- c("Totalt", "Ferdigstilt", "Andel")
+tabUtskrKomplett <- AP %>% 
+  dplyr::filter(Regtype %in% "Primær") %>% 
+  
+  dplyr::count(maaned, SkjemaStatusUtskrivelse) %>% 
+  tidyr::pivot_wider(names_from = SkjemaStatusUtskrivelse, 
+                     values_from = n, 
+                     values_fill = 0) %>% 
+  dplyr::transmute(
+    maaned = maaned,
+    Totalt = `-1`+ `0` + `1`, 
+    Ferdigstilt = `1`, 
+    Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
 
 cap <- paste0("Andel ferdigstilte utskrivelsesskjemaer registrert i NORIC per ", 
               "måned ved ", params$hospitalName, " i perioden ",
-              rangeProsDato[1], " til ", rangeProsDato[2], ".")
-noric::mst(tab = TABkompletthet, type = params$tableFormat, cap = cap,
-           digs = c(0, 0, 0, 1), align = rep("r", 4),
+              rangeProsDato, ".")
+
+noric::mst(tab = tabUtskrKomplett,
+           type = params$tableFormat, 
+           cap = cap,
+           digs = c(0, 0, 0, 1), 
+           align = rep("r", 4),
            label = "SOtab3")
 
 ```
@@ -1310,7 +1156,7 @@ Opptellingene under gjelder for prosedyretypene Angio/PCI og PCI.
 ```{r TabNRIntervensjonstype, echo = FALSE, results = "asis"}
 cap <- paste0("Antall utførte intervensjoner registrert i NORIC per ",
               "måned ved ", params$hospitalName, " i perioden ",
-              rangeProsDato[1], " til ", rangeProsDato[2], ". ",
+              rangeProsDato, ". ",
               "Merk at flere intervensjoner kan være utført i samme prosedyre.")
 
 TabDataSsIntervensjonstype <- SS %>% 
@@ -1361,9 +1207,9 @@ if (params$tableFormat == "html") {
 <br/><br/>
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r paste0(rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2])`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
+Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r paste0(rangeProsDato[1], " til ", rangeProsDato[2])`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
 
-```{r BarplotNstentPerProsedyre, fig.width = 10, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangePCImdStentProsDato[1], " til ", rangePCImdStentProsDato[2], ".")}
+```{r BarplotNstentPerProsedyre, fig.width = 10, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
 
 par(
   mfcol = c(1, 1),
@@ -1419,8 +1265,7 @@ SSpci <-  SS %>%
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis", out.width = "\\textwidth"}
 cap <- paste0("Antall stenter registrert i NORIC per måned og merke ved ",
-              params$hospitalName, " i perioden ", rangePCImdStentProsDato[1],
-              " til ", rangePCImdStentProsDato[2], ".")
+              params$hospitalName, " i perioden ", rangeProsDato, ".")
 
 
 tab_stent <- addmargins(xtabs(
@@ -1480,7 +1325,7 @@ cap <- paste0("Antall prosedyrer registrert i modulen for ",
               "\"Andre prosedyrer\"", " i NORIC (utført uten direkte ",
              "tilknytning til Angio/PCI)  per måned og prosedyretype ved ",
              params$hospitalName, " i perioden ",
-             rangeProsDato[1], " til ", rangeProsDato[2], ".")
+             rangeProsDato, ".")
 
 TabDataAndreProsedyrer <- AnP %>% 
   janitor::tabyl(maaned,
