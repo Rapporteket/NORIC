@@ -220,8 +220,6 @@ SS %<>% dplyr::mutate(
 
 ```{r APprepare, include=FALSE, eval=TRUE}
 
-
-
 AP %<>% 
   dplyr::mutate(
     
@@ -265,13 +263,7 @@ AP %<>%
 
 
 
-```{r subsetting,include=FALSE, eval=TRUE}
-
-PCImedStent <- subset(
-  AP,
-  Nstents > 0
-)
-
+```{r subsetting, include=FALSE, eval=TRUE}
 
 rangeProsDato <- paste(format(periode_data$forste_dato, 
                               "%d/%m-%Y"), 
@@ -1207,7 +1199,7 @@ if (params$tableFormat == "html") {
 <br/><br/>
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r paste0(rangeProsDato[1], " til ", rangeProsDato[2])`. Antall prosedyrer med minst 1 stent er `r sum(PCImedStent$Nstents>0)`.
+Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`. Antall prosedyrer med minst 1 stent er `r AP %>% filter(Nstents>0) %>% nrow()`.
 
 ```{r BarplotNstentPerProsedyre, fig.width = 10, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
 
@@ -1220,7 +1212,7 @@ par(
 
 TabNStent <- xtabs(
   formula = ~ Nstents,
-  data = PCImedStent)
+  data = AP %>% dplyr::filter(Nstents>0))
 
 barplot(
   TabNStent,
@@ -1231,7 +1223,7 @@ barplot(
   col = colPrimary[3]
 )
 
-SumStat <- round(summary(PCImedStent$Nstents), 1)
+SumStat <- round(summary(AP[which(AP$Nstents>0), "Nstents"]), 1)
 legend(
   "right",
   inset = -.28,
@@ -1249,33 +1241,24 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 <br/>
 
 ## Stent - merke
-```{r prepare-data-SS-pci, include = FALSE}
-# Siste showN måneder. Ikke vise historiske stenter
-SS %<>% dplyr::mutate(nMonth =
-                        as.numeric(
-                          as.factor(
-                            format(
-                              ProsedyreDato,
-                              format = "%Y-%m"))))
-SSpci <-  SS %>%
-  dplyr::filter(nMonth >= max(nMonth, na.rm = TRUE) - showN) %>%
-  dplyr::filter(ProsedyreType2 == "Stent")
-```
+`
 
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis", out.width = "\\textwidth"}
 cap <- paste0("Antall stenter registrert i NORIC per måned og merke ved ",
               params$hospitalName, " i perioden ", rangeProsDato, ".")
 
-
-tab_stent <- addmargins(xtabs(
-  formula = ~ maaned + Stentnavn,
-  data = SSpci,
-  drop.unused.levels = TRUE))
-
+tab_stent <- SS %>% 
+  dplyr::filter(ProsedyreType2 == "Stent") %>%
+  janitor::tabyl(maaned,
+                 Stentnavn) %>% 
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
 
 tab_stent[tab_stent == 0] <- " - "
 tab_stent[is.na(tab_stent)] <- " - "
+
+
 
 align <- c("r", rep("c", dim(tab_stent)[2] - 1))
 
