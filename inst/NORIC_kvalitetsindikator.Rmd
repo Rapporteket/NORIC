@@ -521,7 +521,9 @@ tabFerdigtiltKompl <- timeTableMonth %>%
   replace(is.na(.), "-")
 
 
-cap <- "Antall og andel ferdigstilte komplikasjonsskjemaer etter måned. Måneder med mindre enn 5 observasjoner er markert med N."
+cap <- paste0(
+  "Antall og andel ferdigstilte komplikasjonsskjemaer etter måned. ", 
+  "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
 
 noric::mst(tab = tabFerdigtiltKompl, 
            type = params$tableFormat,
@@ -542,7 +544,6 @@ if (params$rendered_by_shiny)
   shiny::setProgress(0.35)  # set progress to 35%
 ```
 
-`r if (params$reshID %in% 106944) {"<!--"}`
 # Invasiv utredning ved NSTEMI
 
 Ved hjerteinfarkt uten ST-elevasjon i EKG (NSTEMI) er blodåren ofte ikke helt
@@ -565,13 +566,11 @@ direkte innlagte og overflyttede pasienter hver for seg og samlet.
 
 
 ## Invasiv utredning ved NSTEMI innen 24 timer
-`r if (params$reshID %in% 106944) {"-->"}`
 
 
 ```{r ventetid24t_NSTEMI, results='asis', warning=FALSE}
 
-if(!params$reshID %in% 106944){
-  
+
 cap <- paste0(
   "Antall og andel pasienter med indikasjon NSTEMI som innen 24 timer etter ", 
   "innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
@@ -583,8 +582,8 @@ cap <- paste0(
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid ", 
   "for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett ",
-  " data eller færre enn 5 forløp blir markert med stjerne og prosent forløp ", 
-  "med ventetid under 24 timer regnes ikke ut for disse. (Målnivå: 50 \\%)")
+  " data eller færre enn 5 forløp blir markert med stjerne og andel forløp ", 
+  "med ventetid under 24 timer beregnes ikke. (Målnivå: 50 \\%)")
 
 
 nstemi_24t_lokalt <- aP_nasjonalt %>%
@@ -646,26 +645,21 @@ noric::mst(tab = tabVentetid24t,
            digs = c(0, 0, 0, 1, 1),
            align = rep("c", 5),
            label = "tabVentetid24t")
-}
 
 ```
 
 
 
 ```{r pagebreakVentetidNSTEMIfigLinje, results = "asis", eval = (params$tableFormat == "latex")}
-if(!params$reshID %in% 106944){
   cat("\n\n\\pagebreak\n")
-}
+
 ```
 
-`r if (params$reshID %in% 106944) {"<!--"}`
 
 ### Figurer - Invasiv utredning ved NSTEMI innen 24 timer, månedlig måloppnåelse
-`r if (params$reshID %in% 106944) {"-->"}`
 
 
 ```{r nstemi_komplette, results='asis', warning=FALSE}
-if(!params$reshID %in% 106944){
 
 # Lokalt: Andel komplette under 50% per måned?
 nstemi_komplette <- aP_nasjonalt %>%
@@ -680,13 +674,12 @@ nstemi_komplette <- aP_nasjonalt %>%
     komplette_antall = (.data$ja + .data$nei),
     komplette_andel = .data$komplette_antall / .data$Totalt)
 
-}
+
 ```
 
 
 ```{r fig_hittilIAar_24t_lokalt, results='asis', warning=FALSE}
 
-if(!params$reshID %in% 106944){
 
 # LOKALT : For NSTEMI med komplette forløp
 prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
@@ -757,12 +750,11 @@ prep_figVentetid24t_lokalt %<>%
                    no = .data$value),
     Sykehus = params$hospitalName) %>%
   dplyr::select(.data$maaned, .data$name, .data$value, .data$Sykehus)
-}
+
 
 ```
 
 ```{r fig_hittilIAar_24T_nasj, results='asis', warning=FALSE}
-if(!params$reshID %in% 106944){
 # NASJONALT
 prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
@@ -820,13 +812,12 @@ prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
   dplyr::mutate(Sykehus = factor(.data$Sykehus,
                                  levels = c(params$hospitalName,
                                             "Nasjonalt")))
-}
+
 ```
 
 
 ```{r figVentetid24TFacetWrap, warning=FALSE, fig.width = 8, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap = cap}
 
-if(!params$reshID %in% 106944){
 
   cap <- paste0(
     "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter ", 
@@ -891,7 +882,7 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
 
 )
 
-}
+
 
 ```
 
@@ -900,18 +891,14 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
 
 
 ```{r pagebreakVentetidNSTEMIfigSoyle, results = "asis", eval = (params$tableFormat == "latex")}
-if(!params$reshID %in% 106944){
   cat("\n\n\\pagebreak\n")
-}
+
 ```
-`r if (params$reshID %in% 106944) {"<!--"}`
 
 ### Figurer - Invasiv utredning ved NSTEMI innen 24 timer,  årlig måloppnåelse
-`r if (params$reshID %in% 106944) {"-->"}`
 
 
 ```{r komplettYear_24timerNSTEMI, results='asis', warning=FALSE}
-if(!params$reshID %in% 106944){
 
 # Per ÅR: Blant alle NSTEMI, antall komplette forløp (med gyldig tid)
 nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
@@ -925,12 +912,11 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
     aar = as.numeric(.data$aar),
     komplette_antall =  .data$ja + .data$nei,
     komplette_andel = .data$komplette_antall / .data$Totalt)
-}
+
 ```
 
 ```{r prep_nstemi_year_lokalt, results='asis', warning=FALSE}
 
-if(!params$reshID %in% 106944){
 
   nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
     dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
@@ -993,12 +979,11 @@ nstemiAP_fra2018_lokalt %<>%
                    yes = NA_real_,
                    no = .data$value))
 
-}
+
 ```
 
 
 ```{r prep_nstemi_year_nasjonalt, results='asis', warning=FALSE}
-if(!params$reshID %in% 106944){
 
 # #Nasjonalt
 nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
@@ -1049,12 +1034,11 @@ nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
     name = .data$name,
     value = .data$value,
     Sykehus = "Nasjonalt")
-}
+
 ```
 
 
 ```{r prep_nstemi_year_nasjonalt_lokalt, results='asis', warning=FALSE}
-if(!params$reshID %in% 106944){
 
   timeTableYear_Samlet <- cbind(timeTableYear, name = "Samlet")
   timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
@@ -1081,14 +1065,13 @@ prep_figVentetid24t_year <-
                   !is.na(.data$value),
                   yes = paste0(sprintf("%.1f", .data$value*100 ), "%"),
                   no = NA_character_))
-}
+
 ```
 
 
 
 ```{r figVentetid24TSamletAar, warning=FALSE, fig.width = 8, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=cap}
 
-if(!params$reshID %in% 106944){
 
 cap <- paste0(
   "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse ",
@@ -1158,21 +1141,17 @@ ggplot2::ggplot(
     
 )
  
-} 
-  
+
 ```
 
-`r if (params$reshID %in% 106944) {"<!--"}`
 
 
 ## Invasiv utredning ved NSTEMI innen 72 timer
 
-`r if (params$reshID %in% 106944) {"-->"}`
 
 
 ```{r ventetid72t_NSTEMI, results='asis', warning=FALSE}
 
-if(!params$reshID %in% 106944){
 
 cap <- paste0(
 "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter ", 
@@ -1185,8 +1164,8 @@ cap <- paste0(
 "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
 "er komplett data der både tid for innleggelse i henvisende sykehus og tid for ", 
 "arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data ", 
-"eller færre enn 5 forløp blir markert med stjerne og prosent forløp med ", 
-"ventetid under 72 timer regnes ikke ut for disse. (Målnivå: 80 \\%)"
+"eller færre enn 5 forløp blir markert med stjerne og andel forløp med ", 
+"ventetid under 72 timer beregnes ikke. (Målnivå: 80 \\%)"
 )
 
 
@@ -1250,7 +1229,7 @@ noric::mst(tab = tabVentetid72t,
            digs = c(0, 0, 0, 1, 1),
            align = rep("c", 5),
            label = "tabVentetid72t")
-}
+
 ```
 
 
@@ -1264,9 +1243,8 @@ noric::mst(tab = tabVentetid72t,
 
 
 ```{r pagebreakVentetidNSTEMI72t, results = "asis", eval = (params$tableFormat == "latex")}
-if(!params$reshID %in% 106944){
   cat("\n\n\\pagebreak\n")
-}
+
 ```
 
 ```{r }
@@ -1314,7 +1292,7 @@ if (params$reshID != 106944) {
     " beslutningsutløsende EKG er registrert og gyldige. ", 
     "Måneder med mindre enn 50\\% komplette data eller færre enn 5 forløp blir ", 
     "markert med stjerne og andel pasienter med PCI innen 120 minutter ", 
-    "regnes ikke ut for disse. (Målnivå: 80 \\%)")
+    "beregnes ikke for disse. (Målnivå: 80 \\%)")
   
   
   stemi_120min_lokalt <- aP_nasjonalt %>%
@@ -1411,7 +1389,7 @@ cap <- paste0(
   "resting distal coronary pressure to aortic pressure ratio (Pd/Pa), ",
   "coronary artery aortic pressure (Pa-hyperemi) eller ",
   "coronary artery distal pressure (Pd-hyperemi). ",
-  "Måneder med mindre enn 5 observasjoner er markert med N.")
+  "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
 
 
 #Lokal
@@ -1686,7 +1664,7 @@ cap <- paste0(
   "Antall og andel pasienter per opphold som har fått foreskrevet ",
   "kolesterolsenkende medikamenter i form av statiner ved ",
   "utskrivelse etter PCI med innsetting av stent. ",
-  "Måneder med mindre enn 5 ferdigstilte observasjoner er markert med N.")
+  "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
 
 #Lokalt
 kolesterolsenkende_lokalt <- aP_nasjonalt %>%
