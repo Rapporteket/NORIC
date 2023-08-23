@@ -1008,7 +1008,7 @@ labKompOvrig <- timeTableMonth %>%
                    AP %>% 
                      dplyr::filter(LabKompAllergiskLettModerat %in% "Ja") %>% 
                      dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Allergisk reaksjon lett/moderat" = n), 
+                     dplyr::rename("Allergisk lett/moderat" = n), 
                    by = "maaned") %>% 
   dplyr::left_join(.,
                    AP %>% 
@@ -1021,7 +1021,7 @@ labKompOvrig <- timeTableMonth %>%
                    AP %>% 
                      dplyr::filter(LabKompVedvarSidegrensokkl %in% "Ja") %>% 
                      dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Vedvarende sidegrensokklusjon" = n), 
+                     dplyr::rename("Vedvarende sidegr.okkl" = n), 
                    by = "maaned") %>% 
   janitor::adorn_totals("row", name = "Totalt") 
 
