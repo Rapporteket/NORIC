@@ -17,7 +17,14 @@
 \alias{getPrepTaviPromData}
 \title{Data managment on tables}
 \usage{
-getPrepApData(registryName, fromDate, toDate, singleRow, ...)
+getPrepApData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getPrepSoData(registryName, fromDate, toDate, singleRow, ...)
 
@@ -25,15 +32,36 @@ getPrepAkData(registryName, fromDate, toDate, singleRow, ...)
 
 getPrepFoData(registryName, fromDate, toDate, singleRow, ...)
 
-getPrepAnPData(registryName, fromDate, toDate, singleRow, ...)
+getPrepAnPData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getPrepCtData(registryName, fromDate, toDate, singleRow, ...)
 
 getPrepAkOppfData(registryName, fromDate, toDate, singleRow, ...)
 
-getPrepAnDData(registryName, fromDate, toDate, singleRow, ...)
+getPrepAnDData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
-getPrepSsData(registryName, fromDate, toDate, singleRow, ...)
+getPrepSsData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getPrepMkData(registryName, fromDate, toDate, singleRow, ...)
 
@@ -58,7 +86,9 @@ for NORIC.}
 
 \item{singleRow}{Logical defining if only one row is to be returned. A
 relevant usecase will be when only description is needed. By default set to
-FALSE}
+FALSE
+#' @param singleHospital if only data from one hospital, when national database. 
+Default value is NULL, contains reshID of selected hospital else.}
 
 \item{...}{Optional arguments to be passed to the function}
 }

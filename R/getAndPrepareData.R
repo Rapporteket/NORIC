@@ -15,6 +15,8 @@
 #' @param singleRow Logical defining if only one row is to be returned. A
 #' relevant usecase will be when only description is needed. By default set to
 #' FALSE
+#' #' @param singleHospital if only data from one hospital, when national database. 
+#' Default value is NULL, contains reshID of selected hospital else. 
 #' @param ... Optional arguments to be passed to the function
 #' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek
@@ -39,7 +41,8 @@ NULL
 
 #' @rdname getPrepData
 #' @export
-getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepApData <- function(registryName, fromDate, toDate, singleRow, 
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -47,7 +50,8 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getAp(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   aP <- dataListe$aP
   
   
@@ -204,7 +208,8 @@ getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,
+                           singleHospital = NULL, ...){
   
   
   . <- ""
@@ -212,7 +217,8 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getAnP(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = singleRow)
+                             singleRow = singleRow, 
+                             singleHospital = singleHospital)
   anP <- dataListe$anP
   
   
@@ -357,7 +363,8 @@ getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,
+                           singleHospital = NULL, ...){
   
   
   . <- ""
@@ -365,7 +372,8 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getAnD(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = singleRow)
+                             singleRow = singleRow, 
+                             singleHospital = singleHospital)
   anD <- dataListe$anD
   
   
@@ -443,7 +451,8 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepSsData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -451,7 +460,8 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getSs(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   sS <- dataListe$sS
   
   

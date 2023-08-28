@@ -17,7 +17,7 @@
 \alias{getTaviProm}
 \title{Load data for NORIC}
 \usage{
-getAp(registryName, fromDate, toDate, singleRow, ...)
+getAp(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getSo(registryName, fromDate, toDate, singleRow, ...)
 
@@ -25,15 +25,15 @@ getAk(registryName, fromDate, toDate, singleRow, ...)
 
 getFo(registryName, fromDate, toDate, singleRow, ...)
 
-getAnP(registryName, fromDate, toDate, singleRow, ...)
+getAnP(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getCt(registryName, fromDate, toDate, singleRow, ...)
 
 getAkOppf(registryName, fromDate, toDate, singleRow, ...)
 
-getAnD(registryName, fromDate, toDate, singleRow, ...)
+getAnD(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getSs(registryName, fromDate, toDate, singleRow, ...)
+getSs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getMk(registryName, fromDate, toDate, singleRow, ...)
 
@@ -54,6 +54,9 @@ NULL if no filter on date.}
 
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE.}
+
+\item{singleHospital}{if only data from one hospital, when national database. 
+Default value is NULL, contains reshID of selected hospital else.}
 
 \item{...}{Optional arguments to be passed to the function.}
 }
