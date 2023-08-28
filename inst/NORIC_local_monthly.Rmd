@@ -255,7 +255,28 @@ AP %<>%
                        levels = c("Akutt",
                                   "Subakutt",
                                   "Planlagt",
-                                  NA)))
+                                  NA)), 
+    
+    
+    # Noen form for alvorlig blødning på avdeling
+    komplik_avd_alvorligBlodning =  ifelse(
+      (AvdKompBlodningMajor  %in% "Ja" |
+        AvdKompHbFallStor %in% "Ja" |
+        AvdKompForlengetOppholdStor %in% "Ja" |
+        AvdKompBlodtransfusjon %in% "Ja" |
+        AvdKompKirurgiskBeh %in% "Ja" |
+        AvdKompPseudoaneurysme %in% "Ja"), 
+      "Ja", 
+      NA_character_), 
+
+    
+    # Noen form for alvorlig blødning på avdeling
+    komplik_avd_ovrigBlodning =  ifelse(
+      (AvdKompBlodningMinor  %in% "Ja" |
+        AvdKompHematomStor %in% "Ja" |
+        AvdKompForlengetTidStor %in% "Ja" ), 
+      "Ja", 
+      NA_character_))
 
 
 AP %<>%
@@ -1061,29 +1082,6 @@ fig_df_kompl_avd <- AP %>%
   
   dplyr::filter(is.na(KobletForlopsID)) %>% 
   
-  dplyr::mutate(
-    
-    # Noen form for alvorlig blødning
-    komplik_avd_alvorligBlodning =  ifelse(
-      (AvdKompBlodningMajor  %in% "Ja" |
-        AvdKompHbFallStor %in% "Ja" |
-        AvdKompForlengetOppholdStor %in% "Ja" |
-        AvdKompBlodtransfusjon %in% "Ja" |
-        AvdKompKirurgiskBeh %in% "Ja" |
-        AvdKompPseudoaneurysme %in% "Ja"), 
-      "Ja", 
-      NA_character_), 
-    
-    komplik_avd_ovrigBlodning =  ifelse(
-      (AvdKompBlodningMinor  %in% "Ja" |
-        AvdKompHematomStor %in% "Ja" |
-        AvdKompForlengetTidStor %in% "Ja" ), 
-      "Ja", 
-      NA_character_), 
-    
-    
-    ) %>% 
-  
   dplyr::select(
     AvdKompVaskulaer, 
     AvdKompNeurologiskKomp, 
@@ -1155,12 +1153,14 @@ fig_df_kompl_avd <- AP %>%
                   "AvdKompProsedyrerelatertDod",
                   "komplik_avd_alvorligBlodning") ~
                                "Alvorlige komplikasjoner på avdeling", 
+      
       name %in% c("AvdKompBlodningMajor", 
                   "AvdKompHbFallStor", 
                   "AvdKompForlengetOppholdStor", 
                   "AvdKompBlodtransfusjon",
                   "AvdKompKirurgiskBeh", 
                   "AvdKompPseudoaneurysme") ~ "Undergruppe alv blødning",
+      
       name %in% c("AvdKompBlodningMinor",
                   "AvdKompHematomStor", 
                   "AvdKompForlengetTidStor") ~ "Undergruppe av ovrig blodning", 
@@ -1404,17 +1404,6 @@ tab_avdkomp <- timeTableMonth %>%
   
   dplyr::left_join(., 
                    AP %>% 
-                     dplyr::mutate(
-                       # Noen form for alvorlig blødning
-                      komplik_avd_alvorligBlodning =  ifelse(
-                        (AvdKompBlodningMajor  %in% "Ja" |
-                          AvdKompHbFallStor %in% "Ja" |
-                          AvdKompForlengetOppholdStor %in% "Ja" |
-                          AvdKompBlodtransfusjon %in% "Ja" |
-                          AvdKompKirurgiskBeh %in% "Ja" |
-                          AvdKompPseudoaneurysme %in% "Ja"), 
-                        "Ja", 
-                        NA_character_)) %>% 
                      dplyr::filter(
                           is.na(KobletForlopsID), 
                           komplik_avd_alvorligBlodning %in% "Ja") %>% 
@@ -1432,13 +1421,6 @@ tab_avdkomp <- timeTableMonth %>%
 
         dplyr::left_join(.,
                    AP %>% 
-                     dplyr::mutate(
-                       komplik_avd_ovrigBlodning =  ifelse(
-                         (AvdKompBlodningMinor  %in% "Ja" |
-                            AvdKompHematomStor %in% "Ja" |
-                            AvdKompForlengetTidStor %in% "Ja" ), 
-                         "Ja", 
-                         NA_character_)) %>% 
                      dplyr::filter(
                        is.na(KobletForlopsID), 
                        komplik_avd_ovrigBlodning %in% "Ja") %>% 
@@ -1499,6 +1481,150 @@ if (params$tableFormat == "html") {
     kableExtra::add_header_above(., header = c("",
                                                "Alvorlige komplikasjoner på avdeling" = 11,
                                                "Øvrige " = 2),
+                                 bold = TRUE,
+                                 font_size = 10)
+}
+```
+
+
+
+
+
+
+```{r TabAvdKompBlod,results='asis'}
+cap <- paste0("Antall alvorlige og øvrige blødninger på sengepost, ",
+              "per måned, i ", 
+              "perioden fra ", rangeProsDato,  ".", 
+              "")
+
+tab_avdkomp_blod <- timeTableMonth %>% 
+  dplyr::left_join(., 
+                   AP %>% 
+                     dplyr::filter(
+                          is.na(KobletForlopsID), 
+                          komplik_avd_alvorligBlodning %in% "Ja") %>% 
+                        dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("Noen form for alvorlig blødning" = n), 
+                   by = "maaned") %>% 
+       dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompHbFallStor %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("- herav Hb fall stor" = n), 
+                   by = "maaned") %>% 
+
+         dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompForlengetOppholdStor %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("- herav forlenget sykehusopphold" = n), 
+                   by = "maaned") %>% 
+
+         dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompBlodtransfusjon %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("- herav blodtransfusjon" = n), 
+                   by = "maaned") %>% 
+
+         dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompKirurgiskBeh %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("- herav kirurgisk behandling" = n), 
+                   by = "maaned") %>% 
+   
+    dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompPseudoaneurysme %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("- herav pseudoaneurysme" = n), 
+                   by = "maaned") %>% 
+
+        dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       komplik_avd_ovrigBlodning %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("Noen form for øvrig blødning" = n), 
+                   by = "maaned") %>% 
+
+   dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompBlodningMinor %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("- herav blødning minor" = n), 
+                   by = "maaned") %>% 
+   dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompHematomStor %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("- herav hematom stort" = n), 
+                   by = "maaned") %>% 
+   dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompForlengetTidStor %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("- herav forlenget kompresjonstid" = n), 
+                   by = "maaned") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
+
+tab_avdkomp_blod[tab_avdkomp_blod == 0] <-  " - "
+tab_avdkomp_blod[is.na(tab_avdkomp_blod)] <- " - "
+  
+  
+  
+
+align <- c("r", rep("c", dim(tab_avdkomp_blod)[2] - 1))
+col_nams <- c("", names(tab_avdkomp_blod[-1]))
+
+
+
+if (params$tableFormat == "html") {
+  knitr::kable(x = tab_avdkomp_blod, 
+               caption = cap,
+               align = align, col.names = col_nams) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE) %>%
+    kableExtra::row_spec(row = 0, angle = -45) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>%
+  kableExtra::add_header_above(., header = c("",
+                                            "Alvorlige blødninger" = 6,
+                                            "Øvrige blødninger " = 4),
+                              bold = TRUE,
+                              font_size = 10)
+  
+} else if (params$tableFormat == "latex") {
+  knitr::kable(x = tab_avdkomp_blod,
+               format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r", col.names = col_nams) %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = 0, angle = 90)%>% 
+    kableExtra::add_header_above(., header = c("",
+                                            "Alvorlige blødninger" = 6,
+                                            "Øvrige blødninger " = 4),
                                  bold = TRUE,
                                  font_size = 10)
 }
@@ -1733,9 +1859,11 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```
 
 <br/>
+\newpage
+
 
 ## Stent - merke
-`
+
 
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis", out.width = "\\textwidth"}
