@@ -845,9 +845,8 @@ synkende_rekkefolge_lab %<>%
     
     alpha_soyler= ifelse(
       name %in% "LabKompProsedyrerelatertDod", 
-      0.95, 
-      1))  
-
+      TRUE, 
+      FALSE))  
 
 
 
@@ -855,24 +854,26 @@ synkende_rekkefolge_lab %<>%
 synkende_rekkefolge_lab %>%
   ggplot2::ggplot(data = . , 
                   ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
-                               y = Ja, 
-                               alpha = alpha_soyler)) +
+                               y = Ja)) +
 
   ggplot2::geom_bar(
+    mapping = ggplot2::aes(alpha = alpha_soyler),
     stat="identity",
     width = 0.85,
     fill = colPrimary[4]) +
+  ggplot2::scale_alpha_manual(breaks = c(TRUE, FALSE), 
+                              values = c(0.5, 1)) +
   ggplot2::facet_grid(rows =  "gradering", 
                       scales = "free",
                       space='free', 
                       switch = "y") +
   ggplot2::coord_flip() +
-  
   ggplot2::geom_text(
-    ggplot2::aes(label = Ja),
+    mapping = ggplot2::aes(alpha = alpha_soyler,
+                           label = Ja),
     vjust = 0.5,
     hjust = -0.15,
-    size = 6  ) +
+    size = 6) +
 
   ggplot2::theme_classic(base_size = 20) +
   ggplot2::theme(
@@ -921,7 +922,7 @@ tab_labkomp <- timeTableMonth %>%
                    AP %>% 
                      dplyr::filter(LabKompNeurologisk %in% "Ja") %>% 
                      dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Neurologisk komplikasjon" = n), 
+                     dplyr::rename("Nevrologisk komplikasjon" = n), 
                    by = "maaned") %>% 
 
   
@@ -1054,7 +1055,7 @@ ikke ferdigstilte komplikasjonsskjema.  [***Klikk her***](#komplSkjema)
 for å se oversikten over antall (andel) ferdigstilte komplikasjonsskjemaer.
 
 
-```{r FigAvdKompl2, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ", "Annen alvorlig komplikasjon omfatter øvrige komplikasjoner som ikke er kategorisert.") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 7, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl2, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ", "Annen alvorlig komplikasjon omfatter øvrige komplikasjoner som ikke er kategorisert.") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
 
 fig_df_kompl_avd <- AP %>%
   
@@ -1116,7 +1117,7 @@ fig_df_kompl_avd <- AP %>%
     type_komplikasjon = case_when(
       
       name %in% "AvdKompVaskulaer" ~ "Vaskulær (ikke koronare kar)", 
-      name %in% "AvdKompNeurologiskKomp" ~ "Neurologisk", 
+      name %in% "AvdKompNeurologiskKomp" ~ "Nevrologisk", 
       name %in% "AvdKompNyNyreinsuffisiens" ~ "Nytilkommet nyreinsuffisens", 
       name %in% "AvdKompTamponade" ~ "Tamponade", 
       name %in% "AvdKompPCI" ~ "Re-PCI (behandlet segment)", 
@@ -1124,7 +1125,7 @@ fig_df_kompl_avd <- AP %>%
       name %in% "AvdKompHjerteinfarkt" ~ "Hjerteinfarkt", 
       name %in% "AvdKompAnnenAlvorlig" ~ "Annen alvorlig", 
       name %in% "AvdKompDod" ~ "Død", 
-      name %in% "AvdKompProsedyrerelatertDod" ~ "-herav prosedyrerelatert død", 
+      name %in% "AvdKompProsedyrerelatertDod" ~ "- herav prosedyrerelatert død", 
      
       name %in% "komplik_avd_alvorligBlodning" ~ " Noen form for alvorlig blødning", 
       name %in% "AvdKompBlodningMajor" ~ "- herav blødning major", 
@@ -1132,13 +1133,13 @@ fig_df_kompl_avd <- AP %>%
       name %in% "AvdKompForlengetOppholdStor" ~ "- herav forlenget sykehusopphold", 
       name %in% "AvdKompBlodtransfusjon" ~ "- herav blodtransfusjon", 
       name %in% "AvdKompKirurgiskBeh" ~ "- herav kirurgisk behandling", 
-      name %in% "AvdKompPseudoaneurysme" ~ "-herav pseudoaneurysme", 
+      name %in% "AvdKompPseudoaneurysme" ~ "- herav pseudoaneurysme", 
       
       name %in% "komplik_avd_ovrigBlodning" ~ "Noen form for øvrig blødning",
       name %in% "AvdKompBlodningMinor" ~ "- herav blødning minor",
       name %in% "AvdKompHematomStor" ~ "- herav hematom stort", 
       name %in% "AvdKompForlengetTidStor" ~ "- herav forlenget kompresjonstid", 
-      name %in% "AvdKompAllergisk" ~ "Allergisk reaksjon", 
+      name %in% "AvdKompAllergisk" ~ "Allergisk senreaksjon", 
       TRUE ~ NA_character_ ), 
     
     gradering = case_when(
@@ -1255,8 +1256,8 @@ endelig_alle <- rbind(
       gradering %in% "Undergruppe alv blødning" |
         gradering %in% "Undergruppe av ovrig blodning" |
         name %in% "AvdKompProsedyrerelatertDod", 
-      0.2, 
-      1), 
+      TRUE, 
+      FALSE), 
     
     gradering2 = ifelse(
       gradering %in% c("Undergruppe alv blødning", 
@@ -1273,17 +1274,15 @@ endelig_alle <- rbind(
 endelig_alle %>%
   ggplot2::ggplot(data = . , 
                   ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
-                               y = Ja,
-                               alpha = alpha_soyler)) +
+                               y = Ja)) +
   ggplot2::geom_bar(
+    mapping = ggplot2::aes(alpha = alpha_soyler),
     stat="identity",
     width = 0.85,
     fill = colPrimary[4]) +
-  #   fill = ifelse(
-  #     test = synkende_rekkefolge_avd2$gradering2 == "Alvorlige komplikasjoner på avdeling",
-  #     yes = ,
-  #     no = colPrimary[6])
-  # ) +
+    ggplot2::scale_alpha_manual(breaks = c(TRUE, FALSE), 
+                              values = c(0.5, 1)) +
+
   ggplot2::facet_grid(rows =  "gradering2", 
                      scales = "free",
                      space='free', 
@@ -1291,7 +1290,8 @@ endelig_alle %>%
   ggplot2::coord_flip() +
   # FREKVENS-TALL SOM PLASSERES I/PÅ SØYLENE:
   ggplot2::geom_text(
-    ggplot2::aes(label = Ja),
+    ggplot2::aes(label = Ja, 
+                 alpha = alpha_soyler),
     vjust = 0.5,
     hjust = -0.15,
     size = 6  ) +
@@ -1358,7 +1358,7 @@ tab_avdkomp <- timeTableMonth %>%
                        is.na(KobletForlopsID), 
                        AvdKompNeurologiskKomp %in% "Ja") %>% 
                      dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Neurologisk" = n), 
+                     dplyr::rename("Nevrologisk" = n), 
                    by = "maaned") %>% 
      dplyr::left_join(.,
                    AP %>% 
@@ -1430,25 +1430,49 @@ tab_avdkomp <- timeTableMonth %>%
                      dplyr::rename("Annen alvorlig" = n), 
                    by = "maaned") %>% 
 
+        dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::mutate(
+                       komplik_avd_ovrigBlodning =  ifelse(
+                         (AvdKompBlodningMinor  %in% "Ja" |
+                            AvdKompHematomStor %in% "Ja" |
+                            AvdKompForlengetTidStor %in% "Ja" ), 
+                         "Ja", 
+                         NA_character_)) %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       komplik_avd_ovrigBlodning %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("Noen form for øvrig blødning" = n), 
+                   by = "maaned") %>% 
+      dplyr::left_join(.,
+                   AP %>% 
+                     dplyr::filter(
+                       is.na(KobletForlopsID), 
+                       AvdKompAllergisk %in% "Ja") %>% 
+                     dplyr::count(maaned, .drop = FALSE) %>% 
+                     dplyr::rename("Allergisk senreaksjon" = n), 
+                   by = "maaned") %>% 
+
   
   
   
 
   janitor::adorn_totals("row", name = "Totalt") 
 
-tab_labkomp[tab_labkomp == 0] <-  " - "
-tab_labkomp[is.na(tab_labkomp)] <- " - "
+tab_avdkomp[tab_avdkomp == 0] <-  " - "
+tab_avdkomp[is.na(tab_avdkomp)] <- " - "
   
   
   
 
-align <- c("r", rep("c", dim(tab_labkomp)[2] - 1))
-col_nams <- c("", names(tab_labkomp[-1]))
+align <- c("r", rep("c", dim(tab_avdkomp)[2] - 1))
+col_nams <- c("", names(tab_avdkomp[-1]))
 
 
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = tab_labkomp, 
+  knitr::kable(x = tab_avdkomp, 
                caption = cap,
                align = align, col.names = col_nams) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
@@ -1456,26 +1480,26 @@ if (params$tableFormat == "html") {
                                                     "condensed"),
                               full_width = FALSE) %>%
     kableExtra::row_spec(row = 0, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em") %>% 
-     kableExtra::add_header_above(., header = c("", 
-                                               "Alvorlige komplikasjoner på lab" = 11, 
-                                               "Øvrige " = 3), 
-                                 bold = TRUE, 
-                                 font_size = 10)
+    kableExtra::column_spec(column = 1, width = "7em") %>%
+  kableExtra::add_header_above(., header = c("",
+                                            "Alvorlige komplikasjoner på avdeling" = 11,
+                                            "Øvrige " = 2),
+                              bold = TRUE,
+                              font_size = 10)
   
 } else if (params$tableFormat == "latex") {
-  knitr::kable(x = tab_labkomp,
+  knitr::kable(x = tab_avdkomp,
                format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
                align = "r", col.names = col_nams) %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
                               font_size = 8) %>%
-    kableExtra::row_spec(row = 0, angle = 90) %>% 
-    kableExtra::add_header_above(., header = c("", 
-                                               "Alvorlige komplikasjoner på lab" = 11, 
-                                               "Øvrige " = 3), 
-                                 bold = TRUE, 
+    kableExtra::row_spec(row = 0, angle = 90)%>% 
+    kableExtra::add_header_above(., header = c("",
+                                               "Alvorlige komplikasjoner på avdeling" = 11,
+                                               "Øvrige " = 2),
+                                 bold = TRUE,
                                  font_size = 10)
 }
 ```
