@@ -89,7 +89,15 @@ showN <- 14
 
 # ELDSTE DATO:
 # Januar fra i fjor (hele foregående år skal vise i rapporten)
-nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+
+if(params$registryName %in% "noricStagingNasjonal"){
+  nyeste_reg <- noric::getLatestEntryHospital(
+    registryName = params$registryName, 
+    reshID = params$reshID)
+  
+} else {
+  nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+}
 
 periode_data <- data.frame(
   siste_dato = min((as.Date(Sys.time()) - 1),
@@ -122,29 +130,71 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-AP <- noric::getPrepApData(registryName = params$registryName,
-                           fromDate  = periode_data$forste_dato,
-                           toDate = periode_data$siste_dato,
-                           singleRow = FALSE)
+if(params$registryName %in% "noricStagingNasjonal"){
 
-AnP <- noric::getPrepAnPData(registryName = params$registryName,
+# SPørring til NASJONAL database. Kun utvalgt sykehus
+    AP <- noric::getPrepApData(registryName = params$registryName,
                              fromDate  = periode_data$forste_dato,
                              toDate = periode_data$siste_dato,
-                             singleRow = FALSE)
+                             singleRow = FALSE, 
+                             singleHospital = params$reshID)
+  
+  AnP <- noric::getPrepAnPData(registryName = params$registryName,
+                               fromDate  = periode_data$forste_dato,
+                               toDate = periode_data$siste_dato,
+                               singleRow = FALSE, 
+                             singleHospital = params$reshID)
+  
+  evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
+  # (TRUE when AnP contains data)
+  
+  
+  SS <- noric::getPrepSsData(registryName = params$registryName,
+                             fromDate  = periode_data$forste_dato,
+                             toDate = periode_data$siste_dato,
+                             singleRow = FALSE, 
+                             singleHospital = params$reshID)
+  
+  AnD <- noric::getPrepAnDData(registryName = params$registryName,
+                             fromDate  = periode_data$forste_dato,
+                             toDate = periode_data$siste_dato,
+                             singleRow = FALSE, 
+                             singleHospital = params$reshID)
+  
+  
+  } else{
+    # SPørring til LOKAL database. 
+    # Kun et sykehus, som er registry name
 
-evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
-# (TRUE when AnP contains data)
+  AP <- noric::getPrepApData(registryName = params$registryName,
+                             fromDate  = periode_data$forste_dato,
+                             toDate = periode_data$siste_dato,
+                             singleRow = FALSE, 
+                             singleHospital = NULL)
+  
+  AnP <- noric::getPrepAnPData(registryName = params$registryName,
+                               fromDate  = periode_data$forste_dato,
+                               toDate = periode_data$siste_dato,
+                               singleRow = FALSE, 
+                             singleHospital = NULL)
+  
+  evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
+  # (TRUE when AnP contains data)
+  
+  
+  SS <- noric::getPrepSsData(registryName = params$registryName,
+                             fromDate  = periode_data$forste_dato,
+                             toDate = periode_data$siste_dato,
+                             singleRow = FALSE, 
+                             singleHospital = NULL)
+  
+  AnD <- noric::getPrepAnDData(registryName = params$registryName,
+                             fromDate  = periode_data$forste_dato,
+                             toDate = periode_data$siste_dato,
+                             singleRow = FALSE, 
+                             singleHospital = NULL)
+}
 
-
-SS <- noric::getPrepSsData(registryName = params$registryName,
-                           fromDate  = periode_data$forste_dato,
-                           toDate = periode_data$siste_dato,
-                           singleRow = FALSE)
-
-AnD <- noric::getPrepAnDData(registryName = params$registryName,
-                           fromDate  = periode_data$forste_dato,
-                           toDate = periode_data$siste_dato,
-                           singleRow = FALSE)
 
 ```
 
@@ -256,6 +306,12 @@ AP %<>%
                                   "Subakutt",
                                   "Planlagt",
                                   NA)), 
+    SkjemaStatusKomplikasjoner = factor(SkjemaStatusKomplikasjoner, 
+                                        levels = c(-1, 0, 1, NA)),
+    SkjemastatusHovedskjema = factor(SkjemastatusHovedskjema, 
+                                        levels = c(-1, 0, 1, NA)),
+    SkjemaStatusUtskrivelse = factor(SkjemaStatusUtskrivelse, 
+                                        levels = c(-1, 0, 1, NA)),
     
     
     # Noen form for alvorlig blødning på avdeling
@@ -1653,7 +1709,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```{r SOtab1, results = "asis"}
 
 tabHovedKomplett <- AP %>% 
-  dplyr::count(maaned, SkjemastatusHovedskjema) %>% 
+  dplyr::count(maaned, SkjemastatusHovedskjema, .drop = FALSE) %>% 
   tidyr::pivot_wider(names_from = SkjemastatusHovedskjema, 
                      values_from = n, 
                      values_fill = 0) %>% 
@@ -1685,7 +1741,7 @@ noric::mst(tab = tabHovedKomplett, type = params$tableFormat, cap = cap,
 tabKomplikKomplett <- AP %>% 
   dplyr::filter(Regtype %in% "Primær") %>% 
   
-  dplyr::count(maaned, SkjemaStatusKomplikasjoner) %>% 
+  dplyr::count(maaned, SkjemaStatusKomplikasjoner, .drop = FALSE) %>% 
   tidyr::pivot_wider(names_from = SkjemaStatusKomplikasjoner, 
                      values_from = n, 
                      values_fill = 0) %>% 
@@ -1721,7 +1777,7 @@ noric::mst(tab = tabKomplikKomplett,
 tabUtskrKomplett <- AP %>% 
   dplyr::filter(Regtype %in% "Primær") %>% 
   
-  dplyr::count(maaned, SkjemaStatusUtskrivelse) %>% 
+  dplyr::count(maaned, SkjemaStatusUtskrivelse, .drop = FALSE) %>% 
   tidyr::pivot_wider(names_from = SkjemaStatusUtskrivelse, 
                      values_from = n, 
                      values_fill = 0) %>% 

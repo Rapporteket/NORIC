@@ -8,23 +8,17 @@ shinyServer(function(input, output, session) {
   
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
   
-  # Parameters that will remain throughout the session
-  ## setting values that do depend on a Rapporteket context
-
-  if (rapbase::isRapContext()) {
-    reshId <- rapbase::getUserReshId(session)
-    
+  reshId <- rapbase::getUserReshId(session)
     hospitalName <- noric::fikse_sykehusnavn(data.frame(AvdRESH = reshId)) %>%  
       dplyr::select(Sykehusnavn)
     
-    userFullName <- rapbase::getUserFullName(session)
-    userRole <- rapbase::getUserRole(session)
-    registryName <- noric::makeRegistryName("noricStaging", reshId)
-    mapOrgId <- mapOrgReshId(registryName)
-    author <- paste0(userFullName, "/", "Rapporteket")
-  } else {
-    ### if need be, define your (local) values here
-  }
+   userFullName <- rapbase::getUserFullName(session)
+   userRole <- rapbase::getUserRole(session)
+   
+   registryName <- noric::makeRegistryName("noricStaging", reshId)
+   mapOrgId <- mapOrgReshId(registryName)
+   author <- paste0(userFullName, "/", "Rapporteket")
+
 
   
   # Hide tabs
@@ -654,7 +648,8 @@ shinyServer(function(input, output, session) {
                        label = "Velg rapport:",
                        choices = list(
                          "Kvalitetsindikatorer" = "NORIC_kvalitetsindikator", 
-                         "Filvask avdød" = "NORIC_filvask_avdod"))
+                         "Filvask avdød" = "NORIC_filvask_avdod", 
+                         "Invasive prosedyrer" = "NORIC_local_monthly"))
   })
   
   output$dwnldControl <- shiny::renderUI({
