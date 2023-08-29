@@ -823,15 +823,18 @@ behandling blir i NORIC delt i to kategorier, avhengig av om komplikasjonene
 blir oppdaget i tilknytning til selve prosedyren eller i observasjonstiden 
 etterpå. 
 
+<br>
+
 ### Komplikasjoner på kat.lab.
 
-Komplikasjoner oppstått i tilknytning til selve prosedyren mens 
+Her rapporteres komplikasjoner oppstått i tilknytning til selve prosedyren mens 
 pasienten fortsatt er på hjertekateteriseringslaboratoriet (kat.lab.) 
 Datagrunnlaget omfatter både planlagte, subakutte 
 og akutte prosedyrer samlet, uavhengig av pasientens helsetilstand på forhånd.
 Vi har gruppert komplikasjonenene som Alvorlige eller Øvrige. 
-Figuren viser sammenlagt antall komplikasjoner av hver komplikasjonstype
-de  siste `r showN` månedene. Tabellene viser antall komplikasjoner per måned. 
+Figuren viser antall registrerte komplikasjoner de  siste `r showN` månedene. 
+Merk at en pasient kan ha flere typer komplikasjoner
+Tabellen viser antall registrerte komplikasjoner per måned. 
 
 
 <br/> <br/>
@@ -886,36 +889,39 @@ fig_df_kompLab <- AP %>%
                        "Øvrige", 
                        "Alvorlige komplikasjoner på lab")) %>% 
   dplyr::count(name, type_komplikasjon, value, gradering) %>%
-  tidyr::pivot_wider(names_from = value, values_from = n, values_fill=0) %>% 
-  select(name, type_komplikasjon, gradering, Ja)
+  tidyr::pivot_wider(names_from = value, 
+                     values_from = n, 
+                     values_fill = 0) %>% 
+  dplyr::select(name, type_komplikasjon, gradering, Ja)
 
 
 # Rekkefølge: 
-# Først alvorlig, så øvrige. Annen alvorlig neders
+# Først alvorlig, med Annen alvorlig nederst. Så øvrige. 
+# Prosedyrerelatert død etter død. 
 synkende_rekkefolge_lab <- rbind(
   
-  # Alvorlig (uten annen og pros.rel.dod)
   fig_df_kompLab %>% 
-    filter(name != "LabKompAnnenAlv", 
-           name != "LabKompProsedyrerelatertDod", 
-           gradering %in% "Alvorlige komplikasjoner på lab") %>% 
-    arrange(-Ja), 
+    dplyr::filter(name != "LabKompAnnenAlv", 
+                  name != "LabKompProsedyrerelatertDod", 
+                  gradering %in% "Alvorlige komplikasjoner på lab") %>% 
+    dplyr::arrange(-Ja), 
   
   fig_df_kompLab %>% 
-    filter(name == "LabKompAnnenAlv"), 
+    dplyr::filter(name == "LabKompAnnenAlv"), 
 
   fig_df_kompLab %>% 
-    filter(gradering %in% "Øvrige") %>% 
-    arrange(-Ja)
+    dplyr::filter(gradering %in% "Øvrige") %>% 
+    dplyr::arrange(-Ja)
   ) 
-insert_prsRel_her<- which(synkende_rekkefolge_lab$name == "LabKompDod")
+
+insert_prsRel_her <- which(synkende_rekkefolge_lab$name == "LabKompDod")
 synkende_rekkefolge_lab %<>%
-  dplyr::add_row( fig_df_kompLab %>% 
-    filter(name == "LabKompProsedyrerelatertDod"),
+  dplyr::add_row(
+    fig_df_kompLab %>% dplyr::filter(name == "LabKompProsedyrerelatertDod"),
     .after = insert_prsRel_her)
 
-# PARAMETRE FOR FIGUR: 
 
+# PARAMETRE FOR FIGUR: 
 synkende_rekkefolge_lab %<>% 
   dplyr::mutate(
     Sortering  = n():1, 
@@ -1042,7 +1048,7 @@ tab_labkomp <- timeTableMonth %>%
                    AP %>% 
                      dplyr::filter(LabKompProsedyrerelatertDod %in% "Ja") %>% 
                      dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Herav prosedyrerelatert død" = n), 
+                     dplyr::rename("- herav prosedyrerelatert død" = n), 
                    by = "maaned") %>% 
   
      dplyr::left_join(.,
@@ -1915,7 +1921,10 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```
 
 <br/>
+
+`r if(params$tableFormat !="latex") {"<!--"}`
 \newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
 
 ## Stent - merke
