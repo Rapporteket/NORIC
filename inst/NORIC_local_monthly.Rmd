@@ -390,11 +390,13 @@ prosedyreTypeMaaned %>% ggplot2::ggplot(
   ggplot2::geom_bar(position = "stack", stat = "identity") +
   ggplot2::scale_fill_manual(values = pal) +
   ggplot2::theme_minimal() +
-  ggplot2::xlab("Måned") +
-  ggplot2::ylab("Antall") +
+  ggplot2::xlab("") +
+  ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
                  axis.text = ggplot2::element_text(size = 12),
-                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
+                 axis.title = ggplot2::element_text(size = 12), 
+                 legend.text = ggplot2::element_text(size = 12))
 
 ```
 
@@ -424,21 +426,28 @@ TabNProsedyreType[is.na(TabNProsedyreType)] <- " - "
 
 align <- c("l", rep("c", dim(TabNProsedyreType)[2] - 1))
 
-if (params$tableFormat == "html") {
-  knitr::kable(x = TabNProsedyreType, caption = cap, align = align) %>%
-    kableExtra::kable_styling(bootstrap_options = c("striped",
-                                                    "hover",
-                                                    "condensed"),
-                              full_width = FALSE) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
-} else if (params$tableFormat == "latex") {
-  knitr::kable(x = TabNProsedyreType,
-               format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position")
-}
+noric::mst(tab = TabNProsedyreType, 
+           type = params$tableFormat, 
+           cap = cap,
+           digs = c(0, 0, 0, 1), 
+           align = rep("r", 5), 
+           label = "TabNProsedyreType")
+
+# if (params$tableFormat == "html") {
+#   knitr::kable(x = TabNProsedyreType, caption = cap, align = align) %>%
+#     kableExtra::kable_styling(bootstrap_options = c("striped",
+#                                                     "hover",
+#                                                     "condensed"),
+#                               full_width = FALSE) %>%
+#     kableExtra::column_spec(column = 1, width = "7em")
+# } else if (params$tableFormat == "latex") {
+#   knitr::kable(x = TabNProsedyreType,
+#                format = params$tableFormat,
+#                caption = cap,
+#                booktabs = TRUE,
+#                align = "r") %>%
+#     kableExtra::kable_styling(latex_options = "HOLD_position")
+# }
 ```
 
 
@@ -454,7 +463,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ## Hastegrad
-```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 10, fig.height = 4.5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width =8 , fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -469,17 +478,17 @@ hastegradMaaned %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$maaned,
                y = .data$n,
                fill = factor(.data$Hastegrad,
-                             levels = hastegrad_levels))
-) +
+                             levels = hastegrad_levels))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
   ggplot2::scale_fill_manual(values = pal) +
   ggplot2::theme_minimal() +
-  ggplot2::xlab("Måned") +
-  ggplot2::ylab("Antall") +
+  ggplot2::xlab("") +
+  ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
                  axis.text = ggplot2::element_text(size = 12),
-                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
-
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
+                 axis.title = ggplot2::element_text(size = 12), 
+                 legend.text = ggplot2::element_text(size = 12))
 ```
 
 ```{r TabNHastegrad, results='asis', eval=TRUE}
@@ -504,22 +513,30 @@ TabNHastegrad[TabNHastegrad == 0] <- " - "
 TabNHastegrad[is.na(TabNHastegrad)] <- " - "
 
 align <- c("l", rep("c", dim(TabNHastegrad)[2] - 1))
+digs <-  rep(0, dim(TabNHastegrad)[2] )
 
-if (params$tableFormat == "html") {
-  knitr::kable(x = TabNHastegrad, caption = cap, align = align) %>%
-    kableExtra::kable_styling(bootstrap_options = c("striped",
-                                                    "hover",
-                                                    "condensed"),
-                              full_width = FALSE) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
-} else if (params$tableFormat == "latex") {
-  knitr::kable(x = TabNHastegrad,
-               format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position")
-}
+noric::mst(tab = TabNHastegrad, 
+           type = params$tableFormat, 
+           cap = cap,
+           digs = digs, 
+           align = align, 
+           label = "TabNHastegrad")
+
+# if (params$tableFormat == "html") {
+#   knitr::kable(x = TabNHastegrad, caption = cap, align = align) %>%
+#     kableExtra::kable_styling(bootstrap_options = c("striped",
+#                                                     "hover",
+#                                                     "condensed"),
+#                               full_width = FALSE) %>%
+#     kableExtra::column_spec(column = 1, width = "7em")
+# } else if (params$tableFormat == "latex") {
+#   knitr::kable(x = TabNHastegrad,
+#                format = params$tableFormat,
+#                caption = cap,
+#                booktabs = TRUE,
+#                align = "r") %>%
+#     kableExtra::kable_styling(latex_options = "HOLD_position")
+# }
 
 ```
 
@@ -543,7 +560,7 @@ Indikasjonen *Annet* inkluderer blant annet
 prosedyrer utført som ledd i utredning av hjerteklaffsykdom
 eller hjerterytmeforstyrrelser. 
 
-```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
+```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
 
 
 Indikasjon2Maaned <- AP %>%
@@ -566,11 +583,13 @@ Indikasjon2Maaned %>% ggplot2::ggplot(
   ggplot2::geom_bar(position = "stack", stat = "identity") +
   ggplot2::scale_fill_manual(values = rev(colPrimary)) +
   ggplot2::theme_minimal() +
-  ggplot2::xlab("Måned") +
-  ggplot2::ylab("Antall") +
+  ggplot2::xlab("") +
+  ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
                  axis.text = ggplot2::element_text(size = 12),
-                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
+                 axis.title = ggplot2::element_text(size = 12), 
+                 legend.text = ggplot2::element_text(size = 12))
 
 ```
 
@@ -596,23 +615,35 @@ TabNIndikasjon <- timeTableMonth %>%
 TabNIndikasjon[TabNIndikasjon == 0] <- " - "
 TabNIndikasjon[is.na(TabNIndikasjon)] <- " - "
 
-align <- c("l", rep("r", dim(TabNIndikasjon)[2] - 1))
 
-if (params$tableFormat == "html") {
-  knitr::kable(x = TabNIndikasjon, caption = cap, align = align) %>%
-    kableExtra::kable_styling(bootstrap_options = c("striped",
-                                                    "hover",
-                                                    "condensed"),
-                              full_width = FALSE) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
-} else if (params$tableFormat == "latex") {
-  knitr::kable(x = TabNIndikasjon,
-               format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "c") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position")
-}
+align <- c("l", rep("c", dim(TabNIndikasjon)[2] - 1))
+digs <-  rep(0, dim(TabNIndikasjon)[2] )
+
+noric::mst(tab = TabNIndikasjon, 
+           type = params$tableFormat, 
+           cap = cap,
+           digs = digs, 
+           align = align, 
+           label = "TabNIndikasjon")
+
+
+# align <- c("l", rep("r", dim(TabNIndikasjon)[2] - 1))
+# 
+# if (params$tableFormat == "html") {
+#   knitr::kable(x = TabNIndikasjon, caption = cap, align = align) %>%
+#     kableExtra::kable_styling(bootstrap_options = c("striped",
+#                                                     "hover",
+#                                                     "condensed"),
+#                               full_width = FALSE) %>%
+#     kableExtra::column_spec(column = 1, width = "7em")
+# } else if (params$tableFormat == "latex") {
+#   knitr::kable(x = TabNIndikasjon,
+#                format = params$tableFormat,
+#                caption = cap,
+#                booktabs = TRUE,
+#                align = "c") %>%
+#     kableExtra::kable_styling(latex_options = "HOLD_position")
+# }
 ```
 
 ```{r}
@@ -760,7 +791,7 @@ noric::mst(TabTillegg[, c("FFR",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("c", 10),
+           align =  c("l", rep("c", 9)),
            label = "TabTilleggsProsedyre1")
 
 ```
@@ -780,7 +811,7 @@ noric::mst(TabTillegg[, c("Høyre kat.",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("c", 5),
+           align = c("l", rep("c", 4)),
            label = "TabTilleggsProsedyre2")
 ```
 
@@ -801,7 +832,7 @@ noric::mst(TabTillegg[, c("PM",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = rep("c", 9),
+           align =  c("l", rep("c", 5)),
            label = "TabTilleggsProsedyre3")
 ```
 
@@ -1725,12 +1756,16 @@ tabHovedKomplett <- AP %>%
     Ferdigstilt = `1`, 
     Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
+tabHovedKomplett %<>%   dplyr::rename(" " = "maaned")
 
 cap <- paste0("Andel ferdigstilte hovedskjemaer i NORIC per måned ved ",
              params$hospitalName, " i perioden ", rangeProsDato, ".")
 
-noric::mst(tab = tabHovedKomplett, type = params$tableFormat, cap = cap,
-           digs = c(0, 0, 0, 1), align = rep("r", 4),
+noric::mst(tab = tabHovedKomplett, 
+           type = params$tableFormat, 
+           cap = cap,
+           digs = c(0, 0, 0, 1), 
+           align = c("l", "r", "r", "r"),
            label = "SOtab1")
 ```
 
@@ -1758,6 +1793,7 @@ tabKomplikKomplett <- AP %>%
     Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
 
+tabKomplikKomplett %<>%   dplyr::rename(" " = "maaned")
 
 
 cap <- paste0("Andel ferdigstilte komplikasjonsskjemaer registrert i NORIC ",
@@ -1767,7 +1803,7 @@ noric::mst(tab = tabKomplikKomplett,
            type = params$tableFormat,
            cap = cap,
            digs = c(0, 0, 0, 1),
-           align = rep("r", 4),
+           align = c("l", "r", "r", "r"),
            label = "SOtab2")
 
 ```
@@ -1793,7 +1829,7 @@ tabUtskrKomplett <- AP %>%
     Ferdigstilt = `1`, 
     Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
-
+tabUtskrKomplett %<>%   dplyr::rename(" " = "maaned")
 cap <- paste0("Andel ferdigstilte utskrivelsesskjemaer registrert i NORIC per ", 
               "måned ved ", params$hospitalName, " i perioden ",
               rangeProsDato, ".")
@@ -1802,7 +1838,7 @@ noric::mst(tab = tabUtskrKomplett,
            type = params$tableFormat, 
            cap = cap,
            digs = c(0, 0, 0, 1), 
-           align = rep("r", 4),
+           align = c("l", "r", "r", "r"),
            label = "SOtab3")
 
 ```
@@ -1839,11 +1875,11 @@ TabDataSsIntervensjonstype <- SS %>%
   janitor::adorn_totals("col", name = "Totalt antall intervensjoner") 
 
 TabNInervProsedyreType <- AP %>%
-  filter(ProsedyreType %in% c("Angio + PCI", "PCI")) %>% 
+  dplyr::filter(ProsedyreType %in% c("Angio + PCI", "PCI")) %>% 
   janitor::tabyl(maaned,
                  ProsedyreType) %>% 
-  janitor::adorn_totals("col", name = "Antall gjeldende prosedyrer") %>% 
-  dplyr::select(maaned, "Antall gjeldende prosedyrer")
+  janitor::adorn_totals("col", name = "Antall prosedyrer") %>% 
+  dplyr::select(maaned, "Antall prosedyrer")
 
 TabNSsIntervensjonstype <- timeTableMonth %>% 
   merge(., TabDataSsIntervensjonstype, 
@@ -1857,22 +1893,29 @@ TabNSsIntervensjonstype[is.na(TabNSsIntervensjonstype)] <- " - "
 
 align <- c("l", rep("c", dim(TabNSsIntervensjonstype)[2] - 1))
 
-if (params$tableFormat == "html") {
-  knitr::kable(x = TabNSsIntervensjonstype, caption = cap, align = align) %>%
-    kableExtra::kable_styling(bootstrap_options = c("striped",
-                                                    "hover",
-                                                    "condensed"),
-                              full_width = FALSE) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
-} else if (params$tableFormat == "latex") {
-  knitr::kable(x = TabNSsIntervensjonstype,
-               format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
-    kableExtra::kable_styling(latex_options = c("HOLD_position",
-                                                "scale_down"))
-}
+noric::mst(tab = TabNSsIntervensjonstype,
+           type = params$tableFormat, 
+           cap = cap,
+           align = c("l", "r", "r", "r"),
+           label = "TabNSsIntervensjonstype")
+
+
+# if (params$tableFormat == "html") {
+#   knitr::kable(x = TabNSsIntervensjonstype, caption = cap, align = align) %>%
+#     kableExtra::kable_styling(bootstrap_options = c("striped",
+#                                                     "hover",
+#                                                     "condensed"),
+#                               full_width = FALSE) %>%
+#     kableExtra::column_spec(column = 1, width = "7em")
+# } else if (params$tableFormat == "latex") {
+#   knitr::kable(x = TabNSsIntervensjonstype,
+#                format = params$tableFormat,
+#                caption = cap,
+#                booktabs = TRUE,
+#                align = "r") %>%
+#     kableExtra::kable_styling(latex_options = c("HOLD_position",
+#                                                 "scale_down"))
+# }
 ```
 <br/>
 
@@ -1883,7 +1926,7 @@ if (params$tableFormat == "html") {
 ## Stenter per prosedyre
 Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`. Antall prosedyrer med minst 1 stent er `r AP %>% filter(Nstents>0) %>% nrow()`.
 
-```{r BarplotNstentPerProsedyre, fig.width = 10, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
+```{r BarplotNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
 
 par(
   mfcol = c(1, 1),
@@ -1945,19 +1988,22 @@ tab_stent <- SS %>%
 tab_stent[tab_stent == 0] <- " - "
 tab_stent[is.na(tab_stent)] <- " - "
 
-
+tab_stent %<>%   dplyr::rename(" " = "maaned")
 
 align <- c("r", rep("c", dim(tab_stent)[2] - 1))
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = tab_stent, caption = cap, align = align) %>%
+  knitr::kable(x = tab_stent,
+               caption = cap,
+               align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>%
+    kableExtra::row_spec(row = 0, font_size = 8, angle = -45) %>%
     kableExtra::column_spec(column = 1, width = "7em")
-} else if (params$tableFormat == "latex") {
+
+  } else if (params$tableFormat == "latex") {
   knitr::kable(x = tab_stent,
                format = params$tableFormat,
                caption = cap,
@@ -1965,8 +2011,8 @@ if (params$tableFormat == "html") {
                align = "r") %>%
     kableExtra::kable_styling(latex_options = c("HOLD_position",
                                                 "scale_down"),
-                              font_size = 5) %>%
-    kableExtra::row_spec(row = 0, angle = 90)
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = 0, angle = 90, font_size = 8)
 }
 ```
 
@@ -2015,21 +2061,27 @@ TabNAndreProsedyrer[is.na(TabNAndreProsedyrer)] <- " - "
 align <- c("r", rep("c", dim(TabNAndreProsedyrer)[2] - 1))
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = TabNAndreProsedyrer, caption = cap, align = align) %>%
+  knitr::kable(x = TabNAndreProsedyrer, 
+               caption = cap,
+               align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>%
+    kableExtra::row_spec(row = 0, font_size = 8, angle = -45) %>%
     kableExtra::column_spec(column = 1, width = "7em")
+
 } else if (params$tableFormat == "latex") {
   knitr::kable(x = TabNAndreProsedyrer,
                format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position") %>%
-    kableExtra::row_spec(row = 0, angle = 90)
+    kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                "scale_down"),
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = 0, angle = 90, font_size = 8)
+
 }
 ```
 
