@@ -791,7 +791,7 @@ noric::mst(TabTillegg[, c("FFR",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align =  c("l", rep("c", 9)),
+           align =  rep("c", 9),
            label = "TabTilleggsProsedyre1")
 
 ```
@@ -811,7 +811,7 @@ noric::mst(TabTillegg[, c("Høyre kat.",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align = c("l", rep("c", 4)),
+           align = rep("c", 4),
            label = "TabTilleggsProsedyre2")
 ```
 
@@ -832,7 +832,7 @@ noric::mst(TabTillegg[, c("PM",
            type = params$tableFormat,
            cap = cap,
            digs = 0,
-           align =  c("l", rep("c", 5)),
+           align =  rep("c", 5),
            label = "TabTilleggsProsedyre3")
 ```
 
@@ -981,14 +981,13 @@ synkende_rekkefolge_lab %>%
                       scales = "free",
                       space='free', 
                       switch = "y") +
-  ggplot2::coord_flip() +
+  ggplot2::coord_flip(clip = "off") +
   ggplot2::geom_text(
     mapping = ggplot2::aes(alpha = alpha_soyler,
                            label = Ja),
     vjust = 0.5,
     hjust = -0.15,
     size = 6) +
-
   ggplot2::theme_classic(base_size = 20) +
   ggplot2::theme(
     legend.position = "none", # fjerne hele legend
@@ -1380,7 +1379,7 @@ endelig_alle %>%
                      scales = "free",
                      space='free', 
                      switch = "y") +
-  ggplot2::coord_flip() +
+  ggplot2::coord_flip(clip = "off") +
   # FREKVENS-TALL SOM PLASSERES I/PÅ SØYLENE:
   ggplot2::geom_text(
     ggplot2::aes(label = Ja, 
@@ -2009,16 +2008,12 @@ if (params$tableFormat == "html") {
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
-    kableExtra::kable_styling(latex_options = c("HOLD_position",
-                                                "scale_down"),
+   kableExtra::kable_styling(latex_options = "HOLD_position", 
                               font_size = 8) %>%
-    kableExtra::row_spec(row = 0, angle = 90, font_size = 8)
+   kableExtra::row_spec(row = 0, angle = 90, font_size = 8)
 }
 ```
 
-`r if(params$tableFormat !="latex") {"<!--"}`
-\newpage
-`r if(params$tableFormat !="latex") {"-->"}`
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
@@ -2029,7 +2024,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 \newpage
 `r if(params$tableFormat !="latex" & evaluate_AnP == FALSE) {"-->"}`
 
-<br/><br/>
+
 
 # Andre prosedyrer (Stand-alone)
 `r if(evaluate_AnP == FALSE){"Dette lokale registeret har ingen registrerte forløp fra Andre Prosedyrer-modulen i datagrunnlaget på nåværende tidspunkt."}`
@@ -2077,10 +2072,9 @@ if (params$tableFormat == "html") {
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
-    kableExtra::kable_styling(latex_options = c("HOLD_position",
-                                                "scale_down"),
+   kableExtra::kable_styling(latex_options = "HOLD_position", 
                               font_size = 8) %>%
-    kableExtra::row_spec(row = 0, angle = 90, font_size = 8)
+     kableExtra::row_spec(row = 0, angle = 90, font_size = 8)
 
 }
 ```
