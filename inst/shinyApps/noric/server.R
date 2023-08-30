@@ -610,7 +610,36 @@ shinyServer(function(input, output, session) {
                       userFullName,
                       userRole,
                       "unknown operator")
+    ), 
+    
+    
+    `Invasive prosedyrer` = list(
+      synopsis = paste("NORIC ",
+                       "invasive prosedyrer"),
+      fun = "reportProcessor",
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "author",
+                     "orgName",
+                     "orgId",
+                     "registryName",
+                     "userFullName",
+                     "userRole",
+                     "userOperator"),
+      paramValues = c("NORIC_local_monthly",
+                      "pdf",
+                      "Månedsresultater",
+                      "unknown author",
+                      "unknown organization",
+                      999999,
+                      registryName,
+                      userFullName,
+                      userRole,
+                      "unknown operator")
     )
+    
+    
   )
   
   orgDispatch <- rapbase::autoReportOrgServer("noricDispatch", orgs)
