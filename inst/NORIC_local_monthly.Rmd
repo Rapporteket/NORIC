@@ -864,8 +864,8 @@ Datagrunnlaget omfatter både planlagte, subakutte
 og akutte prosedyrer samlet, uavhengig av pasientens helsetilstand på forhånd.
 Vi har gruppert komplikasjonenene som Alvorlige eller Øvrige. 
 Figuren viser antall registrerte komplikasjoner de  siste `r showN` månedene. 
-Merk at en pasient kan ha flere typer komplikasjoner
-Tabellen viser antall registrerte komplikasjoner per måned. 
+Merk at det kan ha blitt registrert flere typer komplikasjoner for en og samme 
+pasient.  
 
 
 <br/> <br/>
@@ -1159,16 +1159,19 @@ if (params$tableFormat == "html") {
 
 ### Komplikasjoner på avdeling
 
-Komplikasjoner oppstått på sengepost under sykehusoppholdet etter avsluttet 
-prosedyre. Hvis det er registrert flere komplikasjoner på samme pasient er 
-disse talt opp hver for seg. Merk at komplikasjonsregistrering 
-å sengepost gjøres kun for primærforløp. 
+Her rapporteres komplikasjoner oppstått på sengepost under sykehusoppholdet 
+etter avsluttet prosedyre. Hvis det er registrert flere komplikasjoner på 
+samme pasient er disse talt opp hver for seg. For pasienter som har hatt 
+en eller flere sekundære prosedyrer under samme sykehusopphold,
+registreres eventuelle komplikasjoner 
+oppstått på avdelingen for alle prosedyrene samlet. 
+
 Vi viser opptellingene for både ferdigstilte og 
 ikke ferdigstilte komplikasjonsskjema.  [***Klikk her***](#komplSkjema) 
 for å se oversikten over antall (andel) ferdigstilte komplikasjonsskjemaer.
 
 
-```{r FigAvdKompl2, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ", "Annen alvorlig komplikasjon omfatter øvrige komplikasjoner som ikke er kategorisert.") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl2, fig.cap = paste0("Antall komplikasjoner oppstått på avdelingen.", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
 
 fig_df_kompl_avd <- AP %>%
   
