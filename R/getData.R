@@ -13,6 +13,8 @@
 #' NULL if no filter on date.
 #' @param singleRow Logical if only one row from the table is to be provided.
 #' Default value is FALSE.
+#' @param singleHospital if only data from one hospital, when national database. 
+#' Default value is NULL, contains reshID of selected hospital else. 
 #' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
@@ -36,7 +38,8 @@ NULL
 
 #' @rdname getData
 #' @export
-getAp <- function(registryName, fromDate, toDate, singleRow, ...) {
+getAp <- function(registryName, fromDate, toDate, singleRow, 
+                  singleHospital = NULL, ...) {
   
   
   # SQL possible for defined time-interval:
@@ -71,6 +74,12 @@ WHERE
     a.ProsedyreDato >= '", fromDate, "' AND
     a.ProsedyreDato <= '", toDate, "'"
   )
+  
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, 
+                    "AND a.AvdRESH = ", 
+                    singleHospital)
+  }
   
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -250,7 +259,8 @@ WHERE
 
 #' @rdname getData
 #' @export
-getAnP <- function(registryName, fromDate, toDate, singleRow, ...){
+getAnP <- function(registryName, fromDate, toDate, singleRow,
+                   singleHospital = NULL, ...) {                  
   
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
@@ -288,6 +298,13 @@ WHERE
     AndreProsedyrerVar.ProsedyreDato >= '", fromDate, "' AND
     AndreProsedyrerVar.ProsedyreDato <= '", toDate, "'"
   )
+  
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, 
+                    "AND AndreProsedyrerVar.AvdRESH = ", 
+                    singleHospital)
+  }
+  
   
   # SQL for one row only/complete table:
   if (singleRow) {
@@ -441,7 +458,8 @@ WHERE
 
 #' @rdname getData
 #' @export
-getAnD <- function(registryName, fromDate, toDate, singleRow, ...){
+getAnD <- function(registryName, fromDate, toDate, singleRow,
+                   singleHospital = NULL, ...) {
   
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
@@ -477,6 +495,13 @@ WHERE
     AnnenDiagnostikkVar.ProsedyreDato <= '", toDate, "'"
   )
   
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, 
+                    "AND AnnenDiagnostikkVar.AvdRESH = ", 
+                    singleHospital)
+  }
+  
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -500,7 +525,8 @@ WHERE
 
 #' @rdname getData
 #' @export
-getSs <- function(registryName, fromDate, toDate, singleRow, ...) {
+getSs <- function(registryName, fromDate, toDate, singleRow, 
+                  singleHospital = NULL, ...) {
   
   
   # SQL possible for defined time-interval:
@@ -536,6 +562,13 @@ WHERE
     SegmentStent.ProsedyreDato >= '", fromDate, "' AND
     SegmentStent.ProsedyreDato <= '", toDate, "'"
   )
+  
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, 
+                    "AND SegmentStent.AvdRESH = ", 
+                    singleHospital)
+  }
+  
   
   # SQL for one row only/complete table:
   if (singleRow) {

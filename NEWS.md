@@ -1,3 +1,17 @@
+# noric 2.14.0 Oppdaterte rapporter
+* __avdod__
+Etter at sykehusene gikk gjennom forrige rapport, ble det klart at død 1-2 
+dager etter prosedyre kan forekomme. Ingen feilregistreringer. Fjerner derfor
+dette avsnittet til ny versjon av rapporten. Legg inn sjekk på kun død i NORIC. 
+
+* __kvalitets-indikator__
+Samler alle figurene for nstemi på en side. 
+
+* __invasive prosedyrer__
+Oppdatert om komplikasjoner. 
+Revisjon gammel kode.
+Nå tilgjengelig for nedlasting/utsending fra Nasjonal SC.
+
 # noric 
 
 # noric 2.13.1 - bugfix
