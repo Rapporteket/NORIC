@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.13.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.14.0</span>
       </span>
     </div>
 
@@ -47,7 +47,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getAp</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getAp</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getSo</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
@@ -55,15 +55,15 @@
 <span></span>
 <span><span class="fu">getFo</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getAnP</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getAnP</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getCt</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getAkOppf</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getAnD</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getAnD</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getSs</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getSs</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getMk</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
@@ -93,6 +93,11 @@ NULL if no filter on date.</p></dd>
 <dt>singleRow</dt>
 <dd><p>Logical if only one row from the table is to be provided.
 Default value is FALSE.</p></dd>
+
+
+<dt>singleHospital</dt>
+<dd><p>if only data from one hospital, when national database. 
+Default value is NULL, contains reshID of selected hospital else.</p></dd>
 
 
 <dt>...</dt>

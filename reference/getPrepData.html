@@ -18,7 +18,7 @@ in pivot-table or in monthly reports."><!-- mathjax --><script src="https://cdnj
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.13.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.14.0</span>
       </span>
     </div>
 
@@ -49,7 +49,14 @@ in <em>pivot-table</em> or in monthly reports.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getPrepApData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getPrepApData</span><span class="op">(</span></span>
+<span>  <span class="va">registryName</span>,</span>
+<span>  <span class="va">fromDate</span>,</span>
+<span>  <span class="va">toDate</span>,</span>
+<span>  <span class="va">singleRow</span>,</span>
+<span>  singleHospital <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getPrepSoData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
@@ -57,15 +64,36 @@ in <em>pivot-table</em> or in monthly reports.</p>
 <span></span>
 <span><span class="fu">getPrepFoData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getPrepAnPData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getPrepAnPData</span><span class="op">(</span></span>
+<span>  <span class="va">registryName</span>,</span>
+<span>  <span class="va">fromDate</span>,</span>
+<span>  <span class="va">toDate</span>,</span>
+<span>  <span class="va">singleRow</span>,</span>
+<span>  singleHospital <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getPrepCtData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getPrepAkOppfData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getPrepAnDData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getPrepAnDData</span><span class="op">(</span></span>
+<span>  <span class="va">registryName</span>,</span>
+<span>  <span class="va">fromDate</span>,</span>
+<span>  <span class="va">toDate</span>,</span>
+<span>  <span class="va">singleRow</span>,</span>
+<span>  singleHospital <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getPrepSsData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getPrepSsData</span><span class="op">(</span></span>
+<span>  <span class="va">registryName</span>,</span>
+<span>  <span class="va">fromDate</span>,</span>
+<span>  <span class="va">toDate</span>,</span>
+<span>  <span class="va">singleRow</span>,</span>
+<span>  singleHospital <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getPrepMkData</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
@@ -100,6 +128,11 @@ for NORIC.</p></dd>
 <dd><p>Logical defining if only one row is to be returned. A
 relevant usecase will be when only description is needed. By default set to
 FALSE</p></dd>
+
+
+<dt>singleHospital</dt>
+<dd><p>if only data from one hospital, when national database. 
+Default value is NULL, contains reshID of selected hospital else.</p></dd>
 
 
 <dt>...</dt>
