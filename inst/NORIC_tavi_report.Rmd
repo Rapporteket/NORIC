@@ -147,11 +147,31 @@ if(params$registryName %in% "noricStagingNasjonal"){
 
 AK %<>% 
   dplyr::mutate(
-    Prosedyre2 = factor(x = Prosedyre, 
-                       levels = c("TAVI",
-                                  "BAV", 
-                                  "Avbrutt, ikke utført TAVI/BAV", 
-                                  NA_character_)))
+    Prosedyre2 = factor(
+      x = case_when(Prosedyre %in% "TAVI" ~ "TAVI", 
+                    Prosedyre %in% "BAV" ~ "BAV", 
+                    Prosedyre %in% "Avbrutt, ikke utført TAVI/BAV" ~ "Avbrutt", 
+                    Prosedyre %in% NA_character_ ~ NA_character_, ), 
+      levels = c("TAVI",
+                 "BAV", 
+                 "Avbrutt", 
+                 NA_character_)),
+    
+    ForlopsType2 = factor(x = ForlopsType2, 
+                       levels = c("Planlagt",
+                                  "Subakutt", 
+                                  "Akutt", 
+                                  NA_character_)), 
+    
+    OperativTilgang = factor(x = OperativTilgang, 
+                             levels = c("Transfemoral", 
+                                        "A.subclavia", 
+                                        "Direkte aorta", 
+                                        "Transapical", 
+                                        "Annen", 
+                                        NA_character_))
+    
+    )
 
 ```
 
@@ -221,16 +241,19 @@ prosedyreTypeMaaned <- AK %>%
   dplyr::count(.data$maaned,
                .data$Prosedyre2,
                .drop = FALSE) %>%
-  dplyr::group_by(.data$maaned, .data$Prosedyre2)
+  dplyr::group_by(.data$maaned, .data$Prosedyre2) %>% 
+  mutate(n = ifelse(n==0,NA, n ))
+
 
 prosedyreTypeMaaned %>% ggplot2::ggplot(
   ggplot2::aes(x = .data$maaned,
                y = .data$n,
                fill = factor(.data$Prosedyre2))) +
   ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
-                    stat = "identity") +
+                    stat = "identity", 
+                    color = NA, linewidth = 0) +
   ggplot2::scale_fill_manual(values = pal) +
-  ggplot2::guides(fill = ggplot2::guide_legend(reverse =TRUE)) +
+  # ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2, byrow = TRUE)) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
   ggplot2::ylab("Antall prosedyrer") +
@@ -238,9 +261,196 @@ prosedyreTypeMaaned %>% ggplot2::ggplot(
                  axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
                  axis.title = ggplot2::element_text(size = 12), 
-                 legend.text = ggplot2::element_text(size = 12))
+                 legend.text = ggplot2::element_text(size = 12), 
+                 legend.position = "top")
 
 ```
 
 
+
+
+
+```{r TabPros, results='asis', eval=TRUE}
+cap <- paste0("Alle prosedyrer som ikke er TAVI  ",
+              "  ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, ".")
+
+TabPros <- AK %>% 
+  dplyr::filter(! Prosedyre2 %in% "TAVI" , 
+                ProsedyreDato >= as.Date("2023-04-01", format = "%Y-%m-%d")) %>% 
+  select(maaned, ProsedyreDato, ForlopsID, Prosedyre)
+
+
+align <- c("l", rep("c", 3))
+digs <-  rep(0, 4)
+
+
+if (params$tableFormat == "html") {
+  knitr::kable(x = TabPros, caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em")
+} else if (params$tableFormat == "latex") {
+  knitr::kable(x = TabPros,
+               format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8)
+}
+
+```
+
+
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+
+
+## Hastegrad {#hastegrad}
+
+
+```{r FigNHastegrad, fig.cap =  paste0("Foredling av hastegrad på aortaklaff registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
+pal <- colPrimary[c(5, 3, 2, 1)]
+
+
+hastegradMaaned <- AK %>%
+  dplyr::count(.data$maaned,
+               .data$ForlopsType2,
+               .drop = FALSE) %>%
+  dplyr::group_by(.data$maaned, .data$ForlopsType2) %>% 
+    mutate(n = ifelse(n==0,NA, n ))
+
+
+hastegradMaaned %>% ggplot2::ggplot(
+  ggplot2::aes(x = .data$maaned,
+               y = .data$n,
+               fill = factor(.data$ForlopsType2))) +
+  ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
+                    stat = "identity") +
+  ggplot2::scale_fill_manual(values = pal) +
+  # ggplot2::guides(fill = ggplot2::guide_legend(reverse =TRUE)) +
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("") +
+  ggplot2::ylab("Antall prosedyrer") +
+  ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_text(size = 12),
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
+                 axis.title = ggplot2::element_text(size = 12), 
+                 legend.text = ggplot2::element_text(size = 12), 
+                 legend.position ="top")
+
+```
+
+
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+
+
+## Operativ tilgang {#optilgang}
+
+
+```{r FigNTilgang, fig.cap =  paste0("Foredling av Operativ tilgang på aortaklaff registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
+pal <- colPrimary[c(5, 4, 3, 2, 1)]
+
+
+optilgangMaaned <- AK %>%
+  dplyr::count(.data$maaned,
+               .data$OperativTilgang,
+               .drop = FALSE) %>%
+  dplyr::group_by(.data$maaned, .data$OperativTilgang) %>% 
+    mutate(n = ifelse(n==0,NA, n ))
+
+
+optilgangMaaned %>% ggplot2::ggplot(
+  ggplot2::aes(x = .data$maaned,
+               y = .data$n,
+               fill = factor(.data$OperativTilgang))) +
+  ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
+                    stat = "identity") +
+  ggplot2::scale_fill_manual(values = pal) +
+  ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2, byrow = TRUE)) +
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("") +
+  ggplot2::ylab("Antall prosedyrer") +
+  ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_text(size = 12),
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
+                 axis.title = ggplot2::element_text(size = 12), 
+                 legend.text = ggplot2::element_text(size = 12), 
+                 legend.position ="top")
+
+```
+
+
+
+```{r TabTilgang, results='asis', eval=TRUE}
+cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
+              " per Operativ Tilgang ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, ".")
+
+TabOpTilgang <- AK %>% 
+  janitor::tabyl(maaned,
+                 OperativTilgang) %>%
+  janitor::adorn_totals("col", name = "Totalt")
+
+
+TabOpTilgang <- timeTableMonth %>%
+  merge(., TabOpTilgang, 
+        by.x = c("maaned"), by.y = c("maaned"),
+        all.x = TRUE, all.y = FALSE) %>% 
+  dplyr::rename(" " = "maaned") %>% 
+  janitor::adorn_totals("row", name = "Totalt")
+
+TabOpTilgang[TabOpTilgang == 0] <- " - "
+TabOpTilgang[is.na(TabOpTilgang)] <- " - "
+
+align <- c("l", rep("c", dim(TabOpTilgang)[2] - 1))
+digs <-  rep(0, dim(TabOpTilgang)[2] )
+
+
+if (params$tableFormat == "html") {
+  knitr::kable(x = TabOpTilgang, caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em")
+} else if (params$tableFormat == "latex") {
+  knitr::kable(x = TabOpTilgang,
+               format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8)
+}
+
+```
+
+<br/>
+
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.3)  # set progress to 30%
+```
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
