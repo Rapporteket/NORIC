@@ -44,7 +44,7 @@
 #'
 #'
 legg_til_ventetid_nstemi_timer <- function(df_ap) {
-
+  
   stopifnot(all(c("OverflyttetFra",
                   "ProsedyreDato",
                   "ProsedyreTid",
@@ -52,26 +52,26 @@ legg_til_ventetid_nstemi_timer <- function(df_ap) {
                   "AnkomstPCITid",
                   "InnleggelseHenvisendeSykehusDato",
                   "InnleggelseHenvisendeSykehusTid") %in% names(df_ap)))
-
+  
   df_ap %>%
     mutate(
-
+      
       # Midlertidige variabler
       ProsedyreTidspunkt  = lubridate::parse_date_time2(
         paste(.data$ProsedyreDato, .data$ProsedyreTid),
         "%Y-%m-%d %H:%M:%S"),
-
+      
       AnkomstTidspunkt  = lubridate::parse_date_time2(
         paste(.data$AnkomstPCIDato, .data$AnkomstPCITid),
         "%Y-%m-%d %H:%M:%S"),
-
+      
       HenvisendeSykehusTidspunkt = lubridate::parse_date_time2(
         paste(.data$InnleggelseHenvisendeSykehusDato,
               .data$InnleggelseHenvisendeSykehusTid),
         "%Y-%m-%d %H:%M:%S"),
-
+      
       ventetid_nstemi_timer = dplyr::case_when(
-
+        
         # Hvis direkte innleggelse.
         .data$OverflyttetFra %in%
           c("Nei, direkte inn til dette sykehus",
@@ -79,7 +79,7 @@ legg_til_ventetid_nstemi_timer <- function(df_ap) {
           round(as.numeric(difftime(.data$ProsedyreTidspunkt,
                                     .data$AnkomstTidspunkt,
                                     units = "hours")), 2),
-
+        
         # Hvis overflyttede pasienter
         .data$OverflyttetFra %in% c("Annet sykehus") ~
           round(as.numeric(difftime(.data$ProsedyreTidspunkt,
@@ -87,13 +87,13 @@ legg_til_ventetid_nstemi_timer <- function(df_ap) {
                                     units = "hours")), 2),
         # Manglende eller "Annen avd på sykehuset"
         TRUE ~ NA_real_)) %>%
-
-
+    
+    
     # Fjerne midlertidige variabler
     dplyr::select(-.data$ProsedyreTidspunkt,
                   -.data$AnkomstTidspunkt,
                   -.data$HenvisendeSykehusTidspunkt)
-
+  
 }
 
 
@@ -131,31 +131,31 @@ legg_til_ventetid_nstemi_timer <- function(df_ap) {
 #' noric::legg_til_ventetid_stemi_min(x)
 
 legg_til_ventetid_stemi_min <- function(df_ap) {
-
+  
   stopifnot(all(c("ProsedyreDato",
                   "ProsedyreTid",
                   "BesUtlEKGDato",
                   "BesUtlEKGTid",
                   "BeslutningsutlosendeEKG") %in% names(df_ap)))
-
+  
   df_ap %>%
     mutate(
-
+      
       # Midlertidige variabler
       ProsedyreTidspunkt  = lubridate::parse_date_time2(
         paste(.data$ProsedyreDato, .data$ProsedyreTid),
         "%Y-%m-%d %H:%M:%S"),
-
+      
       BesUtlEkgTidspunkt  = lubridate::parse_date_time2(
         paste(.data$BesUtlEKGDato, .data$BesUtlEKGTid),
         "%Y-%m-%d %H:%M:%S"),
-
-
+      
+      
       ventetid_stemi_min =
         round(as.numeric(difftime(.data$ProsedyreTidspunkt,
                                   .data$BesUtlEkgTidspunkt,
                                   units = "mins")), 1),
-
+      
       # Fjerner de som har 0 minutters ventetid samtidig som
       # Beslutingsutløsende EKG er Prehospitalt
       ventetid_stemi_min = ifelse(
@@ -163,9 +163,9 @@ legg_til_ventetid_stemi_min <- function(df_ap) {
           .data$BeslutningsutlosendeEKG %in% "Prehospitalt",
         yes = NA,
         no = .data$ventetid_stemi_min)) %>%
-
-
-
+    
+    
+    
     # Fjerne midlertidige variabler
     dplyr::select(-.data$ProsedyreTidspunkt,
                   -.data$BesUtlEkgTidspunkt)
@@ -211,39 +211,39 @@ legg_til_ventetid_stemi_min <- function(df_ap) {
 #'
 #' @export
 legg_til_liggedogn <- function(df_ap) {
-
+  
   stopifnot(all(c("OverflyttetFra",
                   "AnkomstPCIDato",
                   "Regtype",
                   "Utskrivningsdato") %in% names(df_ap)))
-
+  
   df_ap %>%
     dplyr::mutate(
-
+      
       # Datagrunnlag
       liggedogn_data = dplyr::case_when(
-
+        
         .data$Regtype == "Primær" &
           .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                       "Omdirigert ambulanse",
                                       "Annet sykehus") &
           (is.na(.data$AnkomstPCIDato) |
              is.na(Utskrivningsdato)) ~ "manglende",
-
+        
         .data$Regtype == "Primær" &
           .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                       "Omdirigert ambulanse",
                                       "Annet sykehus") ~ "ja",
-
+        
         .data$Regtype == "Primær" &
           (.data$OverflyttetFra == "Annen  avdeling på sykehuset" |
              is.na(.data$OverflyttetFra)) ~ "nei",
-
+        
         .data$Regtype == "Sekundær" ~ "nei",
-
+        
         TRUE ~ "nei"),
-
-
+      
+      
       liggedogn = dplyr::case_when(
         .data$liggedogn_data == "nei" ~ NA_real_,
         .data$liggedogn_data == "manglende" ~ NA_real_,
@@ -252,15 +252,56 @@ legg_til_liggedogn <- function(df_ap) {
                               .data$AnkomstPCIDato,
                               units = "days")),
         TRUE ~ NA_real_),
-
-
+      
+      
       # Definere ugyldig tid i datagrunnlaget:
       liggedogn_data = ifelse(.data$liggedogn_data == "ja" &
                                 (.data$liggedogn < 0 | .data$liggedogn > 60),
                               yes = "ugyldig tid",
                               no = .data$liggedogn_data)
-
+      
     )
+  
+  
+}
 
 
+
+
+
+
+
+
+
+
+
+
+#' Ventetid TAVI
+#'
+#' Antall dager fra BeslutningsDato til ProsedyreDato for alle forløp på
+#' Aortaklaffen.
+#'
+#' @param df_ak data.frame med AortaklaffVar data fra noric. Maa inneholde
+#' variablene \code{BeslutningsDato} og \code{ProsedyreDato}
+#' 
+#' @return Returnerer \code{df_ak} med en ny variabel
+#'  \code{ventetid_tavi}. Variabelen \code{ventetid_tavi}
+#'  inneholder antall dager mellom dato for beslutning og dato for
+#'  prosedyre. Denne kan ogsaa inneholde negative tider og har ingen begrensing 
+#'  for øvre ventetid.
+#'
+#' @export
+legg_til_ventetid_tavi <- function(df_ak) {
+  
+  stopifnot(all(c("BeslutningsDato",
+                  "ProsedyreDato") %in% names(df_ak)))
+  
+  df_ak %>%
+    dplyr::mutate(
+      
+      ventetid_tavi = as.numeric(
+        difftime(.data$ProsedyreDato,
+                 .data$BeslutningsDato,
+                 units = "days"))
+      )
 }
