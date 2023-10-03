@@ -176,6 +176,30 @@ timeTableMonth <- data.frame(
   dplyr::mutate(maaned = as.ordered(maaned))
 
 
+timeTableMonth_fjor <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  as.Date(paste("30-12-", periode_data$sisteHeleYear), 
+                          format = "%d-%m-%Y"),
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    aar = periode_data$sisteHeleYear,
+    maaned = as.ordered(maaned))
+
+timeTableMonth_aar <- data.frame(
+  monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear), 
+                          format = "%d-%m-%Y"),
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+    dplyr::transmute(
+      aar = periode_data$nyesteRegYear, 
+      maaned = as.ordered(maaned))
+
+
+
 rangeProsDato <- paste(format(periode_data$forste_dato, 
                               "%d/%m-%Y"), 
                        "til", 
@@ -280,14 +304,22 @@ Rapporten er generert med utgangspunkt i NORIC's database for
 `r params$hospitalName`.    
 
 Det presenteres månedlige resultater for hele fjorårets produksjon, samt alle
-fullførte måndeder hittil i år. 
-Den siste prosedyredatoen som er med i tabellene og 
-figurene er dermed `r format(periode_data$siste_dato, '%d. %B %Y')`. 
+fullførte måndeder hittil i år. Den siste prosedyredatoen som er med i tabellene og 
+figurene er `r format(periode_data$siste_dato, '%d. %B %Y')`. 
 
-Totalt `r AK %>% nrow()` prosedyrer ligger til grunn for rapporten. 
+Totalt `r AK %>% nrow()` aortaklaff-prosedyrer ligger til grunn for rapporten, 
+`r AK %>% dplyr::filter(aar == periode_data$sisteHeleYear) %>% nrow()` fra 
+`r periode_data$sisteHeleYear ` og 
+`r AK %>% dplyr::filter(aar == periode_data$nyesteRegYear) %>% nrow()` fra 
+`r periode_data$nyesteRegYear ` . 
+
+
+\bigskip \bigskip \bigskip
+
 
 # Produksjon hittil i år
-```{r}
+```{r FigKumulertProde, fig.cap =  paste0("Kumulert antall prosedyrer på aortaklaff registrert i NORIC ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", periode_data$siste_dato , ")."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
 df_cumplot <- AK %>%
   dplyr::select(maaned_nr, aar) %>% 
   dplyr::count(maaned_nr, aar) %>% 
@@ -341,30 +373,25 @@ ggplot2::ggplot(df_cumplot) +
                                              label = tot_aar),
                      colour = colKontrast) +
 
-
- 
-  ggplot2::ggtitle("Prosedyrer på aortaklaff", 
-                   subtitle = hospitalName) + 
   ggplot2::xlab("") + 
   ggplot2::ylab("Kumulert antall prosedyrer") + 
   ggplot2::theme_minimal() + 
   ggplot2::theme(legend.title = ggplot2::element_blank(),
                  axis.text = ggplot2::element_text(size = 12),
-                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
                  axis.title = ggplot2::element_text(size = 12), 
                  legend.text = ggplot2::element_text(size = 12), 
                  legend.position = "top")
   
 
 
-
-
-
-
 ```
 
 
 
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
 
 
@@ -375,60 +402,51 @@ ggplot2::ggplot(df_cumplot) +
 
 ## Prosedyretype {#prosedyretype}
 Variabelen _prosedyre_ er ny fra våren 2023. Registreringer før 1. april 2023
-er ikke med i figuren under. 
-
-```{r FigNProsedyreType, fig.cap =  paste0("Antall prosedyrer på aortaklaff registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
-
-pal <- colPrimary[c(5, 3, 2, 1)]
-
-
-prosedyreTypeMaaned <- AK %>%
-  dplyr::filter(ProsedyreDato >= as.Date("2023-04-01", format = "%Y-%m-%d")) %>% 
-  dplyr::count(maaned,
-               Prosedyre2,
-               .drop = FALSE) %>%
-  dplyr::group_by(maaned, Prosedyre2) %>% 
-  mutate(n = ifelse(n==0,NA, n ))
-
-
-prosedyreTypeMaaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = maaned,
-               y = n,
-               fill = factor(Prosedyre2))) +
-  ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
-                    stat = "identity", 
-                    color = NA, linewidth = 0) +
-  ggplot2::scale_fill_manual(values = pal) +
-  # ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2, byrow = TRUE)) +
-  ggplot2::theme_minimal() +
-  ggplot2::xlab("") +
-  ggplot2::ylab("Antall prosedyrer") +
-  ggplot2::theme(legend.title = ggplot2::element_blank(),
-                 axis.text = ggplot2::element_text(size = 12),
-                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
-                 axis.title = ggplot2::element_text(size = 12), 
-                 legend.text = ggplot2::element_text(size = 12), 
-                 legend.position = "top")
-
-```
-
-
+er ikke med i tabellen under. 
 
 
 
 ```{r TabPros, results='asis', eval=TRUE}
-cap <- paste0("Alle prosedyrer som ikke er TAVI  ",
-              "  ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-
-TabPros <- AK %>% 
-  dplyr::filter(! Prosedyre2 %in% "TAVI" , 
-                ProsedyreDato >= as.Date("2023-04-01", format = "%Y-%m-%d")) %>% 
-  select(maaned, ProsedyreDato, ForlopsID, Prosedyre)
+cap <- paste0("Fordeling av Prosedyretype registrert i NORIC per måned ",
+              " ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, 
+              ". Merk at variablen er ny fra våren 2023 og eldre ", 
+              "registreringer vil ha verdien NA (not available).")
 
 
-align <- c("l", rep("c", 3))
-digs <-  rep(0, 4)
+TabPros_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AK %>%  
+    janitor::tabyl(maaned,Prosedyre2) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+      relocate("aar", .before = "maaned") 
+
+TabPros_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AK %>%  
+    janitor::tabyl(maaned,Prosedyre2) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                            periode_data$nyesteRegYear)) %>% 
+    relocate("aar", .before = "maaned")
+
+
+TabPros <- rbind(
+  TabPros_fjor, 
+  TabPros_aar
+)
+
+
+TabPros[TabPros == 0] <- " - "
+TabPros[is.na(TabPros)] <- " - "
+
+align <- c("l", rep("c", dim(TabPros)[2] - 1))
+digs <-  rep(0, dim(TabPros)[2] )
 
 
 if (params$tableFormat == "html") {
@@ -438,7 +456,11 @@ if (params$tableFormat == "html") {
                                                     "condensed"),
                               full_width = FALSE, 
                               font_size = 8) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>% 
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>% 
+    kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE)
+
 } else if (params$tableFormat == "latex") {
   knitr::kable(x = TabPros,
                format = params$tableFormat,
@@ -446,10 +468,19 @@ if (params$tableFormat == "html") {
                booktabs = TRUE,
                align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8)
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>% 
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>% 
+    kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE) %>% 
+    kableExtra::pack_rows(start_row = 1, index = "aar")
+
+
 }
 
 ```
+
+
+
 
 
 
