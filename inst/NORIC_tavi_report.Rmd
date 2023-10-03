@@ -54,6 +54,7 @@ colPrimary <- c("#000059",
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
 
+hospitalName <- params$hospitalName
 ``` 
 
 
@@ -299,7 +300,15 @@ df_cumplot <- AK %>%
                                "08", "09", "10", "11", "12"),
                     labels = c("Jan", "Feb", "Mars", "April", "Mai", 
                                "Juni", "Juli", "Aug", "Sept", "Okt", 
-                               "Nov", "Des")))
+                               "Nov", "Des")),
+    max_tota = max(Total, na.rm = TRUE),
+    
+    Label = ifelse(Total == max_tota, 
+                   max_tota, 
+                   NA_character_))
+
+  
+  
 tot_fjor <- df_cumplot %>% 
   dplyr::filter(aar == periode_data$sisteHeleYear) %>% 
   dplyr::pull(Total) %>% max(., na.rm = TRUE)
@@ -309,43 +318,45 @@ tot_aar <- df_cumplot %>%
   dplyr::pull(Total) %>% max(., na.rm = TRUE)
 
 
-ggplot2::ggplot() +
-    ggplot2::geom_line(
-       data = df_cumplot %>% 
-        dplyr::filter(aar %in% periode_data$sisteHeleYear), 
-       mapping = ggplot2::aes(x = Maaned, 
-                              y = Total, 
-                              group = aar),
-       size = 1.5, 
-       colour = colPrimary[3]) +
-  
-    ggplot2::geom_line(
-      data = df_cumplot %>%
-        dplyr::filter(aar %in% periode_data$nyesteRegYear), 
 
-      mapping = ggplot2::aes(x = Maaned,
+
+ggplot2::ggplot(df_cumplot) +
+    ggplot2::geom_line(
+      mapping = ggplot2::aes(x = Maaned, 
                              y = Total, 
-                             group = aar),
-      size = 1.5, 
-      colour = colKontrast)  +
+                             group = aar, 
+                             colour =aar), linewidth = 1.5) + 
+  ggplot2::scale_color_manual(name = "",
+                                values = c(colPrimary[3], colKontrast), 
+                                labels = as.character(periode_data$sisteHeleYear:periode_data$nyesteRegYear), 
+                                breaks = periode_data$sisteHeleYear:periode_data$nyesteRegYear) +
   
   ggplot2::geom_label(mapping = ggplot2::aes(x= 12,
-                                             y = tot_fjor*0.95, 
+                                             y = tot_fjor*0.95,
                                              label = tot_fjor) ,
                      colour = colPrimary[3]) +
- 
+
    ggplot2::geom_label(mapping = ggplot2::aes(x= periode_data$nyesteRegMnd,
-                                             y = tot_aar*0.95, 
-                                             label = tot_aar), 
+                                             y = tot_aar*0.95,
+                                             label = tot_aar),
                      colour = colKontrast) +
+
+
  
-   
-   ggplot2::scale_colour_discrete(name = 'År', 
-                                  labels = c(periode_data$sisteHeleYear, 
-                                             periode_data$nyesteRegYear)) + 
-  ggplot2::theme_minimal() +
-  ggplot2::xlab("") +
-  ggplot2::ylab("Kumulert antall prosedyrer") 
+  ggplot2::ggtitle("Prosedyrer på aortaklaff", 
+                   subtitle = hospitalName) + 
+  ggplot2::xlab("") + 
+  ggplot2::ylab("Kumulert antall prosedyrer") + 
+  ggplot2::theme_minimal() + 
+  ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 axis.text = ggplot2::element_text(size = 12),
+                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
+                 axis.title = ggplot2::element_text(size = 12), 
+                 legend.text = ggplot2::element_text(size = 12), 
+                 legend.position = "top")
+  
+
+
 
 
 
