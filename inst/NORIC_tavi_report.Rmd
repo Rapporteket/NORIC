@@ -56,10 +56,6 @@ colKontrast <- "#FF7260"
 
 ``` 
 
-```{r parametre}
-showN <- 14
-```
-
 
 ```{r }
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
@@ -80,23 +76,92 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 # ELDSTE DATO:
 # Januar fra i fjor (hele foregående år skal vise i rapporten)
 
+
+
+# Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
 if(params$registryName %in% "noricStagingNasjonal"){
-  nyeste_reg <- noric::getLatestEntryHospital(
-    registryName = params$registryName, 
-    reshID = params$reshID)
+  nyeste_reg <- min(
+      (as.Date(Sys.time()) - 1),
+      
+      noric::getLatestEntryHospital(registryName = params$registryName, 
+                                    reshID = params$reshID)
+  )
   
 } else {
-  nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
+  nyeste_reg <- min(
+      (as.Date(Sys.time()) - 1),
+      noric::getLatestEntry(registryName = params$registryName)
+  )
 }
 
-periode_data <- data.frame(
-  siste_dato = min((as.Date(Sys.time()) - 1),
-                   nyeste_reg))
 
-periode_data %<>%
-  dplyr::mutate(
-    forste_dato  = lubridate::floor_date(.data$siste_dato,
-                                         "month") - months(showN))
+
+periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
+    dplyr::mutate(
+      
+      
+      # SISTE DATO AVGJØR SISTE MÅNED: 
+      siste_dato_innevarende_mnd = lubridate::ceiling_date(
+        x = nyeste_reg, unit =  "month") - lubridate::days(1),
+      
+      siste_dato = dplyr::case_when(
+        # siste dato er nyeste dato --> nyeste mnd er komlett
+        siste_dato_innevarende_mnd == nyeste_reg ~ 
+          nyeste_reg, 
+        
+        # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
+        siste_dato_innevarende_mnd != nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, "month") - 
+          lubridate::days(1), 
+        
+        TRUE ~ as.Date(NA_character_)),
+      
+      
+      
+      
+      # SISTE DATO AVGJØR SISTE KVARTAL
+      siste_dato_innevarende_kvartal = lubridate::ceiling_date(
+        x = nyeste_reg, 
+        unit =  "quarter") - lubridate::days(1),
+      
+      kvartal_komplett_start = dplyr::case_when(
+        # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
+        siste_dato_innevarende_kvartal == nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, 
+                                unit =  "quarter"), 
+        
+        # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+        siste_dato_innevarende_kvartal != nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, 
+                                unit =  "quarter") - months(3), 
+        
+        TRUE ~ as.Date(NA_character_)),
+      
+      
+      
+      # Inneværende år: 
+      nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+      
+      # Fjoråret
+      sisteHeleYear = nyesteRegYear - 1, 
+
+      # Inneværende måned i år: 
+      nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
+      
+      # Første dato for SQL -spørring : 01. januar fjoråret
+      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                             format = "%Y-%m-%d"), 
+      
+      # Aortaklaff + Segment stent (indikator per kvartal): 
+      forste_dato_kvartal = as.Date(paste0(sisteHeleYear -1, "-01-01"),
+                                  format = "%Y-%m-%d")
+    ) %>% 
+    dplyr::select(-siste_dato_innevarende_mnd, 
+                  -siste_dato_innevarende_kvartal)
+  
+
+
+
 ```
 
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
@@ -105,7 +170,7 @@ timeTableMonth <- data.frame(
   monthDato = seq(periode_data$forste_dato, 
                   periode_data$siste_dato,
                   by = "month")) %>% 
-  dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
                                              format = "%Y-%m"))) %>% 
   dplyr::mutate(maaned = as.ordered(maaned))
 
@@ -148,21 +213,23 @@ if(params$registryName %in% "noricStagingNasjonal"){
 AK %<>% 
   dplyr::mutate(
     Prosedyre2 = factor(
-      x = case_when(Prosedyre %in% "TAVI" ~ "TAVI", 
-                    Prosedyre %in% "BAV" ~ "BAV", 
-                    Prosedyre %in% "Avbrutt, ikke utført TAVI/BAV" ~ "Avbrutt", 
-                    Prosedyre %in% NA_character_ ~ NA_character_, ), 
+      x = dplyr::case_when(
+        Prosedyre %in% "TAVI" ~ "TAVI", 
+        Prosedyre %in% "BAV" ~ "BAV", 
+        Prosedyre %in% "Avbrutt, ikke utført TAVI/BAV" ~ "Avbrutt", 
+        Prosedyre %in% NA_character_ ~ NA_character_, ), 
+      
       levels = c("TAVI",
                  "BAV", 
                  "Avbrutt", 
                  NA_character_)),
     
     ForlopsType2 = factor(x = ForlopsType2, 
-                       levels = c("Planlagt",
-                                  "Subakutt", 
-                                  "Akutt", 
-                                  NA_character_)), 
-    
+                          levels = c("Planlagt",
+                                     "Subakutt", 
+                                     "Akutt", 
+                                     NA_character_)), 
+       
     OperativTilgang = factor(x = OperativTilgang, 
                              levels = c("Transfemoral", 
                                         "A.subclavia", 
@@ -208,7 +275,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 \bigskip \bigskip \bigskip
 
 # Datagrunnlag
-Rapporten er generert med utgangspunkt i NORIC's lokale database for
+Rapporten er generert med utgangspunkt i NORIC's database for
 `r params$hospitalName`.    
 
 Det presenteres månedlige resultater for hele fjorårets produksjon, samt alle
@@ -217,6 +284,74 @@ Den siste prosedyredatoen som er med i tabellene og
 figurene er dermed `r format(periode_data$siste_dato, '%d. %B %Y')`. 
 
 Totalt `r AK %>% nrow()` prosedyrer ligger til grunn for rapporten. 
+
+# Produksjon hittil i år
+```{r}
+df_cumplot <- AK %>%
+  dplyr::select(maaned_nr, aar) %>% 
+  dplyr::count(maaned_nr, aar) %>% 
+  dplyr::arrange(maaned_nr) %>% 
+  dplyr::group_by(aar) %>% 
+  dplyr::mutate(
+    Total=cumsum(n), 
+    Maaned = factor(maaned_nr, 
+                    levels = c("01", "02", "03", "04", "05", "06", "07", 
+                               "08", "09", "10", "11", "12"),
+                    labels = c("Jan", "Feb", "Mars", "April", "Mai", 
+                               "Juni", "Juli", "Aug", "Sept", "Okt", 
+                               "Nov", "Des")))
+tot_fjor <- df_cumplot %>% 
+  dplyr::filter(aar == periode_data$sisteHeleYear) %>% 
+  dplyr::pull(Total) %>% max(., na.rm = TRUE)
+
+tot_aar <- df_cumplot %>% 
+  dplyr::filter(aar == periode_data$nyesteRegYear) %>% 
+  dplyr::pull(Total) %>% max(., na.rm = TRUE)
+
+
+ggplot2::ggplot() +
+    ggplot2::geom_line(
+       data = df_cumplot %>% 
+        dplyr::filter(aar %in% periode_data$sisteHeleYear), 
+       mapping = ggplot2::aes(x = Maaned, 
+                              y = Total, 
+                              group = aar),
+       size = 1.5, 
+       colour = colPrimary[3]) +
+  
+    ggplot2::geom_line(
+      data = df_cumplot %>%
+        dplyr::filter(aar %in% periode_data$nyesteRegYear), 
+
+      mapping = ggplot2::aes(x = Maaned,
+                             y = Total, 
+                             group = aar),
+      size = 1.5, 
+      colour = colKontrast)  +
+  
+  ggplot2::geom_label(mapping = ggplot2::aes(x= 12,
+                                             y = tot_fjor*0.95, 
+                                             label = tot_fjor) ,
+                     colour = colPrimary[3]) +
+ 
+   ggplot2::geom_label(mapping = ggplot2::aes(x= periode_data$nyesteRegMnd,
+                                             y = tot_aar*0.95, 
+                                             label = tot_aar), 
+                     colour = colKontrast) +
+ 
+   
+   ggplot2::scale_colour_discrete(name = 'År', 
+                                  labels = c(periode_data$sisteHeleYear, 
+                                             periode_data$nyesteRegYear)) + 
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("") +
+  ggplot2::ylab("Kumulert antall prosedyrer") 
+
+
+
+
+```
+
 
 
 
@@ -238,17 +373,17 @@ pal <- colPrimary[c(5, 3, 2, 1)]
 
 prosedyreTypeMaaned <- AK %>%
   dplyr::filter(ProsedyreDato >= as.Date("2023-04-01", format = "%Y-%m-%d")) %>% 
-  dplyr::count(.data$maaned,
-               .data$Prosedyre2,
+  dplyr::count(maaned,
+               Prosedyre2,
                .drop = FALSE) %>%
-  dplyr::group_by(.data$maaned, .data$Prosedyre2) %>% 
+  dplyr::group_by(maaned, Prosedyre2) %>% 
   mutate(n = ifelse(n==0,NA, n ))
 
 
 prosedyreTypeMaaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = .data$maaned,
-               y = .data$n,
-               fill = factor(.data$Prosedyre2))) +
+  ggplot2::aes(x = maaned,
+               y = n,
+               fill = factor(Prosedyre2))) +
   ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
                     stat = "identity", 
                     color = NA, linewidth = 0) +
@@ -323,17 +458,17 @@ pal <- colPrimary[c(5, 3, 2, 1)]
 
 
 hastegradMaaned <- AK %>%
-  dplyr::count(.data$maaned,
-               .data$ForlopsType2,
+  dplyr::count(maaned,
+               ForlopsType2,
                .drop = FALSE) %>%
-  dplyr::group_by(.data$maaned, .data$ForlopsType2) %>% 
+  dplyr::group_by(maaned, ForlopsType2) %>% 
     mutate(n = ifelse(n==0,NA, n ))
 
 
 hastegradMaaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = .data$maaned,
-               y = .data$n,
-               fill = factor(.data$ForlopsType2))) +
+  ggplot2::aes(x = maaned,
+               y = n,
+               fill = factor(ForlopsType2))) +
   ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
                     stat = "identity") +
   ggplot2::scale_fill_manual(values = pal) +
@@ -368,17 +503,17 @@ pal <- colPrimary[c(5, 4, 3, 2, 1)]
 
 
 optilgangMaaned <- AK %>%
-  dplyr::count(.data$maaned,
-               .data$OperativTilgang,
+  dplyr::count(maaned,
+               OperativTilgang,
                .drop = FALSE) %>%
-  dplyr::group_by(.data$maaned, .data$OperativTilgang) %>% 
+  dplyr::group_by(maaned, OperativTilgang) %>% 
     mutate(n = ifelse(n==0,NA, n ))
 
 
 optilgangMaaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = .data$maaned,
-               y = .data$n,
-               fill = factor(.data$OperativTilgang))) +
+  ggplot2::aes(x = maaned,
+               y = n,
+               fill = factor(OperativTilgang))) +
   ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
                     stat = "identity") +
   ggplot2::scale_fill_manual(values = pal) +
