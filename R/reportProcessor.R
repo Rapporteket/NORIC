@@ -169,6 +169,24 @@ reportProcessor <- function(report,
     )
   }
   
+  if (report == "NORIC_tavi_report") {
+    filePath <- rapbase::renderRmd(
+      sourceFile =  system.file("NORIC_tavi_report.Rmd",
+                                package = "noric"),
+      outputType = outputType,
+      params = list(
+        author = author,
+        hospitalName = orgName,
+        tableFormat = "latex",
+        
+        reshID = orgId,
+        registryName = registryName,
+        userFullName = userFullName,
+        userRole = userRole, 
+        rendered_by_shiny = rendered_by_shiny
+      )
+    )
+  }
   
   filePath
 }

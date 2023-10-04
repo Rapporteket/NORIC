@@ -84,7 +84,25 @@ ui <- tagList(
             htmlOutput("aktivitet", inline = TRUE)
           )
         )
-      )) ,
+      ), 
+      
+      
+      tabPanel(
+        "Aortaklaff",
+        sidebarLayout(
+          sidebarPanel(
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
+            downloadButton("downloadReportProsedyrer", "Hent!"),
+            width = 2
+          ),
+          mainPanel(
+            htmlOutput("tavi", inline = TRUE)
+          )
+        )
+      )
+      
+      ) ,
 
     
     
