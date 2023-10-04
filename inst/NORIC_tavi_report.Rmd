@@ -869,24 +869,28 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 
 # Ventetid TAVI
-Ventetetid ved TAVI beregnes som antall dager fra dato for screeningbeslutning 
-og prosedyredato. 
-
-Figuren viser et boxplot med fordeling av 
-prosedyrevarighet per måned. Den blå boksen markerer nedre og øvre
-kvartil, medianen er markert av den tykke linjen.
-Punktene utenfor greinene viser uteliggere, det vil si 
-forløp med usedvanlig kort eller lang prosedyrevarighet 
-(prosedyrevarighet lengre enn 1,5 ganger interkvartil bredde over øvre kvartil/
-under nedre kvartil).
 
 
 
-```{r figVentetid, cap =cap, fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r figVentetid, fig.cap =cap, fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
-cap <- paste0("Ventetid ved TAVI er beregnet som antall dager mellom ", 
-              "Screening besluting og proseydre. ")
+cap <- paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som ", 
+              "antall dager mellom dato for screeningbeslutning og prosedyredatoen. ", 
+              "Boxplotet viser fordelingen av ventetiden. ", 
+              "De blå boksene er avgrenset av nedre og øvre kvartil,  ",
+              "og inneholder 50% av registreringene.",
+              "Medianen er markert av den tykke linjen midt i boksen.", 
+              "De vertikale greinene viser minste (største) verdi i datasettet ", 
+              "innenfor 1,5 ganger interkvartil bredde under nedre kvartil ", 
+              "(over øvre kvartil). ", 
+              "Punktene utenfor greinene viser uteliggere, det vil si " ,  
+              "forløp med usedvanlig kort eller lang ventetid ", 
+              "(ventetid lengre enn 1,5 ganger interkvartil bredde over øvre ", 
+              "kvartil eller under nedre kvartil). ", 
+              "Merk at registreringer for innneværende år ikke nødvendigvis er 'filvasket'.")
 AK %>% 
+  dplyr::filter(ForlopsType2 == "Planlagt", 
+                !is.na(ventetid_tavi)) %>% 
   dplyr::select(ventetid_tavi, Maaned, aar) %>% 
     ggplot2::ggplot(mapping= ggplot2::aes(x = Maaned, 
                                           y = ventetid_tavi)) +
@@ -903,11 +907,26 @@ AK %>%
   ggplot2::xlab("") + 
   ggplot2::ylab("Ventetid (dager)") + 
   ggplot2::theme(
-    legend.position = "bottom", 
+    legend.position = c(0.5, 0.9), 
+    legend.direction = "horizontal",
     legend.text = ggplot2::element_text(size = 12),
     axis.text = ggplot2::element_text(size = 12), 
-    axis.title = ggplot2::element_text(size = 12), 
+    axis.title = ggplot2::element_text(size = 12)
     
   )
 ```
 
+
+# TO DO 
+
+## Liggetid/Utksrevet til
+
+## Klaff i klaff
+
+## Paravalvulær lekkasje
+
+## Pacemakerbehov
+
+## Komplikasjoner
+
+## Alder/ kjønn lenger tilbake i tid
