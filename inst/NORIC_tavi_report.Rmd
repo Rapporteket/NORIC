@@ -870,24 +870,9 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 # Ventetid TAVI
 
+```{r figVentetid, fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Boxplotet viser fordelingen av ventetiden. De blå boksene er avgrenset av nedre og øvre kvartil og inneholder halvparten av registreringene. Medianen er markert av den tykke linjen midt i boksen. Bredden på boksen kalles intervartil bredde (IQR). De vertikale greinene viser minste (største) verdi i datasettet innenfor 1.5xIQR under nedre kvartil (1.5xIQR over øvre kvartil). Punktene utenfor greinene viser uteliggere, det vil si forløp med usedvanlig kort eller lang ventetid. Merk at registreringer for innneværende år ikke nødvendigvis er filvasket."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 
-```{r figVentetid, fig.cap =cap, fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
-
-cap <- paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som ", 
-              "antall dager mellom dato for screeningbeslutning og prosedyredatoen. ", 
-              "Boxplotet viser fordelingen av ventetiden. ", 
-              "De blå boksene er avgrenset av nedre og øvre kvartil,  ",
-              "og inneholder 50% av registreringene.",
-              "Medianen er markert av den tykke linjen midt i boksen.", 
-              "De vertikale greinene viser minste (største) verdi i datasettet ", 
-              "innenfor 1,5 ganger interkvartil bredde under nedre kvartil ", 
-              "(over øvre kvartil). ", 
-              "Punktene utenfor greinene viser uteliggere, det vil si " ,  
-              "forløp med usedvanlig kort eller lang ventetid ", 
-              "(ventetid lengre enn 1,5 ganger interkvartil bredde over øvre ", 
-              "kvartil eller under nedre kvartil). ", 
-              "Merk at registreringer for innneværende år ikke nødvendigvis er 'filvasket'.")
 AK %>% 
   dplyr::filter(ForlopsType2 == "Planlagt", 
                 !is.na(ventetid_tavi)) %>% 
@@ -899,8 +884,7 @@ AK %>%
                      colour = aar), 
         na.rm = TRUE, 
         fill = colPrimary[4],
-        # colour = "gray10",
-        position = ggplot2::position_dodge(preserve= "single"), ) +
+        position = ggplot2::position_dodge(preserve= "single")) +
   ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
   ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
   ggplot2::theme_minimal()  +
@@ -912,7 +896,6 @@ AK %>%
     legend.text = ggplot2::element_text(size = 12),
     axis.text = ggplot2::element_text(size = 12), 
     axis.title = ggplot2::element_text(size = 12)
-    
   )
 ```
 
@@ -920,13 +903,19 @@ AK %>%
 # TO DO 
 
 ## Liggetid/Utksrevet til
+hh
 
 ## Klaff i klaff
+hh
 
 ## Paravalvulær lekkasje
+hh
 
 ## Pacemakerbehov
+hh
 
 ## Komplikasjoner
+hh
 
 ## Alder/ kjønn lenger tilbake i tid
+
