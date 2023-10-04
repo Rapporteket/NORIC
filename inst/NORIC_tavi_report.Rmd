@@ -184,7 +184,6 @@ timeTableMonth_fjor <- data.frame(
   dplyr::transmute(maaned = as.factor(format(x = monthDato, 
                                              format = "%Y-%m"))) %>% 
   dplyr::transmute(
-    aar = periode_data$sisteHeleYear,
     maaned = as.ordered(maaned))
 
 timeTableMonth_aar <- data.frame(
@@ -195,7 +194,6 @@ timeTableMonth_aar <- data.frame(
   dplyr::transmute(maaned = as.factor(format(x = monthDato, 
                                              format = "%Y-%m"))) %>% 
     dplyr::transmute(
-      aar = periode_data$nyesteRegYear, 
       maaned = as.ordered(maaned))
 
 
@@ -261,9 +259,31 @@ AK %<>%
                                         "Direkte aorta", 
                                         "Transapical", 
                                         "Annen", 
-                                        NA_character_))
+                                        NA_character_)), 
     
-    )
+    TypeKlaffeprotese2 = factor(
+      x = dplyr::case_when(
+        TypeKlaffeprotese %in% c("Edwards SAPIEN 3", 
+                                 "Edwards SAPIEN 3 Ultra", 
+                                 "Edwards SAPIEN XT", 
+                                 "Edwards") ~ "Edwards", 
+        
+        TypeKlaffeprotese %in% c("CoreValve Evolut PRO", 
+                                  "CoreValve Evolut R", 
+                                  "CoreValve") ~ "CoreValve", 
+        
+        !is.na(TypeKlaffeprotese) ~ "Annet", 
+        is.na(TypeKlaffeprotese) ~ NA_character_), 
+      levels = c("Edwards", "CoreValve", "Annet", NA_character_)), 
+    
+      Maaned = factor(maaned_nr, 
+                    levels = c("01", "02", "03", "04", "05", "06", "07", 
+                               "08", "09", "10", "11", "12"),
+                    labels = c("Jan", "Feb", "Mars", "April", "Mai", 
+                               "Juni", "Juli", "Aug", "Sept", "Okt", 
+                               "Nov", "Des"))
+    ) %>% 
+  noric::legg_til_ventetid_tavi()
 
 ```
 
@@ -317,7 +337,7 @@ Totalt `r AK %>% nrow()` aortaklaff-prosedyrer ligger til grunn for rapporten,
 \bigskip \bigskip \bigskip
 
 
-# Produksjon hittil i år
+# Kumulert produksjon per år
 ```{r FigKumulertProde, fig.cap =  paste0("Kumulert antall prosedyrer på aortaklaff registrert i NORIC ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", periode_data$siste_dato , ")."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 df_cumplot <- AK %>%
@@ -398,17 +418,12 @@ ggplot2::ggplot(df_cumplot) +
 
 
 
-# Prosedyren
 
-## Prosedyretype {#prosedyretype}
-Variabelen _prosedyre_ er ny fra våren 2023. Registreringer før 1. april 2023
-er ikke med i tabellen under. 
-
-
+# Prosedyretype {#prosedyretype}
 
 ```{r TabPros, results='asis', eval=TRUE}
-cap <- paste0("Fordeling av Prosedyretype registrert i NORIC per måned ",
-              " ved ", params$hospitalName,
+cap <- paste0("Fordeling av prosedyretyper registrert i NORIC ",
+              "ved ", params$hospitalName,
               " i perioden ", rangeProsDato, 
               ". Merk at variablen er ny fra våren 2023 og eldre ", 
               "registreringer vil ha verdien NA (not available).")
@@ -422,7 +437,8 @@ TabPros_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned") %>% 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
-      relocate("aar", .before = "maaned") 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
 TabPros_aar <- merge(
   x = timeTableMonth_aar,
@@ -433,7 +449,8 @@ TabPros_aar <- merge(
   by.y = "maaned") %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>% 
-    relocate("aar", .before = "maaned")
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
 
 TabPros <- rbind(
@@ -450,29 +467,41 @@ digs <-  rep(0, dim(TabPros)[2] )
 
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = TabPros, caption = cap, align = align) %>%
+  TabPros %>% dplyr::select(-aar) %>% 
+    knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE, 
                               font_size = 8) %>%
     kableExtra::column_spec(column = 1, width = "7em") %>% 
-    kableExtra::row_spec(row=12, hline_after =  TRUE) %>% 
-    kableExtra::row_spec(row=13, hline_after =  TRUE) %>% 
-    kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE)
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabPros)[1])
 
 } else if (params$tableFormat == "latex") {
-  knitr::kable(x = TabPros,
-               format = params$tableFormat,
+  TabPros %>% dplyr::select(-aar) %>% 
+    knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
                              font_size = 8) %>% 
-    kableExtra::row_spec(row=12, hline_after =  TRUE) %>% 
-    kableExtra::row_spec(row=13, hline_after =  TRUE)%>% 
-    kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE) %>% 
-    kableExtra::pack_rows(start_row = 1, index = "aar")
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabPros)[1])
 
 
 }
@@ -491,132 +520,191 @@ if (params$tableFormat == "html") {
 
 
 
-## Hastegrad {#hastegrad}
+# Hastegrad {#hastegrad}
 
 
-```{r FigNHastegrad, fig.cap =  paste0("Foredling av hastegrad på aortaklaff registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNHastegrad, fig.cap =  cap, fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
-pal <- colPrimary[c(5, 3, 2, 1)]
-
-
-hastegradMaaned <- AK %>%
-  dplyr::count(maaned,
-               ForlopsType2,
-               .drop = FALSE) %>%
-  dplyr::group_by(maaned, ForlopsType2) %>% 
-    mutate(n = ifelse(n==0,NA, n ))
-
-
-hastegradMaaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = maaned,
-               y = n,
-               fill = factor(ForlopsType2))) +
-  ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
-                    stat = "identity") +
-  ggplot2::scale_fill_manual(values = pal) +
-  # ggplot2::guides(fill = ggplot2::guide_legend(reverse =TRUE)) +
-  ggplot2::theme_minimal() +
-  ggplot2::xlab("") +
-  ggplot2::ylab("Antall prosedyrer") +
-  ggplot2::theme(legend.title = ggplot2::element_blank(),
-                 axis.text = ggplot2::element_text(size = 12),
-                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
-                 axis.title = ggplot2::element_text(size = 12), 
-                 legend.text = ggplot2::element_text(size = 12), 
-                 legend.position ="top")
-
-```
-
-
-
-
-`r if(params$tableFormat !="latex") {"<!--"}`
-\newpage
-`r if(params$tableFormat !="latex") {"-->"}`
-
-
-
-## Operativ tilgang {#optilgang}
-
-
-```{r FigNTilgang, fig.cap =  paste0("Foredling av Operativ tilgang på aortaklaff registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
-
-pal <- colPrimary[c(5, 4, 3, 2, 1)]
-
-
-optilgangMaaned <- AK %>%
-  dplyr::count(maaned,
-               OperativTilgang,
-               .drop = FALSE) %>%
-  dplyr::group_by(maaned, OperativTilgang) %>% 
-    mutate(n = ifelse(n==0,NA, n ))
-
-
-optilgangMaaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = maaned,
-               y = n,
-               fill = factor(OperativTilgang))) +
-  ggplot2::geom_bar(position = ggplot2::position_stack(reverse = TRUE),
-                    stat = "identity") +
-  ggplot2::scale_fill_manual(values = pal) +
-  ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2, byrow = TRUE)) +
-  ggplot2::theme_minimal() +
-  ggplot2::xlab("") +
-  ggplot2::ylab("Antall prosedyrer") +
-  ggplot2::theme(legend.title = ggplot2::element_blank(),
-                 axis.text = ggplot2::element_text(size = 12),
-                 axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
-                 axis.title = ggplot2::element_text(size = 12), 
-                 legend.text = ggplot2::element_text(size = 12), 
-                 legend.position ="top")
-
-```
-
-
-
-```{r TabTilgang, results='asis', eval=TRUE}
-cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
-              " per Operativ Tilgang ved ", params$hospitalName,
+cap <- paste0("Fordeling av hastegrad registrert i NORIC ",
+              "ved ", params$hospitalName,
               " i perioden ", rangeProsDato, ".")
 
-TabOpTilgang <- AK %>% 
-  janitor::tabyl(maaned,
-                 OperativTilgang) %>%
-  janitor::adorn_totals("col", name = "Totalt")
+
+TabHast_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AK %>%  
+    janitor::tabyl(maaned, ForlopsType2) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+TabHast_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AK %>%  
+    janitor::tabyl(maaned, ForlopsType2) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                            periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
 
-TabOpTilgang <- timeTableMonth %>%
-  merge(., TabOpTilgang, 
-        by.x = c("maaned"), by.y = c("maaned"),
-        all.x = TRUE, all.y = FALSE) %>% 
-  dplyr::rename(" " = "maaned") %>% 
-  janitor::adorn_totals("row", name = "Totalt")
+TabHast <- rbind(
+  TabHast_fjor, 
+  TabHast_aar
+)
 
-TabOpTilgang[TabOpTilgang == 0] <- " - "
-TabOpTilgang[is.na(TabOpTilgang)] <- " - "
 
-align <- c("l", rep("c", dim(TabOpTilgang)[2] - 1))
-digs <-  rep(0, dim(TabOpTilgang)[2] )
+TabHast[TabHast == 0] <- " - "
+TabHast[is.na(TabHast)] <- " - "
+
+align <- c("l", rep("c", dim(TabHast)[2] - 1))
+digs <-  rep(0, dim(TabHast)[2] )
 
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = TabOpTilgang, caption = cap, align = align) %>%
+  TabHast %>% dplyr::select(-aar) %>% 
+    knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE, 
                               font_size = 8) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabHast)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabHast)[1])
+
 } else if (params$tableFormat == "latex") {
-  knitr::kable(x = TabOpTilgang,
-               format = params$tableFormat,
+  TabHast %>% dplyr::select(-aar) %>% 
+    knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8)
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabHast)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabHast)[1])
+
+
 }
 
+
+```
+
+
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+
+
+# Operativ tilgang {#optilgang}
+
+
+
+```{r TabTilgang, results='asis', eval=TRUE}
+cap <- paste0("Fordeling av operativ tilgang registrert i NORIC ",
+              "ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, ".")
+
+
+TabOpTilg_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AK %>%  
+    janitor::tabyl(maaned, OperativTilgang) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+TabOpTilg_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AK %>%  
+    janitor::tabyl(maaned, OperativTilgang) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                            periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+
+TabOpTilg <- rbind(
+  TabOpTilg_fjor, 
+  TabOpTilg_aar
+)
+
+
+TabOpTilg[TabOpTilg == 0] <- " - "
+TabOpTilg[is.na(TabOpTilg)] <- " - "
+
+align <- c("l", rep("c", dim(TabOpTilg)[2] - 1))
+digs <-  rep(0, dim(TabOpTilg)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabOpTilg %>% dplyr::select(-aar) %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabOpTilg)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabOpTilg)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabOpTilg %>% dplyr::select(-aar) %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabOpTilg)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabOpTilg)[1])
+
+
+}
 ```
 
 <br/>
@@ -630,4 +718,196 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"<!--"}`
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
+
+
+
+
+
+# Type klaffeprotese {#klaffeprotese}
+
+
+
+```{r TabTypeKlaff, results='asis', eval=TRUE}
+cap <- paste0("Fordeling av type klaffeprotese registrert i NORIC ",
+              "ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, ".", 
+              "Merk at dersom ingen type klaffeprotese er valgt, ", 
+              "regnes prosedyren som 'uten innsetting av klaff'. ")
+
+
+TabTypeKlaff_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AK %>%  
+    janitor::tabyl(maaned, TypeKlaffeprotese2) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+TabTypeKlaff_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AK %>%  
+    janitor::tabyl(maaned, TypeKlaffeprotese2) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                            periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+
+TabTypeKlaff <- rbind(
+  TabTypeKlaff_fjor, 
+  TabTypeKlaff_aar
+)
+
+
+TabTypeKlaff[TabTypeKlaff == 0] <- " - "
+TabTypeKlaff[is.na(TabTypeKlaff)] <- " - "
+
+align <- c("l", rep("c", dim(TabTypeKlaff)[2] - 1))
+digs <-  rep(0, dim(TabTypeKlaff)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabTypeKlaff %>% dplyr::select(-aar) %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabTypeKlaff)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabTypeKlaff)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabTypeKlaff %>% dplyr::select(-aar) %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabTypeKlaff)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabTypeKlaff)[1])
+
+
+}
+```
+
+
+
+```{r TabTypeKlaffAnnet, results='asis', eval=TRUE}
+cap <- paste0("Dette inneholder type klaffeprotese 'Annet'.")
+
+
+TabAnnet <- AK %>% 
+  dplyr::filter(TypeKlaffeprotese2 == "Annet") %>% 
+  janitor::tabyl(aar, TypeKlaffeprotese) %>% 
+  janitor::adorn_totals("col", name = "Totalt")
+
+
+
+if (params$tableFormat == "html") {
+  TabAnnet %>% 
+    knitr::kable(format = params$tableFormat, 
+                 caption = cap,  
+                 booktabs = TRUE,
+                 align = "r") %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em") 
+} else if (params$tableFormat == "latex") {
+  TabAnnet %>%
+    knitr::kable(format = params$tableFormat,
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) 
+
+}
+```
+
+
+
+
+
+<br/>
+
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.5)  # set progress to 30%
+```
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+
+
+# Ventetid TAVI
+Ventetetid ved TAVI beregnes som antall dager fra dato for screeningbeslutning 
+og prosedyredato. 
+
+Figuren viser et boxplot med fordeling av 
+prosedyrevarighet per måned. Den blå boksen markerer nedre og øvre
+kvartil, medianen er markert av den tykke linjen.
+Punktene utenfor greinene viser uteliggere, det vil si 
+forløp med usedvanlig kort eller lang prosedyrevarighet 
+(prosedyrevarighet lengre enn 1,5 ganger interkvartil bredde over øvre kvartil/
+under nedre kvartil).
+
+
+
+```{r figVentetid, cap =cap, fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
+cap <- paste0("Ventetid ved TAVI er beregnet som antall dager mellom ", 
+              "Screening besluting og proseydre. ")
+AK %>% 
+  dplyr::select(ventetid_tavi, Maaned, aar) %>% 
+    ggplot2::ggplot(mapping= ggplot2::aes(x = Maaned, 
+                                          y = ventetid_tavi)) +
+    ggplot2::geom_boxplot(
+        ggplot2::aes(alpha = aar, 
+                     colour = aar), 
+        na.rm = TRUE, 
+        fill = colPrimary[4],
+        # colour = "gray10",
+        position = ggplot2::position_dodge(preserve= "single"), ) +
+  ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
+  ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
+  ggplot2::theme_minimal()  +
+  ggplot2::xlab("") + 
+  ggplot2::ylab("Ventetid (dager)") + 
+  ggplot2::theme(
+    legend.position = "bottom", 
+    legend.text = ggplot2::element_text(size = 12),
+    axis.text = ggplot2::element_text(size = 12), 
+    axis.title = ggplot2::element_text(size = 12), 
+    
+  )
+```
 
