@@ -624,6 +624,54 @@ if (params$tableFormat == "html") {
 
 
 
+
+<br/>
+
+```{r}
+if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+    shiny::setProgress(0.2)  # set progress to 30%
+```
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+
+
+# Ventetid TAVI, planlagt prosedyrer
+
+```{r figVentetid, fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Boxplotet viser fordelingen av ventetiden. De blå boksene er avgrenset av nedre og øvre kvartil og inneholder halvparten av registreringene. Medianen er markert av den tykke linjen midt i boksen. Bredden på boksen kalles intervartil bredde (IQR). De vertikale greinene viser minste (største) verdi i datasettet innenfor 1.5xIQR under nedre kvartil (1.5xIQR over øvre kvartil). Punktene utenfor greinene viser uteliggere, det vil si forløp med usedvanlig kort eller lang ventetid. Merk at registreringer for innneværende år ikke nødvendigvis er filvasket."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
+
+AK %>% 
+  dplyr::filter(ForlopsType2 == "Planlagt", 
+                !is.na(ventetid_tavi)) %>% 
+  dplyr::select(ventetid_tavi, Maaned, aar) %>% 
+    ggplot2::ggplot(mapping= ggplot2::aes(x = Maaned, 
+                                          y = ventetid_tavi)) +
+    ggplot2::geom_boxplot(
+        ggplot2::aes(alpha = aar, 
+                     colour = aar), 
+        na.rm = TRUE, 
+        fill = colPrimary[4],
+        position = ggplot2::position_dodge(preserve= "single")) +
+  ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
+  ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
+  ggplot2::theme_minimal()  +
+  ggplot2::xlab("") + 
+  ggplot2::ylab("Ventetid (dager)") + 
+  ggplot2::theme(
+    legend.position = c(0.5, 0.9), 
+    legend.direction = "horizontal",
+    legend.text = ggplot2::element_text(size = 12),
+    axis.text = ggplot2::element_text(size = 12), 
+    axis.title = ggplot2::element_text(size = 12)
+  )
+```
+
+
+
 # Operativ tilgang {#optilgang}
 
 
@@ -820,7 +868,10 @@ if (params$tableFormat == "html") {
 
 
 
+
 ```{r TabTypeKlaffAnnet, results='asis', eval=TRUE}
+if (AK %>% dplyr::filter(TypeKlaffeprotese2 == "Annet") %>% nrow() > 0) {
+
 cap <- paste0("Dette inneholder type klaffeprotese 'Annet'.")
 
 
@@ -853,56 +904,12 @@ if (params$tableFormat == "html") {
                              font_size = 8) 
 
 }
+}
 ```
 
 
 
 
-
-<br/>
-
-```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.5)  # set progress to 30%
-```
-
-
-`r if(params$tableFormat !="latex") {"<!--"}`
-\newpage
-`r if(params$tableFormat !="latex") {"-->"}`
-
-
-
-# Ventetid TAVI
-
-```{r figVentetid, fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Boxplotet viser fordelingen av ventetiden. De blå boksene er avgrenset av nedre og øvre kvartil og inneholder halvparten av registreringene. Medianen er markert av den tykke linjen midt i boksen. Bredden på boksen kalles intervartil bredde (IQR). De vertikale greinene viser minste (største) verdi i datasettet innenfor 1.5xIQR under nedre kvartil (1.5xIQR over øvre kvartil). Punktene utenfor greinene viser uteliggere, det vil si forløp med usedvanlig kort eller lang ventetid. Merk at registreringer for innneværende år ikke nødvendigvis er filvasket."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
-
-
-AK %>% 
-  dplyr::filter(ForlopsType2 == "Planlagt", 
-                !is.na(ventetid_tavi)) %>% 
-  dplyr::select(ventetid_tavi, Maaned, aar) %>% 
-    ggplot2::ggplot(mapping= ggplot2::aes(x = Maaned, 
-                                          y = ventetid_tavi)) +
-    ggplot2::geom_boxplot(
-        ggplot2::aes(alpha = aar, 
-                     colour = aar), 
-        na.rm = TRUE, 
-        fill = colPrimary[4],
-        position = ggplot2::position_dodge(preserve= "single")) +
-  ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
-  ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
-  ggplot2::theme_minimal()  +
-  ggplot2::xlab("") + 
-  ggplot2::ylab("Ventetid (dager)") + 
-  ggplot2::theme(
-    legend.position = c(0.5, 0.9), 
-    legend.direction = "horizontal",
-    legend.text = ggplot2::element_text(size = 12),
-    axis.text = ggplot2::element_text(size = 12), 
-    axis.title = ggplot2::element_text(size = 12)
-  )
-```
 
 
 <br/>
@@ -1040,12 +1047,10 @@ AK %>%
 ```
 
 
-# TO DO 
 
 
 
-
-## Klaff i klaff
+# Klaff i klaff
 
 
 ```{r tabKlaffiKlaff, results='asis', eval=TRUE}
@@ -1131,6 +1136,9 @@ if (params$tableFormat == "html") {
 
 }
 ```
+
+
+# TO DO 
 
 
 
