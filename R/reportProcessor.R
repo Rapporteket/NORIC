@@ -60,7 +60,8 @@ reportProcessor <- function(report,
                           "NORIC_local_monthly",
                           "NORIC_local_monthly_activity",
                           "NORIC_kvalitetsindikator", 
-                          "NORIC_filvask_avdod"))
+                          "NORIC_filvask_avdod", 
+                          "NORIC_tavi_report"))
 
   stopifnot(outputType %in% c("html", "pdf"))
 
