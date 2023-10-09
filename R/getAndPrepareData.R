@@ -126,7 +126,7 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepAkData <- function(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...){
   
   
   . <- ""
@@ -134,7 +134,8 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getAk(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital )
   aK <- dataListe$aK
   
   
@@ -158,6 +159,9 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,...){
   # Legg til aar, maaned, uke, etc.
   aK %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
   
+  
+  # Ventetid TAVI
+  aK %<>% noric::legg_til_ventetid_tavi(.) 
   
   # utlede variabler
   aK %<>% dplyr::mutate(

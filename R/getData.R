@@ -149,7 +149,9 @@ WHERE
 
 #' @rdname getData
 #' @export
-getAk <- function(registryName, fromDate, toDate, singleRow, ...){
+getAk <- function(registryName, fromDate, toDate, singleRow, 
+                  singleHospital = NULL,
+                  ...){
   
   # SQL possible for defined time-interval:
   if (is.null(fromDate)) {
@@ -188,6 +190,13 @@ WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'"
   )
+  
+  
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, 
+                    "AND AortaklaffVar.AvdRESH = ", 
+                    singleHospital)
+  }
   
   # SQL for one row only/complete table:
   if (singleRow) {
