@@ -286,9 +286,21 @@ AK %<>%
       KlaffIKlaff = factor(x = KlaffIKlaff, 
                           levels = c("Nei",
                                      "Ja", 
+                                     NA_character_)), 
+    
+     ParavalvularLekkasje = factor(x = ParavalvularLekkasje, 
+                          levels = c("Nei",
+                                     "Ja", 
+                                     "Ukjent",
                                      NA_character_))) %>% 
   noric::legg_til_ventetid_tavi() %>% 
-  noric::legg_til_liggedogn_tavi()
+  noric::legg_til_liggedogn_tavi() %>% 
+  noric::ki_ak_pacemakerbehov() %>% 
+  dplyr::mutate(indik_pacemakerbehov = factor(x = indik_pacemakerbehov, 
+                          levels = c("nei",
+                                     "ja", 
+                                     "ikke ferdigstilt",
+                                     NA_character_)))
 
 ```
 
@@ -925,7 +937,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"-->"}`
 
 
-# Liggetid/Utksrevet til
+# Utskrivelssested og liggetid
 
 
 
@@ -1138,15 +1150,195 @@ if (params$tableFormat == "html") {
 ```
 
 
+
+# Paravalvulær lekkasje
+
+
+```{r tabParaLekk, results='asis', eval=TRUE}
+cap <- paste0("Antall prosedyrer med ParavalvularLekkasje registrert i NORIC ",
+              "ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, ".")
+
+
+paraLekk_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AK %>%  
+    janitor::tabyl(maaned, ParavalvularLekkasje) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+paraLekk_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AK %>%  
+    janitor::tabyl(maaned, ParavalvularLekkasje) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                            periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+
+paraLekk <- rbind(
+  paraLekk_fjor, 
+  paraLekk_aar
+)
+
+
+paraLekk[paraLekk == 0] <- " - "
+paraLekk[is.na(paraLekk)] <- " - "
+
+align <- c("l", rep("c", dim(paraLekk)[2] - 1))
+digs <-  rep(0, dim(paraLekk)[2] )
+
+
+if (params$tableFormat == "html") {
+  paraLekk %>% dplyr::select(-aar) %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(paraLekk)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(paraLekk)[1])
+
+} else if (params$tableFormat == "latex") {
+  paraLekk %>% dplyr::select(-aar) %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(paraLekk)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(paraLekk)[1])
+
+
+}
+```
+
+
+
+
+
+# Pacemakerbehov
+
+
+```{r tabpmBeh, results='asis', eval=TRUE}
+cap <- paste0("Antall prosedyrer med Pacemakerbehov etter innsetting av ", 
+              " aortaklaff registrert i NORIC ",
+              "ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, 
+              ". Pasienter som allerede hadde pacemaker eller som er registrert ", 
+              "som avdød ved utskrivelse er fjernet fra datagrunnlaget.")
+
+
+pmBeh_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AK %>%  
+    dplyr::filter(indik_pacemakerbehov_data == "ja") %>% 
+    janitor::tabyl(maaned, indik_pacemakerbehov) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+pmBeh_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AK %>%  
+    dplyr::filter(indik_pacemakerbehov_data == "ja") %>% 
+    janitor::tabyl(maaned, indik_pacemakerbehov) %>% 
+    janitor::adorn_totals("col", name= "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                            periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+
+pmBeh <- rbind(
+  pmBeh_fjor, 
+  pmBeh_aar
+)
+
+
+pmBeh[pmBeh == 0] <- " - "
+pmBeh[is.na(pmBeh)] <- " - "
+
+align <- c("l", rep("c", dim(pmBeh)[2] - 1))
+digs <-  rep(0, dim(pmBeh)[2] )
+
+
+if (params$tableFormat == "html") {
+  pmBeh %>% dplyr::select(-aar) %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(pmBeh)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(pmBeh)[1])
+
+} else if (params$tableFormat == "latex") {
+  pmBeh %>% dplyr::select(-aar) %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(pmBeh)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(pmBeh)[1])
+
+
+}
+```
+
+
+
+
 # TO DO 
 
-
-
-## Paravalvulær lekkasje
-hh
-
-## Pacemakerbehov
-hh
 
 ## Komplikasjoner
 hh
