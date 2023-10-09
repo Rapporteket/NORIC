@@ -20,7 +20,6 @@ ui <- tagList(
     id = "tabs",
     
     tabPanel("Start",
-             useShinyalert(),
              mainPanel(width = 12,
                        htmlOutput("veiledning", inline = TRUE),
                        appNavbarUserWidget(user = uiOutput("appUserName"),
