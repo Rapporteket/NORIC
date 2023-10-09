@@ -287,13 +287,13 @@ legg_til_liggedogn <- function(df_ap) {
 #'  \code{liggedogn_tavi} og \code{liggedogn_tavi_data}. 
 #'  Variabelen \code{liggedogn_tavi}
 #'  inneholder antall dager mellom prosedyren og utskrivelsen, denne
-#'  kan ogsaa inneholde negative tider og tider over 60 dager.
+#'  kan ogsaa inneholde negative tider og tider over 30 dager.
 #'  Variabelen \code{liggetid_tavi_data} inneholder datagrunnlaget for
 #'  \code{liggedogn_tavi} og har verdiene:
 #' \itemize{
-#' \item "ja" der liggedogn_tavi er i intervallet 0 dager til 60 dager.
+#' \item "ja" der liggedogn_tavi er i intervallet 0 dager til 30 dager.
 #' \item "ugyldig" der liggetid_tavi er enten et
-#' negativt antall dager eller over 60 dager.
+#' negativt antall dager eller over 30 dager.
 #' \item "manglende" dersom dato mangler
 #'}
 #'
@@ -319,7 +319,7 @@ legg_til_liggedogn_tavi <- function(df_ak) {
       # Definere ugyldig tid i datagrunnlaget:
       liggedogn_tavi_data = dplyr::case_when(
       
-        (liggedogn_tavi < 0 | liggedogn_tavi > 60) ~ "ugyldig tid",
+        (liggedogn_tavi < 0 | liggedogn_tavi > 30) ~ "ugyldig tid",
         is.na(liggedogn_tavi) ~ "manglende",
         TRUE ~ UtskrevetTil)
 

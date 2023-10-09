@@ -16,13 +16,13 @@ Returnerer \code{df_ak} med to nye variabler
  \code{liggedogn_tavi} og \code{liggedogn_tavi_data}. 
  Variabelen \code{liggedogn_tavi}
  inneholder antall dager mellom prosedyren og utskrivelsen, denne
- kan ogsaa inneholde negative tider og tider over 60 dager.
+ kan ogsaa inneholde negative tider og tider over 30 dager.
  Variabelen \code{liggetid_tavi_data} inneholder datagrunnlaget for
  \code{liggedogn_tavi} og har verdiene:
 \itemize{
-\item "ja" der liggedogn_tavi er i intervallet 0 dager til 60 dager.
+\item "ja" der liggedogn_tavi er i intervallet 0 dager til 30 dager.
 \item "ugyldig" der liggetid_tavi er enten et
-negativt antall dager eller over 60 dager.
+negativt antall dager eller over 30 dager.
 \item "manglende" dersom dato mangler
 }
 }
