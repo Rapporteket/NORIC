@@ -1384,64 +1384,64 @@ labKomp_fjor[is.na(labKomp_fjor)] <- " - "
 
 
 ```{r tabLabKomp, results='asis', eval=TRUE}
-cap <- paste0("Antall komplikasjoner på lab registrert i NORIC ",
-              "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-
-align <- c("r", rep("c", dim(labKomp_fjor)[2] - 1))
-col_nams <- c("", names(labKomp_fjor[-1]))
-
-
-
-if (params$tableFormat == "html") {
-  knitr::kable(x = labKomp_fjor %>% select(-aar), 
-               caption = cap,
-               align = align, col.names = col_nams) %>%
-    kableExtra::kable_styling(bootstrap_options = c("striped",
-                                                    "hover",
-                                                    "condensed"),
-                              full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em") %>% 
-    kableExtra::column_spec(column = 1, width = "7em") %>% 
-    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
-    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
-    kableExtra::row_spec(row=dim(labKomp_fjor)[1]-1, hline_after =  TRUE) %>%
-    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
-                          start_row = 1, 
-                          end_row = 13) 
-  # %>% 
-  #   kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-  #                         start_row = 14, 
-  #                         end_row = dim(labKomp_fjor)[1])
-
-  
-  
-  
-  
-} else if (params$tableFormat == "latex") {
-
-  knitr::kable(x = labKomp_fjor, 
-               caption = cap,
-               align = align, col.names = col_nams) %>%
-    kableExtra::kable_styling(bootstrap_options = c("striped",
-                                                    "hover",
-                                                    "condensed"),
-                              full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em") %>% 
-    kableExtra::column_spec(column = 1, width = "7em") %>% 
-    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
-    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
-    kableExtra::row_spec(row=dim(labKomp_fjor)[1]-1, hline_after =  TRUE) %>%
-    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
-                          start_row = 1, 
-                          end_row = 13) 
-  # %>% 
-  #   kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-  #                         start_row = 14, 
-  #                         end_row = dim(labKomp_fjor)[1])
-}
+# cap <- paste0("Antall komplikasjoner på lab registrert i NORIC ",
+#               "ved ", params$hospitalName,
+#               " i perioden ", rangeProsDato, ".")
+# 
+# align <- c("r", rep("c", dim(labKomp_fjor)[2] - 1))
+# col_nams <- c("", names(labKomp_fjor[-1]))
+# 
+# 
+# 
+# if (params$tableFormat == "html") {
+#   knitr::kable(x = labKomp_fjor %>% select(-aar), 
+#                caption = cap,
+#                align = align, col.names = col_nams) %>%
+#     kableExtra::kable_styling(bootstrap_options = c("striped",
+#                                                     "hover",
+#                                                     "condensed"),
+#                               full_width = FALSE) %>%
+#     kableExtra::row_spec(row = 0, angle = -45) %>%
+#     kableExtra::column_spec(column = 1, width = "7em") %>% 
+#     kableExtra::column_spec(column = 1, width = "7em") %>% 
+#     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+#     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+#     kableExtra::row_spec(row=dim(labKomp_fjor)[1]-1, hline_after =  TRUE) %>%
+#     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+#                           start_row = 1, 
+#                           end_row = 13) 
+#   # %>% 
+#   #   kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+#   #                         start_row = 14, 
+#   #                         end_row = dim(labKomp_fjor)[1])
+# 
+#   
+#   
+#   
+#   
+# } else if (params$tableFormat == "latex") {
+# 
+#   knitr::kable(x = labKomp_fjor, 
+#                caption = cap,
+#                align = align, col.names = col_nams) %>%
+#     kableExtra::kable_styling(bootstrap_options = c("striped",
+#                                                     "hover",
+#                                                     "condensed"),
+#                               full_width = FALSE) %>%
+#     kableExtra::row_spec(row = 0, angle = -45) %>%
+#     kableExtra::column_spec(column = 1, width = "7em") %>% 
+#     kableExtra::column_spec(column = 1, width = "7em") %>% 
+#     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+#     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+#     kableExtra::row_spec(row=dim(labKomp_fjor)[1]-1, hline_after =  TRUE) %>%
+#     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+#                           start_row = 1, 
+#                           end_row = 13) 
+#   # %>% 
+#   #   kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+#   #                         start_row = 14, 
+#   #                         end_row = dim(labKomp_fjor)[1])
+# }
 ```
 
 
@@ -1929,8 +1929,104 @@ if (params$tableFormat == "html") {
 
 
 
-# TO DO 
+# Utvikling alder/ kjønn de siste årene
 
 
-## Alder/ kjønn lenger tilbake i tid
+```{r GetData2, include=FALSE, cache=FALSE}
+
+fromDate <- as.Date(paste0(periode_data$nyesteRegYear - 10, 
+                           "-01-01"), 
+                    format = "%Y-%m-%d")
+
+toDate <- periode_data$siste_dato
+
+
+
+if(params$registryName %in% "noricStagingNasjonal"){
+  # SPørring til NASJONAL database. 
+  # Kun utvalgt sykehus
+  query <- paste0(
+  
+  "SELECT AortaklaffVar.AvdRESH, 
+          AortaklaffVar.ForlopsID, 
+          AortaklaffVar.ProsedyreDato, 
+          ForlopsOversikt.PasientKjonn,
+          ForlopsOversikt.PasientAlder
+    FROM
+          AortaklaffVar
+    LEFT JOIN ForlopsOversikt ON
+          AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
+          AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+   WHERE
+         ProsedyreDato >= '", fromDate, "' AND
+         ProsedyreDato <= '", toDate, "'", 
+   "AND AortaklaffVar.AvdRESH = ", params$reshID, 
+   ";")
+
+    AK_alderKjonn <- rapbase::loadRegData(registryName = params$registryName,
+                               query = query)
+
+  
+  
+  } else{
+    # SPørring til LOKAL database. 
+    # Kun et sykehus, som er registry name
+      query <- paste0(
+  
+  "SELECT AortaklaffVar.AvdRESH, 
+          AortaklaffVar.ForlopsID, 
+          AortaklaffVar.ProsedyreDato, 
+          ForlopsOversikt.PasientKjonn,
+          ForlopsOversikt.PasientAlder
+    FROM
+          AortaklaffVar
+    LEFT JOIN ForlopsOversikt ON
+          AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
+          AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+   WHERE
+         ProsedyreDato >= '", fromDate, "' AND
+         ProsedyreDato <= '", toDate, "'", 
+   ";")
+
+    AK_alderKjonn <- rapbase::loadRegData(registryName = params$registryName,
+                               query = query)
+
+  
+}   
+
+AK_alderKjonn %<>% noric::legg_til_tidsvariabler() 
+
+```
+
+
+
+
+
+
+```{r figalderkjonn, fig.cap = paste0("Pasienten alder ved prosedyren per i år fra ", fromDate," til ", toDate, ". Merk at antall prosedyrer i hver gruppe kan være svært ulikt."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
+
+AK_alderKjonn %>% 
+  dplyr::filter(!is.na(PasientKjonn),
+                !is.na(PasientAlder),
+                PasientAlder >= 18,
+                PasientAlder < 100) %>%
+  dplyr::select(PasientAlder, PasientKjonn, aar) %>%
+    ggplot2::ggplot(mapping= ggplot2::aes(x = aar, 
+                                          y = PasientAlder)) +
+    ggplot2::geom_boxplot(
+        ggplot2::aes(fill = PasientKjonn), 
+        na.rm = TRUE)+ 
+  ggplot2::scale_fill_manual("", values = c(colPrimary[6], colPrimary[4])) +
+  ggplot2::theme_minimal()  +
+  ggplot2::xlab("") + 
+  ggplot2::ylab("Alder") + 
+  ggplot2::theme(
+    legend.text = ggplot2::element_text(size = 12),
+    axis.text = ggplot2::element_text(size = 12), 
+    axis.title = ggplot2::element_text(size = 12)
+  )
+```
+
+
 
