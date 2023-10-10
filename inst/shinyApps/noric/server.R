@@ -9,7 +9,7 @@ shinyServer(function(input, output, session) {
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
   
   reshId <- rapbase::getUserReshId(session)
-    hospitalName <- noric::fikse_sykehusnavn(data.frame(AvdRESH = reshId)) %>%  
+   hospitalName <- noric::fikse_sykehusnavn(data.frame(AvdRESH = reshId)) %>%  
       dplyr::select(Sykehusnavn)
     
    userFullName <- rapbase::getUserFullName(session)
@@ -54,9 +54,9 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Staging data")
   }
   
-   if(reshId %in% c(108141, 4210141, 114150, 105502, 106944){
+   if(reshId %in% c(108141, 4210141, 114150, 105502, 106944)){
      shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
-   })
+   }
    
    
   # html rendering function for re-use
@@ -665,7 +665,34 @@ shinyServer(function(input, output, session) {
                       userFullName,
                       userRole,
                       "unknown operator")
+    ), 
+    
+    `Aortaklaff` = list(
+      synopsis = paste("NORIC ",
+                       "aortaklaff"),
+      fun = "reportProcessor",
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "author",
+                     "orgName",
+                     "orgId",
+                     "registryName",
+                     "userFullName",
+                     "userRole",
+                     "userOperator"),
+      paramValues = c("NORIC_tavi_report",
+                      "pdf",
+                      "Månedsresultater",
+                      "unknown author",
+                      "unknown organization",
+                      999999,
+                      registryName,
+                      userFullName,
+                      userRole,
+                      "unknown operator")
     )
+    
     
     
   )
@@ -706,7 +733,8 @@ shinyServer(function(input, output, session) {
                        choices = list(
                          "Kvalitetsindikatorer" = "NORIC_kvalitetsindikator", 
                          "Filvask avdød" = "NORIC_filvask_avdod", 
-                         "Invasive prosedyrer" = "NORIC_local_monthly"))
+                         "Invasive prosedyrer" = "NORIC_local_monthly", 
+                         "Aortaklaff" = "NORIC_tavi_report"))
   })
   
   output$dwnldControl <- shiny::renderUI({

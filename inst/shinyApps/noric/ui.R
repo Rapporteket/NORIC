@@ -56,8 +56,9 @@ ui <- tagList(
     
     
     shiny::navbarMenu(
-      "Månedsrapporter",
-      tabPanel(
+      title = "Månedsrapporter",
+     
+       tabPanel(
         "Invasive prosedyrer",
         sidebarLayout(
           sidebarPanel(
@@ -71,6 +72,7 @@ ui <- tagList(
           )
         )
       ),
+      
       tabPanel(
         "Angiografør/Operatør",
         sidebarLayout(
@@ -92,7 +94,7 @@ ui <- tagList(
           sidebarPanel(
             style = "position:fixed;width:130px;",
             h5("Last ned rapporten (pdf)"),
-            downloadButton("downloadReportProsedyrer", "Hent!"),
+            downloadButton("downloadReportTavi", "Hent!"),
             width = 2
           ),
           mainPanel(
