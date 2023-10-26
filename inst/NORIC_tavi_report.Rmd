@@ -293,7 +293,8 @@ AK %<>%
                                      "Ja", 
                                      "Ukjent",
                                      NA_character_)), 
-      LabKompVaskular_janei = factor(
+    
+    LabKompVaskular_janei = factor(
       x = dplyr::case_when(
         LabKompVaskular %in% c("Aorta", "Stikksted", "Annet") ~ "Ja", 
         TRUE ~ NA_character_), 
@@ -313,11 +314,36 @@ AK %<>%
         LabKompEmboli %in% c("Ja, til aorta",
                                "Ja, til kammere") ~ "Ja", 
         TRUE ~ NA_character_), 
-      levels = c("Ja", NA_character_))
-
-
+      levels = c("Ja", NA_character_)), 
     
-
+    AvdKompBlodning_fatal = factor(
+      x = dplyr::case_when(
+        AvdKompBlodningGrad %in% c("Livstruende eller fatal") ~ "Ja", 
+        TRUE ~ NA_character_), 
+      levels = c("Ja", NA_character_)), 
+    
+        
+    AvdKompBlodning_major = factor(
+      x = dplyr::case_when(
+        AvdKompBlodningGrad %in% c("Blødning Major") ~ "Ja", 
+        TRUE ~ NA_character_), 
+      levels = c("Ja", NA_character_)), 
+    
+        
+    AvdKompBlodning_minor = factor(
+      x = dplyr::case_when(
+        AvdKompBlodningGrad %in% c("Blødning Minor") ~ "Ja", 
+        TRUE ~ NA_character_), 
+      levels = c("Ja", NA_character_)), 
+    
+    
+  AvdKompInfeksjon_janei = factor(
+      x = dplyr::case_when(
+        AvdKompInfeksjon %in% c("Annen alvorlig infeksjon", 
+                                "Pneumoni", 
+                                "Urinveisinfeksjon") ~ "Ja", 
+        TRUE ~ NA_character_), 
+      levels = c("Ja", NA_character_))
     
     ) %>% 
   noric::legg_til_ventetid_tavi() %>% 
@@ -1366,12 +1392,6 @@ labKomp_fjor <- merge(
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
-
-
-
-
-labKomp_fjor[labKomp_fjor == 0] <-  " - "
-labKomp_fjor[is.na(labKomp_fjor)] <- " - "
 ```
 
 
@@ -1494,19 +1514,6 @@ labKomp_aar <- merge(
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
-
-
-
-
-labKomp_aar[labKomp_aar == 0] <-  " - "
-labKomp_aar[is.na(labKomp_aar)] <- " - "
-```
-
-
-
-```{r}
-labKompTot <- rbind(labKomp_fjor, 
-                    labKomp_aar)
 ```
 
 
@@ -1516,7 +1523,8 @@ cap <- paste0("Antall komplikasjoner på lab registrert i NORIC ",
               " i perioden ", rangeProsDato, ".")
 
 
-
+labKompTot <- rbind(labKomp_fjor, 
+                    labKomp_aar)
 
 labKompTot[labKompTot == 0] <- " - "
 labKompTot[is.na(labKompTot)] <- " - "
@@ -1568,61 +1576,6 @@ if (params$tableFormat == "html") {
 }
 
 
-
-# # align <- c("r", rep("c", dim(labKompTot)[2] - 2))
-# # col_nams <- c("", names(labKompTot[-1]))
-# 
-# 
-# 
-# if (params$tableFormat == "html") {
-#   knitr::kable(x = labKompTot %>% select(-aar),
-#                caption = cap) %>% 
-#                # align = align, col.names = col_nams) %>%
-#     kableExtra::kable_styling(bootstrap_options = c("striped",
-#                                                     "hover",
-#                                                     "condensed"),
-#                               full_width = FALSE) %>%
-#     kableExtra::row_spec(row = 0, angle = -45) %>%
-#     kableExtra::column_spec(column = 1, width = "7em") %>%
-#     kableExtra::column_spec(column = 1, width = "7em") %>%
-#     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
-#     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
-#     kableExtra::row_spec(row=dim(labKomp_fjor)[1]-1, hline_after =  TRUE) %>%
-#     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
-#                           start_row = 1,
-#                           end_row = 13)
-#   # %>%
-#   #   kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-#   #                         start_row = 14,
-#   #                         end_row = dim(labKomp_fjor)[1])
-# 
-# 
-# 
-# 
-# 
-# } else if (params$tableFormat == "latex") {
-# 
-#   knitr::kable(x = labKomp_fjor,
-#                caption = cap) %>% 
-#                # align = align, col.names = col_nams) %>%
-#     kableExtra::kable_styling(bootstrap_options = c("striped",
-#                                                     "hover",
-#                                                     "condensed"),
-#                               full_width = FALSE) %>%
-#     kableExtra::row_spec(row = 0, angle = -45) %>%
-#     kableExtra::column_spec(column = 1, width = "7em") %>%
-#     kableExtra::column_spec(column = 1, width = "7em") %>%
-#     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
-#     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
-#     kableExtra::row_spec(row=dim(labKomp_fjor)[1]-1, hline_after =  TRUE) %>%
-#     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
-#                           start_row = 1,
-#                           end_row = 13)
-#   # %>%
-#   #   kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-#   #                         start_row = 14,
-#   #                         end_row = dim(labKomp_fjor)[1])
-# }
 ```
 
 
@@ -1654,7 +1607,6 @@ for å se oversikten over antall (andel) ferdigstilte komplikasjonsskjemaer.
 fig_df_kompAvd <- AK %>%
   dplyr::select(
     aar,
-    #Alvorlige
     AvdKompHjerneslag,
     AvdKompTIA,
     AvdKompTamponade,
@@ -1662,10 +1614,10 @@ fig_df_kompAvd <- AK %>%
     AvdKompAtrieflimmer, 
     AvdKompHjerteinfarkt, 
     AvdKompVaskular, 
-    AvdKompBlodning,
-    # AvdKompBlodning_major,
-    # AvdKompBlodning_fatal
-    AvdKompInfeksjon, 
+    AvdKompBlodning_major,
+    AvdKompBlodning_fatal, 
+    AvdKompBlodning_minor,
+    AvdKompInfeksjon_janei, 
     AvdKompDialyse, 
     AvdKompAnnenKomp, 
     AvdKompDod) %>% 
@@ -1675,45 +1627,49 @@ fig_df_kompAvd <- AK %>%
     type_komplikasjon = case_when(
       
       # ALVORLIGE
-      name %in% "AvdKompHjerneslag" ~ "Noen form for hjerneslag(!)", 
+      name %in% "AvdKompHjerneslag" ~ "Noen form for hjerneslag", 
       name %in% "AvdKompTIA" ~ "TIA", 
       name %in% "AvdKompTamponade" ~ "Tamponade", 
       name %in% "AvdKompPacemaker" ~ "Permanent pacemaker", 
       name %in% "AvdKompAtrieflimmer" ~ "Nytilkommet atrieflimmer", 
       name %in% "AvdKompHjerteinfarkt" ~ "Hjerteinfarkt", 
       name %in% "AvdKompVaskular" ~  "Vaskul\u00e6r",  
-      # name %in% "AvdKompBlodning_major" ~ "Blødning major", 
-      # name %in% "AvdkompBloding_fatal" ~ "Blødning livstruende/fatal", 
-      name %in% "AvdKompInfeksjon" ~ "Noen form for infeksjon(!)", 
+      name %in% "AvdKompBlodning_minor" ~ "Blødning minor",
+      name %in% "AvdKompBlodning_major" ~ "Blødning major",
+      name %in% "AvdKompBlodning_fatal" ~ "Blødning livstruende/fatal",
+      name %in% "AvdKompInfeksjon_janei" ~ "Noen form for infeksjon", 
       name %in% "AvdKompDialyse" ~ "Dialyse", 
       name %in% "AvdKompAnnenKomp" ~ "Annen alvorlig", 
       name %in% "AvdKompDod" ~  "D\u00f8d", 
-      name %in% "AvdKompBlodning" ~  "Noen form for blødning(!)", 
-
-      # ØVRIGE
-      # name %in% "AvdKompBlodning_minor" ~ "Blødning minor", 
-
-      TRUE ~ NA_character_ ), 
-    
-    gradering = "Alvorlige komplikasjoner på avdeling") %>% 
-  dplyr::count(name, type_komplikasjon, value, gradering, aar) %>%
+      TRUE ~ NA_character_ )) %>% 
+  dplyr::count(name, type_komplikasjon, value, aar) %>%
   tidyr::pivot_wider(names_from = value, 
                      values_from = n, 
                      values_fill = 0) %>% 
-  dplyr::select(name, type_komplikasjon, gradering, Ja, aar)
+  dplyr::select(name, type_komplikasjon, Ja, aar)
 
-
-# Rekkefølge: 
-# Først alvorlig, med Annen alvorlig nederst. Så øvrige. 
-# Rekkefølge fra fjoråret
 
 
 
 rekke_avd <- rbind(
+  # Blødning i synkende alv grad
   fig_df_kompAvd %>% 
-    dplyr::filter(name != "AvdKompAnnenKomp",
-                  aar %in% periode_data$sisteHeleYear,
-                  gradering %in% "Alvorlige komplikasjoner på avdeling") %>% 
+    filter(name %in% "AvdKompBlodning_fatal",
+           aar %in% periode_data$sisteHeleYear), 
+  fig_df_kompAvd %>% 
+    filter(name %in% "AvdKompBlodning_major",
+           aar %in% periode_data$sisteHeleYear), 
+  fig_df_kompAvd %>% 
+    filter(name %in% "AvdKompBlodning_minor",
+           aar %in% periode_data$sisteHeleYear), 
+  
+  # Resten, rekkefølge fjoråret                    
+  fig_df_kompAvd %>% 
+    dplyr::filter(!name %in% c("AvdKompAnnenKomp",
+                               "AvdKompBlodning_fatal", 
+                               "AvdKompBlodning_major", 
+                               "AvdKompBlodning_minor"),
+                  aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   fig_df_kompAvd %>% 
@@ -1756,10 +1712,6 @@ ggplot2::ggplot(data = fig_df_kompAvd2) +
   
   ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
   ggplot2::guides(alpha = ggplot2::guide_legend(reverse = TRUE)) +
-  ggplot2::facet_grid(rows =  "gradering", 
-                      scales = "free",
-                      space='free', 
-                      switch = "y") +
   ggplot2::coord_flip(clip = "off") +
   ggplot2::geom_text(
     mapping = ggplot2::aes(label = Ja, 
@@ -1783,6 +1735,425 @@ ggplot2::ggplot(data = fig_df_kompAvd2) +
                 y = NULL)
 
 ```
+
+
+
+
+
+
+
+```{r tabAvdKompPrepFjor}
+avdKomp_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AK %>%  
+    dplyr::filter(AvdKompHjerneslag %in% "Ja") %>% 
+    dplyr::count(maaned, .drop = FALSE) %>% 
+    dplyr::rename("Hjerneslag" = n), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompHjerneslagGrad %in% "Svære sekveler med behov for pleie") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav svære sekveler" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+ merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompHjerneslagGrad %in% "Moderate sekveler") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav moderate sekveler" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+   merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompHjerneslagGrad %in% "Lette sekveler") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav lette sekveler" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompTIA %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("TIA" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+      
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompTamponade %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Tamponade" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompPacemaker %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Pacemaker" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompAtrieflimmer %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Nytilkommet atrieflimmer" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompHjerteinfarkt %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Hjerteinfarkt" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompVaskular %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Vaskulær" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+   
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompBlodning %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Blødning" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompBlodning_fatal %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav fatal el livstruende" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompBlodning_major %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav major" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompBlodning_minor %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav minor" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompInfeksjon_janei %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Infeksjon" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+    merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompInfeksjon %in% c("Pneumoni")) %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav pneumoni" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+    merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompInfeksjon %in% c("Urinveisinfeksjon")) %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav UVI" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompInfeksjon %in% c("Annen alvorlig infeksjon")) %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav annen" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+  
+    merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompDialyse %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Dialyse" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompDod %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Død" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompAnnenKomp %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Annen alvorlig komplikasjon" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+```
+
+
+```{r tabAvdKompPrepAar}
+avdKomp_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AK %>%  
+    dplyr::filter(AvdKompHjerneslag %in% "Ja") %>% 
+    dplyr::count(maaned, .drop = FALSE) %>% 
+    dplyr::rename("Hjerneslag" = n), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompHjerneslagGrad %in% "Svære sekveler med behov for pleie") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav svære sekveler" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+ merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompHjerneslagGrad %in% "Moderate sekveler") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav moderate sekveler" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+   merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompHjerneslagGrad %in% "Lette sekveler") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav lette sekveler" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompTIA %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("TIA" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+      
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompTamponade %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Tamponade" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompPacemaker %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Pacemaker" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompAtrieflimmer %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Nytilkommet atrieflimmer" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompHjerteinfarkt %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Hjerteinfarkt" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompVaskular %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Vaskulær" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+   
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompBlodning %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Blødning" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompBlodning_fatal %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav fatal el livstruende" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompBlodning_major %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav major" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompBlodning_minor %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav minor" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompInfeksjon_janei %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Infeksjon" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+    merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompInfeksjon %in% c("Pneumoni")) %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav pneumoni" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+    merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompInfeksjon %in% c("Urinveisinfeksjon")) %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav UVI" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompInfeksjon %in% c("Annen alvorlig infeksjon")) %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("-herav annen" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+  
+    merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompDialyse %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Dialyse" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompDod %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Død" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(AvdKompAnnenKomp %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Annen alvorlig komplikasjon" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+```
+
+
+```{r tabAvdKomp, results='asis', eval=TRUE}
+cap <- paste0("Antall komplikasjoner på Avdeling registrert i NORIC ",
+              "ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, ".")
+
+
+avdKompTot <- rbind(avdKomp_fjor, 
+                    avdKomp_aar)
+
+avdKompTot[avdKompTot == 0] <- " - "
+avdKompTot[is.na(avdKompTot)] <- " - "
+
+align <- c("l", rep("c", dim(avdKompTot)[2] - 1))
+digs <-  rep(0, dim(avdKompTot)[2] )
+
+
+if (params$tableFormat == "html") {
+  avdKompTot %>% dplyr::select(-aar) %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = 0, angle = -90) %>% 
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(avdKompTot)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(avdKompTot)[1])
+
+} else if (params$tableFormat == "latex") {
+  avdKompTot %>% dplyr::select(-aar) %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+        kableExtra::row_spec(row = 0, angle = 90) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(avdKompTot)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(avdKompTot)[1])
+
+
+}
+
+
+```
+
 
 
 
