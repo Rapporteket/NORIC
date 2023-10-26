@@ -1116,7 +1116,6 @@ Her rapporteres komplikasjoner oppstått i tilknytning til selve prosedyren mens
 pasienten fortsatt er på hjertekateteriseringslaboratoriet (kat.lab.) 
 Datagrunnlaget omfatter alle prosedyrer, uavhengig av pasientens helsetilstand 
 eller prosedyrens hastegrad. 
-Vi har gruppert komplikasjonenene som Alvorlige eller Øvrige. 
 Figuren viser antall registrerte komplikasjoner i fjor og hittil i år.  Merk 
 at det kan ha blitt registrert flere typer komplikasjoner for en og samme 
 pasient.  
@@ -1129,7 +1128,7 @@ pasient.
 fig_df_kompLab <- AK %>%
   dplyr::select(
     aar,
-    #Alvorlige
+
     LabKompArytmi,
     LabKompNeurologi,
     LabKompTamponade,
@@ -1163,18 +1162,16 @@ fig_df_kompLab <- AK %>%
       
       name %in% "LabKompAnnenKomp" ~ "Annen alvorlig komplikasjon", 
       name %in% "LabKompDod" ~ "D\u00f8d",
-      TRUE ~ NA_character_ ), 
-    
-    gradering = "Alvorlige komplikasjoner på lab") %>% 
-  dplyr::count(name, type_komplikasjon, value, gradering, aar) %>%
+      TRUE ~ NA_character_ )) %>% 
+  dplyr::count(name, type_komplikasjon, value, aar) %>%
   tidyr::pivot_wider(names_from = value, 
                      values_from = n, 
                      values_fill = 0) %>% 
-  dplyr::select(name, type_komplikasjon, gradering, Ja, aar)
+  dplyr::select(name, type_komplikasjon, Ja, aar)
 
 
 # Rekkefølge: 
-# Først alvorlig, med Annen alvorlig nederst. Så øvrige. 
+# Annen alvorlig nederst. 
 # Rekkefølge fra fjoråret
 
 
@@ -1182,8 +1179,7 @@ fig_df_kompLab <- AK %>%
 rekke <- rbind(
   fig_df_kompLab %>% 
     dplyr::filter(name != "LabKompAnnenKomp",
-                  aar %in% periode_data$sisteHeleYear,
-                  gradering %in% "Alvorlige komplikasjoner på lab") %>% 
+                  aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   fig_df_kompLab %>% 
@@ -1226,10 +1222,6 @@ ggplot2::ggplot(data = fig_df_kompLab2) +
   
   ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
   ggplot2::guides(alpha = ggplot2::guide_legend(reverse = TRUE)) +
-  ggplot2::facet_grid(rows =  "gradering", 
-                      scales = "free",
-                      space='free', 
-                      switch = "y") +
   ggplot2::coord_flip(clip = "off") +
   ggplot2::geom_text(
     mapping = ggplot2::aes(label = Ja, 
@@ -1255,7 +1247,7 @@ ggplot2::ggplot(data = fig_df_kompLab2) +
 ```
 
 
-```{r tabLabKompPrep}
+```{r tabLabKompPrepFjor}
 labKomp_fjor <- merge(
   x = timeTableMonth_fjor,
   y = AK %>%  
@@ -1383,63 +1375,252 @@ labKomp_fjor[is.na(labKomp_fjor)] <- " - "
 ```
 
 
+```{r tabLabKompPrepAar}
+labKomp_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AK %>%  
+    dplyr::filter(LabKompArytmi %in% "Ja") %>% 
+    dplyr::count(maaned, .drop = FALSE) %>% 
+    dplyr::rename("Behandlingskrevende arytmi" = n), 
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompNeurologi %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Nevrologisk komplikasjon" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompTamponade %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Tamponade" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+      
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompVaskular_janei %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Vaskulær komplikasjon" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompBlodning %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Blødning" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompAkuttKlaff %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Akutt klaff" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompAkuttVaskular %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Akutt vaskulær" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompOkklusjon %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Okklusjon" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+        
+   
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompAnestesi %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Generell anestesi" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+  merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompHLMaskin_janei %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Hemodynamisk support" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+    merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompProtese %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Ytterligere klaffeprotese" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompEmboli_janei %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Embolisering av klaff" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompAnnenKomp %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("Annen alvorlig komplikasjon" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+  
+      merge(x = ., 
+        y = AK %>%  
+          dplyr::filter(LabKompDod %in% "Ja") %>% 
+          dplyr::count(maaned, .drop = FALSE) %>% 
+          dplyr::rename("D\u00f8d" = n),  
+        by.x  = "maaned", 
+        by.y = "maaned") %>% 
+
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+
+
+
+
+labKomp_aar[labKomp_aar == 0] <-  " - "
+labKomp_aar[is.na(labKomp_aar)] <- " - "
+```
+
+
+
+```{r}
+labKompTot <- rbind(labKomp_fjor, 
+                    labKomp_aar)
+```
+
+
 ```{r tabLabKomp, results='asis', eval=TRUE}
-# cap <- paste0("Antall komplikasjoner på lab registrert i NORIC ",
-#               "ved ", params$hospitalName,
-#               " i perioden ", rangeProsDato, ".")
-# 
-# align <- c("r", rep("c", dim(labKomp_fjor)[2] - 1))
-# col_nams <- c("", names(labKomp_fjor[-1]))
+cap <- paste0("Antall komplikasjoner på lab registrert i NORIC ",
+              "ved ", params$hospitalName,
+              " i perioden ", rangeProsDato, ".")
+
+
+
+
+labKompTot[labKompTot == 0] <- " - "
+labKompTot[is.na(labKompTot)] <- " - "
+
+align <- c("l", rep("c", dim(labKompTot)[2] - 1))
+digs <-  rep(0, dim(labKompTot)[2] )
+
+
+if (params$tableFormat == "html") {
+  labKompTot %>% dplyr::select(-aar) %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = 0, angle = -90) %>% 
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(labKompTot)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(labKompTot)[1])
+
+} else if (params$tableFormat == "latex") {
+  labKompTot %>% dplyr::select(-aar) %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+        kableExtra::row_spec(row = 0, angle = 90) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(labKompTot)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(labKompTot)[1])
+
+
+}
+
+
+
+# # align <- c("r", rep("c", dim(labKompTot)[2] - 2))
+# # col_nams <- c("", names(labKompTot[-1]))
 # 
 # 
 # 
 # if (params$tableFormat == "html") {
-#   knitr::kable(x = labKomp_fjor %>% select(-aar), 
-#                caption = cap,
-#                align = align, col.names = col_nams) %>%
+#   knitr::kable(x = labKompTot %>% select(-aar),
+#                caption = cap) %>% 
+#                # align = align, col.names = col_nams) %>%
 #     kableExtra::kable_styling(bootstrap_options = c("striped",
 #                                                     "hover",
 #                                                     "condensed"),
 #                               full_width = FALSE) %>%
 #     kableExtra::row_spec(row = 0, angle = -45) %>%
-#     kableExtra::column_spec(column = 1, width = "7em") %>% 
-#     kableExtra::column_spec(column = 1, width = "7em") %>% 
+#     kableExtra::column_spec(column = 1, width = "7em") %>%
+#     kableExtra::column_spec(column = 1, width = "7em") %>%
 #     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
 #     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
 #     kableExtra::row_spec(row=dim(labKomp_fjor)[1]-1, hline_after =  TRUE) %>%
 #     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
-#                           start_row = 1, 
-#                           end_row = 13) 
-#   # %>% 
+#                           start_row = 1,
+#                           end_row = 13)
+#   # %>%
 #   #   kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-#   #                         start_row = 14, 
+#   #                         start_row = 14,
 #   #                         end_row = dim(labKomp_fjor)[1])
 # 
-#   
-#   
-#   
-#   
+# 
+# 
+# 
+# 
 # } else if (params$tableFormat == "latex") {
 # 
-#   knitr::kable(x = labKomp_fjor, 
-#                caption = cap,
-#                align = align, col.names = col_nams) %>%
+#   knitr::kable(x = labKomp_fjor,
+#                caption = cap) %>% 
+#                # align = align, col.names = col_nams) %>%
 #     kableExtra::kable_styling(bootstrap_options = c("striped",
 #                                                     "hover",
 #                                                     "condensed"),
 #                               full_width = FALSE) %>%
 #     kableExtra::row_spec(row = 0, angle = -45) %>%
-#     kableExtra::column_spec(column = 1, width = "7em") %>% 
-#     kableExtra::column_spec(column = 1, width = "7em") %>% 
+#     kableExtra::column_spec(column = 1, width = "7em") %>%
+#     kableExtra::column_spec(column = 1, width = "7em") %>%
 #     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
 #     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
 #     kableExtra::row_spec(row=dim(labKomp_fjor)[1]-1, hline_after =  TRUE) %>%
 #     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
-#                           start_row = 1, 
-#                           end_row = 13) 
-#   # %>% 
+#                           start_row = 1,
+#                           end_row = 13)
+#   # %>%
 #   #   kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-#   #                         start_row = 14, 
+#   #                         start_row = 14,
 #   #                         end_row = dim(labKomp_fjor)[1])
 # }
 ```
