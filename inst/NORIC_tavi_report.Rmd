@@ -1606,8 +1606,8 @@ if (params$tableFormat == "html") {
 Her rapporteres komplikasjoner oppstått på sengepost under sykehusoppholdet 
 etter avsluttet prosedyre. Hvis det er registrert flere komplikasjoner på 
 samme pasient er disse talt opp hver for seg. Behov for innsetting av 
-permanent pacemaker er en av kvalitetsindikatorene i NORIC, for detajer, 
-[*** se her***](#pacemaker)
+permanent pacemaker er en av kvalitetsindikatorene i NORIC, for detajer
+[*** Pacemakerbehov***](#pacemaker)
 
 Vi viser opptellingene for både ferdigstilte og 
 ikke ferdigstilte komplikasjonsskjema.  [***Klikk her***](#komplSkjema) 
@@ -2246,9 +2246,8 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"-->"}`
 
 
-## Utskrivelssested og liggetid
 
-### Utskrivelssested
+## Utskrivelssested
 ```{r tabUtskrevetTil, results='asis', eval=TRUE}
 cap <- paste0("Fordeling av utskrivelsessted registrert i NORIC ",
               "ved ", params$hospitalName,
@@ -2346,7 +2345,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```
 
 
-### Liggetid
+## Liggetid
 **Forklaring boxplot:** 
 Boxplotet viser fordelingen av liggetiden. 
 Medianverdien er markert av den tykke linjen midt i boksen. 
@@ -2421,7 +2420,7 @@ cap <- paste0("Antall prosedyrer med Pacemakerbehov etter innsetting av ",
               " for hele fjoråret og hittil i år (t.o.m ",
               siste_dato_txt, 
               ").", 
-              "Pasienter som allerede hadde pacemaker eller som er registrert ", 
+              " Pasienter som allerede hadde pacemaker eller som er registrert ", 
               "som avdød på lab er fjernet fra datagrunnlaget.")
 
 
@@ -2513,6 +2512,10 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
     shiny::setProgress(0.9) 
 ```
 
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
 
 
 # Utvikling alder/ kjønn de siste årene
@@ -2520,9 +2523,13 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ```{r GetData2, include=FALSE, cache=FALSE}
 
-fromDate <- as.Date(paste0(periode_data$nyesteRegYear - 7, 
-                           "-01-01"), 
-                    format = "%Y-%m-%d")
+# 10 år tilbake i tid, men ikke lenger tilbake enn 2017 (nasj. dekning). 
+fromDate <- max(
+  as.Date(paste0(periode_data$nyesteRegYear - 9, "-01-01"), 
+          format = "%Y-%m-%d"),
+  as.Date("2017-01-01", 
+          format = "%Y-%m-%d")) 
+  
 
 toDate <- periode_data$siste_dato
 
@@ -2589,7 +2596,8 @@ AK_alderKjonn %<>% noric::legg_til_tidsvariabler()
 
 
 
-```{r figalderkjonn, fig.cap = paste0("Pasienten alder ved prosedyren per i år fra ", fromDate," til ", toDate, ". Merk at antall prosedyrer i hver gruppe kan være svært ulikt."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
+```{r figalderkjonn, fig.cap = paste0("Pasienten alder ved prosedyren per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 
 AK_alderKjonn %>% 
