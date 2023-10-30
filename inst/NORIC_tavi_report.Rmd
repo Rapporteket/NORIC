@@ -496,7 +496,7 @@ ggplot2::ggplot(df_cumplot) +
 ```{r TabPros, results='asis', eval=TRUE}
 cap <- paste0("Fordeling av prosedyretyper registrert i NORIC ",
               "ved ", params$hospitalName,
-              "for hele fjoråret og hittil i år (t.o.m ", 
+              " for hele fjoråret og hittil i år (t.o.m ", 
               siste_dato_txt, 
               "). Merk at variablen er ny fra våren 2023 og eldre ", 
               "registreringer vil ha verdien NA (not available).")
@@ -955,7 +955,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r tabKlaffiKlaff, results='asis', eval=TRUE}
-cap <- paste0("Antall prosedyrer med Klaff i Klaff registrert i NORIC ",
+cap <- paste0("Antall prosedyrer med klaff i klaff registrert i NORIC ",
               "ved ", params$hospitalName,
               " for hele fjoråret og hittil i år (t.o.m ",
               siste_dato_txt, 
@@ -1605,7 +1605,9 @@ if (params$tableFormat == "html") {
 
 Her rapporteres komplikasjoner oppstått på sengepost under sykehusoppholdet 
 etter avsluttet prosedyre. Hvis det er registrert flere komplikasjoner på 
-samme pasient er disse talt opp hver for seg. 
+samme pasient er disse talt opp hver for seg. Behov for innsetting av 
+permanent pacemaker er en av kvalitetsindikatorene i NORIC, for detajer, 
+[*** se her***](#pacemaker)
 
 Vi viser opptellingene for både ferdigstilte og 
 ikke ferdigstilte komplikasjonsskjema.  [***Klikk her***](#komplSkjema) 
@@ -2108,7 +2110,7 @@ avdKomp_aar <- merge(
 
 
 ```{r tabAvdKomp, results='asis', eval=TRUE}
-cap <- paste0("Antall komplikasjoner på Avdeling registrert i NORIC ",
+cap <- paste0("Antall komplikasjoner på avdeling registrert i NORIC ",
               "ved ", params$hospitalName,
               " for hele fjoråret og hittil i år (t.o.m ",
               siste_dato_txt, 
@@ -2187,7 +2189,7 @@ Boxplotet viser fordelingen av ventetiden.
 Medianverdien er markert av den tykke linjen midt i boksen. 
 De blå boksene inneholder halvparten av registreringene og
 er avgrenset av nedre (25%) og øvre (75%) kvartil. 
-Bredden på boksen kalles intervartil bredde (IQR). 
+Bredden på boksen kalles interkvartil bredde (IQR). 
 De vertikale greinene viser minste og største verdi i datasettet innenfor
 henholdsvis 1,5 x IQR under nedre kvartil og 
 1.5 x IQR over øvre kvartil. 
@@ -2350,13 +2352,12 @@ Boxplotet viser fordelingen av liggetiden.
 Medianverdien er markert av den tykke linjen midt i boksen. 
 De blå boksene inneholder halvparten av registreringene og
 er avgrenset av nedre (25%) og øvre (75%) kvartil. 
-Bredden på boksen kalles intervartil bredde (IQR). 
+Bredden på boksen kalles interkvartil bredde (IQR). 
 De vertikale greinene viser minste og største verdi i datasettet innenfor
 henholdsvis 1,5 x IQR under nedre kvartil og 
-1.5 x IQR over øvre kvartil. 
-Punktene utenfor greinene viser uteliggere,
-det vil si forløp med usedvanlig kort eller lang liggetiden.  
-Merk at datovariablene for innneværende år ikke nødvendigvis er filvasket.
+1.5 x IQR over øvre kvartil. Punktene utenfor greinene viser uteliggere,
+det vil si forløp med usedvanlig kort eller lang liggetiden. Merk at 
+datovariablene for innneværende år ikke nødvendigvis er filvasket.
 
 <br/><br/>
 
@@ -2405,12 +2406,12 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```
 
 
-## Pacemakerbehov (Kvalitetsindikator)
+## Pacemakerbehov (Kvalitetsindikator){#pacemaker}
 Kvalitetsindikatoren 'Behov for permanent pacemaker etter TAVI' gjelder kun
 for prosedyrer der klaff er satt inn, pasienten ikke er død på lab og 
-pasienten ikke allerede har pacemaker. Når vi rapporterer fra kvalitets-
-indikatoren krever vi minst 50% ferdigstillelse for å regne ut 
-måloppnåelse. 
+pasienten ikke allerede har pacemaker. Når vi rapporterer fra
+kvalitetsindikatoren krever vi minst 50% ferdigstillelse av 
+hovedskjemaet for å regne ut måloppnåelse. 
 <br/><br/>
 
 ```{r tabpmBeh, results='asis', eval=TRUE}
