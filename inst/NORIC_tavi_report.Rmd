@@ -203,6 +203,9 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
                        "til", 
                        format(periode_data$siste_dato, 
                               "%d/%m-%Y"))
+
+siste_dato_txt = format(x = periode_data$siste_dato,
+                        format = "%d/%m-%Y")
 ```
 
 
@@ -399,14 +402,14 @@ Totalt `r AK %>% nrow()` aortaklaff-prosedyrer ligger til grunn for rapporten,
 `r AK %>% dplyr::filter(aar == periode_data$sisteHeleYear) %>% nrow()` fra 
 `r periode_data$sisteHeleYear ` og 
 `r AK %>% dplyr::filter(aar == periode_data$nyesteRegYear) %>% nrow()` fra 
-`r periode_data$nyesteRegYear ` . 
+`r periode_data$nyesteRegYear `. 
 
 
 \bigskip \bigskip \bigskip
 
 
 ## Kumulert produksjon per år
-```{r FigKumulertProde, fig.cap =  paste0("Kumulert antall prosedyrer på aortaklaff registrert i NORIC ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", periode_data$siste_dato , ")."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigKumulertProde, fig.cap =  paste0("Kumulert antall prosedyrer på aortaklaff registrert i NORIC ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 df_cumplot <- AK %>%
   dplyr::select(maaned_nr, aar) %>% 
@@ -493,8 +496,9 @@ ggplot2::ggplot(df_cumplot) +
 ```{r TabPros, results='asis', eval=TRUE}
 cap <- paste0("Fordeling av prosedyretyper registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, 
-              ". Merk at variablen er ny fra våren 2023 og eldre ", 
+              "for hele fjoråret og hittil i år (t.o.m ", 
+              siste_dato_txt, 
+              "). Merk at variablen er ny fra våren 2023 og eldre ", 
               "registreringer vil ha verdien NA (not available).")
 
 
@@ -596,7 +600,9 @@ if (params$tableFormat == "html") {
 
 cap <- paste0("Fordeling av hastegrad registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").")
 
 
 TabHast_fjor <- merge(
@@ -711,8 +717,9 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```{r TabTilgang, results='asis', eval=TRUE}
 cap <- paste0("Fordeling av operativ tilgang registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").")
 
 TabOpTilg_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -815,8 +822,10 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```{r TabTypeKlaff, results='asis', eval=TRUE}
 cap <- paste0("Fordeling av type klaffeprotese registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ". ", 
-              "Merk at dersom ingen type klaffeprotese er valgt, ", 
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").", 
+              " Merk at dersom ingen type klaffeprotese er valgt, ", 
               "regnes prosedyren som 'uten innsetting av klaff'. ")
 
 
@@ -948,8 +957,9 @@ if (params$tableFormat == "html") {
 ```{r tabKlaffiKlaff, results='asis', eval=TRUE}
 cap <- paste0("Antall prosedyrer med Klaff i Klaff registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").")
 
 klaffiklaff_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -1037,8 +1047,9 @@ if (params$tableFormat == "html") {
 ```{r tabParaLekk, results='asis', eval=TRUE}
 cap <- paste0("Antall prosedyrer med ParavalvularLekkasje registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").")
 
 paraLekk_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -1139,7 +1150,7 @@ etterpå.
 ## Komplikasjoner på kat.lab.
 
 Her rapporteres komplikasjoner oppstått i tilknytning til selve prosedyren mens 
-pasienten fortsatt er på hjertekateteriseringslaboratoriet (kat.lab.) 
+pasienten fortsatt er på hjertekateteriseringslaboratoriet (kat.lab.). 
 Datagrunnlaget omfatter alle prosedyrer, uavhengig av pasientens helsetilstand 
 eller prosedyrens hastegrad. 
 Figuren viser antall registrerte komplikasjoner i fjor og hittil i år.  Merk 
@@ -1231,7 +1242,7 @@ fig_df_kompLab2 <-
 ```
 
 
-```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. For alle prosedyrer fra fjoråret og hittil i år. Hvis det er registrert flere komplikasjoner på samme pasient er disse talt opp hver for seg.") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. For alle prosedyrer fra fjoråret og hittil i år (t.o.m ", siste_dato_txt,"). Hvis det er registrert flere komplikasjoner på samme pasient er disse talt opp hver for seg.") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
 
 
 # PLOT
@@ -1520,8 +1531,9 @@ labKomp_aar <- merge(
 ```{r tabLabKomp, results='asis', eval=TRUE}
 cap <- paste0("Antall komplikasjoner på lab registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").")
 
 labKompTot <- rbind(labKomp_fjor, 
                     labKomp_aar)
@@ -1614,9 +1626,10 @@ fig_df_kompAvd <- AK %>%
     AvdKompAtrieflimmer, 
     AvdKompHjerteinfarkt, 
     AvdKompVaskular, 
-    AvdKompBlodning_major,
-    AvdKompBlodning_fatal, 
-    AvdKompBlodning_minor,
+    AvdKompBlodning,
+    # AvdKompBlodning_major,
+    # AvdKompBlodning_fatal, 
+    # AvdKompBlodning_minor,
     AvdKompInfeksjon_janei, 
     AvdKompDialyse, 
     AvdKompAnnenKomp, 
@@ -1633,10 +1646,11 @@ fig_df_kompAvd <- AK %>%
       name %in% "AvdKompPacemaker" ~ "Permanent pacemaker", 
       name %in% "AvdKompAtrieflimmer" ~ "Nytilkommet atrieflimmer", 
       name %in% "AvdKompHjerteinfarkt" ~ "Hjerteinfarkt", 
-      name %in% "AvdKompVaskular" ~  "Vaskul\u00e6r",  
-      name %in% "AvdKompBlodning_minor" ~ "Blødning minor",
-      name %in% "AvdKompBlodning_major" ~ "Blødning major",
-      name %in% "AvdKompBlodning_fatal" ~ "Blødning livstruende/fatal",
+      name %in% "AvdKompVaskular" ~  "Vaskul\u00e6r", 
+      name %in% "AvdKompBlodning" ~ "Noen form for blødning",
+      # name %in% "AvdKompBlodning_minor" ~ "Blødning minor",
+      # name %in% "AvdKompBlodning_major" ~ "Blødning major",
+      # name %in% "AvdKompBlodning_fatal" ~ "Blødning livstruende/fatal",
       name %in% "AvdKompInfeksjon_janei" ~ "Noen form for infeksjon", 
       name %in% "AvdKompDialyse" ~ "Dialyse", 
       name %in% "AvdKompAnnenKomp" ~ "Annen alvorlig", 
@@ -1653,22 +1667,22 @@ fig_df_kompAvd <- AK %>%
 
 rekke_avd <- rbind(
   # Blødning i synkende alv grad
-  fig_df_kompAvd %>% 
-    filter(name %in% "AvdKompBlodning_fatal",
-           aar %in% periode_data$sisteHeleYear), 
-  fig_df_kompAvd %>% 
-    filter(name %in% "AvdKompBlodning_major",
-           aar %in% periode_data$sisteHeleYear), 
-  fig_df_kompAvd %>% 
-    filter(name %in% "AvdKompBlodning_minor",
-           aar %in% periode_data$sisteHeleYear), 
+  # fig_df_kompAvd %>% 
+  #   filter(name %in% "AvdKompBlodning_fatal",
+  #          aar %in% periode_data$sisteHeleYear), 
+  # fig_df_kompAvd %>% 
+  #   filter(name %in% "AvdKompBlodning_major",
+  #          aar %in% periode_data$sisteHeleYear), 
+  # fig_df_kompAvd %>% 
+  #   filter(name %in% "AvdKompBlodning_minor",
+  #          aar %in% periode_data$sisteHeleYear), 
   
   # Resten, rekkefølge fjoråret                    
   fig_df_kompAvd %>% 
-    dplyr::filter(!name %in% c("AvdKompAnnenKomp",
-                               "AvdKompBlodning_fatal", 
-                               "AvdKompBlodning_major", 
-                               "AvdKompBlodning_minor"),
+    dplyr::filter(!name %in% c("AvdKompAnnenKomp"),
+                               # "AvdKompBlodning_fatal", 
+                               # "AvdKompBlodning_major", 
+                               # "AvdKompBlodning_minor"),
                   aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
@@ -1695,7 +1709,7 @@ fig_df_kompAvd2 <-
 ```
 
 
-```{r FigAvdKompl, fig.cap = paste0("Antall komplikasjoner på avdeling etter prosedyren. For alle prosedyrer fra fjoråret og hittil i år.",  " Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl, fig.cap = paste0("Antall komplikasjoner på avdeling etter prosedyren. For alle prosedyrer fra fjoråret og hittil i år (t.o.m ", siste_dato_txt, "). Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
 
 
 # PLOT
@@ -1745,25 +1759,25 @@ ggplot2::ggplot(data = fig_df_kompAvd2) +
 ```{r tabAvdKompPrepFjor}
 avdKomp_fjor <- merge(
   x = timeTableMonth_fjor,
-  y = AK %>%  
-    dplyr::filter(AvdKompHjerneslag %in% "Ja") %>% 
-    dplyr::count(maaned, .drop = FALSE) %>% 
-    dplyr::rename("Hjerneslag" = n), 
-  by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  # y = AK %>%  
+  #   dplyr::filter(AvdKompHjerneslag %in% "Ja") %>% 
+  #   dplyr::count(maaned, .drop = FALSE) %>% 
+  #   dplyr::rename("Hjerneslag" = n), 
+  # by.x  = "maaned", 
+  # by.y = "maaned") %>% 
   
-  merge(x = ., 
+  # merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Svære sekveler med behov for pleie") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav svære sekveler" = n),  
+          dplyr::rename("Hjerneslag- svære sekveler" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Moderate sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav moderate sekveler" = n),  
+          dplyr::rename("Hjerneslag- moderate sekveler" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
 
@@ -1771,7 +1785,7 @@ avdKomp_fjor <- merge(
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Lette sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav lette sekveler" = n),  
+          dplyr::rename("Hjerneslag- lette sekveler" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
   
@@ -1824,50 +1838,50 @@ avdKomp_fjor <- merge(
         by.y = "maaned") %>% 
         
    
-  merge(x = ., 
-        y = AK %>%  
-          dplyr::filter(AvdKompBlodning %in% "Ja") %>% 
-          dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("Blødning" = n),  
-        by.x  = "maaned", 
-        by.y = "maaned") %>% 
-
+  # merge(x = ., 
+  #       y = AK %>%  
+  #         dplyr::filter(AvdKompBlodning %in% "Ja") %>% 
+  #         dplyr::count(maaned, .drop = FALSE) %>% 
+  #         dplyr::rename("Blødning" = n),  
+  #       by.x  = "maaned", 
+  #       by.y = "maaned") %>% 
+  # 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_fatal %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav fatal el livstruende" = n),  
+          dplyr::rename("Blødning- fatal el livstruende" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_major %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav major" = n),  
+          dplyr::rename("Bløding- major" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_minor %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav minor" = n),  
+          dplyr::rename("Blødning- minor" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
   
 
-  merge(x = ., 
-        y = AK %>%  
-          dplyr::filter(AvdKompInfeksjon_janei %in% "Ja") %>% 
-          dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("Infeksjon" = n),  
-        by.x  = "maaned", 
-        by.y = "maaned") %>% 
+  # merge(x = ., 
+  #       y = AK %>%  
+  #         dplyr::filter(AvdKompInfeksjon_janei %in% "Ja") %>% 
+  #         dplyr::count(maaned, .drop = FALSE) %>% 
+  #         dplyr::rename("Infeksjon" = n),  
+  #       by.x  = "maaned", 
+  #       by.y = "maaned") %>% 
 
     merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Pneumoni")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav pneumoni" = n),  
+          dplyr::rename("Infeksjon- pneumoni" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
 
@@ -1875,7 +1889,7 @@ avdKomp_fjor <- merge(
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Urinveisinfeksjon")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav UVI" = n),  
+          dplyr::rename("Infeksjon- UVI" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
 
@@ -1883,7 +1897,7 @@ avdKomp_fjor <- merge(
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Annen alvorlig infeksjon")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav annen" = n),  
+          dplyr::rename("Infeksjon- annen" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
 
@@ -1921,25 +1935,25 @@ avdKomp_fjor <- merge(
 ```{r tabAvdKompPrepAar}
 avdKomp_aar <- merge(
   x = timeTableMonth_aar,
-  y = AK %>%  
-    dplyr::filter(AvdKompHjerneslag %in% "Ja") %>% 
-    dplyr::count(maaned, .drop = FALSE) %>% 
-    dplyr::rename("Hjerneslag" = n), 
-  by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  # y = AK %>%  
+  #   dplyr::filter(AvdKompHjerneslag %in% "Ja") %>% 
+  #   dplyr::count(maaned, .drop = FALSE) %>% 
+  #   dplyr::rename("Hjerneslag" = n), 
+  # by.x  = "maaned", 
+  # by.y = "maaned") %>% 
   
-  merge(x = ., 
+  # merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Svære sekveler med behov for pleie") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav svære sekveler" = n),  
+          dplyr::rename("Hjerneslag- svære sekveler" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Moderate sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav moderate sekveler" = n),  
+          dplyr::rename("Hjerneslag- moderate sekveler" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
 
@@ -1947,7 +1961,7 @@ avdKomp_aar <- merge(
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Lette sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav lette sekveler" = n),  
+          dplyr::rename("Hjerneslag- lette sekveler" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
   
@@ -2000,50 +2014,50 @@ avdKomp_aar <- merge(
         by.y = "maaned") %>% 
         
    
-  merge(x = ., 
-        y = AK %>%  
-          dplyr::filter(AvdKompBlodning %in% "Ja") %>% 
-          dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("Blødning" = n),  
-        by.x  = "maaned", 
-        by.y = "maaned") %>% 
+  # merge(x = ., 
+  #       y = AK %>%  
+  #         dplyr::filter(AvdKompBlodning %in% "Ja") %>% 
+  #         dplyr::count(maaned, .drop = FALSE) %>% 
+  #         dplyr::rename("Blødning" = n),  
+  #       by.x  = "maaned", 
+  #       by.y = "maaned") %>% 
 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_fatal %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav fatal el livstruende" = n),  
+          dplyr::rename("Blødning- fatal el livstruende" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_major %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav major" = n),  
+          dplyr::rename("Bløding- major" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_minor %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav minor" = n),  
+          dplyr::rename("Blødning- minor" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
   
-
-  merge(x = ., 
-        y = AK %>%  
-          dplyr::filter(AvdKompInfeksjon_janei %in% "Ja") %>% 
-          dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("Infeksjon" = n),  
-        by.x  = "maaned", 
-        by.y = "maaned") %>% 
+# 
+#   merge(x = ., 
+#         y = AK %>%  
+#           dplyr::filter(AvdKompInfeksjon_janei %in% "Ja") %>% 
+#           dplyr::count(maaned, .drop = FALSE) %>% 
+#           dplyr::rename("Infeksjon" = n),  
+#         by.x  = "maaned", 
+#         by.y = "maaned") %>% 
 
     merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Pneumoni")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav pneumoni" = n),  
+          dplyr::rename("Infeksjon- pneumoni" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
 
@@ -2051,7 +2065,7 @@ avdKomp_aar <- merge(
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Urinveisinfeksjon")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav UVI" = n),  
+          dplyr::rename("Infeksjon- UVI" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
 
@@ -2059,7 +2073,7 @@ avdKomp_aar <- merge(
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Annen alvorlig infeksjon")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
-          dplyr::rename("-herav annen" = n),  
+          dplyr::rename("Infeksjon- annen" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
 
@@ -2096,8 +2110,9 @@ avdKomp_aar <- merge(
 ```{r tabAvdKomp, results='asis', eval=TRUE}
 cap <- paste0("Antall komplikasjoner på Avdeling registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").")
 
 avdKompTot <- rbind(avdKomp_fjor, 
                     avdKomp_aar)
@@ -2183,7 +2198,7 @@ Merk at datovariablene for innneværende år ikke nødvendigvis er filvasket.
 <br/><br/><br/>
 
 
-```{r figVentetid, fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Prosedyrene er fra tidsrommet fra ", rangeProsDato, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r figVentetid, fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Prosedyrene er fra tidsrommet fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 
 AK %>% 
@@ -2235,8 +2250,9 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```{r tabUtskrevetTil, results='asis', eval=TRUE}
 cap <- paste0("Fordeling av utskrivelsessted registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").")
 
 utskrTil_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -2344,7 +2360,7 @@ Merk at datovariablene for innneværende år ikke nødvendigvis er filvasket.
 
 <br/><br/>
 
-```{r figLiggetid, fig.cap = paste0("Liggetid for prosedyrer på aortaklaff er beregnet som antall dager mellom prosedyredatoen og utskrivelsesdasto. Negative liggetider, eller liggetider over 30 dager er fjernet. Prosedyrene er fra ", rangeProsDato, ". Merk at antall prosedyrer i hver gruppe kan være svært ulikt."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r figLiggetid, fig.cap = paste0("Liggetid for prosedyrer på aortaklaff er beregnet som antall dager mellom prosedyredatoen og utskrivelsesdasto. Negative liggetider, eller liggetider over 30 dager er fjernet. Prosedyrene er fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt ,"). Merk at antall prosedyrer i hver gruppe kan være svært ulikt."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 
 AK %>% 
@@ -2401,8 +2417,10 @@ måloppnåelse.
 cap <- paste0("Antall prosedyrer med Pacemakerbehov etter innsetting av ", 
               " TAVI registrert i NORIC ",
               "ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, 
-              ". Pasienter som allerede hadde pacemaker eller som er registrert ", 
+              " for hele fjoråret og hittil i år (t.o.m ",
+              siste_dato_txt, 
+              ").", 
+              "Pasienter som allerede hadde pacemaker eller som er registrert ", 
               "som avdød på lab er fjernet fra datagrunnlaget.")
 
 
@@ -2501,7 +2519,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 ```{r GetData2, include=FALSE, cache=FALSE}
 
-fromDate <- as.Date(paste0(periode_data$nyesteRegYear - 10, 
+fromDate <- as.Date(paste0(periode_data$nyesteRegYear - 7, 
                            "-01-01"), 
                     format = "%Y-%m-%d")
 
