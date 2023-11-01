@@ -498,7 +498,9 @@ cap <- paste0("Fordeling av prosedyretyper registrert i NORIC ",
               "ved ", params$hospitalName,
               " for hele fjoråret og hittil i år (t.o.m ", 
               siste_dato_txt, 
-              ").")
+              ").", 
+              " Merk at variabelen var ny våren 2023 og at eldre prosedyrer ", 
+              "har verdien NA (not available).")
 
 
 TabPros_fjor <- merge(
@@ -2583,15 +2585,55 @@ if(params$registryName %in% "noricStagingNasjonal"){
   
 }   
 
-AK_alderKjonn %<>% noric::legg_til_tidsvariabler() 
+AK_alderKjonn %<>% noric::legg_til_tidsvariabler() %>% 
+  dplyr::mutate(PasientKjonn2 = factor(
+    x = dplyr::case_when(PasientKjonn == "Mann" ~ "Menn",
+                         PasientKjonn == "Kvinne" ~ "Kvinner", 
+                         TRUE  ~ NA_character_),
+    levels = c("Kvinner", "Menn"))) 
 
 ```
 
 
 
+## Kjønnsfordeling
+
+```{r alderKjonnTabell}
+cap <- paste0("Antall (andel) behandlede kvinner og menn i perioden fra ", fromDate," til ", toDate, ".")
+
+tab_kjonn <-  AK_alderKjonn %>%  
+  dplyr::count(aar, PasientKjonn2) %>% 
+  tidyr::pivot_wider(names_from = PasientKjonn2, values_from = n) %>% 
+  janitor::adorn_percentages() %>%
+  janitor::adorn_totals("col", name = "Totalt") %>% 
+  janitor::adorn_pct_formatting(digits = 0) %>% 
+  janitor::adorn_ns(position = "front") 
+
+align <- c("l", rep("c", dim(tab_kjonn)[2] - 1))
 
 
+if (params$tableFormat == "html") {
+  tab_kjonn %>%
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em") 
+} else if (params$tableFormat == "latex") {
+  tab_kjonn %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = align) %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8)
 
+}
+```
+
+## Aldersfordeling
 
 ```{r figalderkjonn, fig.cap = paste0("Pasientens alder ved prosedyren per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
