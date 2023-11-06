@@ -9,7 +9,7 @@ shinyServer(function(input, output, session) {
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
   
   reshId <- rapbase::getUserReshId(session)
-    hospitalName <- noric::fikse_sykehusnavn(data.frame(AvdRESH = reshId)) %>%  
+   hospitalName <- noric::fikse_sykehusnavn(data.frame(AvdRESH = reshId)) %>%  
       dplyr::select(Sykehusnavn)
     
    userFullName <- rapbase::getUserFullName(session)
@@ -30,7 +30,8 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     shiny::hideTab(inputId = "tabs", target = "Kodebok")
     shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-  } else if (userRole == "LC") {
+  
+    } else if (userRole == "LC") {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
     shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
@@ -53,6 +54,11 @@ shinyServer(function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Staging data")
   }
   
+   if(reshId %in% c(108141, 4210141, 114150, 105502, 106944)){
+     shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
+   }
+   
+   
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
     # set param needed for report meta processing
@@ -412,6 +418,10 @@ shinyServer(function(input, output, session) {
   output$aktivitet <- renderUI({
     htmlRenderRmd("NORIC_local_monthly_activity.Rmd")
   })
+  
+  output$tavi <- renderUI({
+    htmlRenderRmd("NORIC_tavi_report.Rmd")
+  })
 
   output$downloadReportProsedyrer <- downloadHandler(
     filename = function() {
@@ -439,6 +449,24 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       contentFile(file,
                   srcFile = "NORIC_local_monthly_activity.Rmd",
+                  tmpFile = basename(tempfile(fileext = ".Rmd")),
+                  type = "pdf",
+                  orgId = reshId,
+                  orgName = hospitalName,
+                  useReportProcessor = TRUE)
+    }
+  )
+
+  
+  output$downloadReportTavi <- shiny::downloadHandler(
+    filename = function() {
+      downloadFilename(fileBaseName = "NORIC_tavi_report",
+                       type = "PDF")
+    },
+    
+    content = function(file) {
+      contentFile(file,
+                  srcFile = "NORIC_tavi_report.Rmd",
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
                   type = "pdf",
                   orgId = reshId,
@@ -637,7 +665,34 @@ shinyServer(function(input, output, session) {
                       userFullName,
                       userRole,
                       "unknown operator")
+    ), 
+    
+    `Aortaklaff` = list(
+      synopsis = paste("NORIC ",
+                       "aortaklaff"),
+      fun = "reportProcessor",
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "author",
+                     "orgName",
+                     "orgId",
+                     "registryName",
+                     "userFullName",
+                     "userRole",
+                     "userOperator"),
+      paramValues = c("NORIC_tavi_report",
+                      "pdf",
+                      "Månedsresultater",
+                      "unknown author",
+                      "unknown organization",
+                      999999,
+                      registryName,
+                      userFullName,
+                      userRole,
+                      "unknown operator")
     )
+    
     
     
   )
@@ -678,7 +733,8 @@ shinyServer(function(input, output, session) {
                        choices = list(
                          "Kvalitetsindikatorer" = "NORIC_kvalitetsindikator", 
                          "Filvask avdød" = "NORIC_filvask_avdod", 
-                         "Invasive prosedyrer" = "NORIC_local_monthly"))
+                         "Invasive prosedyrer" = "NORIC_local_monthly", 
+                         "Aortaklaff" = "NORIC_tavi_report"))
   })
   
   output$dwnldControl <- shiny::renderUI({

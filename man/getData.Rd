@@ -21,7 +21,7 @@ getAp(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getSo(registryName, fromDate, toDate, singleRow, ...)
 
-getAk(registryName, fromDate, toDate, singleRow, ...)
+getAk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getFo(registryName, fromDate, toDate, singleRow, ...)
 

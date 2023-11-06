@@ -1,3 +1,7 @@
+# noric 2.15.0 TAVI rapport
+Resultater fra TAVI/Aortaklaff prosedyrer. Tilgjengelig for nedlasting ved 
+nasjonal SC rolle og som månedsrapport/abonnement for lokale LC/SC roller.
+
 # noric 2.14.0 Oppdaterte rapporter
 * __avdod__
 Etter at sykehusene gikk gjennom forrige rapport, ble det klart at død 1-2 

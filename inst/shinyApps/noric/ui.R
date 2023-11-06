@@ -20,7 +20,6 @@ ui <- tagList(
     id = "tabs",
     
     tabPanel("Start",
-             useShinyalert(),
              mainPanel(width = 12,
                        htmlOutput("veiledning", inline = TRUE),
                        appNavbarUserWidget(user = uiOutput("appUserName"),
@@ -57,8 +56,9 @@ ui <- tagList(
     
     
     shiny::navbarMenu(
-      "Månedsrapporter",
-      tabPanel(
+      title = "Månedsrapporter",
+     
+       tabPanel(
         "Invasive prosedyrer",
         sidebarLayout(
           sidebarPanel(
@@ -72,6 +72,7 @@ ui <- tagList(
           )
         )
       ),
+      
       tabPanel(
         "Angiografør/Operatør",
         sidebarLayout(
@@ -84,7 +85,25 @@ ui <- tagList(
             htmlOutput("aktivitet", inline = TRUE)
           )
         )
-      )) ,
+      ), 
+      
+      
+      tabPanel(
+        "Aortaklaff",
+        sidebarLayout(
+          sidebarPanel(
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
+            downloadButton("downloadReportTavi", "Hent!"),
+            width = 2
+          ),
+          mainPanel(
+            htmlOutput("tavi", inline = TRUE)
+          )
+        )
+      )
+      
+      ) ,
 
     
     

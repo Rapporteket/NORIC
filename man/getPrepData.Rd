@@ -28,7 +28,14 @@ getPrepApData(
 
 getPrepSoData(registryName, fromDate, toDate, singleRow, ...)
 
-getPrepAkData(registryName, fromDate, toDate, singleRow, ...)
+getPrepAkData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getPrepFoData(registryName, fromDate, toDate, singleRow, ...)
 
