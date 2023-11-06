@@ -79,6 +79,9 @@
     <loc>/reference/legg_til_liggedogn.html</loc>
   </url>
   <url>
+    <loc>/reference/legg_til_liggedogn_tavi.html</loc>
+  </url>
+  <url>
     <loc>/reference/legg_til_tidsvariabler.html</loc>
   </url>
   <url>
@@ -86,6 +89,9 @@
   </url>
   <url>
     <loc>/reference/legg_til_ventetid_stemi_min.html</loc>
+  </url>
+  <url>
+    <loc>/reference/legg_til_ventetid_tavi.html</loc>
   </url>
   <url>
     <loc>/reference/loadRegDataAngioPCI.html</loc>
