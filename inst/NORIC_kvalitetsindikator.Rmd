@@ -256,6 +256,8 @@ if(valid_staging_data) {
       .data$Hastegrad,
       .data$BesUtlEKGDato,
       .data$BesUtlEKGTid,
+      .data$BeslEKGDato, 
+      .data$BeslEKGTid,
       .data$BeslutningsutlosendeEKG,
       .data$GittTrombolyse,
       .data$HLRForSykehus,
