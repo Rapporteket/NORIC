@@ -111,7 +111,8 @@ legg_til_ventetid_nstemi_timer <- function(df_ap) {
 #' må ikke analyseres utenfor denne funksjonen da datagrunnlaget defineres der.
 #'
 #' @param df_ap tabellen med AngioPCI data fra NORIC. Maa inneholde variablene
-#' \code{ProsedyreDato, ProsedyreTid,BesUtlEKGDato, BesUtlEKGTid}
+#' \code{ProsedyreDato, ProsedyreTid,BeslEKGDato, BeslEKGTid, 
+#' BesUtlEKGDato, BesUtlEKGTid}
 #'
 #' @return returnerer \code{df_ap} med en ny kolonne:
 #'  \code{ventetid_stemi_minutter}
@@ -123,10 +124,26 @@ legg_til_ventetid_nstemi_timer <- function(df_ap) {
 #'                            "2020-11-11", "2021-12-24"),
 #'                          format = "%Y-%m-%d"),
 #'  ProsedyreTid = c("22:30:00", "01:10:00", "13:45:00", "12:20:00"),
-#'  BesUtlEKGDato = as.Date(c("2020-01-30", "2021-11-14",
-#'                            "2018-04-24", "2020-01-01"),
+#'  
+#'  BeslEKGDato = as.Date(c("2020-01-30", 
+#'                         "2021-11-14",
+#'                         NA_character_,
+#'                         "2020-01-01"),
 #'                          format = "%Y-%m-%d"),
-#'  BesUtlEKGTid = c( "21:10:00", "23:10:00", "05:20:00", NA_character_),
+#'  BeslEKGTid = c("21:10:00", 
+#'                "23:10:00",
+#'                NA_character_,
+#'                NA_character_),
+#'  
+#'  BesUtlEKGDato = as.Date(c(NA_character_,
+#'                            "2021-11-14",
+#'                            "2020-11-11", 
+#'                            NA_character_),
+#'                          format = "%Y-%m-%d"),
+#'  BesUtlEKGTid = c(NA_character_, 
+#'                   "20:00:00",
+#'                   "09:45:00",
+#'                   NA_character_),
 #'  BeslutningsutlosendeEKG = rep("Ved annet sykehus", 4))
 #' noric::legg_til_ventetid_stemi_min(x)
 
@@ -134,6 +151,8 @@ legg_til_ventetid_stemi_min <- function(df_ap) {
   
   stopifnot(all(c("ProsedyreDato",
                   "ProsedyreTid",
+                  "BeslEKGDato", 
+                  "BeslEKGTid",
                   "BesUtlEKGDato",
                   "BesUtlEKGTid",
                   "BeslutningsutlosendeEKG") %in% names(df_ap)))
@@ -146,15 +165,30 @@ legg_til_ventetid_stemi_min <- function(df_ap) {
         paste(.data$ProsedyreDato, .data$ProsedyreTid),
         "%Y-%m-%d %H:%M:%S"),
       
+      BeslEkgTidspunkt  = lubridate::parse_date_time2(
+        paste(.data$BeslEKGDato, .data$BeslEKGTid),
+        "%Y-%m-%d %H:%M:%S"),
+      
       BesUtlEkgTidspunkt  = lubridate::parse_date_time2(
         paste(.data$BesUtlEKGDato, .data$BesUtlEKGTid),
         "%Y-%m-%d %H:%M:%S"),
       
-      
-      ventetid_stemi_min =
-        round(as.numeric(difftime(.data$ProsedyreTidspunkt,
-                                  .data$BesUtlEkgTidspunkt,
-                                  units = "mins")), 1),
+      ventetid_stemi_min = dplyr::if_else(
+        # 1. prioritet: BesEKGTid
+        # Dersom BesEKGTid mangler, så bruker vi BesUtlEKGTid
+        # Dersom begge mangler, så blir det NA
+        condition = is.na(BeslEkgTidspunkt), 
+        
+        true = round(as.numeric(difftime(.data$ProsedyreTidspunkt,
+                                        .data$BesUtlEkgTidspunkt,
+                                        units = "mins")), 1), 
+        
+        false = round(as.numeric(difftime(.data$ProsedyreTidspunkt,
+                                       .data$BeslEkgTidspunkt,
+                                       units = "mins")), 1), 
+        missing = NA_integer_
+      ),
+        
       
       # Fjerner de som har 0 minutters ventetid samtidig som
       # Beslutingsutløsende EKG er Prehospitalt
@@ -168,7 +202,8 @@ legg_til_ventetid_stemi_min <- function(df_ap) {
     
     # Fjerne midlertidige variabler
     dplyr::select(-.data$ProsedyreTidspunkt,
-                  -.data$BesUtlEkgTidspunkt)
+                  -.data$BesUtlEkgTidspunkt, 
+                  -.data$BeslEkgTidspunkt)
 }
 
 

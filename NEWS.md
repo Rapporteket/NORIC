@@ -1,3 +1,8 @@
+# noric 2.15.1 Bugfix stemi indikator
+Tar hensyn til manglende kopiering mellom BeslEKGDato og BesUtlEKGDato med
+tilhørende tidspunkt. Bruker i 1.prioritet BeslEKGDato. 
+
+
 # noric 2.15.0 TAVI rapport
 Resultater fra TAVI/Aortaklaff prosedyrer. Tilgjengelig for nedlasting ved 
 nasjonal SC rolle og som månedsrapport/abonnement for lokale LC/SC roller.
