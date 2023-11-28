@@ -878,8 +878,10 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
       - .data$Studie,
       
       # Dobbelt opp av disse, fjerne minst komplette/feil (sept 2021):
-      -.data$BesUtlEKGDato,
-      -.data$BesUtlEKGTid,
+      # Rettelse nov 2023. Vi trenger de til indikatoren, "back up " i 
+      # tilfelle manglende kopierign
+      # -.data$BesUtlEKGDato,
+      # -.data$BesUtlEKGTid,
       -.data$KillipKlasseAnkomst,
       -.data$KardiogentSjokk,
       -.data$Kreatinin,

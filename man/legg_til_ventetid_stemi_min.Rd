@@ -8,7 +8,8 @@ legg_til_ventetid_stemi_min(df_ap)
 }
 \arguments{
 \item{df_ap}{tabellen med AngioPCI data fra NORIC. Maa inneholde variablene
-\code{ProsedyreDato, ProsedyreTid,BesUtlEKGDato, BesUtlEKGTid}}
+\code{ProsedyreDato, ProsedyreTid,BeslEKGDato, BeslEKGTid, 
+BesUtlEKGDato, BesUtlEKGTid}}
 }
 \value{
 returnerer \code{df_ap} med en ny kolonne:
@@ -27,10 +28,26 @@ x <- data.frame(
                            "2020-11-11", "2021-12-24"),
                          format = "\%Y-\%m-\%d"),
  ProsedyreTid = c("22:30:00", "01:10:00", "13:45:00", "12:20:00"),
- BesUtlEKGDato = as.Date(c("2020-01-30", "2021-11-14",
-                           "2018-04-24", "2020-01-01"),
+ 
+ BeslEKGDato = as.Date(c("2020-01-30", 
+                        "2021-11-14",
+                        NA_character_,
+                        "2020-01-01"),
                          format = "\%Y-\%m-\%d"),
- BesUtlEKGTid = c( "21:10:00", "23:10:00", "05:20:00", NA_character_),
+ BeslEKGTid = c("21:10:00", 
+               "23:10:00",
+               NA_character_,
+               NA_character_),
+ 
+ BesUtlEKGDato = as.Date(c(NA_character_,
+                           "2021-11-14",
+                           "2020-11-11", 
+                           NA_character_),
+                         format = "\%Y-\%m-\%d"),
+ BesUtlEKGTid = c(NA_character_, 
+                  "20:00:00",
+                  "09:45:00",
+                  NA_character_),
  BeslutningsutlosendeEKG = rep("Ved annet sykehus", 4))
 noric::legg_til_ventetid_stemi_min(x)
 }
