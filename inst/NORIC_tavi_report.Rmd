@@ -2060,8 +2060,8 @@ avdKomp_aar <- merge(
           dplyr::rename("Annen alvorlig komplikasjon" = n),  
         by.x  = "maaned", 
         by.y = "maaned") %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
-  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 ```
 
