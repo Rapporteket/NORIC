@@ -2616,15 +2616,27 @@ if (params$tableFormat == "html") {
 ```
 
 ## Aldersfordeling
+**Forklaring boxplot:** 
+Boxplotet viser fordeling av pasientens alder på prosedyretidspunktet, for
+kvinner og menn de siste årene. 
+Medianverdien er markert av den tykke linjen midt i boksen. 
+De blå boksene inneholder halvparten av registreringene og
+er avgrenset av nedre (25%) og øvre (75%) kvartil. 
+Bredden på boksen kalles interkvartil bredde (IQR). 
+De vertikale greinene viser minste og største verdi i datasettet innenfor
+henholdsvis 1,5 x IQR under nedre kvartil og 
+1.5 x IQR over øvre kvartil. 
+Punktene utenfor greinene viser uteliggere,
+det vil si forløp med usedvanlig lav eller høy alder. 
 
-```{r figalderkjonn, fig.cap = paste0("Pasientens alder ved prosedyren per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r figalderkjonn, fig.cap = paste0("Pasientens alder ved prosedyren, for kvinner og menn, per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 
 AK_alderKjonn %>% 
   dplyr::filter(!is.na(PasientKjonn),
                 !is.na(PasientAlder),
                 PasientAlder >= 18,
-                PasientAlder < 100) %>%
+                PasientAlder <= 100) %>%
   dplyr::select(PasientAlder, PasientKjonn, aar) %>%
     ggplot2::ggplot(mapping= ggplot2::aes(x = aar, 
                                           y = PasientAlder)) +
