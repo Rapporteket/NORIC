@@ -1,3 +1,6 @@
+# noric 2.15.2 Bugfix tavi rapport
+3 trykkfeiler i rapporten. Og legge til paravalvulær insuffisiens. 
+
 # noric 2.15.1 Bugfix stemi indikator
 Tar hensyn til manglende kopiering mellom BeslEKGDato og BesUtlEKGDato med
 tilhørende tidspunkt. Bruker i 1.prioritet BeslEKGDato. 
