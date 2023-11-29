@@ -1638,9 +1638,8 @@ samme pasient er disse talt opp hver for seg. Behov for innsetting av
 permanent pacemaker er en av kvalitetsindikatorene i NORIC, for detaljer se
 [***Pacemakerbehov***](#pacemaker)
 
-Vi viser opptellingene for både ferdigstilte og 
-ikke ferdigstilte komplikasjonsskjema.  [***Klikk her***](#komplSkjema) 
-for å se oversikten over antall (andel) ferdigstilte komplikasjonsskjemaer.
+Vi viser opptellingen for alle prosedyrer, uavhengig av status av
+ferdigstillelse. 
 
 
 
