@@ -1,3 +1,7 @@
+# noric 2.15.3 Bugfix staging
+Oppdatere staging data KI. Nå kan denne ogsaa regne ut ventetid. 
+Typeklaffeprotese Evolut FX er core valve. 
+
 # noric 2.15.2 Bugfix tavi rapport
 3 trykkfeiler i rapporten. Og legge til paravalvulær insuffisiens. 
 

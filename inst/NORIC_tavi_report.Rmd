@@ -272,8 +272,9 @@ AK %<>%
                                  "Edwards") ~ "Edwards", 
         
         TypeKlaffeprotese %in% c("CoreValve Evolut PRO", 
-                                  "CoreValve Evolut R", 
-                                  "CoreValve") ~ "CoreValve", 
+                                 "CoreValve Evolut R", 
+                                 "CoreValve", 
+                                 "Evolut FX") ~ "CoreValve", 
         
         !is.na(TypeKlaffeprotese) ~ "Annet", 
         is.na(TypeKlaffeprotese) ~ NA_character_), 
