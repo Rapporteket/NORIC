@@ -532,7 +532,8 @@ TabPros_fjor <- merge(
     janitor::tabyl(maaned,Prosedyre2) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
@@ -543,7 +544,8 @@ TabPros_aar <- merge(
     janitor::tabyl(maaned,Prosedyre2) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
@@ -635,7 +637,8 @@ TabHast_fjor <- merge(
     janitor::tabyl(maaned, ForlopsType2) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
@@ -646,7 +649,8 @@ TabHast_aar <- merge(
     janitor::tabyl(maaned, ForlopsType2) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
@@ -751,7 +755,8 @@ TabOpTilg_fjor <- merge(
     janitor::tabyl(maaned, OperativTilgang) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
@@ -762,7 +767,8 @@ TabOpTilg_aar <- merge(
     janitor::tabyl(maaned, OperativTilgang) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
@@ -863,7 +869,8 @@ TabTypeKlaff_fjor <- merge(
     janitor::tabyl(maaned, TypeKlaffeprotese2) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals(
     "row", 
     name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
@@ -876,7 +883,8 @@ TabTypeKlaff_aar <- merge(
     janitor::tabyl(maaned, TypeKlaffeprotese2) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
@@ -1003,7 +1011,8 @@ klaffiklaff_fjor <- merge(
     janitor::tabyl(maaned, KlaffIKlaff) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
@@ -1014,7 +1023,8 @@ klaffiklaff_aar <- merge(
     janitor::tabyl(maaned, KlaffIKlaff) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
@@ -1113,7 +1123,8 @@ paraInsuff_fjor <- merge(
     janitor::tabyl(maaned, ParavalvularInsuffisiens) %>%
     janitor::adorn_totals("col", name= "Totalt"),
   by.x  = "maaned",
-  by.y = "maaned") %>%
+  by.y = "maaned", 
+  all.x = TRUE) %>%
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>%
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
   dplyr::relocate("aar", .before = "maaned")
@@ -1124,7 +1135,8 @@ paraInsuff_aar <- merge(
     janitor::tabyl(maaned, ParavalvularInsuffisiens) %>%
     janitor::adorn_totals("col", name= "Totalt"),
   by.x  = "maaned",
-  by.y = "maaned") %>%
+  by.y = "maaned", 
+  all.x = TRUE) %>%
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>%
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
@@ -1350,7 +1362,8 @@ labKomp_fjor <- merge(
     dplyr::count(maaned, .drop = FALSE) %>% 
     dplyr::rename("Behandlingskrevende arytmi" = n), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1358,7 +1371,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Nevrologisk komplikasjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1366,7 +1380,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Tamponade" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
       
   merge(x = ., 
         y = AK %>%  
@@ -1374,7 +1389,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Vaskulær komplikasjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
   merge(x = ., 
         y = AK %>%  
@@ -1382,7 +1398,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Blødning" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1390,7 +1407,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Akutt klaff" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
   merge(x = ., 
         y = AK %>%  
@@ -1398,7 +1416,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Akutt vaskulær" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1406,7 +1425,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Okklusjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
    
   merge(x = ., 
@@ -1415,7 +1435,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Generell anestesi" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
   merge(x = ., 
         y = AK %>%  
@@ -1423,7 +1444,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hemodynamisk support" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
     merge(x = ., 
         y = AK %>%  
@@ -1431,7 +1453,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Ytterligere klaffeprotese" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -1439,7 +1462,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Embolisering av klaff" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -1447,7 +1471,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Annen alvorlig komplikasjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
       merge(x = ., 
         y = AK %>%  
@@ -1455,7 +1480,8 @@ labKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("D\u00f8d" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
@@ -1472,7 +1498,8 @@ labKomp_aar <- merge(
     dplyr::count(maaned, .drop = FALSE) %>% 
     dplyr::rename("Behandlingskrevende arytmi" = n), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1480,7 +1507,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Nevrologisk komplikasjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1488,7 +1516,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Tamponade" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
       
   merge(x = ., 
         y = AK %>%  
@@ -1496,7 +1525,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Vaskulær komplikasjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
   merge(x = ., 
         y = AK %>%  
@@ -1504,7 +1534,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Blødning" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1512,7 +1543,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Akutt klaff" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
   merge(x = ., 
         y = AK %>%  
@@ -1520,7 +1552,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Akutt vaskulær" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1528,7 +1561,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Okklusjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
    
   merge(x = ., 
@@ -1537,7 +1571,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Generell anestesi" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
   merge(x = ., 
         y = AK %>%  
@@ -1545,7 +1580,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hemodynamisk support" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
     merge(x = ., 
         y = AK %>%  
@@ -1553,7 +1589,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Ytterligere klaffeprotese" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -1561,7 +1598,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Embolisering av klaff" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -1569,7 +1607,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Annen alvorlig komplikasjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
       merge(x = ., 
         y = AK %>%  
@@ -1577,7 +1616,8 @@ labKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("D\u00f8d" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
@@ -1807,14 +1847,16 @@ avdKomp_fjor <- merge(
     dplyr::count(maaned, .drop = FALSE) %>% 
     dplyr::rename("Hjerneslag- svære sekveler" = n),  
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Moderate sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hjerneslag- moderate sekveler" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+       all.x = TRUE) %>% 
 
    merge(x = ., 
         y = AK %>%  
@@ -1822,7 +1864,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hjerneslag- lette sekveler" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned",
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1830,7 +1873,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("TIA" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
       
   merge(x = ., 
         y = AK %>%  
@@ -1838,7 +1882,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Tamponade" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned",
+        all.x = TRUE) %>% 
         
   merge(x = ., 
         y = AK %>%  
@@ -1846,7 +1891,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Pacemaker" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1854,7 +1900,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Nytilkommet atrieflimmer" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
   merge(x = ., 
         y = AK %>%  
@@ -1862,7 +1909,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hjerteinfarkt" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1870,7 +1918,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Vaskulær" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
   merge(x = ., 
         y = AK %>%  
@@ -1878,21 +1927,24 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Blødning- fatal el livstruende" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_major %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Bløding- major" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_minor %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Blødning- minor" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
 
     merge(x = ., 
@@ -1901,7 +1953,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Infeksjon- pneumoni" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
     merge(x = ., 
         y = AK %>%  
@@ -1909,7 +1962,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Infeksjon- UVI" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -1917,7 +1971,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Infeksjon- annen" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
   
     merge(x = ., 
@@ -1926,7 +1981,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Dialyse" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned",
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -1934,7 +1990,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Død" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -1942,7 +1999,8 @@ avdKomp_fjor <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Annen alvorlig komplikasjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
@@ -1958,14 +2016,16 @@ avdKomp_aar <- merge(
     dplyr::count(maaned, .drop = FALSE) %>% 
     dplyr::rename("Hjerneslag- svære sekveler" = n),  
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Moderate sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hjerneslag- moderate sekveler" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+       all.x = TRUE) %>% 
 
    merge(x = ., 
         y = AK %>%  
@@ -1973,7 +2033,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hjerneslag- lette sekveler" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -1981,7 +2042,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("TIA" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
       
   merge(x = ., 
         y = AK %>%  
@@ -1989,7 +2051,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Tamponade" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
   merge(x = ., 
         y = AK %>%  
@@ -1997,7 +2060,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Pacemaker" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -2005,7 +2069,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Nytilkommet atrieflimmer" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
   merge(x = ., 
         y = AK %>%  
@@ -2013,7 +2078,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hjerteinfarkt" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
   merge(x = ., 
         y = AK %>%  
@@ -2021,7 +2087,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Vaskulær" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
         
 
   merge(x = ., 
@@ -2030,21 +2097,24 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Blødning- fatal el livstruende" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_major %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Bløding- major" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_minor %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Blødning- minor" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   
 
     merge(x = ., 
@@ -2053,7 +2123,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Infeksjon- pneumoni" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
     merge(x = ., 
         y = AK %>%  
@@ -2061,7 +2132,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Infeksjon- UVI" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -2069,7 +2141,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Infeksjon- annen" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
   
     merge(x = ., 
@@ -2078,7 +2151,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Dialyse" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -2086,7 +2160,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Død" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
 
       merge(x = ., 
         y = AK %>%  
@@ -2094,7 +2169,8 @@ avdKomp_aar <- merge(
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Annen alvorlig komplikasjon" = n),  
         by.x  = "maaned", 
-        by.y = "maaned") %>% 
+        by.y = "maaned", 
+        all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
@@ -2261,7 +2337,8 @@ utskrTil_fjor <- merge(
     janitor::tabyl(maaned, UtskrevetTil) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals(
     "row", 
     name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
@@ -2274,7 +2351,8 @@ utskrTil_aar <- merge(
     janitor::tabyl(maaned, UtskrevetTil) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
@@ -2437,7 +2515,8 @@ pmBeh_fjor <- merge(
     janitor::tabyl(maaned, indik_pacemakerbehov) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals(
     "row",
     name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
@@ -2451,7 +2530,8 @@ pmBeh_aar <- merge(
     janitor::tabyl(maaned, indik_pacemakerbehov) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
-  by.y = "maaned") %>% 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
