@@ -397,7 +397,8 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 ## Antall prosedyrer
 Rapporten er generert med utgangspunkt i NORIC's database for
 `r params$hospitalName`. Det presenteres månedlige resultater for hele 
-fjorårets produksjon, samt alle fullførte måndeder hittil i år.
+fjorårets registreringer på aortaklaff,
+samt alle fullførte måndeder hittil i år.
 Den siste prosedyredatoen som er med i tabellene og 
 figurene er `r format(periode_data$siste_dato, '%d. %B %Y')`. 
 
@@ -414,26 +415,38 @@ Totalt `r AK %>% nrow()` aortaklaff-prosedyrer ligger til grunn for rapporten,
 ## Kumulert antall prosedyrer per år
 ```{r FigKumulertProde, fig.cap =  paste0("Kumulert antall prosedyrer på aortaklaff registrert i NORIC ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
-df_cumplot <- AK %>%
-  dplyr::select(maaned_nr, aar) %>% 
-  dplyr::count(maaned_nr, aar) %>% 
-  dplyr::arrange(maaned_nr) %>% 
-  dplyr::group_by(aar) %>% 
+
+
+
+
+df_cumplot <- merge(
+  x = timeTableMonth %>% 
+    dplyr::mutate(
+      Maaned = factor(x = substr(maaned, 6, 7), 
+                      levels = c("01", "02", "03", "04", "05", "06", "07", 
+                                 "08", "09", "10", "11", "12"),
+                      labels = c("Jan", "Feb", "Mars", "April", "Mai", 
+                                 "Juni", "Juli", "Aug", "Sept", "Okt", 
+                                 "Nov", "Des")),
+      aar = substr(maaned, 1, 4)), 
+  y = AK %>% dplyr::count(maaned, aar), 
+  all.x = TRUE) %>% 
+  dplyr::mutate(
+    n = ifelse(is.na(n), 0, n)) %>% 
+  dplyr::group_by(aar) %>%  
   dplyr::mutate(
     Total = cumsum(n), 
-    Maaned = factor(maaned_nr, 
-                    levels = c("01", "02", "03", "04", "05", "06", "07", 
-                               "08", "09", "10", "11", "12"),
-                    labels = c("Jan", "Feb", "Mars", "April", "Mai", 
-                               "Juni", "Juli", "Aug", "Sept", "Okt", 
-                               "Nov", "Des")),
     max_tota = max(Total, na.rm = TRUE),
     
     Label = ifelse(Total == max_tota, 
-                   max_tota, 
+                   as.character(max_tota), 
                    NA_character_))
 
-  
+
+
+      
+
+
   
 tot_fjor <- df_cumplot %>% 
   dplyr::filter(aar == periode_data$sisteHeleYear) %>% 
@@ -446,7 +459,8 @@ tot_aar <- df_cumplot %>%
   max(., na.rm = TRUE)
 
 
-
+ylim <- c(0, 
+          ceiling(max(df_cumplot$max_tota, na.rm = TRUE)/50)*50)
 
 ggplot2::ggplot(df_cumplot) +
     ggplot2::geom_line(
@@ -473,6 +487,7 @@ ggplot2::ggplot(df_cumplot) +
                      colour = colKontrast) +
 
   ggplot2::xlab("") + 
+  ggplot2::ylim(ylim) +
   ggplot2::ylab("Kumulert antall prosedyrer") + 
   ggplot2::theme_minimal() + 
   ggplot2::theme(legend.title = ggplot2::element_blank(),
