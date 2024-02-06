@@ -2271,7 +2271,7 @@ henholdsvis 1,5 x IQR under nedre kvartil og
 1.5 x IQR over øvre kvartil. 
 Punktene utenfor greinene viser uteliggere,
 det vil si forløp med usedvanlig kort eller lang ventetid. 
-Merk at datovariablene for innneværende år ikke nødvendigvis er filvasket.
+Merk at datovariablene ikke nødvendigvis er filvasket.
 
 <br/><br/><br/>
 
@@ -2441,7 +2441,7 @@ De vertikale greinene viser minste og største verdi i datasettet innenfor
 henholdsvis 1,5 x IQR under nedre kvartil og 
 1.5 x IQR over øvre kvartil. Punktene utenfor greinene viser uteliggere,
 det vil si forløp med usedvanlig kort eller lang liggetiden. Merk at 
-datovariablene for innneværende år ikke nødvendigvis er filvasket.
+datovariablene ikke nødvendigvis er filvasket.
 
 <br/><br/>
 
