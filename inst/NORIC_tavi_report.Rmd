@@ -2290,7 +2290,8 @@ AK %>%
                      colour = aar), 
         na.rm = TRUE, 
         fill = colPrimary[4],
-        position = ggplot2::position_dodge(preserve= "single")) +
+        position = ggplot2::position_dodge(preserve= "single"), ) +
+  ggplot2::scale_x_discrete(drop = FALSE) +
   ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
   ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
   ggplot2::theme_minimal()  +
