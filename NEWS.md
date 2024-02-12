@@ -1,3 +1,8 @@
+# noric 2.15.4 Buxfix nytt år
+For TAVI rapporten. Når kun en måned i inneværende år, tvinge string-format på 
+label til cumulative plot. Tvinge y-aksen til cumplot til å starte på 0. 
+Tvinge alle tabeller til a vise også måneder med 0 registreringer.
+
 # noric 2.15.3 Bugfix staging
 Oppdatere staging data KI. Nå kan denne ogsaa regne ut ventetid. 
 Typeklaffeprotese Evolut FX er core valve. 
