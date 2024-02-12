@@ -20,7 +20,6 @@ ui <- tagList(
     id = "tabs",
     
     tabPanel("Start",
-             useShinyalert(),
              mainPanel(width = 12,
                        htmlOutput("veiledning", inline = TRUE),
                        appNavbarUserWidget(user = uiOutput("appUserName"),
@@ -49,7 +48,7 @@ ui <- tagList(
     
     shiny::tabPanel("Kodebok",
                     sidebarLayout(
-                      sidebarPanel(uiOutput("kbControl")),
+                      sidebarPanel(uiOutput("kbControl"), width = 2),
                       mainPanel(htmlOutput("kbdData"))
                     )),
     
@@ -57,8 +56,9 @@ ui <- tagList(
     
     
     shiny::navbarMenu(
-      "Månedsrapporter",
-      tabPanel(
+      title = "Månedsrapporter",
+     
+       tabPanel(
         "Invasive prosedyrer",
         sidebarLayout(
           sidebarPanel(
@@ -72,8 +72,9 @@ ui <- tagList(
           )
         )
       ),
+      
       tabPanel(
-        "Aktivitet",
+        "Angiografør/Operatør",
         sidebarLayout(
           sidebarPanel(
             style = "position:fixed;width:130px;",
@@ -84,36 +85,49 @@ ui <- tagList(
             htmlOutput("aktivitet", inline = TRUE)
           )
         )
-      )) ,
+      ), 
+      
+      
+      tabPanel(
+        "Aortaklaff",
+        sidebarLayout(
+          sidebarPanel(
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
+            downloadButton("downloadReportTavi", "Hent!"),
+            width = 2
+          ),
+          mainPanel(
+            htmlOutput("tavi", inline = TRUE)
+          )
+        )
+      )
+      
+      ) ,
 
-
-    tabPanel("Datadump",
-             sidebarLayout(
-               sidebarPanel(width = 4,
-                            selectInput("dumpDataSet", "Velg datasett:",
-                                        c("AndreProsedyrerVar",
-                                          "AnnenDiagnostikkVar",
-                                          "AngioPCIVar",
-                                          "AortaklaffVar",
-                                          "AortaklaffOppfVar",
-                                          "CTAngioVar",
-                                          "ForlopsOversikt",
-                                          "MitralklaffVar",
-                                          "PasienterStudier",
-                                          "SegmentStent",
-                                          "SkjemaOversikt")),
-                            dateRangeInput("dumpDateRange", "Velg periode:",
-                                           start = ymd(Sys.Date()) - years(1),
-                                           end = Sys.Date(), separator = "-",
-                                           weekstart = 1),
-                            radioButtons("dumpFormat", "Velg filformat:",
-                                         choices = c("csv", "xlsx-csv")),
-                            downloadButton("dumpDownload", "Hent!")
-               ),
-               mainPanel(
-                 htmlOutput("dataDumpInfo") 
-               )
-             )
+    
+    
+    shiny::tabPanel("Datadump",
+                    shiny::sidebarLayout(
+                      shiny::sidebarPanel(
+                        width = 4,
+                        shiny::uiOutput(outputId = "selectDumpSet"),
+                        shiny::dateRangeInput(
+                          inputId = "dumpDateRange", 
+                          label = "Velg periode:",
+                          start = ymd(Sys.Date()) - years(1),
+                          end = Sys.Date(), separator = "-",
+                          weekstart = 1),
+                        shiny::radioButtons(inputId = "dumpFormat",
+                                            label = "Velg filformat:",
+                                            choices = c("csv", "xlsx-csv")),
+                        shiny::downloadButton(outputId = "dumpDownload",
+                                              label =  "Hent!")
+                      ),
+                      mainPanel(
+                        htmlOutput("dataDumpInfo") 
+                      )
+                    )
     ),
 
     shiny::tabPanel(
