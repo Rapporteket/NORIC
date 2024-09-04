@@ -169,7 +169,6 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
 SELECT
     AortaklaffVar.*,
     ForlopsOversikt.Sykehusnavn,
-    ForlopsOversikt.PasientID,
     ForlopsOversikt.FodselsDato,
     ForlopsOversikt.Kommune,
     ForlopsOversikt.KommuneNr,
@@ -832,7 +831,7 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
   if (is.null(toDate)) {
     toDate <- noric::getLatestEntry(registryName)
   }
-
+  
   
   queryAk <- paste0("
 SELECT
@@ -859,7 +858,7 @@ WHERE
     ProsedyreDato <= '", toDate, "'"
   )
   
-    
+  
   # Ask for all variables from PROM
   queryProm <- paste0("
 SELECT
