@@ -476,14 +476,16 @@ ggplot2::ggplot(df_cumplot) +
       periode_data$sisteHeleYear:periode_data$nyesteRegYear), 
     breaks = periode_data$sisteHeleYear:periode_data$nyesteRegYear) +
   
-  ggplot2::geom_label(mapping = ggplot2::aes(x= 12,
-                                             y = tot_fjor * 0.95,
-                                             label = tot_fjor) ,
-                     colour = colPrimary[3]) +
+  ggplot2::annotate(geom = "label", 
+                    x= 12,
+                    y = tot_fjor * 0.95,
+                    label = tot_fjor,
+                    colour = colPrimary[3]) +
 
-   ggplot2::geom_label(mapping = ggplot2::aes(x= periode_data$nyesteRegMnd,
-                                             y = tot_aar * 0.95,
-                                             label = tot_aar),
+     ggplot2::annotate(geom = "label", 
+                       x= periode_data$nyesteRegMnd,
+                       y = tot_aar * 0.95,
+                       label = tot_aar,
                      colour = colKontrast) +
 
   ggplot2::xlab("") + 
