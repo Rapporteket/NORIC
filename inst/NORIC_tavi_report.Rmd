@@ -615,9 +615,9 @@ if (params$tableFormat == "html") {
 
 
 
-<!-- `r if(params$tableFormat !="latex") {"<!--"}` -->
-<!-- \newpage -->
-<!-- `r if(params$tableFormat !="latex") {"-->"}` -->
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
 
 
