@@ -11,11 +11,47 @@
 #'                                       "indik_trykkmaaling_data",
 #'                                       "indik_trykkmaaling"))
 getKodebokMedUtledetedVar <- function() {
-  noric::def_utledete_var %>% 
+  
+  
+  
+  
+  noric::getKodebokData() %>% 
     dplyr::select(.data$skjemanavn, 
                   .data$fysisk_feltnavn, 
                   .data$ledetekst, 
                   .data$listeverdier, 
-                  .data$listetekst) %>% 
-    dplyr::mutate(listeverdier = as.character(.data$listeverdier))
+                  .data$listetekst, 
+                  .data$aktiveringsspm, 
+                  .data$underspm, 
+                  .data$innfort, 
+                  .data$tabell) %>% 
+    dplyr::mutate(listeverdier = as.character(.data$listeverdier)) %>%
+    dplyr::bind_rows(noric::def_utledete_var %>%
+                       dplyr::select(.data$skjemanavn,
+                                     .data$fysisk_feltnavn,
+                                     .data$ledetekst, 
+                                     .data$listeverdier, 
+                                     .data$listetekst) %>% 
+                       tidyr::replace_na(replace = list(listeverdier= "NA"))) 
+  
+  
+}
+
+
+
+#' Kodebok
+#'
+#'Hent kodebok (metadata) for alle NORIC variabler. Merk: Kun tavi prom i 
+#'første versjon.
+#' @return kodebok for taviprom (føsrte versjon)
+#' @export
+#'
+#' @examples
+#' noric::getKodebokData() %>% 
+#'   dplyr::filter(fysisk_feltnavn == "heart01")
+getKodebokData <- function() {
+  noric::kb %>% 
+    dplyr::rename("aktiveringsspm" = aktiverinsspoersmaal, 
+                  "underspm" = underspoersmaal, 
+                  "innfort" = innfoert_dato)
 }
