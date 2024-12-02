@@ -203,10 +203,10 @@ dersom \code{AvdKompPacemaker} er \emph{ja} og
       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
       FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA),
-      PdPa = rep(NA, 6),
+      PDPA = rep(NA, 6),
       IMR = rep(NA, 6),
-      Pa = rep(NA, 6),
-      Pd = rep(NA, 6))
+      PA_Hyperemi = rep(NA, 6),
+      PD_Hyperemi = rep(NA, 6))
  noric::ki_trykkmaaling_utfoert(df_ap = x)
 
  x <- data.frame(

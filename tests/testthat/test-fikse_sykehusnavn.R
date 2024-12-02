@@ -17,7 +17,7 @@ test_that("Sykehusnavn is as expected", {
     expected = c("Ahus Nordbyhagen",
                  "HUS",
                  "Ahus Gardermoen",
-                 "NLSH Bodø",
+                 "UNN Bodø",
                  "OUS Rikshospitalet",
                  "SSHF Arendal",
                  "St.Olavs hospital",

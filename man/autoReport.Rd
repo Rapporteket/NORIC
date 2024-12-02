@@ -5,6 +5,7 @@
 \alias{subscriptionLocalMonthlyReps}
 \alias{dispatchMonthyKi}
 \alias{dispatchMonthlyKi}
+\alias{bulletinStaging}
 \title{Make sheduled automated reports}
 \usage{
 dispatchMonthlyKi(
@@ -25,6 +26,8 @@ subscriptionLocalMonthlyReps(
   hospitalName,
   type
 )
+
+bulletinStaging()
 }
 \arguments{
 \item{baseName}{Single element list with value of Rmd template for the

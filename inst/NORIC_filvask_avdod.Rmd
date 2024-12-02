@@ -19,12 +19,12 @@ header-includes:
 title:   | 
   | Registrering av  _død på lab_, _død på avdeling_ og _utskrevet død_  i NORIC.
   |
-  | __`r paste0("Månedsrapport for ", params$hospitalName)`__
+  | __`r paste0("Rapport for ", params$hospitalName)`__
   |
   |
-abstract:  '`r paste0("Vi har fått på plass overføring av dødsdato fra Folkeregisteret til NORIC.  Databasen inneholder nå to ukentlig oppdaterte variabler:  _Avdod_ og _AvdodDato_. Vi har i denne sammenhengen benyttet anledningen til å sette i gang et kvalitetsforbedringsprosjekt med målsetning å forbedre registreringen av død i NORICs egne variabler: _død på lab_, _død på avdeling_ og _utskrevet død_. ", "\\newline ", "\\newline ", "Vi vet at registrering av komplikasjoner, og spesielt død, oppleves som vanskelig. Registreringspraksis for død varierer mellom sykehusene. Vi har derfor utarbeidet denne rapporten som tilsendes månedlig til utvalgte personer på hvert sykehus. Rapporten inneholder lister med forløpsID-er som sykehusene bes sjekke. For det første gjelder det pasienter som har _AvdodDato_ fra folkeregisteret svært nær prosedyreDato i NORIC, men som verken er registrerte som _død på lab_, _død på avdeling_ eller _utskrevet død_ fra NORIC. For det andre gjelder det pasienter som er registrerte som avdøde i NORIC, men der de tre NORIC-variablene ikke er entydige. ", "\\newline ", "\\newline ", 
+abstract:  '`r paste0("Vi har fått på plass overføring av dødsdato fra Folkeregisteret til NORIC.  Databasen inneholder nå to ukentlig oppdaterte variabler:  _Avdod_ og _AvdodDato_. Vi har i denne sammenhengen benyttet anledningen til å sette i gang et kvalitetsforbedringsprosjekt med målsetning å forbedre registreringen av død i NORICs egne variabler: _død på lab_, _død på avdeling_ og _utskrevet død_. ", "\\newline ", "\\newline ", "Vi vet at registrering av komplikasjoner, og spesielt død, oppleves som vanskelig. Registreringspraksis for død varierer mellom sykehusene. Vi har derfor utarbeidet denne rapporten som tilsendes regelmessig til utvalgte personer på hvert sykehus. Rapporten inneholder lister med forløpsID-er som sykehusene bes sjekke. For det første gjelder det pasienter som har _AvdodDato_ fra folkeregisteret svært nær prosedyreDato i NORIC, men som verken er registrerte som _død på lab_, _død på avdeling_ eller _utskrevet død_ fra NORIC. For det andre gjelder det pasienter som er registrerte som avdøde i NORIC, men der de tre NORIC-variablene ikke er entydige. ", "\\newline ", "\\newline ", 
 "Vi vil i en periode sette fokus på disse pasientene hos registratorene ved sykehusene. Alle deres tilbakemeldinger om eventuelle problemstillinger knyttet til registreringene er svært verdifulle for oss og mottas med takk på e-post til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)! Avhengig av disse tilbakemeldingene vil vi utarbeide retningslinjer som kan benyttes i registreringsarbeidet og/eller forbedre selve innregistreringsløsningen.", "\\newline ", "\\newline ", 
-"Etterhvert som forløpene kontrolleres, vil dere muligens komme over pasienter som er helt riktig registrerte i NORIC. Vi ber dere sende oss en e-post med ForløpsID-ene det gjelder, slik at de kan fjernes fra disse listene før produksjon av neste måneds rapport. ", "\\newline ", "\\newline ", "Rapporten inkluderer forløp fra om med 1. januar i fjoråret og til og med hele inneværende års produksjon. Forløp med indikasjon _Donorutredning_ er ikke med i rapporten.")`'
+"Etterhvert som forløpene kontrolleres, vil dere muligens komme over pasienter som er helt riktig registrerte i NORIC. Vi ber dere sende oss en e-post med ForløpsID-ene det gjelder, slik at de kan fjernes fra disse listene før produksjon av neste rapport. ", "\\newline ", "\\newline ", "Rapporten inkluderer forløp fra om med 1. januar i fjoråret og til og med hele inneværende års produksjon. Forløp med indikasjon _Donorutredning_ er ikke med i rapporten.")`'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -99,7 +99,10 @@ periode_data %<>%
     
     # Første dato for SQL -spørring : 01. januar fjoråret
     forste_dato  = as.Date(paste0(.data$sisteHeleYear, "-01-01"),
-                           format = "%Y-%m-%d")
+                           format = "%Y-%m-%d"), 
+    
+    siste_minus30 = as.Date((siste_dato - lubridate::days(30)), 
+                            format = "%Y-%m-%d")
   )
 ```
 
@@ -175,7 +178,8 @@ aP %<>%
     .data$SkjemaStatusStart, 
     .data$SkjemastatusHovedskjema, 
     .data$SkjemaStatusUtskrivelse, 
-    .data$SkjemaStatusKomplikasjoner
+    .data$SkjemaStatusKomplikasjoner, 
+    .data$FnrType
   ) %>% 
   noric::legg_til_tidsvariabler(.) %>% 
   noric::utlede_OppholdsID(.) %>% 
@@ -215,7 +219,7 @@ cat("\n\n\\pagebreak\n")
 
 
 # Folkeregistrert død rundt prosedyredato, men ikke død i NORIC
-I de tre punktene under ønsker vi at sykehusene sjekker i journalsystemene
+I de to punktene under ønsker vi at sykehusene sjekker i journalsystemene
 sine om opplistede pasienter kan ha dødd under samme opphold i sykehuset som 
 registreringene i NORIC gjelder. 
 Dersom det er tilfelle, ber vi sykehusene om å komplettere registreringen og 
@@ -230,7 +234,7 @@ _AvdodDato_ rundt prosedyredato/utskrivelsesdato
 også er er registrert som avdød i NORIC. 
 
 
-\bigskip \bigskip \bigskip 
+\bigskip \bigskip  
 
 ## Avdød før utskrivelse
 
@@ -273,56 +277,7 @@ aP %>%
 
 
 
-```{r }
-if (params$rendered_by_shiny)
-  shiny::setProgress(0.35)  # set progress to 35%
-```
-
 \bigskip \bigskip \bigskip
-
-
-## Avdød 1-2 dager etter utskrivelse
-Følgende pasienter har _AvdodDato_ like etter _Utskrivningsdato_, men 
-er verken registrert _død på lab_, _død på avdeling_ eller
-_død ved utskrivelse_. Vi ber sykehusene om å sjekke at disse registreringene
-er korrekte. 
-Merk at alle primær- og/eller sekundærforløp som henger sammen er listet opp.
-
-```{r tab2, results='asis', warning=FALSE}
-cap <- paste0(params$hospitalName,
-              ": Alle forløp der pasienten er avdød 1-2 dager etter ", 
-              "utskrivelse i perioden fra 01. jan ", 
-              periode_data$sisteHeleYear,
-              " til og med ",
-              format(periode_data$siste_dato, '%d. %B %Y'))
-
-dod_innen2dg_utskr <- aP %>%  
-  dplyr::filter(.data$dod_opphold == "Nei", 
-                !is.na(.data$Utskrivningsdato), 
-                .data$dager_utskr_dod %in% 1:2, 
-                ! .data$Indikasjon %in% "Donorutredning") %>%
-  dplyr::select(.data$OppholdsID) %>%
-  dplyr::distinct() %>% 
-  dplyr::pull()
-
-aP %>% 
-  dplyr::filter(.data$OppholdsID %in% dod_innen2dg_utskr) %>% 
-  dplyr::arrange(.data$OppholdsID) %>% 
-  dplyr::select(.data$PasientID,
-                .data$ForlopsID, 
-                .data$Regtype,
-                .data$ProsedyreDato,
-                .data$Utskrivningsdato,
-                .data$AvdodDato) %>%
-  noric::mst(tab = .,
-             type = params$tableFormat,
-             cap = cap,
-             label = "tab2")
-
-```
-
-\bigskip \bigskip \bigskip
-
 
 ```{r }
 if (params$rendered_by_shiny)
@@ -376,7 +331,7 @@ aP %>%
 
 ```
 
-\bigskip \bigskip \bigskip
+
 
 ```{r }
 if (params$rendered_by_shiny)
@@ -387,6 +342,54 @@ if (params$rendered_by_shiny)
 
 
 
+```{r pagebreakforste1, results = "asis", eval = (params$tableFormat == "latex")}
+cat("\n\n\\pagebreak\n")
+```
+
+# Registrerte avdød i NORIC, men ikke i Folkeregisteret
+Følgende pasienter er registrerte som avdøde under NORIC-oppholdet for over en
+måned siden. Dødsstatus er fremdelse ikke oppdatert hos Folkeregisteret.
+Vi ber dere sjekke i journalsystemet om det stemmer at pasienten er avdød.
+
+```{r tab50, results='asis', warning=FALSE}
+cap <- paste0(params$hospitalName,
+              ": Død i NORIC men ikke i Folkeregisteret.")
+
+kun_avdod_noric <- aP %>%
+  dplyr::filter(
+    .data$dod_opphold == "Ja",
+    .data$Avdod == "Nei",
+    .data$FnrType %in% 1,
+    .data$ProsedyreDato < periode_data$siste_minus30  ) %>%
+  dplyr::select(.data$OppholdsID) %>%
+  dplyr::distinct() %>%
+  dplyr::pull()
+
+aP %>%
+  dplyr::filter(.data$OppholdsID %in% kun_avdod_noric) %>%
+  dplyr::arrange(.data$OppholdsID) %>%
+  dplyr::select(.data$PasientID,
+                .data$ForlopsID,
+                .data$ProsedyreDato,
+                .data$LabKompDod,
+                .data$AvdKompDod,
+                .data$UtskrevetDodsdato,
+                .data$AvdodDato) %>%
+  noric::mst(tab = .,
+             type = params$tableFormat,
+             cap = cap,
+             label = "tab50")
+
+
+```
+
+
+
+
+
+\bigskip \bigskip \bigskip
+
+
 
 # Registrerte avdød i NORIC, men ikke entydige NORIC-variabler
 I de tre neste punktene har vi sammenlignet variablene _død på lab_, 
@@ -395,7 +398,7 @@ registrert som død under NORIC-oppholdet.  Vi lister opp forløpene der det
 enten er uklart hvor pasienten døde (på lab eller på avdeling) eller når
 pasienten døde (mangler utfylt utskrivelsesskjema).
 
-\bigskip \bigskip \bigskip 
+\bigskip \bigskip 
 
 ## Registrert død både på lab og på avdeling
 
@@ -457,8 +460,7 @@ aP %>%
 
 ```
 
-\bigskip \bigskip \bigskip 
-
+\bigskip \bigskip
 ```{r }
 if (params$rendered_by_shiny)
   shiny::setProgress(0.80)  

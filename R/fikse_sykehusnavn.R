@@ -21,7 +21,7 @@ fikse_sykehusnavn <- function(df) {
       AvdRESH == 108141 ~ "Ahus Nordbyhagen",
       AvdRESH == 102966 ~ "HUS",
       AvdRESH == 106944 ~ "Ahus Gardermoen",
-      AvdRESH == 4210141 ~ "NLSH Bodø",
+      AvdRESH == 4210141 ~ "UNN Bodø",
       AvdRESH == 700422 ~ "OUS Rikshospitalet",
       AvdRESH == 114150 ~ "SSHF Arendal",
       AvdRESH == 104284 ~ "St.Olavs hospital",

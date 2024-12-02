@@ -26,6 +26,10 @@ By default set to FALSE}
 \item{session}{List shiny session object}
 
 \item{userRole}{String naming the user role}
+
+\item{fromDate}{first date to fetch}
+
+\item{toDate}{last date to fetch}
 }
 \value{
 data frame

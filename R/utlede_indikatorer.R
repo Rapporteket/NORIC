@@ -183,10 +183,10 @@
 #'       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
 #'       FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
 #'       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA),
-#'       PdPa = rep(NA, 6),
+#'       PDPA = rep(NA, 6),
 #'       IMR = rep(NA, 6),
-#'       Pa = rep(NA, 6),
-#'       Pd = rep(NA, 6))
+#'       PA_Hyperemi = rep(NA, 6),
+#'       PD_Hyperemi = rep(NA, 6))
 #'  noric::ki_trykkmaaling_utfoert(df_ap = x)
 #'
 #'  x <- data.frame(
@@ -287,10 +287,10 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
   stopifnot(all(c("Indikasjon",
                   "FFR",
                   "IFR",
-                  "PdPa",
+                  "PDPA",
                   "IMR",
-                  "Pa",
-                  "Pd") %in% names(df_ap)))
+                  "PA_Hyperemi",
+                  "PD_Hyperemi") %in% names(df_ap)))
   
   
   df_ap %>%
@@ -316,10 +316,10 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
         .data$indik_trykkmaaling_data == "ja" &
           (.data$FFR == "Ja" |
              .data$IFR == "Ja" |
-             .data$PdPa == "Ja" |
+             .data$PDPA == "Ja" |
              .data$IMR == "Ja" |
-             .data$Pa == "Ja" |
-             .data$Pd == "Ja") ~ "ja",
+             .data$PA_Hyperemi == "Ja" |
+             .data$PD_Hyperemi == "Ja") ~ "ja",
         
         .data$indik_trykkmaaling_data == "ja"  ~ "nei",
         .data$indik_trykkmaaling_data == "nei" ~ NA_character_,

@@ -1,8 +1,90 @@
+# noric 2.16.0 Nordlandssykehuset endrer navn
+Nordlandssykehuset Bodø endrer navn til UNN Bodø
+
+# noric 2.15.5 bugfix dupliserte variabelnavn
+RMariaDB vil ikke lenger har dupliserte variabelnavn. Ryddet opp i SQL 
+for AK-tabellen.
+
+# noric 2.15.4 Buxfix nytt år
+For TAVI rapporten. Når kun en måned i inneværende år, tvinge string-format på 
+label til cumulative plot. Tvinge y-aksen til cumplot til å starte på 0. 
+Tvinge alle tabeller til a vise også måneder med 0 registreringer.
+
+# noric 2.15.3 Bugfix staging
+Oppdatere staging data KI. Nå kan denne ogsaa regne ut ventetid. 
+Typeklaffeprotese Evolut FX er core valve. 
+
+# noric 2.15.2 Bugfix tavi rapport
+3 trykkfeiler i rapporten. Og legge til paravalvulær insuffisiens. 
+
+# noric 2.15.1 Bugfix stemi indikator
+Tar hensyn til manglende kopiering mellom BeslEKGDato og BesUtlEKGDato med
+tilhørende tidspunkt. Bruker i 1.prioritet BeslEKGDato. 
+
+
+# noric 2.15.0 TAVI rapport
+Resultater fra TAVI/Aortaklaff prosedyrer. Tilgjengelig for nedlasting ved 
+nasjonal SC rolle og som månedsrapport/abonnement for lokale LC/SC roller.
+
+# noric 2.14.0 Oppdaterte rapporter
+* __avdod__
+Etter at sykehusene gikk gjennom forrige rapport, ble det klart at død 1-2 
+dager etter prosedyre kan forekomme. Ingen feilregistreringer. Fjerner derfor
+dette avsnittet til ny versjon av rapporten. Legg inn sjekk på kun død i NORIC. 
+
+* __kvalitets-indikator__
+Samler alle figurene for nstemi på en side. 
+
+* __invasive prosedyrer__
+Oppdatert om komplikasjoner. 
+Revisjon gammel kode.
+Nå tilgjengelig for nedlasting/utsending fra Nasjonal SC.
+
+# noric 
+
+# noric 2.13.1 - bugfix
+Staging data bruker også trykkmaling, fikser det. 
+Nye metoder i "Andre prosedyrer"(Myokardiell biopsi og Trikuspidal kladd teer). 
+Disse er lagt til i invasive prosedyrer rapporten, stand alone prosedyrer. 
+
+
+# noric 2.13.0 - ny noric release
+Ny behandlig av trykkmaalinger i NORIC prod. Nye variabler fra annen 
+diagnostikk til AngioPCIVar. Oppdatere noric-rapporteket. 
+
+# noric 2.12.0 - tavi prom
+Hente tabellen med PROM-data og tilgjengeliggjøre den for datadump og utforsker.
+Kun nasjonal SC. 
+Kodebok (metadata) for tavi-prom tabellen
+
+# noric 2.11.4
+
+## bugfix
+* Fikset feilen som oppstår når tabeller ikke har data for alle månedene i 
+ønsket periode.
+
+# noric 2.11.3
+
+## bugfix
+* Fikset feilen i "Angiografør/Operatør"-rapporten
+
+# noric 2.11.2
+
+## bugfix2
+Fikset visning av fanen for rollene.
+
+# noric 2.11.1
+
+## bugfix
+Endret fanen "Aktivitet" til "Angiografør/Operatør"
+
+
 # noric 2.11.0
 * Har slått sammen månedsrapportene Prosedyre og Stentbruk.
 * Gjort endringer i figurer, tabeller, figurtekst og tabelltekst.
 * Har endret "last ned"-knappen til å bare laste ned pdf for disse lokale rapportene.
 * De lokale månedsrapportene bruker nå reportProcessor til å generere pdf-rapporter.
+
 
 # noric 2.10.1
 
