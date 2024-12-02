@@ -1,3 +1,6 @@
+# noric 2.16.0 Nordlandssykehuset endrer navn
+Nordlandssykehuset Bodø endrer navn til UNN Bodø
+
 # noric 2.15.5 bugfix dupliserte variabelnavn
 RMariaDB vil ikke lenger har dupliserte variabelnavn. Ryddet opp i SQL 
 for AK-tabellen.
