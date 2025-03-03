@@ -677,13 +677,13 @@ getPs <- function(registryName, fromDate, toDate, singleRow, ...){
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from PAsientstudier in time interval
+  # Ask for all variables from pasienterstudier in time interval
   # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    PasienterStudier.*,
+    pasienterstudier.*,
     forlopsoversikt.Sykehusnavn,
     forlopsoversikt.FodselsDato,
     forlopsoversikt.Kommune,
@@ -694,22 +694,22 @@ SELECT
     forlopsoversikt.PasientAlder
 
 FROM
-    PasienterStudier
+    pasienterstudier
 LEFT JOIN forlopsoversikt ON
-    PasienterStudier.AvdRESH = forlopsoversikt.AvdRESH AND
-    PasienterStudier.PasientID = forlopsoversikt.PasientID
+    pasienterstudier.AvdRESH = forlopsoversikt.AvdRESH AND
+    pasienterstudier.PasientID = forlopsoversikt.PasientID
 WHERE
-    PasienterStudier.PasInklDato >= '", fromDate, "' AND
-    PasienterStudier.PasInklDato <= '", toDate, "'"
+    pasienterstudier.PasInklDato >= '", fromDate, "' AND
+    pasienterstudier.PasInklDato <= '", toDate, "'"
   )
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for PasienterStudier"
+    msg <- "Query single row data for pasienterstudier"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for PasienterStudier"
+    msg <- "Query data for pasienterstudier"
   }
   
   if ("session" %in% names(list(...))) {
@@ -745,7 +745,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
   
   query <- paste0("
 SELECT
-    AngioPCIVar.*,
+    angiopcivardel1.*,
     forlopsoversikt.Kommune,
     forlopsoversikt.KommuneNr,
     forlopsoversikt.Fylke,
@@ -753,14 +753,14 @@ SELECT
     forlopsoversikt.PasientAlder,
     forlopsoversikt.KobletForlopsID
 FROM
-    AngioPCIVar
+    angiopcivardel1
 LEFT JOIN forlopsoversikt ON
-    AngioPCIVar.AvdRESH = forlopsoversikt.AvdRESH AND
-    AngioPCIVar.PasientID = forlopsoversikt.PasientID AND
-    AngioPCIVar.ForlopsID = forlopsoversikt.ForlopsID
+    angiopcivardel1.AvdRESH = forlopsoversikt.AvdRESH AND
+    angiopcivardel1.PasientID = forlopsoversikt.PasientID AND
+    angiopcivardel1.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    AngioPCIVar.ProsedyreDato >= '", fromDate, "' AND
-    AngioPCIVar.ProsedyreDato <= '", toDate, "'"
+    angiopcivardel1.ProsedyreDato >= '", fromDate, "' AND
+    angiopcivardel1.ProsedyreDato <= '", toDate, "'"
   )
   
   
