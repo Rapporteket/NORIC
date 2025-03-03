@@ -19,7 +19,7 @@ SELECT
   Sykehusnavn AS name,
   AvdResh AS id
 FROM
-  SkjemaOversikt
+  skjemaoversikt
 GROUP BY
   Sykehusnavn,
   AvdResh;"
