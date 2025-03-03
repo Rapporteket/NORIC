@@ -1,6 +1,6 @@
 #' Get the latest registration date from the registry database
 #'
-#' Provides the newest date based on HovedDato from SkjemaOversikt
+#' Provides the newest date based on HovedDato from skjemaoversikt
 #'
 #' @param registryName Character string providing registry name key
 #' @param reshID Numerical for local registry
@@ -18,7 +18,7 @@ getLatestEntry <- function(registryName) {
 SELECT
   max(HovedDato) AS date
 FROM
-  SkjemaOversikt;"
+  skjemaoversikt;"
                   )
 
   rapbase::loadRegData(registryName, query = query)$date
@@ -32,7 +32,7 @@ getLatestEntryHospital <- function(registryName, reshID = 99999) {
 SELECT
   max(HovedDato) AS date
 FROM
-  SkjemaOversikt 
+  skjemaoversikt 
 WHERE AvdRESH=", 
   reshID, ";"  )
   
