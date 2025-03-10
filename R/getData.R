@@ -123,6 +123,11 @@ WHERE
   
   aP <- rapbase::loadRegData(registryName, query)
   
+  aP <- aP %>% select(-ForlopsID..170,
+                      -PrimaerForlopsID..171,
+                      -PasientID..172,
+                      -AvdRESH..173)
+  
   list(aP = aP)
 }
 
@@ -839,6 +844,11 @@ WHERE
   }
   
   aP <- rapbase::loadRegData(registryName, query)
+  aP <- aP %>% select(-ForlopsID..170,
+                      -PrimaerForlopsID..171,
+                      -PasientID..172,
+                      -AvdRESH..173)
+  
   aD <- rapbase::loadRegData(registryName, queryAd)
   sS <- rapbase::loadRegData(registryName, querySs)
   
@@ -896,7 +906,7 @@ WHERE
 SELECT
     *
 FROM
-    TaviProm
+    taviprom
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'
@@ -908,11 +918,11 @@ WHERE
   if (singleRow) {
     queryProm <- paste0(queryProm, "\nLIMIT\n  1;")
     queryAk <- paste0(queryAk, "\nLIMIT\n  1;")
-    msg <- "Query single row data for TaviProm"
+    msg <- "Query single row data for taviprom"
   } else {
     queryProm <- paste0(queryProm, ";")
     queryAk <- paste0(queryAk, ";")
-    msg <- "Query data for TaviProm"
+    msg <- "Query data for taviprom"
   }
   
   if ("session" %in% names(list(...))) {
