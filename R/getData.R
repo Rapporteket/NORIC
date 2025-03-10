@@ -56,7 +56,8 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
   
   query <- paste0("
 SELECT
-    a.*,
+    a1.*,
+    a2.*,
     f.Kommune,
     f.KommuneNr,
     f.Fylke,
@@ -65,15 +66,41 @@ SELECT
     f.KobletForlopsID,
     f.ForlopsType2
 FROM
-    angiopcivardel1 a
+    angiopcivardel1 a1
+LEFT JOIN angiopcivardel2 a2 ON
+    a1.AvdRESH = a2.AvdRESH AND
+    a1.PasientID = a2.PasientID AND
+    a1.ForlopsID = a2.ForlopsID
 LEFT JOIN forlopsoversikt f ON
-    a.AvdRESH = f.AvdRESH AND
-    a.PasientID = f.PasientID AND
-    a.ForlopsID = f.ForlopsID
+    a1.AvdRESH = f.AvdRESH AND
+    a1.PasientID = f.PasientID AND
+    a1.ForlopsID = f.ForlopsID
 WHERE
-    a.ProsedyreDato >= '", fromDate, "' AND
-    a.ProsedyreDato <= '", toDate, "'"
+    a1.ProsedyreDato >= '", fromDate, "' AND
+    a1.ProsedyreDato <= '", toDate, "'"
   )
+  
+  
+#   query <- paste0("
+# SELECT
+#     a.*,
+#     f.Kommune,
+#     f.KommuneNr,
+#     f.Fylke,
+#     f.Fylkenr,
+#     f.PasientAlder,
+#     f.KobletForlopsID,
+#     f.ForlopsType2
+# FROM
+#     angiopcivardel1 a
+# LEFT JOIN forlopsoversikt f ON
+#     a.AvdRESH = f.AvdRESH AND
+#     a.PasientID = f.PasientID AND
+#     a.ForlopsID = f.ForlopsID
+# WHERE
+#     a.ProsedyreDato >= '", fromDate, "' AND
+#     a.ProsedyreDato <= '", toDate, "'"
+#   )
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
@@ -746,6 +773,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
   query <- paste0("
 SELECT
     angiopcivardel1.*,
+    angiopcivardel2.*,
     forlopsoversikt.Kommune,
     forlopsoversikt.KommuneNr,
     forlopsoversikt.Fylke,
@@ -754,6 +782,10 @@ SELECT
     forlopsoversikt.KobletForlopsID
 FROM
     angiopcivardel1
+LEFT JOIN angiopcivardel2 ON
+    angiopcivardel1.AvdRESH = angiopcivardel2.AvdRESH AND
+    angiopcivardel1.PasientID = angiopcivardel2.PasientID AND
+    angiopcivardel1.ForlopsID = angiopcivardel2.ForlopsID
 LEFT JOIN forlopsoversikt ON
     angiopcivardel1.AvdRESH = forlopsoversikt.AvdRESH AND
     angiopcivardel1.PasientID = forlopsoversikt.PasientID AND
