@@ -31,6 +31,12 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              fromDate = fromDate,
                              toDate = toDate,
                              singleRow = FALSE)
+    
+    tab_list$aP <- tab_list$aP %>% select(-ForlopsID..170,
+                                          -PrimaerForlopsID..171,
+                                          -PasientID..172,
+                                          -AvdRESH..173)
+    
     tab <- tab_list$aP
   }
   

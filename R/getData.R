@@ -79,32 +79,11 @@ WHERE
     a1.ProsedyreDato >= '", fromDate, "' AND
     a1.ProsedyreDato <= '", toDate, "'"
   )
-  
-  
-#   query <- paste0("
-# SELECT
-#     a.*,
-#     f.Kommune,
-#     f.KommuneNr,
-#     f.Fylke,
-#     f.Fylkenr,
-#     f.PasientAlder,
-#     f.KobletForlopsID,
-#     f.ForlopsType2
-# FROM
-#     angiopcivardel1 a
-# LEFT JOIN forlopsoversikt f ON
-#     a.AvdRESH = f.AvdRESH AND
-#     a.PasientID = f.PasientID AND
-#     a.ForlopsID = f.ForlopsID
-# WHERE
-#     a.ProsedyreDato >= '", fromDate, "' AND
-#     a.ProsedyreDato <= '", toDate, "'"
-#   )
+
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND a.AvdRESH = ", 
+                    "AND a1.AvdRESH = ", 
                     singleHospital)
   }
   
@@ -122,11 +101,6 @@ WHERE
   }
   
   aP <- rapbase::loadRegData(registryName, query)
-  
-  aP <- aP %>% select(-ForlopsID..170,
-                      -PrimaerForlopsID..171,
-                      -PasientID..172,
-                      -AvdRESH..173)
   
   list(aP = aP)
 }
@@ -844,11 +818,6 @@ WHERE
   }
   
   aP <- rapbase::loadRegData(registryName, query)
-  aP <- aP %>% select(-ForlopsID..170,
-                      -PrimaerForlopsID..171,
-                      -PasientID..172,
-                      -AvdRESH..173)
-  
   aD <- rapbase::loadRegData(registryName, queryAd)
   sS <- rapbase::loadRegData(registryName, querySs)
   
