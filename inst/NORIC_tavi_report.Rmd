@@ -2666,8 +2666,8 @@ if(params$registryName %in% "noricStagingNasjonal"){
   "SELECT aortaklaffvar.AvdRESH, 
           aortaklaffvar.ForlopsID, 
           aortaklaffvar.ProsedyreDato, 
-          aortaklaffvar.PasientKjonn,
-          aortaklaffvar.PasientAlder
+          forlopsoversikt.PasientKjonn,
+          forlopsoversikt.PasientAlder
     FROM
           aortaklaffvar
     LEFT JOIN forlopsoversikt ON
