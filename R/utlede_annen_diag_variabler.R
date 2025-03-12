@@ -74,12 +74,6 @@
 #'                              df_ad = df_ad,
 #'                              metodeType = "FFR")
 #'
-#' df_ad <- data.frame(
-#'     ForlopsID = c(1, 1, 3, 3, 5),
-#'     AvdRESH = rep(1,5),
-#'     metode = c("FFR", "FFR", NA, "test", "Pd/Pa"))
-#' noric::legg_til_trykkmaalinger(df_ap = df_ap,
-#'                                df_ad = df_ad)
 NULL
 
 

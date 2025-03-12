@@ -83,17 +83,16 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
       
       # SISTE DATO AVGJØR SISTE MÅNED:
       siste_dato_innevarende_mnd = lubridate::ceiling_date(
-        x = .data$nyeste_reg,
+        x = nyeste_reg, 
         unit =  "month") - lubridate::days(1),
       
       siste_dato = dplyr::case_when(
         # siste dato er nyeste dato --> nyeste mnd er komlett
-        .data$siste_dato_innevarende_mnd == .data$nyeste_reg ~
-          .data$nyeste_reg,
+        siste_dato_innevarende_mnd == nyeste_reg ~ nyeste_reg,
         
         # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
-        .data$siste_dato_innevarende_mnd != .data$nyeste_reg ~
-          lubridate::floor_date(.data$nyeste_reg, "month") -
+        siste_dato_innevarende_mnd != nyeste_reg ~
+          lubridate::floor_date(nyeste_reg, "month") -
           lubridate::days(1),
         
         TRUE ~ as.Date(NA_character_)),
@@ -103,26 +102,24 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
       
       # SISTE DATO AVGJØR SISTE KVARTAL
       siste_dato_innevarende_kvartal = lubridate::ceiling_date(
-        x = .data$nyeste_reg,
+        x = nyeste_reg,
         unit =  "quarter") - lubridate::days(1),
       
       kvartal_komplett_start = dplyr::case_when(
         # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
-        .data$siste_dato_innevarende_kvartal == .data$nyeste_reg ~
-          lubridate::floor_date(.data$nyeste_reg,
-                                unit =  "quarter"),
+        siste_dato_innevarende_kvartal == nyeste_reg ~
+          lubridate::floor_date(nyeste_reg, unit =  "quarter"),
         
         # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
-        .data$siste_dato_innevarende_kvartal != .data$nyeste_reg ~
-          lubridate::floor_date(.data$nyeste_reg,
-                                unit =  "quarter") - months(3),
+        siste_dato_innevarende_kvartal != nyeste_reg ~
+          lubridate::floor_date(nyeste_reg, unit =  "quarter") - months(3),
         
         TRUE ~ as.Date(NA_character_)),
       # Inneværende år:
-      nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
+      nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
       
       # Fjoråret
-      sisteHeleYear = .data$nyesteRegYear - 1,
+      sisteHeleYear = nyesteRegYear - 1,
       
       # Første dato for SQL -spørring : 01. januar fjoråret
       forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
@@ -132,8 +129,8 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
       forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
                                   format = "%Y-%m-%d")
     ) %>%
-    dplyr::select(-.data$siste_dato_innevarende_mnd,
-                  -.data$siste_dato_innevarende_kvartal)
+    dplyr::select(-siste_dato_innevarende_mnd,
+                  -siste_dato_innevarende_kvartal)
   
   
   if (rendered_by_shiny) {
@@ -172,29 +169,22 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
     shiny::setProgress(0.60)
   }
   
-  anD_nasjonalt <- noric::getPrepAnDData(
-    registryName = registryName,
-    fromDate  = periode_data$forste_dato,
-    toDate = periode_data$siste_dato,
-    singleRow = FALSE)
-  
-  
   if (rendered_by_shiny) {
     shiny::setProgress(0.70)
   }
   
   # BEARBEIDE DATA:
   sS_nasjonalt %<>%
-    dplyr::select(.data$ProsedyreDato,
-                  .data$StentType,
-                  .data$Segment,
-                  .data$Graft,
-                  .data$ForlopsID,
-                  .data$Sykehusnavn,
-                  .data$AvdRESH,
-                  .data$aar,
-                  .data$maaned,
-                  .data$kvartal)
+    dplyr::select(ProsedyreDato,
+                  StentType,
+                  Segment,
+                  Graft,
+                  ForlopsID,
+                  Sykehusnavn,
+                  AvdRESH,
+                  aar,
+                  maaned,
+                  kvartal)
   
   if (rendered_by_shiny) {
     shiny::setProgress(0.80)
@@ -202,70 +192,72 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
   
   aP_nasjonalt %<>%
     dplyr::select(
-      .data$AvdRESH,
-      .data$Sykehusnavn,
-      .data$Regtype,
-      .data$PrimaerForlopsID,
-      .data$ProsedyreDato,
-      .data$ProsedyreTid,
-      .data$ProsedyreType,
-      .data$OverflyttetFra,
-      .data$AnkomstPCIDato,
-      .data$AnkomstPCITid,
-      .data$InnleggelseHenvisendeSykehusDato,
-      .data$InnleggelseHenvisendeSykehusTid,
-      .data$Innkomstarsak,
-      .data$Indikasjon,
-      .data$Hastegrad,
-      .data$BesUtlEKGDato,
-      .data$BesUtlEKGTid,
-      .data$BeslutningsutlosendeEKG,
-      .data$GittTrombolyse,
-      .data$HLRForSykehus,
-      .data$KobletForlopsID,
-      .data$ForlopsType2,
-      .data$IFR,
-      .data$FFR,
-      .data$IVUS,
-      .data$OCT,
-      .data$ForlopsID,
-      .data$ASA,
-      .data$AndrePlatehemmere,
-      .data$AndrePlatehemmere,
-      .data$Antikoagulantia,
-      .data$UtskrStatiner,
-      .data$TidlABC,
-      .data$UtskrevetDod,
-      .data$SkjemaStatusStart,
-      .data$SkjemastatusHovedskjema,
-      .data$SkjemaStatusUtskrivelse,
-      .data$SkjemaStatusKomplikasjoner
+      AvdRESH,
+      Sykehusnavn,
+      Regtype,
+      PrimaerForlopsID,
+      ProsedyreDato,
+      ProsedyreTid,
+      ProsedyreType,
+      OverflyttetFra,
+      AnkomstPCIDato,
+      AnkomstPCITid,
+      InnleggelseHenvisendeSykehusDato,
+      InnleggelseHenvisendeSykehusTid,
+      Innkomstarsak,
+      Indikasjon,
+      Hastegrad,
+      BesUtlEKGDato,
+      BesUtlEKGTid,
+      BeslutningsutlosendeEKG,
+      BeslEKGDato, 
+      BeslEKGTid,
+      GittTrombolyse,
+      HLRForSykehus,
+      KobletForlopsID,
+      ForlopsType2,
+      IFR,
+      FFR,
+      IVUS,
+      OCT,
+      IMR, 
+      PDPA, 
+      PA_Hyperemi,
+      PD_Hyperemi,
+      ForlopsID,
+      ASA,
+      AndrePlatehemmere,
+      AndrePlatehemmere,
+      Antikoagulantia,
+      UtskrStatiner,
+      TidlABC,
+      UtskrevetDod,
+      SkjemaStatusStart,
+      SkjemastatusHovedskjema,
+      SkjemaStatusUtskrivelse,
+      SkjemaStatusKomplikasjoner
     ) %>%
     
     noric::utlede_OppholdsID(.) %>%
     
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusStart,
+                              var = SkjemaStatusStart,
                               suffix = "StartSkjema") %>%
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemastatusHovedskjema,
+                              var = SkjemastatusHovedskjema,
                               suffix = "HovedSkjema") %>%
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusUtskrivelse,
+                              var = SkjemaStatusUtskrivelse,
                               suffix = "UtskrSkjema") %>%
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusKomplikasjoner,
+                              var = SkjemaStatusKomplikasjoner,
                               suffix = "KomplikSkjema") %>%
     
     noric::legg_til_antall_stent(df_ap = ., df_ss = sS_nasjonalt) %>%
     noric::legg_til_antall_stent_opphold(df_ap = .) %>%
     noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>%
     
-    #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
-    # trykkmåling. Disse fjernes før tabellen legges i utforsker
-    noric::legg_til_trykkmaalinger(df_ap = .,
-                                   df_ad = anD_nasjonalt) %>%
-    
+ 
     # LEgg til hjelpevariabler for ventetider
     noric::legg_til_ventetid_nstemi_timer(.) %>%
     noric::legg_til_ventetid_stemi_min(.) %>%
@@ -301,22 +293,22 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
   
   aK_nasjonalt %<>%
     dplyr::select(
-      .data$ProsedyreDato,
-      .data$AvdKompPacemaker,
-      .data$LabKompDod,
-      .data$TypeKlaffeprotese,
-      .data$Sykehusnavn,
-      .data$AvdRESH,
-      .data$ForlopsID,
-      .data$Pacemaker,
-      .data$SkjemaStatusHovedskjema)
+      ProsedyreDato,
+      AvdKompPacemaker,
+      LabKompDod,
+      TypeKlaffeprotese,
+      Sykehusnavn,
+      AvdRESH,
+      ForlopsID,
+      Pacemaker,
+      SkjemaStatusHovedskjema)
   
   aK_nasjonalt %<>%
     dplyr::mutate(
       kvartal = paste0(
-        lubridate::year(.data$ProsedyreDato),
+        lubridate::year(ProsedyreDato),
         " Q",
-        lubridate::quarter(.data$ProsedyreDato, with_year = FALSE))) %>%
+        lubridate::quarter(ProsedyreDato, with_year = FALSE))) %>%
     noric::ki_ak_pacemakerbehov(df_ak = .)
   
   if (rendered_by_shiny) {
@@ -325,13 +317,13 @@ makeStagingDataKi <- function(registryName, rendered_by_shiny = FALSE) {
   
   
   aP_Shus <- aP_nasjonalt %>% 
-    dplyr::select(.data$AvdRESH) %>% 
-    dplyr::distinct(.data$AvdRESH) %>% 
+    dplyr::select(AvdRESH) %>% 
+    dplyr::distinct(AvdRESH) %>% 
     dplyr::pull()
   
   aK_Shus <- aK_nasjonalt %>% 
-    dplyr::select(.data$AvdRESH) %>% 
-    dplyr::distinct(.data$AvdRESH) %>% 
+    dplyr::select(AvdRESH) %>% 
+    dplyr::distinct(AvdRESH) %>% 
     dplyr::pull()
   
   
@@ -513,7 +505,7 @@ bulletinProcessorStaging <- function(dataset = "ki",
                            sjekkStaging$nyeste_staging_data)
     
     if(! sjekkStaging$nyeste_staging_data %in% stagingDataFilename) {
-      melding_sjekk <- paste0(melding_sjekk, " MERK at nyeste er ikke gyldig!")
+      melding_sjekk <- paste0(" MERK at nyeste er ikke gyldig!", melding_sjekk)
     }
     
   } else {

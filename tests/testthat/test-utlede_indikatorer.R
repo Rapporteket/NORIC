@@ -56,9 +56,9 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
     FFR = c(NA, "Ja", "Ja", NA, "Ja", "Ukjent", "Nei", "Ja", "Ja", rep(NA, 6)),
     IFR = c(NA, "Ja", "Nei", "Ja", "Ukjent", NA, NA, "Ja", NA,  rep(NA, 6)),
     IMR = c(rep(NA, 9),  "Ja","Ja", "Ja", "Ukjent", "Nei", "Nei"),
-    PdPa = c(rep(NA, 9), "Ja","Ja", "Ja" , "Ukjent", "Nei", "Nei"),
-    Pa = c(rep(NA, 9),   "Ja","Ja", "Nei" , "Ukjent","Nei", "Nei"),
-    Pd = c(rep(NA, 9),   "Ja", "Nei", "Nei", "Ukjent", "Ja", NA))
+    PDPA = c(rep(NA, 9), "Ja","Ja", "Ja" , "Ukjent", "Nei", "Nei"),
+    PA_Hyperemi = c(rep(NA, 9),   "Ja","Ja", "Nei" , "Ukjent","Nei", "Nei"),
+    PD_Hyperemi = c(rep(NA, 9),   "Ja", "Nei", "Nei", "Ukjent", "Ja", NA))
   
   
   x_out <- noric::ki_trykkmaaling_utfoert(df_ap = x)
@@ -68,7 +68,7 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
     c("Indikasjon",
       "FFR",
       "IFR",
-      "IMR", "PdPa", "Pa", "Pd",
+      "IMR", "PDPA", "PA_Hyperemi", "PD_Hyperemi",
       "indik_trykkmaaling_data",
       "indik_trykkmaaling"))
   
@@ -111,18 +111,18 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$PdPa == "Ja") %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$PDPA == "Ja") %>%
       dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$Pa == "Ja") %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$PA_Hyperemi == "Ja") %>%
       dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$Pd == "Ja") %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$PD_Hyperemi == "Ja") %>%
       dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   
@@ -132,9 +132,9 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
                       (.data$FFR != "Ja" | is.na(.data$FFR)) &
                       (.data$IFR != "Ja" | is.na(.data$IFR)) &
                       (.data$IMR != "Ja" | is.na(.data$IMR)) &
-                      (.data$PdPa != "Ja" | is.na(.data$PdPa)) &
-                      (.data$Pa!= "Ja" | is.na(.data$Pa)) &
-                      (.data$Pd != "Ja" | is.na(.data$Pd))) %>%
+                      (.data$PDPA != "Ja" | is.na(.data$PDPA)) &
+                      (.data$PA_Hyperemi != "Ja" | is.na(.data$PA_Hyperemi)) &
+                      (.data$PD_Hyperemi != "Ja" | is.na(.data$PD_Hyperemi))) %>%
       dplyr::pull(.data$indik_trykkmaaling) == "nei"))
   
   

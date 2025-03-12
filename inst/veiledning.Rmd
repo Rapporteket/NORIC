@@ -49,8 +49,11 @@ enheten det siste året:
 _Andre prosedyrer_ - og _AngioPCI_-modulen. Inneholder også opplysninger om 
 hvilke stenter som er brukt.
 
-* __Aktivitet__ (Kun for SC-rolle): Inneholder opptellinger av angiograførenes 
-og operatørenes aktivitet.
+* __Angiografør/Operatør__ (Kun for SC-rolle): Inneholder opptellinger av 
+angiograførenes og operatørenes aktivitet.
+
+* __Aortaklaff__ (Kun for TAVI-sykehus): Inneholder opptellinger relatert til 
+prosedyrer på aortaklaffen.
 
 
 ### Datadump
