@@ -21,7 +21,7 @@ getHospitalName <- function(reshID) {
     baseName <- "noricStaging"
     regName <- noric::makeRegistryName(baseName, reshID)
     dbType <- "mysql"
-    query <- "SELECT Sykehusnavn FROM AngioPCIVar LIMIT 1"
+    query <- "SELECT Sykehusnavn FROM angiopcivar2 LIMIT 1"
 
     return(rapbase::loadRegData(registryName = regName,
                                 dbType = dbType, 
