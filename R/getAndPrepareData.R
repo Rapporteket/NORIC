@@ -55,11 +55,11 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,
                             singleHospital = singleHospital)
   aP <- dataListe$aP
   
-  # Fjerner doble kolonner pga sammenslåing av angiopcivar (1 og 2)
-  aP %<>% select(-ForlopsID..170,
-                 -PrimaerForlopsID..171,
-                 -PasientID..172,
-                 -AvdRESH..173)
+  # # Fjerner doble kolonner pga sammenslåing av angiopcivar (1 og 2)
+  # aP %<>% select(-ForlopsID..170,
+  #                -PrimaerForlopsID..171,
+  #                -PasientID..172,
+  #                -AvdRESH..173)
   
   
   # Gjor datoer om til dato-objekt:
@@ -791,11 +791,11 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                                  singleRow = singleRow)
   ap_light <- dataListe$aP
   
-  # Fjerner doble kolonner pga sammenslåing av angiopcivar (1 og 2)
-  ap_light %<>% select(-ForlopsID..170,
-                       -PrimaerForlopsID..171,
-                       -PasientID..172,
-                       -AvdRESH..173)
+  # # Fjerner doble kolonner pga sammenslåing av angiopcivar (1 og 2)
+  # ap_light %<>% select(-ForlopsID..170,
+  #                      -PrimaerForlopsID..171,
+  #                      -PasientID..172,
+  #                      -AvdRESH..173)
   
   sS <- dataListe$sS
   aD <- dataListe$aD
