@@ -37,6 +37,7 @@
 #' getPrepMkData
 #' getPrepPsData
 #' getPrepApLightData
+#' getPrepTaviPromData
 NULL
 
 #' @rdname getPrepData
@@ -53,6 +54,12 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,
                             singleRow = singleRow, 
                             singleHospital = singleHospital)
   aP <- dataListe$aP
+  
+  # # Fjerner doble kolonner pga sammenslåing av angiopcivar (1 og 2)
+  # aP %<>% select(-ForlopsID..170,
+  #                -PrimaerForlopsID..171,
+  #                -PasientID..172,
+  #                -AvdRESH..173)
   
   
   # Gjor datoer om til dato-objekt:
@@ -73,6 +80,7 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,
   
   # Legg til aar, maaned, uke, etc.
   aP %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+
   
   aP
 }
@@ -782,6 +790,13 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                                  toDate = toDate,
                                  singleRow = singleRow)
   ap_light <- dataListe$aP
+  
+  # # Fjerner doble kolonner pga sammenslåing av angiopcivar (1 og 2)
+  # ap_light %<>% select(-ForlopsID..170,
+  #                      -PrimaerForlopsID..171,
+  #                      -PasientID..172,
+  #                      -AvdRESH..173)
+  
   sS <- dataListe$sS
   aD <- dataListe$aD
   
@@ -962,6 +977,8 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                                     "Subakutt",
                                     "Planlagt"),
                          ordered = TRUE))
+  
+
   
   if(!singleRow){
     # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
