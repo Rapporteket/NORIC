@@ -2637,20 +2637,20 @@ if(params$registryName %in% "noricStagingNasjonal"){
   # Kun utvalgt sykehus
   query <- paste0(
   
-  "SELECT AortaklaffVar.AvdRESH, 
-          AortaklaffVar.ForlopsID, 
-          AortaklaffVar.ProsedyreDato, 
-          ForlopsOversikt.PasientKjonn,
-          ForlopsOversikt.PasientAlder
+  "SELECT aortaklaffvar.AvdRESH, 
+          aortaklaffvar.ForlopsID, 
+          aortaklaffvar.ProsedyreDato, 
+          forlopsoversikt.PasientKjonn,
+          forlopsoversikt.PasientAlder
     FROM
-          AortaklaffVar
-    LEFT JOIN ForlopsOversikt ON
-          AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-          AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+          aortaklaffvar
+    LEFT JOIN forlopsoversikt ON
+          aortaklaffvar.AvdRESH = forlopsoversikt.AvdRESH AND
+          aortaklaffvar.ForlopsID = forlopsoversikt.ForlopsID
    WHERE
          ProsedyreDato >= '", fromDate, "' AND
          ProsedyreDato <= '", toDate, "'", 
-   "AND AortaklaffVar.AvdRESH = ", params$reshID, 
+   "AND aortaklaffvar.AvdRESH = ", params$reshID, 
    ";")
 
     AK_alderKjonn <- rapbase::loadRegData(registryName = params$registryName,
@@ -2663,16 +2663,16 @@ if(params$registryName %in% "noricStagingNasjonal"){
     # Kun et sykehus, som er registry name
       query <- paste0(
   
-  "SELECT AortaklaffVar.AvdRESH, 
-          AortaklaffVar.ForlopsID, 
-          AortaklaffVar.ProsedyreDato, 
-          ForlopsOversikt.PasientKjonn,
-          ForlopsOversikt.PasientAlder
+  "SELECT aortaklaffvar.AvdRESH, 
+          aortaklaffvar.ForlopsID, 
+          aortaklaffvar.ProsedyreDato, 
+          aortaklaffvar.PasientKjonn,
+          aortaklaffvar.PasientAlder
     FROM
-          AortaklaffVar
-    LEFT JOIN ForlopsOversikt ON
-          AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-          AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+          aortaklaffvar
+    LEFT JOIN forlopsoversikt ON
+          aortaklaffvar.AvdRESH = forlopsoversikt.AvdRESH AND
+          aortaklaffvar.ForlopsID = forlopsoversikt.ForlopsID
    WHERE
          ProsedyreDato >= '", fromDate, "' AND
          ProsedyreDato <= '", toDate, "'", 

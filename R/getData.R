@@ -238,7 +238,7 @@ getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
   }
   
   
-  # Ask for all variables from ForlopsOversikt, in time interval
+  # Ask for all variables from forlopsoversikt, in time interval
   query <- paste0("
 SELECT
     *
