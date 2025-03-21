@@ -288,12 +288,12 @@ varnavn_kobl <-
         "A.STATUS AS SkjemastatusHovedskjema",
         "D.STATUS AS SkjemaStatusUtskrivelse",
         "C.STATUS AS SkjemaStatusKomplikasjoner")
-  ) |> tidyr::separate(col="kol", 
+  ) %>%  tidyr::separate(col="kol", 
                        into=c("dbnavn", "rapporteket"), 
-                       sep = " AS ") |> 
+                       sep = " AS ") %>%  
   tidyr::separate(col="dbnavn", 
                   into=c("tabell", "var_navn"), 
-                  extra = "merge") |> 
+                  extra = "merge") %>%  
   dplyr::mutate(rapporteket = ifelse(is.na(rapporteket), 
                                      var_navn, rapporteket),
                 tabell = dplyr::case_when(tabell == "P" ~ "PATIENT",
@@ -308,19 +308,19 @@ varnavn_kobl <-
   ) 
 
 kodebok <- read.csv2(system.file("extdata/NORIC_klokeboken_18.03.2025.csv", 
-                                 package = "noric")) |> 
+                                 package = "noric")) %>%  
   dplyr::select(type, listeverdier, listetekst, tabell, 
                 fysisk_feltnavn, variabel_id)
-mangler_kodebok_katvar <- varnavn_kobl |> 
+mangler_kodebok_katvar <- varnavn_kobl %>%  
   dplyr::filter(variabel_id %in% 
-                  setdiff(varnavn_kobl$variabel_id, kodebok$variabel_id)) |> 
-  dplyr::filter(tabell=="ANGIOPCICOMP") |> 
-  dplyr::mutate(tabell=tolower(tabell)) |> 
-  dplyr::rename(fysisk_feltnavn = var_navn) |> 
+                  setdiff(varnavn_kobl$variabel_id, kodebok$variabel_id)) %>%  
+  dplyr::filter(tabell=="ANGIOPCICOMP") %>%  
+  dplyr::mutate(tabell=tolower(tabell)) %>%  
+  dplyr::rename(fysisk_feltnavn = var_navn) %>%  
   dplyr::select(-rapporteket)
 mangler_kodebok_katvar <- dplyr::bind_rows(mangler_kodebok_katvar,
                                            mangler_kodebok_katvar,
-                                           mangler_kodebok_katvar) |> 
+                                           mangler_kodebok_katvar) %>%  
   dplyr::arrange(variabel_id)
 
 mangler_kodebok_katvar <- dplyr::bind_cols(
@@ -332,12 +332,12 @@ mangler_kodebok_katvar <- dplyr::bind_cols(
 kodebok <- dplyr::bind_rows(kodebok, mangler_kodebok_katvar)
 map_num_tekst <- merge(kodebok,
                        varnavn_kobl[, c("variabel_id", "rapporteket")],
-                       by = "variabel_id", all.x = TRUE) |> 
-  dplyr::arrange(variabel_id, rapporteket, listeverdier) |> 
-  dplyr::select(rapporteket, listeverdier, listetekst) |> 
+                       by = "variabel_id", all.x = TRUE) %>%  
+  dplyr::arrange(variabel_id, rapporteket, listeverdier) %>%  
+  dplyr::select(rapporteket, listeverdier, listetekst) %>%  
   dplyr::rename(variabel_id = rapporteket,
                 verdi = listeverdier,
-                verditekst = listetekst) |> 
+                verditekst = listetekst) %>%
   dplyr::filter(!is.na(verdi),
                 !is.na(variabel_id))
 

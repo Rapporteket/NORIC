@@ -6,7 +6,7 @@
 #' @export
 #' 
 erstatt_koder_m_etiketter <- function(df) {
-  df_label <- df |> 
+  df_label <- df %>%  
     dplyr::mutate(
       dplyr::across(
         intersect(names(df), noric::map_num_tekst$variabel_id), 
