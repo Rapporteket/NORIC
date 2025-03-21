@@ -331,8 +331,8 @@ mangler_kodebok_katvar <- dplyr::bind_cols(
 
 kodebok <- dplyr::bind_rows(kodebok, mangler_kodebok_katvar)
 map_num_tekst <- merge(kodebok,
-                              varnavn_kobl[, c("variabel_id", "rapporteket")],
-        by = "variabel_id", all.x = TRUE) |> 
+                       varnavn_kobl[, c("variabel_id", "rapporteket")],
+                       by = "variabel_id", all.x = TRUE) |> 
   dplyr::arrange(variabel_id, rapporteket, listeverdier) |> 
   dplyr::select(rapporteket, listeverdier, listetekst) |> 
   dplyr::rename(variabel_id = rapporteket,
