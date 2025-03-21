@@ -54,179 +54,9 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
   # Add selected variables from forlopsoversikt
   # 3 variables to match on: AvdRESH, PasientID, ForlopsID
   
-  query <- paste0("
+    query <- paste0("
 SELECT
-    a1.*,
-    a2.SEGMENT1,
-    a2.SEGMENT2,
-    a2.SEGMENT3,
-    a2.SEGMENT4,
-    a2.SEGMENT5,
-    a2.SEGMENT6,
-    a2.SEGMENT7,
-    a2.SEGMENT8,
-    a2.SEGMENT9,
-    a2.SEGMENT10,
-    a2.SEGMENT11,
-    a2.SEGMENT12,
-    a2.SEGMENT13,
-    a2.SEGMENT14,
-    a2.SEGMENT15,
-    a2.SEGMENT16,
-    a2.SEGMENT17,
-    a2.SEGMENT18,
-    a2.SEGMENT19,
-    a2.SEGMENT20,
-    a2.SEGMENT1VeneStenosgrad,
-    a2.SEGMENT2VeneStenosgrad,
-    a2.SEGMENT3VeneStenosgrad,
-    a2.SEGMENT4VeneStenosgrad,
-    a2.SEGMENT5VeneStenosgrad,
-    a2.SEGMENT6VeneStenosgrad,
-    a2.SEGMENT7VeneStenosgrad,
-    a2.SEGMENT8VeneStenosgrad,
-    a2.SEGMENT9VeneStenosgrad,
-    a2.SEGMENT10VeneStenosgrad,
-    a2.SEGMENT11VeneStenosgrad,
-    a2.SEGMENT12VeneStenosgrad,
-    a2.SEGMENT13VeneStenosgrad,
-    a2.SEGMENT14VeneStenosgrad,
-    a2.SEGMENT15VeneStenosgrad,
-    a2.SEGMENT16VeneStenosgrad,
-    a2.SEGMENT17VeneStenosgrad,
-    a2.SEGMENT18VeneStenosgrad,
-    a2.SEGMENT19VeneStenosgrad,
-    a2.SEGMENT20VeneStenosgrad,
-    a2.SEGMENT1ArterieStenosgrad,
-    a2.SEGMENT2ArterieStenosgrad,
-    a2.SEGMENT3ArterieStenosgrad,
-    a2.SEGMENT4ArterieStenosgrad,
-    a2.SEGMENT5ArterieStenosgrad,
-    a2.SEGMENT6ArterieStenosgrad,
-    a2.SEGMENT7ArterieStenosgrad,
-    a2.SEGMENT8ArterieStenosgrad,
-    a2.SEGMENT9ArterieStenosgrad,
-    a2.SEGMENT10ArterieStenosgrad,
-    a2.SEGMENT11ArterieStenosgrad,
-    a2.SEGMENT12ArterieStenosgrad,
-    a2.SEGMENT13ArterieStenosgrad,
-    a2.SEGMENT14ArterieStenosgrad,
-    a2.SEGMENT15ArterieStenosgrad,
-    a2.SEGMENT16ArterieStenosgrad,
-    a2.SEGMENT17ArterieStenosgrad,
-    a2.SEGMENT18ArterieStenosgrad,
-    a2.SEGMENT19ArterieStenosgrad,
-    a2.SEGMENT20ArterieStenosgrad,
-    a2.SekundaerBeslutning,
-    a2.KomplettRevaskularisering,
-    a2.AntitrombotiskFor,
-    a2.TrombolyseFor,
-    a2.ASAFor,
-    a2.ClopidogrelFor,
-    a2.PrasugrelFor,
-    a2.TicagrelorFor,
-    a2.HeparinFor,
-    a2.DalteparinFor,
-    a2.EnoxaparinFor,
-    a2.AnnetLavmolHeparinFor,
-    a2.BivalirudinFor,
-    a2.FondaparinuxFor,
-    a2.AbciximabFor,
-    a2.EptifibatidFor,
-    a2.TirofibanFor,
-    a2.WarfarinFor,
-    a2.DabigatranFor,
-    a2.ApiksabanFor,
-    a2.RivaroksabanFor,
-    a2.EdoksabanFor,
-    a2.KangrelorFor,
-    a2.AnnetAntitrombotiskFor,
-    a2.AntitrombotiskUnder,
-    a2.TrombolyseUnder,
-    a2.ASAUnder,
-    a2.ClopidogrelUnder,
-    a2.PrasugrelUnder,
-    a2.TicagrelorUnder,
-    a2.HeparinUnder,
-    a2.DalteparinUnder,
-    a2.EnoxaparinUnder,
-    a2.AnnetLavmolHeparinUnder,
-    a2.BivalirudinUnder,
-    a2.FondaparinuxUnder,
-    a2.AbciximabUnder,
-    a2.EptifibatidUnder,
-    a2.TirofibanUnder,
-    a2.WarfarinUnder,
-    a2.KangrelorUnder,
-    a2.AnnetAntitrombotiskUnder,
-    a2.PCIHovedOperator,
-    a2.PCIAndreOperator,
-    a2.PCITredjeOperator,
-    a2.Angiografor1,
-    a2.Angiografor2,
-    a2.Angiografor3,
-    a2.PCIOperatorer,
-    a2.AngioOperatorer,
-    a2.AvdKomp,
-    a2.AvdKompAllergisk,
-    a2.AvdKompBlodning,
-    a2.AvdKompBlodningMajor,
-    a2.AvdKompBlodningMinor,
-    a2.AvdKompPseudoaneurysme,
-    a2.AvdKompHematomStor,
-    a2.AvdKompHbFallStor,
-    a2.AvdKompForlengetTidStor,
-    a2.AvdKompForlengetOppholdStor,
-    a2.AvdKompUltralydCT,
-    a2.AvdKompBlodtransfusjon,
-    a2.AvdKompKirurgiskBeh,
-    a2.AvdKompAnnenBehUtoverKompresjon,
-    a2.AvdKompTidligUtsettelse,
-    a2.AvdKompVaskulaer,
-    a2.AvdKompNeurologiskKomp,
-    a2.AvdKompNyNyreinsuffisiens,
-    a2.AvdKompTamponade,
-    a2.AvdKompPCI,
-    a2.AvdKompACB,
-    a2.AvdKompHjerteinfarkt,
-    a2.AvdKompAnnenAlvorlig,
-    a2.AvdKompDod,
-    a2.AvdKompProsedyrerelatertDod,
-    a2.CKMBFor,
-    a2.CKMBEtter,
-    a2.TroponinMetFor,
-    a2.TroponinVerdiFor,
-    a2.TroponinMetEtter,
-    a2.TroponinVerdiEtter,
-    a2.Utskrivningsdato,
-    a2.UtskrevetDod,
-    a2.UtskrevetDodsdato,
-    a2.UtskrevetTil,
-    a2.ASA,
-    a2.Antikoagulantia,
-    a2.AndrePlatehemmere,
-    a2.UtskrStatiner,
-    a2.NSAID,
-    a2.ACEHemmere,
-    a2.A2Blokkere,
-    a2.Betablokkere,
-    a2.CaBlokkere,
-    a2.DiabetesBehandlingInsulin,
-    a2.DiabetesBehandlingPerOral,
-    a2.Digitalis,
-    a2.Diuretika,
-    a2.Aldosteronantagonister,
-    a2.OvrigeLipidsenkere,
-    a2.NitroglycerinLangtid,
-    a2.AnnenAlvorligSykdom,
-    a2.InfarktType,
-    a2.InfarktSubklasse,
-    a2.UtskrDiagnoser,
-    a2.Sykehusnavn,
-    a2.SkjemaStatusStart,
-    a2.SkjemastatusHovedskjema,
-    a2.SkjemaStatusUtskrivelse,
-    a2.SkjemaStatusKomplikasjoner,
+    a.*,
     f.Kommune,
     f.KommuneNr,
     f.Fylke,
@@ -235,27 +65,22 @@ SELECT
     f.KobletForlopsID,
     f.ForlopsType2
 FROM
-    angiopcivardel1 a1
-LEFT JOIN angiopcivardel2 a2 ON
-    a1.AvdRESH = a2.AvdRESH AND
-    a1.PasientID = a2.PasientID AND
-    a1.ForlopsID = a2.ForlopsID
+      angiopcinum a
 LEFT JOIN forlopsoversikt f ON
-    a1.AvdRESH = f.AvdRESH AND
-    a1.PasientID = f.PasientID AND
-    a1.ForlopsID = f.ForlopsID
+    a.AvdRESH = f.AvdRESH AND
+    a.PasientID = f.PasientID AND
+    a.ForlopsID = f.ForlopsID
 WHERE
-    a1.ProsedyreDato >= '", fromDate, "' AND
-    a1.ProsedyreDato <= '", toDate, "'"
-  )
+      a.ProsedyreDato >= '", fromDate, "' AND
+      a.ProsedyreDato <= '", toDate, "'"
+    )
 
-  
   if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "AND a1.AvdRESH = ", 
+    query <- paste0(query,
+                    "AND a.AvdRESH = ",
                     singleHospital)
   }
-  
+
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -264,12 +89,13 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for AngioPCI"
   }
-  
+
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
-  aP <- rapbase::loadRegData(registryName, query)
+
+  aPnum <- rapbase::loadRegData(registryName, query)
+  aP <- noric::erstatt_koder_m_etiketter(aPnum)
   
   list(aP = aP)
 }
@@ -920,177 +746,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
   
   query <- paste0("
 SELECT
-    a1.*,
-    a2.SEGMENT1,
-    a2.SEGMENT2,
-    a2.SEGMENT3,
-    a2.SEGMENT4,
-    a2.SEGMENT5,
-    a2.SEGMENT6,
-    a2.SEGMENT7,
-    a2.SEGMENT8,
-    a2.SEGMENT9,
-    a2.SEGMENT10,
-    a2.SEGMENT11,
-    a2.SEGMENT12,
-    a2.SEGMENT13,
-    a2.SEGMENT14,
-    a2.SEGMENT15,
-    a2.SEGMENT16,
-    a2.SEGMENT17,
-    a2.SEGMENT18,
-    a2.SEGMENT19,
-    a2.SEGMENT20,
-    a2.SEGMENT1VeneStenosgrad,
-    a2.SEGMENT2VeneStenosgrad,
-    a2.SEGMENT3VeneStenosgrad,
-    a2.SEGMENT4VeneStenosgrad,
-    a2.SEGMENT5VeneStenosgrad,
-    a2.SEGMENT6VeneStenosgrad,
-    a2.SEGMENT7VeneStenosgrad,
-    a2.SEGMENT8VeneStenosgrad,
-    a2.SEGMENT9VeneStenosgrad,
-    a2.SEGMENT10VeneStenosgrad,
-    a2.SEGMENT11VeneStenosgrad,
-    a2.SEGMENT12VeneStenosgrad,
-    a2.SEGMENT13VeneStenosgrad,
-    a2.SEGMENT14VeneStenosgrad,
-    a2.SEGMENT15VeneStenosgrad,
-    a2.SEGMENT16VeneStenosgrad,
-    a2.SEGMENT17VeneStenosgrad,
-    a2.SEGMENT18VeneStenosgrad,
-    a2.SEGMENT19VeneStenosgrad,
-    a2.SEGMENT20VeneStenosgrad,
-    a2.SEGMENT1ArterieStenosgrad,
-    a2.SEGMENT2ArterieStenosgrad,
-    a2.SEGMENT3ArterieStenosgrad,
-    a2.SEGMENT4ArterieStenosgrad,
-    a2.SEGMENT5ArterieStenosgrad,
-    a2.SEGMENT6ArterieStenosgrad,
-    a2.SEGMENT7ArterieStenosgrad,
-    a2.SEGMENT8ArterieStenosgrad,
-    a2.SEGMENT9ArterieStenosgrad,
-    a2.SEGMENT10ArterieStenosgrad,
-    a2.SEGMENT11ArterieStenosgrad,
-    a2.SEGMENT12ArterieStenosgrad,
-    a2.SEGMENT13ArterieStenosgrad,
-    a2.SEGMENT14ArterieStenosgrad,
-    a2.SEGMENT15ArterieStenosgrad,
-    a2.SEGMENT16ArterieStenosgrad,
-    a2.SEGMENT17ArterieStenosgrad,
-    a2.SEGMENT18ArterieStenosgrad,
-    a2.SEGMENT19ArterieStenosgrad,
-    a2.SEGMENT20ArterieStenosgrad,
-    a2.SekundaerBeslutning,
-    a2.KomplettRevaskularisering,
-    a2.AntitrombotiskFor,
-    a2.TrombolyseFor,
-    a2.ASAFor,
-    a2.ClopidogrelFor,
-    a2.PrasugrelFor,
-    a2.TicagrelorFor,
-    a2.HeparinFor,
-    a2.DalteparinFor,
-    a2.EnoxaparinFor,
-    a2.AnnetLavmolHeparinFor,
-    a2.BivalirudinFor,
-    a2.FondaparinuxFor,
-    a2.AbciximabFor,
-    a2.EptifibatidFor,
-    a2.TirofibanFor,
-    a2.WarfarinFor,
-    a2.DabigatranFor,
-    a2.ApiksabanFor,
-    a2.RivaroksabanFor,
-    a2.EdoksabanFor,
-    a2.KangrelorFor,
-    a2.AnnetAntitrombotiskFor,
-    a2.AntitrombotiskUnder,
-    a2.TrombolyseUnder,
-    a2.ASAUnder,
-    a2.ClopidogrelUnder,
-    a2.PrasugrelUnder,
-    a2.TicagrelorUnder,
-    a2.HeparinUnder,
-    a2.DalteparinUnder,
-    a2.EnoxaparinUnder,
-    a2.AnnetLavmolHeparinUnder,
-    a2.BivalirudinUnder,
-    a2.FondaparinuxUnder,
-    a2.AbciximabUnder,
-    a2.EptifibatidUnder,
-    a2.TirofibanUnder,
-    a2.WarfarinUnder,
-    a2.KangrelorUnder,
-    a2.AnnetAntitrombotiskUnder,
-    a2.PCIHovedOperator,
-    a2.PCIAndreOperator,
-    a2.PCITredjeOperator,
-    a2.Angiografor1,
-    a2.Angiografor2,
-    a2.Angiografor3,
-    a2.PCIOperatorer,
-    a2.AngioOperatorer,
-    a2.AvdKomp,
-    a2.AvdKompAllergisk,
-    a2.AvdKompBlodning,
-    a2.AvdKompBlodningMajor,
-    a2.AvdKompBlodningMinor,
-    a2.AvdKompPseudoaneurysme,
-    a2.AvdKompHematomStor,
-    a2.AvdKompHbFallStor,
-    a2.AvdKompForlengetTidStor,
-    a2.AvdKompForlengetOppholdStor,
-    a2.AvdKompUltralydCT,
-    a2.AvdKompBlodtransfusjon,
-    a2.AvdKompKirurgiskBeh,
-    a2.AvdKompAnnenBehUtoverKompresjon,
-    a2.AvdKompTidligUtsettelse,
-    a2.AvdKompVaskulaer,
-    a2.AvdKompNeurologiskKomp,
-    a2.AvdKompNyNyreinsuffisiens,
-    a2.AvdKompTamponade,
-    a2.AvdKompPCI,
-    a2.AvdKompACB,
-    a2.AvdKompHjerteinfarkt,
-    a2.AvdKompAnnenAlvorlig,
-    a2.AvdKompDod,
-    a2.AvdKompProsedyrerelatertDod,
-    a2.CKMBFor,
-    a2.CKMBEtter,
-    a2.TroponinMetFor,
-    a2.TroponinVerdiFor,
-    a2.TroponinMetEtter,
-    a2.TroponinVerdiEtter,
-    a2.Utskrivningsdato,
-    a2.UtskrevetDod,
-    a2.UtskrevetDodsdato,
-    a2.UtskrevetTil,
-    a2.ASA,
-    a2.Antikoagulantia,
-    a2.AndrePlatehemmere,
-    a2.UtskrStatiner,
-    a2.NSAID,
-    a2.ACEHemmere,
-    a2.A2Blokkere,
-    a2.Betablokkere,
-    a2.CaBlokkere,
-    a2.DiabetesBehandlingInsulin,
-    a2.DiabetesBehandlingPerOral,
-    a2.Digitalis,
-    a2.Diuretika,
-    a2.Aldosteronantagonister,
-    a2.OvrigeLipidsenkere,
-    a2.NitroglycerinLangtid,
-    a2.AnnenAlvorligSykdom,
-    a2.InfarktType,
-    a2.InfarktSubklasse,
-    a2.UtskrDiagnoser,
-    a2.Sykehusnavn,
-    a2.SkjemaStatusStart,
-    a2.SkjemastatusHovedskjema,
-    a2.SkjemaStatusUtskrivelse,
-    a2.SkjemaStatusKomplikasjoner,
+    a.*,
     f.Kommune,
     f.KommuneNr,
     f.Fylke,
@@ -1098,18 +754,14 @@ SELECT
     f.PasientAlder,
     f.KobletForlopsID
 FROM
-    angiopcivardel1 a1
-LEFT JOIN angiopcivardel2 a2 ON
-    a1.AvdRESH = a2.AvdRESH AND
-    a1.PasientID = a2.PasientID AND
-    a1.ForlopsID = a2.ForlopsID
+    angiopcinum a
 LEFT JOIN forlopsoversikt f ON
-    a1.AvdRESH = f.AvdRESH AND
-    a1.PasientID = f.PasientID AND
-    a1.ForlopsID = f.ForlopsID
+    a.AvdRESH = f.AvdRESH AND
+    a.PasientID = f.PasientID AND
+    a.ForlopsID = f.ForlopsID
 WHERE
-    a1.ProsedyreDato >= '", fromDate, "' AND
-    a1.ProsedyreDato <= '", toDate, "'"
+    a.ProsedyreDato >= '", fromDate, "' AND
+    a.ProsedyreDato <= '", toDate, "'"
   )
   
   
@@ -1155,8 +807,11 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  aP <- rapbase::loadRegData(registryName, query)
+  aPnum <- rapbase::loadRegData(registryName, query)
+  aP <- noric::erstatt_koder_m_etiketter(aPnum)
+  
   aD <- rapbase::loadRegData(registryName, queryAd)
+  
   sS <- rapbase::loadRegData(registryName, querySs)
   
   

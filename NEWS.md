@@ -1,3 +1,6 @@
+# noric 2.17.6 bruker angiopcinum
+angiopcitabellen henter inn verdier med angiopcinum
+
 # noric 2.17.5 Noric 2.0 bruker mysql 8 bugfiks
 AngioPCIVar krever at det kun velges ut alle variabler i sql-sørringen kun en gang. Resten av variablene må velges spesifikt.
 
