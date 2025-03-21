@@ -1,22 +1,16 @@
 # History files
 .Rhistory
 .Rapp.history
-
 # Example code in package build process
 *-Ex.R
-
 # RStudio files
 .Rproj.user/
 *.Rproj
-
 # knitr figures
 figure/
-
-
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
-
 # intermediate .tex files and logs
 *.tex
 *.log
@@ -26,13 +20,11 @@ vignettes/*.pdf
 *.snm
 *.toc
 *.vrb
-
 # intermediate markdown files
 *.html
 *.htm
 inst/shinyApps/noric/*.md
 inst/shinyApps/noric/cache
-
 # SPSS, word,..
 *.sav
 *.doc
@@ -41,15 +33,13 @@ inst/shinyApps/noric/cache
 *.bmp
 *.tiff
 *.zip
-
-
 # Rdata files
 *.Rdata
 *.data.R
-
 # Example code in package build process
 *-Ex.R
-
 .Rproj.user
-
 check/
+.Rprofile
+kobling_varnavn.R
+utforsk.R

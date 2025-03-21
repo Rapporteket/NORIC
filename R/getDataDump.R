@@ -31,6 +31,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              fromDate = fromDate,
                              toDate = toDate,
                              singleRow = FALSE)
+    
     tab <- tab_list$aP
   }
   

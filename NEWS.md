@@ -1,3 +1,13 @@
+# noric 2.17.6 bruker angiopcinum
+angiopcitabellen henter inn verdier med angiopcinum
+
+# noric 2.17.5 Noric 2.0 bruker mysql 8 bugfiks
+AngioPCIVar krever at det kun velges ut alle variabler i sql-sørringen kun en gang. Resten av variablene må velges spesifikt.
+
+# noric 2.17.0 Noric 2.0 bruker mysql 8
+AngioPCIVar er delt i to og SQL-spørringer/r-funksjoner må tilpasses i forhold til dette.
+Tabellnavn er nå med kun små bokstaver.
+
 # noric 2.16.0 Nordlandssykehuset endrer navn
 Nordlandssykehuset Bodø endrer navn til UNN Bodø
 
