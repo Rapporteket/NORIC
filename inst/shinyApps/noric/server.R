@@ -603,6 +603,19 @@ shinyServer(function(input, output, session) {
     subReports <- c(subReports, liste_aktivitet)
   }
   
+  if(reshId %in% c(102966, 700422, 109880, 104284, 101619)){
+    subReports_aortaklaff <- list(
+      `Aortaklaff` = list(
+        synopsis = "NORIC aortaklaff",
+        fun = "reportProcessor",
+        paramNames = c("report", pn),
+        paramValues = c("NORIC_tavi_report", pv)
+      )
+    )
+    
+    subReports <- c(subReports, subReports_aortaklaff)
+  }
+  
   
   ## serve subscriptions (Abonnement)
   rapbase::autoReportServer(id = "noricSubscription",
