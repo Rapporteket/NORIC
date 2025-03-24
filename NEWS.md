@@ -1,5 +1,6 @@
 # noric 2.17.0 Noric 2.0 bruker mysql 8
-AngioPCIVar bruker nå angiopcinum sammen med funksjonen erstatt_koder_m_etiketter.R
+* AngioPCIVar bruker nå angiopcinum sammen med funksjonen erstatt_koder_m_etiketter.R
+* Tilgjengeliggjort månedsrapporten Aortaklaff i fanen Abonnement for de sykehusene det gjelder.
 
 # noric 2.16.0 Nordlandssykehuset endrer navn
 Nordlandssykehuset Bodø endrer navn til UNN Bodø
