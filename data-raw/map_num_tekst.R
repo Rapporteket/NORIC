@@ -311,6 +311,7 @@ kodebok <- read.csv2(system.file("extdata/NORIC_klokeboken_18.03.2025.csv",
                                  package = "noric")) %>%  
   dplyr::select(type, listeverdier, listetekst, tabell, 
                 fysisk_feltnavn, variabel_id)
+
 mangler_kodebok_katvar <- varnavn_kobl %>%  
   dplyr::filter(variabel_id %in% 
                   setdiff(varnavn_kobl$variabel_id, kodebok$variabel_id)) %>%  
@@ -318,6 +319,7 @@ mangler_kodebok_katvar <- varnavn_kobl %>%
   dplyr::mutate(tabell=tolower(tabell)) %>%  
   dplyr::rename(fysisk_feltnavn = var_navn) %>%  
   dplyr::select(-rapporteket)
+
 mangler_kodebok_katvar <- dplyr::bind_rows(mangler_kodebok_katvar,
                                            mangler_kodebok_katvar,
                                            mangler_kodebok_katvar) %>%  
@@ -330,6 +332,7 @@ mangler_kodebok_katvar <- dplyr::bind_cols(
   mangler_kodebok_katvar)
 
 kodebok <- dplyr::bind_rows(kodebok, mangler_kodebok_katvar)
+
 map_num_tekst <- merge(kodebok,
                        varnavn_kobl[, c("variabel_id", "rapporteket")],
                        by = "variabel_id", all.x = TRUE) %>%  

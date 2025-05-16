@@ -5,16 +5,16 @@
 #'
 #' @export
 #' 
-erstatt_koder_m_etiketter <- function(df) {
+erstatt_koder_m_etiketter <- function(df, mapping = noric::map_num_tekst) {
   df_label <- df %>%  
     dplyr::mutate(
       dplyr::across(
-        intersect(names(df), noric::map_num_tekst$variabel_id), 
+        intersect(names(df), mapping$variabel_id), 
         ~ factor(.x, 
-                 levels = dplyr::filter(noric::map_num_tekst, 
+                 levels = dplyr::filter(mapping, 
                                         variabel_id %in% 
                                           dplyr::cur_column())$verdi,
-                 labels = dplyr::filter(noric::map_num_tekst, 
+                 labels = dplyr::filter(mapping, 
                                         variabel_id %in% 
                                           dplyr::cur_column())$verditekst))
     )
