@@ -21,6 +21,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              "AortaklaffOppfVar",
                              "AnnenDiagnostikkVar",
                              "SegmentStent",
+                             # "segment_history",
                              "MitralklaffVar",
                              "PasienterStudier", 
                              "AortaklaffProm"))
@@ -125,7 +126,16 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab <- tab_list$taviProm
     
   }
-  
-  tab
+
+  # if (tableName %in% "segment_history") {
+  #   tab_list <- noric::getSh(registryName = registryName,
+  #                                  fromDate = fromDate,
+  #                                  toDate = toDate,
+  #                                  singleRow = FALSE)
+  #   tab <- tab_list$sH
+  # 
+  # }
+  # 
+  # tab
   
 }

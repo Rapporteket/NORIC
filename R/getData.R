@@ -30,6 +30,7 @@
 #' getAkOppf
 #' getAnD
 #' getSs
+#' getSh
 #' getMk
 #' getPs
 #' getApLight
@@ -204,7 +205,7 @@ WHERE
     msg <- "Query single row data for aortaklaffvarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for aortaklaffvanumr"
+    msg <- "Query data for aortaklaffvarnum"
   }
   
   if ("session" %in% names(list(...))) {
@@ -599,6 +600,76 @@ WHERE
   
   list(sS = sS)
 }
+
+
+
+
+#' #' @rdname getData
+#' #' @export
+#' getSh <- function(registryName, fromDate, toDate, singleRow, 
+#'                   singleHospital = NULL, ...) {
+#'   
+#'   
+#'   # SQL possible for defined time-interval:
+#'   if (is.null(fromDate)) {
+#'     fromDate <- as.Date("1900-01-01")
+#'   }
+#'   if (is.null(toDate)) {
+#'     toDate <- noric::getLatestEntry(registryName)
+#'   }
+#'   
+#'   # Ask for all variables from segment_history in time interval
+#'   # Add selected variables from forlopsoversikt
+#'   # 2 variables to match on: AvdRESH, ForlopsID
+#'   
+#'   query <- paste0("
+#' SELECT
+#'     segment_history.*,
+#'     forlopsoversikt.PasientID,
+#'     forlopsoversikt.Kommune,
+#'     forlopsoversikt.KommuneNr,
+#'     forlopsoversikt.Fylke,
+#'     forlopsoversikt.Fylkenr,
+#'     forlopsoversikt.PasientAlder,
+#'     forlopsoversikt.ForlopsType1,
+#'     forlopsoversikt.ForlopsType2,
+#'     forlopsoversikt.KobletForlopsID
+#' FROM
+#'     segment_history
+#' LEFT JOIN forlopsoversikt ON
+#'     segment_history.CENTRE_ID = forlopsoversikt.AvdRESH AND
+#'     segment_history.MCEID = forlopsoversikt.ForlopsID
+#' WHERE
+#'     segment_history.ORGINTERDAT >= '", fromDate, "' AND
+#'     segment_history.ORGINTERDAT <= '", toDate, "'"
+#'   )
+#'   
+#'   if(!is.null(singleHospital)) {
+#'     query <- paste0(query, 
+#'                     "AND segment_history.CENTRE_ID = ", 
+#'                     singleHospital)
+#'   }
+#'   
+#'   
+#'   # SQL for one row only/complete table:
+#'   if (singleRow) {
+#'     query <- paste0(query, "\nLIMIT\n  1;")
+#'     msg <- "Query single row data for segment_history"
+#'   } else {
+#'     query <- paste0(query, ";")
+#'     msg <- "Query data for segment_history"
+#'   }
+#'   
+#'   if ("session" %in% names(list(...))) {
+#'     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+#'   }
+#'   
+#'   sH <- rapbase::loadRegData(registryName, query)
+#'   
+#'   
+#'   list(sH = sH)
+#' }
+
 
 
 #' @rdname getData
