@@ -48,9 +48,8 @@ Imports:
   xtable,
   yaml
 Remotes:
-  Rapporteket/rapbase@*release,
+  Rapporteket/rapbase@main,
   andrewsali/shinycssloaders
-VignetteBuilder: knitr
 RoxygenNote: 7.3.2
 Suggests: 
     covr, 
