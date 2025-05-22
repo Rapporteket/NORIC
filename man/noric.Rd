@@ -2,6 +2,7 @@
 % Please edit documentation in R/noric.R
 \docType{package}
 \name{noric}
+\alias{noric-package}
 \alias{noric}
 \title{All R resources neede for NORIC at Rapporteket}
 \description{
@@ -39,3 +40,13 @@ Artwork is accessed in the same way as for the noweb-files, \emph{e.g}
 \code{system.file("some_nice_logo.pdf", package = "noric")}
 }
 
+\author{
+\strong{Maintainer}: Kristina Skaare \email{kristina.skare@helse-bergen.no}
+
+Authors:
+\itemize{
+  \item Mary Autenried \email{mary.gerina.autenried@helse-bergen.no}
+  \item Are Edvardsen \email{biorakel@gmail.com} (\href{https://orcid.org/0000-0002-5210-3656}{ORCID})
+}
+
+}

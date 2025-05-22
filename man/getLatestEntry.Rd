@@ -17,5 +17,5 @@ getLatestEntryHospital(registryName, reshID = 99999)
 A Date object
 }
 \description{
-Provides the newest date based on HovedDato from SkjemaOversikt
+Provides the newest date based on HovedDato from skjemaoversikt
 }
