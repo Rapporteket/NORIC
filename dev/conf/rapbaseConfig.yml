@@ -1,0 +1,76 @@
+r:
+  raplog:
+    archiveDir: logArchive
+    eolDays: 730
+    target: db
+    key: raplog
+  autoReport:
+    target: db
+    key: autoreport
+network:
+  smtp:
+    server:
+    port:
+  sender:
+github:
+  organization: Rapporteket
+reg:
+  noric:
+    databases:
+    - name: noric_nasjonal
+      reshId: 0
+    - name: noric_ahus
+      reshId: 108141
+    - name: noric_bergen
+      reshId: 102966
+    - name: noric_bodoe
+      reshId: 4210141
+    - name: noric_feiring
+      reshId: 106944
+    - name: noric_ous_rh
+      reshId: 700422
+    - name: noric_ous_ull
+      reshId: 109880
+    - name: noric_soerlandet
+      reshId: 114150
+    - name: noric_stavanger
+      reshId: 105502
+    - name: noric_stolav
+      reshId: 104284
+    - name: noric_unn
+      reshId: 101619
+  smerte:
+    nationalAccess:
+      reshId: 0
+      userRole: SC
+      nameKey: Nasjonal
+    ousAccess:
+      reshId:
+      - 705758
+      - 705652
+      - 4207789
+      userRole: LC
+      nameKey: 4207789
+    databases:
+    - name: smerte_nasjonal
+      reshId: 0
+    - name: smerte_ahus
+      reshId: 100089
+    - name: smerte_bergen
+      reshId: 100082
+    - name: smerte_levanger
+      reshId: 4214288
+    - name: smerte_moreromsdal
+      reshId: 4201115
+    - name: smerte_ous
+      reshId: 4207789
+    - name: smerte_ous
+      reshId: 705652
+    - name: smerte_ous
+      reshId: 705758
+    - name: smerte_stolavs
+      reshId: 100320
+    - name: smerte_unn
+      reshId: 101719
+    - name: smerte_vestreviken
+      reshId: 4204083
