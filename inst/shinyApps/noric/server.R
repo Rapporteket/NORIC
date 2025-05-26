@@ -79,14 +79,7 @@ shinyServer(function(input, output, session) {
   })
    
   # html rendering function for re-use
-  htmlRenderRmd <- function(srcFile) {
-    # set param needed for report meta processing
-    params <- list(author = author,
-                   hospitalName = hospitalName,
-                   tableFormat = "html",
-                   reshId = reshId,
-                   registryName = registryName)
-    
+  htmlRenderRmd <- function(srcFile, params) {
     # do all kniting and rendering from temporary directory/file
     sourceFile <- tempfile(fileext = ".Rmd")
     file.copy(system.file(srcFile, package = "noric"), sourceFile,
@@ -205,7 +198,13 @@ shinyServer(function(input, output, session) {
   
   # Start
   output$veiledning <- shiny::renderUI({
-    htmlRenderRmd("veiledning.Rmd")
+    htmlRenderRmd("veiledning.Rmd", params = list(
+      author = userFullName,
+      hospitalName = hospitalName(),
+      tableFormat = "html",
+      reshId = user$org(),
+      registryName = registryName()
+    ))
   })
   
   # Utforsker
@@ -433,15 +432,33 @@ shinyServer(function(input, output, session) {
   
   # Samlerapporter
   output$prosedyrer <- renderUI({
-    htmlRenderRmd("NORIC_local_monthly.Rmd")
+    htmlRenderRmd("NORIC_local_monthly.Rmd", params = list(
+      author = userFullName,
+      hospitalName = hospitalName(),
+      tableFormat = "html",
+      reshId = user$org(),
+      registryName = registryName()
+    ))
   })
-  
+
   output$aktivitet <- renderUI({
-    htmlRenderRmd("NORIC_local_monthly_activity.Rmd")
+    htmlRenderRmd("NORIC_local_monthly_activity.Rmd", params = list(
+      author = userFullName,
+      hospitalName = hospitalName(),
+      tableFormat = "html",
+      reshId = user$org(),
+      registryName = registryName()
+    ))
   })
-  
+
   output$tavi <- renderUI({
-    htmlRenderRmd("NORIC_tavi_report.Rmd")
+    htmlRenderRmd("NORIC_tavi_report.Rmd", params = list(
+      author = userFullName,
+      hospitalName = hospitalName(),
+      tableFormat = "html",
+      reshId = user$org(),
+      registryName = registryName()
+    ))
   })
 
   output$downloadReportProsedyrer <- downloadHandler(
