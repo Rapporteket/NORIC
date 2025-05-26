@@ -107,7 +107,18 @@ shinyServer(function(input, output, session) {
   
   
   # render file function for re-use
-  contentFile <- function(file, srcFile, tmpFile, type, useReportProcessor = FALSE, orgId = reshId, orgName = hospitalName) {
+  contentFile <- function(
+    file,
+    srcFile,
+    tmpFile,
+    type,
+    useReportProcessor = FALSE,
+    orgId,
+    orgName,
+    registryName = "noric",
+    userFullName,
+    userRole
+    ) {
     
     src <- normalizePath(system.file(srcFile, package = "noric"))
     # temporarily switch to the temp dir, in case we do not have write
@@ -474,6 +485,9 @@ shinyServer(function(input, output, session) {
                   type = "pdf",
                   orgId = user$org(),
                   orgName = hospitalName(),
+                  userFullName = user$fullName(),
+                  userRole = user$role(),
+                  registryName = registryName(),
                   useReportProcessor = TRUE)
     }
   )
@@ -491,6 +505,9 @@ shinyServer(function(input, output, session) {
                   type = "pdf",
                   orgId = user$org(),
                   orgName = hospitalName(),
+                  userFullName = user$fullName(),
+                  userRole = user$role(),
+                  registryName = registryName(),
                   useReportProcessor = TRUE)
     }
   )
@@ -509,6 +526,9 @@ shinyServer(function(input, output, session) {
                   type = "pdf",
                   orgId = user$org(),
                   orgName = hospitalName(),
+                  userFullName = user$fullName(),
+                  userRole = user$role(),
+                  registryName = registryName(),
                   useReportProcessor = TRUE)
     }
   )
@@ -829,6 +849,9 @@ shiny::observeEvent(user$org, {
                   type = "pdf",
                   orgId = input$dwldSykehus,
                   orgName = orgs_df[orgs_df$id == input$dwldSykehus, "name"],
+                  userFullName = user$fullName(),
+                  userRole = user$role(),
+                  registryName = registryName(),
                   useReportProcessor = TRUE)
     })
   
