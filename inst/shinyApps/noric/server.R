@@ -8,56 +8,75 @@ shinyServer(function(input, output, session) {
   
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
   
-  reshId <- rapbase::getUserReshId(session)
-   hospitalName <- noric::fikse_sykehusnavn(data.frame(AvdRESH = reshId)) %>%  
-      dplyr::select(Sykehusnavn)
-    
-   userFullName <- rapbase::getUserFullName(session)
-   userRole <- rapbase::getUserRole(session)
-   
-   registryName <- noric::makeRegistryName("noricStaging", reshId)
-   mapOrgId <- mapOrgReshId(registryName)
-   author <- paste0(userFullName, "/", "Rapporteket")
+  map_db_resh <-
+    rapbase::getConfig("rapbaseConfig.yml")$reg$noric$databases |>
+    unlist() |>
+    matrix(nrow=2) |>
+    t() |>
+    as.data.frame() |>
+    dplyr::rename(orgname = V1, UnitId = V2)
 
+  user <- rapbase::navbarWidgetServer2(
+    "navbar-widget",
+    orgName = "noric",
+    caller = "noric",
+    map_orgname = shiny::req(map_db_resh)
+  )
 
+  # Parameters that may change depending on the role and org of user
+  ## setting values that do depend on a Rapporteket context
+  if (rapbase::isRapContext()) {
+    registryName <- reactive(
+      map_db_resh$orgname[map_db_resh$UnitId == user$org()])
+    userFullName <- Sys.getenv("FALK_USER_FULLNAME")
+    hospitalName <- reactive(
+      getHospitalName(
+        registryName(),
+        national = noric::isNationalReg(reshId = user$org())
+      )
+    )
+  }
   
   # Hide tabs
   ## when role is 'LU' or some tabs for role 'LC'
-  if (userRole == "LU") {
-    shiny::hideTab(inputId = "tabs", target = "Utforsker")
-    shiny::hideTab(inputId = "tabs", target = "Datadump")
-    shiny::hideTab(inputId = "tabs", target = "Verktøy")
-    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
-    shiny::hideTab(inputId = "tabs", target = "Kodebok")
-    shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+  shiny::observeEvent(user$role(), {
+    if (shiny::req(user$role()) == "LU") {
+      shiny::hideTab(inputId = "tabs", target = "Utforsker")
+      shiny::hideTab(inputId = "tabs", target = "Datadump")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
+      shiny::hideTab(inputId = "tabs", target = "Kodebok")
+      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
   
-    } else if (userRole == "LC") {
-    shiny::hideTab(inputId = "tabs", target = "Datadump")
-    shiny::hideTab(inputId = "tabs", target = "Verktøy")
-    shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
-  }
+    } else if (shiny::req(user$role()) == "LC") {
+      shiny::hideTab(inputId = "tabs", target = "Datadump")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
+    }
+  })
   
   ## local reports/tabs for national registry
-  if (isNationalReg(reshId)) {
-    shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
-    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
-    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-    shiny::hideTab(inputId = "tabs", target = "Abonnement")
-  }
+  shiny::observeEvent(user$org(), {
+    if (isNationalReg(shiny::req(user$org()))) {
+      shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
+      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
+      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::hideTab(inputId = "tabs", target = "Abonnement")
+    }
   
-  ## dispatchment and use stats hidden when not national registry
-  if (!isNationalReg(reshId)) {
-    shiny::hideTab(inputId = "tabs", target = "Utsending")
-    shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
-    shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-    shiny::hideTab(inputId = "tabs", target = "Staging data")
-  }
+    ## dispatchment and use stats hidden when not national registry
+    if (!isNationalReg(shiny::req(user$org()))) {
+      shiny::hideTab(inputId = "tabs", target = "Utsending")
+      shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
+      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Staging data")
+    }
   
-   if(reshId %in% c(108141, 4210141, 114150, 105502, 106944)){
-     shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
-   }
-   
+    if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
+      shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
+    }
+  })
    
   # html rendering function for re-use
   htmlRenderRmd <- function(srcFile) {
@@ -167,8 +186,8 @@ shinyServer(function(input, output, session) {
   
   # widget
   output$appUserName <- shiny::renderText(userFullName)
-  output$appOrgName <- shiny::renderText(paste(hospitalName, 
-                                               userRole, 
+  output$appOrgName <- shiny::renderText(paste(hospitalName(),
+                                               user$role(),
                                                sep = ", "))
   
   # User info in widget
@@ -191,7 +210,8 @@ shinyServer(function(input, output, session) {
   
   # Utforsker
   ## Data sets available
-  if (userRole == "SC") {
+  shiny::observeEvent(list(user$role(), user$org()), {
+  if (user$role() == "SC") {
     dataSets <- list(`Bruk og valg av data...` = "info",
                      `Angio PCI med utledete variabler` = "ApLight",
                      `Angio PCI rådata` = "AP",
@@ -207,8 +227,8 @@ shinyServer(function(input, output, session) {
                      `Skjemaoversikt` = "SO",
                      `Segment stent` = "SS")
     # EPROM is only for nasjoanl
-    if (!isNationalReg(reshId)) {
-      dataSets<- within(dataSets, rm("Aortaklaff eprom"))
+    if (!isNationalReg(user$org())) {
+      dataSets <- within(dataSets, rm("Aortaklaff eprom"))
     }
     
   } else {
@@ -224,6 +244,7 @@ shinyServer(function(input, output, session) {
                      `Segment stent` = "SS"
     )
   }
+  })
   
   
   
@@ -266,20 +287,20 @@ shinyServer(function(input, output, session) {
   
   dat <- shiny::reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
-                           registryName = registryName,
+                           registryName = registryName(),
                            singleRow = FALSE,
                            session = session,
-                           userRole = userRole, 
+                           userRole = user$role(),
                            fromDate = input$utforskerDateRange[1],
                            toDate = input$utforskerDateRange[2])
   })
   
   metaDat <- shiny::reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
-                           registryName = registryName,
+                           registryName = registryName(),
                            singleRow = TRUE,
                            session = session,
-                           userRole = userRole, 
+                           userRole = user$role(),
                            fromDate = NULL,
                            toDate = NULL)
   })
@@ -364,9 +385,9 @@ shinyServer(function(input, output, session) {
   kodebok <- noric::getKodebokMedUtledetedVar()
   metaDatKb <- shiny::reactive({
     noric::getPivotDataSet(setId = input$kbdTab,
-                           registryName = registryName,
+                           registryName = registryName(),
                            session = session,
-                           userRole = userRole,
+                           userRole = user$role(),
                            singleRow = TRUE, 
                            fromDate = NULL,
                            toDate = NULL)
@@ -434,8 +455,8 @@ shinyServer(function(input, output, session) {
                   srcFile = "NORIC_local_monthly.Rmd", 
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
                   type = "pdf",
-                  orgId = reshId,
-                  orgName = hospitalName,
+                  orgId = user$org(),
+                  orgName = hospitalName(),
                   useReportProcessor = TRUE)
     }
   )
@@ -451,8 +472,8 @@ shinyServer(function(input, output, session) {
                   srcFile = "NORIC_local_monthly_activity.Rmd",
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
                   type = "pdf",
-                  orgId = reshId,
-                  orgName = hospitalName,
+                  orgId = user$org(),
+                  orgName = hospitalName(),
                   useReportProcessor = TRUE)
     }
   )
@@ -469,8 +490,8 @@ shinyServer(function(input, output, session) {
                   srcFile = "NORIC_tavi_report.Rmd",
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
                   type = "pdf",
-                  orgId = reshId,
-                  orgName = hospitalName,
+                  orgId = user$org(),
+                  orgName = hospitalName(),
                   useReportProcessor = TRUE)
     }
   )
@@ -494,11 +515,12 @@ shinyServer(function(input, output, session) {
                     "SkjemaOversikt")
   
   
-  if (!(userRole == "SC" & noric::isNationalReg(reshId = reshId))) {
+  observeEvent(list(user$role(), user$org()), {
+    if (!(user$role() == "SC" & noric::isNationalReg(reshId = user$org()))) {
     # Remove if not national SC-role
-      dataSetsDump <- dataSetsDump[!dataSetsDump %in% "AortaklaffProm"]
-  }
-  
+    dataSetsDump <- dataSetsDump[!dataSetsDump %in% "AortaklaffProm"]
+    }
+  })
   
   
 
@@ -556,13 +578,13 @@ shinyServer(function(input, output, session) {
   })
   
   # Abonnement og verktøy-utsending
-  orgs <- noric::mapOrgReshId(registryName = registryName, 
-                              asNamedList = TRUE, 
+  orgs <- noric::mapOrgReshId(registryName =  map_db_resh$orgname[map_db_resh$UnitId == 0],
+                              asNamedList = TRUE,
                               newNames = TRUE)
   
   ## currently, function parameters are the same for all reports
 
-  pn <- c("outputType",
+  pn <- shiny::reactive(c("outputType",
           "title",
           "author",
           "orgName",
@@ -570,17 +592,17 @@ shinyServer(function(input, output, session) {
           "registryName",
           "userFullName",
           "userRole",
-          "userOperator")
+          "userOperator"))
   
-  pv <- c("pdf",
+  pv <- shiny::reactive(c("pdf",
           "Månedsresultater",
           "unknown author",
-          hospitalName,
-          999999,
-          registryName,
-          userFullName,
-          userRole,
-          "unknown operator")
+          user$orgName(),
+          user$org(),
+          registryName(),
+          userFullName(),
+          user$role(),
+          "unknown operator"))
   
   subReports <- list(
     `Invasive prosedyrer` = list(
@@ -592,7 +614,8 @@ shinyServer(function(input, output, session) {
     )
   )
   
-  if(!isNationalReg(reshId) & userRole == "SC"){
+shiny::observeEvent(list(user$org, user$role), {
+  if(!isNationalReg(shiny::req(user$org())) & shiny::req(user$role()) == "SC"){
     liste_aktivitet <- list(
       `Angiografør/Operatør` = list(
         synopsis = "Angiografør/Operatør siste \u00E5r",
@@ -604,8 +627,10 @@ shinyServer(function(input, output, session) {
     
     subReports <- c(subReports, liste_aktivitet)
   }
+})
   
-  if(reshId %in% c(102966, 700422, 109880, 104284, 101619)){
+shiny::observeEvent(user$org, {
+  if(shiny::req(user$org()) %in% c(102966, 700422, 109880, 104284, 101619)){
     subReports_aortaklaff <- list(
       `Aortaklaff` = list(
         synopsis = "NORIC aortaklaff",
@@ -617,14 +642,15 @@ shinyServer(function(input, output, session) {
     
     subReports <- c(subReports, subReports_aortaklaff)
   }
-  
+})
   
   ## serve subscriptions (Abonnement)
   rapbase::autoReportServer(id = "noricSubscription",
                             registryName = "noric", 
                             type = "subscription",
                             reports = subReports, 
-                            orgs = orgs)
+                            orgs = orgs,
+                            user = user)
   
   
   # Ny Utsending 
@@ -651,7 +677,7 @@ shinyServer(function(input, output, session) {
                       999999,
                       registryName,
                       userFullName,
-                      userRole,
+                      user$role,
                       "unknown operator")
     ), 
     
@@ -678,7 +704,7 @@ shinyServer(function(input, output, session) {
                       999999,
                       registryName,
                       userFullName,
-                      userRole,
+                      user$role,
                       "unknown operator")
     ), 
     
@@ -704,7 +730,7 @@ shinyServer(function(input, output, session) {
                       999999,
                       registryName,
                       userFullName,
-                      userRole,
+                      user$role,
                       "unknown operator")
     )
     
@@ -721,6 +747,10 @@ shinyServer(function(input, output, session) {
     c(orgDispatch$name(), orgDispatch$value())
   )
   
+  eligible <- reactiveVal(FALSE)
+  observeEvent(list(user$org, user$role), {
+    eligible(all(c(user$role() == "SC", isNationalReg(user$org()))))
+  })
   ## serve dispatchments (Utsending)
   rapbase::autoReportServer(
     id = "noricDispatch",
@@ -731,15 +761,18 @@ shinyServer(function(input, output, session) {
     paramValues = dispatchParamValues, 
     reports = dispatch, 
     orgs = orgs,
-    eligible = all(c(userRole == "SC", isNationalReg(reshId)))
+    eligible = eligible,
+    user = user
   )
   
   
   
   #Verktøy - nedlasting rapporter
-  orgs_df <- noric::mapOrgReshId(registryName = registryName,
-                                 asNamedList = FALSE, 
+  shiny::observeEvent(registryName, {
+  orgs_df <- noric::mapOrgReshId(registryName = registryName(),
+                                 asNamedList = FALSE,
                                  newNames = TRUE)
+  })
 
   ## innhold kontrollpanel:
   output$dwnldControlRap <- shiny::renderUI({
@@ -783,21 +816,21 @@ shinyServer(function(input, output, session) {
     })
   
   # Verktøy - brukerstatistikk
-  rapbase::statsServer(
+  rapbase::statsServer2(
     id = "noricStats",
     registryName = "noric",
-    eligible = all(c(userRole == "SC", isNationalReg(reshId)))
+    eligible = eligible
   )
   rapbase::statsGuideServer("noricStatsGuide",
                             registryName = registryName)
   
   # Verktøy - Eksport
-  rapbase::exportUCServer(id = "noricExport", 
+  rapbase::exportUCServer2(id = "noricExport", 
                           registryName = registryName,
                           repoName = "noric", 
-                          eligible = (userRole == "SC"))
+                          eligible = (shiny::req(user$role()) == "SC"))
   
-  rapbase::exportGuideServer(id = "noricExportGuide",
+  rapbase::exportGuideServer2(id = "noricExportGuide",
                              registryName = registryName)
   
   

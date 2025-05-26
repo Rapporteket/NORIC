@@ -20,11 +20,9 @@ ui <- tagList(
     id = "tabs",
     
     tabPanel("Start",
+             rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
              mainPanel(width = 12,
                        htmlOutput("veiledning", inline = TRUE),
-                       appNavbarUserWidget(user = uiOutput("appUserName"),
-                                           organization = uiOutput("appOrgName"),
-                                           addUserInfo = TRUE),
                        tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
              )
     ),
