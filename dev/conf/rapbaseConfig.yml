@@ -16,8 +16,12 @@ github:
   organization: Rapporteket
 reg:
   noric:
+    nationalAccess:
+      reshId: 0
+      userRole: SC
+      nameKey: Nasjonal
     databases:
-    - name: noric_nasjonal
+    - name: noric_bodoe
       reshId: 0
     - name: noric_ahus
       reshId: 108141
