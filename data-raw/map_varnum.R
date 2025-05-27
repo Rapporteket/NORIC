@@ -903,12 +903,26 @@ segm_mangler_kodebok_katvar <- segm_varnavn_kobl %>%
 ### ID -> skal leveres som tall
 ### MCEID -> skal leveres som tall
 ### STENTNAMN -> skal leveres som tekst
-### STENT_DES -> jeg finner ikke ut hva dette er 
-### Ingen av disse legges inn manuelt 
+### Ingen av disse legges inn manuelt
+
+### STENT_DES -> dette er StentType og den skal legges inn manuelt 
+
+# stentType får manuell mapping etter bestilling fra registeret #
+
+segm_manuell_map <- data.frame(tabell = "stent", fysisk_feltnavn = "DES", variabel_id = "STENT_DES")
+
+segm_manuell_map <- dplyr::bind_cols(
+  data.frame(type = rep("Listevariabel", 3),
+             listeverdier = c(0,1,8),
+             listetekst = c("DES", "BMS", "Annet")),
+  segm_manuell_map)
+
+segm_kodebok <- dplyr::bind_rows(kodebok, segm_manuell_map)
+
 
 ### Sjekk om det er noen som ikke er tallvariabler som er i kodeboka og ikke i varnavn_kobl
 
-segm_in_kodebok <- kodebok %>%
+segm_in_kodebok <- segm_kodebok %>%
   filter(tabell == "segment" | tabell == "stent") %>% 
   select(-c(listeverdier, listetekst)) %>% 
   unique()
@@ -920,7 +934,7 @@ segm_in_kodebok_notSQL2 <- segm_in_kodebok %>%
 
 # 3: Merge varnavn_kobl-fila med kodeboka
 
-segm_map_num_tekst <- merge(kodebok,
+segm_map_num_tekst <- merge(segm_kodebok,
                              segm_varnavn_kobl[, c("variabel_id", "rapporteket")],
                              by = "variabel_id", all.x = TRUE) %>% 
   dplyr::arrange(variabel_id, rapporteket, listeverdier) %>%  
@@ -945,8 +959,7 @@ segm_map_num_tekst <- segm_map_num_tekst %>%
 # 4: Lagre data i pakken
 usethis::use_data(segm_map_num_tekst, overwrite = TRUE)
 
-#!!!Obs!! 
-# stentType har ikke fått mapping siden denne variabelen ikke finnes i kodeboka!
+
 
 
 # MITRALKLAFFVARNUM-------------------------------------------------------------
