@@ -45,17 +45,6 @@ if (is.null(check_db(is_test_that = FALSE))) {
   RMariaDB::dbDisconnect(con)
 }
 
-# make temporary config
-test_config <- paste0(
-  "testReg:",
-  "\n  host : ", Sys.getenv("MYSQL_HOST"),
-  "\n  name : testDb",
-  "\n  user : ", Sys.getenv("MYSQL_USER"),
-  "\n  pass : ", Sys.getenv("MYSQL_PASSWORD"),
-  "\n  disp : ephemaralUnitTesting\n"
-)
-Sys.setenv(R_RAP_CONFIG_PATH = tempdir())
-
 # make queries for creating tables
 fc <- file(system.file("testDb.sql", package = "noric"), "r")
 t <- readLines(fc)
@@ -65,7 +54,7 @@ queries <- strsplit(sql, ";")[[1]]
 
 test_that("relevant test database and tables can be made", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("testDb")$con
   for (i in seq_len(length(queries))) {
     expect_equal(class(RMariaDB::dbExecute(con, queries[i])), "integer")
   }
@@ -76,7 +65,7 @@ test_that("relevant test database and tables can be made", {
 
 test_that("mitralklaff data can be provided", {
   check_db()
-  res <- getMk("testReg", fromDate = "1900-01-01", toDate = Sys.Date(),
+  res <- getMk("testDb", fromDate = "1900-01-01", toDate = Sys.Date(),
                singleRow = TRUE)
   expect_equal(class(res), "list")
   expect_equal(class(res$mK), "data.frame")
@@ -84,7 +73,7 @@ test_that("mitralklaff data can be provided", {
 
 test_that("pasientstudier data can be provided", {
   check_db()
-  res <- getPs("testReg", fromDate = "1900-01-01", toDate = Sys.Date(),
+  res <- getPs("testDb", fromDate = "1900-01-01", toDate = Sys.Date(),
                singleRow = TRUE)
   expect_equal(class(res), "list")
   expect_equal(class(res$pS), "data.frame")
@@ -92,7 +81,7 @@ test_that("pasientstudier data can be provided", {
 
 # remove test db
 if (is.null(check_db(is_test_that = FALSE))) {
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("testDb")$con
   RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
   rapbase::rapCloseDbConnection(con)
 }
