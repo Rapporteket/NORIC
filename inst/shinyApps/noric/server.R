@@ -25,18 +25,17 @@ shinyServer(function(input, output, session) {
 
   # Parameters that may change depending on the role and org of user
   ## setting values that do depend on a Rapporteket context
-  if (rapbase::isRapContext()) {
-    registryName <- reactive(
-      map_db_resh$orgname[map_db_resh$UnitId == user$org()])
-    userFullName <- Sys.getenv("FALK_USER_FULLNAME")
-    hospitalName <- reactive(
-      getHospitalName(
-        registryName(),
-        national = noric::isNationalReg(reshId = user$org())
-      )
+  registryName <- reactive(
+    map_db_resh$orgname[map_db_resh$UnitId == user$org()]
+  )
+  userFullName <- Sys.getenv("FALK_USER_FULLNAME")
+  hospitalName <- reactive(
+    getHospitalName(
+      registryName(),
+      national = noric::isNationalReg(reshId = user$org())
     )
-  }
-  
+  )
+
   # Hide tabs
   ## when role is 'LU' or some tabs for role 'LC'
   shiny::observeEvent(user$role(), {
