@@ -1,5 +1,5 @@
 # noric 2.17.0 Noric 2.0 bruker mysql 8
-* AngioPCIVar bruker nå angiopcinum sammen med funksjonen erstatt_koder_m_etiketter.R
+* De fleste num-tabellene brukes nå sammen med funksjonen erstatt_koder_m_etiketter.R for å gjøre de kategoriske verdiene om til tekstverdier. 
 * Tilgjengeliggjort månedsrapporten Aortaklaff i fanen Abonnement for de sykehusene det gjelder.
 
 # noric 2.16.0 Nordlandssykehuset endrer navn

@@ -30,6 +30,7 @@
 #' getAkOppf
 #' getAnD
 #' getSs
+#' getSh
 #' getMk
 #' getPs
 #' getApLight
@@ -95,7 +96,7 @@ WHERE
   }
 
   aPnum <- rapbase::loadRegData(registryName, query)
-  aP <- noric::erstatt_koder_m_etiketter(aPnum)
+  aP <- noric::erstatt_koder_m_etiketter(aPnum, mapping = noric::angp_map_num_tekst)
   
   list(aP = aP)
 }
@@ -168,7 +169,7 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
   
   query <- paste0("
 SELECT
-    aortaklaffvar.*,
+    aortaklaffvarnum.*,
     forlopsoversikt.Sykehusnavn,
     forlopsoversikt.FodselsDato,
     forlopsoversikt.Kommune,
@@ -182,10 +183,10 @@ SELECT
     forlopsoversikt.KobletForlopsID,
     forlopsoversikt.Avdod
 FROM
-    aortaklaffvar
+    aortaklaffvarnum
 LEFT JOIN forlopsoversikt ON
-    aortaklaffvar.AvdRESH = forlopsoversikt.AvdRESH AND
-    aortaklaffvar.ForlopsID = forlopsoversikt.ForlopsID
+    aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'"
@@ -194,24 +195,25 @@ WHERE
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND aortaklaffvar.AvdRESH = ", 
+                    "AND aortaklaffvarnum.AvdRESH = ", 
                     singleHospital)
   }
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for aortaklaffvar"
+    msg <- "Query single row data for aortaklaffvarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for aortaklaffvar"
+    msg <- "Query data for aortaklaffvarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  aK <- rapbase::loadRegData(registryName, query)
+  aKnum <- rapbase::loadRegData(registryName, query)
+  aK <- noric::erstatt_koder_m_etiketter(aKnum, mapping = noric::aort_map_num_tekst)
   
   
   
@@ -285,7 +287,7 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
   
   query <- paste0("
 SELECT
-    andreprosedyrervar.*,
+    andreprosedyrervarnum.*,
     forlopsoversikt.Sykehusnavn,
     forlopsoversikt.PasientID,
     forlopsoversikt.FodselsDato,
@@ -299,18 +301,18 @@ SELECT
     forlopsoversikt.ForlopsType2,
     forlopsoversikt.KobletForlopsID
 FROM
-    andreprosedyrervar
+    andreprosedyrervarnum
 LEFT JOIN forlopsoversikt ON
-    andreprosedyrervar.AvdRESH = forlopsoversikt.AvdRESH AND
-    andreprosedyrervar.ForlopsID = forlopsoversikt.ForlopsID
+    andreprosedyrervarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    andreprosedyrervarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    andreprosedyrervar.ProsedyreDato >= '", fromDate, "' AND
-    andreprosedyrervar.ProsedyreDato <= '", toDate, "'"
+    andreprosedyrervarnum.ProsedyreDato >= '", fromDate, "' AND
+    andreprosedyrervarnum.ProsedyreDato <= '", toDate, "'"
   )
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND andreprosedyrervar.AvdRESH = ", 
+                    "AND andreprosedyrervarnum.AvdRESH = ", 
                     singleHospital)
   }
   
@@ -318,18 +320,18 @@ WHERE
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for andreprosedyrervar"
+    msg <- "Query single row data for andreprosedyrervarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for andreprosedyrervar"
+    msg <- "Query data for andreprosedyrervarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  anP <- rapbase::loadRegData(registryName, query)
-  
+  anPnum <- rapbase::loadRegData(registryName, query)
+  anP <- noric::erstatt_koder_m_etiketter(anPnum, mapping = noric::APVN_map_num_tekst)
   
   
   list(anP = anP)
@@ -354,7 +356,7 @@ getCt <- function(registryName, fromDate, toDate, singleRow, ...){
   
   query <- paste0("
 SELECT
-    ctangiovar.*,
+    ctangiovarnum.*,
     forlopsoversikt.Sykehusnavn,
     forlopsoversikt.Kommune,
     forlopsoversikt.KommuneNr,
@@ -366,31 +368,30 @@ SELECT
     forlopsoversikt.ForlopsType2,
     forlopsoversikt.KobletForlopsID
 FROM
-    ctangiovar
+    ctangiovarnum
 LEFT JOIN forlopsoversikt ON
-    ctangiovar.AvdRESH = forlopsoversikt.AvdRESH AND
-    ctangiovar.ForlopsID = forlopsoversikt.ForlopsID
+    ctangiovarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    ctangiovarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    ctangiovar.UndersokDato >= '", fromDate, "' AND
-    ctangiovar.UndersokDato <= '", toDate, "'"
+    ctangiovarnum.UndersokDato >= '", fromDate, "' AND
+    ctangiovarnum.UndersokDato <= '", toDate, "'"
   )
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for ctangiovar"
+    msg <- "Query single row data for ctangiovarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for ctangiovar"
+    msg <- "Query data for ctangiovarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  cT <- rapbase::loadRegData(registryName, query)
-  
-  
+  cTnum <- rapbase::loadRegData(registryName, query)
+  cT <-  noric::erstatt_koder_m_etiketter(cTnum, mapping = noric::CTANG_map_num_tekst)
   
   list(cT = cT)
 }
@@ -484,7 +485,7 @@ getAnD <- function(registryName, fromDate, toDate, singleRow,
   
   query <- paste0("
 SELECT
-    annendiagnostikkvar.*,
+    annendiagnostikkvarnum.*,
     forlopsoversikt.PasientID,
     forlopsoversikt.Kommune,
     forlopsoversikt.KommuneNr,
@@ -495,18 +496,18 @@ SELECT
     forlopsoversikt.ForlopsType2,
     forlopsoversikt.KobletForlopsID
 FROM
-    annendiagnostikkvar
+    annendiagnostikkvarnum
 LEFT JOIN forlopsoversikt ON
-    annendiagnostikkvar.AvdRESH = forlopsoversikt.AvdRESH AND
-    annendiagnostikkvar.ForlopsID = forlopsoversikt.ForlopsID
+    annendiagnostikkvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    annendiagnostikkvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    annendiagnostikkvar.ProsedyreDato >= '", fromDate, "' AND
-    annendiagnostikkvar.ProsedyreDato <= '", toDate, "'"
+    annendiagnostikkvarnum.ProsedyreDato >= '", fromDate, "' AND
+    annendiagnostikkvarnum.ProsedyreDato <= '", toDate, "'"
   )
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND annendiagnostikkvar.AvdRESH = ", 
+                    "AND annendiagnostikkvarnum.AvdRESH = ", 
                     singleHospital)
   }
   
@@ -514,17 +515,18 @@ WHERE
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for annendiagnostikkvar"
+    msg <- "Query single row data for annendiagnostikkvarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for annendiagnostikkvar"
+    msg <- "Query data for annendiagnostikkvarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  anD <- rapbase::loadRegData(registryName, query)
+  anDnum <- rapbase::loadRegData(registryName, query)
+  anD <- noric::erstatt_koder_m_etiketter(anDnum, mapping = noric::ADVN_map_num_tekst)
   
   
   
@@ -552,7 +554,7 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
   
   query <- paste0("
 SELECT
-    segmentstent.*,
+    segmentstentnum.*,
     forlopsoversikt.PasientID,
     forlopsoversikt.Kommune,
     forlopsoversikt.KommuneNr,
@@ -563,18 +565,18 @@ SELECT
     forlopsoversikt.ForlopsType2,
     forlopsoversikt.KobletForlopsID
 FROM
-    segmentstent
+    segmentstentnum
 LEFT JOIN forlopsoversikt ON
-    segmentstent.AvdRESH = forlopsoversikt.AvdRESH AND
-    segmentstent.ForlopsID = forlopsoversikt.ForlopsID
+    segmentstentnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    segmentstentnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    segmentstent.ProsedyreDato >= '", fromDate, "' AND
-    segmentstent.ProsedyreDato <= '", toDate, "'"
+    segmentstentnum.ProsedyreDato >= '", fromDate, "' AND
+    segmentstentnum.ProsedyreDato <= '", toDate, "'"
   )
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND segmentstent.AvdRESH = ", 
+                    "AND segmentstentnum.AvdRESH = ", 
                     singleHospital)
   }
   
@@ -582,22 +584,92 @@ WHERE
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for segmentstent"
+    msg <- "Query single row data for segmentstentnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for segmentstent"
+    msg <- "Query data for segmentstentnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  sS <- rapbase::loadRegData(registryName, query)
-  
+  sSnum <- rapbase::loadRegData(registryName, query)
+  sS <- noric::erstatt_koder_m_etiketter(sSnum, mapping = noric::segm_map_num_tekst)
   
   
   list(sS = sS)
 }
+
+
+
+
+#' #' @rdname getData
+#' #' @export
+#' getSh <- function(registryName, fromDate, toDate, singleRow, 
+#'                   singleHospital = NULL, ...) {
+#'   
+#'   
+#'   # SQL possible for defined time-interval:
+#'   if (is.null(fromDate)) {
+#'     fromDate <- as.Date("1900-01-01")
+#'   }
+#'   if (is.null(toDate)) {
+#'     toDate <- noric::getLatestEntry(registryName)
+#'   }
+#'   
+#'   # Ask for all variables from segment_history in time interval
+#'   # Add selected variables from forlopsoversikt
+#'   # 2 variables to match on: AvdRESH, ForlopsID
+#'   
+#'   query <- paste0("
+#' SELECT
+#'     segment_history.*,
+#'     forlopsoversikt.PasientID,
+#'     forlopsoversikt.Kommune,
+#'     forlopsoversikt.KommuneNr,
+#'     forlopsoversikt.Fylke,
+#'     forlopsoversikt.Fylkenr,
+#'     forlopsoversikt.PasientAlder,
+#'     forlopsoversikt.ForlopsType1,
+#'     forlopsoversikt.ForlopsType2,
+#'     forlopsoversikt.KobletForlopsID
+#' FROM
+#'     segment_history
+#' LEFT JOIN forlopsoversikt ON
+#'     segment_history.CENTRE_ID = forlopsoversikt.AvdRESH AND
+#'     segment_history.MCEID = forlopsoversikt.ForlopsID
+#' WHERE
+#'     segment_history.ORGINTERDAT >= '", fromDate, "' AND
+#'     segment_history.ORGINTERDAT <= '", toDate, "'"
+#'   )
+#'   
+#'   if(!is.null(singleHospital)) {
+#'     query <- paste0(query, 
+#'                     "AND segment_history.CENTRE_ID = ", 
+#'                     singleHospital)
+#'   }
+#'   
+#'   
+#'   # SQL for one row only/complete table:
+#'   if (singleRow) {
+#'     query <- paste0(query, "\nLIMIT\n  1;")
+#'     msg <- "Query single row data for segment_history"
+#'   } else {
+#'     query <- paste0(query, ";")
+#'     msg <- "Query data for segment_history"
+#'   }
+#'   
+#'   if ("session" %in% names(list(...))) {
+#'     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+#'   }
+#'   
+#'   sH <- rapbase::loadRegData(registryName, query)
+#'   
+#'   
+#'   list(sH = sH)
+#' }
+
 
 
 #' @rdname getData
@@ -618,7 +690,7 @@ getMk <- function(registryName, fromDate, toDate, singleRow, ...){
   
   query <- paste0("
 SELECT
-    mitralklaffvar.*,
+    mitralklaffvarnum.*,
     forlopsoversikt.Sykehusnavn,
     forlopsoversikt.PasientID,
     forlopsoversikt.FodselsDato,
@@ -636,30 +708,30 @@ SELECT
     forlopsoversikt.AvdodDato
 
 FROM
-    mitralklaffvar
+    mitralklaffvarnum
 LEFT JOIN forlopsoversikt ON
-    mitralklaffvar.AvdRESH = forlopsoversikt.AvdRESH AND
-    mitralklaffvar.ForlopsID = forlopsoversikt.ForlopsID
+    mitralklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    mitralklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    mitralklaffvar.ProsedyreDato >= '", fromDate, "' AND
-    mitralklaffvar.ProsedyreDato <= '", toDate, "'"
+    mitralklaffvarnum.ProsedyreDato >= '", fromDate, "' AND
+    mitralklaffvarnum.ProsedyreDato <= '", toDate, "'"
   )
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for mitralklaffvar"
+    msg <- "Query single row data for mitralklaffvarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for mitralklaffvar"
+    msg <- "Query data for mitralklaffvarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  mK <- rapbase::loadRegData(registryName, query)
-  
+  mKnum <- rapbase::loadRegData(registryName, query)
+  mK <- noric::erstatt_koder_m_etiketter(mKnum, mapping = noric::mitr_map_num_tekst)
   
   
   list(mK = mK)
@@ -839,13 +911,13 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
   
   queryAk <- paste0("
 SELECT
-    aortaklaffvar.Dodsdato,
-    aortaklaffvar.UtskrevetTil,
-    aortaklaffvar.TypeKlaffeprotese,
-    aortaklaffvar.Prosedyre,
-    aortaklaffvar.ScreeningBeslutning,
-    aortaklaffvar.ProsedyreDato,
-    aortaklaffvar.FnrType, 
+    aortaklaffvarnum.Dodsdato,
+    aortaklaffvarnum.UtskrevetTil,
+    aortaklaffvarnum.TypeKlaffeprotese,
+    aortaklaffvarnum.Prosedyre,
+    aortaklaffvarnum.ScreeningBeslutning,
+    aortaklaffvarnum.ProsedyreDato,
+    aortaklaffvarnum.FnrType, 
     forlopsoversikt.PasientID,
     forlopsoversikt.PasientKjonn,
     forlopsoversikt.PasientAlder,
@@ -853,10 +925,10 @@ SELECT
     forlopsoversikt.AvdRESH, 
     forlopsoversikt.ForlopsID
 FROM
-    aortaklaffvar
+    aortaklaffvarnum
 LEFT JOIN forlopsoversikt ON
-    aortaklaffvar.AvdRESH = forlopsoversikt.AvdRESH AND
-    aortaklaffvar.ForlopsID = forlopsoversikt.ForlopsID
+    aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'"
@@ -892,8 +964,8 @@ WHERE
   }
   
   taviProm <- rapbase::loadRegData(registryName, queryProm)
-  aK <- rapbase::loadRegData(registryName, queryAk)
-  
+  aKnum <- rapbase::loadRegData(registryName, queryAk)
+  aK <- noric::erstatt_koder_m_etiketter(aKnum, mapping = noric::aort_map_num_tekst)
   
   
   list(taviProm = taviProm, 

@@ -490,26 +490,18 @@ shinyServer(function(input, output, session) {
                     "MitralklaffVar",
                     "PasienterStudier",
                     "SegmentStent",
+                    # "segment_history",
                     "SkjemaOversikt")
   
   
-  ## Fjern utkommentering før prodsetting 
-  # if (!(userRole == "SC" & noric::isNationalReg(reshId = reshId))) {
-  #     # Remove if not national SC-role
-  #     dataSetsDump <- dataSetsDump[!dataSetsDump %in% "AortaklaffProm"]
-  # }
-  
-  
-  
-  ## Midlertidig løsning for å få AortaklaffProm-data fra HUS tilgjengelig for årsrapporten
-  ## KODEN UNDER MÅ FJERNES FØR PROD
-  if (!(userRole == "SC")) {
-      # Remove if not national SC-role
+  if (!(userRole == "SC" & noric::isNationalReg(reshId = reshId))) {
+    # Remove if not national SC-role
       dataSetsDump <- dataSetsDump[!dataSetsDump %in% "AortaklaffProm"]
   }
   
   
   
+
   output$selectDumpSet <- shiny::renderUI({ 
     htmltools::tagList(
       shiny::selectInput(inputId = "dumpDataSet", 
