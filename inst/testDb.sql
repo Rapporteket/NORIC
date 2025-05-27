@@ -2,9 +2,10 @@ SET NAMES utf8;
 SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+SET innodb_strict_mode = 0;
 
-DROP TABLE IF EXISTS `AndreProsedyrerVar`;
-CREATE TABLE `AndreProsedyrerVar` (
+DROP TABLE IF EXISTS `andreprosedyrervarnum`;
+CREATE TABLE `andreprosedyrervarnum` (
   `ForlopsID` int(9) NOT NULL,
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `Regtype` varchar(8) COLLATE utf8_danish_ci DEFAULT NULL,
@@ -32,8 +33,8 @@ CREATE TABLE `AndreProsedyrerVar` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `AngioPCI`;
-CREATE TABLE `AngioPCI` (
+DROP TABLE IF EXISTS `angiopcinum`;
+CREATE TABLE `angiopcinum` (
   `LabNummer` tinyint(3) DEFAULT NULL,
   `ForlopsID` bigint(19) NOT NULL DEFAULT '0',
   `PasientID` bigint(19) NOT NULL DEFAULT '0',
@@ -916,8 +917,8 @@ CREATE TABLE `CTAngioVar` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `ForlopsOversikt`;
-CREATE TABLE `ForlopsOversikt` (
+DROP TABLE IF EXISTS `forlopsoversikt`;
+CREATE TABLE `forlopsoversikt` (
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `Sykehusnavn` varchar(100) COLLATE utf8_danish_ci DEFAULT NULL,
   `PasientID` int(10) unsigned DEFAULT NULL,
@@ -954,8 +955,8 @@ CREATE TABLE `ForlopsOversikt` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `MitralklaffOppfVar`;
-CREATE TABLE `MitralklaffOppfVar` (
+DROP TABLE IF EXISTS `mitralklaffoppfvarnum`;
+CREATE TABLE `mitralklaffoppfvarnum` (
   `ForlopsID` int(9) NOT NULL,
   `BasisForlopsID` int(10) unsigned DEFAULT NULL,
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
@@ -1022,8 +1023,8 @@ CREATE TABLE `MitralklaffOppfVar` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `MitralklaffVar`;
-CREATE TABLE `MitralklaffVar` (
+DROP TABLE IF EXISTS `mitralklaffvarnum`;
+CREATE TABLE `mitralklaffvarnum` (
   `ForlopsID` int(9) NOT NULL,
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `ScreeningBeslutning` varchar(100) COLLATE utf8_danish_ci DEFAULT NULL,
@@ -1182,8 +1183,8 @@ CREATE TABLE `MitralklaffVar` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `PasienterStudier`;
-CREATE TABLE `PasienterStudier` (
+DROP TABLE IF EXISTS `pasienterstudier`;
+CREATE TABLE `pasienterstudier` (
   `PasientID` int(9) NOT NULL,
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `StudieID` int(9) NOT NULL,

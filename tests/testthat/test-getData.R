@@ -28,36 +28,22 @@ config_path <- Sys.getenv("R_RAP_CONFIG_PATH")
 
 test_that("env vars needed for testing is present", {
   check_db()
-  expect_true("DB_HOST" %in% names(Sys.getenv()))
-  expect_true("DB_USER" %in% names(Sys.getenv()))
-  expect_true("DB_PASS" %in% names(Sys.getenv()))
+  expect_true("MYSQL_HOST" %in% names(Sys.getenv()))
+  expect_true("MYSQL_USER" %in% names(Sys.getenv()))
+  expect_true("MYSQL_PASSWORD" %in% names(Sys.getenv()))
 })
 
 # prep db for testing
 if (is.null(check_db(is_test_that = FALSE))) {
   con <- RMariaDB::dbConnect(RMariaDB::MariaDB(),
-                             host = Sys.getenv("DB_HOST"),
-                             user = Sys.getenv("DB_USER"),
-                             password = Sys.getenv("DB_PASS"),
+                             host = Sys.getenv("MYSQL_HOST"),
+                             user = Sys.getenv("MYSQL_USER"),
+                             password = Sys.getenv("MYSQL_PASSWORD"),
                              bigint = "integer"
   )
   RMariaDB::dbExecute(con, "CREATE DATABASE testDb;")
   RMariaDB::dbDisconnect(con)
 }
-
-# make temporary config
-test_config <- paste0(
-  "testReg:",
-  "\n  host : ", Sys.getenv("DB_HOST"),
-  "\n  name : testDb",
-  "\n  user : ", Sys.getenv("DB_USER"),
-  "\n  pass : ", Sys.getenv("DB_PASS"),
-  "\n  disp : ephemaralUnitTesting\n"
-)
-Sys.setenv(R_RAP_CONFIG_PATH = tempdir())
-cf <- file(file.path(Sys.getenv("R_RAP_CONFIG_PATH"), "dbConfig.yml"))
-writeLines(test_config, cf)
-close(cf)
 
 # make queries for creating tables
 fc <- file(system.file("testDb.sql", package = "noric"), "r")
@@ -68,19 +54,18 @@ queries <- strsplit(sql, ";")[[1]]
 
 test_that("relevant test database and tables can be made", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("testDb")$con
   for (i in seq_len(length(queries))) {
     expect_equal(class(RMariaDB::dbExecute(con, queries[i])), "integer")
-    
   }
   rapbase::rapCloseDbConnection(con)
 })
 
-### ALL QUERY FUNS SHOULD BE TESTED HERE ### 
+### ALL QUERY FUNS SHOULD BE TESTED HERE ###
 
 test_that("mitralklaff data can be provided", {
   check_db()
-  res <- getMk("testReg", fromDate = "1900-01-01", toDate = Sys.Date(),
+  res <- getMk("testDb", fromDate = "1900-01-01", toDate = Sys.Date(),
                singleRow = TRUE)
   expect_equal(class(res), "list")
   expect_equal(class(res$mK), "data.frame")
@@ -88,20 +73,15 @@ test_that("mitralklaff data can be provided", {
 
 test_that("pasientstudier data can be provided", {
   check_db()
-  res <- getPs("testReg", fromDate = "1900-01-01", toDate = Sys.Date(),
+  res <- getPs("testDb", fromDate = "1900-01-01", toDate = Sys.Date(),
                singleRow = TRUE)
   expect_equal(class(res), "list")
   expect_equal(class(res$pS), "data.frame")
 })
 
-
-
-###
-
-
 # remove test db
 if (is.null(check_db(is_test_that = FALSE))) {
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("testDb")$con
   RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
   rapbase::rapCloseDbConnection(con)
 }
