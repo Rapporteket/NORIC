@@ -1,4 +1,4 @@
-conf <- rapbase::getConfig()
+conf <- rapbase::getConfig("rapbaseConfig.yml")
 conf$reg <- list(noric = list(nationalAccess = list(reshId = 100000)))
 conf$reg$noric$nationalAccess$nameKey <- "Nat"
 yaml::write_yaml(conf, file = "./rapbaseConfig.yml")
