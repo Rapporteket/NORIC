@@ -57,7 +57,7 @@ legg_til_tidsvariabler <- function(df, var = ProsedyreDato) {
                                  with_year = TRUE),
     kvartal = as.ordered(gsub("[[:punct:]]", "-Q", .data$kvartal)),
 
-     # Uketall:
+    # Uketall:
     uke = as.ordered(sprintf(
       fmt = "%02d",
       lubridate::isoweek(as.Date({{ var }}, format = "%Y-%m-%d")))),
@@ -69,7 +69,7 @@ legg_til_tidsvariabler <- function(df, var = ProsedyreDato) {
       # hvis uke 01 er i desember...
       test = .data$uke == "01" & .data$maaned_nr == "12",
 
-       # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
+      # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
       # er spredt over (uke 01 i desember 2019 blir til 2020-01)
       yes = paste0(as.integer(lubridate::year({{ var }})) + 1, "-",
                    .data$uke),

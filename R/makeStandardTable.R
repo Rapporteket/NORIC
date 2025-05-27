@@ -58,12 +58,15 @@ mst <- function(tab, col_names = colnames(tab), type = "latex", cap = "",
   }
 
   if (type == "html") {
-    k <- knitr::kable(tab, format = type, col.names = col_names, caption = cap,
-                      label = label, digits = digs,
-                      align = align) %>%
+    k <- knitr::kable(
+      tab, format = type, col.names = col_names, caption = cap,
+      label = label, digits = digs,
+      align = align
+    ) %>%
       kableExtra::kable_styling(
         bootstrap_options = c("striped", "hover", "condensed"),
-        full_width = FALSE)
+        full_width = FALSE
+      )
   }
   k
 }

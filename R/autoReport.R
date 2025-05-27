@@ -33,9 +33,10 @@ dispatchMonthlyKi <- function(baseName, hospitalName, reshID, author, userRole,
                               type, registryName) {
 
   sourceFile <- system.file(paste0(baseName, ".Rmd"), package = "noric")
-  tableFormat <- switch(type,
-                        pdf = "latex",
-                        html = "html"
+  tableFormat <- switch(
+    type,
+    pdf = "latex",
+    html = "html"
   )
 
   outFile <- tempfile(
@@ -72,8 +73,8 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
 
   sourceFile <- system.file(paste0(baseName, ".Rmd"), package = "noric")
   tableFormat <- switch(type,
-    pdf = "latex",
-    html = "html"
+                        pdf = "latex",
+                        html = "html"
   )
 
   outFile <- tempfile(pattern = baseName, fileext = paste0(".", type))
@@ -106,7 +107,7 @@ subscriptionLocalMonthlyReps <- function(baseName, reshId, registryName,
 #' @rdname autoReport
 #' @export
 bulletinStaging <- function() {
-  
 
-  
+
+
 }

@@ -4,8 +4,8 @@
 #' @param asNamedList Logical whether to return a list of named values or not.
 #' Default is FALSE in which case a data frame containing name and id is
 #' returned.
-#' @param newNames Logical whether to provide updated hospital names (TRUE) or 
-#' hospital names existing in database (FALSE). Default is FALSE. 
+#' @param newNames Logical whether to provide updated hospital names (TRUE) or
+#' hospital names existing in database (FALSE). Default is FALSE.
 #'
 #'@importFrom stats setNames
 #'
@@ -27,13 +27,13 @@ GROUP BY
   res <- rapbase::loadRegData(registryName, query)
 
   if(newNames){
-   res %<>%  
-      dplyr::mutate(AvdRESH = id) %>% 
-      noric::fikse_sykehusnavn(.) %>% 
-      dplyr::select(id, Sykehusnavn) %>% 
+    res %<>%
+      dplyr::mutate(AvdRESH = id) %>%
+      noric::fikse_sykehusnavn(.) %>%
+      dplyr::select(id, Sykehusnavn) %>%
       dplyr::rename("name" = "Sykehusnavn")
   }
-  
+
   if (asNamedList) {
     res <- setNames(res$id, res$name)
     res <- as.list(res)
