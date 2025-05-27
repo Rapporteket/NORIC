@@ -67,14 +67,20 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
       shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
       shiny::hideTab(inputId = "tabs", target = "Abonnement")
+      shiny::showTab(inputId = "tabs", target = "Utsending")
+      shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
+      shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
     }
   
     ## dispatchment and use stats hidden when not national registry
     if (!isNationalReg(shiny::req(user$org()))) {
+      shiny::showTab(inputId = "tabs", target = "Prosedyrer")
+      shiny::showTab(inputId = "tabs", target = "Angiografør/Operatør")
+      shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::showTab(inputId = "tabs", target = "Abonnement")
       shiny::hideTab(inputId = "tabs", target = "Utsending")
       shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-      shiny::hideTab(inputId = "tabs", target = "Staging data")
     }
   
     if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
