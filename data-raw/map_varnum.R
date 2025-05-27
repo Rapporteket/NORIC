@@ -1531,67 +1531,308 @@ aort_map_num_tekst <- aort_map_num_tekst %>%
 usethis::use_data(aort_map_num_tekst, overwrite = TRUE)
 
 
-# EVT. MITRALKLAFFOPPFVARNUM----------------------------------------------------
-# Grunnlag for å gjøre det samme for mitralklaffoppfvarnum 
+# MITRALKLAFFOPPFVARNUM----------------------------------------------------
 
-# "TF.FOLLOWUPDATE AS OppfDato",
-# "TF.FOLLOWUP_TYPE AS OppfType",
-# "TF.DECEASED AS OppfAvdod",
-# "TF.DECEASEDDATE AS OppfAvdodDato",
-# "TF.PROC_RELATED_DEATH AS OppfDodProsRelatert",
-# 
-# #-- Oppfølging
-# "TF.HEIGHT AS Hoyde",
-# "TF.HEIGHT_MISS AS HoydeUkjent",
-# "TF.WEIGHT AS Vekt",
-# "TF.WEIGHT_MISS AS VektUkjent",
-# "TF.NYHA AS NYHA",
-# "TF.WALKINGTEST AS Gangtest",
-# "TF.WALKINGTEST_MISS AS GangtestIkkeUtfort",
-# "T.WALKINGTESTSPEED AS GangHastigtest",
-# "T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort",
-# "TF.S_CREATININ AS Kreatinin",
-# "TF.S_CREATININ_MISS AS KreatininUkjent",
-# "TF.PROBNP AS ProBNP",
-# "TF.PROBNPNT AS NTProBNP",
-# 
-# #-- EKKO-funn
-# "TF.PROLAPSA1 AS ProlapsA1",
-# "TF.PROLAPSA2 AS ProlapsA2",
-# "TF.PROLAPSA3 AS ProlapsA3",
-# "TF.PROLAPSP1 AS ProlapsP1",
-# "TF.PROLAPSP2 AS ProlapsP2",
-# "TF.PROLAPSP3 AS ProlapsP3",
-# "TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon",
-# "TF.AORTAINS AS Aortainsuffisiens",
-# "TF.AORTAINS AS Aortastenose",
-# "TF.TRICUSINS AS Tricuspidal",
-# "TF.MITRALISINS AS Mitralinsuffisiens",
-# "TF.MITRALISSTENOS AS Mitralstenose",
-# "TF.MAXVELOCITY AS MaxHastighet",
-# "TF.AVGGRADIENT_MSEK AS MiddelgradientMPS",
-# "TF.AVERAGEGRADIENT AS Middelgradient",
-# "TF.MRPISA AS MRPISA",
-# "TF.MREROA AS MREROA",
-# "TF.VCONTRACTA AS VContracta",
-# "TF.LUNGVENSREVERS AS FlowRevers",
-# "TF.PULMHYPERTENSION AS HoyreVentrikkelTrykk",
-# "TF.PULMHYPERTENSION_MISS AS HoyreVentrikkelTrykkUkjent",
-# "TF.PRESENT_HEALTH_STAT AS Helsetilstand",
-# 
-# #-- Komplikasjoner
-# "TF.AVDCOMP AS Komplikasjoner",
-# "TF.AVDSTROKE AS Hjerneslag",
-# "TF.AVDTIA AS TIA",
-# "TF.AVDTAMPONAD AS Tamponade",
-# "TF.AVDPACEMAKER AS Pacemaker",
-# "TF.AVDATRIALFIB AS Atrieflimmer",
-# "TF.AVDMI AS Hjerteinfarkt",
-# "TF.AVDVASCULAR AS Vaskular",
-# "TF.AVDBLEEDING AS Blodning",
-# "TF.AVDINFECTION AS Infeksjon",
-# "TF.AVDDIALYSIS AS Dialyse",
-# "TF.AVDDEVICE AS DeviceRelKomp",
-# "TF.AVDOTHER AS AnnenKomp",
-# "TF.STATUS AS SkjemaStatus"
+# 1: Lag dataramme med mapping
+
+# mitr_oppf <- MITRALKLAFFOPPFVARNUM
+
+
+mitr_oppf_varnavn_kobl <- 
+  data.frame(
+    kol = 
+      c("TF.MCEID AS ForlopsID",
+        "T.MCEID AS BasisForlopsID",
+        "TF.CENTREID AS AvdRESH",
+        "T.SCREENING AS BasisScreeningBeslutning",
+        "T.PROCEDUREDATE AS BasisProsedyreDato",
+        "TF.FOLLOWUPDATE AS OppfDato",
+        "TF.FOLLOWUP_TYPE AS OppfType",
+        "TF.DECEASED AS OppfAvdod",
+        "TF.DECEASEDDATE AS OppfAvdodDato",
+        "TF.PROC_RELATED_DEATH AS OppfDodProsRelatert",
+        
+        #-- Oppfølging
+        "TF.HEIGHT AS Hoyde",
+        "TF.HEIGHT_MISS AS HoydeUkjent",
+        "TF.WEIGHT AS Vekt",
+        "TF.WEIGHT_MISS AS VektUkjent",
+        "TF.NYHA AS NYHA",
+        "TF.WALKINGTEST AS Gangtest",
+        "TF.WALKINGTEST_MISS AS GangtestIkkeUtfort",
+        "T.WALKINGTESTSPEED AS GangHastigtest",
+        "T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort",
+        "TF.S_CREATININ AS Kreatinin",
+        "TF.S_CREATININ_MISS AS KreatininUkjent",
+        "TF.PROBNP AS ProBNP",
+        "TF.PROBNPNT AS NTProBNP",
+        
+        #-- EKKO-funn
+        "TF.PROLAPSA1 AS ProlapsA1",
+        "TF.PROLAPSA2 AS ProlapsA2",
+        "TF.PROLAPSA3 AS ProlapsA3",
+        "TF.PROLAPSP1 AS ProlapsP1",
+        "TF.PROLAPSP2 AS ProlapsP2",
+        "TF.PROLAPSP3 AS ProlapsP3",
+        "TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon",
+        "TF.AORTAINS AS Aortainsuffisiens",
+        "TF.AORTASTENOS AS Aortastenose", #OBS!!!!! I SQL-spørringa står det her "TF.AORTAINS AS Aortastenose" 
+        "TF.TRICUSINS AS Tricuspidal",
+        "TF.MITRALISINS AS Mitralinsuffisiens",
+        "TF.MITRALISSTENOS AS Mitralstenose",
+        "TF.MAXVELOCITY AS MaxHastighet",
+        "TF.AVGGRADIENT_MSEK AS MiddelgradientMPS",
+        "TF.AVERAGEGRADIENT AS Middelgradient",
+        "TF.MRPISA AS MRPISA",
+        "TF.MREROA AS MREROA",
+        "TF.VCONTRACTA AS VContracta",
+        "TF.LUNGVENSREVERS AS FlowRevers",
+        "TF.PULMHYPERTENSION AS HoyreVentrikkelTrykk",
+        "TF.PULMHYPERTENSION_MISS AS HoyreVentrikkelTrykkUkjent",
+        "TF.PRESENT_HEALTH_STAT AS Helsetilstand",
+        
+        #-- Komplikasjoner
+        "TF.AVDCOMP AS Komplikasjoner",
+        "TF.AVDSTROKE AS Hjerneslag",
+        "TF.AVDTIA AS TIA",
+        "TF.AVDTAMPONAD AS Tamponade",
+        "TF.AVDPACEMAKER AS Pacemaker",
+        "TF.AVDATRIALFIB AS Atrieflimmer",
+        "TF.AVDMI AS Hjerteinfarkt",
+        "TF.AVDVASCULAR AS Vaskular",
+        "TF.AVDBLEEDING AS Blodning",
+        "TF.AVDINFECTION AS Infeksjon",
+        "TF.AVDDIALYSIS AS Dialyse",
+        "TF.AVDDEVICE AS DeviceRelKomp",
+        "TF.AVDOTHER AS AnnenKomp",
+        "TF.STATUS AS SkjemaStatus"
+      )
+  ) %>%  tidyr::separate(col="kol", 
+                         into=c("dbnavn", "rapporteket"), 
+                         sep = " AS ") %>%  
+  tidyr::separate(col="dbnavn", 
+                  into=c("tabell", "var_navn"), 
+                  extra = "merge") %>%  
+  dplyr::mutate(rapporteket = ifelse(is.na(rapporteket), 
+                                     var_navn, rapporteket),
+                tabell = dplyr::case_when(tabell == "mce" ~ "MCE",
+                                          tabell == "P" ~ "PATIENT",
+                                          tabell == "TF" ~ "TAVIMITRALISFOLLOWUP",
+                                          tabell == "T" ~ "TAVIMITRALIS",
+                                          tabell == "C" ~ "CENTRE",
+                                          .default = tabell),
+                variabel_id = trimws(paste0(tabell, "_", var_navn))
+  )
+
+# 2: Sjekk om noen mangler i kodeboka
+
+mitr_oppf_mangler_kodebok_katvar <- mitr_oppf_varnavn_kobl %>%  
+  dplyr::filter(variabel_id %in% 
+                  setdiff(mitr_oppf_varnavn_kobl$variabel_id, kodebok$variabel_id)) %>%
+  dplyr::filter(tabell=="TAVIMITRALISFOLLOWUP" | tabell == "TAVIMITRALIS") %>%  
+  dplyr::mutate(tabell=tolower(tabell)) %>%  
+  dplyr::rename(fysisk_feltnavn = var_navn) %>%  
+  dplyr::select(-rapporteket)
+
+### 3 mangler: 
+### PRESENT_HEALT_STAT ("Helsetilstand") -> numerisk variabel
+### MCEID x2 -> ikke kategorisk variabel
+### CENTREID -> ikke kategorisk variabel 
+### Ingen av disse legges inn manuelt 
+
+### Sjekk om det er noen som ikke er tallvariabler som er i kodeboka og ikke i varnavn_kobl
+
+mitr_oppf_in_kodebok <- kodebok %>%
+  filter(tabell == "tavimitralis" | tabell == "tavimitralisfollowup") %>% 
+  unique()
+
+mitr_oppf_in_kodebok_notSQL2 <- mitr_oppf_in_kodebok %>% 
+  filter(!mitr_oppf_in_kodebok$variabel_id %in% mitr_oppf_varnavn_kobl$variabel_id & type != "Tallvariabel")
+
+### Det er mange her fra tabellen tavimitralis. Det er som forventet siden denne 
+### tabellen er veldig stor og det er veldig få variabler som er med i mitralklaffoppfvarnum. 
+### Det er én listevariabel som ikke er med fra tavimitralisfollowup. 
+### Dette er aortastenos og den ser viktig ut. Jeg legger den inn varnavn-koblinga.
+### Se kommentar der.
+
+
+# 3: Merge varnavn_kobl-fila med kodeboka
+
+mitr_oppf_map_num_tekst <- merge(kodebok,
+                            mitr_oppf_varnavn_kobl[, c("variabel_id", "rapporteket")],
+                            by = "variabel_id", all.x = TRUE) %>% 
+  dplyr::arrange(variabel_id, rapporteket, listeverdier) %>%  
+  dplyr::select(rapporteket, listeverdier, listetekst) %>%  
+  dplyr::rename(variabel_id = rapporteket,
+                verdi = listeverdier,
+                verditekst = listetekst) %>%
+  dplyr::filter(!is.na(variabel_id))
+
+### Sjekk om noen ikke har verdi
+
+mitr_oppf_map_num_tekst_uVerdi <- mitr_oppf_map_num_tekst %>% 
+  filter(is.na(verdi))
+
+### Dette gjelder 30 variabler 
+### Disse ser ut som numeriske eller tekstlige variabler. 
+### Det er også noen som er av typen "avkrysningsboks" (f.eks., PROLAPS-variablene)
+### Disse tas ut av mappinga
+
+mitr_oppf_map_num_tekst <- mitr_oppf_map_num_tekst %>% 
+  filter(!is.na(verdi))
+
+# 4: Lagre data i pakken
+
+usethis::use_data(mitr_oppf_map_num_tekst, overwrite = TRUE)
+
+
+# AORTAKLAFFOPPFVARNUM ---------------------------------------------------------
+
+
+# 1: Lag dataramme med mapping
+
+# aort_oppf <- AORTAKLAFFOPPFVARNUM
+
+aort_oppf_varnavn_kobl <- 
+  data.frame(
+    kol = 
+      c("TF.MCEID AS ForlopsID",
+        "T.MCEID AS BasisForlopsID",
+        "TF.CENTREID AS AvdRESH",
+        "T.SCREENING AS BasisScreeningBeslutning",
+        "T.SCREENINGDATE AS BasisBeslutningsDato",
+        "T.PROCEDUREDATE AS BasisProsedyreDato",
+        "TF.FOLLOWUPDATE AS OppfDato",
+        "TF.FOLLOWUP_TYPE AS OppfType",
+        "TF.AVDDECEASED AS OppfAvdod",
+        "TF.DECEASEDDATE AS OppfAvdodDato",
+        "TF.PROC_RELATED_DEATH AS OppfDodProsRelatert",
+        
+        
+        #-- Oppfølging
+        "TF.HEIGHT AS Hoyde",
+        "TF.HEIGHT_MISS AS HoydeUkjent",
+        "TF.WEIGHT AS Vekt",
+        "TF.WEIGHT_MISS AS VektUkjent",
+        "TF.NYHA AS NYHA",
+        "TF.CANADIAN AS CanadianClass", ### OBS!!! I SQL-spørringa står det T.CANADIAN
+        "TF.WALKINGTEST AS Gangtest",
+        "TF.WALKINGTEST_MISS AS GangtestIkkeUtfort",
+        "TF.WALKINGTESTSPEED AS GangHastigtest",
+        "TF.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort",
+        "TF.S_CREATININ AS SKreatinin",
+        "TF.S_CREATININ_MISS AS SKreatininIkkeUtfort",
+        "TF.PROBNP AS ProBNP",
+        "TF.PROBNPNT AS NTProBNP",
+        "TF.HEMOGLOBIN AS Hemoglobin",
+        "TF.HEMOGLOBIN_MISS AS HemoglobinUkjent",
+        
+        #-- EKKO-funn
+        "TF.MAXGRADIENT AS MaxGradient",
+        "TF.MAXGRADIENT_MSEK AS MaxGradientMPS",
+        "TF.AVERAGEGRADIENT AS Middelgradient",
+        "TF.AVERAGEGRADIENT_MISS AS MiddelgradientMangler",
+        "TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon",
+        "TF.PULMHYPERTENSION AS PulmonalHypertensjon",
+        "TF.AORTAINS AS Aortainsuffisiens",
+        "TF.PARAVALVULAR_LEAK AS ParavalvularLekkasje",
+        "TF.PARAVALVULAR_INSUFFICIENCY AS ParavalvularInsuffisiens",
+        "TF.MITRALISINS AS Mitralinsuffisiens",
+        "TF.PRESENT_HEALTH_STAT AS Helsetilstand",
+        
+        #-- Komplikasjoner
+        "TF.COMP AS Komplikasjoner",
+        "TF.ENDOCARDIT AS Endokarditt",
+        "TF.DIALYSIS AS Dialyse",
+        "TF.MI AS Hjerteinfarkt",
+        "TF.STROKE AS Hjerneslag",
+        "TF.PACEMAKER AS Pacemaker",
+        "TF.PROSTHESIS AS ProteseDysfunk",
+        "TF.VESSEL AS SenKarKomp",
+        "TF.COMPOTHER AS AnnenKomp",
+        "TF.STATUS AS SkjemaStatus"
+      )
+  ) %>%  tidyr::separate(col="kol", 
+                         into=c("dbnavn", "rapporteket"), 
+                         sep = " AS ") %>%  
+  tidyr::separate(col="dbnavn", 
+                  into=c("tabell", "var_navn"), 
+                  extra = "merge") %>%  
+  dplyr::mutate(rapporteket = ifelse(is.na(rapporteket), 
+                                     var_navn, rapporteket),
+                tabell = dplyr::case_when(tabell == "mce" ~ "MCE",
+                                          tabell == "P" ~ "PATIENT",
+                                          tabell == "TF" ~ "TAVIPERCFOLLOWUP",
+                                          tabell == "T" ~ "TAVIPERC",
+                                          tabell == "C" ~ "CENTRE",
+                                          .default = tabell),
+                variabel_id = trimws(paste0(tabell, "_", var_navn))
+  )
+
+# 2: Sjekk om noen mangler i kodeboka
+
+aort_oppf_mangler_kodebok_katvar <- aort_oppf_varnavn_kobl %>%  
+  dplyr::filter(variabel_id %in% 
+                  setdiff(aort_oppf_varnavn_kobl$variabel_id, kodebok$variabel_id)) %>%
+  dplyr::filter(tabell=="TAVIDISCHARGE" | tabell == "TAVIPERC") %>%  
+  dplyr::mutate(tabell=tolower(tabell)) %>%  
+  dplyr::rename(fysisk_feltnavn = var_navn) %>%  
+  dplyr::select(-rapporteket)
+
+### 1 mangler: 
+### MCEID -> numerisk 
+### Legges ikke inn manuelt 
+
+### Sjekk om det er noen som ikke er tallvariabler som er i kodeboka og ikke i varnavn_kobl
+
+aort_oppf_in_kodebok <- kodebok %>%
+  filter(tabell == "tavipercfollowup" | tabell == "taviperc") %>% 
+  unique()
+
+aort_oppf_in_kodebok_notSQL <- aort_oppf_in_kodebok %>% 
+  filter(!aort_oppf_in_kodebok$variabel_id %in% aort_oppf_varnavn_kobl$variabel_id & type != "Tallvariabel")
+
+### Det er mange her. De fleste kommer fra tabellen "taviperc" og legges ikke inn
+### siden disse ikke hører til tabellen aortaklaffoppfvar num. 
+### Det er to fra tabllen "tavipercfollowup":
+### SUCCESSFULLPROC og CANADIAN 
+### Begge disse er listevariabler
+### CANADIAN er ikke med i varnavn_kobl siden det står i SQL-spørringa at den kommer
+### fra tabellen "taviperc". I kodeboka står det at den kommer fra tabellen 
+### "tavipercfollowup". Jeg legger den inn som "tavipercfollowup" i varnavn_kobl over.
+### Se egen kommentar der. 
+### SUCCESSFULLPROC ser ikke ut til å brukes i denne tabellen. Ingenting gjøres 
+### med denne variabelen. 
+
+# 3: Merge varnavn_kobl-fila med kodeboka
+
+aort_oppf_map_num_tekst <- merge(kodebok,
+                            aort_oppf_varnavn_kobl[, c("variabel_id", "rapporteket")],
+                            by = "variabel_id", all.x = TRUE) %>% 
+  dplyr::arrange(variabel_id, rapporteket, listeverdier) %>%  
+  dplyr::select(rapporteket, listeverdier, listetekst) %>%  
+  dplyr::rename(variabel_id = rapporteket,
+                verdi = listeverdier,
+                verditekst = listetekst) %>%
+  dplyr::filter(!is.na(variabel_id))
+
+### Sjekk om noen ikke har verdi
+
+aort_oppf_map_num_tekst_uVerdi <- aort_oppf_map_num_tekst %>% 
+  filter(is.na(verdi))
+
+### Dette gjelder 23 variabler 
+### Disse ser ut som numeriske eller tekstlige variabler. 
+### Det er også noen som er av typen "avkrysningsboks"
+### Disse tas ut fra mappinga: 
+
+aort_oppf_map_num_tekst <- aort_oppf_map_num_tekst %>% 
+  filter(!is.na(verdi))
+
+# 4: Lagre data som pakke 
+
+usethis::use_data(aort_oppf_map_num_tekst, overwrite = TRUE)
+
+
+
 
