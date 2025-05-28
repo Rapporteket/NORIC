@@ -96,8 +96,9 @@ WHERE
   }
 
   aPnum <- rapbase::loadRegData(registryName, query)
-  aP <- noric::erstatt_koder_m_etiketter(aPnum, mapping = noric::angp_map_num_tekst)
-
+  aP <- noric::erstatt_koder_m_etiketter(aPnum, 
+                                         mapping = noric::angp_map_num_tekst)
+  
   list(aP = aP)
 }
 
@@ -213,10 +214,11 @@ WHERE
   }
 
   aKnum <- rapbase::loadRegData(registryName, query)
-  aK <- noric::erstatt_koder_m_etiketter(aKnum, mapping = noric::aort_map_num_tekst)
-
-
-
+  aK <- noric::erstatt_koder_m_etiketter(aKnum,
+                                         mapping = noric::aort_map_num_tekst)
+  
+  
+  
   list(aK = aK)
 }
 
@@ -331,8 +333,9 @@ WHERE
   }
 
   anPnum <- rapbase::loadRegData(registryName, query)
-  anP <- noric::erstatt_koder_m_etiketter(anPnum, mapping = noric::APVN_map_num_tekst)
-
+  anP <- noric::erstatt_koder_m_etiketter(anPnum,
+                                          mapping = noric::APVN_map_num_tekst)
+  
 
   list(anP = anP)
 }
@@ -391,8 +394,9 @@ WHERE
   }
 
   cTnum <- rapbase::loadRegData(registryName, query)
-  cT <-  noric::erstatt_koder_m_etiketter(cTnum, mapping = noric::CTANG_map_num_tekst)
-
+  cT <-  noric::erstatt_koder_m_etiketter(cTnum,
+                                          mapping = noric::CTANG_map_num_tekst)
+  
   list(cT = cT)
 }
 
@@ -595,8 +599,8 @@ WHERE
   }
 
   sSnum <- rapbase::loadRegData(registryName, query)
-  sS <- noric::erstatt_koder_m_etiketter(sSnum, mapping = noric::segm_map_num_tekst)
-
+  sS <- noric::erstatt_koder_m_etiketter(sSnum,
+                                         mapping = noric::segm_map_num_tekst)
 
   list(sS = sS)
 }
@@ -731,9 +735,10 @@ WHERE
   }
 
   mKnum <- rapbase::loadRegData(registryName, query)
-  mK <- noric::erstatt_koder_m_etiketter(mKnum, mapping = noric::mitr_map_num_tekst)
-
-
+  mK <- noric::erstatt_koder_m_etiketter(mKnum,
+                                         mapping = noric::mitr_map_num_tekst)
+  
+  
   list(mK = mK)
 }
 
@@ -965,9 +970,10 @@ WHERE
 
   taviProm <- rapbase::loadRegData(registryName, queryProm)
   aKnum <- rapbase::loadRegData(registryName, queryAk)
-  aK <- noric::erstatt_koder_m_etiketter(aKnum, mapping = noric::aort_map_num_tekst)
-
-
-  list(taviProm = taviProm,
+  aK <- noric::erstatt_koder_m_etiketter(aKnum,
+                                         mapping = noric::aort_map_num_tekst)
+  
+  
+  list(taviProm = taviProm, 
        aK = aK)
 }

@@ -135,7 +135,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   #   tab <- tab_list$sH
   #
   # }
-  #
-  # tab
 
+  tab
+  
 }
