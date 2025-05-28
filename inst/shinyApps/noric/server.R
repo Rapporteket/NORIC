@@ -230,47 +230,45 @@ shinyServer(function(input, output, session) {
   
   # Utforsker
   ## Data sets available
-  shiny::observeEvent(list(user$role(), user$org()), {
-  if (user$role() == "SC") {
-    dataSets <- list(`Bruk og valg av data...` = "info",
-                     `Angio PCI med utledete variabler` = "ApLight",
-                     `Angio PCI rådata` = "AP",
-                     `Andre prosedyrer` = "AnP",
-                     `Annen diagnostikk` = "AnD",
-                     `Aortaklaff` = "AK",
-                     `Aortaklaff eprom` = "TP",
-                     `Aortaklaff oppfølging` = "AKOppf",
-                     `CT Angio` = "CT",
-                     `Forløpsoversikt` = "FO",
-                     `Mitralklaff` = "MK",
-                     `PasientStudier` = "PS",
-                     `Skjemaoversikt` = "SO",
-                     `Segment stent` = "SS")
-    # EPROM is only for nasjoanl
-    if (!isNationalReg(user$org())) {
-      dataSets <- within(dataSets, rm("Aortaklaff eprom"))
+  dataSets <- shiny::reactive({
+    if (user$role() == "SC") {
+      dataSets <- list(
+        `Bruk og valg av data...` = "info",
+        `Angio PCI med utledete variabler` = "ApLight",
+        `Angio PCI rådata` = "AP",
+        `Andre prosedyrer` = "AnP",
+        `Annen diagnostikk` = "AnD",
+        `Aortaklaff` = "AK",
+        `Aortaklaff eprom` = "TP",
+        `Aortaklaff oppfølging` = "AKOppf",
+        `CT Angio` = "CT",
+        `Forløpsoversikt` = "FO",
+        `Mitralklaff` = "MK",
+        `PasientStudier` = "PS",
+        `Skjemaoversikt` = "SO",
+        `Segment stent` = "SS"
+        )
+      # EPROM is only for nasjoanl
+      if (!isNationalReg(user$org())) {
+        dataSets <- within(dataSets, rm("Aortaklaff eprom"))
+      }
+    } else {
+      dataSets <- list(
+        `Bruk og valg av data...` = "info",
+        `Angio PCI med utledete variabler` = "ApLight",
+        `Angio PCI rådata` = "AP",
+        `Andre prosedyrer` = "AnP",
+        `Annen diagnostikk` = "AnD",
+        `Aortaklaff` = "AK",
+        `CT Angio` = "CT",
+        `Forløpsoversikt` = "FO",
+        `Skjemaoversikt` = "SO",
+        `Segment stent` = "SS"
+      )
     }
-    
-  } else {
-    dataSets <- list(`Bruk og valg av data...` = "info",
-                     `Angio PCI med utledete variabler` = "ApLight",
-                     `Angio PCI rådata` = "AP",
-                     `Andre prosedyrer` = "AnP",
-                     `Annen diagnostikk` = "AnD",
-                     `Aortaklaff` = "AK",
-                     `CT Angio` = "CT",
-                     `Forløpsoversikt` = "FO",
-                     `Skjemaoversikt` = "SO",
-                     `Segment stent` = "SS"
-    )
-  }
+    return(dataSets)
   })
-  
-  
-  
-  
-  
-  
+
   ## reactive vals for utforsker
   rvals <- reactiveValues()
   rvals$showPivotTable <- FALSE
@@ -331,16 +329,16 @@ shinyServer(function(input, output, session) {
       NULL
     } else {
       htmltools::tagList(
-        shiny::selectInput(inputId = "selectedDataSet", 
+        shiny::selectInput(inputId = "selectedDataSet",
                            label = "Velg datasett:",
-                           choices = dataSets, 
+                           choices = dataSets(),
                            selected = rvals$selectedDataSet),
-        shiny::checkboxInput(inputId = "isSelectAllVars", 
+        shiny::checkboxInput(inputId = "isSelectAllVars",
                              label = "Velg alle variabler")
       )
     }
   })
-  
+
   output$utforskerDateRange <- shiny::renderUI({
     if (rvals$showPivotTable) {
       NULL
@@ -545,37 +543,39 @@ shinyServer(function(input, output, session) {
   
   
   # Datadump
-  
+
   ## Data sets available for datadump
-  dataSetsDump <- c("AndreProsedyrerVar",
-                    "AnnenDiagnostikkVar",
-                    "AngioPCIVar",
-                    "AortaklaffVar",
-                    "AortaklaffOppfVar",
-                    "AortaklaffProm",
-                    "CTAngioVar",
-                    "ForlopsOversikt",
-                    "MitralklaffVar",
-                    "PasienterStudier",
-                    "SegmentStent",
-                    # "segment_history",
-                    "SkjemaOversikt")
-  
-  
+  dataSetsDump <- reactiveVal(
+    c("AndreProsedyrerVar",
+      "AnnenDiagnostikkVar",
+      "AngioPCIVar",
+      "AortaklaffVar",
+      "AortaklaffOppfVar",
+      "AortaklaffProm",
+      "CTAngioVar",
+      "ForlopsOversikt",
+      "MitralklaffVar",
+      "PasienterStudier",
+      "SegmentStent",
+      # "segment_history",
+      "SkjemaOversikt"
+    )
+  )
+
   observeEvent(list(user$role(), user$org()), {
     if (!(user$role() == "SC" & noric::isNationalReg(reshId = user$org()))) {
     # Remove if not national SC-role
-    dataSetsDump <- dataSetsDump[!dataSetsDump %in% "AortaklaffProm"]
+    dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "AortaklaffProm"])
     }
   })
-  
+
   
 
-  output$selectDumpSet <- shiny::renderUI({ 
+  output$selectDumpSet <- shiny::renderUI({
     htmltools::tagList(
-      shiny::selectInput(inputId = "dumpDataSet", 
+      shiny::selectInput(inputId = "dumpDataSet",
                          label = "Velg datasett:",
-                         choices = dataSetsDump))
+                         choices = dataSetsDump()))
   })
   
   
