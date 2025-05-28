@@ -4,10 +4,12 @@
 \alias{getHospitalName}
 \title{Get hospital name from registry data}
 \usage{
-getHospitalName(reshID)
+getHospitalName(regName, national = FALSE)
 }
 \arguments{
-\item{reshID}{string defining the resh ID}
+\item{regName}{string defining the db}
+
+\item{national}{true or false}
 }
 \value{
 string of hospital name
@@ -18,6 +20,6 @@ the corresponding hospital as provided in the registry data
 }
 \examples{
 \dontrun{
-getHospitalName("123456")
+getHospitalName("my_db")
 }
 }
