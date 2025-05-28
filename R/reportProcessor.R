@@ -31,7 +31,7 @@
 #' that is... Default is "unknown operator".
 #' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
 #' returned.
-#' @param tableFormat Character string giving the format of the report. Must be 
+#' @param tableFormat Character string giving the format of the report. Must be
 #' one of \code{c("html", "latex")}. Default is "latex".
 #'
 #' @return A character string with a path to where the produced file is located.
@@ -59,8 +59,8 @@ reportProcessor <- function(report,
   stopifnot(report %in% c("veiledning",
                           "NORIC_local_monthly",
                           "NORIC_local_monthly_activity",
-                          "NORIC_kvalitetsindikator", 
-                          "NORIC_filvask_avdod", 
+                          "NORIC_kvalitetsindikator",
+                          "NORIC_filvask_avdod",
                           "NORIC_tavi_report"))
 
   stopifnot(outputType %in% c("html", "pdf"))
@@ -98,11 +98,11 @@ reportProcessor <- function(report,
         author = author,
         hospitalName = orgName,
         tableFormat = "latex",
-        
+
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
-        userRole = userRole, 
+        userRole = userRole,
         rendered_by_shiny = rendered_by_shiny
       )
     )
@@ -118,11 +118,11 @@ reportProcessor <- function(report,
         author = author,
         hospitalName = orgName,
         tableFormat = "latex",
-        
+
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
-        userRole = userRole, 
+        userRole = userRole,
         rendered_by_shiny = rendered_by_shiny
       )
     )
@@ -150,7 +150,7 @@ reportProcessor <- function(report,
     )
   }
 
-  
+
   if (report == "NORIC_filvask_avdod") {
     filePath <- rapbase::renderRmd(
       sourceFile =  system.file("NORIC_filvask_avdod.Rmd",
@@ -160,16 +160,16 @@ reportProcessor <- function(report,
         author = author,
         hospitalName = orgName,
         tableFormat = "latex",
-        
+
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
-        userRole = userRole, 
+        userRole = userRole,
         rendered_by_shiny = rendered_by_shiny
       )
     )
   }
-  
+
   if (report == "NORIC_tavi_report") {
     filePath <- rapbase::renderRmd(
       sourceFile =  system.file("NORIC_tavi_report.Rmd",
@@ -179,15 +179,15 @@ reportProcessor <- function(report,
         author = author,
         hospitalName = orgName,
         tableFormat = "latex",
-        
+
         reshID = orgId,
         registryName = registryName,
         userFullName = userFullName,
-        userRole = userRole, 
+        userRole = userRole,
         rendered_by_shiny = rendered_by_shiny
       )
     )
   }
-  
+
   filePath
 }

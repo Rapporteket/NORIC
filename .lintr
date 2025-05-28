@@ -1,3 +1,12 @@
 linters: linters_with_defaults(
   object_name_linter(c("camelCase", "snake_case")),
-  line_length_linter(80))
+  line_length_linter(120))
+exclusions: list(
+  "data-raw",
+  "tests",
+  "inst/NORIC_filvask_avdod.Rmd",
+  "inst/NORIC_kvalitetsindikator.Rmd",
+  "inst/NORIC_local_monthly_activity.Rmd",
+  "inst/NORIC_local_monthly.Rmd",
+  "inst/NORIC_tavi_report.Rmd"
+  )
