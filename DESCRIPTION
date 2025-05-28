@@ -48,7 +48,7 @@ Imports:
   xtable,
   yaml
 Remotes:
-  Rapporteket/rapbase@main,
+  Rapporteket/rapbase@*release,
   andrewsali/shinycssloaders
 RoxygenNote: 7.3.2
 Suggests: 
