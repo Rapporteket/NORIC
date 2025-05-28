@@ -24,7 +24,8 @@ check_db <- function(is_test_that = TRUE) {
 
 # preserve initial state
 config_path <- Sys.getenv("R_RAP_CONFIG_PATH")
-
+mysql_db_data <- Sys.getenv("MYSQL_DB_DATA")
+Sys.setenv(MYSQL_DB_DATA = "testDb")
 
 test_that("env vars needed for testing is present", {
   check_db()
@@ -54,7 +55,7 @@ queries <- strsplit(sql, ";")[[1]]
 
 test_that("relevant test database and tables can be made", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testDb")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   for (i in seq_len(length(queries))) {
     expect_equal(class(RMariaDB::dbExecute(con, queries[i])), "integer")
   }
@@ -65,7 +66,7 @@ test_that("relevant test database and tables can be made", {
 
 test_that("mitralklaff data can be provided", {
   check_db()
-  res <- getMk("testDb", fromDate = "1900-01-01", toDate = Sys.Date(),
+  res <- getMk("data", fromDate = "1900-01-01", toDate = Sys.Date(),
                singleRow = TRUE)
   expect_equal(class(res), "list")
   expect_equal(class(res$mK), "data.frame")
@@ -73,7 +74,7 @@ test_that("mitralklaff data can be provided", {
 
 test_that("pasientstudier data can be provided", {
   check_db()
-  res <- getPs("testDb", fromDate = "1900-01-01", toDate = Sys.Date(),
+  res <- getPs("data", fromDate = "1900-01-01", toDate = Sys.Date(),
                singleRow = TRUE)
   expect_equal(class(res), "list")
   expect_equal(class(res$pS), "data.frame")
@@ -81,10 +82,11 @@ test_that("pasientstudier data can be provided", {
 
 # remove test db
 if (is.null(check_db(is_test_that = FALSE))) {
-  con <- rapbase::rapOpenDbConnection("testDb")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
   rapbase::rapCloseDbConnection(con)
 }
 
 # restore initial state
 Sys.setenv(R_RAP_CONFIG_PATH = config_path)
+Sys.setenv(MYSQL_DB_DATA = mysql_db_data)
