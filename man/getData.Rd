@@ -71,5 +71,5 @@ Functions for loading data needed by NORIC from a database
 \details{
 The functions \code{getAp}, \code{getSs}, \code{getAk} etc. load the
 AP-, SS- and AK- tables etc. respectively. For most tables, the query adds
-selected variables from  \emph{ForlopsOversikt}.
+selected variables from  \emph{forlopsoversikt}.
 }

@@ -37,6 +37,7 @@
 #' getPrepMkData
 #' getPrepPsData
 #' getPrepApLightData
+#' getPrepTaviPromData
 NULL
 
 #' @rdname getPrepData
@@ -73,6 +74,7 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,
   
   # Legg til aar, maaned, uke, etc.
   aP %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+
   
   aP
 }
@@ -962,6 +964,8 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                                     "Subakutt",
                                     "Planlagt"),
                          ordered = TRUE))
+  
+
   
   if(!singleRow){
     # Tar bort forløp fra før sykehusene ble offisielt med i NORIC

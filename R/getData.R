@@ -4,7 +4,7 @@
 #'
 #' The functions \code{getAp}, \code{getSs}, \code{getAk} etc. load the
 #' AP-, SS- and AK- tables etc. respectively. For most tables, the query adds
-#' selected variables from  \emph{ForlopsOversikt}.
+#' selected variables from  \emph{forlopsoversikt}.
 #'
 #' @param registryName Character string defining the registry name.
 #' @param fromDate Character string of format YYYY-MM-DD with start date. Value
@@ -30,6 +30,7 @@
 #' getAkOppf
 #' getAnD
 #' getSs
+#' getSh
 #' getMk
 #' getPs
 #' getApLight
@@ -51,10 +52,10 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
   }
   
   # Ask for all variables from ANGIO PCI in time interval
-  # Add selected variables from ForlopsOversikt
+  # Add selected variables from forlopsoversikt
   # 3 variables to match on: AvdRESH, PasientID, ForlopsID
   
-  query <- paste0("
+    query <- paste0("
 SELECT
     a.*,
     f.Kommune,
@@ -65,22 +66,22 @@ SELECT
     f.KobletForlopsID,
     f.ForlopsType2
 FROM
-    AngioPCIVar a
-LEFT JOIN ForlopsOversikt f ON
+      angiopcinum a
+LEFT JOIN forlopsoversikt f ON
     a.AvdRESH = f.AvdRESH AND
     a.PasientID = f.PasientID AND
     a.ForlopsID = f.ForlopsID
 WHERE
-    a.ProsedyreDato >= '", fromDate, "' AND
-    a.ProsedyreDato <= '", toDate, "'"
-  )
-  
+      a.ProsedyreDato >= '", fromDate, "' AND
+      a.ProsedyreDato <= '", toDate, "'"
+    )
+
   if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "AND a.AvdRESH = ", 
+    query <- paste0(query,
+                    "AND a.AvdRESH = ",
                     singleHospital)
   }
-  
+
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -89,12 +90,14 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for AngioPCI"
   }
-  
+
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
-  aP <- rapbase::loadRegData(registryName, query)
+
+  aPnum <- rapbase::loadRegData(registryName, query)
+  aP <- noric::erstatt_koder_m_etiketter(aPnum, 
+                                         mapping = noric::angp_map_num_tekst)
   
   list(aP = aP)
 }
@@ -114,12 +117,12 @@ getSo <- function(registryName, fromDate, toDate, singleRow, ...) {
   }
   
   
-  # Ask for all variables from SKJEMAOVERSIKT, in time interval
+  # Ask for all variables from skjemaoversikt, in time interval
   query <- paste0("
 SELECT
     *
 FROM
-    SkjemaOversikt
+    skjemaoversikt
 WHERE
     HovedDato >= '", fromDate, "' AND
     HovedDato <= '", toDate, "'
@@ -129,10 +132,10 @@ WHERE
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for SkjemaOversikt"
+    msg <- "Query single row data for skjemaoversikt"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for SkjemaOversikt"
+    msg <- "Query data for skjemaoversikt"
   }
   
   if ("session" %in% names(list(...))) {
@@ -161,30 +164,30 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from AORTAKLAFFVAR in time interval
-  # Add selected variables from ForlopsOversikt
+  # Ask for all variables from aortaklaffvar in time interval
+  # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    AortaklaffVar.*,
-    ForlopsOversikt.Sykehusnavn,
-    ForlopsOversikt.FodselsDato,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientKjonn,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2,
-    ForlopsOversikt.KobletForlopsID,
-    ForlopsOversikt.Avdod
+    aortaklaffvarnum.*,
+    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.FodselsDato,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID,
+    forlopsoversikt.Avdod
 FROM
-    AortaklaffVar
-LEFT JOIN ForlopsOversikt ON
-    AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+    aortaklaffvarnum
+LEFT JOIN forlopsoversikt ON
+    aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'"
@@ -193,24 +196,26 @@ WHERE
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND AortaklaffVar.AvdRESH = ", 
+                    "AND aortaklaffvarnum.AvdRESH = ", 
                     singleHospital)
   }
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for AortaklaffVar"
+    msg <- "Query single row data for aortaklaffvarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for AortaklaffVar"
+    msg <- "Query data for aortaklaffvarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  aK <- rapbase::loadRegData(registryName, query)
+  aKnum <- rapbase::loadRegData(registryName, query)
+  aK <- noric::erstatt_koder_m_etiketter(aKnum,
+                                         mapping = noric::aort_map_num_tekst)
   
   
   
@@ -232,12 +237,12 @@ getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
   }
   
   
-  # Ask for all variables from ForlopsOversikt, in time interval
+  # Ask for all variables from forlopsoversikt, in time interval
   query <- paste0("
 SELECT
     *
 FROM
-    ForlopsOversikt
+    forlopsoversikt
 WHERE
     HovedDato >= '", fromDate, "' AND
     HovedDato <= '", toDate, "'
@@ -247,10 +252,10 @@ WHERE
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for ForlopsOversikt"
+    msg <- "Query single row data for forlopsoversikt"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for ForlopsOversikt"
+    msg <- "Query data for forlopsoversikt"
   }
   
   if ("session" %in% names(list(...))) {
@@ -278,38 +283,38 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from AndreProsedyrerVar in time interval
+  # Ask for all variables from andreprosedyrervar in time interval
   # Add selected variables from ForlopsOversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    AndreProsedyrerVar.*,
-    ForlopsOversikt.Sykehusnavn,
-    ForlopsOversikt.PasientID,
-    ForlopsOversikt.FodselsDato,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientKjonn,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2,
-    ForlopsOversikt.KobletForlopsID
+    andreprosedyrervarnum.*,
+    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.PasientID,
+    forlopsoversikt.FodselsDato,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID
 FROM
-    AndreProsedyrerVar
-LEFT JOIN ForlopsOversikt ON
-    AndreProsedyrerVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    AndreProsedyrerVar.ForlopsID = ForlopsOversikt.ForlopsID
+    andreprosedyrervarnum
+LEFT JOIN forlopsoversikt ON
+    andreprosedyrervarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    andreprosedyrervarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    AndreProsedyrerVar.ProsedyreDato >= '", fromDate, "' AND
-    AndreProsedyrerVar.ProsedyreDato <= '", toDate, "'"
+    andreprosedyrervarnum.ProsedyreDato >= '", fromDate, "' AND
+    andreprosedyrervarnum.ProsedyreDato <= '", toDate, "'"
   )
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND AndreProsedyrerVar.AvdRESH = ", 
+                    "AND andreprosedyrervarnum.AvdRESH = ", 
                     singleHospital)
   }
   
@@ -317,18 +322,19 @@ WHERE
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for AndreProsedyrerVar"
+    msg <- "Query single row data for andreprosedyrervarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for AndreProsedyrerVar"
+    msg <- "Query data for andreprosedyrervarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  anP <- rapbase::loadRegData(registryName, query)
-  
+  anPnum <- rapbase::loadRegData(registryName, query)
+  anP <- noric::erstatt_koder_m_etiketter(anPnum,
+                                          mapping = noric::APVN_map_num_tekst)
   
   
   list(anP = anP)
@@ -348,48 +354,48 @@ getCt <- function(registryName, fromDate, toDate, singleRow, ...){
   }
   
   # Ask for all variables from CT in time interval
-  # Add selected variables from ForlopsOversikt
+  # Add selected variables from forlopsoversikt
   # 3 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    CTAngioVar.*,
-    ForlopsOversikt.Sykehusnavn,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientKjonn,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2,
-    ForlopsOversikt.KobletForlopsID
+    ctangiovarnum.*,
+    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID
 FROM
-    CTAngioVar
-LEFT JOIN ForlopsOversikt ON
-    CTAngioVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    CTAngioVar.ForlopsID = ForlopsOversikt.ForlopsID
+    ctangiovarnum
+LEFT JOIN forlopsoversikt ON
+    ctangiovarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    ctangiovarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    CTAngioVar.UndersokDato >= '", fromDate, "' AND
-    CTAngioVar.UndersokDato <= '", toDate, "'"
+    ctangiovarnum.UndersokDato >= '", fromDate, "' AND
+    ctangiovarnum.UndersokDato <= '", toDate, "'"
   )
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for CTAngioVar"
+    msg <- "Query single row data for ctangiovarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for CTAngioVar"
+    msg <- "Query data for ctangiovarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  cT <- rapbase::loadRegData(registryName, query)
-  
-  
+  cTnum <- rapbase::loadRegData(registryName, query)
+  cT <-  noric::erstatt_koder_m_etiketter(cTnum,
+                                          mapping = noric::CTANG_map_num_tekst)
   
   list(cT = cT)
 }
@@ -407,49 +413,49 @@ getAkOppf <- function(registryName, fromDate, toDate, singleRow, ...){
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from AortaklaffOppfVar in time interval
-  # Add selected variables from ForlopsOversikt
+  # Ask for all variables from aortaklaffoppfvar in time interval
+  # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    AortaklaffOppfVar.*,
-    ForlopsOversikt.Sykehusnavn,
-    ForlopsOversikt.PasientID,
-    ForlopsOversikt.FodselsDato,
-    ForlopsOversikt.BasisRegStatus,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientKjonn,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2,
-    ForlopsOversikt.KobletForlopsID,
-    ForlopsOversikt.Avdod,
-    ForlopsOversikt.AvdodDato,
-    ForlopsOversikt.ErOppflg ,
-    ForlopsOversikt.OppflgStatus,
-    ForlopsOversikt.OppflgSekNr,
-    ForlopsOversikt.OppflgRegStatus
+    aortaklaffoppfvar.*,
+    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.PasientID,
+    forlopsoversikt.FodselsDato,
+    forlopsoversikt.BasisRegStatus,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID,
+    forlopsoversikt.Avdod,
+    forlopsoversikt.AvdodDato,
+    forlopsoversikt.ErOppflg ,
+    forlopsoversikt.OppflgStatus,
+    forlopsoversikt.OppflgSekNr,
+    forlopsoversikt.OppflgRegStatus
 FROM
-    AortaklaffOppfVar
-LEFT JOIN ForlopsOversikt ON
-    AortaklaffOppfVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    AortaklaffOppfVar.ForlopsID = ForlopsOversikt.ForlopsID
+    aortaklaffoppfvar
+LEFT JOIN forlopsoversikt ON
+    aortaklaffoppfvar.AvdRESH = forlopsoversikt.AvdRESH AND
+    aortaklaffoppfvar.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    AortaklaffOppfVar.BasisProsedyreDato >= '", fromDate, "' AND
-    AortaklaffOppfVar.BasisProsedyreDato <= '", toDate, "'"
+    aortaklaffoppfvar.BasisProsedyreDato >= '", fromDate, "' AND
+    aortaklaffoppfvar.BasisProsedyreDato <= '", toDate, "'"
   )
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for AortaklaffOppfVar"
+    msg <- "Query single row data for aortaklaffoppfvar"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for AortaklaffOppfVar"
+    msg <- "Query data for aortaklaffoppfvar"
   }
   
   if ("session" %in% names(list(...))) {
@@ -477,35 +483,35 @@ getAnD <- function(registryName, fromDate, toDate, singleRow,
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from AnnenDiagnostikkVar in time interval
-  # Add selected variables from ForlopsOversikt
+  # Ask for all variables from annendiagnostikkvar in time interval
+  # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    AnnenDiagnostikkVar.*,
-    ForlopsOversikt.PasientID,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2,
-    ForlopsOversikt.KobletForlopsID
+    annendiagnostikkvarnum.*,
+    forlopsoversikt.PasientID,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID
 FROM
-    AnnenDiagnostikkVar
-LEFT JOIN ForlopsOversikt ON
-    AnnenDiagnostikkVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    AnnenDiagnostikkVar.ForlopsID = ForlopsOversikt.ForlopsID
+    annendiagnostikkvarnum
+LEFT JOIN forlopsoversikt ON
+    annendiagnostikkvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    annendiagnostikkvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    AnnenDiagnostikkVar.ProsedyreDato >= '", fromDate, "' AND
-    AnnenDiagnostikkVar.ProsedyreDato <= '", toDate, "'"
+    annendiagnostikkvarnum.ProsedyreDato >= '", fromDate, "' AND
+    annendiagnostikkvarnum.ProsedyreDato <= '", toDate, "'"
   )
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND AnnenDiagnostikkVar.AvdRESH = ", 
+                    "AND annendiagnostikkvarnum.AvdRESH = ", 
                     singleHospital)
   }
   
@@ -513,17 +519,19 @@ WHERE
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for AnnenDiagnostikkVar"
+    msg <- "Query single row data for annendiagnostikkvarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for AnnenDiagnostikkVar"
+    msg <- "Query data for annendiagnostikkvarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  anD <- rapbase::loadRegData(registryName, query)
+  anDnum <- rapbase::loadRegData(registryName, query)
+  anD <- noric::erstatt_koder_m_etiketter(anDnum,
+                                          mapping = noric::ADVN_map_num_tekst)
   
   
   
@@ -545,35 +553,35 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from Segment STent in time interval
-  # Add selected variables from ForlopsOversikt
+  # Ask for all variables from segmentstent in time interval
+  # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    SegmentStent.*,
-    ForlopsOversikt.PasientID,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2,
-    ForlopsOversikt.KobletForlopsID
+    segmentstentnum.*,
+    forlopsoversikt.PasientID,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID
 FROM
-    SegmentStent
-LEFT JOIN ForlopsOversikt ON
-    SegmentStent.AvdRESH = ForlopsOversikt.AvdRESH AND
-    SegmentStent.ForlopsID = ForlopsOversikt.ForlopsID
+    segmentstentnum
+LEFT JOIN forlopsoversikt ON
+    segmentstentnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    segmentstentnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    SegmentStent.ProsedyreDato >= '", fromDate, "' AND
-    SegmentStent.ProsedyreDato <= '", toDate, "'"
+    segmentstentnum.ProsedyreDato >= '", fromDate, "' AND
+    segmentstentnum.ProsedyreDato <= '", toDate, "'"
   )
   
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND SegmentStent.AvdRESH = ", 
+                    "AND segmentstentnum.AvdRESH = ", 
                     singleHospital)
   }
   
@@ -581,22 +589,93 @@ WHERE
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for SegmentStent"
+    msg <- "Query single row data for segmentstentnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for SegmentStent"
+    msg <- "Query data for segmentstentnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  sS <- rapbase::loadRegData(registryName, query)
-  
+  sSnum <- rapbase::loadRegData(registryName, query)
+  sS <- noric::erstatt_koder_m_etiketter(sSnum,
+                                         mapping = noric::segm_map_num_tekst)
   
   
   list(sS = sS)
 }
+
+
+
+
+#' #' @rdname getData
+#' #' @export
+#' getSh <- function(registryName, fromDate, toDate, singleRow, 
+#'                   singleHospital = NULL, ...) {
+#'   
+#'   
+#'   # SQL possible for defined time-interval:
+#'   if (is.null(fromDate)) {
+#'     fromDate <- as.Date("1900-01-01")
+#'   }
+#'   if (is.null(toDate)) {
+#'     toDate <- noric::getLatestEntry(registryName)
+#'   }
+#'   
+#'   # Ask for all variables from segment_history in time interval
+#'   # Add selected variables from forlopsoversikt
+#'   # 2 variables to match on: AvdRESH, ForlopsID
+#'   
+#'   query <- paste0("
+#' SELECT
+#'     segment_history.*,
+#'     forlopsoversikt.PasientID,
+#'     forlopsoversikt.Kommune,
+#'     forlopsoversikt.KommuneNr,
+#'     forlopsoversikt.Fylke,
+#'     forlopsoversikt.Fylkenr,
+#'     forlopsoversikt.PasientAlder,
+#'     forlopsoversikt.ForlopsType1,
+#'     forlopsoversikt.ForlopsType2,
+#'     forlopsoversikt.KobletForlopsID
+#' FROM
+#'     segment_history
+#' LEFT JOIN forlopsoversikt ON
+#'     segment_history.CENTRE_ID = forlopsoversikt.AvdRESH AND
+#'     segment_history.MCEID = forlopsoversikt.ForlopsID
+#' WHERE
+#'     segment_history.ORGINTERDAT >= '", fromDate, "' AND
+#'     segment_history.ORGINTERDAT <= '", toDate, "'"
+#'   )
+#'   
+#'   if(!is.null(singleHospital)) {
+#'     query <- paste0(query, 
+#'                     "AND segment_history.CENTRE_ID = ", 
+#'                     singleHospital)
+#'   }
+#'   
+#'   
+#'   # SQL for one row only/complete table:
+#'   if (singleRow) {
+#'     query <- paste0(query, "\nLIMIT\n  1;")
+#'     msg <- "Query single row data for segment_history"
+#'   } else {
+#'     query <- paste0(query, ";")
+#'     msg <- "Query data for segment_history"
+#'   }
+#'   
+#'   if ("session" %in% names(list(...))) {
+#'     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+#'   }
+#'   
+#'   sH <- rapbase::loadRegData(registryName, query)
+#'   
+#'   
+#'   list(sH = sH)
+#' }
+
 
 
 #' @rdname getData
@@ -612,53 +691,54 @@ getMk <- function(registryName, fromDate, toDate, singleRow, ...){
   }
   
   # Ask for all variables from mitralklaff in time interval
-  # Add selected variables from ForlopsOversikt
+  # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    MitralklaffVar.*,
-    ForlopsOversikt.Sykehusnavn,
-    ForlopsOversikt.PasientID,
-    ForlopsOversikt.FodselsDato,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientKjonn,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.ForlopsType1,
-    ForlopsOversikt.ForlopsType2,
-    ForlopsOversikt.KobletForlopsID,
-    ForlopsOversikt.BasisRegStatus, 
-    ForlopsOversikt.Avdod,
-    ForlopsOversikt.AvdodDato
+    mitralklaffvarnum.*,
+    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.PasientID,
+    forlopsoversikt.FodselsDato,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID,
+    forlopsoversikt.BasisRegStatus, 
+    forlopsoversikt.Avdod,
+    forlopsoversikt.AvdodDato
 
 FROM
-    MitralklaffVar
-LEFT JOIN ForlopsOversikt ON
-    MitralklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    MitralklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+    mitralklaffvarnum
+LEFT JOIN forlopsoversikt ON
+    mitralklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    mitralklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    MitralklaffVar.ProsedyreDato >= '", fromDate, "' AND
-    MitralklaffVar.ProsedyreDato <= '", toDate, "'"
+    mitralklaffvarnum.ProsedyreDato >= '", fromDate, "' AND
+    mitralklaffvarnum.ProsedyreDato <= '", toDate, "'"
   )
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for MitralklaffVar"
+    msg <- "Query single row data for mitralklaffvarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for MitralklaffVar"
+    msg <- "Query data for mitralklaffvarnum"
   }
   
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  mK <- rapbase::loadRegData(registryName, query)
-  
+  mKnum <- rapbase::loadRegData(registryName, query)
+  mK <- noric::erstatt_koder_m_etiketter(mKnum,
+                                         mapping = noric::mitr_map_num_tekst)
   
   
   list(mK = mK)
@@ -677,39 +757,39 @@ getPs <- function(registryName, fromDate, toDate, singleRow, ...){
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from PAsientstudier in time interval
-  # Add selected variables from ForlopsOversikt
+  # Ask for all variables from pasienterstudier in time interval
+  # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    PasienterStudier.*,
-    ForlopsOversikt.Sykehusnavn,
-    ForlopsOversikt.FodselsDato,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientKjonn,
-    ForlopsOversikt.PasientAlder
+    pasienterstudier.*,
+    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.FodselsDato,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder
 
 FROM
-    PasienterStudier
-LEFT JOIN ForlopsOversikt ON
-    PasienterStudier.AvdRESH = ForlopsOversikt.AvdRESH AND
-    PasienterStudier.PasientID = ForlopsOversikt.PasientID
+    pasienterstudier
+LEFT JOIN forlopsoversikt ON
+    pasienterstudier.AvdRESH = forlopsoversikt.AvdRESH AND
+    pasienterstudier.PasientID = forlopsoversikt.PasientID
 WHERE
-    PasienterStudier.PasInklDato >= '", fromDate, "' AND
-    PasienterStudier.PasInklDato <= '", toDate, "'"
+    pasienterstudier.PasInklDato >= '", fromDate, "' AND
+    pasienterstudier.PasInklDato <= '", toDate, "'"
   )
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for PasienterStudier"
+    msg <- "Query single row data for pasienterstudier"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for PasienterStudier"
+    msg <- "Query data for pasienterstudier"
   }
   
   if ("session" %in% names(list(...))) {
@@ -740,27 +820,27 @@ getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
   
   # QUERY ANGIO PCI + FO
   # Ask for all variables from ANGIO PCI in time interval
-  # Add selected variables from ForlopsOversikt
+  # Add selected variables from forlopsoversikt
   # 3 variables to match on: AvdRESH, PasientID, ForlopsID
   
   query <- paste0("
 SELECT
-    AngioPCIVar.*,
-    ForlopsOversikt.Kommune,
-    ForlopsOversikt.KommuneNr,
-    ForlopsOversikt.Fylke,
-    ForlopsOversikt.Fylkenr,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.KobletForlopsID
+    a.*,
+    f.Kommune,
+    f.KommuneNr,
+    f.Fylke,
+    f.Fylkenr,
+    f.PasientAlder,
+    f.KobletForlopsID
 FROM
-    AngioPCIVar
-LEFT JOIN ForlopsOversikt ON
-    AngioPCIVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    AngioPCIVar.PasientID = ForlopsOversikt.PasientID AND
-    AngioPCIVar.ForlopsID = ForlopsOversikt.ForlopsID
+    angiopcinum a
+LEFT JOIN forlopsoversikt f ON
+    a.AvdRESH = f.AvdRESH AND
+    a.PasientID = f.PasientID AND
+    a.ForlopsID = f.ForlopsID
 WHERE
-    AngioPCIVar.ProsedyreDato >= '", fromDate, "' AND
-    AngioPCIVar.ProsedyreDato <= '", toDate, "'"
+    a.ProsedyreDato >= '", fromDate, "' AND
+    a.ProsedyreDato <= '", toDate, "'"
   )
   
   
@@ -770,7 +850,7 @@ WHERE
 SELECT
     ForlopsID, AvdRESH, StentType, Segment, Graft, ProsedyreType
 FROM
-    SegmentStent
+    segmentstent
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'
@@ -782,7 +862,7 @@ WHERE
 SELECT
     ForlopsID, AvdRESH, metode
 FROM
-    AnnenDiagnostikkVar
+    annendiagnostikkvar
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'
@@ -806,8 +886,11 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  aP <- rapbase::loadRegData(registryName, query)
+  aPnum <- rapbase::loadRegData(registryName, query)
+  aP <- noric::erstatt_koder_m_etiketter(aPnum)
+  
   aD <- rapbase::loadRegData(registryName, queryAd)
+  
   sS <- rapbase::loadRegData(registryName, querySs)
   
   
@@ -835,24 +918,24 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
   
   queryAk <- paste0("
 SELECT
-    AortaklaffVar.Dodsdato,
-    AortaklaffVar.UtskrevetTil,
-    AortaklaffVar.TypeKlaffeprotese,
-    AortaklaffVar.Prosedyre,
-    AortaklaffVar.ScreeningBeslutning,
-    AortaklaffVar.ProsedyreDato,
-    AortaklaffVar.FnrType, 
-    ForlopsOversikt.PasientID,
-    ForlopsOversikt.PasientKjonn,
-    ForlopsOversikt.PasientAlder,
-    ForlopsOversikt.Avdod, 
-    ForlopsOversikt.AvdRESH, 
-    ForlopsOversikt.ForlopsID
+    aortaklaffvarnum.Dodsdato,
+    aortaklaffvarnum.UtskrevetTil,
+    aortaklaffvarnum.TypeKlaffeprotese,
+    aortaklaffvarnum.Prosedyre,
+    aortaklaffvarnum.ScreeningBeslutning,
+    aortaklaffvarnum.ProsedyreDato,
+    aortaklaffvarnum.FnrType, 
+    forlopsoversikt.PasientID,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.Avdod, 
+    forlopsoversikt.AvdRESH, 
+    forlopsoversikt.ForlopsID
 FROM
-    AortaklaffVar
-LEFT JOIN ForlopsOversikt ON
-    AortaklaffVar.AvdRESH = ForlopsOversikt.AvdRESH AND
-    AortaklaffVar.ForlopsID = ForlopsOversikt.ForlopsID
+    aortaklaffvarnum
+LEFT JOIN forlopsoversikt ON
+    aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'"
@@ -864,7 +947,7 @@ WHERE
 SELECT
     *
 FROM
-    TaviProm
+    taviprom
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'
@@ -876,11 +959,11 @@ WHERE
   if (singleRow) {
     queryProm <- paste0(queryProm, "\nLIMIT\n  1;")
     queryAk <- paste0(queryAk, "\nLIMIT\n  1;")
-    msg <- "Query single row data for TaviProm"
+    msg <- "Query single row data for taviprom"
   } else {
     queryProm <- paste0(queryProm, ";")
     queryAk <- paste0(queryAk, ";")
-    msg <- "Query data for TaviProm"
+    msg <- "Query data for taviprom"
   }
   
   if ("session" %in% names(list(...))) {
@@ -888,8 +971,9 @@ WHERE
   }
   
   taviProm <- rapbase::loadRegData(registryName, queryProm)
-  aK <- rapbase::loadRegData(registryName, queryAk)
-  
+  aKnum <- rapbase::loadRegData(registryName, queryAk)
+  aK <- noric::erstatt_koder_m_etiketter(aKnum,
+                                         mapping = noric::aort_map_num_tekst)
   
   
   list(taviProm = taviProm, 
