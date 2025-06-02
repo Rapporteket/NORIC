@@ -45,7 +45,7 @@ angp_varnavn_kobl <-
         "MCE.ACUTE_ELECTIVE AS Hastegrad",
         "P.GENDER AS Kjonn",
         "P.BIRTH_DATE AS FodselsDato",
-        "P.DECEASED  AS Avdod",
+        "P.DECEASED  AS AvdodFReg",
         "P.DECEASED_DATE AS AvdodDato",
         "P.REGISTERED_DATE AS PasientRegDato",
         "A.SYMPTOM_ONSET_DATE AS SymptomDato",
@@ -692,7 +692,7 @@ CTANG_varnavn_kobl <-
         "P.SSN_TYPE AS FnrType",
         "P.GENDER AS Kjonn",
         "P.BIRTH_DATE AS FodselsDato",
-        "P.DECEASED AS Avdod",
+        "P.DECEASED AS AvdodFReg",
         "P.DECEASED_DATE AS AvdodDato",
         "P.REGISTERED_DATE AS PasientRegDato",
         "CT.CENTREID AS AvdRESH",
@@ -782,7 +782,7 @@ CTANG_varnavn_kobl <-
 CTANG_mangler_kodebok_katvar <- CTANG_varnavn_kobl %>%  
   dplyr::filter(variabel_id %in% 
                   setdiff(CTANG_varnavn_kobl$variabel_id, kodebok$variabel_id)) %>%
-  dplyr::filter(tabell=="ctangio" | tabell = "findingstatic") %>%  
+  dplyr::filter(tabell=="ctangio" | tabell == "findingstatic") %>%  
   dplyr::mutate(tabell=tolower(tabell)) %>%  
   dplyr::rename(fysisk_feltnavn = var_navn) %>%  
   dplyr::select(-rapporteket)
@@ -796,8 +796,8 @@ CTANG_in_kodebok <- kodebok %>%
   select(-c(listeverdier, listetekst)) %>% 
   unique()
 
-CTANG_in_kodebok_notSQL2 <- in_kodebok %>% 
-  filter(!in_kodebok$variabel_id %in% CTANG_varnavn_kobl$variabel_id & type != "Tallvariabel")
+CTANG_in_kodebok_notSQL2 <- CTANG_in_kodebok %>% 
+  filter(!CTANG_in_kodebok$variabel_id %in% CTANG_varnavn_kobl$variabel_id & type != "Tallvariabel")
 
 ### Det er noen, men ingen tas med: 
 ### STUDYPARTICIP -> Usikkert hvordan denne evt. skal kodes
