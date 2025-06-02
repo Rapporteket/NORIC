@@ -869,25 +869,22 @@ shiny::observeEvent(user$org, {
   rapbase::statsServer2(
     id = "noricStats",
     registryName = "noric",
-    eligible = eligible
+    eligible = shiny::req(eligible)
   )
   rapbase::statsGuideServer("noricStatsGuide",
-                            registryName = registryName())
-  
-   tinyeligible <- reactiveVal(FALSE)
- observeEvent(list(user$role), {
-   tinyeligible(user$role() == "SC")
- })
+                            registryName = registryName)
+
+  tinyeligible <- reactiveVal(FALSE)
+  observeEvent(list(user$role), {
+    tinyeligible(user$role() == "SC")
+  })
   # Verktøy - Eksport
   rapbase::exportUCServer2(id = "noricExport", 
-                          registryName = registryName(),
+                          registryName = registryName,
                           repoName = "noric", 
-                          eligible = tinyeligible)
-  
+                          eligible = shiny::req(tinyeligible))
+
   rapbase::exportGuideServer2(id = "noricExportGuide",
-                             registryName = registryName())
-  
-  
-  
+                             registryName = registryName)
+
 })
-  
