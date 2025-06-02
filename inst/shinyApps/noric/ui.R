@@ -20,11 +20,9 @@ ui <- tagList(
     id = "tabs",
     
     tabPanel("Start",
+             rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
              mainPanel(width = 12,
                        htmlOutput("veiledning", inline = TRUE),
-                       appNavbarUserWidget(user = uiOutput("appUserName"),
-                                           organization = uiOutput("appOrgName"),
-                                           addUserInfo = TRUE),
                        tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
              )
     ),
@@ -194,32 +192,7 @@ ui <- tagList(
           shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
           shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
         )
-      ), 
-      
-      
-      shiny::tabPanel(
-        title = "Staging data", 
-        
-        shiny::titlePanel("Liste alle staging data"),
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(htmlOutput("stagingControl")),
-          
-          shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))), 
-        
-        
-        br(),
-        shiny::titlePanel("Regelmessing etablering av staging data"),
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            rapbase::autoReportOrgInput("noricBulletin"),
-            rapbase::autoReportInput("noricBulletin")),
-          
-          shiny::mainPanel(
-            rapbase::autoReportUI("noricBulletin")
-          )
-        )
-      )
+      ),
     )
   )
 )
-
