@@ -2637,24 +2637,28 @@ if(params$registryName %in% "noricStagingNasjonal"){
   # Kun utvalgt sykehus
   query <- paste0(
   
-  "SELECT aortaklaffvar.AvdRESH, 
-          aortaklaffvar.ForlopsID, 
-          aortaklaffvar.ProsedyreDato, 
+  "SELECT aortaklaffvarnum.AvdRESH, 
+          aortaklaffvarnum.ForlopsID, 
+          aortaklaffvarnum.ProsedyreDato, 
           forlopsoversikt.PasientKjonn,
           forlopsoversikt.PasientAlder
     FROM
-          aortaklaffvar
+          aortaklaffvarnum
     LEFT JOIN forlopsoversikt ON
-          aortaklaffvar.AvdRESH = forlopsoversikt.AvdRESH AND
-          aortaklaffvar.ForlopsID = forlopsoversikt.ForlopsID
+          aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+          aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
    WHERE
          ProsedyreDato >= '", fromDate, "' AND
          ProsedyreDato <= '", toDate, "'", 
-   "AND aortaklaffvar.AvdRESH = ", params$reshID, 
+   "AND aortaklaffvarnum.AvdRESH = ", params$reshID, 
    ";")
 
-    AK_alderKjonn <- rapbase::loadRegData(registryName = params$registryName,
-                               query = query)
+    AK_alderKjonnnum <- rapbase::loadRegData(
+      registryName = params$registryName,
+      query = query)
+    AK_alderKjonn <- noric::erstatt_koder_m_etiketter(
+      AK_alderKjonnnum,
+      mapping = noric::aort_map_num_tekst)
 
   
   
@@ -2663,23 +2667,27 @@ if(params$registryName %in% "noricStagingNasjonal"){
     # Kun et sykehus, som er registry name
       query <- paste0(
   
-  "SELECT aortaklaffvar.AvdRESH, 
-          aortaklaffvar.ForlopsID, 
-          aortaklaffvar.ProsedyreDato, 
+  "SELECT aortaklaffvarnum.AvdRESH, 
+          aortaklaffvarnum.ForlopsID, 
+          aortaklaffvarnum.ProsedyreDato, 
           forlopsoversikt.PasientKjonn,
           forlopsoversikt.PasientAlder
     FROM
-          aortaklaffvar
+          aortaklaffvarnum
     LEFT JOIN forlopsoversikt ON
-          aortaklaffvar.AvdRESH = forlopsoversikt.AvdRESH AND
-          aortaklaffvar.ForlopsID = forlopsoversikt.ForlopsID
+          aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+          aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
    WHERE
          ProsedyreDato >= '", fromDate, "' AND
          ProsedyreDato <= '", toDate, "'", 
    ";")
 
-    AK_alderKjonn <- rapbase::loadRegData(registryName = params$registryName,
-                               query = query)
+    AK_alderKjonnnum <- rapbase::loadRegData(
+      registryName = params$registryName,
+      query = query)
+    AK_alderKjonn <- noric::erstatt_koder_m_etiketter(
+      AK_alderKjonnnum,
+      mapping = noric::aort_map_num_tekst)
 
   
 }   
