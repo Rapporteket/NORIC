@@ -359,10 +359,10 @@ shinyServer(function(input, output, session) {
   
   
   output$selectVars <- shiny::renderUI({
-    req(input$selectedDataSet)
+    req(input$selectedDataSet, dataSets)
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
       h4(paste0("Valgt datasett: ",
-                names(dataSets)[dataSets == input$selectedDataSet], 
+                names(dataSets())[dataSets() == input$selectedDataSet], 
                 " i perioden " , 
                 input$utforskerDateRange[1],
                 " : ", 
@@ -415,7 +415,7 @@ shinyServer(function(input, output, session) {
   output$kbControl <- shiny::renderUI({
     shiny::selectInput(inputId = "kbdTab",
                        label = "Vis kodebok for tabellen:",
-                       choices =  dataSets)
+                       choices =  dataSets())
   })
   
   # vektor med alle variabelnavn i valgt tabell
@@ -597,7 +597,7 @@ shinyServer(function(input, output, session) {
   
   # Verktøy - Metadata
   meta <- shiny::reactive({
-    noric::describeRegistryDb(registryName = registryName)
+    noric::describeRegistryDb(registryName = registryName())
   })
   
   output$metaControl <- shiny::renderUI({
@@ -872,7 +872,7 @@ shiny::observeEvent(user$org, {
     eligible = eligible
   )
   rapbase::statsGuideServer("noricStatsGuide",
-                            registryName = registryName)
+                            registryName = registryName())
   
    tinyeligible <- reactiveVal(FALSE)
  observeEvent(list(user$role), {
@@ -880,12 +880,12 @@ shiny::observeEvent(user$org, {
  })
   # Verktøy - Eksport
   rapbase::exportUCServer2(id = "noricExport", 
-                          registryName = registryName,
+                          registryName = registryName(),
                           repoName = "noric", 
                           eligible = tinyeligible)
   
   rapbase::exportGuideServer2(id = "noricExportGuide",
-                             registryName = registryName)
+                             registryName = registryName())
   
   
   
