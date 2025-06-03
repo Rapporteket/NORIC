@@ -71,7 +71,7 @@ Brukere med SC-rolle har tilgang på følgende verktøy:
 
 * __Metadata__: Denne siden inneholder metadata ("data om data") om de 
 forskjellige tabellene som utgjør datagrunnlaget for Rapporteket 
-(AndreProsedyrerVar, AngioPCIVar osv.). Hvis man for eksempel lurer på om 
+(andreprosedyrervarnum, AngioPCIVar osv.). Hvis man for eksempel lurer på om 
 datadumpen *SegmentStent*  har en variabel som heter "Okklusjon", så kan man
 bruke søkeordet "okklusjon" i søkeboksen oppe i høyre hjørne. 
 Merk at disse tabellene er et resultat av spørringer mot databasen. 

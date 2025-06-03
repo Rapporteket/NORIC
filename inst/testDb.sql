@@ -29,7 +29,7 @@ CREATE TABLE `andreprosedyrervarnum` (
   `ProsRelatertDod` varchar(100) COLLATE utf8_danish_ci DEFAULT NULL,
   `SkjemaStatus` tinyint(3) DEFAULT NULL,
   PRIMARY KEY (`ForlopsID`),
-  KEY `idx_AndreProsedyrerVar` (`AvdRESH`,`ProsedyreDato`)
+  KEY `idx_andreprosedyrervarnum` (`AvdRESH`,`ProsedyreDato`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
@@ -574,8 +574,8 @@ CREATE TABLE `AngioPCIVar` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `AnnenDiagnostikkVar`;
-CREATE TABLE `AnnenDiagnostikkVar` (
+DROP TABLE IF EXISTS `annendiagnostikkvarnum`;
+CREATE TABLE `annendiagnostikkvarnum` (
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `Sykehusnavn` varchar(100) COLLATE utf8_danish_ci DEFAULT NULL,
   `PasientKjonn` varchar(13) COLLATE utf8_danish_ci DEFAULT NULL,
@@ -609,12 +609,12 @@ CREATE TABLE `AnnenDiagnostikkVar` (
   `ImrFoer` tinyint(3) unsigned DEFAULT NULL,
   `ImrAfter` tinyint(3) unsigned DEFAULT NULL,
   PRIMARY KEY (`ForlopsID`,`segment`,`metode`),
-  KEY `idx_AnnenDiagnostikkVar` (`AvdRESH`,`ProsedyreDato`)
+  KEY `idx_annendiagnostikkvarnum` (`AvdRESH`,`ProsedyreDato`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `AortaklaffOppfVar`;
-CREATE TABLE `AortaklaffOppfVar` (
+DROP TABLE IF EXISTS `aortaklaffoppfvarnum`;
+CREATE TABLE `aortaklaffoppfvarnum` (
   `ForlopsID` int(9) NOT NULL,
   `BasisForlopsID` int(10) unsigned DEFAULT NULL,
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
@@ -664,12 +664,12 @@ CREATE TABLE `AortaklaffOppfVar` (
   `AnnenKomp` varchar(100) COLLATE utf8_danish_ci DEFAULT NULL,
   `SkjemaStatus` tinyint(3) DEFAULT NULL,
   PRIMARY KEY (`ForlopsID`),
-  KEY `idx_AortaklaffOppfVar` (`ForlopsID`)
+  KEY `idx_aortaklaffoppfvarnum` (`ForlopsID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `AortaklaffVar`;
-CREATE TABLE `AortaklaffVar` (
+DROP TABLE IF EXISTS `aortaklaffvarnum`;
+CREATE TABLE `aortaklaffvarnum` (
   `ForlopsID` int(9) NOT NULL,
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `ScreeningBeslutning` varchar(100) COLLATE utf8_danish_ci DEFAULT NULL,
@@ -828,12 +828,12 @@ CREATE TABLE `AortaklaffVar` (
   `SkjemaStatusHovedskjema` tinyint(3) DEFAULT NULL,
   `SkjemaStatusKomplUtsk` tinyint(3) DEFAULT NULL,
   PRIMARY KEY (`ForlopsID`),
-  KEY `idx_AortaklaffVar` (`AvdRESH`,`ProsedyreDato`)
+  KEY `idx_aortaklaffvarnum` (`AvdRESH`,`ProsedyreDato`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `CTAngioVar`;
-CREATE TABLE `CTAngioVar` (
+DROP TABLE IF EXISTS `ctangiovarnum`;
+CREATE TABLE `ctangiovarnum` (
   `ForlopsID` int(9) NOT NULL,
   `PasientID` int(10) unsigned DEFAULT NULL,
   `Lokalsykehus` varchar(75) COLLATE utf8_danish_ci DEFAULT NULL,
@@ -913,7 +913,7 @@ CREATE TABLE `CTAngioVar` (
   `Hemodynamisk` varchar(100) COLLATE utf8_danish_ci DEFAULT NULL,
   `SkjemaStatus` tinyint(3) DEFAULT NULL,
   PRIMARY KEY (`ForlopsID`),
-  KEY `idx_CTAngioVar` (`AvdRESH`,`PasientRegDato`)
+  KEY `idx_ctangiovarnum` (`AvdRESH`,`PasientRegDato`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
@@ -951,7 +951,7 @@ CREATE TABLE `forlopsoversikt` (
   `OppflgStatus` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `OppflgSekNr` varchar(6) COLLATE utf8_danish_ci DEFAULT NULL,
   PRIMARY KEY (`ForlopsID`),
-  KEY `idx_ForlopsOversikt` (`AvdRESH`,`HovedDato`,`BasisRegStatus`,`Sykehusnavn`)
+  KEY `idx_forlopsoversikt` (`AvdRESH`,`HovedDato`,`BasisRegStatus`,`Sykehusnavn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
@@ -1179,7 +1179,7 @@ CREATE TABLE `mitralklaffvarnum` (
   `SkjemaStatusKomplUtskr` tinyint(3) DEFAULT NULL,
   `SkjemaStatus` int(11) DEFAULT NULL,
   PRIMARY KEY (`ForlopsID`),
-  KEY `idx_MitralklaffVar` (`AvdRESH`,`ProsedyreDato`)
+  KEY `idx_mitralklaffvarnum` (`AvdRESH`,`ProsedyreDato`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
@@ -1200,8 +1200,8 @@ CREATE TABLE `pasienterstudier` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `SegmentStent`;
-CREATE TABLE `SegmentStent` (
+DROP TABLE IF EXISTS `segmentstentnum`;
+CREATE TABLE `segmentstentnum` (
   `SegmentID` int(9) NOT NULL,
   `ForlopsID` int(9) NOT NULL,
   `Regtype` varchar(8) COLLATE utf8_danish_ci DEFAULT NULL,
@@ -1239,12 +1239,12 @@ CREATE TABLE `SegmentStent` (
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `Sykehusnavn` varchar(100) COLLATE utf8_danish_ci DEFAULT NULL,
   PRIMARY KEY (`SegmentID`,`ForlopsID`),
-  KEY `idx_SegmentStent` (`AvdRESH`,`ProsedyreDato`,`StentType`)
+  KEY `idx_segmentstentnum` (`AvdRESH`,`ProsedyreDato`,`StentType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;
 
 
-DROP TABLE IF EXISTS `SkjemaOversikt`;
-CREATE TABLE `SkjemaOversikt` (
+DROP TABLE IF EXISTS `skjemaoversikt`;
+CREATE TABLE `skjemaoversikt` (
   `Skjemanavn` varchar(18) COLLATE utf8_danish_ci NOT NULL,
   `SkjemaStatus` tinyint(3) DEFAULT NULL,
   `ForlopsID` int(9) NOT NULL,
@@ -1257,5 +1257,5 @@ CREATE TABLE `SkjemaOversikt` (
   `AvdRESH` varchar(30) COLLATE utf8_danish_ci DEFAULT NULL,
   `SkjemaRekkeflg` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`ForlopsID`,`Skjemanavn`),
-  KEY `idx_SkjemaOversikt` (`AvdRESH`,`HovedDato`)
+  KEY `idx_skjemaoversikt` (`AvdRESH`,`HovedDato`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_danish_ci;

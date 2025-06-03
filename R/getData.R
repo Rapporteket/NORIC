@@ -284,7 +284,7 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
   }
   
   # Ask for all variables from andreprosedyrervar in time interval
-  # Add selected variables from ForlopsOversikt
+  # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
@@ -413,13 +413,13 @@ getAkOppf <- function(registryName, fromDate, toDate, singleRow, ...){
     toDate <- noric::getLatestEntry(registryName)
   }
   
-  # Ask for all variables from aortaklaffoppfvar in time interval
+  # Ask for all variables from aortaklaffoppfvarnum in time interval
   # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
-    aortaklaffoppfvar.*,
+    aortaklaffoppfvarnum.*,
     forlopsoversikt.Sykehusnavn,
     forlopsoversikt.PasientID,
     forlopsoversikt.FodselsDato,
@@ -440,22 +440,22 @@ SELECT
     forlopsoversikt.OppflgSekNr,
     forlopsoversikt.OppflgRegStatus
 FROM
-    aortaklaffoppfvar
+    aortaklaffoppfvarnum
 LEFT JOIN forlopsoversikt ON
-    aortaklaffoppfvar.AvdRESH = forlopsoversikt.AvdRESH AND
-    aortaklaffoppfvar.ForlopsID = forlopsoversikt.ForlopsID
+    aortaklaffoppfvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
+    aortaklaffoppfvarnum.ForlopsID = forlopsoversikt.ForlopsID
 WHERE
-    aortaklaffoppfvar.BasisProsedyreDato >= '", fromDate, "' AND
-    aortaklaffoppfvar.BasisProsedyreDato <= '", toDate, "'"
+    aortaklaffoppfvarnum.BasisProsedyreDato >= '", fromDate, "' AND
+    aortaklaffoppfvarnum.BasisProsedyreDato <= '", toDate, "'"
   )
   
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for aortaklaffoppfvar"
+    msg <- "Query single row data for aortaklaffoppfvarnum"
   } else {
     query <- paste0(query, ";")
-    msg <- "Query data for aortaklaffoppfvar"
+    msg <- "Query data for aortaklaffoppfvarnum"
   }
   
   if ("session" %in% names(list(...))) {
@@ -850,7 +850,7 @@ WHERE
 SELECT
     ForlopsID, AvdRESH, StentType, Segment, Graft, ProsedyreType
 FROM
-    segmentstent
+    segmentstentnum
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'
@@ -862,7 +862,7 @@ WHERE
 SELECT
     ForlopsID, AvdRESH, metode
 FROM
-    annendiagnostikkvar
+    annendiagnostikkvarnum
 WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'
