@@ -15,7 +15,7 @@ loadRegDataStent <- function(registryName) {
 SELECT
   *
 FROM
-  segmentstent;
+  segmentstentnum;
 "
 
   rapbase::loadRegData(registryName, query, dbType)
@@ -53,7 +53,7 @@ LEFT JOIN angiopcivardel2 A2 ON
     A1.AvdRESH = A2.AvdRESH AND
     A1.PasientID = A2.PasientID AND
     A1.ForlopsID = A2.ForlopsID
-LEFT JOIN segmentstent S ON 
+LEFT JOIN segmentstentnum S ON 
     A1.ForlopsID = S.ForlopsID
 WHERE A1.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
