@@ -1027,7 +1027,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
     tavi %<>% 
       dplyr::mutate(
         dg_prosedyre_til_dod = dplyr::if_else(.data$Avdod == "Ja", 
-                                              as.numeric(difftime(Dodsdato, 
+                                              as.numeric(difftime(DodsdatoFReg, 
                                                        ProsedyreDato, 
                                                        units = "days")), 
                                               NA_real_))
@@ -1052,7 +1052,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
                       .data$PasientAlder, 
                       .data$PasientKjonn,
                       .data$Avdod, 
-                      .data$Dodsdato, 
+                      .data$DodsdatoFReg, 
                       .data$TypeKlaffeprotese, 
                       .data$UtskrevetTil, 
                       .data$Prosedyre, 

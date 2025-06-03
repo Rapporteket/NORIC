@@ -918,7 +918,7 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
   
   queryAk <- paste0("
 SELECT
-    aortaklaffvarnum.Dodsdato,
+    aortaklaffvarnum.DodsdatoFReg,
     aortaklaffvarnum.UtskrevetTil,
     aortaklaffvarnum.TypeKlaffeprotese,
     aortaklaffvarnum.Prosedyre,
