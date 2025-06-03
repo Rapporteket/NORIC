@@ -37,6 +37,7 @@
 #' getPrepMkData
 #' getPrepPsData
 #' getPrepApLightData
+#' getPrepTaviPromData
 NULL
 
 #' @rdname getPrepData
@@ -73,6 +74,7 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,
   
   # Legg til aar, maaned, uke, etc.
   aP %<>% noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+
   
   aP
 }
@@ -963,6 +965,8 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                                     "Planlagt"),
                          ordered = TRUE))
   
+
+  
   if(!singleRow){
     # Tar bort forløp fra før sykehusene ble offisielt med i NORIC
     # (potensielle "tøyseregistreringer")
@@ -1023,7 +1027,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
     tavi %<>% 
       dplyr::mutate(
         dg_prosedyre_til_dod = dplyr::if_else(.data$Avdod == "Ja", 
-                                              as.numeric(difftime(Dodsdato, 
+                                              as.numeric(difftime(DodsdatoFReg, 
                                                        ProsedyreDato, 
                                                        units = "days")), 
                                               NA_real_))
@@ -1048,7 +1052,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
                       .data$PasientAlder, 
                       .data$PasientKjonn,
                       .data$Avdod, 
-                      .data$Dodsdato, 
+                      .data$DodsdatoFReg, 
                       .data$TypeKlaffeprotese, 
                       .data$UtskrevetTil, 
                       .data$Prosedyre, 

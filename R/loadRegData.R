@@ -15,7 +15,7 @@ loadRegDataStent <- function(registryName) {
 SELECT
   *
 FROM
-  SegmentStent;
+  segmentstent;
 "
 
   rapbase::loadRegData(registryName, query, dbType)
@@ -38,14 +38,24 @@ loadRegDataAngioPCI <- function(registryName) {
 
   query <- "
 SELECT
-   A.ForlopsID ,
-   A.ProsedyreType ,
-   A.ProsedyreDato ,
+   A1.AvdRESH,
+   A1.ForlopsID ,
+   A1.PasientID ,
+   A1.ProsedyreType,
+   A1.ProsedyreDato,
+   A2.AvdRESH,
+   A2.ForlopsID ,
+   A2.PasientID ,
    SUM(S.ForlopsID>0) AS Nstents
 FROM
-   AngioPCIVar A
-   LEFT JOIN SegmentStent S on A.ForlopsID=S.ForlopsID
-WHERE A.ProsedyreType  != 'Angio'
+   angiopcivardel1 A1
+LEFT JOIN angiopcivardel2 A2 ON
+    A1.AvdRESH = A2.AvdRESH AND
+    A1.PasientID = A2.PasientID AND
+    A1.ForlopsID = A2.ForlopsID
+LEFT JOIN segmentstent S ON 
+    A1.ForlopsID = S.ForlopsID
+WHERE A1.ProsedyreType  != 'Angio'
 GROUP BY ForlopsID;
 "
 
