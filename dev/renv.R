@@ -1,5 +1,5 @@
 
-Sys.setenv(FALK_EXTENDED_USER_RIGHTS= "[{\"A\":86,\"R\":\"SC\",\"U\":101619},{\"A\":86,\"R\":\"LU\",\"U\":101619},{\"A\":86,\"R\":\"SC\",\"U\":102966},{\"A\":86,\"R\":\"LU\",\"U\":102966},{\"A\":86,\"R\":\"SC\",\"U\":0}]")
+Sys.setenv(FALK_EXTENDED_USER_RIGHTS= "[{\"A\":86,\"R\":\"LU\",\"U\":101619},{\"A\":86,\"R\":\"SC\",\"U\":101619},{\"A\":86,\"R\":\"SS\",\"U\":102966},{\"A\":86,\"R\":\"LU\",\"U\":102966},{\"A\":86,\"R\":\"SC\",\"U\":0}]")
 Sys.setenv(MYSQL_DB_LOG="db_log")
 Sys.setenv(MYSQL_DB_AUTOREPORT="db_autoreport")
 Sys.setenv(MYSQL_DB_DATA="noric_unn,noric_bodoe")

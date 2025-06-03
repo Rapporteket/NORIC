@@ -38,46 +38,43 @@ shinyServer(function(input, output, session) {
 
   # Hide tabs
   ## when role is 'LU' or some tabs for role 'LC'
-  shiny::observeEvent(user$role(), {
-    shiny::hideTab(inputId = "tabs", target = "Utforsker")
-    shiny::hideTab(inputId = "tabs", target = "Datadump")
-    shiny::hideTab(inputId = "tabs", target = "Verktøy")
-    shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
-    shiny::hideTab(inputId = "tabs", target = "Kodebok")
-    shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+  shiny::observeEvent(list(user$role(), user$org()), {
+    shiny::showTab(inputId = "tabs", target = "Utforsker")
+    shiny::showTab(inputId = "tabs", target = "Datadump")
+    shiny::showTab(inputId = "tabs", target = "Verktøy")
+    shiny::showTab(inputId = "tabs", target = "Angiografør/Operatør")
+    shiny::showTab(inputId = "tabs", target = "Kodebok")
+    shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
+    shiny::showTab(inputId = "tabs", target = "Prosedyrer")
+    shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
+    shiny::showTab(inputId = "tabs", target = "Abonnement")
+    shiny::showTab(inputId = "tabs", target = "Utsending")
+    shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
+    shiny::showTab(inputId = "tabs", target = "Aortaklaff")
 
-    if (shiny::req(user$role()) == "LC") {
-      shiny::showTab(inputId = "tabs", target = "Utforsker")
-      shiny::showTab(inputId = "tabs", target = "Kodebok")
+    if (shiny::req(user$role()) == "LU") {
+      shiny::hideTab(inputId = "tabs", target = "Utforsker")
+      shiny::hideTab(inputId = "tabs", target = "Datadump")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
+      shiny::hideTab(inputId = "tabs", target = "Kodebok")
+      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+    } else if (shiny::req(user$role()) == "LC") {
+      shiny::hideTab(inputId = "tabs", target = "Datadump")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     }
-    if (shiny::req(user$role()) == "SC") {
-      shiny::showTab(inputId = "tabs", target = "Utforsker")
-      shiny::showTab(inputId = "tabs", target = "Datadump")
-      shiny::showTab(inputId = "tabs", target = "Verktøy")
-      shiny::showTab(inputId = "tabs", target = "Angiografør/Operatør")
-      shiny::showTab(inputId = "tabs", target = "Kodebok")
-      shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
-    }
-  })
 
-  ## local reports/tabs for national registry
-  shiny::observeEvent(user$org(), {
     if (isNationalReg(shiny::req(user$org()))) {
       shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
       shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
       shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
       shiny::hideTab(inputId = "tabs", target = "Abonnement")
-      shiny::showTab(inputId = "tabs", target = "Utsending")
-      shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
-      shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
     }
   
     ## dispatchment and use stats hidden when not national registry
     if (!isNationalReg(shiny::req(user$org()))) {
-      shiny::showTab(inputId = "tabs", target = "Prosedyrer")
-      shiny::showTab(inputId = "tabs", target = "Angiografør/Operatør")
-      shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
-      shiny::showTab(inputId = "tabs", target = "Abonnement")
       shiny::hideTab(inputId = "tabs", target = "Utsending")
       shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
