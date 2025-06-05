@@ -14,19 +14,25 @@ shinyServer(function(input, output, session) {
     matrix(nrow=2) |>
     t() |>
     as.data.frame() |>
-    dplyr::rename(orgname = V1, UnitId = V2)
+    dplyr::rename(dbname = V1, AvdRESH = V2)
+
+  map_orgname <- map_db_resh |>
+    dplyr::rename(Sykehusnavn = dbname) |>
+    fikse_sykehusnavn() |>
+    dplyr::rename(UnitId = AvdRESH,
+                  orgname = Sykehusnavn)
 
   user <- rapbase::navbarWidgetServer2(
     "navbar-widget",
     orgName = "noric",
     caller = "noric",
-    map_orgname = shiny::req(map_db_resh)
+    map_orgname = shiny::req(map_orgname)
   )
 
   # Parameters that may change depending on the role and org of user
   ## setting values that do depend on a Rapporteket context
   registryName <- reactive(
-    map_db_resh$orgname[map_db_resh$UnitId == user$org()]
+    map_db_resh$dbname[map_db_resh$AvdRESH == user$org()]
   )
   userFullName <- Sys.getenv("FALK_USER_FULLNAME")
   hospitalName <- reactive(
@@ -622,7 +628,7 @@ shinyServer(function(input, output, session) {
   })
   
   # Abonnement og verktøy-utsending
-  orgs <- noric::mapOrgReshId(registryName =  map_db_resh$orgname[map_db_resh$UnitId == 0],
+  orgs <- noric::mapOrgReshId(registryName =  map_db_resh$dbname[map_db_resh$AvdRESH == 0],
                               asNamedList = TRUE,
                               newNames = TRUE)
   
