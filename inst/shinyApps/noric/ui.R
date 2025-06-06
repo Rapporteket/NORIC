@@ -143,6 +143,13 @@ ui <- tagList(
     shiny::navbarMenu(
       "Verktøy",
 
+      tabPanel("Lag nasjonal database",
+               sidebarLayout(
+                 sidebarPanel(uiOutput("nationalControl")),
+                 mainPanel(uiOutput("nationalOutput"))
+               )
+      ),
+
       tabPanel("Metadata",
                sidebarLayout(
                  sidebarPanel(uiOutput("metaControl")),
