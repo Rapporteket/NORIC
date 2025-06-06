@@ -664,7 +664,7 @@ shinyServer(function(input, output, session) {
     )
   )
   
-shiny::observeEvent(list(user$org, user$role), {
+shiny::observeEvent(list(user$org(), user$role()), {
   if(!isNationalReg(shiny::req(user$org())) & shiny::req(user$role()) == "SC"){
     liste_aktivitet <- list(
       `Angiografør/Operatør` = list(
@@ -798,7 +798,7 @@ shiny::observeEvent(user$org, {
   )
   
   eligible <- reactiveVal(FALSE)
-  observeEvent(list(user$org, user$role), {
+  observeEvent(list(user$org(), user$role()), {
     eligible(all(c(user$role() == "SC", isNationalReg(user$org()))))
   })
   ## serve dispatchments (Utsending)
