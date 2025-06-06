@@ -679,7 +679,7 @@ shiny::observeEvent(list(user$org(), user$role()), {
   }
 })
   
-shiny::observeEvent(user$org, {
+shiny::observeEvent(user$org(), {
   if(shiny::req(user$org()) %in% c(102966, 700422, 109880, 104284, 101619)){
     subReports_aortaklaff <- list(
       `Aortaklaff` = list(
@@ -818,7 +818,7 @@ shiny::observeEvent(user$org, {
   
   
   #Verktøy - nedlasting rapporter
-  shiny::observeEvent(registryName, {
+  shiny::observeEvent(registryName(), {
   orgs_df <- noric::mapOrgReshId(registryName = registryName(),
                                  asNamedList = FALSE,
                                  newNames = TRUE)
@@ -878,7 +878,7 @@ shiny::observeEvent(user$org, {
                             registryName = registryName)
 
   tinyeligible <- reactiveVal(FALSE)
-  observeEvent(list(user$role), {
+  observeEvent(user$role(), {
     tinyeligible(user$role() == "SC")
   })
   # Verktøy - Eksport
