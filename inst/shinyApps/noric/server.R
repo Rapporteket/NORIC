@@ -610,6 +610,10 @@ shinyServer(function(input, output, session) {
     )
   })
 
+  shiny::observeEvent(input$createNational, {
+    message("Create national!")
+    createNational()
+  })
   output$nationalOutput <- shiny::renderUI({
     shiny::h2("Meldinger fra kjøring av jobb")
   })
