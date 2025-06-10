@@ -21,14 +21,14 @@ createNational <- function() {
     "skjemaoversikt",
     "taviprom"
   )
-  listOfDb <- (
+  listOfDb <- unique((
     rapbase::getConfig("rapbaseConfig.yml")$reg$noric$databases |>
     unlist() |>
     matrix(nrow=2) |>
     t() |>
     as.data.frame() |>
     dplyr::filter(.data$V1 != nationalDb)
-  )$V1
+  )$V1)
 
   # Check if db in listOfDb exists, and filter out non-existing db
   query <- "SHOW DATABASES;"
@@ -38,23 +38,20 @@ createNational <- function() {
     stop("No regional databases found in the configuration file.")
   }
 
+  message("Start creating national database!")
   for (aTable in listOfTables) {
-    message(paste0("Check if table ", aTable, " exists in db ", nationalDb))
+    message(paste0("Check if table ", aTable, " exists in ", nationalDb))
     query <- paste0("SHOW TABLES LIKE '", aTable, "';")
     res <- DBI::dbGetQuery(con, query)
     if (nrow(res) > 0) {
       message(paste0("Delete table content in ", aTable))
       query <- paste0(
-        "DELETE FROM ",
-        nationalDb,
-        ".",
-        aTable,
-        ";"
+        "DELETE FROM ", nationalDb, ".", aTable, ";"
       )
       DBI::dbExecute(con, query)
       loopListofDb <- listOfDb
     } else {
-      message(paste0("Create table ", aTable, " from db ", listOfDb[[1]]))
+      message(paste0("Create table ", aTable, " from ", listOfDb[[1]]))
       query <- paste0(
         "CREATE TABLE ", aTable,
         " AS SELECT * FROM ", listOfDb[[1]], ".", aTable, ";"
@@ -64,7 +61,7 @@ createNational <- function() {
       loopListofDb <- listOfDb[-1]
     }
     for (aDb in loopListofDb) {
-      message(paste0("Copy table ", aTable, " from db ", aDb))
+      message(paste0("Copy table ", aTable, " from ", aDb))
       query <- paste0(
         "INSERT INTO ", nationalDb, ".", aTable,
         " SELECT * FROM ", aDb, ".", aTable, ";"
@@ -72,6 +69,7 @@ createNational <- function() {
       DBI::dbExecute(con, query)
     }
   }
+  message("Finished creating national database!")
   rapbase::rapCloseDbConnection(con)
   con <- NULL
 }

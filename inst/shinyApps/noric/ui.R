@@ -146,7 +146,11 @@ ui <- tagList(
       tabPanel("Lag nasjonal database",
                sidebarLayout(
                  sidebarPanel(uiOutput("nationalControl")),
-                 mainPanel(uiOutput("nationalOutput"))
+                 mainPanel(
+                  shiny::p(
+                    shiny::em("Her er det foreløpig ikke noe informasjon.")
+                  )
+                 )
                )
       ),
 

@@ -611,12 +611,14 @@ shinyServer(function(input, output, session) {
   })
 
   shiny::observeEvent(input$createNational, {
-    message("Create national!")
-    createNational()
+    shiny::updateActionButton(
+      inputId = "createNational",
+      label = "Nasjonal database oppdatert!",
+      disabled = TRUE
+    )
+    createNational() # make it happen
   })
-  output$nationalOutput <- shiny::renderUI({
-    shiny::h2("Meldinger fra kjøring av jobb")
-  })
+
 
   # Verktøy - Metadata
   meta <- shiny::reactive({
