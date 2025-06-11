@@ -190,7 +190,7 @@ shinyServer(function(input, output, session) {
   }
   
   contentDump <- function(file, type) {
-    d <- noric::getDataDump(registryName = registryName,
+    d <- noric::getDataDump(registryName = registryName(),
                             tableName = input$dumpDataSet,
                             fromDate = input$dumpDateRange[1],
                             toDate = input$dumpDateRange[2],
