@@ -84,6 +84,7 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Utsending")
       shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Lag nasjonal database")
     }
   
     if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
@@ -596,8 +597,29 @@ shinyServer(function(input, output, session) {
                   type = input$dumpFormat)
     }
   )
-  
-  
+
+
+  # Verktøy - Nasjonal database
+  output$nationalControl <- shiny::renderUI({
+    htmltools::tagList(
+      shiny::actionButton(inputId = "createNational",
+                          label = "Populer nasjonal database"),
+      shiny::br(),
+      shiny::p(paste0("Ved å trykke på knappen ",
+                      "vil den nasjonale databasen oppdateres."))
+    )
+  })
+
+  shiny::observeEvent(input$createNational, {
+    shiny::updateActionButton(
+      inputId = "createNational",
+      label = "Nasjonal database oppdatert!",
+      disabled = TRUE
+    )
+    createNational() # make it happen
+  })
+
+
   # Verktøy - Metadata
   meta <- shiny::reactive({
     noric::describeRegistryDb(registryName = registryName())

@@ -21,7 +21,7 @@ reg:
       userRole: SC
       nameKey: Nasjonal
     databases:
-    - name: noric_bodoe
+    - name: noric_nasjonal
       reshId: 0
     - name: noric_ahus
       reshId: 108141
