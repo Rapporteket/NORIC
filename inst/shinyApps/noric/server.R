@@ -490,16 +490,18 @@ shinyServer(function(input, output, session) {
                     "MitralklaffVar",
                     "PasienterStudier",
                     "SegmentStent",
+                    # "segment_history",
                     "SkjemaOversikt")
   
   
   if (!(userRole == "SC" & noric::isNationalReg(reshId = reshId))) {
-      # Remove if not national SC-role
+    # Remove if not national SC-role
       dataSetsDump <- dataSetsDump[!dataSetsDump %in% "AortaklaffProm"]
   }
   
   
   
+
   output$selectDumpSet <- shiny::renderUI({ 
     htmltools::tagList(
       shiny::selectInput(inputId = "dumpDataSet", 
@@ -601,6 +603,19 @@ shinyServer(function(input, output, session) {
     )
     
     subReports <- c(subReports, liste_aktivitet)
+  }
+  
+  if(reshId %in% c(102966, 700422, 109880, 104284, 101619)){
+    subReports_aortaklaff <- list(
+      `Aortaklaff` = list(
+        synopsis = "NORIC aortaklaff",
+        fun = "reportProcessor",
+        paramNames = c("report", pn),
+        paramValues = c("NORIC_tavi_report", pv)
+      )
+    )
+    
+    subReports <- c(subReports, subReports_aortaklaff)
   }
   
   
