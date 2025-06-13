@@ -956,10 +956,47 @@ segm_map_num_tekst_uVerdi <- segm_map_num_tekst %>%
 segm_map_num_tekst <- segm_map_num_tekst %>% 
   filter(!is.na(verdi))
 
+### Lage rett rekkefølge på verditekst til "Segment" og "StentSlut" ###
+
+# Først finne alle rader det gjelder
+
+
+segment_stentSlut <- segm_map_num_tekst %>% 
+  filter(variabel_id %in% c("Segment", "StentSlut")) %>% 
+  separate_wider_delim(verditekst, delim = " (", # splitte på mellomrom og parantes
+                       names = c("verditekst", "tall"),
+                       too_few = "align_start") # lagre i to nye kolonner
+
+segment_stentSlut$ny_rekkef <- if_else(is.na(segment_stentSlut$tall), paste0("", segment_stentSlut$verditekst),
+                                       paste0("(", segment_stentSlut$tall, " ",segment_stentSlut$verditekst)) # lime disse sammen i annen rekkefølge
+
+segment_stentSlut <- segment_stentSlut %>% 
+  select(variabel_id, verdi, ny_rekkef) %>% 
+  rename(verditekst = ny_rekkef) # gi nytt navn til ny kolonne
+
+segment <- segment_stentSlut %>% 
+  filter(variabel_id == "Segment") 
+
+segment_factor_level <- str_sort(segment$verditekst, numeric = TRUE) # Lagre rekkefølge som vektor
+
+stentSlut <- segment_stentSlut %>% 
+  filter(variabel_id == "StentSlut")
+
+stentSlut_factor_level <- str_sort(stentSlut$verditekst, numeric = TRUE)
+
+segm_map_num_tekst <- segm_map_num_tekst %>% # ta ut alle med variabel_id == Segment
+  filter(! variabel_id %in% c("Segment", "StentSlut"))
+
+segm_map_num_tekst <- rbind(segm_map_num_tekst, segment_stentSlut) # lime inn alle Segment med ny rekkefølge på verditekst
+
+segm_map_num_tekst <- segm_map_num_tekst %>%
+  mutate(verditekst = case_match(variabel_id, "Segment" ~ fct_relevel(verditekst, segment_factor_level),
+                                 "StentSlut" ~ fct_relevel(verditekst, stentSlut_factor_level))) # ordne rekkefølge etter vektor
+
+
+
 # 4: Lagre data i pakken
 usethis::use_data(segm_map_num_tekst, overwrite = TRUE)
-
-
 
 
 # MITRALKLAFFVARNUM-------------------------------------------------------------
