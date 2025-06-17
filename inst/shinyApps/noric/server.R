@@ -952,7 +952,9 @@ shiny::observeEvent(user$org(), {
         icon = icon('trash'),
         onclick = 'Shiny.setInputValue(\"deletePressed\", this.id, {priority: "event"})'))
     }
-    
+    if(is.null(nrow(df))) {
+      return(NULL)
+    }
     deleteCol <- unlist(lapply(seq_len(nrow(df)), f))
     
     # Return a data table
