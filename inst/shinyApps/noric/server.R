@@ -84,6 +84,7 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Utsending")
       shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Lag nasjonal database")
     }
   
     if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
@@ -189,7 +190,7 @@ shinyServer(function(input, output, session) {
   }
   
   contentDump <- function(file, type) {
-    d <- noric::getDataDump(registryName = registryName,
+    d <- noric::getDataDump(registryName = registryName(),
                             tableName = input$dumpDataSet,
                             fromDate = input$dumpDateRange[1],
                             toDate = input$dumpDateRange[2],
@@ -596,8 +597,29 @@ shinyServer(function(input, output, session) {
                   type = input$dumpFormat)
     }
   )
-  
-  
+
+
+  # Verktøy - Nasjonal database
+  output$nationalControl <- shiny::renderUI({
+    htmltools::tagList(
+      shiny::actionButton(inputId = "createNational",
+                          label = "Populer nasjonal database"),
+      shiny::br(),
+      shiny::p(paste0("Ved å trykke på knappen ",
+                      "vil den nasjonale databasen oppdateres."))
+    )
+  })
+
+  shiny::observeEvent(input$createNational, {
+    shiny::updateActionButton(
+      inputId = "createNational",
+      label = "Nasjonal database oppdatert!",
+      disabled = TRUE
+    )
+    createNational() # make it happen
+  })
+
+
   # Verktøy - Metadata
   meta <- shiny::reactive({
     noric::describeRegistryDb(registryName = registryName())
@@ -679,7 +701,7 @@ shiny::observeEvent(list(user$org(), user$role()), {
   }
 })
   
-shiny::observeEvent(user$org, {
+shiny::observeEvent(user$org(), {
   if(shiny::req(user$org()) %in% c(102966, 700422, 109880, 104284, 101619)){
     subReports_aortaklaff <- list(
       `Aortaklaff` = list(
@@ -818,7 +840,7 @@ shiny::observeEvent(user$org, {
   
   
   #Verktøy - nedlasting rapporter
-  shiny::observeEvent(registryName, {
+  shiny::observeEvent(registryName(), {
   orgs_df <- noric::mapOrgReshId(registryName = registryName(),
                                  asNamedList = FALSE,
                                  newNames = TRUE)
@@ -878,7 +900,7 @@ shiny::observeEvent(user$org, {
                             registryName = registryName)
 
   tinyeligible <- reactiveVal(FALSE)
-  observeEvent(list(user$role), {
+  observeEvent(user$role(), {
     tinyeligible(user$role() == "SC")
   })
   # Verktøy - Eksport
