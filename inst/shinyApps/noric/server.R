@@ -840,10 +840,12 @@ shiny::observeEvent(user$org(), {
   
   
   #Verktøy - nedlasting rapporter
+  orgs_df <- shiny::reactiveVal(orgs)
   shiny::observeEvent(registryName(), {
-  orgs_df <- noric::mapOrgReshId(registryName = registryName(),
-                                 asNamedList = FALSE,
-                                 newNames = TRUE)
+    # Update orgs_df when registryName changes
+    orgs_df(noric::mapOrgReshId(registryName = registryName(),
+                                asNamedList = FALSE,
+                                newNames = TRUE))
   })
 
   ## innhold kontrollpanel:
@@ -867,7 +869,7 @@ shiny::observeEvent(user$org(), {
     p(paste("Valgt for nedlasting:\n",
             input$dwldRapport,
             "fra", 
-            orgs_df[orgs_df$id == input$dwldSykehus, "name"]))
+            orgs_df()[orgs_df()$id == input$dwldSykehus, "name"]))
   })
 
   output$dwnldReport <- shiny::downloadHandler(
@@ -883,7 +885,7 @@ shiny::observeEvent(user$org(), {
                   tmpFile = basename(tempfile(fileext = ".Rmd")),
                   type = "pdf",
                   orgId = input$dwldSykehus,
-                  orgName = orgs_df[orgs_df$id == input$dwldSykehus, "name"],
+                  orgName = orgs_df()[orgs_df()$id == input$dwldSykehus, "name"],
                   userFullName = user$fullName(),
                   userRole = user$role(),
                   registryName = registryName(),
