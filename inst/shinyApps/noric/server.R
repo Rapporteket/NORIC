@@ -656,7 +656,7 @@ shinyServer(function(input, output, session) {
   
   ## currently, function parameters are the same for all reports
 
-  pn <- shiny::reactive(c("outputType",
+  pn <- c("outputType",
           "title",
           "author",
           "orgName",
@@ -664,17 +664,17 @@ shinyServer(function(input, output, session) {
           "registryName",
           "userFullName",
           "userRole",
-          "userOperator"))
+          "userOperator")
   
-  pv <- shiny::reactive(c("pdf",
+  pv <- c("pdf",
           "Månedsresultater",
           "unknown author",
-          user$orgName(),
-          user$org(),
-          registryName(),
-          userFullName,
-          user$role(),
-          "unknown operator"))
+          "user$orgName()",
+          "user$org()",
+          registryName,
+          "userFullName",
+          "user$role()",
+          "unknown operator")
   
   subReports <- list(
     `Invasive prosedyrer` = list(
@@ -715,11 +715,26 @@ shiny::observeEvent(user$org(), {
     subReports <- c(subReports, subReports_aortaklaff)
   }
 })
-  
+
+    subParamNames <- shiny::reactive(c(
+    "orgId",
+    "orgName",
+    "userFullName",
+    "userRole"
+  ))
+  subParamValues <- shiny::reactive(c(
+    user$org(),
+    user$orgName(),
+    user$fullName(),
+    user$role()
+  ))
+
   ## serve subscriptions (Abonnement)
   rapbase::autoReportServer(id = "noricSubscription",
                             registryName = "noric", 
                             type = "subscription",
+                            paramNames = subParamNames,
+                            paramValues = subParamValues,
                             reports = subReports, 
                             orgs = orgs,
                             user = user)
@@ -731,7 +746,7 @@ shiny::observeEvent(user$org(), {
       synopsis = paste("NORIC kvalitetsindikatorer: eget sykehus",
                        "sammenlignet med resten av landet"),
       fun = "reportProcessor",
-      paramNames = shiny::reactive(c("report",
+      paramNames = c("report",
                      "outputType",
                      "title",
                      "author",
@@ -740,17 +755,17 @@ shiny::observeEvent(user$org(), {
                      "registryName",
                      "userFullName",
                      "userRole",
-                     "userOperator")),
-      paramValues = shiny::reactive(c("NORIC_kvalitetsindikator",
+                     "userOperator"),
+      paramValues = c("NORIC_kvalitetsindikator",
                       "pdf",
                       "Månedsresultater",
                       "unknown author",
                       "unknown organization",
                       999999,
-                      registryName(),
-                      userFullName,
-                      user$role(),
-                      "unknown operator"))
+                      "registryName()",
+                      "userFullName",
+                      "user$role()",
+                      "unknown operator")
     ), 
     
     
@@ -758,7 +773,7 @@ shiny::observeEvent(user$org(), {
       synopsis = paste("NORIC ",
                        "invasive prosedyrer"),
       fun = "reportProcessor",
-      paramNames = shiny::reactive(c("report",
+      paramNames = c("report",
                      "outputType",
                      "title",
                      "author",
@@ -767,24 +782,24 @@ shiny::observeEvent(user$org(), {
                      "registryName",
                      "userFullName",
                      "userRole",
-                     "userOperator")),
-      paramValues = shiny::reactive(c("NORIC_local_monthly",
+                     "userOperator"),
+      paramValues = c("NORIC_local_monthly",
                       "pdf",
                       "Månedsresultater",
                       "unknown author",
                       "unknown organization",
                       999999,
-                      registryName(),
-                      userFullName,
-                      user$role(),
-                      "unknown operator"))
+                      "registryName()",
+                      "userFullName",
+                      "user$role()",
+                      "unknown operator")
     ), 
     
     `Aortaklaff` = list(
       synopsis = paste("NORIC ",
                        "aortaklaff"),
       fun = "reportProcessor",
-      paramNames = shiny::reactive(c("report",
+      paramNames = c("report",
                      "outputType",
                      "title",
                      "author",
@@ -793,17 +808,17 @@ shiny::observeEvent(user$org(), {
                      "registryName",
                      "userFullName",
                      "userRole",
-                     "userOperator")),
-      paramValues = shiny::reactive(c("NORIC_tavi_report",
+                     "userOperator"),
+      paramValues = c("NORIC_tavi_report",
                       "pdf",
                       "Månedsresultater",
                       "unknown author",
                       "unknown organization",
                       999999,
-                      registryName(),
-                      userFullName,
-                      user$role(),
-                      "unknown operator"))
+                      "registryName()",
+                      "userFullName",
+                      "user$role()",
+                      "unknown operator")
     )
     
     
@@ -812,10 +827,11 @@ shiny::observeEvent(user$org(), {
   orgDispatch <- rapbase::autoReportOrgServer("noricDispatch", orgs)
   
   dispatchParamNames <- shiny::reactive(
-    c("orgName", "orgId")
+    c("orgName", "orgId", "registryName", "userFullName", "userRole")
   )
   dispatchParamValues <- shiny::reactive(
-    c(orgDispatch$name(), orgDispatch$value())
+    c(orgDispatch$name(), orgDispatch$value(), 
+      registryName, user$fullName(), user$role())
   )
   
   eligible <- reactiveVal(FALSE)
