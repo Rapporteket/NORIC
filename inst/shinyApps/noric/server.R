@@ -672,7 +672,7 @@ shinyServer(function(input, output, session) {
           user$orgName(),
           user$org(),
           registryName(),
-          userFullName(),
+          userFullName,
           user$role(),
           "unknown operator"))
   
@@ -731,7 +731,7 @@ shiny::observeEvent(user$org(), {
       synopsis = paste("NORIC kvalitetsindikatorer: eget sykehus",
                        "sammenlignet med resten av landet"),
       fun = "reportProcessor",
-      paramNames = c("report",
+      paramNames = shiny::reactive(c("report",
                      "outputType",
                      "title",
                      "author",
@@ -740,17 +740,17 @@ shiny::observeEvent(user$org(), {
                      "registryName",
                      "userFullName",
                      "userRole",
-                     "userOperator"),
-      paramValues = c("NORIC_kvalitetsindikator",
+                     "userOperator")),
+      paramValues = shiny::reactive(c("NORIC_kvalitetsindikator",
                       "pdf",
                       "Månedsresultater",
                       "unknown author",
                       "unknown organization",
                       999999,
-                      registryName,
+                      registryName(),
                       userFullName,
-                      user$role,
-                      "unknown operator")
+                      user$role(),
+                      "unknown operator"))
     ), 
     
     
@@ -758,7 +758,7 @@ shiny::observeEvent(user$org(), {
       synopsis = paste("NORIC ",
                        "invasive prosedyrer"),
       fun = "reportProcessor",
-      paramNames = c("report",
+      paramNames = shiny::reactive(c("report",
                      "outputType",
                      "title",
                      "author",
@@ -767,24 +767,24 @@ shiny::observeEvent(user$org(), {
                      "registryName",
                      "userFullName",
                      "userRole",
-                     "userOperator"),
-      paramValues = c("NORIC_local_monthly",
+                     "userOperator")),
+      paramValues = shiny::reactive(c("NORIC_local_monthly",
                       "pdf",
                       "Månedsresultater",
                       "unknown author",
                       "unknown organization",
                       999999,
-                      registryName,
+                      registryName(),
                       userFullName,
-                      user$role,
-                      "unknown operator")
+                      user$role(),
+                      "unknown operator"))
     ), 
     
     `Aortaklaff` = list(
       synopsis = paste("NORIC ",
                        "aortaklaff"),
       fun = "reportProcessor",
-      paramNames = c("report",
+      paramNames = shiny::reactive(c("report",
                      "outputType",
                      "title",
                      "author",
@@ -793,19 +793,18 @@ shiny::observeEvent(user$org(), {
                      "registryName",
                      "userFullName",
                      "userRole",
-                     "userOperator"),
-      paramValues = c("NORIC_tavi_report",
+                     "userOperator")),
+      paramValues = shiny::reactive(c("NORIC_tavi_report",
                       "pdf",
                       "Månedsresultater",
                       "unknown author",
                       "unknown organization",
                       999999,
-                      registryName,
+                      registryName(),
                       userFullName,
-                      user$role,
-                      "unknown operator")
+                      user$role(),
+                      "unknown operator"))
     )
-    
     
     
   )
