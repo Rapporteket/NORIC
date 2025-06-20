@@ -913,10 +913,11 @@ shiny::observeEvent(user$org(), {
   rapbase::statsServer2(
     id = "noricStats",
     registryName = "noric",
+    app_id = Sys.getenv("FALK_APP_ID"),
     eligible = shiny::req(eligible)
   )
   rapbase::statsGuideServer("noricStatsGuide",
-                            registryName = registryName)
+                            registryName = "noric")
 
   tinyeligible <- reactiveVal(FALSE)
   observeEvent(user$role(), {
