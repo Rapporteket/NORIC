@@ -671,7 +671,7 @@ shinyServer(function(input, output, session) {
           "unknown author",
           "user$orgName()",
           "user$org()",
-          registryName,
+          "registryName",
           "userFullName",
           "user$role()",
           "unknown operator")
@@ -720,13 +720,15 @@ shiny::observeEvent(user$org(), {
     "orgId",
     "orgName",
     "userFullName",
-    "userRole"
+    "userRole",
+    "registryName"
   ))
   subParamValues <- shiny::reactive(c(
     user$org(),
     user$orgName(),
     user$fullName(),
-    user$role()
+    user$role(),
+    registryName()
   ))
 
   ## serve subscriptions (Abonnement)
@@ -831,7 +833,7 @@ shiny::observeEvent(user$org(), {
   )
   dispatchParamValues <- shiny::reactive(
     c(orgDispatch$name(), orgDispatch$value(), 
-      registryName, user$fullName(), user$role())
+      registryName(), user$fullName(), user$role())
   )
   
   eligible <- reactiveVal(FALSE)
