@@ -947,6 +947,7 @@ shiny::observeEvent(user$org(), {
   
   # observers staging data
   shiny::observeEvent(input$lagNyStaging, {
+    print(registryName())
     shiny::withProgress(message = 'Lager ny staging data, vent!', value = 0, {
       noric::makeStagingDataKi(registryName = registryName(),
                                rendered_by_shiny = TRUE)
@@ -1023,10 +1024,20 @@ shiny::observeEvent(user$org(), {
   orgDataStaging <- rapbase::autoReportOrgServer("noricBulletin", orgs)
   
   bulletinParamNames <- shiny::reactive(
-    c("orgName", "orgId")
+    c("orgName",
+      "orgId",
+      "registryName",
+      "userFullName",
+      "userRole"
+      )
   )
   bulletinParamValues <- shiny::reactive(
-    c(orgDataStaging$name(), orgDataStaging$value())
+    c(orgDataStaging$name(),
+      orgDataStaging$value(),
+      registryName(),
+      user$fullName(),
+      user$role()
+    )
   )
   
   
@@ -1046,18 +1057,12 @@ shiny::observeEvent(user$org(), {
                       "unknown author",
                       "unknown organization",
                       999999,
-                      registryName(),
-                      userFullName(),
-                      user$role(),
+                      "registryName()",
+                      "userFullName()",
+                      "user$role()",
                       "unknown operator"))
     )
   )
-
-  vis_rapp <- reactiveVal(FALSE)
-  observeEvent(list(user$role(), user$org()), {
-    vis_rapp(all(c(user$role() == "SC",
-                 isNationalReg(reshId = user$org()))))
-  })
 
   ## serve bulletin ()
   rapbase::autoReportServer(
@@ -1069,7 +1074,7 @@ shiny::observeEvent(user$org(), {
     paramValues = bulletinParamValues,
     reports = bulletins,
     orgs = orgs,
-    eligible = vis_rapp,
+    eligible = eligible,
     user = user
   )
 })
