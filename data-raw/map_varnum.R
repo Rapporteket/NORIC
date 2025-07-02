@@ -991,7 +991,8 @@ segm_map_num_tekst <- rbind(segm_map_num_tekst, segment_stentSlut) # lime inn al
 
 segm_map_num_tekst <- segm_map_num_tekst %>%
   mutate(verditekst = case_match(variabel_id, "Segment" ~ fct_relevel(verditekst, segment_factor_level),
-                                 "StentSlut" ~ fct_relevel(verditekst, stentSlut_factor_level))) # ordne rekkefølge etter vektor
+                                 "StentSlut" ~ fct_relevel(verditekst, stentSlut_factor_level),
+                                 .default = verditekst)) # ordne rekkefølge etter vektor
 
 
 
