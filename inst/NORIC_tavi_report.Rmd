@@ -523,9 +523,7 @@ cap <- paste0("Fordeling av prosedyretyper registrert i NORIC ",
               "ved ", params$hospitalName,
               " for hele fjoråret og hittil i år (t.o.m ", 
               siste_dato_txt, 
-              ").", 
-              " Merk at variabelen var ny våren 2023 og at eldre prosedyrer ", 
-              "har verdien NA (not available).")
+              ").")
 
 
 TabPros_fjor <- merge(
@@ -1115,9 +1113,7 @@ cap <- paste0("Antall prosedyrer med paravalvular insuffisiens registrert ",
               "ved ", params$hospitalName,
               " for hele fjoråret og hittil i år (t.o.m ",
               siste_dato_txt,
-              ").", 
-               " Merk at variabelen var ny våren 2023 og at eldre prosedyrer ", 
-              "har verdien NA (not available).")
+              ").")
 
 paraInsuff_fjor <- merge(
   x = timeTableMonth_fjor,
