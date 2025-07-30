@@ -2274,7 +2274,7 @@ Merk at datovariablene ikke nødvendigvis er filvasket.
 <br/><br/><br/>
 
 
-```{r figVentetid, fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Prosedyrene er fra tidsrommet fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r figVentetid, fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Prosedyrene er fra tidsrommet fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 
 AK %>% 
