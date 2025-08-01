@@ -14,7 +14,7 @@ header-includes:
 - \usepackage{booktabs}
 - \usepackage{rotating}
 - \usepackage{float}
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!", "\\newline ", "\\newline ", "Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene og figurene presenteres med data fra de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!", "\\newline ", "\\newline ", "Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene og figurene presenteres med data fra hele fjoråret samt hittil i år." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -537,13 +537,13 @@ digs <-  rep(0, dim(TabPros)[2] )
 
 
 if (params$tableFormat == "html") {
-  TabPros %>% dplyr::select(-aar) %>% 
+  TabPros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE, 
-                              font_size = 8) %>%
+                              font_size = 12) %>%
     kableExtra::column_spec(column = 1, width = "7em") %>% 
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
@@ -556,7 +556,7 @@ if (params$tableFormat == "html") {
                           end_row = dim(TabPros)[1])
 
 } else if (params$tableFormat == "latex") {
-  TabPros %>% dplyr::select(-aar) %>% 
+  TabPros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -665,13 +665,13 @@ digs <-  rep(0, dim(TabHast)[2] )
 
 
 if (params$tableFormat == "html") {
-  TabHast %>% dplyr::select(-aar) %>% 
+  TabHast %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE, 
-                              font_size = 8) %>%
+                              font_size = 11) %>%
     kableExtra::column_spec(column = 1, width = "7em") %>% 
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
@@ -684,7 +684,7 @@ if (params$tableFormat == "html") {
                           end_row = dim(TabHast)[1])
 
 } else if (params$tableFormat == "latex") {
-  TabHast %>% dplyr::select(-aar) %>% 
+  TabHast %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -809,13 +809,13 @@ digs <-  rep(0, dim(TabIndik)[2] )
 
 
 if (params$tableFormat == "html") {
-  TabIndik %>% dplyr::select(-aar) %>% 
+  TabIndik %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE, 
-                              font_size = 8) %>%
+                              font_size = 11) %>%
     kableExtra::column_spec(column = 1, width = "7em") %>% 
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
@@ -828,7 +828,7 @@ if (params$tableFormat == "html") {
                           end_row = dim(TabIndik)[1])
 
 } else if (params$tableFormat == "latex") {
-  TabIndik %>% dplyr::select(-aar) %>% 
+  TabIndik %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -883,7 +883,7 @@ PrintTabTilleggCol <- function(VAR) {
   )
 
   prosentJa <- paste0(nVARja, " (", rVARja, "%)")
-  prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
+  prosentJa[prosentJa == "  0 (0.0%)"] <- "    -    "
 
   return(prosentJa)
 }
@@ -974,6 +974,8 @@ TabTillegg %<>%
           dplyr::count(maaned) %>%
           janitor::adorn_totals("row") %>%
           dplyr::transmute(Totalt = n))
+
+  
 ```
 <br/>
 
@@ -983,20 +985,89 @@ cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført "
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
               rangeProsDato, ".")
 
-noric::mst(TabTillegg[, c("FFR",
-                         "IFR",
-                         "OCT",
-                         "IVUS",
-                         "Pa",
-                         "Pd",
-                         "PdPa",
-                         "IMR",
-                         "Totalt")],
-           type = params$tableFormat,
-           cap = cap,
-           digs = 0,
-           align =  rep("c", 9),
-           label = "TabTilleggsProsedyre1")
+TabAnnenDiag_var <- TabTillegg[, c("FFR",
+                                    "IFR",
+                                    "OCT",
+                                    "IVUS",
+                                    "Pa",
+                                    "Pd",
+                                    "PdPa",
+                                    "IMR",
+                                    "Totalt")]
+
+TabAnnenDiag_fiks <- data.frame(maaned = rownames(TabAnnenDiag_var),
+                      TabAnnenDiag_var,
+                      row.names = NULL) %>%
+  filter(row_number() <= n()-1)
+         
+TabAnnenDiag_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = TabAnnenDiag_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAnnenDiag_aar <- merge(
+  x = timeTableMonth_aar,
+  y = TabAnnenDiag_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAnnenDiag <- rbind(
+  TabAnnenDiag_fjor,
+  TabAnnenDiag_aar)
+
+TabAnnenDiag[TabAnnenDiag == "0 ( 0.0%)"] <- " - "
+TabAnnenDiag[is.na(TabAnnenDiag)] <- " - "
+
+align <- c("l", rep("c", dim(TabAnnenDiag)[2] - 1))
+digs <-  rep(0, dim(TabAnnenDiag)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabAnnenDiag %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=11, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabAnnenDiag)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 12) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 13, 
+                          end_row = dim(TabAnnenDiag)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabAnnenDiag %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE)%>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 12) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 13, 
+                          end_row = dim(TabAnnenDiag)[1])
+
+
+}
 
 ```
 
@@ -1008,15 +1079,83 @@ cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er "
               "utført koronare angiografi og/eller PCI per måned ved ",
               params$hospitalName, " i perioden ", rangeProsDato, ".")
 
-noric::mst(TabTillegg[, c("Høyre kat.",
-                         "Perikardiocentese",
-                         "Ventilfilming",
-                         "Totalt")],
-           type = params$tableFormat,
-           cap = cap,
-           digs = 0,
-           align = rep("c", 4),
-           label = "TabTilleggsProsedyre2")
+
+TabTilleggspros_var <- TabTillegg[, c("Høyre kat.",
+                                      "Perikardiocentese",
+                                      "Ventilfilming",
+                                      "Totalt")]
+
+TabTilleggspros_fiks <- data.frame(maaned = rownames(TabTilleggspros_var),
+                      TabTilleggspros_var,
+                      row.names = NULL) %>%
+  filter(row_number() <= n()-1)
+         
+TabTilleggspros_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = TabTilleggspros_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabTilleggspros_aar <- merge(
+  x = timeTableMonth_aar,
+  y = TabTilleggspros_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabTilleggspros <- rbind(
+  TabTilleggspros_fjor,
+  TabTilleggspros_aar)
+
+align <- c("l", rep("c", dim(TabTilleggspros)[2] - 1))
+digs <-  rep(0, dim(TabTilleggspros)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabTilleggspros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=11, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabTilleggspros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 12) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 13, 
+                          end_row = dim(TabTilleggspros)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabTilleggspros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE)%>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 12) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 13, 
+                          end_row = dim(TabTilleggspros)[1])
+
+
+}
+
 ```
 
 
@@ -1028,16 +1167,83 @@ cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført "
               "per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato, ".")
 
-noric::mst(TabTillegg[, c("PM",
-                          "IABP",
-                          "Impella",
-                          "ECMO",
-                          "Totalt")],
-           type = params$tableFormat,
-           cap = cap,
-           digs = 0,
-           align =  rep("c", 5),
-           label = "TabTilleggsProsedyre3")
+TabAdjTerapi_var <- TabTillegg[, c("PM",
+                                   "IABP",
+                                   "Impella",
+                                   "ECMO",
+                                   "Totalt")]
+
+TabAdjTerapi_fiks <- data.frame(maaned = rownames(TabAdjTerapi_var),
+                      TabAdjTerapi_var,
+                      row.names = NULL) %>%
+  filter(row_number() <= n()-1)
+         
+TabAdjTerapi_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = TabAdjTerapi_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAdjTerapi_aar <- merge(
+  x = timeTableMonth_aar,
+  y = TabAdjTerapi_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAdjTerapi <- rbind(
+  TabAdjTerapi_fjor,
+  TabAdjTerapi_aar)
+
+align <- c("l", rep("c", dim(TabAdjTerapi)[2] - 1))
+digs <-  rep(0, dim(TabAdjTerapi)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabAdjTerapi %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=11, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabAdjTerapi)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 12) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 13, 
+                          end_row = dim(TabAdjTerapi)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabAdjTerapi %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE)%>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 12) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 13, 
+                          end_row = dim(TabAdjTerapi)[1])
+
+
+}
+
 ```
 
 
