@@ -883,7 +883,7 @@ PrintTabTilleggCol <- function(VAR) {
   )
 
   prosentJa <- paste0(nVARja, " (", rVARja, "%)")
-  prosentJa[prosentJa == "  0 (0.0%)"] <- "    -    "
+  prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
 
   return(prosentJa)
 }
