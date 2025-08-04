@@ -1273,7 +1273,7 @@ pasienten fortsatt er på hjertekateteriseringslaboratoriet (kat.lab.)
 Datagrunnlaget omfatter både planlagte, subakutte 
 og akutte prosedyrer samlet, uavhengig av pasientens helsetilstand på forhånd.
 Vi har gruppert komplikasjonenene som Alvorlige eller Øvrige. 
-Figuren viser antall registrerte komplikasjoner de  siste `r showN` månedene. 
+Figuren viser antall registrerte komplikasjoner fra hele fjoråret samt hittil i år. 
 Merk at det kan ha blitt registrert flere typer komplikasjoner for en og samme 
 pasient.  
 
@@ -1420,146 +1420,190 @@ cap <- paste0("Antall alvorlige og øvrige komplikasjoner på kat.lab., ",
               "perioden fra ", rangeProsDato,  ".", 
               "")
 
-tab_labkomp <- timeTableMonth %>% 
+tab_labkomp <- timeTableMonth %>%
   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompAllergiskAlvorlig %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Allergisk reaksjon alvorlig" = n), 
-                   by = "maaned") %>% 
+                   AP %>%
+                     dplyr::filter(LabKompAllergiskAlvorlig %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Allergisk reaksjon alvorlig" = n),
+                   by = "maaned") %>%
   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompBehkrevendeArytmi %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Behandlingskrevende arytmi" = n), 
-                   by = "maaned") %>% 
+                   AP %>%
+                     dplyr::filter(LabKompBehkrevendeArytmi %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Behandlingskrevende arytmi" = n),
+                   by = "maaned") %>%
   
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompHemodynamisk %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Hemodynamisk komplikasjon" = n), 
-                   by = "maaned") %>% 
-  
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompNeurologisk %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Nevrologisk komplikasjon" = n), 
-                   by = "maaned") %>% 
-
-  
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompVaskulaerIkkeKoronar %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Vaskulær (ikke koronare kar)" = n), 
-                   by = "maaned") %>% 
-     dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompPerforasjon %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Perforasjon" = n), 
-                   by = "maaned") %>% 
- 
-     dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompTamponade %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Tamponade" = n), 
-                   by = "maaned") %>% 
- 
-     dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompAkuttACBOperasjon %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Akutt ACB-operasjon fra lab" = n), 
-                   by = "maaned") %>% 
-  
-   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompDod %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Død" = n), 
-                   by = "maaned") %>% 
-  
-    
-   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompProsedyrerelatertDod %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav prosedyrerelatert død" = n), 
-                   by = "maaned") %>% 
-  
-     dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompAnnenAlv %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Annen alvorlig" = n), 
-                   by = "maaned") %>% 
- dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompAllergiskLettModerat %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Allergisk lett/moderat" = n), 
-                   by = "maaned") %>% 
   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompMistetStent %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Mistet stent" = n), 
-                   by = "maaned") %>% 
+                   AP %>%
+                     dplyr::filter(LabKompHemodynamisk %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Hemodynamisk komplikasjon" = n),
+                   by = "maaned") %>%
   
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompVedvarSidegrensokkl %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Vedvarende sidegr.okkl" = n), 
-                   by = "maaned") %>% 
-  janitor::adorn_totals("row", name = "Totalt") 
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompNeurologisk %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Nevrologisk komplikasjon" = n),
+                   by = "maaned") %>%
+  
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompVaskulaerIkkeKoronar %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Vaskulær (ikke koronare kar)" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompPerforasjon %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Perforasjon" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompTamponade %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Tamponade" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompAkuttACBOperasjon %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Akutt ACB-operasjon fra lab" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompDod %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Død" = n),
+                   by = "maaned") %>%
+  
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompProsedyrerelatertDod %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav prosedyrerelatert død" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompAnnenAlv %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Annen alvorlig" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompAllergiskLettModerat %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Allergisk lett/moderat" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompMistetStent %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Mistet stent" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompVedvarSidegrensokkl %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Vedvarende sidegr.okkl" = n),
+                   by = "maaned")
 
-tab_labkomp[tab_labkomp == 0] <-  " - "
-tab_labkomp[is.na(tab_labkomp)] <- " - "
-  
-  
-  
 
-align <- c("r", rep("c", dim(tab_labkomp)[2] - 1))
-col_nams <- c("", names(tab_labkomp[-1]))
+TabLabkomp_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tab_labkomp, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
+TabLabkomp_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tab_labkomp, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabLabkomp <- rbind(
+  TabLabkomp_fjor,
+  TabLabkomp_aar
+)
+
+
+TabLabkomp[TabLabkomp == 0] <- " - "
+TabLabkomp[is.na(TabLabkomp)] <- " - "
+
+align <- c("r", rep("c", dim(TabLabkomp)[2] - 1))
+digs <-  rep(0, dim(TabLabkomp)[2] )
 
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = tab_labkomp, 
-               caption = cap,
-               align = align, col.names = col_nams) %>%
+  TabLabkomp %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
-                              full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em") %>% 
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>%
      kableExtra::add_header_above(., header = c("", 
                                                "Alvorlige komplikasjoner på lab" = 11, 
                                                "Øvrige " = 3), 
                                  bold = TRUE, 
-                                 font_size = 10)
-  
+                                 font_size = 10) %>% 
+    kableExtra::row_spec(row = 0, angle = -45) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabLabkomp)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabLabkomp)[1])
+
 } else if (params$tableFormat == "latex") {
-  knitr::kable(x = tab_labkomp,
-               format = params$tableFormat,
+  TabLabkomp %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
-               align = "r", col.names = col_nams) %>%
+               align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                              font_size = 8) %>%
-    kableExtra::row_spec(row = 0, angle = 90) %>% 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row = 0, angle = 90) %>%
     kableExtra::add_header_above(., header = c("", 
                                                "Alvorlige komplikasjoner på lab" = 11, 
                                                "Øvrige " = 3), 
                                  bold = TRUE, 
-                                 font_size = 10)
+                                 font_size = 10) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabLabkomp)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabLabkomp)[1])
+
+
 }
+
 ```
 
 
@@ -1830,165 +1874,359 @@ cap <- paste0("Antall alvorlige og øvrige komplikasjoner på sengepost, ",
               "perioden fra ", rangeProsDato,  ".", 
               "")
 
-tab_avdkomp <- timeTableMonth %>% 
+tab_avdkomp <- timeTableMonth %>%
   dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
                        is.na(KobletForlopsID),
-                       AvdKompDod %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Død på avdeling" = n), 
-                   by = "maaned") %>% 
+                       AvdKompDod %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Død på avdeling" = n),
+                   by = "maaned") %>%
   dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
                        is.na(KobletForlopsID),
-                       AvdKompProsedyrerelatertDod %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav prosedyrerelatert død" = n), 
-                   by = "maaned") %>% 
-  
+                       AvdKompProsedyrerelatertDod %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav prosedyrerelatert død" = n),
+                   by = "maaned") %>%
+
     dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompNyNyreinsuffisiens %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Nytilkommet nyreinsuffisens" = n), 
-                   by = "maaned") %>% 
- 
+                       is.na(KobletForlopsID),
+                       AvdKompNyNyreinsuffisiens %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Nytilkommet nyreinsuffisens" = n),
+                   by = "maaned") %>%
+
       dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompNeurologiskKomp %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Nevrologisk" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompNeurologiskKomp %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Nevrologisk" = n),
+                   by = "maaned") %>%
      dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompHjerteinfarkt %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Hjerteinfarkt" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompHjerteinfarkt %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Hjerteinfarkt" = n),
+                   by = "maaned") %>%
      dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompTamponade %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Tamponade" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompTamponade %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Tamponade" = n),
+                   by = "maaned") %>%
      dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompVaskulaer %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Vaskulær (ikke koronare kar)" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompVaskulaer %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Vaskulær (ikke koronare kar)" = n),
+                   by = "maaned") %>%
      dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompPCI %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Re-PCI (behandlet segment)" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompPCI %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Re-PCI (behandlet segment)" = n),
+                   by = "maaned") %>%
 
        dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompACB %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("ACB-operasjon (ikke fra lab)" = n), 
-                   by = "maaned") %>% 
-  
-  dplyr::left_join(., 
-                   AP %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompACB %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("ACB-operasjon (ikke fra lab)" = n),
+                   by = "maaned") %>%
+
+  dplyr::left_join(.,
+                   AP %>%
                      dplyr::filter(
-                          is.na(KobletForlopsID), 
-                          komplik_avd_alvorligBlodning %in% "Ja") %>% 
-                        dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Noen form for alvorlig blødning" = n), 
-                   by = "maaned") %>% 
+                          is.na(KobletForlopsID),
+                          komplik_avd_alvorligBlodning %in% "Ja") %>%
+                        dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Noen form for alvorlig blødning" = n),
+                   by = "maaned") %>%
        dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompAnnenAlvorlig %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Annen alvorlig" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompAnnenAlvorlig %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Annen alvorlig" = n),
+                   by = "maaned") %>%
 
         dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       komplik_avd_ovrigBlodning %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Noen form for øvrig blødning" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       komplik_avd_ovrigBlodning %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Noen form for øvrig blødning" = n),
+                   by = "maaned") %>%
       dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompAllergisk %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Allergisk senreaksjon" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompAllergisk %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Allergisk senreaksjon" = n),
+                   by = "maaned")
 
-  
-  
-  
 
-  janitor::adorn_totals("row", name = "Totalt") 
+TabAvdkomp_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tab_avdkomp, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-tab_avdkomp[tab_avdkomp == 0] <-  " - "
-tab_avdkomp[is.na(tab_avdkomp)] <- " - "
-  
-  
-  
+TabAvdkomp_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tab_avdkomp, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
 
-align <- c("r", rep("c", dim(tab_avdkomp)[2] - 1))
-col_nams <- c("", names(tab_avdkomp[-1]))
 
+TabAvdkomp <- rbind(
+  TabAvdkomp_fjor,
+  TabAvdkomp_aar
+)
+
+
+TabAvdkomp[TabAvdkomp == 0] <- " - "
+TabAvdkomp[is.na(TabAvdkomp)] <- " - "
+
+align <- c("r", rep("c", dim(TabAvdkomp)[2] - 1))
+digs <-  rep(0, dim(TabAvdkomp)[2] )
 
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = tab_avdkomp, 
-               caption = cap,
-               align = align, col.names = col_nams) %>%
+  TabAvdkomp %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
-                              full_width = FALSE) %>%
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
     kableExtra::row_spec(row = 0, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em") %>%
-  kableExtra::add_header_above(., header = c("",
-                                            "Alvorlige komplikasjoner på avdeling" = 11,
-                                            "Øvrige " = 2),
-                              bold = TRUE,
-                              font_size = 10)
-  
-} else if (params$tableFormat == "latex") {
-  knitr::kable(x = tab_avdkomp,
-               format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r", col.names = col_nams) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position", 
-                              font_size = 8) %>%
-    kableExtra::row_spec(row = 0, angle = 90)%>% 
     kableExtra::add_header_above(., header = c("",
                                                "Alvorlige komplikasjoner på avdeling" = 11,
                                                "Øvrige " = 2),
                                  bold = TRUE,
-                                 font_size = 10)
+                                 font_size = 10) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabAvdkomp)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAvdkomp)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabAvdkomp %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row = 0, angle = 90) %>% 
+    kableExtra::add_header_above(., header = c("",
+                                               "Alvorlige komplikasjoner på avdeling" = 11,
+                                               "Øvrige " = 2),
+                                 bold = TRUE,
+                                 font_size = 10) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabAvdkomp)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAvdkomp)[1])
+
+
 }
+
+# tab_avdkomp <- timeTableMonth %>% 
+#   dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID),
+#                        AvdKompDod %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Død på avdeling" = n), 
+#                    by = "maaned") %>% 
+#   dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID),
+#                        AvdKompProsedyrerelatertDod %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("- herav prosedyrerelatert død" = n), 
+#                    by = "maaned") %>% 
+#   
+#     dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompNyNyreinsuffisiens %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Nytilkommet nyreinsuffisens" = n), 
+#                    by = "maaned") %>% 
+#  
+#       dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompNeurologiskKomp %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Nevrologisk" = n), 
+#                    by = "maaned") %>% 
+#      dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompHjerteinfarkt %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Hjerteinfarkt" = n), 
+#                    by = "maaned") %>% 
+#      dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompTamponade %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Tamponade" = n), 
+#                    by = "maaned") %>% 
+#      dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompVaskulaer %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Vaskulær (ikke koronare kar)" = n), 
+#                    by = "maaned") %>% 
+#      dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompPCI %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Re-PCI (behandlet segment)" = n), 
+#                    by = "maaned") %>% 
+# 
+#        dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompACB %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("ACB-operasjon (ikke fra lab)" = n), 
+#                    by = "maaned") %>% 
+#   
+#   dplyr::left_join(., 
+#                    AP %>% 
+#                      dplyr::filter(
+#                           is.na(KobletForlopsID), 
+#                           komplik_avd_alvorligBlodning %in% "Ja") %>% 
+#                         dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Noen form for alvorlig blødning" = n), 
+#                    by = "maaned") %>% 
+#        dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompAnnenAlvorlig %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Annen alvorlig" = n), 
+#                    by = "maaned") %>% 
+# 
+#         dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        komplik_avd_ovrigBlodning %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Noen form for øvrig blødning" = n), 
+#                    by = "maaned") %>% 
+#       dplyr::left_join(.,
+#                    AP %>% 
+#                      dplyr::filter(
+#                        is.na(KobletForlopsID), 
+#                        AvdKompAllergisk %in% "Ja") %>% 
+#                      dplyr::count(maaned, .drop = FALSE) %>% 
+#                      dplyr::rename("Allergisk senreaksjon" = n), 
+#                    by = "maaned") %>% 
+#       janitor::adorn_totals("row", name = "Totalt") 
+# 
+# tab_avdkomp[tab_avdkomp == 0] <-  " - "
+# tab_avdkomp[is.na(tab_avdkomp)] <- " - "
+#   
+#   
+#   
+# 
+# align <- c("r", rep("c", dim(tab_avdkomp)[2] - 1))
+# col_nams <- c("", names(tab_avdkomp[-1]))
+# 
+# 
+# 
+# if (params$tableFormat == "html") {
+#   knitr::kable(x = tab_avdkomp, 
+#                caption = cap,
+#                align = align, col.names = col_nams) %>%
+#     kableExtra::kable_styling(bootstrap_options = c("striped",
+#                                                     "hover",
+#                                                     "condensed"),
+#                               full_width = FALSE) %>%
+#     kableExtra::row_spec(row = 0, angle = -45) %>%
+#     kableExtra::column_spec(column = 1, width = "7em") %>%
+#   kableExtra::add_header_above(., header = c("",
+#                                             "Alvorlige komplikasjoner på avdeling" = 11,
+#                                             "Øvrige " = 2),
+#                               bold = TRUE,
+#                               font_size = 10)
+#   
+# } else if (params$tableFormat == "latex") {
+#   knitr::kable(x = tab_avdkomp,
+#                format = params$tableFormat,
+#                caption = cap,
+#                booktabs = TRUE,
+#                align = "r", col.names = col_nams) %>%
+#     kableExtra::kable_styling(latex_options = "HOLD_position", 
+#                               font_size = 8) %>%
+#     kableExtra::row_spec(row = 0, angle = 90)%>% 
+#     kableExtra::add_header_above(., header = c("",
+#                                                "Alvorlige komplikasjoner på avdeling" = 11,
+#                                                "Øvrige " = 2),
+#                                  bold = TRUE,
+#                                  font_size = 10)
+# }
+
 ```
 
 
