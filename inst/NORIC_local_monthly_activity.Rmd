@@ -311,8 +311,8 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført ",
 tab_angiografor <- angiografor_AP %>% 
   janitor::tabyl(maaned,
                  forkortetNavnAngiografor,
-                 show_missing_levels = FALSE)
-
+                 show_missing_levels = FALSE) %>% 
+  janitor::adorn_totals("col", name = "Totalt")
 
 TabAngiografor_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -320,8 +320,7 @@ TabAngiografor_fjor <- merge(
   by.x  = "maaned",
   by.y = "maaned",
   all.x = TRUE) %>%
-  janitor::adorn_totals("row", name = paste0("Totalt i\n", periode_data$sisteHeleYear))
-
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear))
 
 TabAngiografor_aar <- merge(
   x = timeTableMonth_aar,
@@ -330,6 +329,7 @@ TabAngiografor_aar <- merge(
   by.y = "maaned",
   all.x = TRUE) %>%
   janitor::adorn_totals("row", name = paste("Totalt i", periode_data$nyesteRegYear, sep = "\n"))
+
 
 
 TabAngiografor <- rbind(
