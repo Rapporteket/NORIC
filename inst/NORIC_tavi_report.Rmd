@@ -274,11 +274,13 @@ AK %<>%
         TypeKlaffeprotese %in% c("CoreValve Evolut PRO", 
                                  "CoreValve Evolut R", 
                                  "CoreValve", 
-                                 "Evolut FX") ~ "CoreValve", 
+                                 "Evolut FX") ~ "CoreValve",  
+        
+        TypeKlaffeprotese %in% c("NAVITOR") ~ "NAVITOR", 
         
         !is.na(TypeKlaffeprotese) ~ "Annet", 
         is.na(TypeKlaffeprotese) ~ NA_character_), 
-      levels = c("Edwards", "CoreValve", "Annet", NA_character_)), 
+      levels = c("Edwards", "CoreValve", "NAVITOR", "Annet", NA_character_)), 
     
       Maaned = factor(maaned_nr, 
                     levels = c("01", "02", "03", "04", "05", "06", "07", 
@@ -566,7 +568,7 @@ digs <-  rep(0, dim(TabPros)[2] )
 
 
 if (params$tableFormat == "html") {
-  TabPros %>% dplyr::select(-aar) %>% 
+  TabPros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -585,7 +587,7 @@ if (params$tableFormat == "html") {
                           end_row = dim(TabPros)[1])
 
 } else if (params$tableFormat == "latex") {
-  TabPros %>% dplyr::select(-aar) %>% 
+  TabPros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -671,7 +673,7 @@ digs <-  rep(0, dim(TabHast)[2] )
 
 
 if (params$tableFormat == "html") {
-  TabHast %>% dplyr::select(-aar) %>% 
+  TabHast %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -690,7 +692,7 @@ if (params$tableFormat == "html") {
                           end_row = dim(TabHast)[1])
 
 } else if (params$tableFormat == "latex") {
-  TabHast %>% dplyr::select(-aar) %>% 
+  TabHast %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -790,7 +792,7 @@ digs <-  rep(0, dim(TabOpTilg)[2])
 
 if (params$tableFormat == "html") {
   TabOpTilg %>%
-    dplyr::select(-aar) %>% 
+    dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -812,7 +814,7 @@ if (params$tableFormat == "html") {
 
 } else if (params$tableFormat == "latex") {
   TabOpTilg %>% 
-    dplyr::select(-aar) %>% 
+    dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -860,12 +862,13 @@ cap <- paste0("Fordeling av type klaffeprotese registrert i NORIC ",
               "ved ", params$hospitalName,
               " for hele fjoråret og hittil i år (t.o.m ",
               siste_dato_txt, 
-              ").")
+              "). Gjelder kun ved prosedyretype TAVI.")
 
 
 TabTypeKlaff_fjor <- merge(
   x = timeTableMonth_fjor,
   y = AK %>%  
+    filter(Prosedyre %in% c("TAVI")) %>% 
     janitor::tabyl(maaned, TypeKlaffeprotese2) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
@@ -879,7 +882,8 @@ TabTypeKlaff_fjor <- merge(
 
 TabTypeKlaff_aar <- merge(
   x = timeTableMonth_aar,
-  y = AK %>%  
+  y = AK %>% 
+    filter(Prosedyre %in% c("TAVI")) %>% 
     janitor::tabyl(maaned, TypeKlaffeprotese2) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
@@ -905,7 +909,7 @@ digs <-  rep(0, dim(TabTypeKlaff)[2])
 
 
 if (params$tableFormat == "html") {
-  TabTypeKlaff %>% dplyr::select(-aar) %>% 
+  TabTypeKlaff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -927,7 +931,7 @@ if (params$tableFormat == "html") {
       end_row = dim(TabTypeKlaff)[1])
 
 } else if (params$tableFormat == "latex") {
-  TabTypeKlaff %>% dplyr::select(-aar) %>% 
+  TabTypeKlaff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -968,7 +972,7 @@ TabAnnet <- AK %>%
 
 
 if (params$tableFormat == "html") {
-  TabAnnet %>% 
+  TabAnnet %>% rename(" " = "aar") %>% 
     knitr::kable(format = params$tableFormat, 
                  caption = cap,  
                  booktabs = TRUE,
@@ -980,7 +984,7 @@ if (params$tableFormat == "html") {
                               font_size = 8) %>%
     kableExtra::column_spec(column = 1, width = "7em") 
 } else if (params$tableFormat == "latex") {
-  TabAnnet %>%
+  TabAnnet %>% rename(" " = "aar") %>% 
     knitr::kable(format = params$tableFormat,
                  caption = cap,
                  booktabs = TRUE,
@@ -1045,7 +1049,7 @@ digs <-  rep(0, dim(klaffiklaff)[2])
 
 
 if (params$tableFormat == "html") {
-  klaffiklaff %>% dplyr::select(-aar) %>% 
+  klaffiklaff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -1067,7 +1071,7 @@ if (params$tableFormat == "html") {
       end_row = dim(klaffiklaff)[1])
 
 } else if (params$tableFormat == "latex") {
-  klaffiklaff %>% dplyr::select(-aar) %>% 
+  klaffiklaff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -1155,7 +1159,7 @@ digs <-  rep(0, dim(paraInsuff)[2] )
 
 
 if (params$tableFormat == "html") {
-  paraInsuff %>% dplyr::select(-aar) %>%
+  paraInsuff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -1174,7 +1178,7 @@ if (params$tableFormat == "html") {
                           end_row = dim(paraInsuff)[1])
 
 } else if (params$tableFormat == "latex") {
-  paraInsuff %>% dplyr::select(-aar) %>%
+  paraInsuff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -1642,7 +1646,7 @@ digs <-  rep(0, dim(labKompTot)[2])
 
 
 if (params$tableFormat == "html") {
-  labKompTot %>% dplyr::select(-aar) %>% 
+  labKompTot %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -1665,7 +1669,7 @@ if (params$tableFormat == "html") {
       end_row = dim(labKompTot)[1])
 
 } else if (params$tableFormat == "latex") {
-  labKompTot %>% dplyr::select(-aar) %>% 
+  labKompTot %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -2194,7 +2198,7 @@ digs <-  rep(0, dim(avdKompTot)[2])
 
 if (params$tableFormat == "html") {
   avdKompTot %>% 
-    dplyr::select(-aar) %>% 
+    dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -2218,7 +2222,7 @@ if (params$tableFormat == "html") {
 
 } else if (params$tableFormat == "latex") {
   avdKompTot %>% 
-    dplyr::select(-aar) %>% 
+    dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -2373,7 +2377,7 @@ digs <-  rep(0, dim(utskrTil)[2])
 
 if (params$tableFormat == "html") {
   utskrTil %>% 
-    dplyr::select(-aar) %>% 
+    dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -2395,7 +2399,7 @@ if (params$tableFormat == "html") {
 
 } else if (params$tableFormat == "latex") {
   utskrTil %>% 
-    dplyr::select(-aar) %>% 
+    dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -2552,7 +2556,7 @@ digs <-  rep(0, dim(pmBeh)[2])
 
 if (params$tableFormat == "html") {
   pmBeh %>%
-    dplyr::select(-aar) %>% 
+    dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -2574,7 +2578,7 @@ if (params$tableFormat == "html") {
 
 } else if (params$tableFormat == "latex") {
   pmBeh %>% 
-    dplyr::select(-aar) %>% 
+    dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
@@ -2717,7 +2721,7 @@ align <- c("l", rep("c", dim(tab_kjonn)[2] - 1))
 
 
 if (params$tableFormat == "html") {
-  tab_kjonn %>%
+  tab_kjonn %>% rename(" " = "aar") %>% 
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
@@ -2726,7 +2730,7 @@ if (params$tableFormat == "html") {
                               font_size = 8) %>%
     kableExtra::column_spec(column = 1, width = "7em") 
 } else if (params$tableFormat == "latex") {
-  tab_kjonn %>% 
+  tab_kjonn %>% rename(" " = "aar") %>% 
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
