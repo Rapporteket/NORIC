@@ -379,13 +379,20 @@ if (params$tableFormat == "html") {
   
 } else if (params$tableFormat == "latex") {
   t_TabAngiografor %>%
-    knitr::kable(format = params$tableFormat,
-                 caption = cap,
-                 booktabs = TRUE,
-                 align = align) %>%
+
+  knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = align) %>%
     kableExtra::kable_styling(latex_options = c("HOLD_position",
-                                                "scale_down")) %>%
-    kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE, angle = -45, align = "l") %>%
+                                                "scale_down"), 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row = 0, angle = 90) %>%
+    kableExtra::add_header_above(., header = c("",
+                                               setNames(13, periode_data$sisteHeleYear),
+                                               setNames((ncol(t_TabAngiografor)-13), periode_data$nyesteRegYear)),
+                                 bold = TRUE,
+                                 font_size = 10) %>% 
     # kableExtra::column_spec(column = 14,
     #                         background = "#EBEBEB") %>%
     # kableExtra::column_spec(column = (ncol(t_TabAngiografor)+1),
