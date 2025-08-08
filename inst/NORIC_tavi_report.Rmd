@@ -1116,16 +1116,18 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 
 ```{r tabparaInsuff, results='asis', eval=TRUE}
-cap <- paste0("Antall prosedyrer med paravalvular insuffisiens registrert ", 
-              "i NORIC ",
+cap <- paste0("Antall prosedyrer der postoperativ EKKO er utført og hvor ", 
+              "paravalvular insuffisiens er registrert i NORIC ",
               "ved ", params$hospitalName,
               " for hele fjoråret og hittil i år (t.o.m ",
               siste_dato_txt,
-              ").")
+              "). Gjelder kun ved prosedyretype TAVI.")
 
 paraInsuff_fjor <- merge(
   x = timeTableMonth_fjor,
   y = AK %>%
+    filter(PostUndersokelseForetatt %in% "Ja",
+           Prosedyre %in% "TAVI") %>% 
     janitor::tabyl(maaned, ParavalvularInsuffisiens) %>%
     janitor::adorn_totals("col", name= "Totalt"),
   by.x  = "maaned",
@@ -1138,6 +1140,8 @@ paraInsuff_fjor <- merge(
 paraInsuff_aar <- merge(
   x = timeTableMonth_aar,
   y = AK %>%
+    filter(PostUndersokelseForetatt %in% "Ja",
+           Prosedyre %in% "TAVI") %>% 
     janitor::tabyl(maaned, ParavalvularInsuffisiens) %>%
     janitor::adorn_totals("col", name= "Totalt"),
   by.x  = "maaned",

@@ -346,25 +346,31 @@ rownames(t_TabAngiografor) <- colnames(TabAngiografor)
 colnames(t_TabAngiografor) <- TabAngiografor[,1]
 t_TabAngiografor <-  t_TabAngiografor[-1,]
 
+t_TabAngiografor[t_TabAngiografor == 0] <- " - "
+t_TabAngiografor[is.na(t_TabAngiografor)] <- " - "
+
+align <- c(rep("r", dim(t_TabAngiografor)[2]))
+
+
 
 t_TabAngiografor[t_TabAngiografor == 0] <- " - "
 t_TabAngiografor[is.na(t_TabAngiografor)] <- " - "
 
-align <- c(rep("c", dim(t_TabAngiografor)[2]))
+align <- c(rep("r", ncol(t_TabAngiografor)))
 
 if (params$tableFormat == "html") {
   t_TabAngiografor %>%
     knitr::kable(caption = cap,
-               align = align) %>%
+                 align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE, angle = -45) %>%
+    kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE, angle = -45, align = "l") %>%
     kableExtra::column_spec(column = 14,
-                            background = "#EBEBEB") %>% 
+                            background = "#EBEBEB") %>%
     kableExtra::column_spec(column = (ncol(t_TabAngiografor)+1),
-                            background = "#EBEBEB") %>% 
+                            background = "#EBEBEB") %>%
     kableExtra::add_header_above(., header = c("",
                                                setNames(13, periode_data$sisteHeleYear),
                                                setNames((ncol(t_TabAngiografor)-13), periode_data$nyesteRegYear)),
@@ -373,27 +379,22 @@ if (params$tableFormat == "html") {
   
 } else if (params$tableFormat == "latex") {
   t_TabAngiografor %>%
-  knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = align) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
-    kableExtra::row_spec(row = 0, angle = 90) %>%
+    knitr::kable(format = params$tableFormat,
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = align) %>%
+    kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                "scale_down")) %>%
+    kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE, angle = -45, align = "l") %>%
+    # kableExtra::column_spec(column = 14,
+    #                         background = "#EBEBEB") %>%
+    # kableExtra::column_spec(column = (ncol(t_TabAngiografor)+1),
+    #                         background = "#EBEBEB") %>%
     kableExtra::add_header_above(., header = c("",
                                                setNames(13, periode_data$sisteHeleYear),
                                                setNames((ncol(t_TabAngiografor)-13), periode_data$nyesteRegYear)),
                                  bold = TRUE,
-                                 font_size = 10)
-    # kableExtra::column_spec(column = 14,
-    #                         border_right = TRUE) %>% 
-    # kableExtra::column_spec(column = (ncol(t_TabAngiografor)+1),
-    #                         border_right = TRUE) %>% 
-    # kableExtra::add_header_above(., header = c("",
-    #                                            setNames(13, periode_data$sisteHeleYear),
-    #                                            setNames((ncol(t_TabAngiografor)-13), periode_data$nyesteRegYear)),
-    #                              bold = TRUE,
-    #                              font_size = 12)
+                                 font_size = 12)
 }
 ```
 
