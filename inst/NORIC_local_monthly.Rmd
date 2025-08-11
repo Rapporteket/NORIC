@@ -2630,13 +2630,13 @@ cap <- paste0("Antall utførte intervensjoner registrert i NORIC per ",
 TabDataSsIntervensjonstype <- SS %>% 
   janitor::tabyl(maaned,
                  ProsedyreType2) %>% 
-  janitor::adorn_totals("col", name = "Totalt antall\nintervensjoner") 
+  janitor::adorn_totals("col", name = "Totalt antall intervensjoner") 
 
 TabNInervProsedyreType <- AP %>%
   dplyr::filter(ProsedyreType %in% c("Angio + PCI", "PCI")) %>% 
   janitor::tabyl(maaned,
                  ProsedyreType) %>% 
-  janitor::adorn_totals("col", name = "Antall\nprosedyrer") %>% 
+  janitor::adorn_totals("col", name = "Antall prosedyrer") %>% 
   dplyr::select(maaned, "Antall prosedyrer")
 
 tab_NSsIntervensjonstype <- timeTableMonth %>% 
@@ -2708,7 +2708,8 @@ if (params$tableFormat == "html") {
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position", 
+    kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                "scale_down"), 
                              font_size = 8) %>% 
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
