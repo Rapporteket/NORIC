@@ -882,10 +882,10 @@ PrintTabTilleggCol <- function(VAR) {
     rVAR[, which(colnames(rVAR) == "Ja")]
   )
 
-  prosentJa <- paste0(nVARja, " (", rVARja, "%)")
-  prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
+  # prosentJa <- paste0(nVARja, " (", rVARja, "%)")
+  # prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
 
-  return(prosentJa)
+  return(nVARja)
 }
 
 TilleggVars <- c(
@@ -998,7 +998,8 @@ TabAnnenDiag_var <- TabTillegg[, c("FFR",
 TabAnnenDiag_fiks <- data.frame(maaned = rownames(TabAnnenDiag_var),
                       TabAnnenDiag_var,
                       row.names = NULL) %>%
-  filter(row_number() <= n()-1)
+  filter(row_number() <= n()-1) %>% 
+  mutate_at(vars(-maaned), as.numeric)
          
 TabAnnenDiag_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -1006,6 +1007,7 @@ TabAnnenDiag_fjor <- merge(
   by.x  = "maaned",
   by.y = "maaned",
   all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
   dplyr::relocate("aar", .before = "maaned")
 
@@ -1015,7 +1017,9 @@ TabAnnenDiag_aar <- merge(
   y = TabAnnenDiag_fiks,
   by.x  = "maaned",
   by.y = "maaned",
-  all.x = TRUE) %>%
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
   dplyr::relocate("aar", .before = "maaned")
 
@@ -1024,12 +1028,11 @@ TabAnnenDiag <- rbind(
   TabAnnenDiag_fjor,
   TabAnnenDiag_aar)
 
-TabAnnenDiag[TabAnnenDiag == "0 ( 0.0%)"] <- " - "
+TabAnnenDiag[TabAnnenDiag == 0] <- " - "
 TabAnnenDiag[is.na(TabAnnenDiag)] <- " - "
 
 align <- c("l", rep("c", dim(TabAnnenDiag)[2] - 1))
 digs <-  rep(0, dim(TabAnnenDiag)[2] )
-
 
 if (params$tableFormat == "html") {
   TabAnnenDiag %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
@@ -1040,14 +1043,14 @@ if (params$tableFormat == "html") {
                               full_width = FALSE, 
                               font_size = 11) %>%
     kableExtra::column_spec(column = 1, width = "7em") %>% 
-    kableExtra::row_spec(row=11, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=dim(TabAnnenDiag)[1]-1, hline_after =  TRUE) %>%
     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
                           start_row = 1, 
-                          end_row = 12) %>% 
+                          end_row = 13) %>% 
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-                          start_row = 13, 
+                          start_row = 14, 
                           end_row = dim(TabAnnenDiag)[1])
 
 } else if (params$tableFormat == "latex") {
@@ -1058,17 +1061,18 @@ if (params$tableFormat == "html") {
                align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
                              font_size = 8) %>% 
-    kableExtra::row_spec(row=12, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabAnnenDiag)[1]-1, hline_after =  TRUE) %>%
     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
                           start_row = 1,
-                          end_row = 12) %>% 
+                          end_row = 13) %>% 
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-                          start_row = 13, 
+                          start_row = 14, 
                           end_row = dim(TabAnnenDiag)[1])
 
 
 }
-
 ```
 
 <br/>
@@ -1088,7 +1092,8 @@ TabTilleggspros_var <- TabTillegg[, c("Høyre kat.",
 TabTilleggspros_fiks <- data.frame(maaned = rownames(TabTilleggspros_var),
                       TabTilleggspros_var,
                       row.names = NULL) %>%
-  filter(row_number() <= n()-1)
+  filter(row_number() <= n()-1) %>% 
+  mutate_at(vars(-maaned), as.numeric)
          
 TabTilleggspros_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -1113,6 +1118,9 @@ TabTilleggspros_aar <- merge(
 TabTilleggspros <- rbind(
   TabTilleggspros_fjor,
   TabTilleggspros_aar)
+
+TabTilleggspros[TabTilleggspros == 0] <- " - "
+TabTilleggspros[is.na(TabTilleggspros)] <- " - "
 
 align <- c("l", rep("c", dim(TabTilleggspros)[2] - 1))
 digs <-  rep(0, dim(TabTilleggspros)[2] )
@@ -1176,7 +1184,8 @@ TabAdjTerapi_var <- TabTillegg[, c("PM",
 TabAdjTerapi_fiks <- data.frame(maaned = rownames(TabAdjTerapi_var),
                       TabAdjTerapi_var,
                       row.names = NULL) %>%
-  filter(row_number() <= n()-1)
+  filter(row_number() <= n()-1) %>% 
+  mutate_at(vars(-maaned), as.numeric)
          
 TabAdjTerapi_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -1201,6 +1210,9 @@ TabAdjTerapi_aar <- merge(
 TabAdjTerapi <- rbind(
   TabAdjTerapi_fjor,
   TabAdjTerapi_aar)
+
+TabAdjTerapi[TabAdjTerapi == 0] <- " - "
+TabAdjTerapi[is.na(TabAdjTerapi)] <- " - "
 
 align <- c("l", rep("c", dim(TabAdjTerapi)[2] - 1))
 digs <-  rep(0, dim(TabAdjTerapi)[2] )
