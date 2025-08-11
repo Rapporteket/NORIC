@@ -504,7 +504,8 @@ TabPros_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -632,7 +633,8 @@ TabHast_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -776,7 +778,8 @@ TabIndik_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -1007,7 +1010,8 @@ TabAnnenDiag_fjor <- merge(
   by.x  = "maaned",
   by.y = "maaned",
   all.x = TRUE) %>%
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
   dplyr::relocate("aar", .before = "maaned")
 
@@ -1070,8 +1074,6 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14, 
                           end_row = dim(TabAnnenDiag)[1])
-
-
 }
 ```
 
@@ -1101,6 +1103,8 @@ TabTilleggspros_fjor <- merge(
   by.x  = "maaned",
   by.y = "maaned",
   all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
   dplyr::relocate("aar", .before = "maaned")
 
@@ -1111,6 +1115,8 @@ TabTilleggspros_aar <- merge(
   by.x  = "maaned",
   by.y = "maaned",
   all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
   dplyr::relocate("aar", .before = "maaned")
 
@@ -1135,14 +1141,14 @@ if (params$tableFormat == "html") {
                               full_width = FALSE, 
                               font_size = 11) %>%
     kableExtra::column_spec(column = 1, width = "7em") %>% 
-    kableExtra::row_spec(row=11, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=dim(TabTilleggspros)[1]-1, hline_after =  TRUE) %>%
     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
                           start_row = 1, 
-                          end_row = 12) %>% 
+                          end_row = 13) %>% 
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-                          start_row = 13, 
+                          start_row = 14, 
                           end_row = dim(TabTilleggspros)[1])
 
 } else if (params$tableFormat == "latex") {
@@ -1153,15 +1159,15 @@ if (params$tableFormat == "html") {
                align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
                              font_size = 8) %>% 
-    kableExtra::row_spec(row=12, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabTilleggspros)[1]-1, hline_after =  TRUE) %>%
     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
                           start_row = 1,
-                          end_row = 12) %>% 
+                          end_row = 13) %>% 
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-                          start_row = 13, 
+                          start_row = 14, 
                           end_row = dim(TabTilleggspros)[1])
-
-
 }
 
 ```
@@ -1193,6 +1199,8 @@ TabAdjTerapi_fjor <- merge(
   by.x  = "maaned",
   by.y = "maaned",
   all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
   dplyr::relocate("aar", .before = "maaned")
 
@@ -1203,6 +1211,8 @@ TabAdjTerapi_aar <- merge(
   by.x  = "maaned",
   by.y = "maaned",
   all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
   dplyr::relocate("aar", .before = "maaned")
 
@@ -1227,14 +1237,14 @@ if (params$tableFormat == "html") {
                               full_width = FALSE, 
                               font_size = 11) %>%
     kableExtra::column_spec(column = 1, width = "7em") %>% 
-    kableExtra::row_spec(row=11, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=dim(TabAdjTerapi)[1]-1, hline_after =  TRUE) %>%
     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
                           start_row = 1, 
-                          end_row = 12) %>% 
+                          end_row = 13) %>% 
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-                          start_row = 13, 
+                          start_row = 14, 
                           end_row = dim(TabAdjTerapi)[1])
 
 } else if (params$tableFormat == "latex") {
@@ -1245,16 +1255,17 @@ if (params$tableFormat == "html") {
                align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
                              font_size = 8) %>% 
-    kableExtra::row_spec(row=12, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabAdjTerapi)[1]-1, hline_after =  TRUE) %>%
     kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
                           start_row = 1,
-                          end_row = 12) %>% 
+                          end_row = 13) %>% 
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
-                          start_row = 13, 
+                          start_row = 14, 
                           end_row = dim(TabAdjTerapi)[1])
-
-
 }
+
 
 ```
 
@@ -1536,7 +1547,8 @@ TabLabkomp_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -1546,7 +1558,8 @@ TabLabkomp_aar <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned")
 
@@ -2004,7 +2017,8 @@ TabAvdkomp_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -2014,7 +2028,8 @@ TabAvdkomp_aar <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned")
 
@@ -2193,7 +2208,8 @@ TabAvdkompBlod_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -2203,7 +2219,8 @@ TabAvdkompBlod_aar <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned")
 
@@ -2313,7 +2330,8 @@ TabHovedKomplett_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -2411,7 +2429,8 @@ TabKomplikKomplett_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -2512,7 +2531,8 @@ TabUtskrKomplett_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -2610,13 +2630,13 @@ cap <- paste0("Antall utførte intervensjoner registrert i NORIC per ",
 TabDataSsIntervensjonstype <- SS %>% 
   janitor::tabyl(maaned,
                  ProsedyreType2) %>% 
-  janitor::adorn_totals("col", name = "Totalt antall intervensjoner") 
+  janitor::adorn_totals("col", name = "Totalt antall\nintervensjoner") 
 
 TabNInervProsedyreType <- AP %>%
   dplyr::filter(ProsedyreType %in% c("Angio + PCI", "PCI")) %>% 
   janitor::tabyl(maaned,
                  ProsedyreType) %>% 
-  janitor::adorn_totals("col", name = "Antall prosedyrer") %>% 
+  janitor::adorn_totals("col", name = "Antall\nprosedyrer") %>% 
   dplyr::select(maaned, "Antall prosedyrer")
 
 tab_NSsIntervensjonstype <- timeTableMonth %>% 
@@ -2632,7 +2652,8 @@ TabIntervensjonstype_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned")
 
@@ -2773,7 +2794,8 @@ TabStent_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned")
 
@@ -2882,7 +2904,8 @@ TabAndrePros_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
-  janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned")
 
