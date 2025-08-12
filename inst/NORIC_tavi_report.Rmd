@@ -962,39 +962,40 @@ if (params$tableFormat == "html") {
 
 ```{r TabTypeKlaffAnnet, results='asis', eval=TRUE}
 if (AK %>% dplyr::filter(TypeKlaffeprotese2 == "Annet") %>% nrow() > 0) {
-
-cap <- paste0("Dette inneholder type klaffeprotese 'Annet'.")
-
-
-TabAnnet <- AK %>% 
-  dplyr::filter(TypeKlaffeprotese2 == "Annet") %>% 
-  janitor::tabyl(aar, TypeKlaffeprotese) %>% 
-  janitor::adorn_totals("col", name = "Totalt")
-
-
-
-if (params$tableFormat == "html") {
-  TabAnnet %>% rename(" " = "aar") %>% 
-    knitr::kable(format = params$tableFormat, 
-                 caption = cap,  
-                 booktabs = TRUE,
-                 align = "r") %>%
-    kableExtra::kable_styling(bootstrap_options = c("striped",
-                                                    "hover",
-                                                    "condensed"),
-                              full_width = FALSE, 
-                              font_size = 8) %>%
-    kableExtra::column_spec(column = 1, width = "7em") 
-} else if (params$tableFormat == "latex") {
-  TabAnnet %>% rename(" " = "aar") %>% 
-    knitr::kable(format = params$tableFormat,
-                 caption = cap,
-                 booktabs = TRUE,
-                 align = "r") %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) 
-
-}
+  
+  cap <- paste0("Dette inneholder type klaffeprotese 'Annet'.")
+  
+  
+  TabAnnet <- AK %>% 
+    dplyr::filter(TypeKlaffeprotese2 == "Annet") %>% 
+    janitor::tabyl(aar, TypeKlaffeprotese) %>% 
+    janitor::adorn_totals("col", name = "Totalt")
+  
+  
+  
+  if (params$tableFormat == "html") {
+    TabAnnet %>% rename(" " = "aar") %>% 
+      knitr::kable(format = params$tableFormat, 
+                   caption = cap,  
+                   booktabs = TRUE,
+                   align = "r") %>%
+      kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                      "hover",
+                                                      "condensed"),
+                                full_width = FALSE, 
+                                font_size = 8) %>%
+      kableExtra::column_spec(column = 1, width = "7em") 
+  } else if (params$tableFormat == "latex") {
+    TabAnnet %>% rename(" " = "aar") %>% 
+      knitr::kable(format = params$tableFormat,
+                   caption = cap,
+                   booktabs = TRUE,
+                   align = "r") %>%
+      kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                  "scale_down"),
+                                font_size = 8) 
+    
+  }
 }
 ```
 

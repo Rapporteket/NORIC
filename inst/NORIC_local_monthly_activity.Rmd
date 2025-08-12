@@ -32,7 +32,6 @@ library(kableExtra)
 library(dplyr)
 library(stringr)
 library(janitor)
-library(data.table)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
@@ -340,14 +339,8 @@ TabAngiografor <- rbind(
   TabAngiografor_aar) %>% 
   janitor::adorn_totals("col", name = "Totalt")
 
-
-TabAngiografor[TabAngiografor == 0] <- " - "
-TabAngiografor[is.na(TabAngiografor)] <- " - "
-
-t_TabAngiografor <- transpose(TabAngiografor)
-rownames(t_TabAngiografor) <- colnames(TabAngiografor) 
-colnames(t_TabAngiografor) <- TabAngiografor[,1]
-t_TabAngiografor <-  t_TabAngiografor[-1,]
+t_TabAngiografor <- data.frame(t(TabAngiografor[-1]))
+colnames(t_TabAngiografor) <- TabAngiografor[, 1]
 
 t_TabAngiografor[t_TabAngiografor == 0] <- " - "
 t_TabAngiografor[is.na(t_TabAngiografor)] <- " - "
@@ -370,7 +363,7 @@ if (params$tableFormat == "html") {
                                                     "condensed"),
                               full_width = FALSE) %>%
     kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE,
-                         angle = -45, align = "l") %>%
+                         angle = -45, align = "c") %>%
     kableExtra::row_spec(row = nrow(t_TabAngiografor),
                          background = "#EBEBEB") %>%
     kableExtra::column_spec(column = 14,
@@ -389,16 +382,15 @@ if (params$tableFormat == "html") {
   
 } else if (params$tableFormat == "latex") {
   t_TabAngiografor %>%
-
-  knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = align) %>%
+    knitr::kable(format = params$tableFormat,
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = align) %>%
     kableExtra::kable_styling(latex_options = c("HOLD_position",
-                                                "scale_down"), 
-                             font_size = 8) %>%
+                                                "scale_down"),
+                              font_size = 8) %>%
     kableExtra::add_header_above(
-      ., 
+      .,
       header = c("",
                  setNames(13,
                           periode_data$sisteHeleYear),
@@ -435,7 +427,7 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført PCI, ",
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
               "Opptellingen er basert på prosedyretypene Angio+PCI og PCI.")
 
-tab_pciOperator <- angiografor_AP %>% 
+tab_pciOperator <- pciOperator_AP %>% 
   janitor::tabyl(maaned,
                  forkortetNavnPCIoperator,
                  show_missing_levels = FALSE) %>% 
@@ -470,35 +462,25 @@ TabPciOperator <- rbind(
   janitor::adorn_totals("col", name = "Totalt")
 
 
-TabPciOperator[TabPciOperator == 0] <- " - "
-TabPciOperator[is.na(TabPciOperator)] <- " - "
-
-t_TabPciOperator <- transpose(TabPciOperator)
-rownames(t_TabPciOperator) <- colnames(TabPciOperator) 
-colnames(t_TabPciOperator) <- TabPciOperator[,1]
-t_TabPciOperator <-  t_TabPciOperator[-1,]
+t_TabPciOperator <- data.frame(t(TabPciOperator[-1]))
+colnames(t_TabPciOperator) <- TabPciOperator[, 1]
 
 t_TabPciOperator[t_TabPciOperator == 0] <- " - "
 t_TabPciOperator[is.na(t_TabPciOperator)] <- " - "
 
-align <- c(rep("r", dim(t_TabPciOperator)[2]))
+align <- c(rep("r", ncol(t_TabPciOperator)))
 
-
-
-t_TabPciOperator[t_TabPciOperator == 0] <- " - "
-t_TabPciOperator[is.na(t_TabPciOperator)] <- " - "
-
-align <- c("l", rep("c", dim(t_TabPciOperator)[2] - 1))
 
 if (params$tableFormat == "html") {
   t_TabPciOperator %>%
-    knitr::kable(caption = cap) %>%
+    knitr::kable(caption = cap,
+                 align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE) %>%
     kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE,
-                         angle = -45, align = "l") %>%
+                         angle = -45, align = "c") %>%
     kableExtra::row_spec(row = nrow(t_TabPciOperator),
                          background = "#EBEBEB") %>%
     kableExtra::column_spec(column = 14,
@@ -514,7 +496,7 @@ if (params$tableFormat == "html") {
                           periode_data$nyesteRegYear)),
       bold = TRUE,
       font_size = 12)
-  
+
 } else if (params$tableFormat == "latex") {
   t_TabPciOperator %>%
     knitr::kable(format = params$tableFormat,
@@ -523,7 +505,7 @@ if (params$tableFormat == "html") {
                  align = align) %>%
     kableExtra::kable_styling(latex_options = c("HOLD_position",
                                                 "scale_down"),
-                             font_size = 8) %>%
+                              font_size = 8) %>%
     kableExtra::add_header_above(
       .,
       header = c("",
@@ -532,7 +514,7 @@ if (params$tableFormat == "html") {
                  setNames((ncol(t_TabPciOperator)-13),
                           periode_data$nyesteRegYear)),
       bold = TRUE,
-      font_size = 12) 
+      font_size = 12)
 }
 
 ```
