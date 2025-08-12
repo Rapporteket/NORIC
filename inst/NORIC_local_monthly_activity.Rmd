@@ -428,51 +428,44 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført PCI, ",
               "Opptellingen er basert på prosedyretypene Angio+PCI og PCI.")
 
 tab_pciOperator <- pciOperator_AP %>% 
-  janitor::tabyl(maaned,
-                 forkortetNavnPCIoperator,
-                 show_missing_levels = FALSE) %>% 
-  janitor::adorn_totals("col", name = "Totalt")
+  janitor::tabyl(forkortetNavnPCIoperator,
+                 maaned,
+                 show_missing_levels = FALSE)
 
-TabPciOperator_fjor <- merge(
-  x = timeTableMonth_fjor,
-  y =  tab_pciOperator,
-  by.x  = "maaned",
-  by.y = "maaned",
-  all.x = TRUE) %>%
-  janitor::adorn_totals("row", 
-                        name = paste0("Totalt i ", 
-                                      periode_data$sisteHeleYear))
+t_timeTableMonth_fjor <- data.frame(t(timeTableMonth_fjor[-1]))
+colnames(t_timeTableMonth_fjor) <- timeTableMonth_fjor[, 1]
 
-TabPciOperator_aar <- merge(
-  x = timeTableMonth_aar,
-  y =  tab_pciOperator,
-  by.x  = "maaned",
-  by.y = "maaned",
-  all.x = TRUE) %>%
-  janitor::adorn_totals("row", 
-                        name = paste("Totalt hittil i", 
-                                     periode_data$nyesteRegYear, 
-                                     sep = "\n"))
+TabPciOperator_fjor <- tab_pciOperator %>% 
+  select(forkortetNavnPCIoperator,
+         colnames(t_timeTableMonth_fjor))%>% 
+  mutate(tot_fjor = rowSums(across(where(is.numeric))))
+
+t_timeTableMonth_aar <- data.frame(t(timeTableMonth_aar[-1]))
+colnames(t_timeTableMonth_aar) <- timeTableMonth_aar[, 1] 
 
 
+TabPciOperator_aar <- tab_pciOperator %>% 
+  select(forkortetNavnPCIoperator,
+         colnames(t_timeTableMonth_aar)) %>% 
+  mutate(tot_aar = rowSums(across(where(is.numeric))))
 
-TabPciOperator <- rbind(
+TabPciOperator <- full_join(
   TabPciOperator_fjor,
-  TabPciOperator_aar) %>% 
-  janitor::adorn_totals("col", name = "Totalt")
+  TabPciOperator_aar,
+  by = "forkortetNavnPCIoperator")
+
+TabPciOperator %<>%
+  rename(paste0("Totalt i ", periode_data$sisteHeleYear) = "tot_fjor",
+         paste0("Totalt hittil i ", periode_data$nyesteRegYear) = "tot_fjor")
 
 
-t_TabPciOperator <- data.frame(t(TabPciOperator[-1]))
-colnames(t_TabPciOperator) <- TabPciOperator[, 1]
+TabPciOperator[TabPciOperator == 0] <- " - "
+TabPciOperator[is.na(TabPciOperator)] <- " - "
 
-t_TabPciOperator[t_TabPciOperator == 0] <- " - "
-t_TabPciOperator[is.na(t_TabPciOperator)] <- " - "
-
-align <- c(rep("r", ncol(t_TabPciOperator)))
-
+align <- c(rep("r", ncol(TabPciOperator)))
 
 if (params$tableFormat == "html") {
-  t_TabPciOperator %>%
+  TabPciOperator %>% rename(" " = "forkortetNavnPCIoperator") %>%
     knitr::kable(caption = cap,
                  align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
@@ -480,25 +473,25 @@ if (params$tableFormat == "html") {
                                                     "condensed"),
                               full_width = FALSE) %>%
     kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE,
-                         angle = -45, align = "c") %>%
-    kableExtra::row_spec(row = nrow(t_TabPciOperator),
-                         background = "#EBEBEB") %>%
-    kableExtra::column_spec(column = 14,
-                            background = "#EBEBEB") %>%
-    kableExtra::column_spec(column = (ncol(t_TabPciOperator)+1),
-                            background = "#EBEBEB") %>%
-    kableExtra::add_header_above(
-      .,
-      header = c("",
-                 setNames(13,
-                          periode_data$sisteHeleYear),
-                 setNames((ncol(t_TabPciOperator)-13),
-                          periode_data$nyesteRegYear)),
-      bold = TRUE,
-      font_size = 12)
+                         angle = -45, align = "c") #%>%
+    # kableExtra::row_spec(row = nrow(TabPciOperator),
+    #                      background = "#EBEBEB") %>%
+    # kableExtra::column_spec(column = 14,
+    #                         background = "#EBEBEB") %>%
+    # kableExtra::column_spec(column = (ncol(TabPciOperator)+1),
+    #                         background = "#EBEBEB") %>%
+    # kableExtra::add_header_above(
+    #   .,
+    #   header = c("",
+    #              setNames(13,
+    #                       periode_data$sisteHeleYear),
+    #              setNames((ncol(TabPciOperator)-13),
+    #                       periode_data$nyesteRegYear)),
+    #   bold = TRUE,
+    #   font_size = 12)
 
 } else if (params$tableFormat == "latex") {
-  t_TabPciOperator %>%
+  TabPciOperator %>% rename(" " = "forkortetNavnPCIoperator") %>% 
     knitr::kable(format = params$tableFormat,
                  caption = cap,
                  booktabs = TRUE,
@@ -506,16 +499,63 @@ if (params$tableFormat == "html") {
     kableExtra::kable_styling(latex_options = c("HOLD_position",
                                                 "scale_down"),
                               font_size = 8) %>%
-    kableExtra::add_header_above(
-      .,
-      header = c("",
-                 setNames(13,
-                          periode_data$sisteHeleYear),
-                 setNames((ncol(t_TabPciOperator)-13),
-                          periode_data$nyesteRegYear)),
-      bold = TRUE,
-      font_size = 12)
+    kableExtra::row_spec(row = 0, angle = 90) #%>%
+    # kableExtra::add_header_above(
+    #   .,
+    #   header = c("",
+    #              setNames(13,
+    #                       periode_data$sisteHeleYear),
+    #              setNames((ncol(TabPciOperator)-13),
+    #                       periode_data$nyesteRegYear)),
+    #   bold = TRUE,
+    #   font_size = 12)
 }
+
+# if (params$tableFormat == "html") {
+#   t_TabPciOperator %>%
+#     knitr::kable(caption = cap,
+#                  align = align) %>%
+#     kableExtra::kable_styling(bootstrap_options = c("striped",
+#                                                     "hover",
+#                                                     "condensed"),
+#                               full_width = FALSE) %>%
+#     kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE,
+#                          angle = -45, align = "c") %>%
+#     kableExtra::row_spec(row = nrow(t_TabPciOperator),
+#                          background = "#EBEBEB") %>%
+#     kableExtra::column_spec(column = 14,
+#                             background = "#EBEBEB") %>%
+#     kableExtra::column_spec(column = (ncol(t_TabPciOperator)+1),
+#                             background = "#EBEBEB") %>%
+#     kableExtra::add_header_above(
+#       .,
+#       header = c("",
+#                  setNames(13,
+#                           periode_data$sisteHeleYear),
+#                  setNames((ncol(t_TabPciOperator)-13),
+#                           periode_data$nyesteRegYear)),
+#       bold = TRUE,
+#       font_size = 12)
+# 
+# } else if (params$tableFormat == "latex") {
+#   t_TabPciOperator %>%
+#     knitr::kable(format = params$tableFormat,
+#                  caption = cap,
+#                  booktabs = TRUE,
+#                  align = align) %>%
+#     kableExtra::kable_styling(latex_options = c("HOLD_position",
+#                                                 "scale_down"),
+#                               font_size = 8) %>%
+#     kableExtra::add_header_above(
+#       .,
+#       header = c("",
+#                  setNames(13,
+#                           periode_data$sisteHeleYear),
+#                  setNames((ncol(t_TabPciOperator)-13),
+#                           periode_data$nyesteRegYear)),
+#       bold = TRUE,
+#       font_size = 12)
+# }
 
 ```
 
