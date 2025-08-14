@@ -4,10 +4,15 @@
 \alias{erstatt_koder_m_etiketter}
 \title{Erstatt kode med etiketter i data.frame basert på kodebok}
 \usage{
-erstatt_koder_m_etiketter(df)
+erstatt_koder_m_etiketter(df, mapping = noric::angp_map_num_tekst)
 }
 \arguments{
-\item{df}{data.frame, er kun kvalitetssikret til å fungere med angiopcinum}
+\item{df}{data.frame. Denne er kvalitetssikret til å fungere med angiopcinum, 
+andreprosedyrervarnum, annendiagnostikkvarnum, ctangiovarnum, segmentstentnum,
+mitralklaffvarnum, aortaklaffvarnum
+Datarammene som kan legges inn i mapping = noric::
+angp_map_num_tekst; APVN_map_num_tekst; ADVN_map_num_tekst; CTANG_map_num_tekst;
+segm_map_num_tekst; mitr_map_num_tekst; aort_map_num_tekst}
 }
 \value{
 data.frame med etiketter i stedet for koder
