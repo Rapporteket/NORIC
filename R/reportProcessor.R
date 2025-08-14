@@ -63,6 +63,19 @@ reportProcessor <- function(report,
                           "NORIC_filvask_avdod", 
                           "NORIC_tavi_report"))
 
+  stopifnot(registryName %in% c("noric_nasjonal",
+                          "noric_ahus",
+                          "noric_bergen",
+                          "noric_bodoe", 
+                          "noric_feiring", 
+                          "noric_ous_rh", 
+                          "noric_ous_ull", 
+                          "noric_soerlandet",
+                          "noric_stavanger", 
+                          "noric_stolav", 
+                          "noric_unn"))
+  
+  
   stopifnot(outputType %in% c("html", "pdf"))
 
   filePath <- NULL
