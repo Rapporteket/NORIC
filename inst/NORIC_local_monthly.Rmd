@@ -461,11 +461,11 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 
 pal <- colPrimary[c(5, 3, 1)]
 
-
 prosedyreTypeMaaned <- AP %>%
-  dplyr::count(.data$maaned,
-               .data$ProsedyreType) %>%
-  dplyr::group_by(.data$maaned, .data$ProsedyreType)
+   dplyr::count(.data$maaned,
+               .data$ProsedyreType,
+               .data$aar) %>%
+  dplyr::group_by(.data$maaned, .data$ProsedyreType, .data$aar)
 
 prosedyreType_levels <- c("Angio", "Angio + PCI", "PCI")
 
@@ -476,15 +476,18 @@ prosedyreTypeMaaned %>% ggplot2::ggplot(
                              levels = prosedyreType_levels))
 ) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = pal) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
   ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 strip.text = ggplot2::element_text(size=12),
                  axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
                  axis.title = ggplot2::element_text(size = 12), 
                  legend.text = ggplot2::element_text(size = 12))
+
 
 ```
 
