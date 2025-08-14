@@ -90,13 +90,12 @@ showN <- 14
 # ELDSTE DATO:
 # Januar fra i fjor (hele foregående år skal vise i rapporten)
 
-if(params$registryName %in% "noricStagingNasjonal"){
+if(params$registryName %in% "noric_nasjonal"){
   nyeste_reg <- noric::getLatestEntryHospital(
     registryName = params$registryName, 
     reshID = params$reshID)
   
 } else {
-  nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
 }
 
 periode_data <- data.frame(
@@ -130,7 +129,7 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-if(params$registryName %in% "noricStagingNasjonal"){
+if(params$registryName %in% "noric_nasjonal"){
 
 # SPørring til NASJONAL database. Kun utvalgt sykehus
     AP <- noric::getPrepApData(registryName = params$registryName,
