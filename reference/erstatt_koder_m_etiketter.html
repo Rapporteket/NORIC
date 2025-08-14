@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.1.7</span>
       </span>
     </div>
 
@@ -47,7 +47,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">erstatt_koder_m_etiketter</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">erstatt_koder_m_etiketter</span><span class="op">(</span><span class="va">df</span>, mapping <span class="op">=</span> <span class="fu">noric</span><span class="fu">::</span><span class="va">angp_map_num_tekst</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -55,7 +55,12 @@
 
 
 <dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
-<dd><p>data.frame, er kun kvalitetssikret til å fungere med angiopcinum</p></dd>
+<dd><p>data.frame. Denne er kvalitetssikret til å fungere med angiopcinum,
+andreprosedyrervarnum, annendiagnostikkvarnum, ctangiovarnum, segmentstentnum,
+mitralklaffvarnum, aortaklaffvarnum
+Datarammene som kan legges inn i mapping = noric::
+angp_map_num_tekst; APVN_map_num_tekst; ADVN_map_num_tekst; CTANG_map_num_tekst;
+segm_map_num_tekst; mitr_map_num_tekst; aort_map_num_tekst</p></dd>
 
 </dl></div>
     <div id="value">
