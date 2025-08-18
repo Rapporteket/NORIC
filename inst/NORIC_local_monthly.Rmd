@@ -96,6 +96,10 @@ if(params$registryName %in% "noric_nasjonal"){
     reshID = params$reshID)
   
 } else {
+  nyeste_reg <- min(
+      (as.Date(Sys.time()) - 1),
+      noric::getLatestEntry(registryName = params$registryName)
+  )
 }
 
 periode_data <- data.frame(
