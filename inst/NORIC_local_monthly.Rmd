@@ -600,8 +600,9 @@ pal <- colPrimary[c(5, 3, 1)]
 
 hastegradMaaned <- AP %>%
   dplyr::count(.data$maaned,
-               .data$Hastegrad) %>%
-  dplyr::group_by(.data$maaned, .data$Hastegrad)
+               .data$Hastegrad,
+               .data$aar) %>%
+  dplyr::group_by(.data$maaned, .data$Hastegrad, .data$aar)
 
 hastegrad_levels <- c("Planlagt", "Subakutt", "Akutt")
 
@@ -611,11 +612,13 @@ hastegradMaaned %>% ggplot2::ggplot(
                fill = factor(.data$Hastegrad,
                              levels = hastegrad_levels))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = pal) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
   ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 strip.text = ggplot2::element_text(size=12),
                  axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
                  axis.title = ggplot2::element_text(size = 12), 
@@ -737,8 +740,9 @@ eller hjerterytmeforstyrrelser.
 
 Indikasjon2Maaned <- AP %>%
   dplyr::count(.data$maaned,
-               .data$Indikasjon2) %>%
-  dplyr::group_by(.data$maaned, .data$Indikasjon2)
+               .data$Indikasjon2,
+               .data$aar) %>%
+  dplyr::group_by(.data$maaned, .data$Indikasjon2, .data$aar)
 
 indikasjon2_levels <- c("Annet",
                         "STEMI",
@@ -753,11 +757,13 @@ Indikasjon2Maaned %>% ggplot2::ggplot(
                fill = factor(.data$Indikasjon2,
                              levels = indikasjon2_levels))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = rev(colPrimary)) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
   ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 strip.text = ggplot2::element_text(size=12),
                  axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
                  axis.title = ggplot2::element_text(size = 12), 
