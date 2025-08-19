@@ -2775,8 +2775,6 @@ TabNStent <- AP %>%
     totalt_aar = sum(n),
     nstents_andel = round(n/totalt_aar, 3))
 
-TabNStent %>% knitr::kable(align = "r")
-
 
 TabNStent %>%  ggplot2::ggplot(
   ggplot2::aes(x = .data$Nstents,
@@ -2788,7 +2786,7 @@ TabNStent %>%  ggplot2::ggplot(
   ggplot2::scale_fill_manual(values = c(colPrimary[4], colPrimary[3])) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("Antall stenter per prosedyre") +
-  ggplot2::ylab("Andel prosedyrer per år") +
+  ggplot2::ylab("Andel prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
                  strip.text = ggplot2::element_text(size=12),
                  axis.text = ggplot2::element_text(size = 12),
