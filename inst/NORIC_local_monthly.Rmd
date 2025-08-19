@@ -452,7 +452,25 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
 
-<br/><br/>
+# Datagrunnlag
+
+## Antall prosedyrer
+Rapporten er generert med utgangspunkt i NORIC's database for
+`r params$hospitalName`. Det presenteres månedlige resultater for hele 
+fjorårets registreringer på aortaklaff,
+samt alle fullførte måndeder hittil i år.
+Den siste prosedyredatoen som er med i tabellene og 
+figurene er `r format(periode_data$siste_dato, '%d. %B %Y')`. 
+
+Totalt `r AP %>% nrow()` invasive prosedyrer ligger til grunn for rapporten, 
+`r AP %>% dplyr::filter(aar == periode_data$sisteHeleYear) %>% nrow()` fra 
+`r periode_data$sisteHeleYear ` og 
+`r AP %>% dplyr::filter(aar == periode_data$nyesteRegYear) %>% nrow()` fra 
+`r periode_data$nyesteRegYear `. 
+
+
+\bigskip \bigskip \bigskip
+
 
 # Invasive koronare prosedyrer
 
@@ -2739,36 +2757,43 @@ if (params$tableFormat == "html") {
 <br/><br/>
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`. Antall prosedyrer med minst 1 stent er `r AP %>% filter(Nstents>0) %>% nrow()`.
+Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`.
+Antall prosedyrer med minst 1 stent er 
+`r AP %>% dplyr::filter(Nstents>0, aar %in% periode_data$sisteHeleYear) %>% nrow()` i 
+`r periode_data$sisteHeleYear ` og 
+`r AP %>% dplyr::filter(Nstents>0, aar %in% periode_data$nyesteRegYear) %>% nrow()` i 
+`r periode_data$nyesteRegYear `. 
 
 ```{r BarplotNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
 
-par(
-  mfcol = c(1, 1),
-  xpd = NA,
-  mar = c(5.1, 4.1, 4.1, 13.1),
-  las = 1
-  )
+TabNStent <- AP %>% 
+  dplyr::filter(Nstents > 0) %>% 
+  dplyr::count(.data$Nstents,
+               .data$aar) %>% 
+  dplyr::group_by(.data$aar) %>% 
+  mutate(
+    totalt_aar = sum(n),
+    nstents_andel = round(n/totalt_aar, 3))
 
-TabNStent <- xtabs(
-  formula = ~ Nstents,
-  data = AP %>% dplyr::filter(Nstents>0))
+TabNStent %>% knitr::kable(align = "r")
 
-barplot(
-  TabNStent,
-  xlab = "Antall stenter per prosedyre",
-  ylab = "Antall prosedyrer",
-  border = FALSE,
-  space = 0.3,
-  col = colPrimary[3]
-)
 
-SumStat <- round(summary(AP[which(AP$Nstents>0), "Nstents"]), 1)
-legend(
-  "right",
-  inset = -.28,
-  bty = "n",
-  legend = paste(attr(SumStat, "names"), ": ", SumStat, sep = ""))
+TabNStent %>%  ggplot2::ggplot(
+  ggplot2::aes(x = .data$Nstents,
+               y = .data$nstents_andel,
+               fill = factor(.data$aar))) +
+  ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
+  ggplot2::scale_fill_manual(values = c(colPrimary[4], colPrimary[3])) +
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("Antall stenter per prosedyre") +
+  ggplot2::ylab("Andel prosedyrer per år") +
+  ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 strip.text = ggplot2::element_text(size=12),
+                 axis.text = ggplot2::element_text(size = 12),
+                 axis.title = ggplot2::element_text(size = 12),
+                 legend.text = ggplot2::element_text(size = 12))
 
 ``` 
 
