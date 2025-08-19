@@ -1,3 +1,11 @@
+# noric 3.1.9 bugfix datagrunnlag rapporter
+* korrigere datagrunnlag for rapporter etter overgang til v3.x
+* fjerne bruk av staging funksjoner i ki-rapporten
+* teste for riktig antall sykehus i report processor før ki-rapporten lages
+* Oppdatere utlede_kar_segment_stent() og utlede_kar_graft_segment_stent()
+  med tekst-format på variabler
+
+
 # noric 3.1.7 HospitalName fra mapping
 * Alltid bruke HospitalName fra mapping. 
 * Gjelder hospitalName som gis som param til rmd filer
