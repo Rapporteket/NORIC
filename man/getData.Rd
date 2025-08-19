@@ -11,6 +11,7 @@
 \alias{getAkOppf}
 \alias{getAnD}
 \alias{getSs}
+\alias{getSh}
 \alias{getMk}
 \alias{getPs}
 \alias{getApLight}

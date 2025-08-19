@@ -1,3 +1,8 @@
+# noric 3.1.7 HospitalName fra mapping
+* Alltid bruke HospitalName fra mapping. 
+* Gjelder hospitalName som gis som param til rmd filer
+* slette funksjonen getHospitalName()
+
 # noric 2.17.0 Noric 2.0 bruker mysql 8
 * De fleste num-tabellene brukes nå sammen med funksjonen erstatt_koder_m_etiketter.R for å gjøre de kategoriske verdiene om til tekstverdier. 
 * Tilgjengeliggjort månedsrapporten Aortaklaff i fanen Abonnement for de sykehusene det gjelder.
