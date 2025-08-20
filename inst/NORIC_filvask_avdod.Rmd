@@ -120,8 +120,8 @@ aP <- noric::getPrepApData(
   registryName = params$registryName, 
   fromDate  = periode_data$forste_dato,
   toDate = periode_data$siste_dato, 
-  singleRow = FALSE) %>% 
-  dplyr::filter(.data$AvdRESH == params$reshID)
+  singleRow = FALSE,
+  singleHospital = params$reshID)
 
 ```
 

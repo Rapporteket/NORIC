@@ -63,6 +63,19 @@ reportProcessor <- function(report,
                           "NORIC_filvask_avdod", 
                           "NORIC_tavi_report"))
 
+  stopifnot(registryName %in% c("noric_nasjonal",
+                          "noric_ahus",
+                          "noric_bergen",
+                          "noric_bodoe", 
+                          "noric_feiring", 
+                          "noric_ous_rh", 
+                          "noric_ous_ull", 
+                          "noric_soerlandet",
+                          "noric_stavanger", 
+                          "noric_stolav", 
+                          "noric_unn"))
+  
+  
   stopifnot(outputType %in% c("html", "pdf"))
 
   filePath <- NULL
@@ -132,6 +145,21 @@ reportProcessor <- function(report,
 
 
   if (report == "NORIC_kvalitetsindikator") {
+    
+    # CHECK: 10 hospitals in AP and 5 hospitals in AK
+    hospInAp <- noric::getPresentHospitalsAp(registryName = registryName)
+    hospInAk <- noric::getPresentHospitalsAk(registryName = registryName)
+    stopifnot("Hospital(s) missing in AP"= all(c(102966, 101619, 
+                                                 104284, 105502, 
+                                                 106944, 108141,
+                                                 109880, 114150, 
+                                                 4210141,700422)
+                                               %in% hospInAp))
+    stopifnot("Hospital(s) missing in AK"= all(c(102966, 101619, 
+                                                 104284, 109880, 
+                                                 700422)
+                                               %in% hospInAk))
+    
     filePath <- rapbase::renderRmd(
       sourceFile =  system.file("NORIC_kvalitetsindikator.Rmd",
                                 package = "noric"),
