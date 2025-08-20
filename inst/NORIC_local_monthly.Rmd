@@ -1330,12 +1330,14 @@ pasient.
 
 <br/> <br/>
 
-```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 7, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
 
 
 
 fig_df_kompLab <- AP %>%
   dplyr::select(
+    aar,
+    
     #Alvorlige
     LabKompAllergiskAlvorlig,
     LabKompBehkrevendeArytmi,
@@ -1379,11 +1381,11 @@ fig_df_kompLab <- AP %>%
                                    "LabKompVedvarSidegrensokkl"), 
                        "Øvrige", 
                        "Alvorlige komplikasjoner på lab")) %>% 
-  dplyr::count(name, type_komplikasjon, value, gradering) %>%
+  dplyr::count(name, type_komplikasjon, value, gradering, aar) %>%
   tidyr::pivot_wider(names_from = value, 
                      values_from = n, 
                      values_fill = 0) %>% 
-  dplyr::select(name, type_komplikasjon, gradering, Ja)
+  dplyr::select(name, type_komplikasjon, gradering, Ja, aar)
 
 
 # Rekkefølge: 
@@ -1414,48 +1416,55 @@ synkende_rekkefolge_lab %<>%
 
 # PARAMETRE FOR FIGUR: 
 synkende_rekkefolge_lab %<>% 
+  dplyr::group_by(aar) %>%
   dplyr::mutate(
     Sortering  = n():1, 
     
     alpha_soyler= ifelse(
       name %in% "LabKompProsedyrerelatertDod", 
       TRUE, 
-      FALSE))  
+      FALSE))   %>%
+  ungroup()
 
 
-
-
-synkende_rekkefolge_lab %>%
-  ggplot2::ggplot(data = . , 
-                  ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
-                               y = Ja)) +
-
+# PLOT
+ggplot2::ggplot(data = synkende_rekkefolge_lab) +
+    
   ggplot2::geom_bar(
-    mapping = ggplot2::aes(alpha = alpha_soyler),
+    mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
+                           y = Ja, 
+                           alpha= aar),  
     stat="identity",
-    width = 0.85,
+    width = 0.8,
+    position = ggplot2::position_dodge2(padding=0.2), 
     fill = colPrimary[4]) +
-  ggplot2::scale_alpha_manual(breaks = c(TRUE, FALSE), 
-                              values = c(0.5, 1)) +
+  
+  ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
   ggplot2::facet_grid(rows =  "gradering", 
                       scales = "free",
                       space='free', 
                       switch = "y") +
+  ggplot2::guides(alpha = ggplot2::guide_legend(reverse = TRUE)) +
   ggplot2::coord_flip(clip = "off") +
   ggplot2::geom_text(
-    mapping = ggplot2::aes(alpha = alpha_soyler,
-                           label = Ja),
+    mapping = ggplot2::aes(label = Ja, 
+                           x = reorder(type_komplikasjon, Sortering), 
+                           y = Ja, 
+                           group = aar, 
+                           color = aar),
     vjust = 0.5,
     hjust = -0.15,
-    size = 6) +
+    size = 6, 
+    position = ggplot2::position_dodge(width = 1)) +
+  ggplot2::scale_color_manual("",
+                              values = c("gray40", "gray20"),
+                              guide = "none") +
   ggplot2::theme_classic(base_size = 20) +
   ggplot2::theme(
-    legend.position = "none", # fjerne hele legend
     axis.text.x = ggplot2::element_text(size = 18, colour = "black"),
     axis.line.y = ggplot2::element_blank(),
     axis.ticks.y = ggplot2::element_blank(), 
-    strip.placement = "outside"
-  ) +
+    strip.placement = "outside") +
   # Fjerne akse-tittel:
   ggplot2::labs(x = NULL, 
                 y = NULL)
@@ -2764,7 +2773,7 @@ Antall prosedyrer med minst 1 stent er
 `r AP %>% dplyr::filter(Nstents>0, aar %in% periode_data$nyesteRegYear) %>% nrow()` i 
 `r periode_data$nyesteRegYear `. 
 
-```{r BarplotNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
+```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
 
 TabNStent <- AP %>% 
   dplyr::filter(Nstents > 0) %>% 
@@ -2780,14 +2789,19 @@ TabNStent %>%  ggplot2::ggplot(
   ggplot2::aes(x = .data$Nstents,
                y = .data$nstents_andel,
                fill = factor(.data$aar))) +
-  ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::geom_bar(position = "stack",
+                    stat = "identity") +
+  ggplot2::geom_text(ggplot2::aes(label = TabNStent$n),
+                     vjust = -0.5,
+                     colour = "gray20") +
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = c(colPrimary[4], colPrimary[3])) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("Antall stenter per prosedyre") +
-  ggplot2::ylab("Andel prosedyrer") +
-  ggplot2::theme(legend.title = ggplot2::element_blank(),
+  ggplot2::ylab("Andel (antall) prosedyrer") +
+  ggplot2::scale_x_continuous(breaks = TabNStent$Nstents) +
+  ggplot2::theme(legend.position = "none",
                  strip.text = ggplot2::element_text(size=12),
                  axis.text = ggplot2::element_text(size = 12),
                  axis.title = ggplot2::element_text(size = 12),

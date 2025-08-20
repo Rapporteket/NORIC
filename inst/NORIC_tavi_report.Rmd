@@ -1333,9 +1333,9 @@ ggplot2::ggplot(data = fig_df_kompLab2) +
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
                            y = Ja, 
                            alpha= aar),  
-        stat="identity",
-        width = 0.75, 
-        position = ggplot2::position_dodge(preserve = "single"), 
+    stat="identity",
+    width = 0.75, 
+    position = ggplot2::position_dodge(preserve = "single"), 
     fill = colPrimary[4]) +
   
   ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
