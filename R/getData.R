@@ -889,9 +889,13 @@ WHERE
   aPnum <- rapbase::loadRegData(registryName, query)
   aP <- noric::erstatt_koder_m_etiketter(aPnum)
   
-  aD <- rapbase::loadRegData(registryName, queryAd)
+  aDnum <- rapbase::loadRegData(registryName, queryAd)
+  aD <- noric::erstatt_koder_m_etiketter(aDnum,
+                                          mapping = noric::ADVN_map_num_tekst)
   
-  sS <- rapbase::loadRegData(registryName, querySs)
+  sSnum <- rapbase::loadRegData(registryName, querySs)
+  sS <- noric::erstatt_koder_m_etiketter(sSnum,
+                                         mapping = noric::segm_map_num_tekst)
   
   
   
@@ -979,3 +983,4 @@ WHERE
   list(taviProm = taviProm, 
        aK = aK)
 }
+
