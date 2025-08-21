@@ -1332,7 +1332,7 @@ ggplot2::ggplot(data = fig_df_kompLab2) +
   ggplot2::geom_bar(
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
                            y = Ja, 
-                           alpha= aar),  
+                           alpha = aar),  
     stat="identity",
     width = 0.75, 
     position = ggplot2::position_dodge(preserve = "single"), 
