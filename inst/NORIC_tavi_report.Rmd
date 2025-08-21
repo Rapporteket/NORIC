@@ -80,7 +80,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 
 # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
-if (params$registryName %in% "noricStagingNasjonal") {
+if (params$registryName %in% "noric_nasjonal") {
   nyeste_reg <- min(
       (as.Date(Sys.time()) - 1),
       
@@ -212,7 +212,7 @@ siste_dato_txt <- format(x = periode_data$siste_dato,
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
-if (params$registryName %in% "noricStagingNasjonal") {
+if (params$registryName %in% "noric_nasjonal") {
   # SPørring til NASJONAL database. 
   # Kun utvalgt sykehus
   AK <- noric::getPrepAkData(registryName = params$registryName,
@@ -2641,7 +2641,7 @@ toDate <- periode_data$siste_dato
 
 
 
-if(params$registryName %in% "noricStagingNasjonal"){
+if(params$registryName %in% "noric_nasjonal"){
   # SPørring til NASJONAL database. 
   # Kun utvalgt sykehus
   query <- paste0(

@@ -101,48 +101,76 @@ Only procedures of type \emph{wireforsoek} are counted.
 }
 \examples{
 df_ap <- data.frame(ForlopsID = 1:5,
-                    AvdRESH = rep(1,5))
+                   AvdRESH = rep(1,5))
 
 # Legg til antall stent i df_ap
 df_ss <- data.frame(
-  ForlopsID = c(1, 3, 3, 3, 5, 5),
-  AvdRESH = rep(1,6),
-  Segment = 1:6,
-  StentType = c("DES",
-                "BMS", "DES", "Annet",
-                NA, NA))
-legg_til_antall_stent(df_ap = df_ap, df_ss = df_ss)
+ ForlopsID = c(1, 3, 3, 3, 5, 5),
+ AvdRESH = rep(1,6),
+ Segment = c("(1) Proximale RCA",
+             "(2) Midtre RCA",
+             "(3) Distale RCA",
+             "(4) PDA/RPD",
+             "(5) Ve hovedstamme",
+             "(6) Proximale LAD"),
+ StentType = c("DES",
+               "BMS", "DES", "Annet",
+               NA, NA))
+noric::legg_til_antall_stent(df_ap = df_ap, df_ss = df_ss)
 
 
 x <- data.frame(AvdRESH = rep(1, 13),
-                OppholdsID = c(101:106, 101, 102, 102, 103, 104, 106, 50),
-                antall_stent = c(0, 5, NA, 1, NA, NA,
-                                 3, 1, 2, 3, NA, NA, 10))
+               OppholdsID = c(101:106, 101, 102, 102, 103, 104, 106, 50),
+               antall_stent = c(0, 5, NA, 1, NA, NA,
+                                3, 1, 2, 3, NA, NA, 10))
 noric::legg_til_antall_stent_opphold(x)
-
-
 
 # Legg til kar ellerkar_graft i df_ss
 df_ss <- data.frame(ForlopsID = 1:23,
-                    AvdRESH = rep(1,23),
-                    Segment = c(1:20, 1:3),
-                    Graft=c(rep("Nei", 20), "Arteriell", "Vene", NA))
-utlede_kar_segment_stent(df_ss)
-utlede_kar_graft_segment_stent(df_ss)
-
+                   AvdRESH = rep(1,23),
+                   Segment = c("(1) Proximale RCA",
+                                "(2) Midtre RCA",
+                                "(3) Distale RCA",
+                                "(4) PDA/RPD",
+                                "(5) Ve hovedstamme",
+                                "(6) Proximale LAD",
+                                "(7) Midtre LAD",
+                                "(8) Distale LAD",
+                                "(9) Første diagonal",
+                                "(10) Andre diagonal",
+                                "(11) Proximale LCx",
+                                "(12) Første obtusa marginal",
+                                "(13) Andre obtusa marginal",
+                                "(14) Distale LCx",
+                                "(15) LPD",
+                                "(16) PLA fra venstre",
+                                "(17) Intermediær",
+                                "(18) PLA",
+                                "(19) Høyrekammergren",
+                                "(20) Septal",
+                               "(1) Proximale RCA",
+                               "(2) Midtre RCA",
+                               "(3) Distale RCA"),
+                   Graft = c(rep("Nei", 20), "Arteriell", "Vene", NA))
+noric::utlede_kar_segment_stent(df_ss)
+noric::utlede_kar_graft_segment_stent(df_ss)
 
 # Legg til PCI-variabler og wireforsok-variabler per kar_graft i df_ap
 df_ss <- data.frame(ForlopsID = c(1,2,3,3,3),
-                    AvdRESH = rep(1,5),
-                    Segment = c(1,5,10,12,13),
-                    Graft = c(rep("Nei", 3),
-                              rep("Arteriell", 1),
-                              rep("Vene", 1)),
-                    ProsedyreType = c("Ballong + Stent",
-                                      "Wireforsøk",
-                                      "Rotablator",
-                                      "Wireforsøk",
-                                      "Direktestent"))
-legg_til_pci_per_kar(df_ap = df_ap, df_ss = df_ss)
-legg_til_wireforsok_per_kar(df_ap = df_ap, df_ss = df_ss)
+                   AvdRESH = rep(1,5),
+                   Segment = c("(1) Proximale RCA",
+                               "(5) Ve hovedstamme",
+                               "(10) Andre diagonal",
+                               "(12) Første obtusa marginal",
+                               "(13) Andre obtusa marginal"),
+                   Graft = c(rep("Nei", 3),
+                             rep("Arteriell", 1),
+                             rep("Vene", 1)),
+                   ProsedyreType = c("Ballong + Stent",
+                                     "Wireforsøk",
+                                     "Rotablator",
+                                     "Wireforsøk",
+                                     "Direktestent"))
+noric::legg_til_pci_per_kar(df_ap = df_ap, df_ss = df_ss)
+noric::legg_til_wireforsok_per_kar(df_ap = df_ap, df_ss = df_ss)
 }
