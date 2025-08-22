@@ -1417,7 +1417,7 @@ synkende_rekkefolge_lab %<>%
     alpha_soyler= ifelse(
       name %in% "LabKompProsedyrerelatertDod", 
       TRUE, 
-      FALSE))   %>%
+      FALSE)) %>%
   ungroup()
 
 
@@ -1427,19 +1427,22 @@ ggplot2::ggplot(data = synkende_rekkefolge_lab) +
   ggplot2::geom_bar(
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
                            y = Ja, 
-                           alpha= aar),  
+                           fill = aar,
+                           alpha = alpha_soyler),  
     stat="identity",
     width = 0.8,
-    position = ggplot2::position_dodge2(padding=0.1), 
-    fill = colPrimary[4]) +
-  
-  ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
+    position = ggplot2::position_dodge2(padding=0.1)
+    ) +
+  ggplot2::scale_fill_manual(values = colPrimary[c(5, 3)]) +
+  ggplot2::scale_alpha_manual(values=c(1, 0.8)) +
   ggplot2::scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   ggplot2::facet_grid(rows =  "gradering", 
                       scales = "free",
                       space='free', 
                       switch = "y") +
-  ggplot2::guides(alpha = ggplot2::guide_legend(reverse = TRUE)) +
+  ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE,
+                                               title = ggplot2::element_blank()),
+                  alpha = "none") +
   ggplot2::coord_flip(clip = "off") +
   ggplot2::geom_text(
     mapping = ggplot2::aes(label = Ja, 
@@ -1447,7 +1450,7 @@ ggplot2::ggplot(data = synkende_rekkefolge_lab) +
                            y = Ja, 
                            group = aar, 
                            color = aar),
-    # vjust = 0.5,
+    vjust = 0.5,
     hjust = -0.15,
     size = 5, 
     position = ggplot2::position_dodge(width = 0.7)
@@ -1776,7 +1779,8 @@ fig_df_kompl_avd <- AP %>%
       TRUE ~ "Øvrige") ) %>% 
   dplyr::count(name, type_komplikasjon, value, gradering, aar) %>%
   tidyr::pivot_wider(names_from = value, values_from = n, values_fill=0) %>% 
-  select(name, type_komplikasjon, gradering, Ja, aar)
+  select(name, type_komplikasjon, gradering, Ja, aar) %>% 
+  mutate(aar = factor(aar))
 
 
 # Rekkefølge: 
@@ -1793,49 +1797,59 @@ synkende_rekkefolge_avd_alvorlig <- rbind(
   fig_df_kompl_avd %>% 
     dplyr::filter(name != "AvdKompAnnenAlvorlig", 
                   name != "AvdKompProsedyrerelatertDod", 
-                  gradering %in% "Alvorlige komplikasjoner på avdeling") %>% 
+                  gradering %in% "Alvorlige komplikasjoner på avdeling",
+                  aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   # Annen alvorlig nederst av alvorlige
   fig_df_kompl_avd %>% 
-    dplyr::filter(name == "AvdKompAnnenAlvorlig")
+    dplyr::filter(name == "AvdKompAnnenAlvorlig",
+                  aar %in% periode_data$sisteHeleYear)
 ) 
 
 # sett inn prosedyrerelatert død på riktig sted
-insert_prsRel_her <- which(synkende_rekkefolge_avd_alvorlig$name == "AvdKompDod")
+insert_prsRel_her <- which(synkende_rekkefolge_avd_alvorlig$name == "AvdKompDod",
+                           aar %in% periode_data$sisteHeleYear)
 
 synkende_rekkefolge_avd_alvorlig %<>%
   dplyr::add_row( fig_df_kompl_avd %>% 
-                    filter(name == "AvdKompProsedyrerelatertDod"),
+                    filter(name == "AvdKompProsedyrerelatertDod",
+                           aar %in% periode_data$sisteHeleYear),
                   .after = insert_prsRel_her) 
 
 # sett inn undergrupper blødning på riktig sted
-insert_blod_her<- which(synkende_rekkefolge_avd_alvorlig$name == "komplik_avd_alvorligBlodning")
+insert_blod_her<- which(synkende_rekkefolge_avd_alvorlig$name == "komplik_avd_alvorligBlodning",
+                        aar %in% periode_data$sisteHeleYear)
+
+# synkende_rekkefolge_avd_alvorlig %>% knitr::kable(align = "r")
 
 endelig_alvorlig <- rbind(
   
   # Før blødning
   synkende_rekkefolge_avd_alvorlig[1:insert_blod_her, ], 
   
-  # Undergrupper blødingn
+  # Undergrupper blødning
   fig_df_kompl_avd %>% 
-    filter(gradering %in% "Undergruppe alv blødning") %>% 
+    filter(gradering %in% "Undergruppe alv blødning",
+                  aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   # Før blødning
   synkende_rekkefolge_avd_alvorlig[-(1:insert_blod_her), ]
 )
 
-
+# endelig_alvorlig %>% knitr::kable(align = "r")
 
 
   # Deretter øvrige
 synkende_rekkefolge_avd_ovrige <-   fig_df_kompl_avd %>% 
-    dplyr::filter(gradering %in% "Øvrige") %>% 
+    dplyr::filter(gradering %in% "Øvrige",
+                  aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja)
 
 # sett inn undergrupper blødning på riktig sted
-insert_blod_her<- which(synkende_rekkefolge_avd_ovrige$name == "komplik_avd_ovrigBlodning")
+insert_blod_her<- which(synkende_rekkefolge_avd_ovrige$name == "komplik_avd_ovrigBlodning",
+                  aar %in% periode_data$sisteHeleYear)
 
 endelig_ovrig <- rbind(
   
@@ -1844,7 +1858,8 @@ endelig_ovrig <- rbind(
   
   # Undergrupper blødingn
   fig_df_kompl_avd %>% 
-    filter(gradering %in% "Undergruppe av ovrig blodning") %>% 
+    filter(gradering %in% "Undergruppe av ovrig blodning",
+                  aar %in% periode_data$sisteHeleYear) %>% 
       dplyr::arrange(-Ja), 
   
    # Før blødning
@@ -1857,110 +1872,114 @@ endelig_alle <- rbind(
   endelig_alvorlig, 
   endelig_ovrig
 ) %>%
-  # PARAMETRE FOR PLOT
+  group_by(aar) %>%
+  # # PARAMETRE FOR PLOT
   dplyr::mutate(
-    Sortering = n():1, 
-    
+    Sortering = n():1,
+
     alpha_soyler= ifelse(
       gradering %in% "Undergruppe alv blødning" |
         gradering %in% "Undergruppe av ovrig blodning" |
-        name %in% "AvdKompProsedyrerelatertDod", 
-      TRUE, 
-      FALSE), 
-    
+        name %in% "AvdKompProsedyrerelatertDod",
+      TRUE,
+      FALSE),
+
     gradering2 = ifelse(
-      gradering %in% c("Undergruppe alv blødning", 
-                       "Alvorlige komplikasjoner på avdeling"), 
-      "Alvorlige komplikasjoner på avdeling", 
-      "Øvrige"))
-  
-
-# endelig_alle %>% knitr::kable(align = "r")
-
-# # PLOT
-# ggplot2::ggplot(data = endelig_alle) +
-#     
-#   ggplot2::geom_bar(
-#     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
-#                            y = Ja, 
-#                            fill = factor(aar),
-#                            alpha = alpha_soyler),  
-#     stat="identity",
-#     width = 0.8,
-#     position = ggplot2::position_dodge2(padding=0.1), 
-#     fill = c(colPrimary[4]), colPrimary[2]) +
-#   
-#   ggplot2::scale_alpha_manual(values = c(0.5, 1)) +
-#   ggplot2::facet_grid(rows =  "gradering2", 
-#                       scales = "free",
-#                       space='free', 
-#                       switch = "y") +
-#   ggplot2::guides(alpha = ggplot2::guide_legend(reverse = TRUE)) +
-#   ggplot2::coord_flip(clip = "off") +
-#   ggplot2::geom_text(
-#     mapping = ggplot2::aes(label = Ja, 
-#                            x = reorder(type_komplikasjon, Sortering), 
-#                            y = Ja, 
-#                            group = aar, 
-#                            color = aar),
-#     # vjust = 0.5,
-#     hjust = -0.15,
-#     size = 5, 
-#     position = ggplot2::position_dodge(width = 0.7)
-#     ) +
-#   ggplot2::scale_color_manual("",
-#                               values = c("gray40", "gray20"),
-#                               guide = "none") +
-#   ggplot2::theme_classic(base_size = 20) +
-#   ggplot2::theme(
-#     axis.text.x = ggplot2::element_text(size = 18, colour = "black"),
-#     axis.line.y = ggplot2::element_blank(),
-#     axis.ticks.y = ggplot2::element_blank(), 
-#     strip.placement = "outside") +
-#   # Fjerne akse-tittel:
-#   ggplot2::labs(x = NULL, 
-#                 y = NULL)
+      gradering %in% c("Undergruppe alv blødning",
+                       "Alvorlige komplikasjoner på avdeling"),
+      "Alvorlige komplikasjoner på avdeling",
+      "Øvrige")) %>%
+  ungroup()
 
 
-endelig_alle %>%
-  ggplot2::ggplot(data = . ,
-                  ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
-                               y = Ja)) +
+# PLOT
+ggplot2::ggplot(data = endelig_alle) +
+    
   ggplot2::geom_bar(
-    mapping = ggplot2::aes(alpha = alpha_soyler),
+    mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering),
+                           y = Ja, 
+                           fill = aar,
+                           alpha = alpha_soyler),
     stat="identity",
-    width = 0.85,
-    fill = colPrimary[4]) +
-    ggplot2::scale_alpha_manual(breaks = c(TRUE, FALSE),
-                              values = c(0.5, 1)) +
-
-  ggplot2::facet_grid(rows =  "gradering2",
-                     scales = "free",
-                     space='free',
-                     switch = "y") +
+    width = 0.8,
+    position = ggplot2::position_dodge2(padding=0.1)
+    ) +
+  ggplot2::scale_fill_manual(values = colPrimary[c(5, 3)]) +
+  ggplot2::scale_alpha_manual(values=c(1, 0.8)) +
+  ggplot2::scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  ggplot2::facet_grid(rows = "gradering2", 
+                      scales = "free",
+                      space='free', 
+                      switch = "y") +
+  ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE,
+                                               title = ggplot2::element_blank()),
+                  alpha = "none") +
   ggplot2::coord_flip(clip = "off") +
-  # FREKVENS-TALL SOM PLASSERES I/PÅ SØYLENE:
   ggplot2::geom_text(
-    ggplot2::aes(label = Ja,
-                 alpha = alpha_soyler),
+    mapping = ggplot2::aes(label = Ja,
+                           x = reorder(type_komplikasjon,
+                                       Sortering),
+                           y = Ja,
+                           group = aar,
+                           color = aar),
     vjust = 0.5,
     hjust = -0.15,
-    size = 6  ) +
-  # THEME & BASE SIZE:
-  ggplot2::theme_classic( base_size = 20) +
-  # THEME -
+    size = 5,
+    position = ggplot2::position_dodge(width = 0.7)
+    ) +
+  ggplot2::scale_color_manual("",
+                              values = c("gray40", "gray20"),
+                              guide = "none") +
+  ggplot2::theme_classic(base_size = 20) +
   ggplot2::theme(
-    legend.position = "none", # fjerne hele legend
-    axis.text.x = ggplot2::element_text( size = 18, colour = "black"),
-    # axis.text.y = ggplot2::element_text(color = farger_tekst),
+    axis.text.x = ggplot2::element_text(size = 18, colour = "black"),
     axis.line.y = ggplot2::element_blank(),
-    axis.ticks.y = ggplot2::element_blank(),
-    strip.placement = "outside"
-  ) +
+    axis.ticks.y = ggplot2::element_blank(), 
+    strip.placement = "outside") +
   # Fjerne akse-tittel:
-  ggplot2::labs(
-    x = NULL,
-    y = NULL)
+  ggplot2::labs(x = NULL, 
+                y = NULL)
+
+
+# endelig_alle %>%
+#   ggplot2::ggplot(data = . ,
+#                   ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
+#                                y = Ja)) +
+#   ggplot2::geom_bar(
+#     mapping = ggplot2::aes(alpha = alpha_soyler),
+#     stat="identity",
+#     width = 0.85,
+#     fill = colPrimary[4]) +
+#     ggplot2::scale_alpha_manual(breaks = c(TRUE, FALSE),
+#                               values = c(0.5, 1)) +
+# 
+#   ggplot2::facet_grid(rows =  "gradering2",
+#                      scales = "free",
+#                      space='free',
+#                      switch = "y") +
+#   ggplot2::coord_flip(clip = "off") +
+#   # FREKVENS-TALL SOM PLASSERES I/PÅ SØYLENE:
+#   ggplot2::geom_text(
+#     ggplot2::aes(label = Ja,
+#                  alpha = alpha_soyler),
+#     vjust = 0.5,
+#     hjust = -0.15,
+#     size = 6  ) +
+#   # THEME & BASE SIZE:
+#   ggplot2::theme_classic( base_size = 20) +
+#   # THEME -
+#   ggplot2::theme(
+#     legend.position = "none", # fjerne hele legend
+#     axis.text.x = ggplot2::element_text( size = 18, colour = "black"),
+#     # axis.text.y = ggplot2::element_text(color = farger_tekst),
+#     axis.line.y = ggplot2::element_blank(),
+#     axis.ticks.y = ggplot2::element_blank(),
+#     strip.placement = "outside"
+#   ) +
+#   # Fjerne akse-tittel:
+#   ggplot2::labs(
+#     x = NULL,
+#     y = NULL)
 
 ```
 
