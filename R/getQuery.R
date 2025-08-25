@@ -8,6 +8,7 @@
 #' @aliases queryTaviprom
 #' queryAortaklaffvarnum
 #' queryForlopsoversikt
+#' queryAndreprosedyrervarnum
 NULL
 
 #' @rdname getQuery
@@ -470,4 +471,49 @@ queryForlopsoversikt <-function(){
   LEFT OUTER JOIN other o on m.MCEID = o.MCEID
 ")}
 
+
+
+#' @rdname getQuery
+#' @export
+queryAndreprosedyrervarnum <-function(){
+  paste0("
+  SELECT
+    other.MCEID AS ForlopsID,
+    other.CENTREID AS AvdRESH,
+    (CASE
+     WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+     WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
+     ELSE NULL
+     END) as Regtype,
+    
+    -- Andre prosedyrer
+    other.PROCEDUREDATE AS ProsedyreDato,
+    other.PROCEDUREDATE_TIME AS ProsedyreTid,
+    other.PROCEDUREDATE_TIME_MISSING AS ProsedyreTidUkjent,
+    other.PROCEDURETYPE AS AnnenProsType,
+    
+    -- OperatC8r
+    (SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM other_operator_mapping oom, people peo where oom.PEOPLEID = peo.PEOPLEID and oom.MCEID = other.MCEID) AS AndreProsOperatorer,
+    
+    -- Komplikasjon pC% lab
+    other.LABKOMP AS Komplikasjon,
+    other.LABALLERGILATT AS LettAllergi,
+    other.LABALLERGIALLV AS ModeratAllergi,
+    other.LABBEHARYTMI AS Arytmi,
+    other.LABHEMO AS HemodynKomp,
+    other.LABNEURO AS NeuroKomp,
+    other.LABVASK AS VaskulKomp,
+    other.LABPERF AS Perforasjon,
+    other.LABTAMP AS Tamponade,
+    other.LABAKUTCABG AS AkuttACB,
+    other.LABANNANALLV AS AnnenAlvorligKomp,
+    other.LABDODSFALL AS Dod,
+    other.LABPROCEDURDOD AS ProsRelatertDod,
+    
+    other.STATUS AS SkjemaStatus
+    FROM mce MCE
+    INNER JOIN other ON MCE.MCEID = other.MCEID
+
+"
+  )}
 

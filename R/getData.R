@@ -168,9 +168,6 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
   # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
   
-  
-  
-  
   query_fo_temp <- paste0("
 SELECT
     forlopsoversikt.AvdRESH,
@@ -190,14 +187,10 @@ SELECT
 FROM
     forlopsoversikt;")
   
-  
-  
-  
   query <- paste0(noric::queryAortaklaffvarnum(), 
                   "WHERE
                   T.PROCEDUREDATE >= '", fromDate, "' AND
                   T.PROCEDUREDATE <= '", toDate, "'")
-  
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
                     "AND T.CENTREID = ", 
@@ -293,12 +286,12 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
   # Ask for all variables from andreprosedyrervar in time interval
   # Add selected variables from forlopsoversikt
   # 2 variables to match on: AvdRESH, ForlopsID
-  
-  query <- paste0("
+  query_fo_temp <- paste0("
 SELECT
-    andreprosedyrervarnum.*,
-    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.AvdRESH,
+    forlopsoversikt.ForlopsID,
     forlopsoversikt.PasientID,
+    forlopsoversikt.Sykehusnavn,
     forlopsoversikt.FodselsDato,
     forlopsoversikt.Kommune,
     forlopsoversikt.KommuneNr,
@@ -310,18 +303,20 @@ SELECT
     forlopsoversikt.ForlopsType2,
     forlopsoversikt.KobletForlopsID
 FROM
-    andreprosedyrervarnum
-LEFT JOIN forlopsoversikt ON
-    andreprosedyrervarnum.AvdRESH = forlopsoversikt.AvdRESH AND
-    andreprosedyrervarnum.ForlopsID = forlopsoversikt.ForlopsID
-WHERE
-    andreprosedyrervarnum.ProsedyreDato >= '", fromDate, "' AND
-    andreprosedyrervarnum.ProsedyreDato <= '", toDate, "'"
-  )
+    forlopsoversikt;")
   
+  query <- paste0(noric::queryAndreprosedyrervarnum(), 
+                  "WHERE
+                  other.PROCEDUREDATE >= '", fromDate, "' AND
+                  other.PROCEDUREDATE <= '", toDate, "'")
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND andreprosedyrervarnum.AvdRESH = ", 
+                    "AND other.CENTREID = ", 
+                    singleHospital)
+  }
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, 
+                    "AND other.AvdRESH = ", 
                     singleHospital)
   }
   
@@ -343,7 +338,11 @@ WHERE
   anP <- noric::erstatt_koder_m_etiketter(anPnum,
                                           mapping = noric::APVN_map_num_tekst)
   
+  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
   
+  anP %<>% dplyr::left_join(., 
+                            fo_tmp,
+                            by = c("AvdRESH", "ForlopsID"))
   list(anP = anP)
 }
 
