@@ -10,6 +10,7 @@
 #' queryForlopsoversikt
 #' queryAndreprosedyrervarnum
 #' queryAnnendiagnostikkvarnum
+#' querySegmentstentnum
 NULL
 
 #' @rdname getQuery
@@ -582,4 +583,67 @@ queryAnnendiagnostikkvarnum <-function(){
   LEFT JOIN regangio R ON diag.MCEID=R.MCEID"
   )
   
+}
+
+
+
+
+#' @rdname getQuery
+#' @export
+querySegmentstentnum <-function(){
+  paste0("
+  SELECT
+   S.ID AS SegmentID,
+   S.MCEID AS ForlopsID,
+   (CASE
+      WHEN M.INTERVENTION_TYPE IN (1,2,3,7) AND M.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+      WHEN  M.INTERVENTION_TYPE IN (1,2,3,7) AND M.PARENT_MCEID IS NULL THEN 'Primær'
+      ELSE NULL
+    END) as Regtype,
+   CASE P.GENDER
+      WHEN NULL THEN 'Ikke angitt'
+      WHEN 1 THEN 'Mann'
+      WHEN 2 THEN 'Kvinne'
+      WHEN 9 THEN 'Ikke relevant'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,
+   P.BIRTH_DATE as FodselsDato,
+   (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
+   (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
+   (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
+   R.INDIKATION  AS Indikasjon,
+   R.INTERDAT as ProsedyreDato,
+   R.HEIGHT as Hoyde,
+   R.WEIGHT as Vekt,
+   S.SEGMENT as Segment,
+   S.STENT as StentID,
+   ST.STENTNAMN AS Stentnavn,
+   ST.DES  AS StentType,
+   S.BALLONGLANGD as BallongLengde,
+   S.DEBDIAM as DEBDiameter,
+   S.DIAM as Diameter,
+   S.EFTERDILATATION  AS Etterdilatasjon,
+   S.FRAMGANG  AS LokalSuksess,
+   S.GRAFT  AS Graft,
+   S.LAKEMEDELSBALLONG  AS MedikamentellBallong,
+   S.MAXTRYCKVIDDEB AS MaksTrykkDEB,
+   S.OCKL  AS Okklusjon,
+   S.PROCTYP  AS ProsedyreType,
+   S.SEGMENT_STENT_TROMBOSE_TYPE  AS Stenttrombosetype,
+   S.STENOSKLASS  AS Stenoseklasse,
+   S.STENOSTYP  AS StenoseType,
+   S.STENTLANGD AS Stentlengde,
+   S.STENTSLUT  AS StentSlut,
+   S.UPPBLASNINGSTIDDEB AS InflasjonsTidDEB,
+   S.IVL_DIAM AS IVLDiameter,
+   S.NUMBERPULSES AS AntallPulser,
+   centre.ID AS AvdRESH,
+   IFNULL((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = centre.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), centre.ID) AS Sykehusnavn
+  FROM segment S
+   LEFT  JOIN stent ST ON S.STENT=ST.SID
+   INNER JOIN mce M ON S.MCEID=M.MCEID
+   INNER JOIN centre ON centre.ID = M.CENTREID
+   INNER JOIN patient P ON M.PATIENT_ID=P.ID
+   LEFT JOIN regangio R ON S.MCEID=R.MCEID
+")
 }

@@ -481,49 +481,20 @@ getAnD <- function(registryName, fromDate, toDate, singleRow,
 getSs <- function(registryName, fromDate, toDate, singleRow, 
                   singleHospital = NULL, ...) {
   
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+   query <- paste0(noric::querySegmentstentnum(), 
+                  " WHERE 
+                  R.INTERDAT >= '", fromDate,  "' AND 
+                  R.INTERDAT <= '", toDate, "' ")
   
-  # Ask for all variables from segmentstent in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
+   if(!is.null(singleHospital)) {
+     query <- paste0(query, 
+                     "AND m.CENTREID = ", 
+                     singleHospital)
+   }
   
-  query <- paste0("
-SELECT
-    segmentstentnum.*,
-    forlopsoversikt.PasientID,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID
-FROM
-    segmentstentnum
-LEFT JOIN forlopsoversikt ON
-    segmentstentnum.AvdRESH = forlopsoversikt.AvdRESH AND
-    segmentstentnum.ForlopsID = forlopsoversikt.ForlopsID
-WHERE
-    segmentstentnum.ProsedyreDato >= '", fromDate, "' AND
-    segmentstentnum.ProsedyreDato <= '", toDate, "'"
-  )
-  
-  if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "AND segmentstentnum.AvdRESH = ", 
-                    singleHospital)
-  }
-  
-  
-  # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for segmentstentnum"
@@ -540,6 +511,26 @@ WHERE
   sS <- noric::erstatt_koder_m_etiketter(sSnum,
                                          mapping = noric::segm_map_num_tekst)
   
+  query_fo_temp <- paste0("
+    SELECT
+     forlopsoversikt.AvdRESH,
+     forlopsoversikt.ForlopsID,
+     forlopsoversikt.PasientID,
+     forlopsoversikt.Kommune,
+     forlopsoversikt.KommuneNr,
+     forlopsoversikt.Fylke,
+     forlopsoversikt.Fylkenr,
+     forlopsoversikt.PasientAlder,
+     forlopsoversikt.ForlopsType1,
+     forlopsoversikt.ForlopsType2,
+     forlopsoversikt.KobletForlopsID
+    FROM
+      forlopsoversikt;")
+  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
+  
+  sS %<>% dplyr::left_join(., 
+                            fo_tmp,
+                            by = c("AvdRESH", "ForlopsID"))
   
   list(sS = sS)
 }
