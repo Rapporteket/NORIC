@@ -1779,11 +1779,10 @@ fig_df_kompl_avd <- AP %>%
       TRUE ~ "Øvrige") ) %>% 
   dplyr::count(name, type_komplikasjon, value, gradering, aar) %>%
   tidyr::pivot_wider(names_from = value, values_from = n, values_fill=0) %>% 
-  select(name, type_komplikasjon, gradering, Ja, aar) %>% 
-  mutate(aar = factor(aar))
+  select(name, type_komplikasjon, gradering, Ja, aar) 
 
 
-# Rekkefølge: 
+# Rekkefølge: Rekkefølge fra fjoråret
 # Først alvorlig, så øvrige. 
 # Annen alvorlig nederst av alvorlige. 
 # pros_red_dod etter død
@@ -1795,31 +1794,31 @@ synkende_rekkefolge_avd_alvorlig <- rbind(
   
   # Alvorlig (uten annen alvorlig,  pros.rel.dod og undergruppe alvorlig blødning.)
   fig_df_kompl_avd %>% 
-    dplyr::filter(name != "AvdKompAnnenAlvorlig", 
-                  name != "AvdKompProsedyrerelatertDod", 
+    dplyr::filter(name != c("AvdKompAnnenAlvorlig"), 
+                  name != c("AvdKompProsedyrerelatertDod"), 
                   gradering %in% "Alvorlige komplikasjoner på avdeling",
-                  aar %in% periode_data$sisteHeleYear) %>% 
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   # Annen alvorlig nederst av alvorlige
   fig_df_kompl_avd %>% 
     dplyr::filter(name == "AvdKompAnnenAlvorlig",
-                  aar %in% periode_data$sisteHeleYear)
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear)
 ) 
 
 # sett inn prosedyrerelatert død på riktig sted
 insert_prsRel_her <- which(synkende_rekkefolge_avd_alvorlig$name == "AvdKompDod",
-                           aar %in% periode_data$sisteHeleYear)
+                           fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear)
 
 synkende_rekkefolge_avd_alvorlig %<>%
   dplyr::add_row( fig_df_kompl_avd %>% 
                     filter(name == "AvdKompProsedyrerelatertDod",
-                           aar %in% periode_data$sisteHeleYear),
+                           fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear),
                   .after = insert_prsRel_her) 
 
 # sett inn undergrupper blødning på riktig sted
 insert_blod_her<- which(synkende_rekkefolge_avd_alvorlig$name == "komplik_avd_alvorligBlodning",
-                        aar %in% periode_data$sisteHeleYear)
+                        fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear)
 
 # synkende_rekkefolge_avd_alvorlig %>% knitr::kable(align = "r")
 
@@ -1831,7 +1830,7 @@ endelig_alvorlig <- rbind(
   # Undergrupper blødning
   fig_df_kompl_avd %>% 
     filter(gradering %in% "Undergruppe alv blødning",
-                  aar %in% periode_data$sisteHeleYear) %>% 
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   # Før blødning
@@ -1844,12 +1843,12 @@ endelig_alvorlig <- rbind(
   # Deretter øvrige
 synkende_rekkefolge_avd_ovrige <-   fig_df_kompl_avd %>% 
     dplyr::filter(gradering %in% "Øvrige",
-                  aar %in% periode_data$sisteHeleYear) %>% 
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja)
 
 # sett inn undergrupper blødning på riktig sted
 insert_blod_her<- which(synkende_rekkefolge_avd_ovrige$name == "komplik_avd_ovrigBlodning",
-                  aar %in% periode_data$sisteHeleYear)
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear)
 
 endelig_ovrig <- rbind(
   
@@ -1859,7 +1858,7 @@ endelig_ovrig <- rbind(
   # Undergrupper blødingn
   fig_df_kompl_avd %>% 
     filter(gradering %in% "Undergruppe av ovrig blodning",
-                  aar %in% periode_data$sisteHeleYear) %>% 
+           fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear) %>% 
       dplyr::arrange(-Ja), 
   
    # Før blødning
@@ -1867,23 +1866,29 @@ endelig_ovrig <- rbind(
   )
 
 
-#SAMMEN: 
-endelig_alle <- rbind(
-  endelig_alvorlig, 
-  endelig_ovrig
-) %>%
-  group_by(aar) %>%
-  # # PARAMETRE FOR PLOT
-  dplyr::mutate(
-    Sortering = n():1,
+#SAMMEN:
 
+rekkeflg_komp_avd <- rbind(endelig_alvorlig,
+                           endelig_ovrig) %>%
+  dplyr::pull(type_komplikasjon) %>% 
+  rev()
+
+
+endelig_alle <- fig_df_kompl_avd %>% 
+  dplyr::mutate(type_komplikasjon = factor(type_komplikasjon, 
+                                           levels = rekkeflg_komp_avd)) %>% 
+  dplyr::arrange(type_komplikasjon) %>% 
+  dplyr::group_by(aar) %>% 
+  dplyr::mutate(
+    Sortering = 1:n(),
+    
     alpha_soyler= ifelse(
       gradering %in% "Undergruppe alv blødning" |
         gradering %in% "Undergruppe av ovrig blodning" |
         name %in% "AvdKompProsedyrerelatertDod",
       TRUE,
       FALSE),
-
+    
     gradering2 = ifelse(
       gradering %in% c("Undergruppe alv blødning",
                        "Alvorlige komplikasjoner på avdeling"),
@@ -1898,7 +1903,7 @@ ggplot2::ggplot(data = endelig_alle) +
   ggplot2::geom_bar(
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering),
                            y = Ja, 
-                           fill = aar,
+                           fill = fig_df_kompl_avd$aar,
                            alpha = alpha_soyler),
     stat="identity",
     width = 0.8,
@@ -1920,8 +1925,8 @@ ggplot2::ggplot(data = endelig_alle) +
                            x = reorder(type_komplikasjon,
                                        Sortering),
                            y = Ja,
-                           group = aar,
-                           color = aar),
+                           group = fig_df_kompl_avd$aar,
+                           color = fig_df_kompl_avd$aar),
     vjust = 0.5,
     hjust = -0.15,
     size = 5,
@@ -1939,47 +1944,6 @@ ggplot2::ggplot(data = endelig_alle) +
   # Fjerne akse-tittel:
   ggplot2::labs(x = NULL, 
                 y = NULL)
-
-
-# endelig_alle %>%
-#   ggplot2::ggplot(data = . ,
-#                   ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
-#                                y = Ja)) +
-#   ggplot2::geom_bar(
-#     mapping = ggplot2::aes(alpha = alpha_soyler),
-#     stat="identity",
-#     width = 0.85,
-#     fill = colPrimary[4]) +
-#     ggplot2::scale_alpha_manual(breaks = c(TRUE, FALSE),
-#                               values = c(0.5, 1)) +
-# 
-#   ggplot2::facet_grid(rows =  "gradering2",
-#                      scales = "free",
-#                      space='free',
-#                      switch = "y") +
-#   ggplot2::coord_flip(clip = "off") +
-#   # FREKVENS-TALL SOM PLASSERES I/PÅ SØYLENE:
-#   ggplot2::geom_text(
-#     ggplot2::aes(label = Ja,
-#                  alpha = alpha_soyler),
-#     vjust = 0.5,
-#     hjust = -0.15,
-#     size = 6  ) +
-#   # THEME & BASE SIZE:
-#   ggplot2::theme_classic( base_size = 20) +
-#   # THEME -
-#   ggplot2::theme(
-#     legend.position = "none", # fjerne hele legend
-#     axis.text.x = ggplot2::element_text( size = 18, colour = "black"),
-#     # axis.text.y = ggplot2::element_text(color = farger_tekst),
-#     axis.line.y = ggplot2::element_blank(),
-#     axis.ticks.y = ggplot2::element_blank(),
-#     strip.placement = "outside"
-#   ) +
-#   # Fjerne akse-tittel:
-#   ggplot2::labs(
-#     x = NULL,
-#     y = NULL)
 
 ```
 
