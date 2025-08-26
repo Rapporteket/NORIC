@@ -102,8 +102,6 @@ if(params$registryName %in% "noric_nasjonal"){
   )
 }
 
-
-
 periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
     dplyr::mutate(
       
@@ -1382,37 +1380,53 @@ fig_df_kompLab <- AP %>%
   dplyr::select(name, type_komplikasjon, gradering, Ja, aar)
 
 
-# Rekkefølge: 
+# Rekkefølge: Rekkefælge etter fjoråret
 # Først alvorlig, med Annen alvorlig nederst. Så øvrige. 
 # Prosedyrerelatert død etter død. 
-synkende_rekkefolge_lab <- rbind(
+synkende_rekkefolge_lab_fjoraaret <- rbind(
   
   fig_df_kompLab %>% 
     dplyr::filter(name != "LabKompAnnenAlv", 
                   name != "LabKompProsedyrerelatertDod", 
-                  gradering %in% "Alvorlige komplikasjoner på lab") %>% 
+                  gradering %in% "Alvorlige komplikasjoner på lab",
+                  fig_df_kompLab$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   fig_df_kompLab %>% 
-    dplyr::filter(name == "LabKompAnnenAlv"), 
+    dplyr::filter(name == "LabKompAnnenAlv",
+                  fig_df_kompLab$aar %in% periode_data$sisteHeleYear), 
 
   fig_df_kompLab %>% 
-    dplyr::filter(gradering %in% "Øvrige") %>% 
+    dplyr::filter(gradering %in% "Øvrige",
+                  fig_df_kompLab$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja)
   ) 
 
-insert_prsRel_her <- which(synkende_rekkefolge_lab$name == "LabKompDod")
-synkende_rekkefolge_lab %<>%
+insert_prsRel_her <- which(synkende_rekkefolge_lab_fjoraaret$name == "LabKompDod",
+                           fig_df_kompLab$aar %in% periode_data$sisteHeleYear)
+
+synkende_rekkefolge_lab_fjoraaret %<>%
   dplyr::add_row(
-    fig_df_kompLab %>% dplyr::filter(name == "LabKompProsedyrerelatertDod"),
+    fig_df_kompLab %>% dplyr::filter(
+      name == "LabKompProsedyrerelatertDod",
+      fig_df_kompLab$aar %in% periode_data$sisteHeleYear),
     .after = insert_prsRel_her)
 
 
+# REKKEFØLGE:
+rekkeflg_komp_lab <- synkende_rekkefolge_lab_fjoraaret %>%
+  dplyr::pull(type_komplikasjon) %>% 
+  rev()
+
+
 # PARAMETRE FOR FIGUR: 
-synkende_rekkefolge_lab %<>% 
+endelig_lab <-  fig_df_kompLab %>%
+  dplyr::mutate(type_komplikasjon = factor(type_komplikasjon, 
+                                           levels = rekkeflg_komp_lab)) %>% 
+  dplyr::arrange(type_komplikasjon) %>%
   dplyr::group_by(aar) %>%
   dplyr::mutate(
-    Sortering  = n():1, 
+    Sortering  = 1:n(), 
     
     alpha_soyler= ifelse(
       name %in% "LabKompProsedyrerelatertDod", 
@@ -1420,9 +1434,20 @@ synkende_rekkefolge_lab %<>%
       FALSE)) %>%
   ungroup()
 
+# synkende_rekkefolge_lab %<>% 
+#   dplyr::group_by(aar) %>%
+#   dplyr::mutate(
+#     Sortering  = n():1, 
+#     
+#     alpha_soyler= ifelse(
+#       name %in% "LabKompProsedyrerelatertDod", 
+#       TRUE, 
+#       FALSE)) %>%
+#   ungroup()
+
 
 # PLOT
-ggplot2::ggplot(data = synkende_rekkefolge_lab) +
+ggplot2::ggplot(data = endelig_lab) +
     
   ggplot2::geom_bar(
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
@@ -1836,9 +1861,6 @@ endelig_alvorlig <- rbind(
   # Før blødning
   synkende_rekkefolge_avd_alvorlig[-(1:insert_blod_her), ]
 )
-
-# endelig_alvorlig %>% knitr::kable(align = "r")
-
 
   # Deretter øvrige
 synkende_rekkefolge_avd_ovrige <-   fig_df_kompl_avd %>% 
