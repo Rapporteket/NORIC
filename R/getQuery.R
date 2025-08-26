@@ -9,6 +9,7 @@
 #' queryAortaklaffvarnum
 #' queryForlopsoversikt
 #' queryAndreprosedyrervarnum
+#' queryAnnendiagnostikkvarnum
 NULL
 
 #' @rdname getQuery
@@ -517,3 +518,68 @@ queryAndreprosedyrervarnum <-function(){
 "
   )}
 
+
+
+
+#' @rdname getQuery
+#' @export
+queryAnnendiagnostikkvarnum <-function(){
+  
+  paste0(
+    "SELECT
+  centre.ID AS AvdRESH,
+  IFNULL((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = centre.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), centre.ID) AS Sykehusnavn,
+  CASE P.GENDER
+    WHEN NULL THEN 'Ikke angitt'
+    WHEN 1 THEN 'Mann'
+    WHEN 2 THEN 'Kvinne'
+    WHEN 9 THEN 'Ikke relevant'
+    ELSE 'Ukjent'
+    END AS PasientKjonn,
+  P.BIRTH_DATE as FodselsDato,
+  diag.MCEID AS ForlopsID,
+  (CASE
+   WHEN m.INTERVENTION_TYPE IN (1,2,3,7) AND m.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+   WHEN m.INTERVENTION_TYPE IN (1,2,3,7) AND m.PARENT_MCEID IS NULL THEN 'Primær'
+   ELSE NULL
+   END) as Regtype,
+  (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
+  (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
+  (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
+  R.INDIKATION  AS Indikasjon,
+  R.INTERDAT as ProsedyreDato,
+  R.HEIGHT as Hoyde,
+  R.WEIGHT as Vekt,
+  diag.SEGMENT  AS segment,
+  diag.GRAFT  AS graft,
+  diag.METHODUSED  AS metode,
+  diag.FFR_BEFORE AS FfrFoer,
+  diag.FFR_AFTER as FfrEtter,
+  diag.IFR_BEFORE as IfrFoer,
+  diag.IFR_AFTER as IfrEtter,
+  diag.CSA_BEFORE as CsaFoer,
+  diag.CSA_AFTER as CsaEtter,
+  diag.MLD_BEFORE as MldFoer,
+  diag.MLD_EAFTER as MldEtter,
+  diag.MLA_BEFORE as MlaFoer,
+  diag.MLA_AFTER as MlaEtter,
+  diag.MXLCBI_BEFORE as MxlcbiFoer,
+  diag.MXLCBI_AFTER as MxlcbiEtter,
+  diag.CFR_BEFORE as CfrFoer,
+  diag.CFR_AFTER as CfrEtter,
+  diag.IMR_BEFORE as ImrFoer,
+  diag.IMR_AFTER as ImrEtter,
+  diag.PDPA_BEFORE as PdpaFoer,
+  diag.PDPA_AFTER as PdpaEtter,
+  diag.PAH_BEFORE as PahFoer,
+  diag.PAH_AFTER as PahEtter,
+  diag.PDH_BEFORE as PdhFoer,
+  diag.PDH_AFTER as PdhEtter
+  FROM diagnostics diag
+  INNER JOIN mce m ON diag.MCEID=m.MCEID
+  INNER JOIN centre ON centre.ID = m.CENTREID
+  INNER JOIN patient P ON m.PATIENT_ID=P.ID
+  LEFT JOIN regangio R ON diag.MCEID=R.MCEID"
+  )
+  
+}
