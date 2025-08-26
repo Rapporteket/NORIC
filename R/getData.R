@@ -43,17 +43,9 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
                   singleHospital = NULL, ...) {
   
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # Ask for all variables from ANGIO PCI in time interval
-  # Add selected variables from forlopsoversikt
-  # 3 variables to match on: AvdRESH, PasientID, ForlopsID
   
   query <- paste0("
 SELECT
@@ -107,14 +99,9 @@ WHERE
 #' @export
 getSo <- function(registryName, fromDate, toDate, singleRow, ...) {
   
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
   
   
   # Ask for all variables from skjemaoversikt, in time interval
@@ -153,53 +140,22 @@ WHERE
 #' @rdname getData
 #' @export
 getAk <- function(registryName, fromDate, toDate, singleRow, 
-                  singleHospital = NULL,
-                  ...){
+                  singleHospital = NULL, ...){
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
-  
-  # Ask for all variables from aortaklaffvar in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
-  
-  query_fo_temp <- paste0("
-SELECT
-    forlopsoversikt.AvdRESH,
-    forlopsoversikt.ForlopsID,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.FodselsDato,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID,
-    forlopsoversikt.Avdod
-FROM
-    forlopsoversikt;")
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
   query <- paste0(noric::queryAortaklaffvarnum(), 
                   "WHERE
                   T.PROCEDUREDATE >= '", fromDate, "' AND
                   T.PROCEDUREDATE <= '", toDate, "'")
+  
   if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "AND T.CENTREID = ", 
-                    singleHospital)
+    query <- paste0(query, "AND T.CENTREID = ", singleHospital)
   }
   
-  # SQL for one row only/complete table:
   if (singleRow) {
-    query <- paste0(query, "\nLIMIT\n  1;")
+    query <- paste0(query, "\nLIMIT\n  1;") # single row
     msg <- "Query single row data for aortaklaffvarnum"
   } else {
     query <- paste0(query, ";")
@@ -214,7 +170,27 @@ FROM
   aK <- noric::erstatt_koder_m_etiketter(aKnum,
                                          mapping = noric::aort_map_num_tekst)
   
-  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
+ 
+  query_fo_temp <- paste0("
+   SELECT
+    forlopsoversikt.AvdRESH,
+    forlopsoversikt.ForlopsID,
+    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.FodselsDato,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID,
+    forlopsoversikt.Avdod
+  FROM
+    forlopsoversikt;")
+  
+   fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
   
   aK %<>% dplyr::left_join(., 
                            fo_tmp,
@@ -228,13 +204,9 @@ FROM
 getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
   
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
+  
   
   
   # Ask for all variables from forlopsoversikt, in time interval
@@ -275,36 +247,10 @@ WHERE
 getAnP <- function(registryName, fromDate, toDate, singleRow,
                    singleHospital = NULL, ...) {                  
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # Ask for all variables from andreprosedyrervar in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
-  query_fo_temp <- paste0("
-SELECT
-    forlopsoversikt.AvdRESH,
-    forlopsoversikt.ForlopsID,
-    forlopsoversikt.PasientID,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.FodselsDato,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID
-FROM
-    forlopsoversikt;")
-  
+   
   query <- paste0(noric::queryAndreprosedyrervarnum(), 
                   "WHERE
                   other.PROCEDUREDATE >= '", fromDate, "' AND
@@ -314,19 +260,12 @@ FROM
                     "AND other.CENTREID = ", 
                     singleHospital)
   }
-  if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "AND other.AvdRESH = ", 
-                    singleHospital)
-  }
-  
-  
-  # SQL for one row only/complete table:
+
   if (singleRow) {
-    query <- paste0(query, "\nLIMIT\n  1;")
+    query <- paste0(query, "\nLIMIT\n  1 ;")
     msg <- "Query single row data for andreprosedyrervarnum"
   } else {
-    query <- paste0(query, ";")
+    query <- paste0(query, " ;")
     msg <- "Query data for andreprosedyrervarnum"
   }
   
@@ -338,6 +277,24 @@ FROM
   anP <- noric::erstatt_koder_m_etiketter(anPnum,
                                           mapping = noric::APVN_map_num_tekst)
   
+  query_fo_temp <- paste0("
+    SELECT
+     forlopsoversikt.AvdRESH,
+     forlopsoversikt.ForlopsID,
+     forlopsoversikt.PasientID,
+     forlopsoversikt.Sykehusnavn,
+     forlopsoversikt.FodselsDato,
+     forlopsoversikt.Kommune,
+     forlopsoversikt.KommuneNr,
+     forlopsoversikt.Fylke,
+     forlopsoversikt.Fylkenr,
+     forlopsoversikt.PasientKjonn,
+     forlopsoversikt.PasientAlder,
+     forlopsoversikt.ForlopsType1,
+     forlopsoversikt.ForlopsType2,
+     forlopsoversikt.KobletForlopsID
+    FROM
+      forlopsoversikt;")
   fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
   
   anP %<>% dplyr::left_join(., 
@@ -351,17 +308,10 @@ FROM
 #' @export
 getCt <- function(registryName, fromDate, toDate, singleRow, ...){
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # Ask for all variables from CT in time interval
-  # Add selected variables from forlopsoversikt
-  # 3 variables to match on: AvdRESH, ForlopsID
+  
   
   query <- paste0("
 SELECT
@@ -411,18 +361,10 @@ WHERE
 #' @export
 getAkOppf <- function(registryName, fromDate, toDate, singleRow, ...){
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # Ask for all variables from aortaklaffoppfvarnum in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
-  
+
   query <- paste0("
 SELECT
     aortaklaffoppfvarnum.*,
@@ -480,54 +422,25 @@ WHERE
 #' @export
 getAnD <- function(registryName, fromDate, toDate, singleRow,
                    singleHospital = NULL, ...) {
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
-  
-  # Ask for all variables from annendiagnostikkvar in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
-  
-  query <- paste0("
-SELECT
-    annendiagnostikkvarnum.*,
-    forlopsoversikt.PasientID,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID
-FROM
-    annendiagnostikkvarnum
-LEFT JOIN forlopsoversikt ON
-    annendiagnostikkvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
-    annendiagnostikkvarnum.ForlopsID = forlopsoversikt.ForlopsID
-WHERE
-    annendiagnostikkvarnum.ProsedyreDato >= '", fromDate, "' AND
-    annendiagnostikkvarnum.ProsedyreDato <= '", toDate, "'"
-  )
-  
+  query <- paste0(noric::queryAnnendiagnostikkvarnum(), 
+                  " WHERE 
+                  R.INTERDAT >= '", fromDate,  "' AND 
+                  R.INTERDAT <= '", toDate, "' ")
+                  
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "AND annendiagnostikkvarnum.AvdRESH = ", 
+                    "AND m.CENTREID = ", 
                     singleHospital)
   }
   
-  
-  # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for annendiagnostikkvarnum"
   } else {
-    query <- paste0(query, ";")
+    query <- paste0(query, " ;")
     msg <- "Query data for annendiagnostikkvarnum"
   }
   
@@ -539,8 +452,26 @@ WHERE
   anD <- noric::erstatt_koder_m_etiketter(anDnum,
                                           mapping = noric::ADVN_map_num_tekst)
   
+  query_fo_temp <- paste0("
+    SELECT
+     forlopsoversikt.AvdRESH,
+     forlopsoversikt.ForlopsID,
+     forlopsoversikt.PasientID,
+     forlopsoversikt.Kommune,
+     forlopsoversikt.KommuneNr,
+     forlopsoversikt.Fylke,
+     forlopsoversikt.Fylkenr,
+     forlopsoversikt.PasientAlder,
+     forlopsoversikt.ForlopsType1,
+     forlopsoversikt.ForlopsType2,
+     forlopsoversikt.KobletForlopsID
+    FROM
+      forlopsoversikt;")
+  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
   
-  
+  anD %<>% dplyr::left_join(., 
+                            fo_tmp,
+                            by = c("AvdRESH", "ForlopsID"))
   list(anD = anD)
 }
 
@@ -688,17 +619,10 @@ WHERE
 #' @export
 getMk <- function(registryName, fromDate, toDate, singleRow, ...){
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # Ask for all variables from mitralklaff in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
+  
   
   query <- paste0("
 SELECT
@@ -755,17 +679,9 @@ WHERE
 #' @export
 getPs <- function(registryName, fromDate, toDate, singleRow, ...){
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  # Ask for all variables from pasienterstudier in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
   
   query <- paste0("
 SELECT
@@ -815,19 +731,10 @@ WHERE
 getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
   
   
-  # SQL possible for defined time-interval
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
   
-  # QUERY ANGIO PCI + FO
-  # Ask for all variables from ANGIO PCI in time interval
-  # Add selected variables from forlopsoversikt
-  # 3 variables to match on: AvdRESH, PasientID, ForlopsID
   
   query <- paste0("
 SELECT
@@ -917,17 +824,11 @@ WHERE
 #' @export
 getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
   
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
-  
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
   queryAk <- paste0("
-SELECT
+  SELECT
     aortaklaffvarnum.DodsdatoFReg,
     aortaklaffvarnum.UtskrevetTil,
     aortaklaffvarnum.TypeKlaffeprotese,
@@ -941,42 +842,25 @@ SELECT
     forlopsoversikt.Avdod, 
     forlopsoversikt.AvdRESH, 
     forlopsoversikt.ForlopsID
-FROM
+  FROM
     aortaklaffvarnum
-LEFT JOIN forlopsoversikt ON
+  LEFT JOIN forlopsoversikt ON
     aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
     aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
-WHERE
+  WHERE
     ProsedyreDato >= '", fromDate, "' AND
     ProsedyreDato <= '", toDate, "'"
   )
   
   
-  #   # Ask for all variables from PROM
-  #   queryProm <- paste0("
-  # SELECT
-  #     *
-  # FROM
-  #     taviprom
-  # WHERE
-  #     ProsedyreDato >= '", fromDate, "' AND
-  #     ProsedyreDato <= '", toDate, "'
-  # 
-  #  ")
-  
-  
-  # Ask for all variables from PROM
-  # ALL DATA FROM OLD VIEW "taviprom"
-  # + conditions from input
+
   queryProm <- paste0(
     noric::queryTaviprom(), 
     "AND
     tavi.PROCEDUREDATE >= '", fromDate, "' AND
     tavi.PROCEDUREDATE <= '", toDate, "'
-    "
-  )
+    ")
   
-  # SQL for one row only/complete table:
   if (singleRow) {
     queryProm <- paste0(queryProm, "\nLIMIT\n  1;")
     queryAk <- paste0(queryAk, "\nLIMIT\n  1;")
