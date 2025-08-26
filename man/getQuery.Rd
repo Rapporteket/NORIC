@@ -7,6 +7,8 @@
 \alias{queryForlopsoversikt}
 \alias{queryAndreprosedyrervarnum}
 \alias{queryAnnendiagnostikkvarnum}
+\alias{querySegmentstentnum}
+\alias{queryAngiopcinum}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryTaviprom()
@@ -18,6 +20,10 @@ queryForlopsoversikt()
 queryAndreprosedyrervarnum()
 
 queryAnnendiagnostikkvarnum()
+
+querySegmentstentnum()
+
+queryAngiopcinum()
 }
 \value{
 query as string

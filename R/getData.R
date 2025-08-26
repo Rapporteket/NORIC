@@ -42,44 +42,22 @@ NULL
 getAp <- function(registryName, fromDate, toDate, singleRow, 
                   singleHospital = NULL, ...) {
   
-  
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
-  
-  query <- paste0("
-SELECT
-    a.*,
-    f.Kommune,
-    f.KommuneNr,
-    f.Fylke,
-    f.Fylkenr,
-    f.PasientAlder,
-    f.KobletForlopsID,
-    f.ForlopsType2
-FROM
-      angiopcinum a
-LEFT JOIN forlopsoversikt f ON
-    a.AvdRESH = f.AvdRESH AND
-    a.PasientID = f.PasientID AND
-    a.ForlopsID = f.ForlopsID
-WHERE
-      a.ProsedyreDato >= '", fromDate, "' AND
-      a.ProsedyreDato <= '", toDate, "'"
-  )
-  
+  query <- paste0(noric::queryAngiopcinum(), 
+                  "WHERE
+                  A.INTERDAT >= '", fromDate, "' AND
+                  A.INTERDAT <= '", toDate, "' ")
   if(!is.null(singleHospital)) {
-    query <- paste0(query,
-                    "AND a.AvdRESH = ",
-                    singleHospital)
+    query <- paste0(query, "AND A.CENTREID = ", singleHospital)
   }
   
-  # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for AngioPCI"
   } else {
-    query <- paste0(query, ";")
+    query <- paste0(query, " ;")
     msg <- "Query data for AngioPCI"
   }
   
@@ -91,6 +69,25 @@ WHERE
   aP <- noric::erstatt_koder_m_etiketter(aPnum, 
                                          mapping = noric::angp_map_num_tekst)
   
+  query_fo_temp <- paste0("
+   SELECT
+    forlopsoversikt.AvdRESH,
+    forlopsoversikt.ForlopsID,
+    forlopsoversikt.PasientID,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.KobletForlopsID,
+    forlopsoversikt.ForlopsType2
+    FROM
+    forlopsoversikt;")
+  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
+  
+  aP %<>% dplyr::left_join(., 
+                           fo_tmp,
+                           by = c("AvdRESH", "ForlopsID", "PasientID"))
   list(aP = aP)
 }
 
