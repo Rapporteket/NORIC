@@ -91,13 +91,10 @@ showN <- 14
 
 
 # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
-if (params$registryName %in% "noricStagingNasjonal") {
-  nyeste_reg <- min(
-      (as.Date(Sys.time()) - 1),
-      
-      noric::getLatestEntryHospital(registryName = params$registryName, 
-                                    reshID = params$reshID)
-  )
+if(params$registryName %in% "noric_nasjonal"){
+  nyeste_reg <- noric::getLatestEntryHospital(
+    registryName = params$registryName, 
+    reshID = params$reshID)
   
 } else {
   nyeste_reg <- min(
@@ -105,7 +102,6 @@ if (params$registryName %in% "noricStagingNasjonal") {
       noric::getLatestEntry(registryName = params$registryName)
   )
 }
-
 
 
 periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
