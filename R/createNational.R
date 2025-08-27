@@ -8,8 +8,6 @@ createNational <- function() {
   listOfTables <- c(
     "andreprosedyrervarnum",
     "angiopcinum",
-    "angiopcivardel1num",
-    "angiopcivardel2num",
     "annendiagnostikkvarnum",
     "aortaklaffoppfvarnum",
     "aortaklaffvarnum",
@@ -23,11 +21,11 @@ createNational <- function() {
   )
   listOfDb <- unique((
     rapbase::getConfig("rapbaseConfig.yml")$reg$noric$databases |>
-    unlist() |>
-    matrix(nrow=2) |>
-    t() |>
-    as.data.frame() |>
-    dplyr::filter(.data$V1 != nationalDb)
+      unlist() |>
+      matrix(nrow = 2) |>
+      t() |>
+      as.data.frame() |>
+      dplyr::filter(.data$V1 != nationalDb)
   )$V1)
 
   # Check if db in listOfDb exists, and filter out non-existing db
