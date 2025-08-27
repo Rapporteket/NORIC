@@ -9,6 +9,8 @@
 \alias{queryAnnendiagnostikkvarnum}
 \alias{querySegmentstentnum}
 \alias{queryAngiopcinum}
+\alias{queryMitralklaffvarnum}
+\alias{queryMitralklaffoppfvarnum}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryTaviprom()
@@ -24,6 +26,10 @@ queryAnnendiagnostikkvarnum()
 querySegmentstentnum()
 
 queryAngiopcinum()
+
+queryMitralklaffvarnum()
+
+queryMitralklaffoppfvarnum()
 }
 \value{
 query as string

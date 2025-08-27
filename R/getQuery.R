@@ -12,6 +12,8 @@
 #' queryAnnendiagnostikkvarnum
 #' querySegmentstentnum
 #' queryAngiopcinum
+#' queryMitralklaffvarnum
+#' queryMitralklaffoppfvarnum
 NULL
 
 #' @rdname getQuery
@@ -1077,3 +1079,297 @@ queryAngiopcinum <- function(){
          LEFT JOIN discharge D ON MCE.MCEID = D.MCEID
   ")
 }  
+
+
+
+
+
+#' @rdname getQuery
+#' @export
+queryMitralklaffvarnum <-function(){
+  paste0("
+  SELECT
+	  T.MCEID AS ForlopsID,
+	  T.CENTREID AS AvdRESH,
+
+    -- Mitralklaff
+    T.SCREENING AS ScreeningBeslutning,
+    T.MITRAL_VALVE_TYPE AS Prosedyre,
+    T.PROCEDUREDATE AS ProsedyreDato,
+    
+    -- Study information
+    (SELECT
+      GROUP_CONCAT(
+         IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+      FROM pasienterstudier PS
+      WHERE PS.PasientID = MCE.PATIENT_ID)
+    AS Studie,
+
+	  -- Kliniske bakgrunnsdata
+	  T.HEIGHT AS Hoyde,
+    T.HEIGHT_MISS AS HoydeUkjent,
+    T.WEIGHT AS Vekt,
+    T.WEIGHT_MISS AS VektUkjent,
+    T.SMOKING AS Royker,
+	  T.S_CREATININ AS KreatininFoer,
+	  T.S_CREATININ_MISS AS KreatininUkjent,
+    T.PROBNP AS ProBNP,
+    T.PROBNPNT AS NTProBNPFoer,
+	  T.PROBNP_MISS AS ProBNPUkjent,
+	  T.HEMOGLOBIN AS HemoglobinFoer, -- Added in v1.13 as NOR-1345
+
+	  -- Tidligere sykdommer/behandling
+    T.HYPERTENSION AS BehHypertoni,
+    T.DIABETES AS Diabetes,
+    T.DIABETESINSULIN AS Insulin,
+    T.ATRIAL_FIBRILLATION AS Atrieflimmer,
+    T.PREVIOUS_MI AS InfarktSiste90d,
+    T.HEARTFAILURE AS AntInnleggelserSisteAar,
+    T.HEARTFAILURE_MISS AS AntInnleggelserSisteAarUkjent,
+    T.PRIOR_CARDIAC_SURGERY AS TidlHjerteoperasjon,
+    T.PRIOR_CARDIAC_SURGERY_ACB AS TidlACB,
+    T.PRIOR_CARDIAC_SURGERY_AVR AS TidlAVR,
+    T.PRIOR_CARDIAC_SURGERY_MITRALPLASTIKK AS TidlMitralplastikk,
+    T.PRIOR_CARDIAC_SURGERY_MVR AS TidlMVR,
+    T.PRIOR_CARDIAC_SURGERY_OTHER AS TidlAnnet,
+    T.PRIORCORRECTION AS TidlKorrigering,
+    T.PREVIOUS_PCI AS TidlPCI,
+    T.PREVIOUS_STROKE AS TidlHjerneslag,
+    T.CHRONIC_PULMONARY_DISEASE AS KOLS,
+    T.PERIF_VESSELDISEASE AS PeriferKarsykdom,
+
+	  -- Aktuell preoperativ status
+    T.NYHA AS NYHAKlasse,
+    T.FRAILTY AS Frailty,
+    T.NEUROLOGIC_DIS AS RedusertMobilitet,
+    T.WALKINGTEST AS Gangtest,
+    T.WALKINGTEST_MISS AS GangtestIkkeUtfort,
+    T.WALKINGTESTSPEED AS GangHastigtest,
+    T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
+    T.GRIPTEST AS Gripestyrke,
+    T.EURO2_DIALYSIS AS DialyseFoerOp,
+    T.KRITISKT AS KritiskPreopTilstand,
+    T.EURO2_URGENCY AS Hastegrad,
+
+   	-- Kontraindikasjon mot kirurgi
+    T.COUNTERINDICATION AS Kontraindikasjon,
+    T.OTHERMORBREASON0 AS Porselenaorta,
+    T.OTHERMORBREASON1 AS Malignitet,
+    T.OTHERMORBREASON3 AS UgunstigAnatomi,
+    T.OTHERMORBREASON2 AS Steroidbehandling,
+    T.OTHERMORBREASON4 AS Stralebehandling,
+    T.OTHERMORBREASON5 AS Thoraxdeformitet,
+    T.AVBOJD AS AvslaattForThorax,
+
+    T.PRESENT_HEALTH_STAT AS Helsetilstand,
+
+    -- EKKO-funn fC8r prosedyre
+    T.LEFT_VENTRICULAR_FUNCTION_EURO2 AS PreVenstreVentrikkelFunksjon,
+    T.AORTAINS AS PreAortainsuffisiens,
+    T.AORTASTENOS AS PreAortastenose,
+    T.TRICUSINSUFF AS PreTricuspidal,
+    T.MITRALISSTENOS AS PreMitralstenose,
+    T.MITRINSUFF AS PreMitralinsuffisiens,
+    T.MAXSPEED_MSEK AS PreMaxHastighet,
+    T.AVERAGEGRADIENT AS PreMiddelgradient,
+    T.MREROA AS PreMREROA,
+    T.MREROA_MISS AS PreMREROAUkjent,
+    T.PULMONELLHYPERTENSION AS PreHoyreVentTrykk,
+
+    -- OperatC8rer
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.MAIN_OPERATOR ) AS HovedOperator,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.SECOND_OPERATOR ) AS AndreOperator,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.THIRD_OPERATOR ) AS TredjeOperator,
+   	(SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM tavimitralis_operator_mapping tavi_op, people peo where tavi_op.PEOPLEID = peo.PEOPLEID and tavi_op.MCEID = T.MCEID) AS Operatorer,
+
+   	-- Prosedyrevariabler
+    T.PUNCTIONTIME AS Punksjonstid,
+    T.ENDTIME AS Avslutningstid,
+    T.INTRODUCER AS IntroducerStr,
+    T.INTRODUCER_MISS AS IntroducerStrUkjent,
+    T.VESSELSEAL AS Karlukning,
+    T.ANESTHESIA AS Anestesi,
+    T.EKODURINGPROC AS ProsedyreEkko,
+   	(SELECT v.NAME FROM valve v WHERE T.INSTRUMENTTYPE = v.ID) AS TypeKlaffeprotese,
+    T.SUCCESSFULPROC AS VellykketProsedyre,
+	
+	  -- These are outcommented from the form, due to NOR-733:
+	  -- TAVIMITRALIS_CRT
+	  -- TAVIMITRALIS_ICD
+	  -- TAVIMITRALIS_QUALCLASS
+	  -- TAVIMITRALIS_PROLAPS, 6 variables
+	  -- TAVIMITRALIS_MRPISA (with _MISS)
+	  -- TAVIMITRALIS_VCONTRACTA (with MISS)
+	  -- TAVIMITRALIS_LUNGVENREVERSE
+	  -- TAVIMITRALIS_NRCLIP_ROW (with MISS)
+	  -- TAVIMITRALIS_ACCESS
+
+    -- StrC%ledata og kontrast
+    T.LABNO AS Labnr,
+	  T.BEAMDOSE AS Straaledose,
+    T.BEAMDOSE_MISS AS StraaledoseUkjent,
+	  T.LIGHTTIME AS GjennomLysTid,
+    T.CONTRASTAGENT AS Kontrastmiddel,
+	  T.CONTRASTAMOUNT AS Kontrastmengde,
+    T.CONTRASTAMOUNT_MISS AS KontrastmengdeUkjent,
+
+   	-- Komplikasjoner pC% lab
+    T.LABKOMP AS LabKomplikasjon,
+    T.LABBEHARYTMI AS LabKompArytmi,
+    T.LABNEURO AS LabKompNeurologi,
+    T.LABTAMP AS LabKompTamponade,
+    T.LABPACEMAKER AS LabKompPacemaker,
+    T.LABVASCULAR AS LabKompVaskular,
+    T.LABBLEEDING AS LabKompBlodning,
+    T.LABSURGVESSEL AS LabKompAkuttKlaff,
+    T.LABSURGVASC AS LabKompAkuttVaskular,
+    T.LABANESTHESI AS LabKompAnestesi,
+    T.LABHLMACHINE AS LabKompHLMaskin,
+    T.LABEMBOLDEVICE AS LabKompEmbolisering,
+    T.LABOTHER AS LabKompAnnenKomp,
+    T.LABDECEASED AS LabKompDod,
+   	P.DECEASED_DATE AS DodsdatoFReg,
+
+    -- Komplikasjoner pC% avdelingen
+    TD.AVDCOMP AS AvdKomplikasjon,
+    TD.AVDSTROKE AS AvdKompHjerneslag,
+    TD.AVDSTROKE_DEGREE AS AvdKompHjerneslagGrad,
+    TD.AVDTIA AS AvdKompTIA,
+    TD.AVDTAMPONAD AS AvdKompTamponade,
+    TD.AVDPACEMAKER AS AvdKompPacemaker,
+    TD.AVDATRIALFIB AS AvdKompAtrieflimmer,
+    TD.AVDMI AS AvdKompHjerteinfarkt,
+    TD.AVDVASCULAR AS AvdKompVaskular,
+    TD.AVDBLEEDING AS AvdKompBlodning,
+    TD.AVDBLEEDING_DEGREE AS AvdKompBlodningGrad,
+    TD.AVDINFECTION AS AvdKompInfeksjon,
+    TD.AVDDIALYSIS AS AvdKompDialyse,
+    TD.AVDOTHER AS AvdKompAnnenKomp,
+    TD.AVDDECEASED AS AvdKompDod,
+
+	  -- Postoperative EKKO-funn
+    TD.POSTPERFORMED AS PostUndersokelseForetatt,
+    TD.POSTQUALCLASS AS PostKlassifisering,
+    TD.POSTPROLAPSA1 AS PostProlapsA1,
+    TD.POSTPROLAPSA2 AS PostProlapsA2,
+    TD.POSTPROLAPSA3 AS PostProlapsA3,
+    TD.POSTPROLAPSP1 AS PostProlapsP1,
+    TD.POSTPROLAPSP2 AS PostProlapsP2,
+    TD.POSTPROLAPSP3 AS PostProlapsP3,
+    TD.POSTLEFT_VENTRICULAR_FUNCTION_EURO2 AS PostVenstreVentrikkelFunksjon,
+    TD.POSTTRICUS_INSUFF AS PostTricuspidal,
+    TD.POSTMITRALISSTENOS AS PostMitralstenose,
+    TD.POSTMITR_INSUFF AS PostMitralinsuffisiens,
+  	TD.POSTMAXGRADIENT AS PostMaxgradient,
+  	TD.POSTMAXSPEED_MSEK AS PostMaxHastighet,
+  	TD.POSTAVERAGEGRADIENT AS PostMiddelgradient,
+  	TD.POSTMRPISA AS PostMRPISA,
+    TD.POSTMRPISA_MISS AS PostMRPISAUkjent,
+  	TD.POSTMREROA AS PostMREROA,
+    TD.POSTMREROA_MISS AS PostMREROAUkjent,
+	  TD.POSTVCONTRACTA AS PostVContracta,
+    TD.POSTVCONTRACTA_MISS AS PostVContractaUkjent,
+    TD.POSTLUNGVENREVERSE AS PostReversFlow,
+    TD.POSTPULMONELLHYPERTENSION AS PostHoyreVentrikkelTrykk,
+    TD.POSTPULMONELLHYPERTENSION_MISS AS PostHoyreVentrikkelTrykkUkjent,
+
+    -- Utskrivelse
+  	TD.CREATININMAX AS MaxKreatinin,
+  	TD.CREATININMAX_MISS AS MaxKreatininUkjent,
+  	TD.DISCHARGEDATE AS UtskrDato,
+    TD.DISCHARGETO AS UtskrevetTil,
+
+   	-- Antikoagulantia og platehemmere ved utskrivelse
+    TD.ASA_DISCHARGE AS ASAVedUtskrivelse,
+    TD.ANTICOAGULANTS_DISCHARGE AS AntikoagulantiaVedUtskrivelse,
+    TD.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmereVedUtskrivelse,
+
+    T.STATUS AS SkjemaStatusHovedskjema,
+    TD.STATUS AS SkjemaStatusKomplUtskr,
+	  LEAST(T.STATUS, TD.STATUS) AS SkjemaStatus
+  FROM mce MCE
+  INNER JOIN centre C ON C.ID = MCE.CENTREID
+  INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+  INNER JOIN tavimitralis T ON MCE.MCEID = T.MCEID
+  INNER JOIN tavimitralisdischarge TD ON MCE.MCEID = TD.MCEID
+  ")
+}
+
+
+#' @rdname getQuery
+#' @export
+queryMitralklaffoppfvarnum <-function(){
+  paste0("
+  SELECT
+	  TF.MCEID AS ForlopsID,
+	  T.MCEID AS BasisForlopsID,
+	  TF.CENTREID AS AvdRESH,
+    T.SCREENING AS BasisScreeningBeslutning,
+  	T.PROCEDUREDATE AS BasisProsedyreDato,
+  	TF.FOLLOWUPDATE AS OppfDato,
+    TF.FOLLOWUP_TYPE AS OppfType,
+    TF.DECEASED AS OppfAvdod,
+	  TF.DECEASEDDATE AS OppfAvdodDato,
+    TF.PROC_RELATED_DEATH AS OppfDodProsRelatert,
+
+    -- OppfC8lging
+    TF.HEIGHT AS Hoyde,
+    TF.HEIGHT_MISS AS HoydeUkjent,
+    TF.WEIGHT AS Vekt,
+    TF.WEIGHT_MISS AS VektUkjent,
+    TF.NYHA AS NYHA,
+  	TF.WALKINGTEST AS Gangtest,
+	  TF.WALKINGTEST_MISS AS GangtestIkkeUtfort,
+    T.WALKINGTESTSPEED AS GangHastigtest,
+    T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
+	  TF.S_CREATININ AS Kreatinin,
+  	TF.S_CREATININ_MISS AS KreatininUkjent,
+    TF.PROBNP AS ProBNP,
+    TF.PROBNPNT AS NTProBNP,
+
+    -- EKKO-funn
+    TF.PROLAPSA1 AS ProlapsA1,
+    TF.PROLAPSA2 AS ProlapsA2,
+    TF.PROLAPSA3 AS ProlapsA3,
+    TF.PROLAPSP1 AS ProlapsP1,
+    TF.PROLAPSP2 AS ProlapsP2,
+    TF.PROLAPSP3 AS ProlapsP3,
+    TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon,
+    TF.AORTAINS AS Aortainsuffisiens,
+    TF.AORTAINS AS Aortastenose,
+    TF.TRICUSINS AS Tricuspidal,
+    TF.MITRALISINS AS Mitralinsuffisiens,
+    TF.MITRALISSTENOS AS Mitralstenose,
+    TF.MAXVELOCITY AS MaxHastighet,
+    TF.AVGGRADIENT_MSEK AS MiddelgradientMPS,
+    TF.AVERAGEGRADIENT AS Middelgradient,
+    TF.MRPISA AS MRPISA,
+    TF.MREROA AS MREROA,
+    TF.VCONTRACTA AS VContracta,
+    TF.LUNGVENSREVERS AS FlowRevers,
+	  TF.PULMHYPERTENSION AS HoyreVentrikkelTrykk,
+	  TF.PULMHYPERTENSION_MISS AS HoyreVentrikkelTrykkUkjent,
+
+   	TF.PRESENT_HEALTH_STAT AS Helsetilstand,
+
+    	-- Komplikasjoner
+    TF.AVDCOMP AS Komplikasjoner,
+    TF.AVDSTROKE AS Hjerneslag,
+    TF.AVDTIA AS TIA,
+    TF.AVDTAMPONAD AS Tamponade,
+    TF.AVDPACEMAKER AS Pacemaker,
+    TF.AVDATRIALFIB AS Atrieflimmer,
+    TF.AVDMI AS Hjerteinfarkt,
+    TF.AVDVASCULAR AS Vaskular,
+    TF.AVDBLEEDING AS Blodning,
+    TF.AVDINFECTION AS Infeksjon,
+    TF.AVDDIALYSIS AS Dialyse,
+    TF.AVDDEVICE AS DeviceRelKomp,
+    TF.AVDOTHER AS AnnenKomp,
+
+   	TF.STATUS AS SkjemaStatus
+  FROM mce MCE
+  INNER JOIN tavimitralisfollowup TF ON MCE.MCEID = TF.MCEID
+  LEFT JOIN tavimitralis T ON MCE.PARENT_MCEID = T.MCEID
+  ")
+  }
