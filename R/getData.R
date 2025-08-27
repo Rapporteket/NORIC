@@ -94,7 +94,8 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getData
 #' @export
-getSo <- function(registryName, fromDate, toDate, singleRow, ...) {
+getSo <- function(registryName, fromDate, toDate, singleRow, 
+                  singleHospital = NULL, ...) {
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -198,7 +199,8 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getData
 #' @export
-getFo <- function(registryName, fromDate, toDate, singleRow, ...) {
+getFo <- function(registryName, fromDate, toDate, singleRow, 
+                  singleHospital = NULL, ...) {
   
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
@@ -303,7 +305,8 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getData
 #' @export
-getCt <- function(registryName, fromDate, toDate, singleRow, ...){
+getCt <- function(registryName, fromDate, toDate, singleRow,
+                  singleHospital = NULL, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -356,18 +359,43 @@ WHERE
 
 #' @rdname getData
 #' @export
-getAkOppf <- function(registryName, fromDate, toDate, singleRow, ...){
+getAkOppf <- function(registryName, fromDate, toDate, singleRow,
+                      singleHospital = NULL, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
+  query <- paste0(noric::queryAortaklaffoppfvarnum(), 
+                  "WHERE
+                  T.PROCEDUREDATE >= '", fromDate, "' AND
+                  T.PROCEDUREDATE <= '", toDate, "'")
   
-  query <- paste0("
-SELECT
-    aortaklaffoppfvarnum.*,
+  # NB usikker på om vi skal bruke TF eller T her. followup eller tavi
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, "AND TF.CENTREID = ", singleHospital)
+  }
+  
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for aortaklaffoppfvarnum"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for aortaklaffoppfvarnum"
+  }
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  aKoppf <- rapbase::loadRegData(registryName, query)
+  
+  
+  query_fo_temp <- paste0("
+   SELECT
+    forlopsoversikt.AvdRESH,
+    forlopsoversikt.ForlopsID,
     forlopsoversikt.Sykehusnavn,
     forlopsoversikt.PasientID,
-    forlopsoversikt.FodselsDato,
     forlopsoversikt.BasisRegStatus,
     forlopsoversikt.Kommune,
     forlopsoversikt.KommuneNr,
@@ -384,32 +412,14 @@ SELECT
     forlopsoversikt.OppflgStatus,
     forlopsoversikt.OppflgSekNr,
     forlopsoversikt.OppflgRegStatus
-FROM
-    aortaklaffoppfvarnum
-LEFT JOIN forlopsoversikt ON
-    aortaklaffoppfvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
-    aortaklaffoppfvarnum.ForlopsID = forlopsoversikt.ForlopsID
-WHERE
-    aortaklaffoppfvarnum.BasisProsedyreDato >= '", fromDate, "' AND
-    aortaklaffoppfvarnum.BasisProsedyreDato <= '", toDate, "'"
-  )
+  FROM
+    forlopsoversikt;")
   
-  # SQL for one row only/complete table:
-  if (singleRow) {
-    query <- paste0(query, "\nLIMIT\n  1;")
-    msg <- "Query single row data for aortaklaffoppfvarnum"
-  } else {
-    query <- paste0(query, ";")
-    msg <- "Query data for aortaklaffoppfvarnum"
-  }
+  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
   
-  if ("session" %in% names(list(...))) {
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-  }
-  
-  aKoppf <- rapbase::loadRegData(registryName, query)
-  
-  
+  aKoppf %<>% dplyr::left_join(., 
+                               fo_tmp,
+                               by = c("AvdRESH", "ForlopsID"))
   
   list(aKoppf = aKoppf)
 }
@@ -605,12 +615,11 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getData
 #' @export
-getMk <- function(registryName, fromDate, toDate, singleRow, ...){
+getMk <- function(registryName, fromDate, toDate, singleRow, 
+                  singleHospital = NULL, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
-  
-  
   
   query <- paste0(noric::queryMitralklaffvarnum(), 
                   " WHERE 
@@ -668,7 +677,8 @@ getMk <- function(registryName, fromDate, toDate, singleRow, ...){
 
 #' @rdname getData
 #' @export
-getPs <- function(registryName, fromDate, toDate, singleRow, ...){
+getPs <- function(registryName, fromDate, toDate, singleRow, 
+                  singleHospital = NULL, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -719,7 +729,8 @@ WHERE
 
 #' @rdname getData
 #' @export
-getApLight <- function(registryName, fromDate, toDate, singleRow, ...) {
+getApLight <- function(registryName, fromDate, toDate, singleRow, 
+                       singleHospital = NULL, ...) {
   
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
@@ -813,7 +824,8 @@ WHERE
 
 #' @rdname getData
 #' @export
-getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
+getTaviProm <- function(registryName, fromDate, toDate, singleRow, 
+                        singleHospital = NULL, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -843,8 +855,10 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow, ...){
     ProsedyreDato <= '", toDate, "'"
   )
   
-  
-  
+  # if(!is.null(singleHospital)) {
+  #   query <- paste0(query, "AND XX.CENTREID = ", singleHospital)
+  # }
+  # 
   queryProm <- paste0(
     noric::queryTaviprom(), 
     "AND

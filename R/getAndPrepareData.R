@@ -82,7 +82,8 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getPrepData
 #' @export
-getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepSoData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -128,7 +129,8 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepAkData <- function(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...){
+getPrepAkData <- function(registryName, fromDate, toDate, singleRow, 
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -178,7 +180,8 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow, singleHospi
 
 #' @rdname getPrepData
 #' @export
-getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepFoData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -261,7 +264,8 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getPrepData
 #' @export
-getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepCtData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -342,7 +346,8 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,
+                              singleHospital = NULL, ...){
   
   
   . <- ""
@@ -532,7 +537,8 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getPrepData
 #' @export
-getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepMkData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -647,7 +653,8 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
+getPrepPsData <- function(registryName, fromDate, toDate, singleRow, 
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -774,7 +781,8 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
 
 #' @rdname getPrepData
 #' @export
-getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
+                               singleHospital = NULL, ...){
   
   
   . <- ""
@@ -982,7 +990,8 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
+                                singleHospital = NULL, ...){
   
   
   . <- ""

@@ -4,6 +4,7 @@
 \alias{getQuery}
 \alias{queryTaviprom}
 \alias{queryAortaklaffvarnum}
+\alias{queryAortaklaffoppfvarnum}
 \alias{queryForlopsoversikt}
 \alias{queryAndreprosedyrervarnum}
 \alias{queryAnnendiagnostikkvarnum}
@@ -16,6 +17,8 @@
 queryTaviprom()
 
 queryAortaklaffvarnum()
+
+queryAortaklaffoppfvarnum()
 
 queryForlopsoversikt()
 

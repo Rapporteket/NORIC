@@ -7,6 +7,7 @@
 #' @name getQuery
 #' @aliases queryTaviprom
 #' queryAortaklaffvarnum
+#' queryAortaklaffoppfvarnum
 #' queryForlopsoversikt
 #' queryAndreprosedyrervarnum
 #' queryAnnendiagnostikkvarnum
@@ -372,7 +373,72 @@ queryAortaklaffvarnum <- function(){
 
 
 
+#' @rdname getQuery
+#' @export
+queryAortaklaffoppfvarnum <- function(){
+  paste0("
+  SELECT
+	  TF.MCEID AS ForlopsID,
+	  T.MCEID AS BasisForlopsID,
+	  TF.CENTREID AS AvdRESH,
+    T.SCREENING AS BasisScreeningBeslutning,
+	  T.SCREENINGDATE AS BasisBeslutningsDato,
+	  T.PROCEDUREDATE AS BasisProsedyreDato,
+	  TF.FOLLOWUPDATE AS OppfDato,
+    TF.FOLLOWUP_TYPE AS OppfType,
+    TF.AVDDECEASED AS OppfAvdod,
+	  TF.DECEASEDDATE AS OppfAvdodDato,
+    TF.PROC_RELATED_DEATH AS OppfDodProsRelatert,
 
+  	-- OppfC8lging
+	  TF.HEIGHT AS Hoyde,
+    TF.HEIGHT_MISS AS HoydeUkjent,
+    TF.WEIGHT AS Vekt,
+    TF.WEIGHT_MISS AS VektUkjent,
+    TF.NYHA AS NYHA,
+    T.CANADIAN AS CanadianClass,
+	  TF.WALKINGTEST AS Gangtest,
+    TF.WALKINGTEST_MISS AS GangtestIkkeUtfort,
+    TF.WALKINGTESTSPEED AS GangHastigtest,
+    TF.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
+  	TF.S_CREATININ AS SKreatinin,
+    TF.S_CREATININ_MISS AS SKreatininIkkeUtfort,
+    TF.PROBNP AS ProBNP,
+    TF.PROBNPNT AS NTProBNP,
+  	TF.HEMOGLOBIN AS Hemoglobin,
+	  TF.HEMOGLOBIN_MISS AS HemoglobinUkjent,
+
+  	-- EKKO-funn
+  	TF.MAXGRADIENT AS MaxGradient,
+  	TF.MAXGRADIENT_MSEK AS MaxGradientMPS,
+  	TF.AVERAGEGRADIENT AS Middelgradient,
+  	TF.AVERAGEGRADIENT_MISS AS MiddelgradientMangler,
+    TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon,
+    TF.PULMHYPERTENSION AS PulmonalHypertensjon,
+    TF.AORTAINS AS Aortainsuffisiens,
+    TF.PARAVALVULAR_LEAK AS ParavalvularLekkasje,
+    TF.PARAVALVULAR_INSUFFICIENCY AS ParavalvularInsuffisiens,
+    TF.MITRALISINS AS Mitralinsuffisiens,
+
+    TF.PRESENT_HEALTH_STAT AS Helsetilstand,
+
+    -- Komplikasjoner
+    TF.COMP AS Komplikasjoner,
+    TF.ENDOCARDIT AS Endokarditt,
+    TF.DIALYSIS AS Dialyse,
+    TF.MI AS Hjerteinfarkt,
+    TF.STROKE AS Hjerneslag,
+    TF.PACEMAKER AS Pacemaker,
+    TF.PROSTHESIS AS ProteseDysfunk,
+    TF.VESSEL AS SenKarKomp,
+    TF.COMPOTHER AS AnnenKomp,
+
+	  TF.STATUS AS SkjemaStatus
+  FROM mce MCE
+  INNER JOIN tavipercfollowup TF ON MCE.MCEID = TF.MCEID
+  LEFT JOIN taviperc T ON MCE.PARENT_MCEID = T.MCEID
+ ")
+}
 
 #' @rdname getQuery
 #' @export
