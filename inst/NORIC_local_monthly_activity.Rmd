@@ -14,7 +14,7 @@ header-includes:
 - \usepackage{booktabs}
 - \usepackage{rotating}
 - \usepackage{float}
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!" , "\\newline ", "\\newline ", "Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med data fra de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!" , "\\newline ", "\\newline ", "Rapporten inneholder tabeller med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger er gjort per forløp/prosedyre, og ikke per individ. Tabellene presenteres med data fra hele fjoråret samt hittil i år." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -75,9 +75,6 @@ showN <- 14
 ```
 
 
-
-
-
 ```{r latest_entry, include=FALSE, eval=TRUE}
 # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
 
@@ -90,16 +87,138 @@ showN <- 14
 
 # ELDSTE DATO:
 # Januar fra i fjor (hele foregående år skal vise i rapporten)
-nyeste_reg <- noric::getLatestEntry(registryName = params$registryName)
 
-periode_data <- data.frame(
-  siste_dato = min((as.Date(Sys.time()) - 1),
-                   nyeste_reg))
 
-periode_data %<>%
-  dplyr::mutate(
-    forste_dato  = lubridate::floor_date(.data$siste_dato,
-                                         "month") - months(showN))
+
+# Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
+if(params$registryName %in% "noric_nasjonal"){
+  nyeste_reg <- noric::getLatestEntryHospital(
+    registryName = params$registryName, 
+    reshID = params$reshID)
+  
+} else {
+  nyeste_reg <- min(
+      (as.Date(Sys.time()) - 1),
+      noric::getLatestEntry(registryName = params$registryName)
+  )
+}
+
+
+periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
+    dplyr::mutate(
+      
+      
+      # SISTE DATO AVGJØR SISTE MÅNED: 
+      siste_dato_innevarende_mnd = lubridate::ceiling_date(
+        x = nyeste_reg, unit =  "month") - lubridate::days(1),
+      
+      siste_dato = dplyr::case_when(
+        # siste dato er nyeste dato --> nyeste mnd er komlett
+        siste_dato_innevarende_mnd == nyeste_reg ~ 
+          nyeste_reg, 
+        
+        # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
+        siste_dato_innevarende_mnd != nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, "month") - 
+          lubridate::days(1), 
+        
+        TRUE ~ as.Date(NA_character_)),
+      
+      
+      
+      
+      # SISTE DATO AVGJØR SISTE KVARTAL
+      siste_dato_innevarende_kvartal = lubridate::ceiling_date(
+        x = nyeste_reg, 
+        unit =  "quarter") - lubridate::days(1),
+      
+      kvartal_komplett_start = dplyr::case_when(
+        # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
+        siste_dato_innevarende_kvartal == nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, 
+                                unit =  "quarter"), 
+        
+        # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+        siste_dato_innevarende_kvartal != nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, 
+                                unit =  "quarter") - months(3), 
+        
+        TRUE ~ as.Date(NA_character_)),
+      
+      
+      
+      # Inneværende år: 
+      nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+      
+      # Fjoråret
+      sisteHeleYear = nyesteRegYear - 1, 
+
+      # Inneværende måned i år: 
+      nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
+      
+      # Første dato for SQL -spørring : 01. januar fjoråret
+      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                             format = "%Y-%m-%d"), 
+      
+      # Aortaklaff + Segment stent (indikator per kvartal): 
+      forste_dato_kvartal = as.Date(paste0(sisteHeleYear - 1, "-01-01"),
+                                  format = "%Y-%m-%d")
+    ) %>% 
+    dplyr::select(-siste_dato_innevarende_mnd, 
+                  -siste_dato_innevarende_kvartal)
+  
+
+
+```
+
+
+```{r monthTabPrepare, include=FALSE, eval=TRUE}
+
+timeTableMonth <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::mutate(maaned = as.ordered(maaned))
+
+timeTableMonth_fjor <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  as.Date(paste("30-12-", periode_data$sisteHeleYear), 
+                          format = "%d-%m-%Y"),
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
+
+
+t_timeTableMonth_fjor <- data.frame(t(timeTableMonth_fjor[-1]))
+colnames(t_timeTableMonth_fjor) <- timeTableMonth_fjor[, 1]
+
+
+
+timeTableMonth_aar <- data.frame(
+  monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear), 
+                          format = "%d-%m-%Y"),
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+    dplyr::transmute(
+      maaned = as.ordered(maaned))
+
+
+t_timeTableMonth_aar <- data.frame(t(timeTableMonth_aar[-1]))
+colnames(t_timeTableMonth_aar) <- timeTableMonth_aar[, 1] 
+
+
+
+rangeProsDato <- paste(format(periode_data$forste_dato, 
+                              "%d/%m-%Y"), 
+                       "til", 
+                       format(periode_data$siste_dato, 
+                              "%d/%m-%Y"))
 ```
 
 
@@ -195,39 +314,86 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført ",
               rangeProsDato[1], " til ", rangeProsDato[2], ". ",
               "Opptellingen er basert på prosedyretypene Angio og Angio+PCI.")
 
+
 tab_angiografor <- angiografor_AP %>% 
   janitor::tabyl(forkortetNavnAngiografor,
                  maaned,
-                 show_missing_levels = FALSE) %>% 
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  janitor::adorn_totals("row", name = "Totalt") %>% 
-  dplyr::rename(" " = "forkortetNavnAngiografor")
+                 show_missing_levels = FALSE)
 
-tab_angiografor[tab_angiografor == 0] <- " - "
-tab_angiografor[is.na(tab_angiografor)] <- " - "
+TabAngiografor_fjor <- tab_angiografor %>%
+  select(forkortetNavnAngiografor,
+         colnames(t_timeTableMonth_fjor))%>%
+  mutate(tot_fjor = rowSums(across(where(is.numeric))))
 
-align <- c("l", rep("c", dim(tab_angiografor)[2] - 1))
+TabAngiografor_aar <- tab_angiografor %>%
+  select(forkortetNavnAngiografor,
+         colnames(t_timeTableMonth_aar)) %>%
+  mutate(tot_aar = rowSums(across(where(is.numeric))))
+
+
+TabAngiografor <- full_join(
+  TabAngiografor_fjor,
+  TabAngiografor_aar,
+  by = "forkortetNavnAngiografor") %>%
+  as.data.frame() %>%
+  janitor::adorn_totals(., where = "row", name = "Totalt")
+
+colnames(TabAngiografor)[14] <- paste0("Totalt i ", periode_data$sisteHeleYear)
+colnames(TabAngiografor)[ncol(TabAngiografor)] <- paste0("Totalt hittil i ", periode_data$nyesteRegYear)
+
+TabAngiografor[TabAngiografor == 0] <- " - "
+TabAngiografor[is.na(TabAngiografor)] <- " - "
+
+align <- c(rep("r", ncol(TabAngiografor)))
 
 if (params$tableFormat == "html") {
-  tab_angiografor %>% 
+  TabAngiografor %>% rename(" " = "forkortetNavnAngiografor") %>%
     knitr::kable(caption = cap,
-               align = align) %>% 
+                 align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
+    kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE,
+                         angle = -45, align = "c") %>%
+    kableExtra::row_spec(row = nrow(TabAngiografor),
+                         background = "#EBEBEB") %>%
+    kableExtra::column_spec(column = 14,
+                            background = "#EBEBEB") %>%
+    kableExtra::column_spec(column = ncol(TabAngiografor),
+                            background = "#EBEBEB") %>%
+    kableExtra::add_header_above(
+      .,
+      header = c("",
+                 setNames(13,
+                          periode_data$sisteHeleYear),
+                 setNames((ncol(TabAngiografor)-14),
+                          periode_data$nyesteRegYear)),
+      bold = TRUE,
+      font_size = 12)
+
 } else if (params$tableFormat == "latex") {
-  tab_angiografor %>%
-  knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = align) %>%
+  TabAngiografor %>% rename(" " = "forkortetNavnAngiografor") %>% 
+    knitr::kable(format = params$tableFormat,
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = align) %>%
     kableExtra::kable_styling(latex_options = c("HOLD_position",
-                                                "scale_down")) %>%
-    kableExtra::row_spec(row = 0, angle = 90)
+                                                "scale_down"),
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = 0, angle = 90) %>%
+    kableExtra::row_spec(row = nrow(TabAngiografor)-1, hline_after = TRUE) %>%
+    kableExtra::add_header_above(
+      .,
+      header = c("",
+                 setNames(13,
+                          periode_data$sisteHeleYear),
+                 setNames((ncol(TabAngiografor)-14),
+                          periode_data$nyesteRegYear)),
+      bold = TRUE,
+      font_size = 12)
 }
+
 ```
 
 ```{r}
@@ -259,36 +425,83 @@ cap <- paste0("Antall prosedyrer registrert i NORIC hvor det er utført PCI, ",
 tab_pciOperator <- pciOperator_AP %>% 
   janitor::tabyl(forkortetNavnPCIoperator,
                  maaned,
-                 show_missing_levels = FALSE) %>% 
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  janitor::adorn_totals("row", name = "Totalt") %>% 
-  dplyr::rename(" " = "forkortetNavnPCIoperator")
+                 show_missing_levels = FALSE)
 
-tab_pciOperator[tab_pciOperator == 0] <- " - "
-tab_pciOperator[is.na(tab_pciOperator)] <- " - "
 
-align <- c("l", rep("c", dim(tab_pciOperator)[2] - 1))
+TabPciOperator_fjor <- tab_pciOperator %>% 
+  select(forkortetNavnPCIoperator,
+         colnames(t_timeTableMonth_fjor))%>% 
+  mutate(tot_fjor = rowSums(across(where(is.numeric))))
+
+
+TabPciOperator_aar <- tab_pciOperator %>% 
+  select(forkortetNavnPCIoperator,
+         colnames(t_timeTableMonth_aar)) %>% 
+  mutate(tot_aar = rowSums(across(where(is.numeric))))
+
+TabPciOperator <- full_join(
+  TabPciOperator_fjor,
+  TabPciOperator_aar,
+  by = "forkortetNavnPCIoperator") %>% 
+  as.data.frame() %>% 
+  janitor::adorn_totals(., where = "row", name = "Totalt")
+
+colnames(TabPciOperator)[14] <- paste0("Totalt i ", periode_data$sisteHeleYear)
+colnames(TabPciOperator)[ncol(TabPciOperator)] <- paste0("Totalt hittil i ", periode_data$nyesteRegYear)
+
+TabPciOperator[TabPciOperator == 0] <- " - "
+TabPciOperator[is.na(TabPciOperator)] <- " - "
+
+align <- c(rep("r", ncol(TabPciOperator)))
 
 if (params$tableFormat == "html") {
-  tab_pciOperator %>% 
+  TabPciOperator %>% rename(" " = "forkortetNavnPCIoperator") %>%
     knitr::kable(caption = cap,
-               align = align) %>% 
+                 align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
                               full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, font_size = 10, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
+    kableExtra::row_spec(row = 0, font_size = 10, bold = TRUE,
+                         angle = -45, align = "c") %>%
+    kableExtra::row_spec(row = nrow(TabPciOperator),
+                         background = "#EBEBEB") %>%
+    kableExtra::column_spec(column = 14,
+                            background = "#EBEBEB") %>%
+    kableExtra::column_spec(column = ncol(TabPciOperator),
+                            background = "#EBEBEB") %>%
+    kableExtra::add_header_above(
+      .,
+      header = c("",
+                 setNames(13,
+                          periode_data$sisteHeleYear),
+                 setNames((ncol(TabPciOperator)-14),
+                          periode_data$nyesteRegYear)),
+      bold = TRUE,
+      font_size = 12)
+
 } else if (params$tableFormat == "latex") {
-  tab_pciOperator %>%
-  knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = align) %>%
+  TabPciOperator %>% rename(" " = "forkortetNavnPCIoperator") %>% 
+    knitr::kable(format = params$tableFormat,
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = align) %>%
     kableExtra::kable_styling(latex_options = c("HOLD_position",
-                                                "scale_down")) %>%
-    kableExtra::row_spec(row = 0, angle = 90)
+                                                "scale_down"),
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = 0, angle = 90) %>%
+    kableExtra::row_spec(row = nrow(TabPciOperator)-1, hline_after = TRUE) %>%
+    kableExtra::add_header_above(
+      .,
+      header = c("",
+                 setNames(13,
+                          periode_data$sisteHeleYear),
+                 setNames((ncol(TabPciOperator)-14),
+                          periode_data$nyesteRegYear)),
+      bold = TRUE,
+      font_size = 12)
 }
+
 ```
 
 ```{r}

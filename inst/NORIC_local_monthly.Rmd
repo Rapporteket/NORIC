@@ -14,7 +14,7 @@ header-includes:
 - \usepackage{booktabs}
 - \usepackage{rotating}
 - \usepackage{float}
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!", "\\newline ", "\\newline ", "Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene og figurene presenteres med data fra de siste 14 månedene." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og er kun ment til internt bruk!", "\\newline ", "\\newline ", "Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, ". Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ. Tabellene og figurene presenteres med data fra hele fjoråret samt hittil i år." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -102,14 +102,71 @@ if(params$registryName %in% "noric_nasjonal"){
   )
 }
 
-periode_data <- data.frame(
-  siste_dato = min((as.Date(Sys.time()) - 1),
-                   nyeste_reg))
+periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
+    dplyr::mutate(
+      
+      
+      # SISTE DATO AVGJØR SISTE MÅNED: 
+      siste_dato_innevarende_mnd = lubridate::ceiling_date(
+        x = nyeste_reg, unit =  "month") - lubridate::days(1),
+      
+      siste_dato = dplyr::case_when(
+        # siste dato er nyeste dato --> nyeste mnd er komlett
+        siste_dato_innevarende_mnd == nyeste_reg ~ 
+          nyeste_reg, 
+        
+        # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
+        siste_dato_innevarende_mnd != nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, "month") - 
+          lubridate::days(1), 
+        
+        TRUE ~ as.Date(NA_character_)),
+      
+      
+      
+      
+      # SISTE DATO AVGJØR SISTE KVARTAL
+      siste_dato_innevarende_kvartal = lubridate::ceiling_date(
+        x = nyeste_reg, 
+        unit =  "quarter") - lubridate::days(1),
+      
+      kvartal_komplett_start = dplyr::case_when(
+        # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
+        siste_dato_innevarende_kvartal == nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, 
+                                unit =  "quarter"), 
+        
+        # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+        siste_dato_innevarende_kvartal != nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, 
+                                unit =  "quarter") - months(3), 
+        
+        TRUE ~ as.Date(NA_character_)),
+      
+      
+      
+      # Inneværende år: 
+      nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+      
+      # Fjoråret
+      sisteHeleYear = nyesteRegYear - 1, 
 
-periode_data %<>%
-  dplyr::mutate(
-    forste_dato  = lubridate::floor_date(.data$siste_dato,
-                                         "month") - months(showN))
+      # Inneværende måned i år: 
+      nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
+      
+      # Første dato for SQL -spørring : 01. januar fjoråret
+      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                             format = "%Y-%m-%d"), 
+      
+      # Aortaklaff + Segment stent (indikator per kvartal): 
+      forste_dato_kvartal = as.Date(paste0(sisteHeleYear - 1, "-01-01"),
+                                  format = "%Y-%m-%d")
+    ) %>% 
+    dplyr::select(-siste_dato_innevarende_mnd, 
+                  -siste_dato_innevarende_kvartal)
+  
+
+
 ```
 
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
@@ -121,6 +178,26 @@ timeTableMonth <- data.frame(
   dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
                                              format = "%Y-%m"))) %>% 
   dplyr::mutate(maaned = as.ordered(maaned))
+
+timeTableMonth_fjor <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  as.Date(paste("30-12-", periode_data$sisteHeleYear), 
+                          format = "%d-%m-%Y"),
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
+
+timeTableMonth_aar <- data.frame(
+  monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear), 
+                          format = "%d-%m-%Y"),
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+    dplyr::transmute(
+      maaned = as.ordered(maaned))
 
 
 rangeProsDato <- paste(format(periode_data$forste_dato, 
@@ -367,7 +444,25 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 \newpage
 `r if(params$tableFormat !="latex") {"-->"}`
 
-<br/><br/>
+# Datagrunnlag
+
+## Antall prosedyrer
+Rapporten er generert med utgangspunkt i NORIC's database for
+`r params$hospitalName`. Det presenteres månedlige resultater for hele 
+fjorårets registreringer på aortaklaff,
+samt alle fullførte måndeder hittil i år.
+Den siste prosedyredatoen som er med i tabellene og 
+figurene er `r format(periode_data$siste_dato, '%d. %B %Y')`. 
+
+Totalt `r AP %>% nrow()` invasive prosedyrer ligger til grunn for rapporten, 
+`r AP %>% dplyr::filter(aar == periode_data$sisteHeleYear) %>% nrow()` fra 
+`r periode_data$sisteHeleYear ` og 
+`r AP %>% dplyr::filter(aar == periode_data$nyesteRegYear) %>% nrow()` fra 
+`r periode_data$nyesteRegYear `. 
+
+
+\bigskip \bigskip \bigskip
+
 
 # Invasive koronare prosedyrer
 
@@ -376,11 +471,11 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 
 pal <- colPrimary[c(5, 3, 1)]
 
-
 prosedyreTypeMaaned <- AP %>%
-  dplyr::count(.data$maaned,
-               .data$ProsedyreType) %>%
-  dplyr::group_by(.data$maaned, .data$ProsedyreType)
+   dplyr::count(.data$maaned,
+               .data$ProsedyreType,
+               .data$aar) %>%
+  dplyr::group_by(.data$maaned, .data$ProsedyreType, .data$aar)
 
 prosedyreType_levels <- c("Angio", "Angio + PCI", "PCI")
 
@@ -391,15 +486,18 @@ prosedyreTypeMaaned %>% ggplot2::ggplot(
                              levels = prosedyreType_levels))
 ) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = pal) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
   ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 strip.text = ggplot2::element_text(size=12),
                  axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
                  axis.title = ggplot2::element_text(size = 12), 
                  legend.text = ggplot2::element_text(size = 12))
+
 
 ```
 
@@ -410,47 +508,87 @@ cap <- paste0("Antall koronare angiografier og/eller PCI registrert ",
               " i perioden ", 
               rangeProsDato, ".")
 
-TabDataProsedyreType <- AP %>% 
-  janitor::tabyl(maaned,
-                 ProsedyreType) %>% 
-  janitor::adorn_totals("col", name = "Totalt")
+TabPros_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AP %>% 
+    janitor::tabyl(maaned,
+                   ProsedyreType) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-TabNProsedyreTypeMaaned <- timeTableMonth %>% 
-  merge(., TabDataProsedyreType, 
-        by.x = c("maaned"), by.y = c("maaned"),
-        all.x = TRUE, all.y = FALSE) %>%
-  janitor::adorn_totals("row", name = "Totalt")
+TabPros_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AP %>% 
+    janitor::tabyl(maaned,
+                   ProsedyreType) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-TabNProsedyreType <- TabNProsedyreTypeMaaned %>% 
-  dplyr::rename(" " = "maaned")
 
-TabNProsedyreType[TabNProsedyreType == 0] <- " - "
-TabNProsedyreType[is.na(TabNProsedyreType)] <- " - "
+TabPros <- rbind(
+  TabPros_fjor, 
+  TabPros_aar
+)
 
-align <- c("l", rep("c", dim(TabNProsedyreType)[2] - 1))
 
-noric::mst(tab = TabNProsedyreType, 
-           type = params$tableFormat, 
-           cap = cap,
-           digs = c(0, 0, 0, 1), 
-           align = rep("r", 5), 
-           label = "TabNProsedyreType")
+TabPros[TabPros == 0] <- " - "
+TabPros[is.na(TabPros)] <- " - "
 
-# if (params$tableFormat == "html") {
-#   knitr::kable(x = TabNProsedyreType, caption = cap, align = align) %>%
-#     kableExtra::kable_styling(bootstrap_options = c("striped",
-#                                                     "hover",
-#                                                     "condensed"),
-#                               full_width = FALSE) %>%
-#     kableExtra::column_spec(column = 1, width = "7em")
-# } else if (params$tableFormat == "latex") {
-#   knitr::kable(x = TabNProsedyreType,
-#                format = params$tableFormat,
-#                caption = cap,
-#                booktabs = TRUE,
-#                align = "r") %>%
-#     kableExtra::kable_styling(latex_options = "HOLD_position")
-# }
+align <- c("l", rep("c", dim(TabPros)[2] - 1))
+digs <-  rep(0, dim(TabPros)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabPros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 12) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabPros)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabPros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabPros)[1])
+
+
+}
 ```
 
 
@@ -472,8 +610,9 @@ pal <- colPrimary[c(5, 3, 1)]
 
 hastegradMaaned <- AP %>%
   dplyr::count(.data$maaned,
-               .data$Hastegrad) %>%
-  dplyr::group_by(.data$maaned, .data$Hastegrad)
+               .data$Hastegrad,
+               .data$aar) %>%
+  dplyr::group_by(.data$maaned, .data$Hastegrad, .data$aar)
 
 hastegrad_levels <- c("Planlagt", "Subakutt", "Akutt")
 
@@ -483,11 +622,13 @@ hastegradMaaned %>% ggplot2::ggplot(
                fill = factor(.data$Hastegrad,
                              levels = hastegrad_levels))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = pal) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
   ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 strip.text = ggplot2::element_text(size=12),
                  axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
                  axis.title = ggplot2::element_text(size = 12), 
@@ -499,47 +640,88 @@ cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
               "og hastegrad ved ", params$hospitalName,
               " i perioden ", rangeProsDato, ".")
 
-TabDataHastegrad <- AP %>% 
-  janitor::tabyl(maaned,
-                 Hastegrad) %>%
-  janitor::adorn_totals("col", name = "Totalt")
+TabHast_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AP %>% 
+    janitor::tabyl(maaned,
+                   Hastegrad) %>%
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+TabHast_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AP %>% 
+    janitor::tabyl(maaned,
+                   Hastegrad) %>%
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
 
-TabNHastegrad <- timeTableMonth %>%
-  merge(., TabDataHastegrad, 
-        by.x = c("maaned"), by.y = c("maaned"),
-        all.x = TRUE, all.y = FALSE) %>% 
-  dplyr::rename(" " = "maaned") %>% 
-  janitor::adorn_totals("row", name = "Totalt")
+TabHast <- rbind(
+  TabHast_fjor, 
+  TabHast_aar
+)
 
-TabNHastegrad[TabNHastegrad == 0] <- " - "
-TabNHastegrad[is.na(TabNHastegrad)] <- " - "
 
-align <- c("l", rep("c", dim(TabNHastegrad)[2] - 1))
-digs <-  rep(0, dim(TabNHastegrad)[2] )
+TabHast[TabHast == 0] <- " - "
+TabHast[is.na(TabHast)] <- " - "
 
-noric::mst(tab = TabNHastegrad, 
-           type = params$tableFormat, 
-           cap = cap,
-           digs = digs, 
-           align = align, 
-           label = "TabNHastegrad")
+align <- c("l", rep("c", dim(TabHast)[2] - 1))
+digs <-  rep(0, dim(TabHast)[2] )
 
-# if (params$tableFormat == "html") {
-#   knitr::kable(x = TabNHastegrad, caption = cap, align = align) %>%
-#     kableExtra::kable_styling(bootstrap_options = c("striped",
-#                                                     "hover",
-#                                                     "condensed"),
-#                               full_width = FALSE) %>%
-#     kableExtra::column_spec(column = 1, width = "7em")
-# } else if (params$tableFormat == "latex") {
-#   knitr::kable(x = TabNHastegrad,
-#                format = params$tableFormat,
-#                caption = cap,
-#                booktabs = TRUE,
-#                align = "r") %>%
-#     kableExtra::kable_styling(latex_options = "HOLD_position")
-# }
+
+if (params$tableFormat == "html") {
+  TabHast %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabHast)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabHast)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabHast %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabHast)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabHast)[1])
+
+
+}
+
 
 ```
 
@@ -568,8 +750,9 @@ eller hjerterytmeforstyrrelser.
 
 Indikasjon2Maaned <- AP %>%
   dplyr::count(.data$maaned,
-               .data$Indikasjon2) %>%
-  dplyr::group_by(.data$maaned, .data$Indikasjon2)
+               .data$Indikasjon2,
+               .data$aar) %>%
+  dplyr::group_by(.data$maaned, .data$Indikasjon2, .data$aar)
 
 indikasjon2_levels <- c("Annet",
                         "STEMI",
@@ -584,11 +767,13 @@ Indikasjon2Maaned %>% ggplot2::ggplot(
                fill = factor(.data$Indikasjon2,
                              levels = indikasjon2_levels))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
+  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = rev(colPrimary)) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
   ggplot2::ylab("Antall prosedyrer") +
   ggplot2::theme(legend.title = ggplot2::element_blank(),
+                 strip.text = ggplot2::element_text(size=12),
                  axis.text = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
                  axis.title = ggplot2::element_text(size = 12), 
@@ -603,50 +788,88 @@ cap <- paste0("Antall prosedyrer registrert i NORIC per måned ",
               "og indikasjon ved ", params$hospitalName, " i perioden ",
               rangeProsDato, ".")
 
-TabDataIndikasjon <- AP %>% 
+TabIndik_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = AP %>% 
   janitor::tabyl(maaned,
                  Indikasjon2) %>% 
-  janitor::adorn_totals("col", name = "Totalt") 
+  janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-TabNIndikasjon <- timeTableMonth %>% 
-  merge(., TabDataIndikasjon, 
-        by.x = c("maaned"), by.y = c("maaned"),
-        all.x = TRUE, all.y = FALSE) %>% 
-  janitor::adorn_totals("row", name = "Totalt") %>% 
-  dplyr::rename(" " = "maaned")
-
-TabNIndikasjon[TabNIndikasjon == 0] <- " - "
-TabNIndikasjon[is.na(TabNIndikasjon)] <- " - "
-
-
-align <- c("l", rep("c", dim(TabNIndikasjon)[2] - 1))
-digs <-  rep(0, dim(TabNIndikasjon)[2] )
-
-noric::mst(tab = TabNIndikasjon, 
-           type = params$tableFormat, 
-           cap = cap,
-           digs = digs, 
-           align = align, 
-           label = "TabNIndikasjon")
+TabIndik_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AP %>% 
+  janitor::tabyl(maaned,
+                 Indikasjon2) %>% 
+  janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
 
-# align <- c("l", rep("r", dim(TabNIndikasjon)[2] - 1))
-# 
-# if (params$tableFormat == "html") {
-#   knitr::kable(x = TabNIndikasjon, caption = cap, align = align) %>%
-#     kableExtra::kable_styling(bootstrap_options = c("striped",
-#                                                     "hover",
-#                                                     "condensed"),
-#                               full_width = FALSE) %>%
-#     kableExtra::column_spec(column = 1, width = "7em")
-# } else if (params$tableFormat == "latex") {
-#   knitr::kable(x = TabNIndikasjon,
-#                format = params$tableFormat,
-#                caption = cap,
-#                booktabs = TRUE,
-#                align = "c") %>%
-#     kableExtra::kable_styling(latex_options = "HOLD_position")
-# }
+TabIndik <- rbind(
+  TabIndik_fjor, 
+  TabIndik_aar
+)
+
+
+TabIndik[TabIndik == 0] <- " - "
+TabIndik[is.na(TabIndik)] <- " - "
+
+align <- c("l", rep("c", dim(TabIndik)[2] - 1))
+digs <-  rep(0, dim(TabIndik)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabIndik %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabIndik)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabIndik)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabIndik %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabIndik)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabIndik)[1])
+
+
+}
+
 ```
 
 ```{r}
@@ -681,10 +904,10 @@ PrintTabTilleggCol <- function(VAR) {
     rVAR[, which(colnames(rVAR) == "Ja")]
   )
 
-  prosentJa <- paste0(nVARja, " (", rVARja, "%)")
-  prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
+  # prosentJa <- paste0(nVARja, " (", rVARja, "%)")
+  # prosentJa[prosentJa == "  0 ( 0.0%)"] <- "    -    "
 
-  return(prosentJa)
+  return(nVARja)
 }
 
 TilleggVars <- c(
@@ -773,6 +996,8 @@ TabTillegg %<>%
           dplyr::count(maaned) %>%
           janitor::adorn_totals("row") %>%
           dplyr::transmute(Totalt = n))
+
+  
 ```
 <br/>
 
@@ -782,21 +1007,93 @@ cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført "
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
               rangeProsDato, ".")
 
-noric::mst(TabTillegg[, c("FFR",
-                         "IFR",
-                         "OCT",
-                         "IVUS",
-                         "Pa",
-                         "Pd",
-                         "PdPa",
-                         "IMR",
-                         "Totalt")],
-           type = params$tableFormat,
-           cap = cap,
-           digs = 0,
-           align =  rep("c", 9),
-           label = "TabTilleggsProsedyre1")
+TabAnnenDiag_var <- TabTillegg[, c("FFR",
+                                    "IFR",
+                                    "OCT",
+                                    "IVUS",
+                                    "Pa",
+                                    "Pd",
+                                    "PdPa",
+                                    "IMR",
+                                    "Totalt")]
 
+TabAnnenDiag_fiks <- data.frame(maaned = rownames(TabAnnenDiag_var),
+                      TabAnnenDiag_var,
+                      row.names = NULL) %>%
+  filter(row_number() <= n()-1) %>% 
+  mutate_at(vars(-maaned), as.numeric)
+         
+TabAnnenDiag_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = TabAnnenDiag_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAnnenDiag_aar <- merge(
+  x = timeTableMonth_aar,
+  y = TabAnnenDiag_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAnnenDiag <- rbind(
+  TabAnnenDiag_fjor,
+  TabAnnenDiag_aar)
+
+TabAnnenDiag[TabAnnenDiag == 0] <- " - "
+TabAnnenDiag[is.na(TabAnnenDiag)] <- " - "
+
+align <- c("l", rep("c", dim(TabAnnenDiag)[2] - 1))
+digs <-  rep(0, dim(TabAnnenDiag)[2] )
+
+if (params$tableFormat == "html") {
+  TabAnnenDiag %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabAnnenDiag)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAnnenDiag)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabAnnenDiag %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabAnnenDiag)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAnnenDiag)[1])
+}
 ```
 
 <br/>
@@ -807,15 +1104,91 @@ cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er "
               "utført koronare angiografi og/eller PCI per måned ved ",
               params$hospitalName, " i perioden ", rangeProsDato, ".")
 
-noric::mst(TabTillegg[, c("Høyre kat.",
-                         "Perikardiocentese",
-                         "Ventilfilming",
-                         "Totalt")],
-           type = params$tableFormat,
-           cap = cap,
-           digs = 0,
-           align = rep("c", 4),
-           label = "TabTilleggsProsedyre2")
+
+TabTilleggspros_var <- TabTillegg[, c("Høyre kat.",
+                                      "Perikardiocentese",
+                                      "Ventilfilming",
+                                      "Totalt")]
+
+TabTilleggspros_fiks <- data.frame(maaned = rownames(TabTilleggspros_var),
+                      TabTilleggspros_var,
+                      row.names = NULL) %>%
+  filter(row_number() <= n()-1) %>% 
+  mutate_at(vars(-maaned), as.numeric)
+         
+TabTilleggspros_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = TabTilleggspros_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabTilleggspros_aar <- merge(
+  x = timeTableMonth_aar,
+  y = TabTilleggspros_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabTilleggspros <- rbind(
+  TabTilleggspros_fjor,
+  TabTilleggspros_aar)
+
+TabTilleggspros[TabTilleggspros == 0] <- " - "
+TabTilleggspros[is.na(TabTilleggspros)] <- " - "
+
+align <- c("l", rep("c", dim(TabTilleggspros)[2] - 1))
+digs <-  rep(0, dim(TabTilleggspros)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabTilleggspros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabTilleggspros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabTilleggspros)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabTilleggspros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabTilleggspros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabTilleggspros)[1])
+}
+
 ```
 
 
@@ -827,16 +1200,92 @@ cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført "
               "per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato, ".")
 
-noric::mst(TabTillegg[, c("PM",
-                          "IABP",
-                          "Impella",
-                          "ECMO",
-                          "Totalt")],
-           type = params$tableFormat,
-           cap = cap,
-           digs = 0,
-           align =  rep("c", 5),
-           label = "TabTilleggsProsedyre3")
+TabAdjTerapi_var <- TabTillegg[, c("PM",
+                                   "IABP",
+                                   "Impella",
+                                   "ECMO",
+                                   "Totalt")]
+
+TabAdjTerapi_fiks <- data.frame(maaned = rownames(TabAdjTerapi_var),
+                      TabAdjTerapi_var,
+                      row.names = NULL) %>%
+  filter(row_number() <= n()-1) %>% 
+  mutate_at(vars(-maaned), as.numeric)
+         
+TabAdjTerapi_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = TabAdjTerapi_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAdjTerapi_aar <- merge(
+  x = timeTableMonth_aar,
+  y = TabAdjTerapi_fiks,
+  by.x  = "maaned",
+  by.y = "maaned",
+  all.x = TRUE) %>%
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAdjTerapi <- rbind(
+  TabAdjTerapi_fjor,
+  TabAdjTerapi_aar)
+
+TabAdjTerapi[TabAdjTerapi == 0] <- " - "
+TabAdjTerapi[is.na(TabAdjTerapi)] <- " - "
+
+align <- c("l", rep("c", dim(TabAdjTerapi)[2] - 1))
+digs <-  rep(0, dim(TabAdjTerapi)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabAdjTerapi %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabAdjTerapi)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAdjTerapi)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabAdjTerapi %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabAdjTerapi)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAdjTerapi)[1])
+}
+
+
 ```
 
 
@@ -866,19 +1315,21 @@ pasienten fortsatt er på hjertekateteriseringslaboratoriet (kat.lab.)
 Datagrunnlaget omfatter både planlagte, subakutte 
 og akutte prosedyrer samlet, uavhengig av pasientens helsetilstand på forhånd.
 Vi har gruppert komplikasjonenene som Alvorlige eller Øvrige. 
-Figuren viser antall registrerte komplikasjoner de  siste `r showN` månedene. 
+Figuren viser antall registrerte komplikasjoner fra hele fjoråret samt hittil i år. 
 Merk at det kan ha blitt registrert flere typer komplikasjoner for en og samme 
 pasient.  
 
 
 <br/> <br/>
 
-```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 7, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
 
 
 
 fig_df_kompLab <- AP %>%
   dplyr::select(
+    aar,
+    
     #Alvorlige
     LabKompAllergiskAlvorlig,
     LabKompBehkrevendeArytmi,
@@ -922,83 +1373,122 @@ fig_df_kompLab <- AP %>%
                                    "LabKompVedvarSidegrensokkl"), 
                        "Øvrige", 
                        "Alvorlige komplikasjoner på lab")) %>% 
-  dplyr::count(name, type_komplikasjon, value, gradering) %>%
+  dplyr::count(name, type_komplikasjon, value, gradering, aar) %>%
   tidyr::pivot_wider(names_from = value, 
                      values_from = n, 
                      values_fill = 0) %>% 
-  dplyr::select(name, type_komplikasjon, gradering, Ja)
+  dplyr::select(name, type_komplikasjon, gradering, Ja, aar)
 
 
-# Rekkefølge: 
+# Rekkefølge: Rekkefælge etter fjoråret
 # Først alvorlig, med Annen alvorlig nederst. Så øvrige. 
 # Prosedyrerelatert død etter død. 
-synkende_rekkefolge_lab <- rbind(
+synkende_rekkefolge_lab_fjoraaret <- rbind(
   
   fig_df_kompLab %>% 
     dplyr::filter(name != "LabKompAnnenAlv", 
                   name != "LabKompProsedyrerelatertDod", 
-                  gradering %in% "Alvorlige komplikasjoner på lab") %>% 
+                  gradering %in% "Alvorlige komplikasjoner på lab",
+                  fig_df_kompLab$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   fig_df_kompLab %>% 
-    dplyr::filter(name == "LabKompAnnenAlv"), 
+    dplyr::filter(name == "LabKompAnnenAlv",
+                  fig_df_kompLab$aar %in% periode_data$sisteHeleYear), 
 
   fig_df_kompLab %>% 
-    dplyr::filter(gradering %in% "Øvrige") %>% 
+    dplyr::filter(gradering %in% "Øvrige",
+                  fig_df_kompLab$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja)
   ) 
 
-insert_prsRel_her <- which(synkende_rekkefolge_lab$name == "LabKompDod")
-synkende_rekkefolge_lab %<>%
+insert_prsRel_her <- which(synkende_rekkefolge_lab_fjoraaret$name == "LabKompDod",
+                           fig_df_kompLab$aar %in% periode_data$sisteHeleYear)
+
+synkende_rekkefolge_lab_fjoraaret %<>%
   dplyr::add_row(
-    fig_df_kompLab %>% dplyr::filter(name == "LabKompProsedyrerelatertDod"),
+    fig_df_kompLab %>% dplyr::filter(
+      name == "LabKompProsedyrerelatertDod",
+      fig_df_kompLab$aar %in% periode_data$sisteHeleYear),
     .after = insert_prsRel_her)
 
 
+# REKKEFØLGE:
+rekkeflg_komp_lab <- synkende_rekkefolge_lab_fjoraaret %>%
+  dplyr::pull(type_komplikasjon) %>% 
+  rev()
+
+
 # PARAMETRE FOR FIGUR: 
-synkende_rekkefolge_lab %<>% 
+endelig_lab <-  fig_df_kompLab %>%
+  dplyr::mutate(type_komplikasjon = factor(type_komplikasjon, 
+                                           levels = rekkeflg_komp_lab)) %>% 
+  dplyr::arrange(type_komplikasjon) %>%
+  dplyr::group_by(aar) %>%
   dplyr::mutate(
-    Sortering  = n():1, 
+    Sortering  = 1:n(), 
     
     alpha_soyler= ifelse(
       name %in% "LabKompProsedyrerelatertDod", 
       TRUE, 
-      FALSE))  
+      FALSE)) %>%
+  ungroup()
+
+# synkende_rekkefolge_lab %<>% 
+#   dplyr::group_by(aar) %>%
+#   dplyr::mutate(
+#     Sortering  = n():1, 
+#     
+#     alpha_soyler= ifelse(
+#       name %in% "LabKompProsedyrerelatertDod", 
+#       TRUE, 
+#       FALSE)) %>%
+#   ungroup()
 
 
-
-
-synkende_rekkefolge_lab %>%
-  ggplot2::ggplot(data = . , 
-                  ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
-                               y = Ja)) +
-
+# PLOT
+ggplot2::ggplot(data = endelig_lab) +
+    
   ggplot2::geom_bar(
-    mapping = ggplot2::aes(alpha = alpha_soyler),
+    mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
+                           y = Ja, 
+                           fill = aar,
+                           alpha = alpha_soyler),  
     stat="identity",
-    width = 0.85,
-    fill = colPrimary[4]) +
-  ggplot2::scale_alpha_manual(breaks = c(TRUE, FALSE), 
-                              values = c(0.5, 1)) +
+    width = 0.8,
+    position = ggplot2::position_dodge2(padding=0.1)
+    ) +
+  ggplot2::scale_fill_manual(values = colPrimary[c(5, 3)]) +
+  ggplot2::scale_alpha_manual(values=c(1, 0.8)) +
+  ggplot2::scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
   ggplot2::facet_grid(rows =  "gradering", 
                       scales = "free",
                       space='free', 
                       switch = "y") +
+  ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE,
+                                               title = ggplot2::element_blank()),
+                  alpha = "none") +
   ggplot2::coord_flip(clip = "off") +
   ggplot2::geom_text(
-    mapping = ggplot2::aes(alpha = alpha_soyler,
-                           label = Ja),
+    mapping = ggplot2::aes(label = Ja, 
+                           x = reorder(type_komplikasjon, Sortering), 
+                           y = Ja, 
+                           group = aar, 
+                           color = aar),
     vjust = 0.5,
     hjust = -0.15,
-    size = 6) +
+    size = 5, 
+    position = ggplot2::position_dodge(width = 0.7)
+    ) +
+  ggplot2::scale_color_manual("",
+                              values = c("gray40", "gray20"),
+                              guide = "none") +
   ggplot2::theme_classic(base_size = 20) +
   ggplot2::theme(
-    legend.position = "none", # fjerne hele legend
     axis.text.x = ggplot2::element_text(size = 18, colour = "black"),
     axis.line.y = ggplot2::element_blank(),
     axis.ticks.y = ggplot2::element_blank(), 
-    strip.placement = "outside"
-  ) +
+    strip.placement = "outside") +
   # Fjerne akse-tittel:
   ggplot2::labs(x = NULL, 
                 y = NULL)
@@ -1013,146 +1503,192 @@ cap <- paste0("Antall alvorlige og øvrige komplikasjoner på kat.lab., ",
               "perioden fra ", rangeProsDato,  ".", 
               "")
 
-tab_labkomp <- timeTableMonth %>% 
+tab_labkomp <- timeTableMonth %>%
   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompAllergiskAlvorlig %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Allergisk reaksjon alvorlig" = n), 
-                   by = "maaned") %>% 
+                   AP %>%
+                     dplyr::filter(LabKompAllergiskAlvorlig %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Allergisk reaksjon alvorlig" = n),
+                   by = "maaned") %>%
   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompBehkrevendeArytmi %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Behandlingskrevende arytmi" = n), 
-                   by = "maaned") %>% 
+                   AP %>%
+                     dplyr::filter(LabKompBehkrevendeArytmi %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Behandlingskrevende arytmi" = n),
+                   by = "maaned") %>%
   
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompHemodynamisk %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Hemodynamisk komplikasjon" = n), 
-                   by = "maaned") %>% 
-  
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompNeurologisk %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Nevrologisk komplikasjon" = n), 
-                   by = "maaned") %>% 
-
-  
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompVaskulaerIkkeKoronar %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Vaskulær (ikke koronare kar)" = n), 
-                   by = "maaned") %>% 
-     dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompPerforasjon %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Perforasjon" = n), 
-                   by = "maaned") %>% 
- 
-     dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompTamponade %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Tamponade" = n), 
-                   by = "maaned") %>% 
- 
-     dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompAkuttACBOperasjon %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Akutt ACB-operasjon fra lab" = n), 
-                   by = "maaned") %>% 
-  
-   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompDod %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Død" = n), 
-                   by = "maaned") %>% 
-  
-    
-   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompProsedyrerelatertDod %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav prosedyrerelatert død" = n), 
-                   by = "maaned") %>% 
-  
-     dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompAnnenAlv %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Annen alvorlig" = n), 
-                   by = "maaned") %>% 
- dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompAllergiskLettModerat %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Allergisk lett/moderat" = n), 
-                   by = "maaned") %>% 
   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompMistetStent %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Mistet stent" = n), 
-                   by = "maaned") %>% 
+                   AP %>%
+                     dplyr::filter(LabKompHemodynamisk %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Hemodynamisk komplikasjon" = n),
+                   by = "maaned") %>%
   
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(LabKompVedvarSidegrensokkl %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Vedvarende sidegr.okkl" = n), 
-                   by = "maaned") %>% 
-  janitor::adorn_totals("row", name = "Totalt") 
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompNeurologisk %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Nevrologisk komplikasjon" = n),
+                   by = "maaned") %>%
+  
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompVaskulaerIkkeKoronar %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Vaskulær (ikke koronare kar)" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompPerforasjon %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Perforasjon" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompTamponade %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Tamponade" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompAkuttACBOperasjon %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Akutt ACB-operasjon fra lab" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompDod %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Død" = n),
+                   by = "maaned") %>%
+  
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompProsedyrerelatertDod %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav prosedyrerelatert død" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompAnnenAlv %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Annen alvorlig" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompAllergiskLettModerat %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Allergisk lett/moderat" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompMistetStent %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Mistet stent" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(LabKompVedvarSidegrensokkl %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Vedvarende sidegr.okkl" = n),
+                   by = "maaned")
 
-tab_labkomp[tab_labkomp == 0] <-  " - "
-tab_labkomp[is.na(tab_labkomp)] <- " - "
-  
-  
-  
 
-align <- c("r", rep("c", dim(tab_labkomp)[2] - 1))
-col_nams <- c("", names(tab_labkomp[-1]))
+TabLabkomp_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tab_labkomp, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
+TabLabkomp_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tab_labkomp, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabLabkomp <- rbind(
+  TabLabkomp_fjor,
+  TabLabkomp_aar
+)
+
+
+TabLabkomp[TabLabkomp == 0] <- " - "
+TabLabkomp[is.na(TabLabkomp)] <- " - "
+
+align <- c("r", rep("c", dim(TabLabkomp)[2] - 1))
+digs <-  rep(0, dim(TabLabkomp)[2] )
 
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = tab_labkomp, 
-               caption = cap,
-               align = align, col.names = col_nams) %>%
+  TabLabkomp %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
-                              full_width = FALSE) %>%
-    kableExtra::row_spec(row = 0, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em") %>% 
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>%
      kableExtra::add_header_above(., header = c("", 
                                                "Alvorlige komplikasjoner på lab" = 11, 
                                                "Øvrige " = 3), 
                                  bold = TRUE, 
-                                 font_size = 10)
-  
+                                 font_size = 10) %>% 
+    kableExtra::row_spec(row = 0, angle = -45) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabLabkomp)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabLabkomp)[1])
+
 } else if (params$tableFormat == "latex") {
-  knitr::kable(x = tab_labkomp,
-               format = params$tableFormat,
+  TabLabkomp %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
-               align = "r", col.names = col_nams) %>%
+               align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                              font_size = 8) %>%
-    kableExtra::row_spec(row = 0, angle = 90) %>% 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row = 0, angle = 90) %>%
     kableExtra::add_header_above(., header = c("", 
                                                "Alvorlige komplikasjoner på lab" = 11, 
                                                "Øvrige " = 3), 
                                  bold = TRUE, 
-                                 font_size = 10)
+                                 font_size = 10) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabLabkomp)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabLabkomp)[1])
+
+
 }
+
 ```
 
 
@@ -1174,13 +1710,16 @@ ikke ferdigstilte komplikasjonsskjema.  [***Klikk her***](#komplSkjema)
 for å se oversikten over antall (andel) ferdigstilte komplikasjonsskjemaer.
 
 
-```{r FigAvdKompl2, fig.cap = paste0("Antall komplikasjoner oppstått på avdelingen.", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+```{r FigAvdKompl2, fig.cap = paste0("Antall komplikasjoner oppstått på avdelingen.", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 12, fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 fig_df_kompl_avd <- AP %>%
   
   dplyr::filter(is.na(KobletForlopsID)) %>% 
   
   dplyr::select(
+    
+    aar,
+    
     AvdKompVaskulaer, 
     AvdKompNeurologiskKomp, 
     AvdKompNyNyreinsuffisiens, 
@@ -1263,12 +1802,12 @@ fig_df_kompl_avd <- AP %>%
                   "AvdKompHematomStor", 
                   "AvdKompForlengetTidStor") ~ "Undergruppe av ovrig blodning", 
       TRUE ~ "Øvrige") ) %>% 
-  dplyr::count(name, type_komplikasjon, value, gradering) %>%
+  dplyr::count(name, type_komplikasjon, value, gradering, aar) %>%
   tidyr::pivot_wider(names_from = value, values_from = n, values_fill=0) %>% 
-  select(name, type_komplikasjon, gradering, Ja)
+  select(name, type_komplikasjon, gradering, Ja, aar) 
 
 
-# Rekkefølge: 
+# Rekkefølge: Rekkefølge fra fjoråret
 # Først alvorlig, så øvrige. 
 # Annen alvorlig nederst av alvorlige. 
 # pros_red_dod etter død
@@ -1280,51 +1819,58 @@ synkende_rekkefolge_avd_alvorlig <- rbind(
   
   # Alvorlig (uten annen alvorlig,  pros.rel.dod og undergruppe alvorlig blødning.)
   fig_df_kompl_avd %>% 
-    dplyr::filter(name != "AvdKompAnnenAlvorlig", 
-                   name != "AvdKompProsedyrerelatertDod", 
-                   gradering %in% "Alvorlige komplikasjoner på avdeling") %>% 
+    dplyr::filter(name != c("AvdKompAnnenAlvorlig"), 
+                  name != c("AvdKompProsedyrerelatertDod"), 
+                  gradering %in% "Alvorlige komplikasjoner på avdeling",
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja), 
   
   # Annen alvorlig nederst av alvorlige
   fig_df_kompl_avd %>% 
-    dplyr::filter(name == "AvdKompAnnenAlvorlig")
-  ) 
+    dplyr::filter(name == "AvdKompAnnenAlvorlig",
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear)
+) 
 
 # sett inn prosedyrerelatert død på riktig sted
-insert_prsRel_her <- which(synkende_rekkefolge_avd_alvorlig$name == "AvdKompDod")
+insert_prsRel_her <- which(synkende_rekkefolge_avd_alvorlig$name == "AvdKompDod",
+                           fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear)
 
 synkende_rekkefolge_avd_alvorlig %<>%
   dplyr::add_row( fig_df_kompl_avd %>% 
-    filter(name == "AvdKompProsedyrerelatertDod"),
-    .after = insert_prsRel_her) 
+                    filter(name == "AvdKompProsedyrerelatertDod",
+                           fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear),
+                  .after = insert_prsRel_her) 
 
 # sett inn undergrupper blødning på riktig sted
-insert_blod_her<- which(synkende_rekkefolge_avd_alvorlig$name == "komplik_avd_alvorligBlodning")
+insert_blod_her<- which(synkende_rekkefolge_avd_alvorlig$name == "komplik_avd_alvorligBlodning",
+                        fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear)
+
+# synkende_rekkefolge_avd_alvorlig %>% knitr::kable(align = "r")
 
 endelig_alvorlig <- rbind(
   
   # Før blødning
   synkende_rekkefolge_avd_alvorlig[1:insert_blod_her, ], 
   
-  # Undergrupper blødingn
+  # Undergrupper blødning
   fig_df_kompl_avd %>% 
-    filter(gradering %in% "Undergruppe alv blødning") %>% 
-      dplyr::arrange(-Ja), 
+    filter(gradering %in% "Undergruppe alv blødning",
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear) %>% 
+    dplyr::arrange(-Ja), 
   
-   # Før blødning
+  # Før blødning
   synkende_rekkefolge_avd_alvorlig[-(1:insert_blod_her), ]
-  )
-
-
-
+)
 
   # Deretter øvrige
 synkende_rekkefolge_avd_ovrige <-   fig_df_kompl_avd %>% 
-    dplyr::filter(gradering %in% "Øvrige") %>% 
+    dplyr::filter(gradering %in% "Øvrige",
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear) %>% 
     dplyr::arrange(-Ja)
 
 # sett inn undergrupper blødning på riktig sted
-insert_blod_her<- which(synkende_rekkefolge_avd_ovrige$name == "komplik_avd_ovrigBlodning")
+insert_blod_her<- which(synkende_rekkefolge_avd_ovrige$name == "komplik_avd_ovrigBlodning",
+                  fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear)
 
 endelig_ovrig <- rbind(
   
@@ -1333,81 +1879,93 @@ endelig_ovrig <- rbind(
   
   # Undergrupper blødingn
   fig_df_kompl_avd %>% 
-    filter(gradering %in% "Undergruppe av ovrig blodning") %>% 
+    filter(gradering %in% "Undergruppe av ovrig blodning",
+           fig_df_kompl_avd$aar %in% periode_data$sisteHeleYear) %>% 
       dplyr::arrange(-Ja), 
   
    # Før blødning
   synkende_rekkefolge_avd_ovrige[-(1:insert_blod_her), ]
   )
- 
 
-#SAMMEN: 
-endelig_alle <- rbind(
-  endelig_alvorlig, 
-  endelig_ovrig
-) %>% 
-  # PARAMETRE FOR PLOT
-   dplyr::mutate(
-    Sortering = n():1, 
 
+#SAMMEN:
+
+rekkeflg_komp_avd <- rbind(endelig_alvorlig,
+                           endelig_ovrig) %>%
+  dplyr::pull(type_komplikasjon) %>% 
+  rev()
+
+
+endelig_alle <- fig_df_kompl_avd %>% 
+  dplyr::mutate(type_komplikasjon = factor(type_komplikasjon, 
+                                           levels = rekkeflg_komp_avd)) %>% 
+  dplyr::arrange(type_komplikasjon) %>% 
+  dplyr::group_by(aar) %>% 
+  dplyr::mutate(
+    Sortering = 1:n(),
+    
     alpha_soyler= ifelse(
       gradering %in% "Undergruppe alv blødning" |
         gradering %in% "Undergruppe av ovrig blodning" |
-        name %in% "AvdKompProsedyrerelatertDod", 
-      TRUE, 
-      FALSE), 
+        name %in% "AvdKompProsedyrerelatertDod",
+      TRUE,
+      FALSE),
     
     gradering2 = ifelse(
-      gradering %in% c("Undergruppe alv blødning", 
-                       "Alvorlige komplikasjoner på avdeling"), 
-      "Alvorlige komplikasjoner på avdeling", 
-      "Øvrige"
-      
-    ))  
-  
+      gradering %in% c("Undergruppe alv blødning",
+                       "Alvorlige komplikasjoner på avdeling"),
+      "Alvorlige komplikasjoner på avdeling",
+      "Øvrige")) %>%
+  ungroup()
 
 
-
-
-endelig_alle %>%
-  ggplot2::ggplot(data = . , 
-                  ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
-                               y = Ja)) +
+# PLOT
+ggplot2::ggplot(data = endelig_alle) +
+    
   ggplot2::geom_bar(
-    mapping = ggplot2::aes(alpha = alpha_soyler),
+    mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering),
+                           y = Ja, 
+                           fill = fig_df_kompl_avd$aar,
+                           alpha = alpha_soyler),
     stat="identity",
-    width = 0.85,
-    fill = colPrimary[4]) +
-    ggplot2::scale_alpha_manual(breaks = c(TRUE, FALSE), 
-                              values = c(0.5, 1)) +
-
-  ggplot2::facet_grid(rows =  "gradering2", 
-                     scales = "free",
-                     space='free', 
-                     switch = "y") +
+    width = 0.8,
+    position = ggplot2::position_dodge2(padding=0.1)
+    ) +
+  ggplot2::scale_fill_manual(values = colPrimary[c(5, 3)]) +
+  ggplot2::scale_alpha_manual(values=c(1, 0.8)) +
+  ggplot2::scale_y_continuous(labels = scales::label_number(accuracy = 1)) +
+  ggplot2::facet_grid(rows = "gradering2", 
+                      scales = "free",
+                      space='free', 
+                      switch = "y") +
+  ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE,
+                                               title = ggplot2::element_blank()),
+                  alpha = "none") +
   ggplot2::coord_flip(clip = "off") +
-  # FREKVENS-TALL SOM PLASSERES I/PÅ SØYLENE:
   ggplot2::geom_text(
-    ggplot2::aes(label = Ja, 
-                 alpha = alpha_soyler),
+    mapping = ggplot2::aes(label = Ja,
+                           x = reorder(type_komplikasjon,
+                                       Sortering),
+                           y = Ja,
+                           group = fig_df_kompl_avd$aar,
+                           color = fig_df_kompl_avd$aar),
     vjust = 0.5,
     hjust = -0.15,
-    size = 6  ) +
-  # THEME & BASE SIZE:
-  ggplot2::theme_classic( base_size = 20) +
-  # THEME -
+    size = 5,
+    position = ggplot2::position_dodge(width = 0.7)
+    ) +
+  ggplot2::scale_color_manual("",
+                              values = c("gray40", "gray20"),
+                              guide = "none") +
+  ggplot2::theme_classic(base_size = 20) +
   ggplot2::theme(
-    legend.position = "none", # fjerne hele legend
-    axis.text.x = ggplot2::element_text( size = 18, colour = "black"),
-    # axis.text.y = ggplot2::element_text(color = farger_tekst),
+    axis.text.x = ggplot2::element_text(size = 18, colour = "black"),
     axis.line.y = ggplot2::element_blank(),
     axis.ticks.y = ggplot2::element_blank(), 
-    strip.placement = "outside"
-  ) +
+    strip.placement = "outside") +
   # Fjerne akse-tittel:
-  ggplot2::labs(
-    x = NULL,
-    y = NULL)
+  ggplot2::labs(x = NULL, 
+                y = NULL)
 
 ```
 
@@ -1423,165 +1981,206 @@ cap <- paste0("Antall alvorlige og øvrige komplikasjoner på sengepost, ",
               "perioden fra ", rangeProsDato,  ".", 
               "")
 
-tab_avdkomp <- timeTableMonth %>% 
+tab_avdkomp <- timeTableMonth %>%
   dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
                        is.na(KobletForlopsID),
-                       AvdKompDod %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Død på avdeling" = n), 
-                   by = "maaned") %>% 
+                       AvdKompDod %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Død på avdeling" = n),
+                   by = "maaned") %>%
   dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
                        is.na(KobletForlopsID),
-                       AvdKompProsedyrerelatertDod %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav prosedyrerelatert død" = n), 
-                   by = "maaned") %>% 
-  
+                       AvdKompProsedyrerelatertDod %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav prosedyrerelatert død" = n),
+                   by = "maaned") %>%
+
     dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompNyNyreinsuffisiens %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Nytilkommet nyreinsuffisens" = n), 
-                   by = "maaned") %>% 
- 
+                       is.na(KobletForlopsID),
+                       AvdKompNyNyreinsuffisiens %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Nytilkommet nyreinsuffisens" = n),
+                   by = "maaned") %>%
+
       dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompNeurologiskKomp %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Nevrologisk" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompNeurologiskKomp %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Nevrologisk" = n),
+                   by = "maaned") %>%
      dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompHjerteinfarkt %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Hjerteinfarkt" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompHjerteinfarkt %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Hjerteinfarkt" = n),
+                   by = "maaned") %>%
      dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompTamponade %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Tamponade" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompTamponade %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Tamponade" = n),
+                   by = "maaned") %>%
      dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompVaskulaer %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Vaskulær (ikke koronare kar)" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompVaskulaer %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Vaskulær (ikke koronare kar)" = n),
+                   by = "maaned") %>%
      dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompPCI %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Re-PCI (behandlet segment)" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompPCI %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Re-PCI (behandlet segment)" = n),
+                   by = "maaned") %>%
 
        dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompACB %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("ACB-operasjon (ikke fra lab)" = n), 
-                   by = "maaned") %>% 
-  
-  dplyr::left_join(., 
-                   AP %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompACB %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("ACB-operasjon (ikke fra lab)" = n),
+                   by = "maaned") %>%
+
+  dplyr::left_join(.,
+                   AP %>%
                      dplyr::filter(
-                          is.na(KobletForlopsID), 
-                          komplik_avd_alvorligBlodning %in% "Ja") %>% 
-                        dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Noen form for alvorlig blødning" = n), 
-                   by = "maaned") %>% 
+                          is.na(KobletForlopsID),
+                          komplik_avd_alvorligBlodning %in% "Ja") %>%
+                        dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Noen form for alvorlig blødning" = n),
+                   by = "maaned") %>%
        dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompAnnenAlvorlig %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Annen alvorlig" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompAnnenAlvorlig %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Annen alvorlig" = n),
+                   by = "maaned") %>%
 
         dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       komplik_avd_ovrigBlodning %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Noen form for øvrig blødning" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       komplik_avd_ovrigBlodning %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Noen form for øvrig blødning" = n),
+                   by = "maaned") %>%
       dplyr::left_join(.,
-                   AP %>% 
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompAllergisk %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Allergisk senreaksjon" = n), 
-                   by = "maaned") %>% 
+                       is.na(KobletForlopsID),
+                       AvdKompAllergisk %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Allergisk senreaksjon" = n),
+                   by = "maaned")
 
-  
-  
-  
 
-  janitor::adorn_totals("row", name = "Totalt") 
+TabAvdkomp_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tab_avdkomp, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-tab_avdkomp[tab_avdkomp == 0] <-  " - "
-tab_avdkomp[is.na(tab_avdkomp)] <- " - "
-  
-  
-  
+TabAvdkomp_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tab_avdkomp, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
 
-align <- c("r", rep("c", dim(tab_avdkomp)[2] - 1))
-col_nams <- c("", names(tab_avdkomp[-1]))
 
+TabAvdkomp <- rbind(
+  TabAvdkomp_fjor,
+  TabAvdkomp_aar
+)
+
+
+TabAvdkomp[TabAvdkomp == 0] <- " - "
+TabAvdkomp[is.na(TabAvdkomp)] <- " - "
+
+align <- c("r", rep("c", dim(TabAvdkomp)[2] - 1))
+digs <-  rep(0, dim(TabAvdkomp)[2] )
 
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = tab_avdkomp, 
-               caption = cap,
-               align = align, col.names = col_nams) %>%
+  TabAvdkomp %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
-                              full_width = FALSE) %>%
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
     kableExtra::row_spec(row = 0, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em") %>%
-  kableExtra::add_header_above(., header = c("",
-                                            "Alvorlige komplikasjoner på avdeling" = 11,
-                                            "Øvrige " = 2),
-                              bold = TRUE,
-                              font_size = 10)
-  
-} else if (params$tableFormat == "latex") {
-  knitr::kable(x = tab_avdkomp,
-               format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r", col.names = col_nams) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position", 
-                              font_size = 8) %>%
-    kableExtra::row_spec(row = 0, angle = 90)%>% 
     kableExtra::add_header_above(., header = c("",
                                                "Alvorlige komplikasjoner på avdeling" = 11,
                                                "Øvrige " = 2),
                                  bold = TRUE,
-                                 font_size = 10)
+                                 font_size = 10) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabAvdkomp)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAvdkomp)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabAvdkomp %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row = 0, angle = 90) %>% 
+    kableExtra::add_header_above(., header = c("",
+                                               "Alvorlige komplikasjoner på avdeling" = 11,
+                                               "Øvrige " = 2),
+                                 bold = TRUE,
+                                 font_size = 10) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabAvdkomp)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAvdkomp)[1])
+
+
 }
+
 ```
 
 
@@ -1595,137 +2194,183 @@ cap <- paste0("Antall alvorlige og øvrige blødninger på sengepost, ",
               "perioden fra ", rangeProsDato,  ".", 
               "")
 
-tab_avdkomp_blod <- timeTableMonth %>% 
-  dplyr::left_join(., 
-                   AP %>% 
-                     dplyr::filter(
-                          is.na(KobletForlopsID), 
-                          komplik_avd_alvorligBlodning %in% "Ja") %>% 
-                        dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Noen form for alvorlig blødning" = n), 
-                   by = "maaned") %>% 
-       dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompHbFallStor %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav Hb fall stor" = n), 
-                   by = "maaned") %>% 
 
-         dplyr::left_join(.,
-                   AP %>% 
+tab_avdkomp_blod <- timeTableMonth %>%
+  dplyr::left_join(.,
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompForlengetOppholdStor %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav forlenget sykehusopphold" = n), 
-                   by = "maaned") %>% 
-
-         dplyr::left_join(.,
-                   AP %>% 
+                       is.na(KobletForlopsID),
+                       komplik_avd_alvorligBlodning %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Noen form for alvorlig blødning" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
                      dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompBlodtransfusjon %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav blodtransfusjon" = n), 
-                   by = "maaned") %>% 
-
-         dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompKirurgiskBeh %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav kirurgisk behandling" = n), 
-                   by = "maaned") %>% 
-   
-    dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompPseudoaneurysme %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav pseudoaneurysme" = n), 
-                   by = "maaned") %>% 
-
-        dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       komplik_avd_ovrigBlodning %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("Noen form for øvrig blødning" = n), 
-                   by = "maaned") %>% 
-
-   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompBlodningMinor %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav blødning minor" = n), 
-                   by = "maaned") %>% 
-   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompHematomStor %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav hematom stort" = n), 
-                   by = "maaned") %>% 
-   dplyr::left_join(.,
-                   AP %>% 
-                     dplyr::filter(
-                       is.na(KobletForlopsID), 
-                       AvdKompForlengetTidStor %in% "Ja") %>% 
-                     dplyr::count(maaned, .drop = FALSE) %>% 
-                     dplyr::rename("- herav forlenget kompresjonstid" = n), 
-                   by = "maaned") %>% 
-  janitor::adorn_totals("row", name = "Totalt") 
-
-tab_avdkomp_blod[tab_avdkomp_blod == 0] <-  " - "
-tab_avdkomp_blod[is.na(tab_avdkomp_blod)] <- " - "
+                       is.na(KobletForlopsID),
+                       AvdKompHbFallStor %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav Hb fall stor" = n),
+                   by = "maaned") %>%
   
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(
+                       is.na(KobletForlopsID),
+                       AvdKompForlengetOppholdStor %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav forlenget sykehusopphold" = n),
+                   by = "maaned") %>%
   
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(
+                       is.na(KobletForlopsID),
+                       AvdKompBlodtransfusjon %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav blodtransfusjon" = n),
+                   by = "maaned") %>%
   
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(
+                       is.na(KobletForlopsID),
+                       AvdKompKirurgiskBeh %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav kirurgisk behandling" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(
+                       is.na(KobletForlopsID),
+                       AvdKompPseudoaneurysme %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav pseudoaneurysme" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(
+                       is.na(KobletForlopsID),
+                       komplik_avd_ovrigBlodning %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("Noen form for øvrig blødning" = n),
+                   by = "maaned") %>%
+  
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(
+                       is.na(KobletForlopsID),
+                       AvdKompBlodningMinor %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav blødning minor" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(
+                       is.na(KobletForlopsID),
+                       AvdKompHematomStor %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav hematom stort" = n),
+                   by = "maaned") %>%
+  dplyr::left_join(.,
+                   AP %>%
+                     dplyr::filter(
+                       is.na(KobletForlopsID),
+                       AvdKompForlengetTidStor %in% "Ja") %>%
+                     dplyr::count(maaned, .drop = FALSE) %>%
+                     dplyr::rename("- herav forlenget kompresjonstid" = n),
+                   by = "maaned")
 
-align <- c("r", rep("c", dim(tab_avdkomp_blod)[2] - 1))
-col_nams <- c("", names(tab_avdkomp_blod[-1]))
 
+TabAvdkompBlod_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tab_avdkomp_blod, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+TabAvdkompBlod_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tab_avdkomp_blod, 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabAvdkompBlod <- rbind(
+  TabAvdkompBlod_fjor,
+  TabAvdkompBlod_aar
+)
+
+
+TabAvdkompBlod[TabAvdkompBlod == 0] <- " - "
+TabAvdkompBlod[is.na(TabAvdkompBlod)] <- " - "
+
+align <- c("r", rep("c", dim(TabAvdkompBlod)[2] - 1))
+digs <-  rep(0, dim(TabAvdkompBlod)[2] )
 
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = tab_avdkomp_blod, 
-               caption = cap,
-               align = align, col.names = col_nams) %>%
+  TabAvdkompBlod %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
-                              full_width = FALSE) %>%
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
     kableExtra::row_spec(row = 0, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em") %>%
-  kableExtra::add_header_above(., header = c("",
-                                            "Alvorlige blødninger" = 6,
-                                            "Øvrige blødninger " = 4),
-                              bold = TRUE,
-                              font_size = 10)
-  
+    kableExtra::add_header_above(., header = c("",
+                                               "Alvorlige blødninger" = 6,
+                                               "Øvrige blødninger " = 4),
+                                 bold = TRUE,
+                                 font_size = 10) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabAvdkompBlod)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAvdkompBlod)[1])
+
 } else if (params$tableFormat == "latex") {
-  knitr::kable(x = tab_avdkomp_blod,
-               format = params$tableFormat,
+  TabAvdkompBlod %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
-               align = "r", col.names = col_nams) %>%
+               align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                              font_size = 8) %>%
-    kableExtra::row_spec(row = 0, angle = 90)%>% 
+                              font_size = 8) %>% 
+    kableExtra::row_spec(row = 0, angle = 90) %>% 
     kableExtra::add_header_above(., header = c("",
-                                            "Alvorlige blødninger" = 6,
-                                            "Øvrige blødninger " = 4),
+                                               "Alvorlige blødninger" = 6,
+                                               "Øvrige blødninger " = 4),
                                  bold = TRUE,
-                                 font_size = 10)
+                                 font_size = 10) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabAvdkompBlod)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAvdkompBlod)[1])
+
 }
+
 ```
 
 
@@ -1761,17 +2406,82 @@ tabHovedKomplett <- AP %>%
     Ferdigstilt = `1`, 
     Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
-tabHovedKomplett %<>%   dplyr::rename(" " = "maaned")
+TabHovedKomplett_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tabHovedKomplett,
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-cap <- paste0("Andel ferdigstilte hovedskjemaer i NORIC per måned ved ",
-             params$hospitalName, " i perioden ", rangeProsDato, ".")
+TabHovedKomplett_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tabHovedKomplett,
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-noric::mst(tab = tabHovedKomplett, 
-           type = params$tableFormat, 
-           cap = cap,
-           digs = c(0, 0, 0, 1), 
-           align = c("l", "r", "r", "r"),
-           label = "SOtab1")
+
+TabHovedKomplett <- rbind(
+  TabHovedKomplett_fjor, 
+  TabHovedKomplett_aar
+)
+
+
+TabHovedKomplett[TabHovedKomplett == 0] <- " - "
+TabHovedKomplett[is.na(TabHovedKomplett)] <- " - "
+
+align <- c("l", rep("r", dim(TabHovedKomplett)[2] - 1))
+digs <-  rep(0, dim(TabHovedKomplett)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabHovedKomplett %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabHovedKomplett)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabHovedKomplett)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabHovedKomplett %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabHovedKomplett)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabHovedKomplett)[1])
+
+
+}
+
 ```
 
 ### Kompletthet komplikasjonsskjemaer {- #komplSkjema}
@@ -1782,34 +2492,93 @@ noric::mst(tab = tabHovedKomplett,
 
 ```{r SOtab2, results = "asis"}
 
-
-
 tabKomplikKomplett <- AP %>% 
-  dplyr::filter(Regtype %in% "Primær") %>% 
-  
-  dplyr::count(maaned, SkjemaStatusKomplikasjoner, .drop = FALSE) %>% 
-  tidyr::pivot_wider(names_from = SkjemaStatusKomplikasjoner, 
-                     values_from = n, 
-                     values_fill = 0) %>% 
+  dplyr::filter(Regtype %in% "Primær") %>%
+
+  dplyr::count(maaned, SkjemaStatusKomplikasjoner, .drop = FALSE) %>%
+  tidyr::pivot_wider(names_from = SkjemaStatusKomplikasjoner,
+                     values_from = n,
+                     values_fill = 0) %>%
   dplyr::transmute(
     maaned = maaned,
-    Totalt = `-1`+ `0` + `1`, 
-    Ferdigstilt = `1`, 
+    Totalt = `-1`+ `0` + `1`,
+    Ferdigstilt = `1`,
     Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
+TabKomplikKomplett_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tabKomplikKomplett,
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-tabKomplikKomplett %<>%   dplyr::rename(" " = "maaned")
+TabKomplikKomplett_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tabKomplikKomplett,
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
 
-cap <- paste0("Andel ferdigstilte komplikasjonsskjemaer registrert i NORIC ",
-              "per måned ved ", params$hospitalName,
-              " i perioden ", rangeProsDato, ".")
-noric::mst(tab = tabKomplikKomplett, 
-           type = params$tableFormat,
-           cap = cap,
-           digs = c(0, 0, 0, 1),
-           align = c("l", "r", "r", "r"),
-           label = "SOtab2")
+TabKomplikKomplett <- rbind(
+  TabKomplikKomplett_fjor, 
+  TabKomplikKomplett_aar
+)
+
+
+TabKomplikKomplett[TabKomplikKomplett == 0] <- " - "
+TabKomplikKomplett[is.na(TabKomplikKomplett)] <- " - "
+
+align <- c("l", rep("r", dim(TabKomplikKomplett)[2] - 1))
+digs <-  rep(0, dim(TabKomplikKomplett)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabKomplikKomplett %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabKomplikKomplett)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabKomplikKomplett)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabKomplikKomplett %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabKomplikKomplett)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabKomplikKomplett)[1])
+}
+
 
 ```
 
@@ -1821,7 +2590,11 @@ noric::mst(tab = tabKomplikKomplett,
 
 ```{r SOtab3, results = "asis"}
 
-tabUtskrKomplett <- AP %>% 
+cap <- paste0("Andel ferdigstilte utskrivelsesskjemaer registrert i NORIC per ", 
+              "måned ved ", params$hospitalName, " i perioden ",
+              rangeProsDato, ".")
+
+tab_UtskrKomplett <- AP %>% 
   dplyr::filter(Regtype %in% "Primær") %>% 
   
   dplyr::count(maaned, SkjemaStatusUtskrivelse, .drop = FALSE) %>% 
@@ -1834,17 +2607,79 @@ tabUtskrKomplett <- AP %>%
     Ferdigstilt = `1`, 
     Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
-tabUtskrKomplett %<>%   dplyr::rename(" " = "maaned")
-cap <- paste0("Andel ferdigstilte utskrivelsesskjemaer registrert i NORIC per ", 
-              "måned ved ", params$hospitalName, " i perioden ",
-              rangeProsDato, ".")
+TabUtskrKomplett_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tab_UtskrKomplett,
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-noric::mst(tab = tabUtskrKomplett,
-           type = params$tableFormat, 
-           cap = cap,
-           digs = c(0, 0, 0, 1), 
-           align = c("l", "r", "r", "r"),
-           label = "SOtab3")
+TabUtskrKomplett_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tab_UtskrKomplett,
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+
+TabUtskrKomplett<- rbind(
+  TabUtskrKomplett_fjor, 
+  TabUtskrKomplett_aar
+)
+
+
+TabUtskrKomplett[TabUtskrKomplett == 0] <- " - "
+TabUtskrKomplett[is.na(TabUtskrKomplett)] <- " - "
+
+align <- c("l", rep("r", dim(TabUtskrKomplett)[2] - 1))
+digs <-  rep(0, dim(TabUtskrKomplett)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabUtskrKomplett %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabUtskrKomplett)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabUtskrKomplett)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabUtskrKomplett %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabUtskrKomplett)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabUtskrKomplett)[1])
+}
 
 ```
 
@@ -1886,41 +2721,89 @@ TabNInervProsedyreType <- AP %>%
   janitor::adorn_totals("col", name = "Antall prosedyrer") %>% 
   dplyr::select(maaned, "Antall prosedyrer")
 
-TabNSsIntervensjonstype <- timeTableMonth %>% 
+tab_NSsIntervensjonstype <- timeTableMonth %>% 
   merge(., TabDataSsIntervensjonstype, 
         by.x = c("maaned"), by.y = c("maaned"),
         all.x = TRUE, all.y = FALSE) %>% 
-  dplyr::right_join(., TabNInervProsedyreType, by = c("maaned")) %>% 
-  dplyr::rename(" " = "maaned")
-
-TabNSsIntervensjonstype[TabNSsIntervensjonstype == 0] <-  " - "
-TabNSsIntervensjonstype[is.na(TabNSsIntervensjonstype)] <- " - "
-
-align <- c("l", rep("c", dim(TabNSsIntervensjonstype)[2] - 1))
-
-noric::mst(tab = TabNSsIntervensjonstype,
-           type = params$tableFormat, 
-           cap = cap,
-           align = c("l", "r", "r", "r"),
-           label = "TabNSsIntervensjonstype")
+  dplyr::right_join(., TabNInervProsedyreType, by = c("maaned"))
 
 
-# if (params$tableFormat == "html") {
-#   knitr::kable(x = TabNSsIntervensjonstype, caption = cap, align = align) %>%
-#     kableExtra::kable_styling(bootstrap_options = c("striped",
-#                                                     "hover",
-#                                                     "condensed"),
-#                               full_width = FALSE) %>%
-#     kableExtra::column_spec(column = 1, width = "7em")
-# } else if (params$tableFormat == "latex") {
-#   knitr::kable(x = TabNSsIntervensjonstype,
-#                format = params$tableFormat,
-#                caption = cap,
-#                booktabs = TRUE,
-#                align = "r") %>%
-#     kableExtra::kable_styling(latex_options = c("HOLD_position",
-#                                                 "scale_down"))
-# }
+TabIntervensjonstype_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = tab_NSsIntervensjonstype,
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabIntervensjonstype_aar <- merge(
+  x = timeTableMonth_aar,
+  y = tab_NSsIntervensjonstype,
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+
+TabIntervensjonstype <- rbind(
+  TabIntervensjonstype_fjor, 
+  TabIntervensjonstype_aar
+)
+
+
+TabIntervensjonstype[TabIntervensjonstype == 0] <- " - "
+TabIntervensjonstype[is.na(TabIntervensjonstype)] <- " - "
+
+align <- c("l", rep("r", dim(TabIntervensjonstype)[2] - 1))
+digs <-  rep(0, dim(TabIntervensjonstype)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabIntervensjonstype %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabIntervensjonstype)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabIntervensjonstype)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabIntervensjonstype %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = c("HOLD_position",
+                                                "scale_down"), 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabIntervensjonstype)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabIntervensjonstype)[1])
+}
+
 ```
 <br/>
 
@@ -1929,36 +2812,46 @@ noric::mst(tab = TabNSsIntervensjonstype,
 <br/><br/>
 
 ## Stenter per prosedyre
-Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`. Antall prosedyrer med minst 1 stent er `r AP %>% filter(Nstents>0) %>% nrow()`.
+Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`.
+Antall prosedyrer med minst 1 stent er 
+`r AP %>% dplyr::filter(Nstents>0, aar %in% periode_data$sisteHeleYear) %>% nrow()` i 
+`r periode_data$sisteHeleYear ` og 
+`r AP %>% dplyr::filter(Nstents>0, aar %in% periode_data$nyesteRegYear) %>% nrow()` i 
+`r periode_data$nyesteRegYear `. 
 
-```{r BarplotNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
+```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
 
-par(
-  mfcol = c(1, 1),
-  xpd = NA,
-  mar = c(5.1, 4.1, 4.1, 13.1),
-  las = 1
-  )
+TabNStent <- AP %>% 
+  dplyr::filter(Nstents > 0) %>% 
+  dplyr::count(.data$Nstents,
+               .data$aar) %>% 
+  dplyr::group_by(.data$aar) %>% 
+  mutate(
+    totalt_aar = sum(n),
+    nstents_andel = round(n/totalt_aar, 3))
 
-TabNStent <- xtabs(
-  formula = ~ Nstents,
-  data = AP %>% dplyr::filter(Nstents>0))
 
-barplot(
-  TabNStent,
-  xlab = "Antall stenter per prosedyre",
-  ylab = "Antall prosedyrer",
-  border = FALSE,
-  space = 0.3,
-  col = colPrimary[3]
-)
-
-SumStat <- round(summary(AP[which(AP$Nstents>0), "Nstents"]), 1)
-legend(
-  "right",
-  inset = -.28,
-  bty = "n",
-  legend = paste(attr(SumStat, "names"), ": ", SumStat, sep = ""))
+TabNStent %>%  ggplot2::ggplot(
+  ggplot2::aes(x = .data$Nstents,
+               y = .data$nstents_andel,
+               fill = factor(.data$aar))) +
+  ggplot2::geom_bar(position = "stack",
+                    stat = "identity") +
+  ggplot2::geom_text(ggplot2::aes(label = TabNStent$n),
+                     vjust = -0.5,
+                     colour = "gray20") +
+  ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
+  ggplot2::scale_fill_manual(values = c(colPrimary[4], colPrimary[3])) +
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("Antall stenter per prosedyre") +
+  ggplot2::ylab("Andel (antall) prosedyrer") +
+  ggplot2::scale_x_continuous(breaks = TabNStent$Nstents) +
+  ggplot2::theme(legend.position = "none",
+                 strip.text = ggplot2::element_text(size=12),
+                 axis.text = ggplot2::element_text(size = 12),
+                 axis.title = ggplot2::element_text(size = 12),
+                 legend.text = ggplot2::element_text(size = 12))
 
 ``` 
 
@@ -1980,44 +2873,95 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 
 ```{r TabNstentNameMonth, echo = FALSE, results = "asis", out.width = "\\textwidth"}
-# cap <- paste0("Antall stenter registrert i NORIC per måned og merke ved ",
-#               params$hospitalName, " i perioden ", rangeProsDato, ".")
-# 
-# tab_stent <- SS %>% 
-#   dplyr::filter(ProsedyreType2 == "Stent") %>%
-#   janitor::tabyl(maaned,
-#                  Stentnavn) %>% 
-#   janitor::adorn_totals("col", name = "Totalt") %>% 
-#   janitor::adorn_totals("row", name = "Totalt") 
-# 
-# tab_stent[tab_stent == 0] <- " - "
-# tab_stent[is.na(tab_stent)] <- " - "
-# 
-# tab_stent %<>%   dplyr::rename(" " = "maaned")
-# 
-# align <- c("r", rep("c", dim(tab_stent)[2] - 1))
-# 
-# if (params$tableFormat == "html") {
-#   knitr::kable(x = tab_stent,
-#                caption = cap,
-#                align = align) %>%
-#     kableExtra::kable_styling(bootstrap_options = c("striped",
-#                                                     "hover",
-#                                                     "condensed"),
-#                               full_width = FALSE) %>%
-#     kableExtra::row_spec(row = 0, font_size = 8, angle = -45) %>%
-#     kableExtra::column_spec(column = 1, width = "7em")
-# 
-#   } else if (params$tableFormat == "latex") {
-#   knitr::kable(x = tab_stent,
-#                format = params$tableFormat,
-#                caption = cap,
-#                booktabs = TRUE,
-#                align = "r") %>%
-#    kableExtra::kable_styling(latex_options = "HOLD_position", 
-#                               font_size = 8) %>%
-#    kableExtra::row_spec(row = 0, angle = 90, font_size = 8)
-# }
+cap <- paste0("Antall stenter registrert i NORIC per måned og merke ved ",
+              params$hospitalName, " i perioden ", rangeProsDato, ".")
+
+
+TabStent_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = SS %>%
+  dplyr::filter(ProsedyreType2 == "Stent") %>%
+  janitor::tabyl(maaned,
+                 Stentnavn) %>%
+  janitor::adorn_totals("col", name = "Totalt"),
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+
+
+TabStent_aar <- merge(
+  x = timeTableMonth_aar,
+  y = SS %>%
+  dplyr::filter(ProsedyreType2 == "Stent") %>%
+  janitor::tabyl(maaned,
+                 Stentnavn) %>%
+  janitor::adorn_totals("col", name = "Totalt"),
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
+
+
+TabStent <- rbind(
+  TabStent_fjor, 
+  TabStent_aar
+)
+
+
+TabStent[TabStent == 0] <- " - "
+TabStent[is.na(TabStent)] <- " - "
+
+align <- c("l", rep("r", dim(TabStent)[2] - 1))
+digs <-  rep(0, dim(TabStent)[2] )
+
+
+if (params$tableFormat == "html") {
+  TabStent %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>%
+    kableExtra::row_spec(row = 0, font_size = 8, angle = -45) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabStent)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabStent)[1])
+
+} else if (params$tableFormat == "latex") {
+  TabStent %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>%
+   kableExtra::row_spec(row = 0, angle = 90, font_size = 8) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabStent)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabStent)[1])
+}
+
 ```
 
 
@@ -2044,45 +2988,89 @@ cap <- paste0("Antall prosedyrer registrert i modulen for ",
              params$hospitalName, " i perioden ",
              rangeProsDato, ".")
 
-TabDataAndreProsedyrer <- AnP %>% 
+TabAndrePros_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y =  AnP %>% 
   janitor::tabyl(maaned,
-                 AnnenProsType) %>% 
-  janitor::adorn_totals("col", name = "Totalt")
+                 AnnenProsType) %>%
+  janitor::adorn_totals("col", name = "Totalt"),
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
 
-TabNAndreProsedyrer <- timeTableMonth %>% 
-  merge(., TabDataAndreProsedyrer, 
-        by.x = c("maaned"), by.y = c("maaned"),
-        all.x = TRUE, all.y = FALSE) %>% 
-  janitor::adorn_totals("row", name = "Totalt") %>% 
-  dplyr::rename(" " = "maaned")
 
-TabNAndreProsedyrer[TabNAndreProsedyrer == 0] <- " - "
-TabNAndreProsedyrer[is.na(TabNAndreProsedyrer)] <- " - "
+TabAndrePros_aar <- merge(
+  x = timeTableMonth_aar,
+  y = AnP %>% 
+  janitor::tabyl(maaned,
+                 AnnenProsType) %>%
+  janitor::adorn_totals("col", name = "Totalt"),
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned") 
 
-align <- c("r", rep("c", dim(TabNAndreProsedyrer)[2] - 1))
+
+TabAndrePros <- rbind(
+  TabAndrePros_fjor, 
+  TabAndrePros_aar
+)
+
+
+TabAndrePros[TabAndrePros == 0] <- " - "
+TabAndrePros[is.na(TabAndrePros)] <- " - "
+
+align <- c("l", rep("r", dim(TabAndrePros)[2] - 1))
+digs <-  rep(0, dim(TabAndrePros)[2] )
+
 
 if (params$tableFormat == "html") {
-  knitr::kable(x = TabNAndreProsedyrer, 
-               caption = cap,
-               align = align) %>%
+  TabAndrePros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
-                              full_width = FALSE) %>%
+                              full_width = FALSE, 
+                              font_size = 11) %>%
+    kableExtra::column_spec(column = 1, width = "7em") %>%
     kableExtra::row_spec(row = 0, font_size = 8, angle = -45) %>%
-    kableExtra::column_spec(column = 1, width = "7em")
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=dim(TabAndrePros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1, 
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAndrePros)[1])
 
 } else if (params$tableFormat == "latex") {
-  knitr::kable(x = TabNAndreProsedyrer,
-               format = params$tableFormat,
+  TabAndrePros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
                align = "r") %>%
-   kableExtra::kable_styling(latex_options = "HOLD_position", 
-                              font_size = 8) %>%
-     kableExtra::row_spec(row = 0, angle = 90, font_size = 8)
-
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>%
+   kableExtra::row_spec(row = 0, angle = 90, font_size = 8) %>%
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(TabAndrePros)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(TabAndrePros)[1])
 }
+
 ```
 
 
