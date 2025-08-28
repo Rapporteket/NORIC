@@ -12,7 +12,7 @@ COPY *.tar.gz .
 
 RUN R -e "remotes::install_local(list.files(pattern = \"*.tar.gz\"))" \
   && rm ./*.tar.gz \
-  && R -e "remotes::install_github(\"Rapporteket/rapbase\", ref = \"rm_latex_warning\")"
+  && R -e "remotes::install_github(\"Rapporteket/rapbase\", ref = \"bcc_email\")"
 
 EXPOSE 3838
 
