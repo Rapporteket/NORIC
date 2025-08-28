@@ -737,7 +737,8 @@ shinyServer(function(input, output, session) {
                             paramValues = subParamValues,
                             reports = subReports, 
                             orgs = orgs,
-                            user = user)
+                            user = user,
+                            debug = TRUE)
   
   
   # Ny Utsending 
@@ -849,7 +850,8 @@ shinyServer(function(input, output, session) {
     reports = dispatch, 
     orgs = orgs,
     eligible = eligible,
-    user = user
+    user = user,
+    debug = TRUE
   )
   
   
