@@ -69,13 +69,6 @@ colKontrast <- "#FF7260"
 
 ``` 
 
-```{r parametre}
-showN <- 14
-```
-
-
-
-
 
 ```{r latest_entry, include=FALSE, eval=TRUE}
 # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
@@ -175,7 +168,7 @@ timeTableMonth <- data.frame(
   monthDato = seq(periode_data$forste_dato, 
                   periode_data$siste_dato,
                   by = "month")) %>% 
-  dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
                                              format = "%Y-%m"))) %>% 
   dplyr::mutate(maaned = as.ordered(maaned))
 
@@ -418,9 +411,9 @@ AP %<>%
 AP %<>%
   noric::legg_til_antall_stent(df_ap =  ., df_ss = SS) %>%
   dplyr::mutate(
-    Nstents = ifelse(is.na(.data$antall_stent),
+    Nstents = ifelse(is.na(antall_stent),
                      0,
-                     .data$antall_stent))
+                     antall_stent))
 
 
 ```
@@ -472,21 +465,21 @@ Totalt `r AP %>% nrow()` invasive prosedyrer ligger til grunn for rapporten,
 pal <- colPrimary[c(5, 3, 1)]
 
 prosedyreTypeMaaned <- AP %>%
-   dplyr::count(.data$maaned,
-               .data$ProsedyreType,
-               .data$aar) %>%
-  dplyr::group_by(.data$maaned, .data$ProsedyreType, .data$aar)
+   dplyr::count(maaned,
+               ProsedyreType,
+               aar) %>%
+  dplyr::group_by(maaned, ProsedyreType, aar)
 
 prosedyreType_levels <- c("Angio", "Angio + PCI", "PCI")
 
 prosedyreTypeMaaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = .data$maaned,
-               y = .data$n,
-               fill = factor(.data$ProsedyreType,
+  ggplot2::aes(x = maaned,
+               y = n,
+               fill = factor(ProsedyreType,
                              levels = prosedyreType_levels))
 ) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
-  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
+  ggplot2::facet_grid(~ aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = pal) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
@@ -609,20 +602,20 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 pal <- colPrimary[c(5, 3, 1)]
 
 hastegradMaaned <- AP %>%
-  dplyr::count(.data$maaned,
-               .data$Hastegrad,
-               .data$aar) %>%
-  dplyr::group_by(.data$maaned, .data$Hastegrad, .data$aar)
+  dplyr::count(maaned,
+               Hastegrad,
+               aar) %>%
+  dplyr::group_by(maaned, Hastegrad, aar)
 
 hastegrad_levels <- c("Planlagt", "Subakutt", "Akutt")
 
 hastegradMaaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = .data$maaned,
-               y = .data$n,
-               fill = factor(.data$Hastegrad,
+  ggplot2::aes(x = maaned,
+               y = n,
+               fill = factor(Hastegrad,
                              levels = hastegrad_levels))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
-  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
+  ggplot2::facet_grid(~ aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = pal) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
@@ -749,10 +742,10 @@ eller hjerterytmeforstyrrelser.
 
 
 Indikasjon2Maaned <- AP %>%
-  dplyr::count(.data$maaned,
-               .data$Indikasjon2,
-               .data$aar) %>%
-  dplyr::group_by(.data$maaned, .data$Indikasjon2, .data$aar)
+  dplyr::count(maaned,
+               Indikasjon2,
+               aar) %>%
+  dplyr::group_by(maaned, Indikasjon2, aar)
 
 indikasjon2_levels <- c("Annet",
                         "STEMI",
@@ -762,12 +755,12 @@ indikasjon2_levels <- c("Annet",
                         "Uklare brystsmerter")
 
 Indikasjon2Maaned %>% ggplot2::ggplot(
-  ggplot2::aes(x = .data$maaned,
-               y = .data$n,
-               fill = factor(.data$Indikasjon2,
+  ggplot2::aes(x = maaned,
+               y = n,
+               fill = factor(Indikasjon2,
                              levels = indikasjon2_levels))) +
   ggplot2::geom_bar(position = "stack", stat = "identity") +
-  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
+  ggplot2::facet_grid(~ aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = rev(colPrimary)) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("") +
@@ -2823,25 +2816,25 @@ Antall prosedyrer med minst 1 stent er
 
 TabNStent <- AP %>% 
   dplyr::filter(Nstents > 0) %>% 
-  dplyr::count(.data$Nstents,
-               .data$aar) %>% 
-  dplyr::group_by(.data$aar) %>% 
+  dplyr::count(Nstents,
+               aar) %>% 
+  dplyr::group_by(aar) %>% 
   mutate(
     totalt_aar = sum(n),
     nstents_andel = round(n/totalt_aar, 3))
 
 
 TabNStent %>%  ggplot2::ggplot(
-  ggplot2::aes(x = .data$Nstents,
-               y = .data$nstents_andel,
-               fill = factor(.data$aar))) +
+  ggplot2::aes(x = Nstents,
+               y = nstents_andel,
+               fill = factor(aar))) +
   ggplot2::geom_bar(position = "stack",
                     stat = "identity") +
   ggplot2::geom_text(ggplot2::aes(label = TabNStent$n),
                      vjust = -0.5,
                      colour = "gray20") +
   ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  ggplot2::facet_grid(~ .data$aar, scales = "free_x", space = "free_x") +
+  ggplot2::facet_grid(~ aar, scales = "free_x", space = "free_x") +
   ggplot2::scale_fill_manual(values = c(colPrimary[4], colPrimary[3])) +
   ggplot2::theme_minimal() +
   ggplot2::xlab("Antall stenter per prosedyre") +
