@@ -84,6 +84,12 @@ reportProcessor <- function(report,
     warning("No title given! Reports should have a title...")
   }
 
+  message(paste0(
+    "Creating report: ", report, " with output type: ", outputType,
+    " and table format: ", tableFormat,
+    " for organization: ", orgName, " (ID: ", orgId, ")",
+    " and registry: ", registryName, "."
+  ))
 
   # For testing:
   if (report == "veiledning") {

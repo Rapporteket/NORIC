@@ -1,3 +1,9 @@
+# noric 3.2.0 Endrer månedsvisning for to av månedsrapportene og andre fiks
+* Månedsrapportene "Invasive prosedyrer" og "Angiografør/Operatør" viser nå figurer/tabeller med data fra fjoråret samt hittil i år.
+* Har fjernet utkommentert kode som feilet. Denne koden fungerer nå.
+* korrigere datagrunnlag (noric_nasjonal) for rapporten "Angiografør/Operatør" etter overgang til v3.x
+
+
 # noric 3.1.9 bugfix datagrunnlag rapporter
 * korrigere datagrunnlag (noric_nasjonal) for rapporter etter overgang til v3.x
 * fjerne bruk av staging funksjoner i ki-rapporten
