@@ -738,7 +738,7 @@ shinyServer(function(input, output, session) {
                             reports = subReports, 
                             orgs = orgs,
                             user = user,
-                            debug = TRUE)
+                            runAutoReportButton = (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "DEV", "TEST")))
   
   
   # Ny Utsending 
@@ -851,7 +851,7 @@ shinyServer(function(input, output, session) {
     orgs = orgs,
     eligible = eligible,
     user = user,
-    debug = TRUE
+    runAutoReportButton = (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "DEV", "TEST"))
   )
   
   
