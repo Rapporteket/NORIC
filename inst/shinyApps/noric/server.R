@@ -673,20 +673,24 @@ shinyServer(function(input, output, session) {
           "userFullName",
           "user$role()",
           "unknown operator")
-  
-  subReports <- list(
-    `Invasive prosedyrer` = list(
-      synopsis = paste0("M\u00E5nedlig oppsummering av invasive prosedyrer ",
-                        "siste \u00E5r"),
-      fun = "reportProcessor",
-      paramNames = c("report", pn),
-      paramValues = c("NORIC_local_monthly", pv)
-    )
+
+  subReports <- shiny::reactiveVal(
+    list()
   )
-  
+
   shiny::observeEvent(list(user$org(), user$role()), {
-    if(!isNationalReg(shiny::req(user$org())) & shiny::req(user$role()) == "SC"){
-      liste_aktivitet <- list(
+    subReports(list(
+      `Invasive prosedyrer` = list(
+        synopsis = paste0("M\u00E5nedlig oppsummering av invasive prosedyrer ",
+                          "siste \u00E5r"),
+        fun = "reportProcessor",
+        paramNames = c("report", pn),
+        paramValues = c("NORIC_local_monthly", pv)
+      )
+    ))
+
+    if (!isNationalReg(user$org()) && user$role() == "SC") {
+      subReportsOperator <- list(
         `Angiografør/Operatør` = list(
           synopsis = "Angiografør/Operatør siste \u00E5r",
           fun = "reportProcessor",
@@ -694,14 +698,11 @@ shinyServer(function(input, output, session) {
           paramValues = c("NORIC_local_monthly_activity", pv)
         )
       )
-      
-      subReports <- c(subReports, liste_aktivitet)
+      subReports(c(subReports(), subReportsOperator))
     }
-  })
-  
-  shiny::observeEvent(user$org(), {
-    if(shiny::req(user$org()) %in% c(102966, 700422, 109880, 104284, 101619)){
-      subReports_aortaklaff <- list(
+
+    if (user$org() %in% c(102966, 700422, 109880, 104284, 101619)) {
+      subReportsAortaklaff <- list(
         `Aortaklaff` = list(
           synopsis = "NORIC aortaklaff",
           fun = "reportProcessor",
@@ -709,11 +710,11 @@ shinyServer(function(input, output, session) {
           paramValues = c("NORIC_tavi_report", pv)
         )
       )
-      
-      subReports <- c(subReports, subReports_aortaklaff)
+      subReports(c(subReports(), subReportsAortaklaff))
     }
   })
-  
+
+
   subParamNames <- shiny::reactive(c(
     "orgId",
     "orgName",
@@ -728,18 +729,21 @@ shinyServer(function(input, output, session) {
     user$role(),
     registryName()
   ))
-  
+
   ## serve subscriptions (Abonnement)
-  rapbase::autoReportServer(id = "noricSubscription",
-                            registryName = "noric", 
-                            type = "subscription",
-                            paramNames = subParamNames,
-                            paramValues = subParamValues,
-                            reports = subReports, 
-                            orgs = orgs,
-                            user = user)
-  
-  
+  shiny::observeEvent(subReports(), {
+    rapbase::autoReportServer(
+      id = "noricSubscription",
+      registryName = "noric",
+      type = "subscription",
+      paramNames = subParamNames,
+      paramValues = subParamValues,
+      reports = subReports(),
+      orgs = orgs,
+      user = user
+    )
+  })
+
   # Ny Utsending 
   dispatch <- list(
     `KI: sykehus mot resten av landet` = list(
