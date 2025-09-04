@@ -698,7 +698,7 @@ shinyServer(function(input, output, session) {
           paramValues = c("NORIC_local_monthly_activity", pv)
         )
       )
-      subReports(c(subReports(), liste_aktivitet))
+      subReports(c(subReports(), subReportsOperator))
     }
 
     if (user$org() %in% c(102966, 700422, 109880, 104284, 101619)) {
@@ -710,7 +710,7 @@ shinyServer(function(input, output, session) {
           paramValues = c("NORIC_tavi_report", pv)
         )
       )
-      subReports(c(subReports(), subreports_aortaklaff))
+      subReports(c(subReports(), subReportsAortaklaff))
     }
   })
 
