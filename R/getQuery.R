@@ -16,6 +16,7 @@
 #' queryMitralklaffvarnum
 #' queryMitralklaffoppfvarnum
 #' queryCtangiovarnum
+#' querySkjemaoversikt
 NULL
 
 #' @rdname getQuery
@@ -1555,3 +1556,307 @@ queryCtangiovarnum <-function(){
   WHERE MCE.INTERVENTION_TYPE=4
          ")
 }
+
+
+#' @rdname getQuery
+#' @export
+querySkjemaoversikt <-function(fromDate, toDate){
+  
+  
+  paste0("
+  SELECT
+    CAST('Start' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    (select regangio.INTERDAT from regangio where regangio.MCEID = skjema.MCEID) AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    1 AS SkjemaRekkeflg
+  FROM
+    initialcare skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    regangio.INTERDAT >= '", fromDate, "' AND
+    regangio.INTERDAT <= '", toDate, "'
+  
+  UNION
+  SELECT
+    CAST('AngioPCI' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    INTERDAT AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    3 AS SkjemaRekkeflg
+  FROM
+    regangio skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.INTERDAT >= '", fromDate, "' AND
+    skjema.INTERDAT <= '", toDate, "'
+
+  UNION
+  SELECT
+    CAST('Kompl' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    (select regangio.INTERDAT from regangio where regangio.MCEID = skjema.MCEID) AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    5 AS SkjemaRekkeflg
+  FROM
+    angiopcicomp skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    regangio.INTERDAT >= '", fromDate, "' AND
+    regangio.INTERDAT <= '", toDate, "'
+
+  UNION
+  SELECT  
+    CAST('Utskrivelse' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    (select regangio.INTERDAT from regangio where regangio.MCEID = skjema.MCEID) AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    7 AS SkjemaRekkeflg
+  FROM
+    discharge skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    regangio.INTERDAT >= '", fromDate, "' AND
+    regangio.INTERDAT <= '", toDate, "'
+
+  UNION
+  SELECT
+    CAST('CT-Angio' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    CTDAT AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    10 AS SkjemaRekkeflg
+  FROM
+    ctangio skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.CTDAT >= '", fromDate, "' AND
+    skjema.CTDAT <= '", toDate, "'
+
+  UNION
+  SELECT
+    CAST('Aorta' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    PROCEDUREDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    20 AS SkjemaRekkeflg
+  FROM
+    taviperc skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.PROCEDUREDATE >= '", fromDate, "' AND
+    skjema.PROCEDUREDATE <= '", toDate, "'
+
+  UNION
+  SELECT
+    CAST('AortaUtskrivKompl' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    DISCHARGEDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    22 AS SkjemaRekkeflg
+  FROM
+    tavidischarge skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.DISCHARGEDATE >= '", fromDate, "' AND
+    skjema.DISCHARGEDATE <= '", toDate, "'
+
+  UNION
+  SELECT
+    CAST('Aorta oppf' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    FOLLOWUPDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    25 AS SkjemaRekkeflg
+  FROM
+    tavipercfollowup skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.FOLLOWUPDATE >= '", fromDate, "' AND
+    skjema.FOLLOWUPDATE <= '", toDate, "'
+
+
+  UNION
+  SELECT
+    CAST('Mitral' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    PROCEDUREDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    30 AS SkjemaRekkeflg
+  FROM
+   tavimitralis skjema,
+   centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.PROCEDUREDATE >= '", fromDate, "' AND
+    skjema.PROCEDUREDATE <= '", toDate, "'
+
+  UNION
+  SELECT
+    CAST('MitralUtskrivKompl' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    DISCHARGEDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    32 AS SkjemaRekkeflg
+  FROM
+    tavimitralisdischarge skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.DISCHARGEDATE >= '", fromDate, "' AND
+    skjema.DISCHARGEDATE <= '", toDate, "'
+
+  UNION
+  SELECT
+    CAST('Mitral oppf' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    FOLLOWUPDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    35 AS SkjemaRekkeflg
+  FROM
+    tavimitralisfollowup skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.FOLLOWUPDATE >= '", fromDate, "' AND
+    skjema.FOLLOWUPDATE <= '", toDate, "'
+
+
+  UNION
+  SELECT
+    CAST('Mitral utsk' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    skjema.DISCHARGEDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    40 AS SkjemaRekkeflg
+  FROM
+    tavimitralisdischarge skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.DISCHARGEDATE >= '", fromDate, "' AND
+    skjema.DISCHARGEDATE <= '", toDate, "'
+
+  UNION
+  SELECT
+    CAST('Tavi utsk' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    skjema.DISCHARGEDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    45 AS SkjemaRekkeflg
+  FROM
+    tavidischarge skjema,
+    centre c
+  WHERE
+    skjema.CENTREID = c.ID AND
+    skjema.DISCHARGEDATE >= '", fromDate, "' AND
+    skjema.DISCHARGEDATE <= '", toDate, "'
+
+
+  UNION
+  SELECT
+    CAST('Andre pros' AS CHAR(100)) AS Skjemanavn,
+    CAST(skjema.STATUS AS CHAR(5)) AS SkjemaStatus,
+    CAST(skjema.MCEID AS CHAR(15)) AS ForlopsID,
+    skjema.CREATEDBY AS OpprettetAv,
+    skjema.TSCREATED AS OpprettetDato,
+    skjema.UPDATEDBY AS SistLagretAv,
+    skjema.TSUPDATED AS SistLagretDato,
+    PROCEDUREDATE AS HovedDato,
+    COALESCE((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = c.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), c.ID) AS Sykehusnavn,
+    c.ID AS AvdRESH,
+    50 AS SkjemaRekkeflg
+  FROM
+    other skjema,
+    centre c
+  WHERE 
+    skjema.CENTREID = c.ID AND
+    skjema.PROCEDUREDATE >= '", fromDate, "' AND
+    skjema.PROCEDUREDATE <= '", toDate, "'
+         ")}

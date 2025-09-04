@@ -102,6 +102,31 @@ getSo <- function(registryName, fromDate, toDate, singleRow,
   
   
   
+  query <- paste0(noric::querySkjemaovesikt(), 
+                  "WHERE
+  #                 A.INTERDAT >= '", fromDate, "' AND
+  #                 A.INTERDAT <= '", toDate, "' ")
+  # if(!is.null(singleHospital)) {
+  #   query <- paste0(query, "AND A.CENTREID = ", singleHospital)
+  # }
+  # 
+  # if (singleRow) {
+  #   query <- paste0(query, "\nLIMIT\n  1;")
+  #   msg <- "Query single row data for AngioPCI"
+  # } else {
+  #   query <- paste0(query, " ;")
+  #   msg <- "Query data for AngioPCI"
+  # }
+  # 
+  # if ("session" %in% names(list(...))) {
+  #   rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  # }
+  # 
+  # aPnum <- rapbase::loadRegData(registryName, query)
+  # aP <- noric::erstatt_koder_m_etiketter(aPnum, 
+  #                                        mapping = noric::angp_map_num_tekst)
+  # 
+  
   # Ask for all variables from skjemaoversikt, in time interval
   query <- paste0("
 SELECT

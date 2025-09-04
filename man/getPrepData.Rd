@@ -26,7 +26,14 @@ getPrepApData(
   ...
 )
 
-getPrepSoData(registryName, fromDate, toDate, singleRow, ...)
+getPrepSoData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getPrepAkData(
   registryName,
@@ -37,7 +44,14 @@ getPrepAkData(
   ...
 )
 
-getPrepFoData(registryName, fromDate, toDate, singleRow, ...)
+getPrepFoData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getPrepAnPData(
   registryName,
@@ -48,9 +62,23 @@ getPrepAnPData(
   ...
 )
 
-getPrepCtData(registryName, fromDate, toDate, singleRow, ...)
+getPrepCtData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
-getPrepAkOppfData(registryName, fromDate, toDate, singleRow, ...)
+getPrepAkOppfData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getPrepAnDData(
   registryName,
@@ -70,13 +98,41 @@ getPrepSsData(
   ...
 )
 
-getPrepMkData(registryName, fromDate, toDate, singleRow, ...)
+getPrepMkData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
-getPrepPsData(registryName, fromDate, toDate, singleRow, ...)
+getPrepPsData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
-getPrepApLightData(registryName, fromDate, toDate, singleRow, ...)
+getPrepApLightData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
-getPrepTaviPromData(registryName, fromDate, toDate, singleRow, ...)
+getPrepTaviPromData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 }
 \arguments{
 \item{registryName}{String providing the registry name}
