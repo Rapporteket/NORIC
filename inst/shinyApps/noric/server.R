@@ -935,4 +935,151 @@ shinyServer(function(input, output, session) {
   rapbase::exportGuideServer2(id = "noricExportGuide",
                               registryName = registryName)
   
+  
+  # Verktøy - Staging data
+  output$stagingControl <- shiny::renderUI({
+    shiny::actionButton(inputId = "lagNyStaging",
+                        label = "Lag ny staging data nå")
+  })
+
+  # reactive values staging data
+  rv <- shiny::reactiveValues(
+    staged = NULL
+  )
+
+  # observers staging data
+  shiny::observeEvent(input$lagNyStaging, {
+    message("Lager ny staging data...")
+    shiny::withProgress(message = "Lager ny staging data, vent!", value = 0, {
+      noric::makeStagingDataKi(registryName = registryName(),
+                               rendered_by_shiny = TRUE)
+      rv$staged <- noric::makeStagingDataFrame(registryName = registryName())
+    })
+    message("Ny staging data laget!")
+  })
+
+  #' A column of delete buttons for each row in the data frame
+  #' for the first column
+  #'
+  #' @param df data frame
+  #' @param id id prefix to add to each actionButton.
+  #' The buttons will be id'd as id_INDEX.
+  #' @return A DT::datatable that has the delete 
+  #' buttons in the last column and \code{df} in the others
+  deleteButtonColumn <- function(df, id, ...) {
+    # function to create one action button as string
+    f <- function(i) {
+      as.character(shiny::actionButton(
+        # The id prefix with index
+        inputId = paste(id, i, sep = "_"),
+        label = NULL,
+        icon = icon("trash"),
+        onclick = "Shiny.setInputValue(\"deletePressed\", this.id, {priority: 'event'})"
+      ))
+    }
+    if(is.null(nrow(df))) {
+      return(NULL)
+    }
+    deleteCol <- unlist(lapply(seq_len(nrow(df)), f))
+
+    # Return a data table
+    DT::datatable(cbind(df, Slett = deleteCol),
+                  escape = FALSE,
+                  rownames = FALSE, 
+                  options = list(
+                    lengthMenu = c(25, 50, 100, 200, 400),
+                    language = list(
+                      lengthMenu = "Vis _MENU_ rader per side",
+                      search = "S\u00f8k:",
+                      info = "Rad _START_ til _END_ av totalt _TOTAL_",
+                      paginate = list(previous = "Forrige", `next` = "Neste")
+                    )
+                  ))
+  }
+
+  #' Extracts the row id number from the id string
+  #' @param idstr the id string formated as id_INDEX
+  #' @return INDEX from the id string id_INDEX
+  parseDeleteEvent <- function(idstr) {
+    res <- as.integer(sub(".*_([0-9]+)", "\\1", idstr))
+    if (! is.na(res)) res
+  }
+
+  observeEvent(input$deletePressed, {
+    rowNum <- parseDeleteEvent(input$deletePressed)
+
+    # Slette valgt datasett
+    rowName <- rapbase::listStagingData(registryName = registryName())[rowNum]
+    rapbase::deleteStagingData(registryName = registryName(),
+                               dataName = rowName)
+    rv$staged <- noric::makeStagingDataFrame(registryName = registryName())
+  })
+
+  output$stagingDataTable <- DT::renderDataTable(
+    expr = deleteButtonColumn(df = rv$staged, id = "delete_button")
+  )
+
+  # serve bulletins
+  orgDataStaging <- rapbase::autoReportOrgServer("noricBulletin", orgs)
+
+  bulletinParamNames <- shiny::reactive(
+    c(
+      "orgName",
+      "orgId",
+      "registryName",
+      "userFullName",
+      "userRole"
+    )
+  )
+  bulletinParamValues <- shiny::reactive(
+    c(orgDataStaging$name(),
+      orgDataStaging$value(),
+      registryName(),
+      user$fullName(),
+      user$role()
+    )
+  )
+
+  bulletins <- list(
+    `KI nasjonal staged data` = list(
+      synopsis = paste("NORIC staged data KI"),
+      fun = "bulletinProcessorStaging",
+      paramNames = shiny::reactive(c(
+        "dataset",
+        "author",
+        "orgName",
+        "orgId",
+        "registryName",
+        "userFullName",
+        "userRole",
+        "userOperator"
+      )),
+      paramValues = shiny::reactive(c(
+        "ki",
+        "unknown author",
+        "unknown organization",
+        999999,
+        "registryName()",
+        "userFullName()",
+        "user$role()",
+        "unknown operator"
+      ))
+    )
+  )
+
+  ## serve bulletin ()
+  rapbase::autoReportServer(
+    id = "noricBulletin",
+    registryName = "noric",
+    type = "bulletin",
+    org = orgDataStaging$value,
+    paramNames = bulletinParamNames,
+    paramValues = bulletinParamValues,
+    reports = bulletins,
+    orgs = orgs,
+    eligible = eligible,
+    user = user
+  )
+
+
 })
