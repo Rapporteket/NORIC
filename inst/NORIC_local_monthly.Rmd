@@ -579,8 +579,6 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14, 
                           end_row = dim(TabPros)[1])
-
-
 }
 ```
 
