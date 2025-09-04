@@ -20,29 +20,50 @@
 \usage{
 getAp(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getSo(registryName, fromDate, toDate, singleRow, ...)
+getSo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getAk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getFo(registryName, fromDate, toDate, singleRow, ...)
+getFo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getAnP(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getCt(registryName, fromDate, toDate, singleRow, ...)
+getCt(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getAkOppf(registryName, fromDate, toDate, singleRow, ...)
+getAkOppf(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getAnD(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getSs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getMk(registryName, fromDate, toDate, singleRow, ...)
+getMk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getPs(registryName, fromDate, toDate, singleRow, ...)
+getPs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getApLight(registryName, fromDate, toDate, singleRow, ...)
+getApLight(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
-getTaviProm(registryName, fromDate, toDate, singleRow, ...)
+getTaviProm(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}

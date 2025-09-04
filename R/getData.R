@@ -311,32 +311,16 @@ getCt <- function(registryName, fromDate, toDate, singleRow,
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
+  query <- paste0(noric::queryCtangiovarnum(), 
+                  "AND
+                  CT.CTDAT >= '", fromDate, "' AND
+                  CT.CTDAT <= '", toDate, "' ")
   
   
-  query <- paste0("
-SELECT
-    ctangiovarnum.*,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID
-FROM
-    ctangiovarnum
-LEFT JOIN forlopsoversikt ON
-    ctangiovarnum.AvdRESH = forlopsoversikt.AvdRESH AND
-    ctangiovarnum.ForlopsID = forlopsoversikt.ForlopsID
-WHERE
-    ctangiovarnum.UndersokDato >= '", fromDate, "' AND
-    ctangiovarnum.UndersokDato <= '", toDate, "'"
-  )
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, "AND CT.CENTREID = ", singleHospital)
+  }
   
-  # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for ctangiovarnum"
@@ -353,6 +337,28 @@ WHERE
   cT <-  noric::erstatt_koder_m_etiketter(cTnum,
                                           mapping = noric::CTANG_map_num_tekst)
   
+  
+  query_fo_temp <- paste0("
+   SELECT
+    forlopsoversikt.AvdRESH,
+    forlopsoversikt.ForlopsID,
+    forlopsoversikt.Sykehusnavn,
+    forlopsoversikt.Kommune,
+    forlopsoversikt.KommuneNr,
+    forlopsoversikt.Fylke,
+    forlopsoversikt.Fylkenr,
+    forlopsoversikt.PasientKjonn,
+    forlopsoversikt.PasientAlder,
+    forlopsoversikt.ForlopsType1,
+    forlopsoversikt.ForlopsType2,
+    forlopsoversikt.KobletForlopsID
+  FROM
+    forlopsoversikt;")
+  
+  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
+  cT %<>% dplyr::left_join(., 
+                           fo_tmp,
+                           by = c("AvdRESH", "ForlopsID"))
   list(cT = cT)
 }
 

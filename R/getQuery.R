@@ -15,6 +15,7 @@
 #' queryAngiopcinum
 #' queryMitralklaffvarnum
 #' queryMitralklaffoppfvarnum
+#' queryCtangiovarnum
 NULL
 
 #' @rdname getQuery
@@ -1438,4 +1439,119 @@ queryMitralklaffoppfvarnum <-function(){
   INNER JOIN tavimitralisfollowup TF ON MCE.MCEID = TF.MCEID
   LEFT JOIN tavimitralis T ON MCE.PARENT_MCEID = T.MCEID
   ")
-  }
+}
+
+#' @rdname getQuery
+#' @export
+queryCtangiovarnum <-function(){
+  
+  paste0("
+  SELECT
+	  MCE.MCEID AS ForlopsID,
+	  P.ID AS PasientID,
+    P.SSN_TYPE AS FnrType,
+	  CASE (P.LOCAL_HOSPITAL) WHEN 999
+		  THEN P.LOCAL_HOSPITAL_OTHER
+		  ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
+	    END AS Lokalsykehus,
+	  P.GENDER AS Kjonn,
+	  P.BIRTH_DATE FodselsDato,
+	  P.DECEASED AS AvdodFReg,
+	  P.DECEASED_DATE as AvdodDatoFReg,
+	  P.REGISTERED_DATE as PasientRegDato,
+
+   	-- Study information
+    (SELECT
+      GROUP_CONCAT(
+         IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+      FROM pasienterstudier PS
+      WHERE PS.PasientID = MCE.PATIENT_ID)
+    AS Studie,
+
+	  CT.CENTREID AS AvdRESH,
+	  CT.CTDAT AS UndersokDato,
+	  CT.HEIGHT AS Hoyde,
+	  CT.WEIGHT AS Vekt,
+	  CT.SKREATININ AS SKreatinin,
+	  CT.TIDPCI AS TidligerePCI,
+	  CT.TIDCABG AS TidligereACB,
+	  CT.DIABETES AS Diabetes,
+	  CT.DIABETESINSULIN AS Insulin,
+	  CT.TOBAK AS RoykingFoer2009,
+	  CT.SMOKING_STATUS AS Royking,
+	  CT.HYPERTON AS Hypertoni,
+	  CT.HYPERLIP AS Lipidsenkende,
+	  CT.TIDINF AS TidligereInfarkt,
+
+   (SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM ctangio_operator_mapping ctop, people peo where ctop.PEOPLEID = peo.PEOPLEID and ctop.MCEID = CT.MCEID) AS Granskere,
+
+	  CT.INDIKATION AS Indikasjon,
+	  CT.VIKTIGSYMP AS ViktigsteSymptomer,
+	  CT.TIDLIGSLUTT AS SluttForKontrast,
+	  CT.HIGHCALCIUMSCORE AS HoyCalciumScore,
+	  CT.TIDLIGSLUTTANNET AS SluttForKontrastAndreGrunner,
+
+	  CT.CABG AS StenoseOkklusjonABC,
+  	CT.CALCIUMSCORE AS CalciumScore,
+    CT.CORONARY_SURVEY AS KoronarundersokelseUtfort,
+	  CT.KONKLUSIVUND AS Konklusiv,
+	  CT.STENOS AS StenoseOkklusjonTidligere,
+
+  	CT.FYND AS Funn,
+	  CAST((SELECT GROUP_CONCAT(CONCAT('Graft: ', CTF.GRAFT, '. Segment: ', CTF.SEGMENT, '. Grad: ', CTF.STENOSGRAD, '.  ')) FROM ctfinding CTF where CTF.MCEID = CT.MCEID) AS CHAR(400)) AS FunnConcat,
+
+  	F.SEGMENT1,
+  	F.SEGMENT2,
+  	F.SEGMENT3,
+  	F.SEGMENT4,
+  	F.SEGMENT5,
+  	F.SEGMENT6,
+  	F.SEGMENT7,
+  	F.SEGMENT8,
+  	F.SEGMENT9,
+  	F.SEGMENT10,
+  	F.SEGMENT11,
+  	F.SEGMENT12,
+  	F.SEGMENT13,
+  	F.SEGMENT14,
+  	F.SEGMENT15,
+  	F.SEGMENT16,
+  	F.SEGMENT17,
+  	F.SEGMENT18,
+  	F.SEGMENT19,
+  	F.SEGMENT20,
+
+  	CT.MYOCARDIAL_MASS AS Myokardmasse,
+   	CT.CORONARY_ANOMALY AS KoronarAnomali,
+	  CT.FUNCTIONAL_SURVEY AS FunksjonsUndersokelse,
+  	CT.DIASTOLIC_VOLUME AS EndediastoliskVolum,
+  	CT.END_SYSTOLIC_VOLUME AS EndesystoliskVolum,
+  	CT.EJECTION_FRACTION AS EjeksjonsFraksjon,
+  	CT.CARDIAC_OUTPUT AS HjerteminuttVolum,
+  
+  	CT.FURTHER_ASSESS_TREAT AS VidereUtredning,
+  
+  	CT.ADJUVANT AS CTAngioMedikamenter,
+  	CT.ADJBETA AS Betablokkere,
+  	CT.ADJNITRO AS Nitroglycerin,
+  	CT.ADJANN AS AnnetAdjuvant,
+  
+    CT.CTTEKNIK AS CTTeknikk,
+    CT.CTTEKNIK_SPECIFY AS ProspektivEKG,
+  	CT.DLP AS DLP,
+  	CT.KONTRASTMEDEL AS Kontrastmiddel,
+  	CT.KONTRASTMEDELMANGD AS KontrastmiddelMengde,
+  
+    CT.LABKOMP AS Komplikasjon,
+    CT.LABALLERGILATT AS LettAllergisk,
+    CT.LABALLERGIALLV AS AlvorligAllergisk,
+    CT.LABHEMO AS Hemodynamisk,
+    CT.STATUS AS SkjemaStatus
+  
+  FROM mce MCE
+  INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+  INNER JOIN ctangio CT ON MCE.MCEID = CT.MCEID
+  LEFT JOIN ctfindingstatic F ON MCE.MCEID = F.MCEID
+  WHERE MCE.INTERVENTION_TYPE=4
+         ")
+}

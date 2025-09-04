@@ -12,6 +12,7 @@
 \alias{queryAngiopcinum}
 \alias{queryMitralklaffvarnum}
 \alias{queryMitralklaffoppfvarnum}
+\alias{queryCtangiovarnum}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryTaviprom()
@@ -33,6 +34,8 @@ queryAngiopcinum()
 queryMitralklaffvarnum()
 
 queryMitralklaffoppfvarnum()
+
+queryCtangiovarnum()
 }
 \value{
 query as string
