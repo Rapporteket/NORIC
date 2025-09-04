@@ -176,7 +176,7 @@ periode_data <- data.frame(
   
   # Hardkodet 2018- dags dato pga figur 4,5 og 6
   aP_nasjonalt <- noric::getPrepApData(
-    params$registryName,
+    registryName = params$registryName,
     fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),
     toDate = periode_data$siste_dato,
     singleRow = FALSE)
@@ -474,14 +474,21 @@ Tabell \@ref(tab:tabFerdigtiltKompl) viser måloppnåelse per måned for
 
 ```{r TabNFerdigstiltKompl, results='asis', warning=FALSE}
 
-#Lokalt
-ferdigstilt_lokalt <- aP_nasjonalt %>% 
-  dplyr::filter(AvdRESH %in% params$reshID) %>% 
-  dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
-  janitor::tabyl(maaned, 
-                 indik_komplik_ferdig, 
-                 show_missing_levels = TRUE) %>% 
-  janitor::adorn_totals("col", name = "Totalt") %>% 
+#Lokalt i fjor
+ferdigstilt_lokalt_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = aP_nasjonalt %>% 
+    dplyr::filter(AvdRESH %in% params$reshID) %>% 
+    dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
+    janitor::tabyl(maaned, 
+                   indik_komplik_ferdig, 
+                   show_missing_levels = TRUE) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::transmute(
     
     maaned = maaned, 
@@ -500,40 +507,130 @@ ferdigstilt_lokalt <- aP_nasjonalt %>%
     Prosent = ifelse(Totalt %in% "N",
                      yes = NA,
                      no = Prosent)) %>% 
-  dplyr::select(maaned, Totalt, Ferdigstilt, Prosent)
+  dplyr::select(maaned, Totalt, Ferdigstilt, Prosent) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
 
 
-#Nasjonalt
-ferdigstilt_nasjonalt <- aP_nasjonalt %>% 
-  dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
-  janitor::tabyl(maaned,
-                 indik_komplik_ferdig,
-                 show_missing_levels = TRUE) %>% 
-  janitor::adorn_totals("col", name = "Totalt") %>% 
+#Nasjonalt i fjor
+ferdigstilt_nasjonalt_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = aP_nasjonalt %>% 
+    dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
+    janitor::tabyl(maaned,
+                   indik_komplik_ferdig,
+                   show_missing_levels = TRUE) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::transmute(
     maaned = as.factor(maaned), 
-    Nasjonalt = paste0(round(ja / Totalt * 100, 1), " %")) 
+    Nasjonalt = paste0(round(ja / Totalt * 100, 1), " %"))
 
+
+#Tabell i fjor
+tabFerdigtiltKompl_fjor <- dplyr::left_join(ferdigstilt_lokalt_fjor,
+                                            ferdigstilt_nasjonalt_fjor,
+                                            by = c("maaned")) %>%
+  replace(is.na(.), "-")
+
+
+
+#Lokalt i år
+ferdigstilt_lokalt_aar <- merge(
+  x = timeTableMonth_aar,
+  y = aP_nasjonalt %>% 
+    dplyr::filter(AvdRESH %in% params$reshID) %>% 
+    dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
+    janitor::tabyl(maaned, 
+                   indik_komplik_ferdig, 
+                   show_missing_levels = TRUE) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::transmute(
+    
+    maaned = maaned, 
+    
+    Prosent = paste0(round(ja / Totalt * 100, 1), 
+                     " %"),
+    
+    Totalt = ifelse(Totalt < 5,
+                    yes = "N",
+                    no = Totalt),
+    
+    Ferdigstilt = ifelse(Totalt %in% "N",
+                         yes = NA,
+                         no = ja),
+    
+    Prosent = ifelse(Totalt %in% "N",
+                     yes = NA,
+                     no = Prosent)) %>% 
+  dplyr::select(maaned, Totalt, Ferdigstilt, Prosent) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+
+
+#Nasjonalt i år
+ferdigstilt_nasjonalt_aar <- merge(
+  x = timeTableMonth_aar,
+  y = aP_nasjonalt %>% 
+    dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
+    janitor::tabyl(maaned,
+                   indik_komplik_ferdig,
+                   show_missing_levels = TRUE) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::transmute(
+    maaned = as.factor(maaned), 
+    Nasjonalt = paste0(round(ja / Totalt * 100, 1), " %"))
 
 
 #Tabell
-tabFerdigtiltKompl <- timeTableMonth %>% 
-  dplyr::left_join(., ferdigstilt_lokalt, by = c("maaned")) %>% 
-  dplyr::left_join(., ferdigstilt_nasjonalt, by = "maaned") %>% 
-  dplyr::rename("Måned" = maaned) %>% 
+tabFerdigtiltKompl_aar <- dplyr::left_join(ferdigstilt_lokalt_aar,
+                                            ferdigstilt_nasjonalt_aar,
+                                            by = c("maaned")) %>%
   replace(is.na(.), "-")
 
+
+tabFerdigtiltKompl <- rbind(
+  tabFerdigtiltKompl_fjor,
+  tabFerdigtiltKompl_aar)
 
 cap <- paste0(
   "Antall og andel ferdigstilte komplikasjonsskjemaer etter måned. ", 
   "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
 
-noric::mst(tab = tabFerdigtiltKompl, 
-           type = params$tableFormat,
-           cap = cap,
-           digs = c(0, 0, 1, 1), 
-           align = rep("c", 4), 
-           label = "tabFerdigtiltKompl")
+align <- c("l", rep("c", dim(tabFerdigtiltKompl)[2] - 1))
+digs <-  rep(0, dim(tabFerdigtiltKompl)[2] )
+
+ tabFerdigtiltKompl %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r",
+               label = "tabFerdigtiltKompl") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(tabFerdigtiltKompl)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(tabFerdigtiltKompl)[1])
 ```
 
 
