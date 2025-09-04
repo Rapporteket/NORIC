@@ -1,3 +1,8 @@
+# noric 3.3.0
+* Knapp i QA for utsending av rapporter ([#228](https://github.com/Rapporteket/NORIC/pull/228))
+* Fiks oppdatering av rapport-liste i abo-fane ([#231](https://github.com/Rapporteket/NORIC/pull/231))
+* Staging back ([#192](https://github.com/Rapporteket/NORIC/pull/192))
+
 # noric 3.2.0 Endrer månedsvisning for to av månedsrapportene og andre fiks
 * Månedsrapportene "Invasive prosedyrer" og "Angiografør/Operatør" viser nå figurer/tabeller med data fra fjoråret samt hittil i år.
 * Har fjernet utkommentert kode som feilet. Denne koden fungerer nå.
