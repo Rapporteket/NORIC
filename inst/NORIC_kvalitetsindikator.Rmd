@@ -112,17 +112,17 @@ periode_data <- data.frame(
       
       # SISTE DATO AVGJØR SISTE MÅNED: 
       siste_dato_innevarende_mnd = lubridate::ceiling_date(
-        x = .data$nyeste_reg, 
+        x = nyeste_reg, 
         unit =  "month") - lubridate::days(1),
       
       siste_dato = dplyr::case_when(
         # siste dato er nyeste dato --> nyeste mnd er komlett
-        .data$siste_dato_innevarende_mnd == .data$nyeste_reg ~ 
-          .data$nyeste_reg, 
+        siste_dato_innevarende_mnd == nyeste_reg ~ 
+          nyeste_reg, 
         
         # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
-        .data$siste_dato_innevarende_mnd != .data$nyeste_reg ~ 
-          lubridate::floor_date(.data$nyeste_reg, "month") - 
+        siste_dato_innevarende_mnd != nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, "month") - 
           lubridate::days(1), 
         
         TRUE ~ as.Date(NA_character_)),
@@ -132,18 +132,18 @@ periode_data <- data.frame(
       
       # SISTE DATO AVGJØR SISTE KVARTAL
       siste_dato_innevarende_kvartal = lubridate::ceiling_date(
-        x = .data$nyeste_reg, 
+        x = nyeste_reg, 
         unit =  "quarter") - lubridate::days(1),
       
       kvartal_komplett_start = dplyr::case_when(
         # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
-        .data$siste_dato_innevarende_kvartal == .data$nyeste_reg ~ 
-          lubridate::floor_date(.data$nyeste_reg, 
+        siste_dato_innevarende_kvartal == nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, 
                                 unit =  "quarter"), 
         
         # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
-        .data$siste_dato_innevarende_kvartal != .data$nyeste_reg ~ 
-          lubridate::floor_date(.data$nyeste_reg, 
+        siste_dato_innevarende_kvartal != nyeste_reg ~ 
+          lubridate::floor_date(nyeste_reg, 
                                 unit =  "quarter") - months(3), 
         
         TRUE ~ as.Date(NA_character_)),
@@ -151,10 +151,10 @@ periode_data <- data.frame(
       
       
       # Inneværende år: 
-      nyesteRegYear = as.numeric(format(.data$siste_dato, format = "%Y")),
+      nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
       
       # Fjoråret
-      sisteHeleYear = .data$nyesteRegYear - 1, 
+      sisteHeleYear = nyesteRegYear - 1, 
       
       # Første dato for SQL -spørring : 01. januar fjoråret
       forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
@@ -164,115 +164,119 @@ periode_data <- data.frame(
       forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
                                   format = "%Y-%m-%d")
     ) %>% 
-    dplyr::select(-.data$siste_dato_innevarende_mnd, 
-                  -.data$siste_dato_innevarende_kvartal)
+    dplyr::select(-siste_dato_innevarende_mnd, 
+                  -siste_dato_innevarende_kvartal)
   
   # 2) HENTE DATASETTENE (SQL-spørring)
   sS_nasjonalt <- noric::getPrepSsData(
     registryName = params$registryName,
     fromDate  = periode_data$forste_dato_ak_ss,
     toDate = periode_data$siste_dato,
-    singleRow = FALSE)
+    singleRow = FALSE,
+    singleHospital = NULL)
   
   # Hardkodet 2018- dags dato pga figur 4,5 og 6
   aP_nasjonalt <- noric::getPrepApData(
-    params$registryName,
+    registryName = params$registryName,
     fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),
     toDate = periode_data$siste_dato,
-    singleRow = FALSE)
+    singleRow = FALSE,
+    singleHospital = NULL)
   
   aK_nasjonalt <- noric::getPrepAkData(
     registryName = params$registryName,
     fromDate  = periode_data$forste_dato_ak_ss,
     toDate = periode_data$siste_dato,
-    singleRow = FALSE)
+    singleRow = FALSE,
+    singleHospital = NULL)
   
   anD_nasjonalt <- noric::getPrepAnDData(
     registryName = params$registryName,
     fromDate  = periode_data$forste_dato,
     toDate = periode_data$siste_dato,
-    singleRow = FALSE)
+    singleRow = FALSE,
+    singleHospital = NULL)
   
   # 3) VELGE KUN DE VARIABLENE VI TRENGER FRA HJELPEDATASETTENE
   sS_nasjonalt %<>%
-    dplyr::select(.data$ProsedyreDato,
-                  .data$StentType,
-                  .data$Segment,
-                  .data$Graft,
-                  .data$ForlopsID,
-                  .data$Sykehusnavn,
-                  .data$AvdRESH,
-                  .data$aar,
-                  .data$maaned,
-                  .data$kvartal)
+    dplyr::select(ProsedyreDato,
+                  StentType,
+                  Segment,
+                  Graft,
+                  ForlopsID,
+                  Sykehusnavn,
+                  AvdRESH,
+                  aar,
+                  maaned,
+                  kvartal)
   
   anD_nasjonalt %<>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$metode)
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  metode)
   
   # 4a) BEARBEIDE OG UTLEDE NYE VARIABLER
   aP_nasjonalt %<>%
     dplyr::select(
-      .data$AvdRESH,
-      .data$Sykehusnavn,
-      .data$Regtype,
-      .data$PrimaerForlopsID,
-      .data$ProsedyreDato,
-      .data$ProsedyreTid,
-      .data$ProsedyreType,
-      .data$OverflyttetFra,
-      .data$AnkomstPCIDato,
-      .data$AnkomstPCITid,
-      .data$InnleggelseHenvisendeSykehusDato,
-      .data$InnleggelseHenvisendeSykehusTid,
-      .data$Innkomstarsak,
-      .data$Indikasjon,
-      .data$Hastegrad,
-      .data$BesUtlEKGDato,
-      .data$BesUtlEKGTid,
-      .data$BeslEKGDato, 
-      .data$BeslEKGTid,
-      .data$BeslutningsutlosendeEKG,
-      .data$GittTrombolyse,
-      .data$HLRForSykehus,
-      .data$KobletForlopsID,
-      .data$ForlopsType2,
-      .data$IFR,
-      .data$FFR,
-      .data$IMR,
-      .data$IVUS,
-      .data$OCT,
-      .data$PDPA, 
-      .data$PA_Hyperemi, 
-      .data$PD_Hyperemi,
-      .data$ForlopsID,
-      .data$ASA,
-      .data$AndrePlatehemmere,
-      .data$AndrePlatehemmere,
-      .data$Antikoagulantia,
-      .data$UtskrStatiner,
-      .data$TidlABC,
-      .data$UtskrevetDod,
-      .data$SkjemaStatusStart,
-      .data$SkjemastatusHovedskjema,
-      .data$SkjemaStatusUtskrivelse,
-      .data$SkjemaStatusKomplikasjoner
+      AvdRESH,
+      Sykehusnavn,
+      Regtype,
+      PrimaerForlopsID,
+      ProsedyreDato,
+      ProsedyreTid,
+      ProsedyreType,
+      OverflyttetFra,
+      AnkomstPCIDato,
+      AnkomstPCITid,
+      InnleggelseHenvisendeSykehusDato,
+      InnleggelseHenvisendeSykehusTid,
+      Innkomstarsak,
+      Indikasjon,
+      Hastegrad,
+      BesUtlEKGDato,
+      BesUtlEKGTid,
+      BeslEKGDato, 
+      BeslEKGTid,
+      BeslutningsutlosendeEKG,
+      GittTrombolyse,
+      HLRForSykehus,
+      KobletForlopsID,
+      ForlopsType2,
+      IFR,
+      FFR,
+      IMR,
+      IVUS,
+      OCT,
+      PDPA, 
+      PA_Hyperemi, 
+      PD_Hyperemi,
+      ForlopsID,
+      ASA,
+      AndrePlatehemmere,
+      AndrePlatehemmere,
+      Antikoagulantia,
+      UtskrStatiner,
+      TidlABC,
+      UtskrevetDod,
+      SkjemaStatusStart,
+      SkjemastatusHovedskjema,
+      SkjemaStatusUtskrivelse,
+      SkjemaStatusKomplikasjoner
     ) %>%
     
     noric::utlede_OppholdsID(.) %>%
     
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusStart,
+                              var = SkjemaStatusStart,
                               suffix = "StartSkjema") %>%
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemastatusHovedskjema,
+                              var = SkjemastatusHovedskjema,
                               suffix = "HovedSkjema") %>%
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusUtskrivelse,
+                              var = SkjemaStatusUtskrivelse,
                               suffix = "UtskrSkjema") %>%
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusKomplikasjoner,
+                              var = SkjemaStatusKomplikasjoner,
                               suffix = "KomplikSkjema") %>%
     
     noric::legg_til_antall_stent(df_ap = ., df_ss = sS_nasjonalt) %>%
@@ -299,36 +303,36 @@ periode_data <- data.frame(
     noric::ki_stemi_pci_innen120min() %>%
     
     dplyr::mutate(
-      maaned = as.factor(format(x = .data$ProsedyreDato, format = "%Y-%m")),
-      aar = lubridate::year(.data$ProsedyreDato),
-      kvartal = paste0(lubridate::year(.data$ProsedyreDato),
+      maaned = as.factor(format(x = ProsedyreDato, format = "%Y-%m")),
+      aar = lubridate::year(ProsedyreDato),
+      kvartal = paste0(lubridate::year(ProsedyreDato),
                        " Q",
-                       lubridate::quarter(.data$ProsedyreDato,
+                       lubridate::quarter(ProsedyreDato,
                                           with_year = FALSE))) %>%
     dplyr::mutate(admissionType = dplyr::case_when(
-      .data$OverflyttetFra %in% "Annet sykehus" ~ "Overflyttet",
-      .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
+      OverflyttetFra %in% "Annet sykehus" ~ "Overflyttet",
+      OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                   "Omdirigert ambulanse") ~ "Direkte",
       TRUE ~ NA_character_))
   
   # 4b) BEARBEIDE OG UTLEDE NYE VARIABLER
   aK_nasjonalt %<>%
     dplyr::select(
-      .data$ProsedyreDato,
-      .data$AvdKompPacemaker,
-      .data$LabKompDod,
-      .data$TypeKlaffeprotese,
-      .data$Sykehusnavn,
-      .data$AvdRESH,
-      .data$ForlopsID,
-      .data$Pacemaker,
-      .data$SkjemaStatusHovedskjema) %>% 
+      ProsedyreDato,
+      AvdKompPacemaker,
+      LabKompDod,
+      TypeKlaffeprotese,
+      Sykehusnavn,
+      AvdRESH,
+      ForlopsID,
+      Pacemaker,
+      SkjemaStatusHovedskjema) %>% 
     
     dplyr::mutate(
       kvartal = paste0(
-        lubridate::year(.data$ProsedyreDato),
+        lubridate::year(ProsedyreDato),
         " Q",
-        lubridate::quarter(.data$ProsedyreDato, with_year = FALSE))) %>%
+        lubridate::quarter(ProsedyreDato, with_year = FALSE))) %>%
     noric::ki_ak_pacemakerbehov(df_ak = .)
   
 
@@ -354,9 +358,9 @@ timeTableQuarter <- data.frame(
                              by = "-1 quarter", 
                              length.out = 5))) %>% 
   dplyr::transmute(
-    kvartal = paste0(lubridate::year(.data$KvartalDatoStart), 
+    kvartal = paste0(lubridate::year(KvartalDatoStart), 
                      " Q", 
-                     lubridate::quarter(.data$KvartalDatoStart, 
+                     lubridate::quarter(KvartalDatoStart, 
                                         with_year = FALSE)))
 ```
 
@@ -369,8 +373,35 @@ timeTableMonth <- data.frame(
                                  "-01-01")), 
                   forsteDatoSisteMonth,
                   by = "month")) %>% 
-  dplyr::transmute(maaned = as.factor(format(x = .data$monthDato, 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
                                              format = "%Y-%m")))
+
+timeTableMonth_fjor <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  as.Date(paste("30-12-", periode_data$sisteHeleYear), 
+                          format = "%d-%m-%Y"),
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
+
+timeTableMonth_aar <- data.frame(
+  monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear), 
+                          format = "%d-%m-%Y"),
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+    dplyr::transmute(
+      maaned = as.ordered(maaned))
+
+
+rangeProsDato <- paste(format(periode_data$forste_dato, 
+                              "%d/%m-%Y"), 
+                       "til", 
+                       format(periode_data$siste_dato, 
+                              "%d/%m-%Y"))
 ```
 
 ```{r }
@@ -382,19 +413,19 @@ if (params$rendered_by_shiny)
 
 ```{r nyesteRegistrering_ak, include=FALSE, eval=TRUE}
 nyeste_registrering_ak <- aK_nasjonalt %>% 
-  dplyr::summarise(nyesteReg_max = max(.data$ProsedyreDato)) %>% 
+  dplyr::summarise(nyesteReg_max = max(ProsedyreDato)) %>% 
   # Bruke gårsdagens dato som referanse. Dersom ingen nye registreringer 
   # (eller overføringer har stoppet opp), brukes nyeste registrering som ref.
   # Unngår at forhåndsregisrerte planlagte forløp kommer med i rapporten.
   dplyr::mutate(nyesteReg = min((as.Date(Sys.time())-1), 
-                                .data$nyesteReg_max))
+                                nyesteReg_max))
 ```
 
 
 
 ```{r dimAK_lokalt, include=FALSE, eval=TRUE}
 dim_ak_lokalt <- aK_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>% 
+  dplyr::filter(AvdRESH %in% params$reshID) %>% 
   dim(.)
 ```
 
@@ -418,7 +449,7 @@ if (params$rendered_by_shiny)
 # Datagrunnlag
 Rapporten er generert med utgangspunkt i NORIC's nasjonale database
 (`r kilde`). Datasettet som ligger til grunn har data fra 
-`r aP_nasjonalt %>% dplyr::select(.data$AvdRESH) %>% dplyr::distinct() %>% nrow()` 
+`r aP_nasjonalt %>% dplyr::select(AvdRESH) %>% dplyr::distinct() %>% nrow()` 
 sykehus og nyeste registrering er datert 
 `r format(periode_data$nyeste_reg, '%d. %B %Y')`.    
 
@@ -447,66 +478,163 @@ Tabell \@ref(tab:tabFerdigtiltKompl) viser måloppnåelse per måned for
 
 ```{r TabNFerdigstiltKompl, results='asis', warning=FALSE}
 
-#Lokalt
-ferdigstilt_lokalt <- aP_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>% 
-  dplyr::filter(.data$indik_komplik_ferdig_data %in% "ja") %>% 
-  janitor::tabyl(.data$maaned, 
-                 .data$indik_komplik_ferdig, 
-                 show_missing_levels = TRUE) %>% 
-  janitor::adorn_totals("col", name = "Totalt") %>% 
+#Lokalt i fjor
+ferdigstilt_lokalt_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = aP_nasjonalt %>% 
+    dplyr::filter(AvdRESH %in% params$reshID) %>% 
+    dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
+    janitor::tabyl(maaned, 
+                   indik_komplik_ferdig, 
+                   show_missing_levels = TRUE) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::transmute(
     
-    maaned = .data$maaned, 
+    maaned = maaned, 
     
-    Prosent = paste0(round(.data$ja / .data$Totalt * 100, 1), 
+    Prosent = paste0(round(ja / Totalt * 100, 1), 
                      " %"),
     
-    Totalt = ifelse(.data$Totalt < 5,
+    Totalt = ifelse(Totalt < 5,
                     yes = "N",
-                    no = .data$Totalt),
+                    no = Totalt),
     
-    Ferdigstilt = ifelse(.data$Totalt %in% "N",
+    Ferdigstilt = ifelse(Totalt %in% "N",
                          yes = NA,
-                         no = .data$ja),
+                         no = ja),
     
-    Prosent = ifelse(.data$Totalt %in% "N",
+    Prosent = ifelse(Totalt %in% "N",
                      yes = NA,
-                     no = .data$Prosent)) %>% 
-  dplyr::select(.data$maaned, .data$Totalt, .data$Ferdigstilt, .data$Prosent)
+                     no = Prosent)) %>% 
+  dplyr::select(maaned, Totalt, Ferdigstilt, Prosent) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
 
 
-#Nasjonalt
-ferdigstilt_nasjonalt <- aP_nasjonalt %>% 
-  dplyr::filter(.data$indik_komplik_ferdig_data %in% "ja") %>% 
-  janitor::tabyl(.data$maaned,
-                 indik_komplik_ferdig,
-                 show_missing_levels = TRUE) %>% 
-  janitor::adorn_totals("col", name = "Totalt") %>% 
+#Nasjonalt i fjor
+ferdigstilt_nasjonalt_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = aP_nasjonalt %>% 
+    dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
+    janitor::tabyl(maaned,
+                   indik_komplik_ferdig,
+                   show_missing_levels = TRUE) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>% 
   dplyr::transmute(
-    maaned = as.factor(.data$maaned), 
-    Nasjonalt = paste0(round(.data$ja / .data$Totalt * 100, 1), " %")) 
+    maaned = as.factor(maaned), 
+    Nasjonalt = paste0(round(ja / Totalt * 100, 1), " %"))
 
 
-
-#Tabell
-tabFerdigtiltKompl <- timeTableMonth %>% 
-  dplyr::left_join(., ferdigstilt_lokalt, by = c("maaned")) %>% 
-  dplyr::left_join(., ferdigstilt_nasjonalt, by = "maaned") %>% 
-  dplyr::rename("Måned" = .data$maaned) %>% 
+#Tabell i fjor
+tabFerdigtiltKompl_fjor <- dplyr::left_join(ferdigstilt_lokalt_fjor,
+                                            ferdigstilt_nasjonalt_fjor,
+                                            by = c("maaned")) %>%
   replace(is.na(.), "-")
 
+
+
+#Lokalt i år
+ferdigstilt_lokalt_aar <- merge(
+  x = timeTableMonth_aar,
+  y = aP_nasjonalt %>% 
+    dplyr::filter(AvdRESH %in% params$reshID) %>% 
+    dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
+    janitor::tabyl(maaned, 
+                   indik_komplik_ferdig, 
+                   show_missing_levels = TRUE) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::transmute(
+    
+    maaned = maaned, 
+    
+    Prosent = paste0(round(ja / Totalt * 100, 1), 
+                     " %"),
+    
+    Totalt = ifelse(Totalt < 5,
+                    yes = "N",
+                    no = Totalt),
+    
+    Ferdigstilt = ifelse(Totalt %in% "N",
+                         yes = NA,
+                         no = ja),
+    
+    Prosent = ifelse(Totalt %in% "N",
+                     yes = NA,
+                     no = Prosent)) %>% 
+  dplyr::select(maaned, Totalt, Ferdigstilt, Prosent) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+
+
+# Nasjonalt i år
+ferdigstilt_nasjonalt_aar <- merge(
+  x = timeTableMonth_aar,
+  y = aP_nasjonalt %>% 
+    dplyr::filter(indik_komplik_ferdig_data %in% "ja") %>% 
+    janitor::tabyl(maaned,
+                   indik_komplik_ferdig,
+                   show_missing_levels = TRUE) %>% 
+    janitor::adorn_totals("col", name = "Totalt"), 
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>% 
+  dplyr::transmute(
+    maaned = as.factor(maaned), 
+    Nasjonalt = paste0(round(ja / Totalt * 100, 1), " %"))
+
+
+#Tabell i år
+tabFerdigtiltKompl_aar <- dplyr::left_join(ferdigstilt_lokalt_aar,
+                                            ferdigstilt_nasjonalt_aar,
+                                            by = c("maaned")) %>%
+  replace(is.na(.), "-")
+
+# Tabell samlet
+tabFerdigtiltKompl <- rbind(
+  tabFerdigtiltKompl_fjor,
+  tabFerdigtiltKompl_aar)
 
 cap <- paste0(
   "Antall og andel ferdigstilte komplikasjonsskjemaer etter måned. ", 
   "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
 
-noric::mst(tab = tabFerdigtiltKompl, 
-           type = params$tableFormat,
-           cap = cap,
-           digs = c(0, 0, 1, 1), 
-           align = rep("c", 4), 
-           label = "tabFerdigtiltKompl")
+align <- c("l", rep("c", dim(tabFerdigtiltKompl)[2] - 1))
+digs <-  rep(0, dim(tabFerdigtiltKompl)[2])
+
+ tabFerdigtiltKompl %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = align,
+               label = "tabFerdigtiltKompl") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(tabFerdigtiltKompl)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(tabFerdigtiltKompl)[1])
 ```
 
 
@@ -530,7 +658,7 @@ skjer innen 72 timer. Registeret presenterer data for begge disse indikatorene
 som andel pasienter med indikasjon NSTEMI der koronar angiografi har blitt
 utført innen 24 og 72 timer etter innleggelse i sykehus. Det er således to
 ulike kvalitetsindikatorer som gjelder for ventetid på utredning ved NSTEMI
-med målnivå på henholdsvis 50 % og 80 %. 
+med målnivå på henholdsvis 50 % og 80 %.
 
 Tabell \@ref(tab:tabVentetid24t) og \@ref(tab:tabVentetid72t) viser 
 måloppnåelse per måned for `r params$hospitalName` og nasjonalt for 24 og 72
@@ -562,65 +690,162 @@ cap <- paste0(
   "med ventetid under 24 timer beregnes ikke. (Målnivå: 50 \\%)")
 
 
-nstemi_24t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_nstemi_angio_innen24t,
+# Lokalt i fjor
+nstemi_24t_lokalt_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = aP_nasjonalt %>%
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja") %>%
+  janitor::tabyl(maaned,
+                 indik_nstemi_angio_innen24t,
                  show_missing_levels = TRUE ) %>%
-  janitor::adorn_totals("col", name = "Total") %>%
+  janitor::adorn_totals("col", name = "Total"),
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>%
   dplyr::mutate(
     # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
-    komplette_antall = .data$ja + .data$nei,
-    komplette_prosent =  .data$komplette_antall / .data$Total,
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Total,
     komplette_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$komplette_antall, " av ", .data$Total, "*"),
-      false = paste0(.data$komplette_antall, " av ", .data$Total),
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Total, "*"),
+      false = paste0(komplette_antall, " av ", Total),
       missing = NA_character_),
     
     # Blandt komplette: Antall NTSTEMI innen 24 t ,
     nstemi_24t_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
-      false = paste0(.data$ja, " av ", .data$komplette_antall, " (",
-                     round(100 * .data$ja / .data$komplette_antall, 1), "%)"),
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
       missing = NA_character_)) %>%
-  dplyr::select(.data$maaned,
-                .data$komplette_tekst,
-                .data$nstemi_24t_tekst)
-
-
-nstemi_24t_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
-                .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_nstemi_angio_innen24t,
-                 show_missing_levels = TRUE) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
+  dplyr::select(maaned,
+                komplette_tekst,
+                nstemi_24t_tekst) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+  
+# Nasjonalt i fjor
+nstemi_24t_nasjonalt_fjor <- 
+  merge(
+    x = timeTableMonth_fjor,
+    y = aP_nasjonalt %>%
+      dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
+                    indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
+      janitor::tabyl(maaned,
+                     indik_nstemi_angio_innen24t,
+                     show_missing_levels = TRUE) %>%
+      janitor::adorn_totals("col", name = "Totalt"),
+    by.x  = "maaned", 
+    by.y = "maaned", 
+    all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>%
   dplyr::transmute(
-    maaned = .data$maaned,
-    Nasjonalt = paste0(round(100 * .data$ja / .data$Totalt, 1), "%"))
+    maaned = maaned,
+    Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
 
-# Forberede tabell, bruke kompletthet og ventetid
-tabVentetid24t <- timeTableMonth %>%
-  dplyr::left_join(., nstemi_24t_lokalt, by = c("maaned")) %>%
-  dplyr::left_join(., nstemi_24t_nasjonalt, by = c("maaned")) %>%
-  dplyr::rename(
-    "Måned" = .data$maaned,
-    "Komplette av datagrunnlaget" = .data$komplette_tekst,
-    "Angio innen 24t av komplette" = .data$nstemi_24t_tekst) %>%
+
+nstemi_24t_fjor <- dplyr::left_join(nstemi_24t_lokalt_fjor,
+                                    nstemi_24t_nasjonalt_fjor,
+                                    by = c("maaned")) %>%
   replace(is.na(.), "-")
 
 
+# Lokalt i år
+nstemi_24t_lokalt_aar <- merge(
+  x = timeTableMonth_aar,
+  y = aP_nasjonalt %>%
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja") %>%
+  janitor::tabyl(maaned,
+                 indik_nstemi_angio_innen24t,
+                 show_missing_levels = TRUE ) %>%
+  janitor::adorn_totals("col", name = "Total"),
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>%
+  dplyr::mutate(
+    # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Total,
+    komplette_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Total, "*"),
+      false = paste0(komplette_antall, " av ", Total),
+      missing = NA_character_),
+    
+    # Blandt komplette: Antall NTSTEMI innen 24 t ,
+    nstemi_24t_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
+      missing = NA_character_)) %>%
+  dplyr::select(maaned,
+                komplette_tekst,
+                nstemi_24t_tekst) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+  
+# Nasjonalt i år
+nstemi_24t_nasjonalt_aar <- 
+  merge(
+    x = timeTableMonth_aar,
+    y = aP_nasjonalt %>%
+      dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
+                    indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
+      janitor::tabyl(maaned,
+                     indik_nstemi_angio_innen24t,
+                     show_missing_levels = TRUE) %>%
+      janitor::adorn_totals("col", name = "Totalt"),
+    by.x  = "maaned", 
+    by.y = "maaned", 
+    all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>%
+  dplyr::transmute(
+    maaned = maaned,
+    Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
 
 
-noric::mst(tab = tabVentetid24t,
-           type = params$tableFormat,
-           cap = cap,
-           digs = c(0, 0, 0, 1, 1),
-           align = rep("c", 5),
-           label = "tabVentetid24t")
+nstemi_24t_aar <- dplyr::left_join(nstemi_24t_lokalt_aar,
+                                   nstemi_24t_nasjonalt_aar,
+                                   by = c("maaned")) %>%
+  replace(is.na(.), "-")
+
+# Forberede tabell, bruke kompletthet og ventetid
+tabVentetid24t <- rbind(
+  nstemi_24t_fjor,
+  nstemi_24t_aar)
+
+
+align <- c("l", rep("c", dim(tabVentetid24t)[2] - 1))
+digs <-  rep(0, dim(tabVentetid24t)[2])
+
+ tabVentetid24t %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = align,
+               label = "tabVentetid24t") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(tabVentetid24t)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(tabVentetid24t)[1])
+
 
 ```
 
@@ -639,16 +864,16 @@ noric::mst(tab = tabVentetid24t,
 
 # Lokalt: Andel komplette under 50% per måned?
 nstemi_komplette <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID,
-                .data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_nstemi_angio_innen24t,
+  dplyr::filter(AvdRESH %in% params$reshID,
+                indik_nstemi_angio_innen24t_data %in% "ja") %>%
+  janitor::tabyl(maaned,
+                 indik_nstemi_angio_innen24t,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name  = "Totalt") %>%
   transmute(
-    maaned = .data$maaned,
-    komplette_antall = (.data$ja + .data$nei),
-    komplette_andel = .data$komplette_antall / .data$Totalt)
+    maaned = maaned,
+    komplette_antall = (ja + nei),
+    komplette_andel = komplette_antall / Totalt)
 
 
 ```
@@ -659,73 +884,73 @@ nstemi_komplette <- aP_nasjonalt %>%
 
 # LOKALT : For NSTEMI med komplette forløp
 prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
-                .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  dplyr::filter(.data$ProsedyreDato >= periode_data$forste_dato,
-                .data$ProsedyreDato <= periode_data$siste_dato) %>%
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
+                indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
+  dplyr::filter(ProsedyreDato >= periode_data$forste_dato,
+                ProsedyreDato <= periode_data$siste_dato) %>%
   
   #Samlet *(Direkte og overflyttet)
-  dplyr::group_by(.data$maaned) %>%
+  dplyr::group_by(maaned) %>%
   dplyr::mutate(
-    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
+    innen_24t_samlet = sum(indik_nstemi_angio_innen24t %in% "ja",
                            na.rm = TRUE)/n(),
     n_samlet = n()) %>%
   dplyr::ungroup() %>%
   
   # per admission type (Direkte / OVerflyttet)
-  dplyr::group_by(.data$maaned, .data$admissionType) %>%
+  dplyr::group_by(maaned, admissionType) %>%
   dplyr::mutate(
-    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
+    innen_24t_type = sum(indik_nstemi_angio_innen24t %in% "ja",
                          na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # Beholde en rad per Samlet, Direkte, OVerflyttet :
-  dplyr::count(.data$maaned,
-               .data$admissionType,
-               .data$innen_24t_type,
-               .data$innen_24t_samlet,
-               .data$n_samlet) %>%
+  dplyr::count(maaned,
+               admissionType,
+               innen_24t_type,
+               innen_24t_samlet,
+               n_samlet) %>%
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), names_to = "Type") %>%
   dplyr::mutate(name = dplyr::case_when(
     
-    .data$admissionType %in% "Direkte" &
-      .data$Type %in% "innen_24t_type" ~ "Direkte",
+    admissionType %in% "Direkte" &
+      Type %in% "innen_24t_type" ~ "Direkte",
     
-    .data$admissionType %in% "Overflyttet" &
-      .data$Type %in% "innen_24t_type" ~ "Overflyttet",
+    admissionType %in% "Overflyttet" &
+      Type %in% "innen_24t_type" ~ "Overflyttet",
     
-    .data$admissionType %in% "Direkte" &
-      .data$Type %in% "innen_24t_samlet" ~ "Samlet",
+    admissionType %in% "Direkte" &
+      Type %in% "innen_24t_samlet" ~ "Samlet",
     
-    .data$admissionType %in% "Overflyttet" &
-      .data$Type %in% "innen_24t_samlet" ~ "Samlet"
+    admissionType %in% "Overflyttet" &
+      Type %in% "innen_24t_samlet" ~ "Samlet"
   ),
   
   # antall forløp per type, brukes for å fjerne måneder med <5 forløp i figur
   antall_komplette = dplyr::case_when(
-    .data$Type %in% "innen_24t_type" ~ n,
-    .data$Type %in% "innen_24t_samlet" ~ n_samlet
+    Type %in% "innen_24t_type" ~ n,
+    Type %in% "innen_24t_samlet" ~ n_samlet
   )) %>%
-  dplyr::select(.data$maaned,
-                .data$name,
-                .data$value,
-                .data$antall_komplette) %>%
-  dplyr::group_by(.data$maaned, .data$name) %>%
+  dplyr::select(maaned,
+                name,
+                value,
+                antall_komplette) %>%
+  dplyr::group_by(maaned, name) %>%
   dplyr::distinct()
 
 # Dersom data ikke komplett, bytte ut verdiene med NA
 prep_figVentetid24t_lokalt %<>%
   dplyr::left_join(.,
                    nstemi_komplette %>%
-                     select(.data$maaned, .data$komplette_andel),
+                     select(maaned, komplette_andel),
                    by = "maaned") %>%
   dplyr::mutate(
-    value = ifelse(.data$komplette_andel < 0.5 | .data$antall_komplette < 5,
+    value = ifelse(komplette_andel < 0.5 | antall_komplette < 5,
                    yes = NA_real_,
-                   no = .data$value),
+                   no = value),
     Sykehus = params$hospitalName) %>%
-  dplyr::select(.data$maaned, .data$name, .data$value, .data$Sykehus)
+  dplyr::select(maaned, name, value, Sykehus)
 
 
 ```
@@ -733,46 +958,46 @@ prep_figVentetid24t_lokalt %<>%
 ```{r fig_hittilIAar_24T_nasj, results='asis', warning=FALSE}
 # NASJONALT
 prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
-                .data$indik_nstemi_angio_innen24t %in% c("ja", "nei"))  %>%
-  dplyr::filter(.data$ProsedyreDato >= periode_data$forste_dato,
-                .data$ProsedyreDato <= periode_data$siste_dato) %>%
+  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
+                indik_nstemi_angio_innen24t %in% c("ja", "nei"))  %>%
+  dplyr::filter(ProsedyreDato >= periode_data$forste_dato,
+                ProsedyreDato <= periode_data$siste_dato) %>%
   
   #Samlet (Direkte og overflyttet)
-  dplyr::group_by(.data$maaned) %>%
+  dplyr::group_by(maaned) %>%
   dplyr::mutate(
-    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
+    innen_24t_samlet = sum(indik_nstemi_angio_innen24t %in% "ja",
                            na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # per admission type (Direkte / OVerflyttet)
-  dplyr::group_by(.data$maaned, .data$admissionType) %>%
+  dplyr::group_by(maaned, admissionType) %>%
   dplyr::mutate(
-    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
+    innen_24t_type = sum(indik_nstemi_angio_innen24t %in% "ja",
                          na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # Beholde en rad per Samlet, Direkte, OVerflyttet :
-  dplyr::count(.data$maaned,
-               .data$admissionType,
-               .data$innen_24t_type,
-               .data$innen_24t_samlet) %>%
+  dplyr::count(maaned,
+               admissionType,
+               innen_24t_type,
+               innen_24t_samlet) %>%
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), names_to = "Type") %>%
   dplyr::mutate(name = dplyr::case_when(
     
-    .data$admissionType %in% "Direkte" &
-      .data$Type %in% "innen_24t_type" ~ "Direkte",
+    admissionType %in% "Direkte" &
+      Type %in% "innen_24t_type" ~ "Direkte",
     
-    .data$admissionType %in% "Overflyttet" &
-      .data$Type %in% "innen_24t_type" ~ "Overflyttet",
+    admissionType %in% "Overflyttet" &
+      Type %in% "innen_24t_type" ~ "Overflyttet",
     
-    .data$admissionType %in% "Direkte" &
-      .data$Type %in% "innen_24t_samlet" ~ "Samlet",
+    admissionType %in% "Direkte" &
+      Type %in% "innen_24t_samlet" ~ "Samlet",
     
-    .data$admissionType %in% "Overflyttet" &
-      .data$Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
-  dplyr::select(.data$maaned, .data$name, .data$value) %>%
-  dplyr::group_by(.data$maaned, .data$name) %>%
+    admissionType %in% "Overflyttet" &
+      Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
+  dplyr::select(maaned, name, value) %>%
+  dplyr::group_by(maaned, name) %>%
   dplyr::distinct() %>%
   dplyr::mutate(Sykehus = "Nasjonalt")
 
@@ -781,11 +1006,11 @@ prep_figVentetid24t_nasjonalt <- aP_nasjonalt %>%
 
 prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
                               prep_figVentetid24t_lokalt) %>%
-  dplyr::select(.data$Sykehus,
-                .data$maaned,
-                .data$name,
-                .data$value) %>%
-  dplyr::mutate(Sykehus = factor(.data$Sykehus,
+  dplyr::select(Sykehus,
+                maaned,
+                name,
+                value) %>%
+  dplyr::mutate(Sykehus = factor(Sykehus,
                                  levels = c(params$hospitalName,
                                             "Nasjonalt")))
 
@@ -807,11 +1032,11 @@ prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
 
 
 ggplot2::ggplot(data = prep_fig_ventetid24t,
-                        aes(x = .data$maaned,
-                            y = .data$value,
-                            group = .data$Sykehus)) +
-  ggplot2::geom_line(aes(colour = .data$Sykehus)) +
-  ggplot2::geom_point(aes(colour = .data$Sykehus))  +
+                        aes(x = maaned,
+                            y = value,
+                            group = Sykehus)) +
+  ggplot2::geom_line(aes(colour = Sykehus)) +
+  ggplot2::geom_point(aes(colour = Sykehus))  +
   ggplot2::geom_hline(yintercept = 0.5,
                       colour =  colKontrast,
                       linetype = "dashed") +
@@ -878,16 +1103,16 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
 
 # Per ÅR: Blant alle NSTEMI, antall komplette forløp (med gyldig tid)
 nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
-  janitor::tabyl(.data$aar,
-                 .data$indik_nstemi_angio_innen24t,
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja") %>%
+  janitor::tabyl(aar,
+                 indik_nstemi_angio_innen24t,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::transmute(
-    aar = as.numeric(.data$aar),
-    komplette_antall =  .data$ja + .data$nei,
-    komplette_andel = .data$komplette_antall / .data$Totalt)
+    aar = as.numeric(aar),
+    komplette_antall =  ja + nei,
+    komplette_andel = komplette_antall / Totalt)
 
 ```
 
@@ -895,65 +1120,65 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
 
 
   nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
-    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
-                .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  dplyr::filter(.data$aar %in% 2018:periode_data$nyesteRegYear) %>%
+    dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
+                indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
+  dplyr::filter(aar %in% 2018:periode_data$nyesteRegYear) %>%
   
   
   #Samlet *(Direkte og overflyttet)
-  dplyr::group_by(.data$aar) %>%
+  dplyr::group_by(aar) %>%
   dplyr::mutate(
-    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
+    innen_24t_samlet = sum(indik_nstemi_angio_innen24t %in% "ja",
                            na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # per admission type (Direkte / OVerflyttet)
-  dplyr::group_by(.data$aar, .data$admissionType) %>%
+  dplyr::group_by(aar, admissionType) %>%
   dplyr::mutate(
-    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
+    innen_24t_type = sum(indik_nstemi_angio_innen24t %in% "ja",
                          na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # Beholde en rad per Samlet, Direkte, OVerflyttet :
-  dplyr::count(.data$aar,
-               .data$admissionType,
-               .data$innen_24t_type,
-               .data$innen_24t_samlet) %>%
+  dplyr::count(aar,
+               admissionType,
+               innen_24t_type,
+               innen_24t_samlet) %>%
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), names_to = "Type") %>%
   dplyr::mutate(name = dplyr::case_when(
     
-    .data$admissionType %in% "Direkte" &
-      .data$Type %in% "innen_24t_type" ~ "Direkte",
+    admissionType %in% "Direkte" &
+      Type %in% "innen_24t_type" ~ "Direkte",
     
-    .data$admissionType %in% "Overflyttet" &
-      .data$Type %in% "innen_24t_type" ~ "Overflyttet",
+    admissionType %in% "Overflyttet" &
+      Type %in% "innen_24t_type" ~ "Overflyttet",
     
-    .data$admissionType %in% "Direkte" &
-      .data$Type %in% "innen_24t_samlet" ~ "Samlet",
+    admissionType %in% "Direkte" &
+      Type %in% "innen_24t_samlet" ~ "Samlet",
     
-    .data$admissionType %in% "Overflyttet" &
-      .data$Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
+    admissionType %in% "Overflyttet" &
+      Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
   
   
- dplyr::select(.data$aar, .data$name, .data$value) %>%
-  dplyr::group_by(.data$aar, .data$name) %>%
+ dplyr::select(aar, name, value) %>%
+  dplyr::group_by(aar, name) %>%
   dplyr::distinct()
 
 # Dersom data ikke komplett, bytte ut verdiene med NA
 nstemiAP_fra2018_lokalt %<>%
-  mutate(aar = as.numeric(.data$aar)) %>%
+  mutate(aar = as.numeric(aar)) %>%
   dplyr::left_join(.,
                    nstemi_komplett_year_lokalt %>%
-                     dplyr::select(.data$aar,
-                                   .data$komplette_andel),
+                     dplyr::select(aar,
+                                   komplette_andel),
                    by = "aar") %>%
   dplyr::transmute(
-    aar = as.numeric(.data$aar),
-    name = .data$name,
-    value = ifelse(.data$komplette_andel < 0.5,
+    aar = as.numeric(aar),
+    name = name,
+    value = ifelse(komplette_andel < 0.5,
                    yes = NA_real_,
-                   no = .data$value))
+                   no = value))
 
 
 ```
@@ -963,52 +1188,52 @@ nstemiAP_fra2018_lokalt %<>%
 
 # #Nasjonalt
 nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
-                .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  dplyr::filter(.data$aar %in% 2018:periode_data$nyesteRegYear) %>%
+  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
+                indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
+  dplyr::filter(aar %in% 2018:periode_data$nyesteRegYear) %>%
   
   
   #Samlet *(Direkte og overflyttet)
-  dplyr::group_by(.data$aar) %>%
+  dplyr::group_by(aar) %>%
   dplyr::mutate(
-    innen_24t_samlet = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
+    innen_24t_samlet = sum(indik_nstemi_angio_innen24t %in% "ja",
                            na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # per admission type (Direkte / OVerflyttet)
-  dplyr::group_by(.data$aar, .data$admissionType) %>%
+  dplyr::group_by(aar, admissionType) %>%
   dplyr::mutate(
-    innen_24t_type = sum(.data$indik_nstemi_angio_innen24t %in% "ja",
+    innen_24t_type = sum(indik_nstemi_angio_innen24t %in% "ja",
                          na.rm = TRUE)/n()) %>%
   dplyr::ungroup() %>%
   
   # Beholde en rad per Samlet, Direkte, OVerflyttet :
-  dplyr::count(.data$aar,
-               .data$admissionType,
-               .data$innen_24t_type,
-               .data$innen_24t_samlet) %>%
+  dplyr::count(aar,
+               admissionType,
+               innen_24t_type,
+               innen_24t_samlet) %>%
   tidyr::pivot_longer(cols = starts_with("innen_24t_"), names_to = "Type") %>%
   dplyr::mutate(name = dplyr::case_when(
     
-    .data$admissionType %in% "Direkte" &
-      .data$Type %in% "innen_24t_type" ~ "Direkte",
+    admissionType %in% "Direkte" &
+      Type %in% "innen_24t_type" ~ "Direkte",
     
-    .data$admissionType %in% "Overflyttet" &
-      .data$Type %in% "innen_24t_type" ~ "Overflyttet",
+    admissionType %in% "Overflyttet" &
+      Type %in% "innen_24t_type" ~ "Overflyttet",
     
-    .data$admissionType %in% "Direkte" &
-      .data$Type %in% "innen_24t_samlet" ~ "Samlet",
+    admissionType %in% "Direkte" &
+      Type %in% "innen_24t_samlet" ~ "Samlet",
     
-    .data$admissionType %in% "Overflyttet" &
-      .data$Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
+    admissionType %in% "Overflyttet" &
+      Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
   
-  dplyr::select(.data$aar, .data$name, .data$value) %>%
-  dplyr::group_by(.data$aar, .data$name) %>%
+  dplyr::select(aar, name, value) %>%
+  dplyr::group_by(aar, name) %>%
   dplyr::distinct() %>%
   dplyr::transmute(
-    aar = as.numeric(.data$aar),
-    name = .data$name,
-    value = .data$value,
+    aar = as.numeric(aar),
+    name = name,
+    value = value,
     Sykehus = "Nasjonalt")
 
 ```
@@ -1027,19 +1252,19 @@ nstemiAP_fra2018_lokalt %<>%
   dplyr::left_join(timeTableYear_SDO,
                    .,
                    by = c("aar", "name")) %>%
-  dplyr::select(.data$aar, .data$name, .data$value) %>% 
+  dplyr::select(aar, name, value) %>% 
   dplyr::mutate(Sykehus = params$hospitalName)
 
 
 prep_figVentetid24t_year <-
   rbind(as.data.frame(nstemiAP_fra2018_nasjonalt),
         nstemiAP_fra2018_lokalt) %>%
-  dplyr::mutate(Sykehus = factor(.data$Sykehus,
+  dplyr::mutate(Sykehus = factor(Sykehus,
                                  levels = c(params$hospitalName,
                                             "Nasjonalt")),
                 value_tekst = ifelse(
-                  !is.na(.data$value),
-                  yes = paste0(sprintf("%.1f", .data$value*100 ), "%"),
+                  !is.na(value),
+                  yes = paste0(sprintf("%.1f", value*100 ), "%"),
                   no = NA_character_))
 
 ```
@@ -1062,9 +1287,9 @@ cap <- paste0(
 
 ggplot2::ggplot(
   data = prep_figVentetid24t_year,
-  ggplot2::aes(x = .data$aar,
-               y = .data$value,
-               fill = .data$Sykehus)) +
+  ggplot2::aes(x = aar,
+               y = value,
+               fill = Sykehus)) +
   ggplot2::geom_bar(stat = "identity", position = "dodge") +
   ggplot2::geom_hline(yintercept = 0.5, 
                       colour = colKontrast,
@@ -1146,44 +1371,44 @@ cap <- paste0(
 
 
 nstemi_72t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen72t_data %in% "ja") %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_nstemi_angio_innen72t,
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_nstemi_angio_innen72t_data %in% "ja") %>%
+  janitor::tabyl(maaned,
+                 indik_nstemi_angio_innen72t,
                  show_missing_levels = TRUE ) %>%
   janitor::adorn_totals("col", name = "Total") %>%
   dplyr::mutate(
     # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
-    komplette_antall = .data$ja + .data$nei,
-    komplette_prosent =  .data$komplette_antall / .data$Total,
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Total,
     komplette_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$komplette_antall, " av ", .data$Total, "*"),
-      false = paste0(.data$komplette_antall, " av ", .data$Total),
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Total, "*"),
+      false = paste0(komplette_antall, " av ", Total),
       missing = NA_character_),
     
     # Blandt komplette: Antall NTSTEMI innen 72 t ,
     nstemi_72t_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
-      false = paste0(.data$ja, " av ", .data$komplette_antall, " (",
-                     round(100 * .data$ja / .data$komplette_antall, 1), "%)"),
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
       missing = NA_character_)) %>%
-  dplyr::select(.data$maaned,
-                .data$komplette_tekst,
-                .data$nstemi_72t_tekst)
+  dplyr::select(maaned,
+                komplette_tekst,
+                nstemi_72t_tekst)
 
 
 nstemi_72t_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_nstemi_angio_innen72t_data %in% "ja",
-                .data$indik_nstemi_angio_innen72t %in% c("ja", "nei")) %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_nstemi_angio_innen72t,
+  dplyr::filter(indik_nstemi_angio_innen72t_data %in% "ja",
+                indik_nstemi_angio_innen72t %in% c("ja", "nei")) %>%
+  janitor::tabyl(maaned,
+                 indik_nstemi_angio_innen72t,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>% 
   dplyr::transmute(
-    maaned = .data$maaned,
-    Nasjonalt = paste0(round(100 * .data$ja / .data$Totalt, 1), "%"))
+    maaned = maaned,
+    Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
 
 
 # Forberede tabell, bruke kompletthet og ventetid
@@ -1191,9 +1416,9 @@ tabVentetid72t <- timeTableMonth %>%
   dplyr::left_join(., nstemi_72t_lokalt, by = c("maaned")) %>%
   dplyr::left_join(., nstemi_72t_nasjonalt, by = c("maaned")) %>%
   dplyr::rename(
-    "Måned" = .data$maaned,
-    "Komplette av datagrunnlaget" = .data$komplette_tekst,
-    "Angio innen 72t av komplette" = .data$nstemi_72t_tekst) %>%
+    "Måned" = maaned,
+    "Komplette av datagrunnlaget" = komplette_tekst,
+    "Angio innen 72t av komplette" = nstemi_72t_tekst) %>%
   replace(is.na(.), "-")
 
 
@@ -1272,53 +1497,53 @@ if (params$reshID != 106944) {
   
   
   stemi_120min_lokalt <- aP_nasjonalt %>%
-    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-    dplyr::filter(.data$indik_stemi_pci_innen2t_data %in% "ja") %>%
-    janitor::tabyl(.data$maaned,
-                   .data$indik_stemi_pci_innen2t,
+    dplyr::filter(AvdRESH %in% params$reshID) %>%
+    dplyr::filter(indik_stemi_pci_innen2t_data %in% "ja") %>%
+    janitor::tabyl(maaned,
+                   indik_stemi_pci_innen2t,
                    show_missing_levels = TRUE ) %>%
     janitor::adorn_totals("col", name = "Total") %>%
     dplyr::mutate(
       # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
-      komplette_antall = .data$ja + .data$nei,
-      komplette_prosent =  .data$komplette_antall / .data$Total,
+      komplette_antall = ja + nei,
+      komplette_prosent =  komplette_antall / Total,
       komplette_tekst = dplyr::if_else(
-        .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-        true = paste0(.data$komplette_antall, " av ", .data$Total, "*"),
-        false = paste0(.data$komplette_antall, " av ", .data$Total),
+        komplette_prosent < 0.50 | komplette_antall < 5,
+        true = paste0(komplette_antall, " av ", Total, "*"),
+        false = paste0(komplette_antall, " av ", Total),
         missing = NA_character_),
       
       # Blandt komplette: Antall NTSTEMI innen 24 t ,
       stemi_120min_tekst = dplyr::if_else(
-        .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-        true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
-        false = paste0(.data$ja, " av ", .data$komplette_antall, " (",
-                       round(100 * .data$ja / .data$komplette_antall, 1), "%)"),
+        komplette_prosent < 0.50 | komplette_antall < 5,
+        true = paste0(ja, " av ", komplette_antall, " (-%)"),
+        false = paste0(ja, " av ", komplette_antall, " (",
+                       round(100 * ja / komplette_antall, 1), "%)"),
         missing = NA_character_)) %>%
-    dplyr::select(.data$maaned,
-                  .data$komplette_tekst,
-                  .data$stemi_120min_tekst)
+    dplyr::select(maaned,
+                  komplette_tekst,
+                  stemi_120min_tekst)
   
   
   stemi_120min_nasjonalt <- aP_nasjonalt %>%
-    dplyr::filter(.data$indik_stemi_pci_innen2t_data %in% "ja",
-                  .data$indik_stemi_pci_innen2t %in% c("ja", "nei")) %>%
-    janitor::tabyl(.data$maaned,
-                   .data$indik_stemi_pci_innen2t,
+    dplyr::filter(indik_stemi_pci_innen2t_data %in% "ja",
+                  indik_stemi_pci_innen2t %in% c("ja", "nei")) %>%
+    janitor::tabyl(maaned,
+                   indik_stemi_pci_innen2t,
                    show_missing_levels = TRUE) %>%
     janitor::adorn_totals("col", name = "Totalt") %>% 
     dplyr::transmute(
-      maaned = .data$maaned,
-      Nasjonalt = paste0(round(100 * .data$ja / .data$Totalt, 1), "%"))
+      maaned = maaned,
+      Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
   
   # Forberede tabell, bruke kompletthet og ventetid
   tabSTEMI_120min <- timeTableMonth %>%
     dplyr::left_join(., stemi_120min_lokalt, by = c("maaned")) %>%
     dplyr::left_join(., stemi_120min_nasjonalt, by = c("maaned")) %>%
     dplyr::rename(
-      "Måned" = .data$maaned,
-      "Komplette av datagrunnlaget" = .data$komplette_tekst,
-      "PCI innen 120min av komplette" = .data$stemi_120min_tekst) %>%
+      "Måned" = maaned,
+      "Komplette av datagrunnlaget" = komplette_tekst,
+      "PCI innen 120min av komplette" = stemi_120min_tekst) %>%
     replace(is.na(.), "-")
   
   
@@ -1370,54 +1595,54 @@ cap <- paste0(
 
 #Lokal
 nTrykkmaalingAP <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_trykkmaaling_data %in% "ja") %>%
-  dplyr::select(.data$maaned,
-                .data$indik_trykkmaaling) %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_trykkmaaling,
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_trykkmaaling_data %in% "ja") %>%
+  dplyr::select(maaned,
+                indik_trykkmaaling) %>%
+  janitor::tabyl(maaned,
+                 indik_trykkmaaling,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
     
-    Prosent = paste0(round(.data$ja / .data$Totalt * 100, 1)," %"),
+    Prosent = paste0(round(ja / Totalt * 100, 1)," %"),
     
-    Totalt = ifelse(.data$Totalt < 5,
+    Totalt = ifelse(Totalt < 5,
                     yes = "N",
-                    no = .data$Totalt),
+                    no = Totalt),
     
-    utfortTrykkmaaling = ifelse(.data$Totalt %in% "N",
+    utfortTrykkmaaling = ifelse(Totalt %in% "N",
                                 yes = NA,
-                                no = .data$ja),
+                                no = ja),
     
-    Prosent = ifelse(.data$Totalt %in% "N",
+    Prosent = ifelse(Totalt %in% "N",
                      yes = NA,
-                     no = .data$Prosent)) %>%
+                     no = Prosent)) %>%
   
-  dplyr::select(.data$maaned,
-                .data$Totalt,
-                .data$utfortTrykkmaaling,
-                .data$Prosent)
+  dplyr::select(maaned,
+                Totalt,
+                utfortTrykkmaaling,
+                Prosent)
 
 #Nasjonal
 nTrykkmaalingAP_nasj <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_trykkmaaling_data %in% "ja") %>%
-  dplyr::select(.data$maaned,
-                .data$indik_trykkmaaling) %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_trykkmaaling,
+  dplyr::filter(indik_trykkmaaling_data %in% "ja") %>%
+  dplyr::select(maaned,
+                indik_trykkmaaling) %>%
+  janitor::tabyl(maaned,
+                 indik_trykkmaaling,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::transmute(
-    maaned = .data$maaned,
-    Nasjonalt = paste0(round(.data$ja / .data$Totalt * 100, 1)," %"))
+    maaned = maaned,
+    Nasjonalt = paste0(round(ja / Totalt * 100, 1)," %"))
 
 #Tabell
 tabTrykkmaalingAP <- timeTableMonth %>%
   dplyr::left_join(., nTrykkmaalingAP, by = c("maaned")) %>%
   dplyr::left_join(., nTrykkmaalingAP_nasj, by = c("maaned")) %>%
-  dplyr::rename("Måned" = .data$maaned,
-                "Utført trykkmåling" = .data$utfortTrykkmaaling) %>%
+  dplyr::rename("Måned" = maaned,
+                "Utført trykkmåling" = utfortTrykkmaaling) %>%
   replace(is.na(.), "-")
 
 noric::mst(tab = tabTrykkmaalingAP,
@@ -1460,51 +1685,51 @@ cap <- paste0("Antall og andel prosedyrer der det er brukt supplerende ",
 
 #Lokalt
 nStentVH <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
-  dplyr::select(.data$kvartal,
-                .data$indik_ivus_oct_v_stent_lms) %>%
-  janitor::tabyl(.data$kvartal,
-                 .data$indik_ivus_oct_v_stent_lms,
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
+  dplyr::select(kvartal,
+                indik_ivus_oct_v_stent_lms) %>%
+  janitor::tabyl(kvartal,
+                 indik_ivus_oct_v_stent_lms,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
 
-    Prosent = paste0(round(.data$ja / .data$Totalt * 100, 1), " %"),
-    Totalt = ifelse(.data$Totalt < 5,
+    Prosent = paste0(round(ja / Totalt * 100, 1), " %"),
+    Totalt = ifelse(Totalt < 5,
                     yes = "N",
-                    no = .data$Totalt),
+                    no = Totalt),
 
-    utfortIvusOct = ifelse(.data$Totalt %in% "N",
+    utfortIvusOct = ifelse(Totalt %in% "N",
                            yes = NA,
-                           no = .data$ja),
+                           no = ja),
 
     Prosent = ifelse(Totalt %in% "N",
                      yes = NA,
-                     no = .data$Prosent)) %>%
-  dplyr::select(.data$kvartal,
-                .data$Totalt,
-                .data$utfortIvusOct,
-                .data$Prosent)
+                     no = Prosent)) %>%
+  dplyr::select(kvartal,
+                Totalt,
+                utfortIvusOct,
+                Prosent)
 
 #Nasjonalt
 nStentVH_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
-  dplyr::select(.data$kvartal,
-                .data$indik_ivus_oct_v_stent_lms) %>%
-  janitor::tabyl(.data$kvartal,
-                 .data$indik_ivus_oct_v_stent_lms,
+  dplyr::filter(indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
+  dplyr::select(kvartal,
+                indik_ivus_oct_v_stent_lms) %>%
+  janitor::tabyl(kvartal,
+                 indik_ivus_oct_v_stent_lms,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::transmute(
-    kvartal = .data$kvartal,
-    Nasjonalt = paste0(round(.data$ja / .data$Totalt * 100, 1), " %"))
+    kvartal = kvartal,
+    Nasjonalt = paste0(round(ja / Totalt * 100, 1), " %"))
 
 #Tabell
 tabStentVH <- timeTableQuarter %>%
   dplyr::left_join(., nStentVH, by = c("kvartal")) %>%
   dplyr::left_join(., nStentVH_nasjonalt, by = c("kvartal")) %>%
-  dplyr::rename("Utført IVUS/OCT" = .data$utfortIvusOct) %>%
+  dplyr::rename("Utført IVUS/OCT" = utfortIvusOct) %>%
   replace(is.na(.), "-")
 
 
@@ -1553,43 +1778,43 @@ cap <- paste0("Antall og andel pasienter per opphold der det er dokumentert ",
               "markert med N.")
 
 blodfortynnende_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_blodfortynnende_data %in% "ja") %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_blodfortynnende,
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_blodfortynnende_data %in% "ja") %>%
+  janitor::tabyl(maaned,
+                 indik_blodfortynnende,
                  show_missing_levels = TRUE ) %>%
   janitor::adorn_totals("col", name = "Total") %>%
   dplyr::mutate(
     # Komplette er alle som er ja/nei, men ikke "ikke ferdigstilt"
-    komplette_antall = .data$ja + .data$nei,
-    komplette_prosent =  .data$komplette_antall / .data$Total,
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Total,
     komplette_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$komplette_antall, " av ", .data$Total, "*"),
-      false = paste0(.data$komplette_antall, " av ", .data$Total),
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Total, "*"),
+      false = paste0(komplette_antall, " av ", Total),
       missing = NA_character_),
     
     blodf_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
-      false = paste0(.data$ja, " av ", .data$komplette_antall, " (",
-                     round(100 * .data$ja / .data$komplette_antall, 1), "%)"),
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
       missing = NA_character_)) %>%
-  dplyr::select(.data$maaned,
-                .data$komplette_tekst,
-                .data$blodf_tekst)
+  dplyr::select(maaned,
+                komplette_tekst,
+                blodf_tekst)
 
 
 blodfortynnende_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_blodfortynnende_data %in% "ja",
-                .data$indik_blodfortynnende %in% c("ja", "nei")) %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_blodfortynnende,
+  dplyr::filter(indik_blodfortynnende_data %in% "ja",
+                indik_blodfortynnende %in% c("ja", "nei")) %>%
+  janitor::tabyl(maaned,
+                 indik_blodfortynnende,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::transmute(
-    maaned = .data$maaned,
-    Nasjonalt = paste0(round(100 * .data$ja / .data$Totalt, 1), "%"))
+    maaned = maaned,
+    Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
 
 
 
@@ -1598,9 +1823,9 @@ tabBlodfMedAP <- timeTableMonth %>%
   dplyr::left_join(., blodfortynnende_lokalt, by = c("maaned")) %>%
   dplyr::left_join(., blodfortynnende_nasjonalt, by = c("maaned")) %>%
   dplyr::rename(
-    "Måned" = .data$maaned,
-    "Ferdigstilte av datagrunnlaget" = .data$komplette_tekst,
-    "Med blodfortynnende av ferdigstilte" = .data$blodf_tekst) %>%
+    "Måned" = maaned,
+    "Ferdigstilte av datagrunnlaget" = komplette_tekst,
+    "Med blodfortynnende av ferdigstilte" = blodf_tekst) %>%
   replace(is.na(.), "-")
 
 
@@ -1644,43 +1869,43 @@ cap <- paste0(
 
 #Lokalt
 kolesterolsenkende_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-  dplyr::filter(.data$indik_kolesterolsenkende_data %in% "ja") %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_kolesterolsenkende,
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_kolesterolsenkende_data %in% "ja") %>%
+  janitor::tabyl(maaned,
+                 indik_kolesterolsenkende,
                  show_missing_levels = TRUE ) %>%
   janitor::adorn_totals("col", name = "Total") %>%
   dplyr::mutate(
     # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
-    komplette_antall = .data$ja + .data$nei,
-    komplette_prosent =  .data$komplette_antall / .data$Total,
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Total,
     komplette_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$komplette_antall, " av ", .data$Total, "*"),
-      false = paste0(.data$komplette_antall, " av ", .data$Total),
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Total, "*"),
+      false = paste0(komplette_antall, " av ", Total),
       missing = NA_character_),
     
     kolest_tekst = dplyr::if_else(
-      .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-      true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
-      false = paste0(.data$ja, " av ", .data$komplette_antall, " (",
-                     round(100 * .data$ja / .data$komplette_antall, 1), "%)"),
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
       missing = NA_character_)) %>%
-  dplyr::select(.data$maaned,
-                .data$komplette_tekst,
-                .data$kolest_tekst)
+  dplyr::select(maaned,
+                komplette_tekst,
+                kolest_tekst)
 
 
 kolesterolsenkende_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$indik_kolesterolsenkende_data %in% "ja",
-                .data$indik_kolesterolsenkende %in% c("ja", "nei")) %>%
-  janitor::tabyl(.data$maaned,
-                 .data$indik_kolesterolsenkende,
+  dplyr::filter(indik_kolesterolsenkende_data %in% "ja",
+                indik_kolesterolsenkende %in% c("ja", "nei")) %>%
+  janitor::tabyl(maaned,
+                 indik_kolesterolsenkende,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::transmute(
-    maaned = .data$maaned,
-    Nasjonalt = paste0(round(100 * .data$ja / .data$Totalt, 1), "%"))
+    maaned = maaned,
+    Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
 
 
 # Forberede tabell, bruke kompletthet og ventetid
@@ -1688,9 +1913,9 @@ tabKolestMedAP <- timeTableMonth %>%
   dplyr::left_join(., kolesterolsenkende_lokalt, by = c("maaned")) %>%
   dplyr::left_join(., kolesterolsenkende_nasjonalt, by = c("maaned")) %>%
   dplyr::rename(
-    "Måned" = .data$maaned,
-    "Ferdigstilte av datagrunnlaget" = .data$komplette_tekst,
-    "Med kolesterolsenkende av ferdigstilte" = .data$kolest_tekst) %>%
+    "Måned" = maaned,
+    "Ferdigstilte av datagrunnlaget" = komplette_tekst,
+    "Med kolesterolsenkende av ferdigstilte" = kolest_tekst) %>%
   replace(is.na(.), "-")
 
 
@@ -1735,45 +1960,45 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     "permanente pacemaker for disse.")
   
   prep_tab_pacemaker_lokalt <- aK_nasjonalt %>%
-    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
-    dplyr::filter(.data$indik_pacemakerbehov_data  %in% "ja") %>%
-    janitor::tabyl(.data$kvartal,
-                   .data$indik_pacemakerbehov,
+    dplyr::filter(AvdRESH %in% params$reshID) %>%
+    dplyr::filter(indik_pacemakerbehov_data  %in% "ja") %>%
+    janitor::tabyl(kvartal,
+                   indik_pacemakerbehov,
                    show_missing_levels = TRUE ) %>%
     janitor::adorn_totals("col", name = "Total") %>%
     dplyr::mutate(
       
       # Komplette er alle som er ja/nei, men ikkje "ikke ferdigstilt"
-      komplette_antall = .data$ja + .data$nei,
-      komplette_prosent =  .data$komplette_antall / .data$Total,
+      komplette_antall = ja + nei,
+      komplette_prosent =  komplette_antall / Total,
       komplette_tekst = dplyr::if_else(
-        .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-        true = paste0(.data$komplette_antall, " av ", .data$Total, "*"),
-        false = paste0(.data$komplette_antall, " av ", .data$Total),
+        komplette_prosent < 0.50 | komplette_antall < 5,
+        true = paste0(komplette_antall, " av ", Total, "*"),
+        false = paste0(komplette_antall, " av ", Total),
         missing = NA_character_),
       
       # Blandt komplette: Antall med pacemakerbehov,
       pacemaker_tekst = dplyr::if_else(
-        .data$komplette_prosent < 0.50 | .data$komplette_antall < 5,
-        true = paste0(.data$ja, " av ", .data$komplette_antall, " (-%)"),
-        false = paste0(.data$ja, " av ", .data$komplette_antall, " (",
-                       round(100 * .data$ja / .data$komplette_antall, 1), "%)"),
+        komplette_prosent < 0.50 | komplette_antall < 5,
+        true = paste0(ja, " av ", komplette_antall, " (-%)"),
+        false = paste0(ja, " av ", komplette_antall, " (",
+                       round(100 * ja / komplette_antall, 1), "%)"),
         missing = NA_character_)) %>%
-    dplyr::select(.data$kvartal,
-                  .data$komplette_tekst,
-                  .data$pacemaker_tekst)
+    dplyr::select(kvartal,
+                  komplette_tekst,
+                  pacemaker_tekst)
   
   
   prep_tab_pacemaker_nasjonalt <- aK_nasjonalt %>%
-    dplyr::filter(.data$indik_pacemakerbehov_data  %in% "ja",
-                  .data$indik_pacemakerbehov %in% c("ja", "nei")) %>%
-    janitor::tabyl(.data$kvartal,
-                   .data$indik_pacemakerbehov,
+    dplyr::filter(indik_pacemakerbehov_data  %in% "ja",
+                  indik_pacemakerbehov %in% c("ja", "nei")) %>%
+    janitor::tabyl(kvartal,
+                   indik_pacemakerbehov,
                    show_missing_levels = TRUE ) %>%
     janitor::adorn_totals("col", name = "Total") %>%
     dplyr::transmute(
-      kvartal = .data$kvartal,
-      Nasjonalt = paste0(round(100 * .data$ja / .data$Total, 1), "%"))
+      kvartal = kvartal,
+      Nasjonalt = paste0(round(100 * ja / Total, 1), "%"))
   
   
   # Forberede tabell, bruke kompletthet og ventetid
@@ -1781,9 +2006,9 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     dplyr::left_join(., prep_tab_pacemaker_lokalt, by = c("kvartal")) %>%
     dplyr::left_join(., prep_tab_pacemaker_nasjonalt, by = c("kvartal")) %>%
     dplyr::rename(
-      "Kvartal" = .data$kvartal,
-      "Ferdigstilte av datagrunnlaget" = .data$komplette_tekst,
-      "Implanterte perm. pacemaker av ferdigstilte" = .data$pacemaker_tekst) %>%
+      "Kvartal" = kvartal,
+      "Ferdigstilte av datagrunnlaget" = komplette_tekst,
+      "Implanterte perm. pacemaker av ferdigstilte" = pacemaker_tekst) %>%
     replace(is.na(.), "-")
   
   

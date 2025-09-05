@@ -68,6 +68,9 @@ colPrimary <- c("#000059",
 colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
 
+
+hospitalName <- params$hospitalName
+
 ``` 
 
 ```{r parametre}
@@ -227,9 +230,10 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
 ```{r GetData, include=FALSE, cache=FALSE}
 
 AP <- noric::getPrepApData(registryName = params$registryName,
-                           fromDate  = periode_data$forste_dato,
-                           toDate = periode_data$siste_dato,
-                           singleRow = FALSE)
+                             fromDate  = periode_data$forste_dato,
+                             toDate = periode_data$siste_dato,
+                             singleRow = FALSE, 
+                             singleHospital = params$reshID)
 
 ```
 
