@@ -172,26 +172,30 @@ periode_data <- data.frame(
     registryName = params$registryName,
     fromDate  = periode_data$forste_dato_ak_ss,
     toDate = periode_data$siste_dato,
-    singleRow = FALSE)
+    singleRow = FALSE,
+    singleHospital = NULL)
   
   # Hardkodet 2018- dags dato pga figur 4,5 og 6
   aP_nasjonalt <- noric::getPrepApData(
     registryName = params$registryName,
     fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),
     toDate = periode_data$siste_dato,
-    singleRow = FALSE)
+    singleRow = FALSE,
+    singleHospital = NULL)
   
   aK_nasjonalt <- noric::getPrepAkData(
     registryName = params$registryName,
     fromDate  = periode_data$forste_dato_ak_ss,
     toDate = periode_data$siste_dato,
-    singleRow = FALSE)
+    singleRow = FALSE,
+    singleHospital = NULL)
   
   anD_nasjonalt <- noric::getPrepAnDData(
     registryName = params$registryName,
     fromDate  = periode_data$forste_dato,
     toDate = periode_data$siste_dato,
-    singleRow = FALSE)
+    singleRow = FALSE,
+    singleHospital = NULL)
   
   # 3) VELGE KUN DE VARIABLENE VI TRENGER FRA HJELPEDATASETTENE
   sS_nasjonalt %<>%
@@ -596,13 +600,13 @@ ferdigstilt_nasjonalt_aar <- merge(
     Nasjonalt = paste0(round(ja / Totalt * 100, 1), " %"))
 
 
-#Tabell
+#Tabell i år
 tabFerdigtiltKompl_aar <- dplyr::left_join(ferdigstilt_lokalt_aar,
                                             ferdigstilt_nasjonalt_aar,
                                             by = c("maaned")) %>%
   replace(is.na(.), "-")
 
-
+# Tabell samlet
 tabFerdigtiltKompl <- rbind(
   tabFerdigtiltKompl_fjor,
   tabFerdigtiltKompl_aar)
@@ -612,7 +616,7 @@ cap <- paste0(
   "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
 
 align <- c("l", rep("c", dim(tabFerdigtiltKompl)[2] - 1))
-digs <-  rep(0, dim(tabFerdigtiltKompl)[2] )
+digs <-  rep(0, dim(tabFerdigtiltKompl)[2])
 
  tabFerdigtiltKompl %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
@@ -686,13 +690,21 @@ cap <- paste0(
   "med ventetid under 24 timer beregnes ikke. (Målnivå: 50 \\%)")
 
 
-nstemi_24t_lokalt <- aP_nasjonalt %>%
+# Lokalt i fjor
+nstemi_24t_lokalt_fjor <- merge(
+  x = timeTableMonth_fjor,
+  y = aP_nasjonalt %>%
   dplyr::filter(AvdRESH %in% params$reshID) %>%
   dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(maaned,
                  indik_nstemi_angio_innen24t,
                  show_missing_levels = TRUE ) %>%
-  janitor::adorn_totals("col", name = "Total") %>%
+  janitor::adorn_totals("col", name = "Total"),
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>%
   dplyr::mutate(
     # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
     komplette_antall = ja + nei,
@@ -712,39 +724,134 @@ nstemi_24t_lokalt <- aP_nasjonalt %>%
       missing = NA_character_)) %>%
   dplyr::select(maaned,
                 komplette_tekst,
-                nstemi_24t_tekst)
-
-
-nstemi_24t_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
-                indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
-  janitor::tabyl(maaned,
-                 indik_nstemi_angio_innen24t,
-                 show_missing_levels = TRUE) %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
+                nstemi_24t_tekst) %>% 
+  dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+  
+# Nasjonalt i fjor
+nstemi_24t_nasjonalt_fjor <- 
+  merge(
+    x = timeTableMonth_fjor,
+    y = aP_nasjonalt %>%
+      dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
+                    indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
+      janitor::tabyl(maaned,
+                     indik_nstemi_angio_innen24t,
+                     show_missing_levels = TRUE) %>%
+      janitor::adorn_totals("col", name = "Totalt"),
+    by.x  = "maaned", 
+    by.y = "maaned", 
+    all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt i ",
+                                             periode_data$sisteHeleYear)) %>%
   dplyr::transmute(
     maaned = maaned,
     Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
 
-# Forberede tabell, bruke kompletthet og ventetid
-tabVentetid24t <- timeTableMonth %>%
-  dplyr::left_join(., nstemi_24t_lokalt, by = c("maaned")) %>%
-  dplyr::left_join(., nstemi_24t_nasjonalt, by = c("maaned")) %>%
-  dplyr::rename(
-    "Måned" = maaned,
-    "Komplette av datagrunnlaget" = komplette_tekst,
-    "Angio innen 24t av komplette" = nstemi_24t_tekst) %>%
+
+nstemi_24t_fjor <- dplyr::left_join(nstemi_24t_lokalt_fjor,
+                                    nstemi_24t_nasjonalt_fjor,
+                                    by = c("maaned")) %>%
   replace(is.na(.), "-")
 
 
+# Lokalt i år
+nstemi_24t_lokalt_aar <- merge(
+  x = timeTableMonth_aar,
+  y = aP_nasjonalt %>%
+  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja") %>%
+  janitor::tabyl(maaned,
+                 indik_nstemi_angio_innen24t,
+                 show_missing_levels = TRUE ) %>%
+  janitor::adorn_totals("col", name = "Total"),
+  by.x  = "maaned", 
+  by.y = "maaned", 
+  all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>%
+  dplyr::mutate(
+    # Komplette er alle som er ja/nei, men ikkje ugyldig/manglende
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Total,
+    komplette_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Total, "*"),
+      false = paste0(komplette_antall, " av ", Total),
+      missing = NA_character_),
+    
+    # Blandt komplette: Antall NTSTEMI innen 24 t ,
+    nstemi_24t_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
+      missing = NA_character_)) %>%
+  dplyr::select(maaned,
+                komplette_tekst,
+                nstemi_24t_tekst) %>% 
+  dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
+  dplyr::relocate("aar", .before = "maaned")
+  
+# Nasjonalt i år
+nstemi_24t_nasjonalt_aar <- 
+  merge(
+    x = timeTableMonth_aar,
+    y = aP_nasjonalt %>%
+      dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
+                    indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
+      janitor::tabyl(maaned,
+                     indik_nstemi_angio_innen24t,
+                     show_missing_levels = TRUE) %>%
+      janitor::adorn_totals("col", name = "Totalt"),
+    by.x  = "maaned", 
+    by.y = "maaned", 
+    all.x = TRUE) %>% 
+  janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
+                                             periode_data$nyesteRegYear)) %>%
+  dplyr::transmute(
+    maaned = maaned,
+    Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
 
 
-noric::mst(tab = tabVentetid24t,
-           type = params$tableFormat,
-           cap = cap,
-           digs = c(0, 0, 0, 1, 1),
-           align = rep("c", 5),
-           label = "tabVentetid24t")
+nstemi_24t_aar <- dplyr::left_join(nstemi_24t_lokalt_aar,
+                                   nstemi_24t_nasjonalt_aar,
+                                   by = c("maaned")) %>%
+  replace(is.na(.), "-")
+
+# Forberede tabell, bruke kompletthet og ventetid
+tabVentetid24t <- rbind(
+  nstemi_24t_fjor,
+  nstemi_24t_aar)
+
+
+align <- c("l", rep("c", dim(tabVentetid24t)[2] - 1))
+digs <-  rep(0, dim(tabVentetid24t)[2])
+
+ tabVentetid24t %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r",
+               label = "tabVentetid24t") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(tabVentetid24t)[1]-1, hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(tabVentetid24t)[1])
+
+# noric::mst(tab = tabVentetid24t,
+#            type = params$tableFormat,
+#            cap = cap,
+#            digs = c(0, 0, 0, 1, 1),
+#            align = rep("c", 5),
+#            label = "tabVentetid24t")
 
 ```
 
