@@ -581,7 +581,7 @@ ferdigstilt_lokalt_aar <- merge(
   dplyr::relocate("aar", .before = "maaned")
 
 
-#Nasjonalt i år
+# Nasjonalt i år
 ferdigstilt_nasjonalt_aar <- merge(
   x = timeTableMonth_aar,
   y = aP_nasjonalt %>% 
@@ -622,7 +622,7 @@ digs <-  rep(0, dim(tabFerdigtiltKompl)[2])
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
-               align = "r",
+               align = align,
                label = "tabFerdigtiltKompl") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
                              font_size = 8) %>% 
@@ -658,7 +658,7 @@ skjer innen 72 timer. Registeret presenterer data for begge disse indikatorene
 som andel pasienter med indikasjon NSTEMI der koronar angiografi har blitt
 utført innen 24 og 72 timer etter innleggelse i sykehus. Det er således to
 ulike kvalitetsindikatorer som gjelder for ventetid på utredning ved NSTEMI
-med målnivå på henholdsvis 50 % og 80 %. 
+med målnivå på henholdsvis 50 % og 80 %.
 
 Tabell \@ref(tab:tabVentetid24t) og \@ref(tab:tabVentetid72t) viser 
 måloppnåelse per måned for `r params$hospitalName` og nasjonalt for 24 og 72
@@ -832,7 +832,7 @@ digs <-  rep(0, dim(tabVentetid24t)[2])
     knitr::kable(format = params$tableFormat,
                caption = cap,
                booktabs = TRUE,
-               align = "r",
+               align = align,
                label = "tabVentetid24t") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
                              font_size = 8) %>% 
@@ -846,12 +846,6 @@ digs <-  rep(0, dim(tabVentetid24t)[2])
                           start_row = 14, 
                           end_row = dim(tabVentetid24t)[1])
 
-# noric::mst(tab = tabVentetid24t,
-#            type = params$tableFormat,
-#            cap = cap,
-#            digs = c(0, 0, 0, 1, 1),
-#            align = rep("c", 5),
-#            label = "tabVentetid24t")
 
 ```
 
