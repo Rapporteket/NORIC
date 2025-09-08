@@ -13,6 +13,7 @@
 \alias{queryMitralklaffvarnum}
 \alias{queryMitralklaffoppfvarnum}
 \alias{queryCtangiovarnum}
+\alias{querySkjemaoversikt}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryTaviprom()
@@ -36,6 +37,15 @@ queryMitralklaffvarnum()
 queryMitralklaffoppfvarnum()
 
 queryCtangiovarnum()
+
+querySkjemaoversikt(fromDate, toDate)
+}
+\arguments{
+\item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
+NULL if no filter on date.}
+
+\item{toDate}{Character string of format YYYY-MM-DD with end date. Value
+NULL if no filter on date.}
 }
 \value{
 query as string

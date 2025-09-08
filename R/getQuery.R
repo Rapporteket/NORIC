@@ -2,6 +2,10 @@
 #'
 #' Replace old views
 #'
+#' @param fromDate Character string of format YYYY-MM-DD with start date. Value
+#' NULL if no filter on date.
+#' @param toDate Character string of format YYYY-MM-DD with end date. Value
+#' NULL if no filter on date.
 
 #' @return query as string
 #' @name getQuery
