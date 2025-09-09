@@ -66,28 +66,10 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
   }
   
   aPnum <- rapbase::loadRegData(registryName, query)
-  aP <- noric::erstatt_koder_m_etiketter(aPnum, 
-                                         mapping = noric::angp_map_num_tekst)
-  
-  query_fo_temp <- paste0("
-   SELECT
-    forlopsoversikt.AvdRESH,
-    forlopsoversikt.ForlopsID,
-    forlopsoversikt.PasientID,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.KobletForlopsID,
-    forlopsoversikt.ForlopsType2
-    FROM
-    forlopsoversikt;")
-  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
-  
-  aP %<>% dplyr::left_join(., 
-                           fo_tmp,
-                           by = c("AvdRESH", "ForlopsID", "PasientID"))
+  aP <- noric::erstatt_koder_m_etiketter(
+    aPnum, 
+    mapping = noric::angp_map_num_tekst) %>% 
+    noric::utlede_alder(., var = ProsedyreDato)
   list(aP = aP)
 }
 
@@ -114,7 +96,7 @@ getSo <- function(registryName, fromDate, toDate, singleRow,
   query <- paste0("SELECT * FROM  skjemaoversikt
                   WHERE HovedDato >= '", fromDate, 
                   "' AND HovedDato <= '", toDate, "' ")
-
+  
   # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -148,8 +130,8 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
                   "WHERE
                   T.PROCEDUREDATE >= '", fromDate, "' AND
                   T.PROCEDUREDATE <= '", toDate, "'")
- 
-   if(!is.null(singleHospital)) {
+  
+  if(!is.null(singleHospital)) {
     query <- paste0(query, "AND T.CENTREID = ", singleHospital)
   }
   if (singleRow) {
@@ -165,34 +147,10 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
   }
   
   aKnum <- rapbase::loadRegData(registryName, query)
-  aK <- noric::erstatt_koder_m_etiketter(aKnum,
-                                         mapping = noric::aort_map_num_tekst)
-  
-  
-  # query_fo_temp <- paste0("
-  #  SELECT
-  #   forlopsoversikt.AvdRESH,
-  #   forlopsoversikt.ForlopsID,
-  #   forlopsoversikt.Sykehusnavn,
-  #   forlopsoversikt.FodselsDato,
-  #   forlopsoversikt.Kommune,
-  #   forlopsoversikt.KommuneNr,
-  #   forlopsoversikt.Fylke,
-  #   forlopsoversikt.Fylkenr,
-  #   forlopsoversikt.PasientKjonn,
-  #   forlopsoversikt.PasientAlder,
-  #   forlopsoversikt.ForlopsType1,
-  #   forlopsoversikt.ForlopsType2,
-  #   forlopsoversikt.KobletForlopsID,
-  #   forlopsoversikt.Avdod
-  # FROM
-  #   forlopsoversikt;")
-  # 
-  # fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
-  # 
-  # aK %<>% dplyr::left_join(.,
-  #                          fo_tmp,
-  #                          by = c("AvdRESH", "ForlopsID"))
+  aK <- noric::erstatt_koder_m_etiketter(
+    df = aKnum,
+    mapping = noric::aort_map_num_tekst) %>% 
+    noric::utlede_alder(., var = ProsedyreDato) # vil ha alder i datadump
   list(aK = aK)
 }
 

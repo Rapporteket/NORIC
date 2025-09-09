@@ -369,7 +369,7 @@ SELECT
   -- Pasientinfo
   P.SSN_TYPE AS FnrType,
   P.SSNSUBTYPE AS FnrSubType,
-  P.BIRTH_DATE AS FodselsDat,
+  P.BIRTH_DATE AS FodselsDato,
   P.DECEASED AS AvdodFReg,
   P.DECEASED_DATE AS DodsdatoFReg,
   P.MUNICIPALITY_NAME AS Kommune,
@@ -777,6 +777,14 @@ queryAngiopcinum <- function(){
     P.DECEASED  AS AvdodFReg,
     P.DECEASED_DATE as AvdodDatoFReg,
     P.REGISTERED_DATE as PasientRegDato,
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+	  CAST(NULL AS CHAR(50)) AS Fylke,
+  	CAST(NULL AS CHAR(2)) AS Fylkenr,
+  	MCE.PARENT_MCEID as KobletForlopsID,
+
+
+  
 
     -- Study information
     CAST((SELECT

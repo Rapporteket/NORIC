@@ -14,6 +14,7 @@
 \alias{queryMitralklaffoppfvarnum}
 \alias{queryCtangiovarnum}
 \alias{querySkjemaoversikt}
+\alias{queryPasienterstudier}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryTaviprom()
@@ -39,6 +40,8 @@ queryMitralklaffoppfvarnum()
 queryCtangiovarnum()
 
 querySkjemaoversikt(fromDate, toDate)
+
+queryPasienterstudier()
 }
 \arguments{
 \item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
