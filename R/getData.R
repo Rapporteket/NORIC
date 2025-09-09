@@ -148,11 +148,10 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
                   "WHERE
                   T.PROCEDUREDATE >= '", fromDate, "' AND
                   T.PROCEDUREDATE <= '", toDate, "'")
-  
-  if(!is.null(singleHospital)) {
+ 
+   if(!is.null(singleHospital)) {
     query <- paste0(query, "AND T.CENTREID = ", singleHospital)
   }
-  
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;") # single row
     msg <- "Query single row data for aortaklaffvarnum"
@@ -170,30 +169,30 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
                                          mapping = noric::aort_map_num_tekst)
   
   
-  query_fo_temp <- paste0("
-   SELECT
-    forlopsoversikt.AvdRESH,
-    forlopsoversikt.ForlopsID,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.FodselsDato,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID,
-    forlopsoversikt.Avdod
-  FROM
-    forlopsoversikt;")
-  
-  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
-  
-  aK %<>% dplyr::left_join(., 
-                           fo_tmp,
-                           by = c("AvdRESH", "ForlopsID"))
+  # query_fo_temp <- paste0("
+  #  SELECT
+  #   forlopsoversikt.AvdRESH,
+  #   forlopsoversikt.ForlopsID,
+  #   forlopsoversikt.Sykehusnavn,
+  #   forlopsoversikt.FodselsDato,
+  #   forlopsoversikt.Kommune,
+  #   forlopsoversikt.KommuneNr,
+  #   forlopsoversikt.Fylke,
+  #   forlopsoversikt.Fylkenr,
+  #   forlopsoversikt.PasientKjonn,
+  #   forlopsoversikt.PasientAlder,
+  #   forlopsoversikt.ForlopsType1,
+  #   forlopsoversikt.ForlopsType2,
+  #   forlopsoversikt.KobletForlopsID,
+  #   forlopsoversikt.Avdod
+  # FROM
+  #   forlopsoversikt;")
+  # 
+  # fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
+  # 
+  # aK %<>% dplyr::left_join(.,
+  #                          fo_tmp,
+  #                          by = c("AvdRESH", "ForlopsID"))
   list(aK = aK)
 }
 

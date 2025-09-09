@@ -21,6 +21,7 @@
 #' queryMitralklaffoppfvarnum
 #' queryCtangiovarnum
 #' querySkjemaoversikt
+#' queryPasienterstudier
 NULL
 
 #' @rdname getQuery
@@ -163,13 +164,16 @@ WHERE
 #' @export
 queryAortaklaffvarnum <- function(){
   paste0("
-  SELECT
+SELECT
+  T.CENTREID AS AvdRESH,
   T.MCEID AS ForlopsID,
   P.ID AS PasientID,
-  P.SSN_TYPE AS FnrType,
-  P.DECEASED AS AvdodFReg,
-  P.DECEASED_DATE AS DodsdatoFReg,
-  T.CENTREID AS AvdRESH,
+  CASE WHEN MCE.INTERVENTION_TYPE = 5 THEN 'Aortaklaff' END AS ForlopsType1,
+  CASE 
+    WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
+    WHEN MCE.MCETYPE = 2 THEN 'Akutt'
+    WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
+  END AS ForlopsType2,
   
   -- Perkutane aortaklaffer
   T.SCREENING AS ScreeningBeslutning,
@@ -179,15 +183,13 @@ queryAortaklaffvarnum <- function(){
   T.PROCEDUREDATE AS ProsedyreDato,
   T.AKUTOP AS AkuttOperasjon,
   
-  -- Study information
-  (SELECT
-    GROUP_CONCAT(
-      IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-    FROM pasienterstudier PS
-    WHERE PS.PasientID = MCE.PATIENT_ID)
-  AS Studie,
-  
   -- Kliniske bakgrunnsdata
+  CASE
+	  WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+    WHEN P.GENDER = 1 THEN 'Mann'
+    WHEN P.GENDER = 2 THEN 'Kvinne'
+    ELSE 'Ukjent'
+  END AS PasientKjonn,
   T.HEIGHT AS Hoyde,
   T.HEIGHT_MISS AS HoydeUkjent,
   T.WEIGHT AS Vekt,
@@ -218,7 +220,6 @@ queryAortaklaffvarnum <- function(){
   T.PERIF_VESSELDISEASE AS PeriferKarsykdom,
   T.OTHER_SERIOUS_ILLNESS AS AnnenAlvorligSykdom,
   
-  
   -- Aktuell preoperativ status
   T.NYHA AS NYHAKlasse,
   T.CANADIAN AS CanadianClass,
@@ -247,7 +248,6 @@ queryAortaklaffvarnum <- function(){
   T.OTHERMORBREASON5 AS Thoraxdeformitet,
   T.OTHERMORB AS AnnenAlvorligSykdomKirRisiko,
   T.PERC_VALVE_DUE_TO_PATIENT AS PerkKlaffPgaPasient,
-  
   T.PRESENT_HEALTH_STAT AS Helsetilstand,
   
   -- EKKO-funn fC8r prosedyre
@@ -365,6 +365,26 @@ queryAortaklaffvarnum <- function(){
   TD.ASA_DISCHARGE AS ASAVedUtskrivelse,
   TD.ANTICOAGULANTS_DISCHARGE AS AntikoagulantiaVedUtskrivelse,
   TD.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmereVedUtskrivelse,
+  
+  -- Pasientinfo
+  P.SSN_TYPE AS FnrType,
+  P.SSNSUBTYPE AS FnrSubType,
+  P.BIRTH_DATE AS FodselsDat,
+  P.DECEASED AS AvdodFReg,
+  P.DECEASED_DATE AS DodsdatoFReg,
+  P.MUNICIPALITY_NAME AS Kommune,
+  P.MUNICIPALITY_NUMBER AS KommuneNr,
+	CAST(NULL AS CHAR(50)) AS Fylke,
+	CAST(NULL AS CHAR(2)) AS Fylkenr,
+  MCE.PARENT_MCEID as KobletForlopsID,
+  
+   -- Study information
+  (SELECT
+    GROUP_CONCAT(
+      IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+    FROM pasienterstudier PS
+    WHERE PS.PasientID = MCE.PATIENT_ID)
+  AS Studie,
   
   LEAST(T.STATUS, TD.STATUS) AS SkjemaStatus,
   T.STATUS AS SkjemaStatusHovedskjema,
@@ -1864,3 +1884,27 @@ querySkjemaoversikt <-function(fromDate, toDate){
     skjema.PROCEDUREDATE >= '", fromDate, "' AND
     skjema.PROCEDUREDATE <= '", toDate, "'
          ")}
+
+
+
+#' @rdname getQuery
+#' @export
+queryPasienterstudier <-function(){
+  paste0("
+  SELECT
+    ps.PATIENT_ID AS PasientID,
+    ps.CENTREID AS AvdRESH,
+    s.ID AS StudieID,
+    s.NAME AS StudieNavn,
+    getListText('STUDY_PROCEDURE_TYPE', s.PROCEDURE_TYPE) AS ProsedyreType,
+    ps.INCLUSION_DATE AS PasInklDato,
+    ps.STOP_INCLUSION_DATE AS PasAvsluttDato,
+    s.START_DATE AS StudieStartDato,
+    s.STOP_INCLUSION_DATE AS StudieAvsluttDato,
+    s.STOP_FOLLOWUP_DATE AS StudieOppflgAvslDato,
+    getListText('STUDY_STATUS', s.STATUS) AS StudieStatus
+  FROM
+    patientstudy ps
+    LEFT JOIN study s ON s.ID = ps.STUDY
+")
+}
