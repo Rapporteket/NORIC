@@ -91,7 +91,8 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,
   dataListe <- noric::getSo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   sO <- dataListe$sO
   
   
@@ -139,7 +140,7 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow, 
-                            singleHospital = singleHospital )
+                            singleHospital = singleHospital)
   aK <- dataListe$aK
   
   
@@ -189,7 +190,8 @@ getPrepFoData <- function(registryName, fromDate, toDate, singleRow,
   dataListe <- noric::getFo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   fO <- dataListe$fO
   
   
@@ -273,7 +275,8 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,
   dataListe <- noric::getCt(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   cT <- dataListe$cT
   
   
@@ -355,7 +358,8 @@ getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,
   dataListe <- noric::getAkOppf(registryName = registryName,
                                 fromDate = fromDate,
                                 toDate = toDate,
-                                singleRow = singleRow)
+                                singleRow = singleRow, 
+                                singleHospital = singleHospital)
   aKoppf <- dataListe$aKoppf
   
   
@@ -546,7 +550,8 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,
   dataListe <- noric::getMk(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   mK <- dataListe$mK
   
   
@@ -662,7 +667,8 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow,
   dataListe <- noric::getPs(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   pS <- dataListe$pS
   
   
@@ -790,7 +796,8 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
   dataListe <- noric::getApLight(registryName = registryName,
                                  fromDate = fromDate,
                                  toDate = toDate,
-                                 singleRow = singleRow)
+                                 singleRow = singleRow, 
+                                 singleHospital = singleHospital)
   ap_light <- dataListe$aP
   sS <- dataListe$sS
   aD <- dataListe$aD
@@ -999,7 +1006,8 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
   dataListe <- noric::getTaviProm(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
-                                  singleRow = singleRow)
+                                  singleRow = singleRow, 
+                                  singleHospital = singleHospital)
   tP <- dataListe$taviProm
   aK <- dataListe$aK
   
@@ -1035,7 +1043,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
       
     tavi %<>% 
       dplyr::mutate(
-        dg_prosedyre_til_dod = dplyr::if_else(.data$Avdod == "Ja", 
+        dg_prosedyre_til_dod = dplyr::if_else(.data$AvdodFReg == "Ja", 
                                               as.numeric(difftime(DodsdatoFReg, 
                                                        ProsedyreDato, 
                                                        units = "days")), 
@@ -1060,7 +1068,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
                       .data$FnrType, 
                       .data$PasientAlder, 
                       .data$PasientKjonn,
-                      .data$Avdod, 
+                      .data$AvdodFReg, 
                       .data$DodsdatoFReg, 
                       .data$TypeKlaffeprotese, 
                       .data$UtskrevetTil, 

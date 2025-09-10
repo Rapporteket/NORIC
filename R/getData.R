@@ -308,9 +308,7 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
                   R.INTERDAT <= '", toDate, "' ")
   
   if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "AND m.CENTREID = ", 
-                    singleHospital)
+    query <- paste0(query, "AND m.CENTREID = ", singleHospital)
   }
   
   if (singleRow) {
@@ -417,9 +415,7 @@ getMk <- function(registryName, fromDate, toDate, singleRow,
                   T.PROCEDUREDATE <= '", toDate, "' ")
   
   if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "AND mce.CENTREID = ", 
-                    singleHospital)
+    query <- paste0(query, "AND mce.CENTREID = ", singleHospital)
   }
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -454,35 +450,40 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
+  
+  
   queryAk <- paste0("
   SELECT
-    aortaklaffvarnum.DodsdatoFReg,
-    aortaklaffvarnum.UtskrevetTil,
-    aortaklaffvarnum.TypeKlaffeprotese,
-    aortaklaffvarnum.Prosedyre,
-    aortaklaffvarnum.ScreeningBeslutning,
-    aortaklaffvarnum.ProsedyreDato,
-    aortaklaffvarnum.FnrType, 
-    forlopsoversikt.PasientID,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.Avdod, 
-    forlopsoversikt.AvdRESH, 
-    forlopsoversikt.ForlopsID
-  FROM
-    aortaklaffvarnum
-  LEFT JOIN forlopsoversikt ON
-    aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
-    aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
-  WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'"
-  )
+    T.CENTREID AS AvdRESH,
+    T.MCEID AS ForlopsID,
+    P.ID AS PasientID, 
+    T.COMPLETED_PROCEDURE AS Prosedyre,
+    T.SCREENING AS ScreeningBeslutning,
+    T.PROCEDUREDATE AS ProsedyreDato,
+    CASE
+      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+      WHEN P.GENDER = 1 THEN 'Mann'
+      WHEN P.GENDER = 2 THEN 'Kvinne'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,
+    P.BIRTH_DATE AS FodselsDato,
+    P.SSN_TYPE AS FnrType,
+    P.DECEASED AS AvdodFReg,
+    P.DECEASED_DATE AS DodsdatoFReg,
+    (SELECT v.NAME FROM valve v WHERE T.INSTRUMENTTYPE = v.ID) AS TypeKlaffeprotese,
+    TD.DISCHARGETO AS UtskrevetTil
+    
+   FROM mce MCE
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      INNER JOIN taviperc T ON MCE.MCEID = T.MCEID
+      INNER JOIN tavidischarge TD ON MCE.MCEID = TD.MCEID
+ 
+   WHERE
+    T.PROCEDUREDATE >= '", fromDate, "' AND
+    T.PROCEDUREDATE <= '", toDate, "'
+ ")
   
-  # if(!is.null(singleHospital)) {
-  #   query <- paste0(query, "AND XX.CENTREID = ", singleHospital)
-  # }
-  # 
+
   queryProm <- paste0(
     noric::queryTaviprom(), 
     "AND
@@ -490,13 +491,19 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
     tavi.PROCEDUREDATE <= '", toDate, "'
     ")
   
+  if(!is.null(singleHospital)) {
+    queryAk <- paste0(queryAk, "AND T.CENTREID = ", singleHospital)
+    queryProm <- paste0(queryProm, "AND MCE.CENTREID = ", singleHospital)
+  }
+
+  
   if (singleRow) {
     queryProm <- paste0(queryProm, "\nLIMIT\n  1;")
     queryAk <- paste0(queryAk, "\nLIMIT\n  1;")
     msg <- "Query single row data for taviprom"
   } else {
-    queryProm <- paste0(queryProm, ";")
-    queryAk <- paste0(queryAk, ";")
+    queryProm <- paste0(queryProm, " ;")
+    queryAk <- paste0(queryAk, " ;")
     msg <- "Query data for taviprom"
   }
   
@@ -507,7 +514,8 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
   taviProm <- rapbase::loadRegData(registryName, queryProm)
   aKnum <- rapbase::loadRegData(registryName, queryAk)
   aK <- noric::erstatt_koder_m_etiketter(aKnum,
-                                         mapping = noric::aort_map_num_tekst)
+                                         mapping = noric::aort_map_num_tekst) %>% 
+    noric::utlede_alder(df = ., var = ProsedyreDato)
   
   
   list(taviProm = taviProm, 
