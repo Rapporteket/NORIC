@@ -11,13 +11,15 @@
 #' @param userRole String naming the user role
 #' @param fromDate first date to fetch
 #' @param toDate last date to fetch
+#' @param singleHospital AvdRESH to fetch data from
 #'
 #' @return data frame
 #' @export
 #'
 
 getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
-                            session, userRole, fromDate, toDate) {
+                            session, userRole, fromDate, toDate, 
+                            singleHospital) {
   
   # declare dot
   . <- ""
@@ -32,7 +34,8 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                        fromDate = fromDate,
                                        toDate = toDate,
                                        singleRow = singleRow,
-                                       session = session )
+                                       session = session, 
+                                       singleHospital = singleHospital)
     }
     
     if (setId == "AnP") {
@@ -40,77 +43,88 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                    fromDate = fromDate,
                                    toDate = toDate,
                                    singleRow = singleRow,
-                                   session = session)
+                                   session = session, 
+                                   singleHospital = singleHospital)
     }
     if (setId == "AnD") {
       dat <- noric::getPrepAnDData(registryName = registryName,
                                    fromDate = fromDate,
                                    toDate = toDate,
                                    singleRow = singleRow,
-                                   session = session)
+                                   session = session, 
+                                   singleHospital = singleHospital)
     }
     if (setId == "AP") {
       dat <- noric::getPrepApData(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
                                   singleRow = singleRow,
-                                  session = session)
+                                  session = session, 
+                                  singleHospital = singleHospital)
     }
     if (setId == "AK") {
       dat <- noric::getPrepAkData(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
                                   singleRow = singleRow,
-                                  session = session)
+                                  session = session, 
+                                  singleHospital = singleHospital)
     }
     if (setId == "AKOppf") {
       dat <- noric::getPrepAkOppfData(registryName = registryName,
                                       fromDate = fromDate,
                                       toDate = toDate,
                                       singleRow = singleRow,
-                                      session = session)
+                                      session = session, 
+                                      singleHospital = singleHospital)
     }
     if (setId == "CT") {
       dat <- noric::getPrepCtData(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
                                   singleRow = singleRow,
-                                  session = session)
+                                  session = session, 
+                                  singleHospital = singleHospital)
     }
     if (setId == "FO") {
       dat <- noric::getPrepFoData(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
                                   singleRow = singleRow,
-                                  session = session)
+                                  session = session, 
+                                  singleHospital = singleHospital)
     }
     if (setId == "MK") {
       dat <- noric::getPrepMkData(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
                                   singleRow = singleRow,
-                                  session = session)
+                                  session = session, 
+                                  singleHospital = singleHospital)
     }
     if (setId == "PS") {
       dat <- noric::getPrepPsData(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
                                   singleRow = singleRow,
-                                  session = session)
+                                  session = session, 
+                                  singleHospital = singleHospital)
     }
     if (setId == "SO") {
       dat <- noric::getPrepSoData(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
                                   singleRow = singleRow,
-                                  session = session)
+                                  session = session, 
+                                  singleHospital = singleHospital)
     }
     if (setId == "SS") {
       dat <- noric::getPrepSsData(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
                                   singleRow = singleRow,
-                                  session = session)
+                                  session = session, 
+                                  singleHospital = singleHospital)
     }
     
     if (setId == "TP") {
@@ -118,7 +132,8 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                         fromDate = fromDate,
                                         toDate = toDate,
                                         singleRow = singleRow,
-                                        session = session)
+                                        session = session, 
+                                        singleHospital = singleHospital)
     }
     
   } else {

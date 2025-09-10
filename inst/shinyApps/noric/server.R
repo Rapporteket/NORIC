@@ -312,7 +312,8 @@ shinyServer(function(input, output, session) {
                            session = session,
                            userRole = user$role(),
                            fromDate = input$utforskerDateRange[1],
-                           toDate = input$utforskerDateRange[2])
+                           toDate = input$utforskerDateRange[2], 
+                           singleHospital = user$org())
   })
   
   metaDat <- shiny::reactive({
@@ -322,7 +323,8 @@ shinyServer(function(input, output, session) {
                            session = session,
                            userRole = user$role(),
                            fromDate = NULL,
-                           toDate = NULL)
+                           toDate = NULL, 
+                           singleHospital = NULL)
   })
   
   ## outputs
