@@ -836,8 +836,9 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
                               suffix = "KomplikSkjema")
   
   # Utlede aldersklasser
-  ap_light %<>% noric::utlede_aldersklasse(df = .,
-                                           var = .data$PasientAlder)
+  ap_light %<>% 
+    noric::utlede_alder(df = ., var = ProsedyreDato) %>% 
+    noric::utlede_aldersklasse(df = ., var = .data$PasientAlder)
   
   # Legger til utledete variabler fra segment Stent til ap_light,
   # Noen er hjelpevariabler som brukes i KI-funksjonene. Disse fjernes
@@ -884,7 +885,6 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
       - tidyselect::contains("Ukjent"),
       
       # Ikke i bruk
-      - .data$PasientRegDato,
       - .data$Studie,
       
       # Dobbelt opp av disse, fjerne minst komplette/feil (sept 2021):

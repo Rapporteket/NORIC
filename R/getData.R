@@ -644,66 +644,55 @@ WHERE
 getApLight <- function(registryName, fromDate, toDate, singleRow, 
                        singleHospital = NULL, ...) {
   
-  
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
-  
-  
-  
-  query <- paste0("
-SELECT
-    a.*,
-    f.Kommune,
-    f.KommuneNr,
-    f.Fylke,
-    f.Fylkenr,
-    f.PasientAlder,
-    f.KobletForlopsID
-FROM
-    angiopcinum a
-LEFT JOIN forlopsoversikt f ON
-    a.AvdRESH = f.AvdRESH AND
-    a.PasientID = f.PasientID AND
-    a.ForlopsID = f.ForlopsID
-WHERE
-    a.ProsedyreDato >= '", fromDate, "' AND
-    a.ProsedyreDato <= '", toDate, "'"
-  )
-  
-  
-  
-  # Only ask for variables needed in functions:utlede_segment_stent_variabler.R
+
+  queryAp <- paste0(noric::queryAngiopcinum(), 
+                  "WHERE
+                  A.INTERDAT >= '", fromDate, "' AND
+                  A.INTERDAT <= '", toDate, "' ")
+
+  # Only ask for variables needed in functions: utlede_annen_diag_variabler.R 
+  # and utlede_segment_stent_variabler.R
   querySs <- paste0("
-SELECT
-    ForlopsID, AvdRESH, StentType, Segment, Graft, ProsedyreType
-FROM
-    segmentstentnum
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
-")
-  
-  
-  # Only ask for variables needed in functions: utlede_annen_diag_variabler.R
+      SELECT     
+        mce.CENTREID AS AvdRESH,
+        segment.MCEID AS ForlopsID,
+        stent.DES  AS StentType,
+        segment.SEGMENT as Segment,
+        segment.GRAFT  AS Graft,
+        segment.PROCTYP  AS ProsedyreType
+      FROM segment 
+      LEFT  JOIN stent  ON segment.STENT = stent.SID
+      INNER JOIN mce ON segment.MCEID = mce.MCEID
+      WHERE 
+        mce.INTERDAT >= '", fromDate, "' AND
+        mce.INTERDAT <= '", toDate, "' ")
+ 
   queryAd <- paste0("
-SELECT
-    ForlopsID, AvdRESH, metode
-FROM
-    annendiagnostikkvarnum
-WHERE
-    ProsedyreDato >= '", fromDate, "' AND
-    ProsedyreDato <= '", toDate, "'
-")
+      SELECT     
+        mce.CENTREID AS AvdRESH,
+        diagnostics.MCEID AS ForlopsID,
+        diagnostics.METHODUSED  AS metode
+      FROM diagnostics 
+      INNER JOIN mce ON diagnostics.MCEID = mce.MCEID
+      WHERE 
+        mce.INTERDAT >= '", fromDate, "' AND
+        mce.INTERDAT <= '", toDate, "' ")
   
+  if(!is.null(singleHospital)) {
+    queryAp <- paste0(queryAp, "AND A.CENTREID = ", singleHospital)
+    querySs <- paste0(querySs, "AND mce.CENTREID = ", singleHospital)
+    queryAd <- paste0(queryAs, "AND mce.CENTREID = ", singleHospital)
+  }
   
-  # SQL for one row only/complete table:
   if (singleRow) {
-    query <- paste0(query, "\nLIMIT\n  1;")
+    queryAp <- paste0(queryAp, "\nLIMIT\n  1;")
     querySs <- paste0(querySs, "\nLIMIT\n  1;")
     queryAd <- paste0(queryAd, "\nLIMIT\n  1;")
     msg <- "Query single row data for AngioPCI light"
   } else {
-    query <- paste0(query, ";")
+    queryAp <- paste0(queryAp, ";")
     querySs <- paste0(querySs, ";")
     queryAd <- paste0(queryAd, ";")
     msg <- "Query data for AngioPCI light"
@@ -713,7 +702,7 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  aPnum <- rapbase::loadRegData(registryName, query)
+  aPnum <- rapbase::loadRegData(registryName, queryAp)
   aP <- noric::erstatt_koder_m_etiketter(aPnum)
   
   aDnum <- rapbase::loadRegData(registryName, queryAd)
@@ -723,9 +712,6 @@ WHERE
   sSnum <- rapbase::loadRegData(registryName, querySs)
   sS <- noric::erstatt_koder_m_etiketter(sSnum,
                                          mapping = noric::segm_map_num_tekst)
-  
-  
-  
   list(aP = aP,
        aD = aD,
        sS = sS)

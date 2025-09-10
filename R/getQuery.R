@@ -433,6 +433,7 @@ queryAngiopcinum <- function(){
 	  CAST(NULL AS CHAR(50)) AS Fylke,
   	CAST(NULL AS CHAR(2)) AS Fylkenr,
   	MCE.PARENT_MCEID as KobletForlopsID,
+  	MCE.PARENT_MCEID AS PrimaerForlopsID,
 
     -- Study information
     CAST((SELECT
