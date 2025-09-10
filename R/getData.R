@@ -69,7 +69,9 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
   aP <- noric::erstatt_koder_m_etiketter(
     aPnum, 
     mapping = noric::angp_map_num_tekst) %>% 
-    noric::utlede_alder(., var = ProsedyreDato)
+    noric::utlede_alder(., var = ProsedyreDato)%>% 
+    noric::fikse_sykehusnavn(.)
+  
   list(aP = aP)
 }
 
@@ -106,7 +108,9 @@ getCt <- function(registryName, fromDate, toDate, singleRow,
   cT <-  noric::erstatt_koder_m_etiketter(
     cTnum,
     mapping = noric::CTANG_map_num_tekst) %>% 
-    noric::utlede_alder(var = UndersokDato)
+    noric::utlede_alder(var = UndersokDato)%>% 
+    noric::fikse_sykehusnavn(.)
+  
   
   list(cT = cT)
 }
@@ -145,7 +149,8 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
   aK <- noric::erstatt_koder_m_etiketter(
     df = aKnum,
     mapping = noric::aort_map_num_tekst) %>% 
-    noric::utlede_alder(., var = ProsedyreDato) # vil ha alder i datadump
+    noric::utlede_alder(., var = ProsedyreDato)%>% 
+    noric::fikse_sykehusnavn(.)
   list(aK = aK)
 }
 
@@ -251,7 +256,8 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
   anPnum <- rapbase::loadRegData(registryName, query)
   anP <- noric::erstatt_koder_m_etiketter(anPnum,
                                           mapping = noric::APVN_map_num_tekst) %>% 
-    noric::utlede_alder(., var = ProsedyreDato)
+    noric::utlede_alder(., var = ProsedyreDato) %>% 
+    noric::fikse_sykehusnavn(.)
 
   list(anP = anP)
 }
@@ -289,7 +295,9 @@ getAnD <- function(registryName, fromDate, toDate, singleRow,
   anDnum <- rapbase::loadRegData(registryName, query)
   anD <- noric::erstatt_koder_m_etiketter(anDnum,
                                           mapping = noric::ADVN_map_num_tekst) %>% 
-    noric::utlede_alder(., var = ProsedyreDato)
+    noric::utlede_alder(., var = ProsedyreDato) %>% 
+    noric::fikse_sykehusnavn(.)
+  
   list(anD = anD)
 }
 
@@ -326,7 +334,9 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
   sSnum <- rapbase::loadRegData(registryName, query)
   sS <- noric::erstatt_koder_m_etiketter(sSnum,
                                          mapping = noric::segm_map_num_tekst) %>% 
-    noric::utlede_alder(., var = ProsedyreDato)
+    noric::utlede_alder(., var = ProsedyreDato) %>% 
+    noric::fikse_sykehusnavn(.)
+  
   list(sS = sS)
 }
 
@@ -432,7 +442,9 @@ getMk <- function(registryName, fromDate, toDate, singleRow,
   mKnum <- rapbase::loadRegData(registryName, query)
   mK <- noric::erstatt_koder_m_etiketter(
     mKnum,
-    mapping = noric::mitr_map_num_tekst) 
+    mapping = noric::mitr_map_num_tekst) %>% 
+    noric::fikse_sykehusnavn(.)
+  
   # %>% 
     # noric::utlede_alder(., var = ProsedyreDato)
 
@@ -550,7 +562,9 @@ getFo <- function(registryName, fromDate, toDate, singleRow,
   }
   
   fO <- rapbase::loadRegData(registryName, query) %>% 
-    noric::utlede_alder(., HovedDato)
+    noric::utlede_alder(., HovedDato) %>% 
+    noric::fikse_sykehusnavn(.)
+  
   list(fO = fO)
 }
 
