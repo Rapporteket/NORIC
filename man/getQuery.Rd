@@ -2,28 +2,28 @@
 % Please edit documentation in R/getQuery.R
 \name{getQuery}
 \alias{getQuery}
-\alias{queryTaviprom}
+\alias{queryAngiopcinum}
+\alias{queryCtangiovarnum}
 \alias{queryAortaklaffvarnum}
 \alias{queryAortaklaffoppfvarnum}
-\alias{queryForlopsoversikt}
 \alias{queryAndreprosedyrervarnum}
 \alias{queryAnnendiagnostikkvarnum}
 \alias{querySegmentstentnum}
-\alias{queryAngiopcinum}
 \alias{queryMitralklaffvarnum}
 \alias{queryMitralklaffoppfvarnum}
-\alias{queryCtangiovarnum}
+\alias{queryTaviprom}
+\alias{queryForlopsoversikt}
 \alias{querySkjemaoversikt}
 \alias{queryPasienterstudier}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
-queryTaviprom()
+queryAngiopcinum()
+
+queryCtangiovarnum()
 
 queryAortaklaffvarnum()
 
 queryAortaklaffoppfvarnum()
-
-queryForlopsoversikt()
 
 queryAndreprosedyrervarnum()
 
@@ -31,13 +31,13 @@ queryAnnendiagnostikkvarnum()
 
 querySegmentstentnum()
 
-queryAngiopcinum()
-
 queryMitralklaffvarnum()
 
 queryMitralklaffoppfvarnum()
 
-queryCtangiovarnum()
+queryTaviprom()
+
+queryForlopsoversikt()
 
 querySkjemaoversikt(fromDate, toDate)
 

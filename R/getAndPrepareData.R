@@ -26,18 +26,18 @@
 #'
 #' @name getPrepData
 #' @aliases getPrepApData
-#' getPrepSoData
-#' getPrepAkData
-#' getPrepFoData
-#' getPrepAnPData
 #' getPrepCtData
+#' getPrepAkData
 #' getPrepAkOppfData
+#' getPrepAnPData
 #' getPrepAnDData
 #' getPrepSsData
 #' getPrepMkData
+#' getPrepTaviPromData
+#' getPrepFoData
+#' getPrepSoData
 #' getPrepPsData
 #' getPrepApLightData
-#' getPrepTaviPromData
 NULL
 
 #' @rdname getPrepData

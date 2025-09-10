@@ -3,18 +3,18 @@
 \name{getPrepData}
 \alias{getPrepData}
 \alias{getPrepApData}
-\alias{getPrepSoData}
-\alias{getPrepAkData}
-\alias{getPrepFoData}
-\alias{getPrepAnPData}
 \alias{getPrepCtData}
+\alias{getPrepAkData}
 \alias{getPrepAkOppfData}
+\alias{getPrepAnPData}
 \alias{getPrepAnDData}
 \alias{getPrepSsData}
 \alias{getPrepMkData}
+\alias{getPrepTaviPromData}
+\alias{getPrepFoData}
+\alias{getPrepSoData}
 \alias{getPrepPsData}
 \alias{getPrepApLightData}
-\alias{getPrepTaviPromData}
 \title{Data managment on tables}
 \usage{
 getPrepApData(

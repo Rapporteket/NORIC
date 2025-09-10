@@ -9,739 +9,20 @@
 
 #' @return query as string
 #' @name getQuery
-#' @aliases queryTaviprom
+#' @aliases queryAngiopcinum
+#' queryCtangiovarnum
 #' queryAortaklaffvarnum
 #' queryAortaklaffoppfvarnum
-#' queryForlopsoversikt
 #' queryAndreprosedyrervarnum
 #' queryAnnendiagnostikkvarnum
 #' querySegmentstentnum
-#' queryAngiopcinum
 #' queryMitralklaffvarnum
 #' queryMitralklaffoppfvarnum
-#' queryCtangiovarnum
+#' queryTaviprom
+#' queryForlopsoversikt
 #' querySkjemaoversikt
 #' queryPasienterstudier
 NULL
-
-#' @rdname getQuery
-#' @export
-queryTaviprom <- function(){
-  
-  paste0("
-  SELECT
-  
-  MCE.MCEID AS ForlopsID,
-  proms.REGISTRATION_TYPE AS Registreringstype,
-  P.ID AS PasientID,
-  P.SSN_TYPE AS FnrType,
-  tavi.PROCEDUREDATE AS ProsedyreDato,
-  MCE.CENTREID AS AvdRESH,
-  proms.TSSENDT AS ePromBestillingsdato,
-  proms.TSRECEIVED AS ePromMottatt,
-  proms.EXPIRY_DATE AS ePromUtloeptDato,
-  proms.STATUS AS ePromStatus,
-  r.Q01 AS rose01,
-  r.Q02 AS rose02,
-  r.Q03 AS rose03,
-  r.Q04 AS rose04,
-  r.Q05 AS rose05,
-  r.FORM_COMPLETED_VIA_PROMS AS roseFerdigViaProm,
-  r.TSUPDATED AS roseDato,
-  r.STATUS AS roseStatus,
-  h.Q01 AS heart01 ,
-  h.Q02 AS heart02 ,
-  h.Q03 AS heart03 ,
-  h.Q04 AS heart04 ,
-  h.Q05 AS heart05 ,
-  h.Q06 AS heart06 ,
-  h.Q07 AS heart07 ,
-  h.Q08 AS heart08 ,
-  h.Q09 AS heart09 ,
-  h.Q10 AS heart10,
-  h.Q11 AS heart11,
-  h.Q12 AS heart12,
-  h.Q13 AS heart13,
-  h.Q14 AS heart14,
-  h.FORM_COMPLETED_VIA_PROMS AS heartFerdigViaProm,
-  h.TSUPDATED AS heartDato,
-  h.STATUS AS hearStatus,
-  m.Q01 AS min01,
-  m.Q02 AS min02,
-  m.Q03 AS min03,
-  m.Q04 AS min04,
-  m.Q05 AS min05,
-  m.Q06 AS min06,
-  m.Q07 AS min07,
-  m.Q08 AS min08,
-  m.Q09 AS min09,
-  m.Q10 AS min10,
-  m.Q11 AS min11,
-  m.Q12 AS min12,
-  m.Q13 AS min13,
-  m.Q14 AS min14,
-  m.Q15 AS min15,
-  m.Q16 AS min16,
-  m.Q17 AS min17,
-  m.Q18 AS min18,
-  m.Q19 AS min19,
-  m.Q20 AS min20,
-  m.Q21 AS min21,
-  m.FORM_COMPLETED_VIA_PROMS AS minFerdigViaProm,
-  m.TSUPDATED AS minDato,
-  m.STATUS AS minStatus,
-  tav.Q01 AS tavi01,
-  tav.Q01_2 AS tavi01_2,
-  tav.Q02 AS tavi02,
-  tav.Q02_2 AS tavi02_2,
-  tav.Q03 AS tavi03,
-  tav.Q04 AS tavi04,
-  tav.Q05 AS tavi05,
-  tav.Q06 AS tavi06,
-  tav.Q06_2 AS tavi06_2,
-  tav.Q07 AS tavi07,
-  tav.FORM_COMPLETED_VIA_PROMS AS taviFerdigViaProm,
-  tav.TSUPDATED AS taviDato,
-  tav.STATUS AS taviStatus,
-  prem.Q01 AS prem01,
-  prem.Q02 AS prem02,
-  prem.Q03 AS prem03,
-  prem.Q04 AS prem04,
-  prem.Q05 AS prem05,
-  prem.Q06 AS prem06,
-  prem.Q07 AS prem07,
-  prem.Q08 AS prem08,
-  prem.Q09 AS prem09,
-  prem.Q10 AS prem10,
-  prem.Q11 AS prem11,
-  prem.Q12 AS prem12,
-  prem.Q13 AS prem13,
-  prem.Q14 AS prem14,
-  prem.Q15 AS prem15,
-  prem.FORM_COMPLETED_VIA_PROMS AS premFerdigViaProm,
-  prem.TSUPDATED AS premDato,
-  prem.STATUS AS premStatus
-  
-FROM 
-  proms
-  
-INNER JOIN mce MCE ON 
-  proms.MCEID = MCE.MCEID
-  
-INNER JOIN centre C ON 
-  C.ID = MCE.CENTREID
-  
-INNER JOIN patient P ON 
-  MCE.PATIENT_ID = P.ID
-  
-LEFT JOIN rose_dyspnea_scale r ON 
-  MCE.MCEID = r.MCEID
-  
-LEFT JOIN heart_qol h ON 
-  MCE.MCEID = h.MCEID
-  
-LEFT JOIN minnesota_questionnaire m ON 
-  MCE.MCEID = m.MCEID
-  
-LEFT JOIN taviperc tavi ON
-  MCE.MCEID = tavi.MCEID
-  
-LEFT JOIN tavi_additional_questions tav ON 
-  MCE.MCEID = tav.MCEID
-  
-LEFT JOIN prem ON 
-  MCE.MCEID = prem.MCEID
-  
-WHERE 
-  proms.REGISTRATION_TYPE LIKE 'TAVI%'
-")
-}
-
-
-
-
-#' @rdname getQuery
-#' @export
-queryAortaklaffvarnum <- function(){
-  paste0("
-SELECT
-  T.CENTREID AS AvdRESH,
-  T.MCEID AS ForlopsID,
-  P.ID AS PasientID,
-  CASE WHEN MCE.INTERVENTION_TYPE = 5 THEN 'Aortaklaff' END AS ForlopsType1,
-  CASE 
-    WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
-    WHEN MCE.MCETYPE = 2 THEN 'Akutt'
-    WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
-  END AS ForlopsType2,
-  
-  -- Perkutane aortaklaffer
-  T.SCREENING AS ScreeningBeslutning,
-  T.COMPLETED_PROCEDURE AS Prosedyre,
-  T.INDICATION AS Indikasjon,
-  T.SCREENINGDATE AS BeslutningsDato,
-  T.PROCEDUREDATE AS ProsedyreDato,
-  T.AKUTOP AS AkuttOperasjon,
-  
-  -- Kliniske bakgrunnsdata
-  CASE
-	  WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
-    WHEN P.GENDER = 1 THEN 'Mann'
-    WHEN P.GENDER = 2 THEN 'Kvinne'
-    ELSE 'Ukjent'
-  END AS PasientKjonn,
-  T.HEIGHT AS Hoyde,
-  T.HEIGHT_MISS AS HoydeUkjent,
-  T.WEIGHT AS Vekt,
-  T.WEIGHT_MISS AS VektUkjent,
-  T.SMOKING AS Royker,
-  T.S_CREATININ AS SKreatininFoer,
-  T.S_CREATININ_MISS AS SKreatininIkkeUtfort,
-  T.PROBNP AS ProBNPFoer,
-  T.PROBNPNT AS NTProBNPFoer,
-  T.HEMOGLOBIN AS HemoglobinFoer, -- Added in v1.13 as NOR-1345
-  
-  -- Tidligere sykdommer/behandling
-  T.HYPERTENSION AS BehHypertoni,
-  T.DIABETES AS Diabetes,
-  T.DIABETESINSULIN AS Insulin,
-  T.ATRIAL_FIBRILLATION AS Atrieflimmer,
-  T.PREVIOUS_MI AS InfarktSiste90d,
-  T.PRIOR_CARDIAC_SURGERY AS TidlHjerteoperasjon,
-  T.PRIOR_CARDIAC_SURGERY_ACB AS TidlACB,
-  T.PRIOR_CARDIAC_SURGERY_AVR AS TidlAVR,
-  T.PRIOR_CARDIAC_SURGERY_MITRALPLASTIKK AS TidlMitralplastikk,
-  T.PRIOR_CARDIAC_SURGERY_MVR AS TidlMVR,
-  T.PRIOR_CARDIAC_SURGERY_OTHER AS TidlAnnet,
-  T.PREVIOUS_PCI AS TidlPCI,
-  T.PREVIOUS_STROKE AS TidlHjerneslag,
-  T.PACEMACER_IMPLANT AS Pacemaker,
-  T.CHRONIC_PULMONARY_DISEASE AS KOLS,
-  T.PERIF_VESSELDISEASE AS PeriferKarsykdom,
-  T.OTHER_SERIOUS_ILLNESS AS AnnenAlvorligSykdom,
-  
-  -- Aktuell preoperativ status
-  T.NYHA AS NYHAKlasse,
-  T.CANADIAN AS CanadianClass,
-  T.FRAILTY AS Frailty,
-  T.NEUROLOGIC_DIS AS RedusertMobilitet,
-  T.WALKINGTEST AS Gangtest,
-  T.WALKINGTEST_MISS AS GangtestIkkeUtfort,
-  T.WALKINGTESTSPEED AS GangHastigtest,
-  T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
-  T.GRIPTEST AS Gripestyrke,
-  T.EURO2_DIALYSIS AS DialyseFoerOp,
-  T.KRITISKT AS KritiskPreopTilstand,
-  T.EURO2_URGENCY AS Hastegrad,
-  
-  -- Kontraindikasjon mot kirurgi
-  T.PERC_VALVE_DUE_TO_RISK AS PerkKlaffPgaRisiko,
-  T.PERC_VALVE_RISK_AGE AS PerkKlaffPgaRisikoAlder,
-  T.PERC_VALVE_RISK_SPIRO AS PerkKlaffPgaRisikoSpiro,
-  T.PERC_VALVE_RISK_FORMER_ACB AS PerkKlaffPgaRisikoACB,
-  T.COUNTERINDICATION AS PerkKlaffPgaRisikoSpesiell,
-  T.OTHERMORBREASON0 AS Porselenaorta,
-  T.OTHERMORBREASON1 AS Malignitet,
-  T.OTHERMORBREASON3 AS UgunstigAnatomi,
-  T.OTHERMORBREASON2 AS Steroidbehandling,
-  T.OTHERMORBREASON4 AS Stralebehandling,
-  T.OTHERMORBREASON5 AS Thoraxdeformitet,
-  T.OTHERMORB AS AnnenAlvorligSykdomKirRisiko,
-  T.PERC_VALVE_DUE_TO_PATIENT AS PerkKlaffPgaPasient,
-  T.PRESENT_HEALTH_STAT AS Helsetilstand,
-  
-  -- EKKO-funn fC8r prosedyre
-  T.VESSELAREA AS Klaffeareal,
-  T.VESSELAREA_MISS AS KlaffearealIkkeBeregnet,
-  T.ADJUSTED_VESSELAREA AS KorrigertKlaffeareal,
-  T.MAXGRADIENT AS PreMaxgradient,
-  T.MAXGRADIENT_MSEK AS PreMaxHastighet,
-  T.MAXGRADIENT_MSEK_MISS AS PreMaxHastMangler,
-  T.AVERAGEGRADIENT AS PreMiddelgradient,
-  T.AVERAGEGRADIENT_MISS AS PreMiddelgradientMangler,
-  T.LEFT_VENTRICULAR_FUNCTION AS PreVenstreVentrikkelFunksjon2011,
-  T.LEFT_VENTRICULAR_FUNCTION_EURO2 AS PreVenstreVentrikkelFunksjon,
-  T.PULMHYPERTENSION AS PulmonalHypertensjon,
-  T.AORTAINS AS PreAortainsuffisiens,
-  T.MITRALISINS AS PreMitralisinsuffisiens,
-  
-  -- CT-funn
-  T.CTPERFORMED AS ErCTForetatt,
-  T.OSTIEDIAM AS AnnulusdiameterVedCT,
-  T.ANNULUSAORTA AS AnnulusAreal,
-  T.ANNULUSAORTA_MM AS AnnulusArealmm,
-  T.PERIMETER AS AnnulusPerimeter,
-  T.AORTA_CALCIFICATION AS Aortaforkalk,
-  T.ASCENDING_AORTA_CALCIFICATION AS AortaKalkAscendens,
-  T.TYPEOF_FLAP AS TypeKlaff,
-  
-  -- OperatC8rer
-  (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.MAIN_OPERATOR ) AS HovedOperator,
-  (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.SECOND_OPERATOR ) AS AndreOperator,
-  (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.THIRD_OPERATOR ) AS TredjeOperator,
-  (SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM taviperc_operator_mapping tavi_op, people peo where tavi_op.PEOPLEID = peo.PEOPLEID and tavi_op.MCEID = T.MCEID) AS Operatorer,
-  
-  -- Prosedyrevariabler
-  T.PUNCTIONTIME AS Punksjonstid,
-  T.ENDTIME AS Avslutningstid,
-  T.MITRALISINS AS Mitralisinsuffisiens,
-  T.PROCEDURETYPE AS OperativTilgang,
-  T.VESSELINVESSEL AS KlaffIKlaff,
-  (SELECT v.NAME FROM valve v WHERE T.INSTRUMENTTYPE = v.ID) AS TypeKlaffeprotese,
-  T.PROSTHESIS_SIZE AS ProteseStr,
-  T.PREDILATATION AS Predilatasjon,
-  T.BALLOONSIZEPRE AS PredilBallongStr,
-  T.AFTERDILATATION AS Postdilatasjon,
-  T.BALLOONSIZEPOST AS PostdilBallongStr,
-  T.PROTECTIONDEVICE AS ProtectionDevice,
-  T.SEALING AS Karlukning,
-  T.RAPIDPACING AS RapidPacing,
-  T.ANESTHESIA AS Anestesi,
-  T.SUCCESSFULPROC AS VellykketProsedyre,
-  
-  -- StrC%ledata og kontrast
-  T.LABNO AS Labnr,
-  T.BEAMDOSE AS Straaledose,
-  T.LIGHTTIME AS GjennomLysTid,
-  T.CONTRASTAGENT AS Kontrastmiddel,
-  T.CONTRASTAMOUNT AS Kontrastmengde,
-  
-  -- Komplikasjoner pC% lab
-  T.LABKOMP AS LabKomplikasjon,
-  T.LABBEHARYTMI AS LabKompArytmi,
-  T.LABNEURO AS LabKompNeurologi,
-  T.LABTAMP AS LabKompTamponade,
-  T.LABVASCULAR AS LabKompVaskular,
-  T.LABBLEEDING AS LabKompBlodning,
-  T.LABSURGVESSEL AS LabKompAkuttKlaff,
-  T.LABSURGVASC AS LabKompAkuttVaskular,
-  T.LABCORONAR AS LabKompOkklusjon,
-  T.LABANESTHESI AS LabKompAnestesi,
-  T.LABHLMACHINE AS LabKompHLMaskin,
-  T.LABKLAFF AS LabKompProtese,
-  T.LABEMBOLKLAFF AS LabKompEmboli,
-  T.LABOTHER AS LabKompAnnenKomp,
-  T.LABDECEASED AS LabKompDod,
-  T.LAB_DECEASED_DATE AS LabKompDodsdato,
-  
-  -- Komplikasjoner pC% avdelingen
-  TD.AVDCOMP AS AvdKomplikasjon,
-  TD.AVDSTROKE AS AvdKompHjerneslag,
-  TD.AVDSTROKE_DEGREE AS AvdKompHjerneslagGrad,
-  TD.AVDTIA AS AvdKompTIA,
-  TD.AVDTAMPONAD AS AvdKompTamponade,
-  TD.AVDPACEMAKER AS AvdKompPacemaker,
-  TD.AVDATRIALFIB AS AvdKompAtrieflimmer,
-  TD.AVDMI AS AvdKompHjerteinfarkt,
-  TD.AVDVASCULAR AS AvdKompVaskular,
-  TD.AVDBLEEDING AS AvdKompBlodning,
-  TD.AVDBLEEDING_DEGREE AS AvdKompBlodningGrad,
-  TD.AVDINFECTION AS AvdKompInfeksjon,
-  TD.AVDDIALYSIS AS AvdKompDialyse,
-  TD.AVDOTHER AS AvdKompAnnenKomp,
-  TD.AVDDECEASED AS AvdKompDod,
-  TD.AVD_DECEASED_DATE AS AvdKompDodsdato,
-  
-  -- Postoperative EKKO-funn
-  TD.POSTPERFORMED AS PostUndersokelseForetatt,
-  TD.POSTMAXGRADIENT AS PostMaxgradient,
-  TD.POSTMAXGRADIENT_MSEK AS PostMaxHastighet,
-  TD.POSTAVERAGEGRADIENT AS PostMiddelgradient,
-  TD.POSTAVERAGEGRADIENT_MISS AS PostMiddelgradientMangler,
-  TD.POSTLEFT_VENTRICULAR_FUNCTION AS PostVenstreVentrikkelFunksjon,
-  TD.POSTPULMHYPERTENSION AS PostPulmonalHypertensjon,
-  TD.VALVULAR_POSTAORTAINS AS PostAortainsuffisiens,
-  TD.PARAVALVULAR_LEAK AS ParavalvularLekkasje,
-  TD.PARAVALVULAR_INSUFFICIENCY AS ParavalvularInsuffisiens,
-  TD.POSTMITRALISINS AS PostMitralisinsuffisiens,
-  
-  -- Utskrivelse
-  TD.CREATININMAX AS UtskrKreatinin,
-  TD.CREATININMAX_MISS AS UtskrKreatininIkkeUtfort,
-  TD.DISCHARGEDATE AS UtskrDato,
-  TD.DISCHARGETO AS UtskrevetTil,
-  
-  -- Antikoagulantia og platehemmere ved utskrivelse
-  TD.ASA_DISCHARGE AS ASAVedUtskrivelse,
-  TD.ANTICOAGULANTS_DISCHARGE AS AntikoagulantiaVedUtskrivelse,
-  TD.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmereVedUtskrivelse,
-  
-  -- Pasientinfo
-  P.SSN_TYPE AS FnrType,
-  P.SSNSUBTYPE AS FnrSubType,
-  P.BIRTH_DATE AS FodselsDato,
-  P.DECEASED AS AvdodFReg,
-  P.DECEASED_DATE AS DodsdatoFReg,
-  P.MUNICIPALITY_NAME AS Kommune,
-  P.MUNICIPALITY_NUMBER AS KommuneNr,
-	CAST(NULL AS CHAR(50)) AS Fylke,
-	CAST(NULL AS CHAR(2)) AS Fylkenr,
-  MCE.PARENT_MCEID as KobletForlopsID,
-  
-   -- Study information
-  (SELECT
-    GROUP_CONCAT(
-      IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-    FROM pasienterstudier PS
-    WHERE PS.PasientID = MCE.PATIENT_ID)
-  AS Studie,
-  
-  LEAST(T.STATUS, TD.STATUS) AS SkjemaStatus,
-  T.STATUS AS SkjemaStatusHovedskjema,
-  TD.STATUS AS SkjemaStatusKomplUtsk
-  FROM mce MCE
-  INNER JOIN centre C ON C.ID = MCE.CENTREID
-  INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
-  INNER JOIN taviperc T ON MCE.MCEID = T.MCEID
-  INNER JOIN tavidischarge TD ON MCE.MCEID = TD.MCEID
-")
-}
-
-
-
-#' @rdname getQuery
-#' @export
-queryAortaklaffoppfvarnum <- function(){
-  paste0("
-  SELECT
-	  TF.MCEID AS ForlopsID,
-	  T.MCEID AS BasisForlopsID,
-	  TF.CENTREID AS AvdRESH,
-    T.SCREENING AS BasisScreeningBeslutning,
-	  T.SCREENINGDATE AS BasisBeslutningsDato,
-	  T.PROCEDUREDATE AS BasisProsedyreDato,
-	  TF.FOLLOWUPDATE AS OppfDato,
-    TF.FOLLOWUP_TYPE AS OppfType,
-    TF.AVDDECEASED AS OppfAvdod,
-	  TF.DECEASEDDATE AS OppfAvdodDato,
-    TF.PROC_RELATED_DEATH AS OppfDodProsRelatert,
-
-  	-- OppfC8lging
-	  TF.HEIGHT AS Hoyde,
-    TF.HEIGHT_MISS AS HoydeUkjent,
-    TF.WEIGHT AS Vekt,
-    TF.WEIGHT_MISS AS VektUkjent,
-    TF.NYHA AS NYHA,
-    T.CANADIAN AS CanadianClass,
-	  TF.WALKINGTEST AS Gangtest,
-    TF.WALKINGTEST_MISS AS GangtestIkkeUtfort,
-    TF.WALKINGTESTSPEED AS GangHastigtest,
-    TF.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
-  	TF.S_CREATININ AS SKreatinin,
-    TF.S_CREATININ_MISS AS SKreatininIkkeUtfort,
-    TF.PROBNP AS ProBNP,
-    TF.PROBNPNT AS NTProBNP,
-  	TF.HEMOGLOBIN AS Hemoglobin,
-	  TF.HEMOGLOBIN_MISS AS HemoglobinUkjent,
-
-  	-- EKKO-funn
-  	TF.MAXGRADIENT AS MaxGradient,
-  	TF.MAXGRADIENT_MSEK AS MaxGradientMPS,
-  	TF.AVERAGEGRADIENT AS Middelgradient,
-  	TF.AVERAGEGRADIENT_MISS AS MiddelgradientMangler,
-    TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon,
-    TF.PULMHYPERTENSION AS PulmonalHypertensjon,
-    TF.AORTAINS AS Aortainsuffisiens,
-    TF.PARAVALVULAR_LEAK AS ParavalvularLekkasje,
-    TF.PARAVALVULAR_INSUFFICIENCY AS ParavalvularInsuffisiens,
-    TF.MITRALISINS AS Mitralinsuffisiens,
-
-    TF.PRESENT_HEALTH_STAT AS Helsetilstand,
-
-    -- Komplikasjoner
-    TF.COMP AS Komplikasjoner,
-    TF.ENDOCARDIT AS Endokarditt,
-    TF.DIALYSIS AS Dialyse,
-    TF.MI AS Hjerteinfarkt,
-    TF.STROKE AS Hjerneslag,
-    TF.PACEMAKER AS Pacemaker,
-    TF.PROSTHESIS AS ProteseDysfunk,
-    TF.VESSEL AS SenKarKomp,
-    TF.COMPOTHER AS AnnenKomp,
-
-	  TF.STATUS AS SkjemaStatus
-  FROM mce MCE
-  INNER JOIN tavipercfollowup TF ON MCE.MCEID = TF.MCEID
-  LEFT JOIN taviperc T ON MCE.PARENT_MCEID = T.MCEID
- ")
-}
-
-#' @rdname getQuery
-#' @export
-queryForlopsoversikt <-function(){
-  
-  
-  # FUNGERER IKKE. 
-  # funksjoner getFriendlyName() og getListText()
-  
-  
-  paste0("
-  SELECT
-  -- hospital and highlevel stuff
-  m.CENTREID AS AvdRESH,
-  getFriendlyName(m.CENTREID) AS Sykehusnavn,
-  -- patient info
-  p.ID AS PasientID,
-  p.ZIPCODE AS Postnr, -- TODO listed as char 4
-  CAST(NULL AS CHAR(50)) AS PostSted,
-  p.MUNICIPALITY_NAME AS Kommune,
-  p.MUNICIPALITY_NUMBER AS KommuneNr,
-  CAST(NULL AS CHAR(50)) AS Fylke,
-  CAST(NULL AS CHAR(2)) AS Fylkenr,
-  p.SSN_HASH AS KryptertFnr,
-  CASE
-  WHEN IFNULL(p.GENDER,0) = 0 THEN 'Ikke angitt'
-  WHEN p.GENDER = 1 THEN 'Mann'
-  WHEN p.GENDER = 2 THEN 'Kvinne'
-  ELSE 'Ukjent'
-  END AS PasientKjonn,
-  CASE
-  WHEN p.GENDER = 1 THEN '1'
-  WHEN p.GENDER = 2 THEN '0'
-  ELSE NULL
-  END AS erMann,
-  floor(datediff(
-    (CASE INTERVENTION_TYPE
-     WHEN 9 THEN mitralisfop.FOLLOWUPDATE
-     WHEN 8 THEN tavifop.FOLLOWUPDATE
-     WHEN 7 THEN o.PROCEDUREDATE
-     WHEN 6 THEN mitralis.PROCEDUREDATE
-     WHEN 5 THEN tavi.PROCEDUREDATE
-     WHEN 4 THEN ct.CTDAT
-     ELSE a.INTERDAT
-     END),
-    p.BIRTH_DATE) / 365.25) AS PasientAlder,
-  p.BIRTH_DATE AS FodselsDato,
-  CONVERT(IFNULL(getListText('PATIENT_NORWEGIAN', p.NORWEGIAN), 'Ikke angitt') USING utf8) AS Norsktalende,
-  CAST(NULL AS CHAR(30)) AS Sivilstatus,
-  CAST(NULL AS CHAR(50)) AS UtdanningSSB,
-  CONVERT(IFNULL(getListText('PATIENT_DECEASED', p.DECEASED), '') USING utf8) AS Avdod,
-  p.DECEASED_DATE AS AvdodDato,
-  -- event info
-  m.MCEID AS ForlopsID,
-  x_cast_to_tinyint(
-    (CASE INTERVENTION_TYPE
-     WHEN 9 THEN mitralisfop.STATUS
-     WHEN 8 THEN tavifop.STATUS
-     WHEN 7 THEN o.STATUS
-     WHEN 6 THEN LEAST(mitralis.STATUS, IFNULL(mdisc.STATUS,1))
-     WHEN 5 THEN LEAST(tavi.STATUS, IFNULL(tdisc.STATUS,1))
-     WHEN 4 THEN ct.STATUS
-     ELSE LEAST(IFNULL(i.STATUS,1), a.STATUS, IFNULL(c.STATUS,1), IFNULL(d.STATUS,1))
-     END)) AS BasisRegStatus,
-  CONVERT(IFNULL(getListText('MCE_INTERVENTION_TYPE', m.INTERVENTION_TYPE), 'Ikke angitt') USING utf8) AS ForlopsType1,
-  m.INTERVENTION_TYPE AS ForlopsType1Num,
-  getListText('MCE_ACUTE_ELECTIVE', m.MCETYPE) AS ForlopsType2,
-  m.MCETYPE AS ForlopsType2Num,
-  m.PARENT_MCEID as KobletForlopsID,
-  (CASE INTERVENTION_TYPE
-   WHEN 9 THEN mitralisfop.FOLLOWUPDATE
-   WHEN 8 THEN tavifop.FOLLOWUPDATE
-   WHEN 7 THEN o.PROCEDUREDATE
-   WHEN 6 THEN mitralis.PROCEDUREDATE
-   WHEN 5 THEN tavi.PROCEDUREDATE
-   WHEN 4 THEN ct.CTDAT
-   ELSE a.INTERDAT
-   END) AS HovedDato,
-  CAST(NULL AS CHAR(2))  AS OppflgRegStatus,
-  CASE INTERVENTION_TYPE
-  WHEN 9 THEN '1'
-  WHEN 8 THEN '1'
-  ELSE '0'
-  END AS ErOppflg,
-  CAST(NULL AS CHAR(30)) AS OppflgStatus,
-  CAST(NULL AS CHAR(6)) AS OppflgSekNr
-  
-  from
-  mce m INNER JOIN patient p ON m.PATIENT_ID = p.ID
-  LEFT OUTER JOIN initialcare i on m.MCEID = i.MCEID
-  LEFT OUTER JOIN regangio a on m.MCEID = a.MCEID
-  LEFT OUTER JOIN ctangio ct on m.MCEID = ct.MCEID
-  LEFT OUTER JOIN taviperc tavi on m.MCEID = tavi.MCEID
-  LEFT OUTER JOIN tavidischarge tdisc on m.MCEID = tdisc.MCEID
-  LEFT OUTER JOIN tavipercfollowup tavifop on m.MCEID = tavifop.MCEID
-  LEFT OUTER JOIN tavimitralis mitralis on m.MCEID = mitralis.MCEID
-  LEFT OUTER JOIN tavimitralisdischarge mdisc on m.MCEID = mdisc.MCEID
-  LEFT OUTER JOIN tavimitralisfollowup mitralisfop on m.MCEID = mitralisfop.MCEID
-  LEFT OUTER JOIN angiopcicomp c on m.MCEID = c.MCEID
-  LEFT OUTER JOIN discharge d on m.MCEID = d.MCEID
-  LEFT OUTER JOIN other o on m.MCEID = o.MCEID
-")}
-
-
-
-#' @rdname getQuery
-#' @export
-queryAndreprosedyrervarnum <-function(){
-  paste0("
-  SELECT
-    other.MCEID AS ForlopsID,
-    other.CENTREID AS AvdRESH,
-    (CASE
-     WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
-     WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
-     ELSE NULL
-     END) as Regtype,
-    
-    -- Andre prosedyrer
-    other.PROCEDUREDATE AS ProsedyreDato,
-    other.PROCEDUREDATE_TIME AS ProsedyreTid,
-    other.PROCEDUREDATE_TIME_MISSING AS ProsedyreTidUkjent,
-    other.PROCEDURETYPE AS AnnenProsType,
-    
-    -- OperatC8r
-    (SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM other_operator_mapping oom, people peo where oom.PEOPLEID = peo.PEOPLEID and oom.MCEID = other.MCEID) AS AndreProsOperatorer,
-    
-    -- Komplikasjon pC% lab
-    other.LABKOMP AS Komplikasjon,
-    other.LABALLERGILATT AS LettAllergi,
-    other.LABALLERGIALLV AS ModeratAllergi,
-    other.LABBEHARYTMI AS Arytmi,
-    other.LABHEMO AS HemodynKomp,
-    other.LABNEURO AS NeuroKomp,
-    other.LABVASK AS VaskulKomp,
-    other.LABPERF AS Perforasjon,
-    other.LABTAMP AS Tamponade,
-    other.LABAKUTCABG AS AkuttACB,
-    other.LABANNANALLV AS AnnenAlvorligKomp,
-    other.LABDODSFALL AS Dod,
-    other.LABPROCEDURDOD AS ProsRelatertDod,
-    
-    other.STATUS AS SkjemaStatus
-    FROM mce MCE
-    INNER JOIN other ON MCE.MCEID = other.MCEID
-
-"
-  )}
-
-
-
-
-#' @rdname getQuery
-#' @export
-queryAnnendiagnostikkvarnum <-function(){
-  
-  paste0(
-    "SELECT
-  centre.ID AS AvdRESH,
-  IFNULL((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = centre.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), centre.ID) AS Sykehusnavn,
-  CASE P.GENDER
-    WHEN NULL THEN 'Ikke angitt'
-    WHEN 1 THEN 'Mann'
-    WHEN 2 THEN 'Kvinne'
-    WHEN 9 THEN 'Ikke relevant'
-    ELSE 'Ukjent'
-    END AS PasientKjonn,
-  P.BIRTH_DATE as FodselsDato,
-  diag.MCEID AS ForlopsID,
-  (CASE
-   WHEN m.INTERVENTION_TYPE IN (1,2,3,7) AND m.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
-   WHEN m.INTERVENTION_TYPE IN (1,2,3,7) AND m.PARENT_MCEID IS NULL THEN 'Primær'
-   ELSE NULL
-   END) as Regtype,
-  (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
-  (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
-  (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
-  R.INDIKATION  AS Indikasjon,
-  R.INTERDAT as ProsedyreDato,
-  R.HEIGHT as Hoyde,
-  R.WEIGHT as Vekt,
-  diag.SEGMENT  AS segment,
-  diag.GRAFT  AS graft,
-  diag.METHODUSED  AS metode,
-  diag.FFR_BEFORE AS FfrFoer,
-  diag.FFR_AFTER as FfrEtter,
-  diag.IFR_BEFORE as IfrFoer,
-  diag.IFR_AFTER as IfrEtter,
-  diag.CSA_BEFORE as CsaFoer,
-  diag.CSA_AFTER as CsaEtter,
-  diag.MLD_BEFORE as MldFoer,
-  diag.MLD_EAFTER as MldEtter,
-  diag.MLA_BEFORE as MlaFoer,
-  diag.MLA_AFTER as MlaEtter,
-  diag.MXLCBI_BEFORE as MxlcbiFoer,
-  diag.MXLCBI_AFTER as MxlcbiEtter,
-  diag.CFR_BEFORE as CfrFoer,
-  diag.CFR_AFTER as CfrEtter,
-  diag.IMR_BEFORE as ImrFoer,
-  diag.IMR_AFTER as ImrEtter,
-  diag.PDPA_BEFORE as PdpaFoer,
-  diag.PDPA_AFTER as PdpaEtter,
-  diag.PAH_BEFORE as PahFoer,
-  diag.PAH_AFTER as PahEtter,
-  diag.PDH_BEFORE as PdhFoer,
-  diag.PDH_AFTER as PdhEtter
-  FROM diagnostics diag
-  INNER JOIN mce m ON diag.MCEID=m.MCEID
-  INNER JOIN centre ON centre.ID = m.CENTREID
-  INNER JOIN patient P ON m.PATIENT_ID=P.ID
-  LEFT JOIN regangio R ON diag.MCEID=R.MCEID"
-  )
-  
-}
-
-
-
-
-#' @rdname getQuery
-#' @export
-querySegmentstentnum <-function(){
-  paste0("
-  SELECT
-   S.ID AS SegmentID,
-   S.MCEID AS ForlopsID,
-   (CASE
-      WHEN M.INTERVENTION_TYPE IN (1,2,3,7) AND M.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
-      WHEN  M.INTERVENTION_TYPE IN (1,2,3,7) AND M.PARENT_MCEID IS NULL THEN 'Primær'
-      ELSE NULL
-    END) as Regtype,
-   CASE P.GENDER
-      WHEN NULL THEN 'Ikke angitt'
-      WHEN 1 THEN 'Mann'
-      WHEN 2 THEN 'Kvinne'
-      WHEN 9 THEN 'Ikke relevant'
-      ELSE 'Ukjent'
-    END AS PasientKjonn,
-   P.BIRTH_DATE as FodselsDato,
-   (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
-   (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
-   (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
-   R.INDIKATION  AS Indikasjon,
-   R.INTERDAT as ProsedyreDato,
-   R.HEIGHT as Hoyde,
-   R.WEIGHT as Vekt,
-   S.SEGMENT as Segment,
-   S.STENT as StentID,
-   ST.STENTNAMN AS Stentnavn,
-   ST.DES  AS StentType,
-   S.BALLONGLANGD as BallongLengde,
-   S.DEBDIAM as DEBDiameter,
-   S.DIAM as Diameter,
-   S.EFTERDILATATION  AS Etterdilatasjon,
-   S.FRAMGANG  AS LokalSuksess,
-   S.GRAFT  AS Graft,
-   S.LAKEMEDELSBALLONG  AS MedikamentellBallong,
-   S.MAXTRYCKVIDDEB AS MaksTrykkDEB,
-   S.OCKL  AS Okklusjon,
-   S.PROCTYP  AS ProsedyreType,
-   S.SEGMENT_STENT_TROMBOSE_TYPE  AS Stenttrombosetype,
-   S.STENOSKLASS  AS Stenoseklasse,
-   S.STENOSTYP  AS StenoseType,
-   S.STENTLANGD AS Stentlengde,
-   S.STENTSLUT  AS StentSlut,
-   S.UPPBLASNINGSTIDDEB AS InflasjonsTidDEB,
-   S.IVL_DIAM AS IVLDiameter,
-   S.NUMBERPULSES AS AntallPulser,
-   centre.ID AS AvdRESH,
-   IFNULL((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = centre.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), centre.ID) AS Sykehusnavn
-  FROM segment S
-   LEFT  JOIN stent ST ON S.STENT=ST.SID
-   INNER JOIN mce M ON S.MCEID=M.MCEID
-   INNER JOIN centre ON centre.ID = M.CENTREID
-   INNER JOIN patient P ON M.PATIENT_ID=P.ID
-   LEFT JOIN regangio R ON S.MCEID=R.MCEID
-")
-}
 
 
 
@@ -750,49 +31,30 @@ querySegmentstentnum <-function(){
 queryAngiopcinum <- function(){
   paste0("
   SELECT
-    MCE.MCEID AS ForlopsID,
-    MCE.PARENT_MCEID AS PrimaerForlopsID,
-    P.ID AS PasientID,
-    P.SSN_TYPE AS FnrType,
-    (CASE
-       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
-       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
-       ELSE NULL
-      END) as Regtype,
-    CASE (P.LOCAL_HOSPITAL) WHEN 999
-                              THEN P.LOCAL_HOSPITAL_OTHER
-                            ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
-      END AS Lokalsykehus,
     A.CENTREID AS AvdRESH,
+    MCE.MCEID AS ForlopsID,
+    P.ID AS PasientID,
+
+    A.REGTYP AS ProsedyreType,
+    MCE.MCETYPE AS Hastegrad,
+    CASE
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
+      ELSE NULL
+    END AS Regtype,
     A.INTERDAT AS ProsedyreDato,
     A.INTERDAT_TIME AS ProsedyreTid,
     CASE A.INTERDAT_TIME_MISSING
       WHEN 1 THEN 'Ja'
       ELSE 'Nei'
-      END AS ProsedyreTidUkjent,
-    A.REGTYP AS ProsedyreType,
-    MCE.MCETYPE AS Hastegrad,
+    END AS ProsedyreTidUkjent,
+    CASE (P.LOCAL_HOSPITAL) WHEN 999
+                              THEN P.LOCAL_HOSPITAL_OTHER
+                            ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
+    END AS Lokalsykehus,
+   
     P.GENDER AS Kjonn,
     P.BIRTH_DATE FodselsDato,
-    P.DECEASED  AS AvdodFReg,
-    P.DECEASED_DATE as AvdodDatoFReg,
-    P.REGISTERED_DATE as PasientRegDato,
-    P.MUNICIPALITY_NAME AS Kommune,
-    P.MUNICIPALITY_NUMBER AS KommuneNr,
-	  CAST(NULL AS CHAR(50)) AS Fylke,
-  	CAST(NULL AS CHAR(2)) AS Fylkenr,
-  	MCE.PARENT_MCEID as KobletForlopsID,
-
-
-  
-
-    -- Study information
-    CAST((SELECT
-            GROUP_CONCAT(
-              IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-          FROM pasienterstudier PS
-          WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
-      AS Studie,  
 
      A.SYMPTOM_ONSET_DATE AS SymptomDato,
      A.SYMPTOM_ONSET_TIME AS SymptomTid,
@@ -1162,317 +424,42 @@ queryAngiopcinum <- function(){
   
     CAST((SELECT GROUP_CONCAT(CONCAT(diag.CODE, ' ', diag.VERSION)) FROM diagnose diag where diag.MCEID = A.MCEID) AS CHAR(50)) AS UtskrDiagnoser,
   
-    IFNULL((select ca.ATTRIBUTEVALUE from centreattribute ca where ca.ID = centre.ID AND ca.ATTRIBUTENAME = 'FRIENDLYNAME'), centre.ID) AS Sykehusnavn,
+    P.SSN_TYPE AS FnrType,
+    P.SSNSUBTYPE AS FnrSubtype,
+    P.DECEASED  AS AvdodFReg,
+    P.DECEASED_DATE as AvdodDatoFReg,
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+	  CAST(NULL AS CHAR(50)) AS Fylke,
+  	CAST(NULL AS CHAR(2)) AS Fylkenr,
+  	MCE.PARENT_MCEID as KobletForlopsID,
+
+    -- Study information
+    CAST((SELECT
+            GROUP_CONCAT(
+              IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+          FROM pasienterstudier PS
+          WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
+      AS Studie,  
+
     I.STATUS AS SkjemaStatusStart,
     A.STATUS AS SkjemastatusHovedskjema,
     D.STATUS AS SkjemaStatusUtskrivelse,
     C.STATUS AS SkjemaStatusKomplikasjoner
-  FROM mce MCE
-         INNER JOIN centre ON centre.ID = MCE.CENTREID
-         INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
-         INNER JOIN regangio A ON MCE.MCEID = A.MCEID
-         LEFT JOIN initialcare I ON MCE.MCEID = I.MCEID
-         LEFT JOIN initialcarelab IL ON MCE.MCEID=IL.MCEID
-         LEFT JOIN findingstatic F ON MCE.MCEID = F.MCEID
-         LEFT JOIN pci PCI ON MCE.MCEID = PCI.MCEID
-         LEFT JOIN angiopcicomp C ON MCE.MCEID = C.MCEID
-         LEFT JOIN discharge D ON MCE.MCEID = D.MCEID
+    
+    FROM mce MCE
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      INNER JOIN regangio A ON MCE.MCEID = A.MCEID
+      LEFT JOIN initialcare I ON MCE.MCEID = I.MCEID
+      LEFT JOIN initialcarelab IL ON MCE.MCEID=IL.MCEID
+      LEFT JOIN findingstatic F ON MCE.MCEID = F.MCEID
+      LEFT JOIN pci PCI ON MCE.MCEID = PCI.MCEID
+      LEFT JOIN angiopcicomp C ON MCE.MCEID = C.MCEID
+      LEFT JOIN discharge D ON MCE.MCEID = D.MCEID
   ")
 }  
 
 
-
-
-
-#' @rdname getQuery
-#' @export
-queryMitralklaffvarnum <-function(){
-  paste0("
-  SELECT
-	  T.MCEID AS ForlopsID,
-	  T.CENTREID AS AvdRESH,
-
-    -- Mitralklaff
-    T.SCREENING AS ScreeningBeslutning,
-    T.MITRAL_VALVE_TYPE AS Prosedyre,
-    T.PROCEDUREDATE AS ProsedyreDato,
-    
-    -- Study information
-    (SELECT
-      GROUP_CONCAT(
-         IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-      FROM pasienterstudier PS
-      WHERE PS.PasientID = MCE.PATIENT_ID)
-    AS Studie,
-
-	  -- Kliniske bakgrunnsdata
-	  T.HEIGHT AS Hoyde,
-    T.HEIGHT_MISS AS HoydeUkjent,
-    T.WEIGHT AS Vekt,
-    T.WEIGHT_MISS AS VektUkjent,
-    T.SMOKING AS Royker,
-	  T.S_CREATININ AS KreatininFoer,
-	  T.S_CREATININ_MISS AS KreatininUkjent,
-    T.PROBNP AS ProBNP,
-    T.PROBNPNT AS NTProBNPFoer,
-	  T.PROBNP_MISS AS ProBNPUkjent,
-	  T.HEMOGLOBIN AS HemoglobinFoer, -- Added in v1.13 as NOR-1345
-
-	  -- Tidligere sykdommer/behandling
-    T.HYPERTENSION AS BehHypertoni,
-    T.DIABETES AS Diabetes,
-    T.DIABETESINSULIN AS Insulin,
-    T.ATRIAL_FIBRILLATION AS Atrieflimmer,
-    T.PREVIOUS_MI AS InfarktSiste90d,
-    T.HEARTFAILURE AS AntInnleggelserSisteAar,
-    T.HEARTFAILURE_MISS AS AntInnleggelserSisteAarUkjent,
-    T.PRIOR_CARDIAC_SURGERY AS TidlHjerteoperasjon,
-    T.PRIOR_CARDIAC_SURGERY_ACB AS TidlACB,
-    T.PRIOR_CARDIAC_SURGERY_AVR AS TidlAVR,
-    T.PRIOR_CARDIAC_SURGERY_MITRALPLASTIKK AS TidlMitralplastikk,
-    T.PRIOR_CARDIAC_SURGERY_MVR AS TidlMVR,
-    T.PRIOR_CARDIAC_SURGERY_OTHER AS TidlAnnet,
-    T.PRIORCORRECTION AS TidlKorrigering,
-    T.PREVIOUS_PCI AS TidlPCI,
-    T.PREVIOUS_STROKE AS TidlHjerneslag,
-    T.CHRONIC_PULMONARY_DISEASE AS KOLS,
-    T.PERIF_VESSELDISEASE AS PeriferKarsykdom,
-
-	  -- Aktuell preoperativ status
-    T.NYHA AS NYHAKlasse,
-    T.FRAILTY AS Frailty,
-    T.NEUROLOGIC_DIS AS RedusertMobilitet,
-    T.WALKINGTEST AS Gangtest,
-    T.WALKINGTEST_MISS AS GangtestIkkeUtfort,
-    T.WALKINGTESTSPEED AS GangHastigtest,
-    T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
-    T.GRIPTEST AS Gripestyrke,
-    T.EURO2_DIALYSIS AS DialyseFoerOp,
-    T.KRITISKT AS KritiskPreopTilstand,
-    T.EURO2_URGENCY AS Hastegrad,
-
-   	-- Kontraindikasjon mot kirurgi
-    T.COUNTERINDICATION AS Kontraindikasjon,
-    T.OTHERMORBREASON0 AS Porselenaorta,
-    T.OTHERMORBREASON1 AS Malignitet,
-    T.OTHERMORBREASON3 AS UgunstigAnatomi,
-    T.OTHERMORBREASON2 AS Steroidbehandling,
-    T.OTHERMORBREASON4 AS Stralebehandling,
-    T.OTHERMORBREASON5 AS Thoraxdeformitet,
-    T.AVBOJD AS AvslaattForThorax,
-
-    T.PRESENT_HEALTH_STAT AS Helsetilstand,
-
-    -- EKKO-funn fC8r prosedyre
-    T.LEFT_VENTRICULAR_FUNCTION_EURO2 AS PreVenstreVentrikkelFunksjon,
-    T.AORTAINS AS PreAortainsuffisiens,
-    T.AORTASTENOS AS PreAortastenose,
-    T.TRICUSINSUFF AS PreTricuspidal,
-    T.MITRALISSTENOS AS PreMitralstenose,
-    T.MITRINSUFF AS PreMitralinsuffisiens,
-    T.MAXSPEED_MSEK AS PreMaxHastighet,
-    T.AVERAGEGRADIENT AS PreMiddelgradient,
-    T.MREROA AS PreMREROA,
-    T.MREROA_MISS AS PreMREROAUkjent,
-    T.PULMONELLHYPERTENSION AS PreHoyreVentTrykk,
-
-    -- OperatC8rer
-    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.MAIN_OPERATOR ) AS HovedOperator,
-    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.SECOND_OPERATOR ) AS AndreOperator,
-    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.THIRD_OPERATOR ) AS TredjeOperator,
-   	(SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM tavimitralis_operator_mapping tavi_op, people peo where tavi_op.PEOPLEID = peo.PEOPLEID and tavi_op.MCEID = T.MCEID) AS Operatorer,
-
-   	-- Prosedyrevariabler
-    T.PUNCTIONTIME AS Punksjonstid,
-    T.ENDTIME AS Avslutningstid,
-    T.INTRODUCER AS IntroducerStr,
-    T.INTRODUCER_MISS AS IntroducerStrUkjent,
-    T.VESSELSEAL AS Karlukning,
-    T.ANESTHESIA AS Anestesi,
-    T.EKODURINGPROC AS ProsedyreEkko,
-   	(SELECT v.NAME FROM valve v WHERE T.INSTRUMENTTYPE = v.ID) AS TypeKlaffeprotese,
-    T.SUCCESSFULPROC AS VellykketProsedyre,
-	
-	  -- These are outcommented from the form, due to NOR-733:
-	  -- TAVIMITRALIS_CRT
-	  -- TAVIMITRALIS_ICD
-	  -- TAVIMITRALIS_QUALCLASS
-	  -- TAVIMITRALIS_PROLAPS, 6 variables
-	  -- TAVIMITRALIS_MRPISA (with _MISS)
-	  -- TAVIMITRALIS_VCONTRACTA (with MISS)
-	  -- TAVIMITRALIS_LUNGVENREVERSE
-	  -- TAVIMITRALIS_NRCLIP_ROW (with MISS)
-	  -- TAVIMITRALIS_ACCESS
-
-    -- StrC%ledata og kontrast
-    T.LABNO AS Labnr,
-	  T.BEAMDOSE AS Straaledose,
-    T.BEAMDOSE_MISS AS StraaledoseUkjent,
-	  T.LIGHTTIME AS GjennomLysTid,
-    T.CONTRASTAGENT AS Kontrastmiddel,
-	  T.CONTRASTAMOUNT AS Kontrastmengde,
-    T.CONTRASTAMOUNT_MISS AS KontrastmengdeUkjent,
-
-   	-- Komplikasjoner pC% lab
-    T.LABKOMP AS LabKomplikasjon,
-    T.LABBEHARYTMI AS LabKompArytmi,
-    T.LABNEURO AS LabKompNeurologi,
-    T.LABTAMP AS LabKompTamponade,
-    T.LABPACEMAKER AS LabKompPacemaker,
-    T.LABVASCULAR AS LabKompVaskular,
-    T.LABBLEEDING AS LabKompBlodning,
-    T.LABSURGVESSEL AS LabKompAkuttKlaff,
-    T.LABSURGVASC AS LabKompAkuttVaskular,
-    T.LABANESTHESI AS LabKompAnestesi,
-    T.LABHLMACHINE AS LabKompHLMaskin,
-    T.LABEMBOLDEVICE AS LabKompEmbolisering,
-    T.LABOTHER AS LabKompAnnenKomp,
-    T.LABDECEASED AS LabKompDod,
-   	P.DECEASED_DATE AS DodsdatoFReg,
-
-    -- Komplikasjoner pC% avdelingen
-    TD.AVDCOMP AS AvdKomplikasjon,
-    TD.AVDSTROKE AS AvdKompHjerneslag,
-    TD.AVDSTROKE_DEGREE AS AvdKompHjerneslagGrad,
-    TD.AVDTIA AS AvdKompTIA,
-    TD.AVDTAMPONAD AS AvdKompTamponade,
-    TD.AVDPACEMAKER AS AvdKompPacemaker,
-    TD.AVDATRIALFIB AS AvdKompAtrieflimmer,
-    TD.AVDMI AS AvdKompHjerteinfarkt,
-    TD.AVDVASCULAR AS AvdKompVaskular,
-    TD.AVDBLEEDING AS AvdKompBlodning,
-    TD.AVDBLEEDING_DEGREE AS AvdKompBlodningGrad,
-    TD.AVDINFECTION AS AvdKompInfeksjon,
-    TD.AVDDIALYSIS AS AvdKompDialyse,
-    TD.AVDOTHER AS AvdKompAnnenKomp,
-    TD.AVDDECEASED AS AvdKompDod,
-
-	  -- Postoperative EKKO-funn
-    TD.POSTPERFORMED AS PostUndersokelseForetatt,
-    TD.POSTQUALCLASS AS PostKlassifisering,
-    TD.POSTPROLAPSA1 AS PostProlapsA1,
-    TD.POSTPROLAPSA2 AS PostProlapsA2,
-    TD.POSTPROLAPSA3 AS PostProlapsA3,
-    TD.POSTPROLAPSP1 AS PostProlapsP1,
-    TD.POSTPROLAPSP2 AS PostProlapsP2,
-    TD.POSTPROLAPSP3 AS PostProlapsP3,
-    TD.POSTLEFT_VENTRICULAR_FUNCTION_EURO2 AS PostVenstreVentrikkelFunksjon,
-    TD.POSTTRICUS_INSUFF AS PostTricuspidal,
-    TD.POSTMITRALISSTENOS AS PostMitralstenose,
-    TD.POSTMITR_INSUFF AS PostMitralinsuffisiens,
-  	TD.POSTMAXGRADIENT AS PostMaxgradient,
-  	TD.POSTMAXSPEED_MSEK AS PostMaxHastighet,
-  	TD.POSTAVERAGEGRADIENT AS PostMiddelgradient,
-  	TD.POSTMRPISA AS PostMRPISA,
-    TD.POSTMRPISA_MISS AS PostMRPISAUkjent,
-  	TD.POSTMREROA AS PostMREROA,
-    TD.POSTMREROA_MISS AS PostMREROAUkjent,
-	  TD.POSTVCONTRACTA AS PostVContracta,
-    TD.POSTVCONTRACTA_MISS AS PostVContractaUkjent,
-    TD.POSTLUNGVENREVERSE AS PostReversFlow,
-    TD.POSTPULMONELLHYPERTENSION AS PostHoyreVentrikkelTrykk,
-    TD.POSTPULMONELLHYPERTENSION_MISS AS PostHoyreVentrikkelTrykkUkjent,
-
-    -- Utskrivelse
-  	TD.CREATININMAX AS MaxKreatinin,
-  	TD.CREATININMAX_MISS AS MaxKreatininUkjent,
-  	TD.DISCHARGEDATE AS UtskrDato,
-    TD.DISCHARGETO AS UtskrevetTil,
-
-   	-- Antikoagulantia og platehemmere ved utskrivelse
-    TD.ASA_DISCHARGE AS ASAVedUtskrivelse,
-    TD.ANTICOAGULANTS_DISCHARGE AS AntikoagulantiaVedUtskrivelse,
-    TD.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmereVedUtskrivelse,
-
-    T.STATUS AS SkjemaStatusHovedskjema,
-    TD.STATUS AS SkjemaStatusKomplUtskr,
-	  LEAST(T.STATUS, TD.STATUS) AS SkjemaStatus
-  FROM mce MCE
-  INNER JOIN centre C ON C.ID = MCE.CENTREID
-  INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
-  INNER JOIN tavimitralis T ON MCE.MCEID = T.MCEID
-  INNER JOIN tavimitralisdischarge TD ON MCE.MCEID = TD.MCEID
-  ")
-}
-
-
-#' @rdname getQuery
-#' @export
-queryMitralklaffoppfvarnum <-function(){
-  paste0("
-  SELECT
-	  TF.MCEID AS ForlopsID,
-	  T.MCEID AS BasisForlopsID,
-	  TF.CENTREID AS AvdRESH,
-    T.SCREENING AS BasisScreeningBeslutning,
-  	T.PROCEDUREDATE AS BasisProsedyreDato,
-  	TF.FOLLOWUPDATE AS OppfDato,
-    TF.FOLLOWUP_TYPE AS OppfType,
-    TF.DECEASED AS OppfAvdod,
-	  TF.DECEASEDDATE AS OppfAvdodDato,
-    TF.PROC_RELATED_DEATH AS OppfDodProsRelatert,
-
-    -- OppfC8lging
-    TF.HEIGHT AS Hoyde,
-    TF.HEIGHT_MISS AS HoydeUkjent,
-    TF.WEIGHT AS Vekt,
-    TF.WEIGHT_MISS AS VektUkjent,
-    TF.NYHA AS NYHA,
-  	TF.WALKINGTEST AS Gangtest,
-	  TF.WALKINGTEST_MISS AS GangtestIkkeUtfort,
-    T.WALKINGTESTSPEED AS GangHastigtest,
-    T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
-	  TF.S_CREATININ AS Kreatinin,
-  	TF.S_CREATININ_MISS AS KreatininUkjent,
-    TF.PROBNP AS ProBNP,
-    TF.PROBNPNT AS NTProBNP,
-
-    -- EKKO-funn
-    TF.PROLAPSA1 AS ProlapsA1,
-    TF.PROLAPSA2 AS ProlapsA2,
-    TF.PROLAPSA3 AS ProlapsA3,
-    TF.PROLAPSP1 AS ProlapsP1,
-    TF.PROLAPSP2 AS ProlapsP2,
-    TF.PROLAPSP3 AS ProlapsP3,
-    TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon,
-    TF.AORTAINS AS Aortainsuffisiens,
-    TF.AORTAINS AS Aortastenose,
-    TF.TRICUSINS AS Tricuspidal,
-    TF.MITRALISINS AS Mitralinsuffisiens,
-    TF.MITRALISSTENOS AS Mitralstenose,
-    TF.MAXVELOCITY AS MaxHastighet,
-    TF.AVGGRADIENT_MSEK AS MiddelgradientMPS,
-    TF.AVERAGEGRADIENT AS Middelgradient,
-    TF.MRPISA AS MRPISA,
-    TF.MREROA AS MREROA,
-    TF.VCONTRACTA AS VContracta,
-    TF.LUNGVENSREVERS AS FlowRevers,
-	  TF.PULMHYPERTENSION AS HoyreVentrikkelTrykk,
-	  TF.PULMHYPERTENSION_MISS AS HoyreVentrikkelTrykkUkjent,
-
-   	TF.PRESENT_HEALTH_STAT AS Helsetilstand,
-
-    	-- Komplikasjoner
-    TF.AVDCOMP AS Komplikasjoner,
-    TF.AVDSTROKE AS Hjerneslag,
-    TF.AVDTIA AS TIA,
-    TF.AVDTAMPONAD AS Tamponade,
-    TF.AVDPACEMAKER AS Pacemaker,
-    TF.AVDATRIALFIB AS Atrieflimmer,
-    TF.AVDMI AS Hjerteinfarkt,
-    TF.AVDVASCULAR AS Vaskular,
-    TF.AVDBLEEDING AS Blodning,
-    TF.AVDINFECTION AS Infeksjon,
-    TF.AVDDIALYSIS AS Dialyse,
-    TF.AVDDEVICE AS DeviceRelKomp,
-    TF.AVDOTHER AS AnnenKomp,
-
-   	TF.STATUS AS SkjemaStatus
-  FROM mce MCE
-  INNER JOIN tavimitralisfollowup TF ON MCE.MCEID = TF.MCEID
-  LEFT JOIN tavimitralis T ON MCE.PARENT_MCEID = T.MCEID
-  ")
-}
 
 #' @rdname getQuery
 #' @export
@@ -1480,29 +467,32 @@ queryCtangiovarnum <-function(){
   
   paste0("
   SELECT
-	  MCE.MCEID AS ForlopsID,
+    CT.CENTREID AS AvdRESH,
+    MCE.MCEID AS ForlopsID,
 	  P.ID AS PasientID,
-    P.SSN_TYPE AS FnrType,
+	  
+	  CASE WHEN MCE.INTERVENTION_TYPE = 4 THEN 'CT-Angio' END AS ForlopsType1,
+	  CASE 
+      WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
+      WHEN MCE.MCETYPE = 2 THEN 'Akutt'
+      WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
+    END AS ForlopsType2,
+    
 	  CASE (P.LOCAL_HOSPITAL) WHEN 999
 		  THEN P.LOCAL_HOSPITAL_OTHER
 		  ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
 	    END AS Lokalsykehus,
-	  P.GENDER AS Kjonn,
-	  P.BIRTH_DATE FodselsDato,
-	  P.DECEASED AS AvdodFReg,
-	  P.DECEASED_DATE as AvdodDatoFReg,
-	  P.REGISTERED_DATE as PasientRegDato,
-
-   	-- Study information
-    (SELECT
-      GROUP_CONCAT(
-         IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-      FROM pasienterstudier PS
-      WHERE PS.PasientID = MCE.PATIENT_ID)
-    AS Studie,
-
-	  CT.CENTREID AS AvdRESH,
+	    
 	  CT.CTDAT AS UndersokDato,
+	  
+	  CASE
+      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+      WHEN P.GENDER = 1 THEN 'Mann'
+      WHEN P.GENDER = 2 THEN 'Kvinne'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,	 
+    P.BIRTH_DATE FodselsDato,
+
 	  CT.HEIGHT AS Hoyde,
 	  CT.WEIGHT AS Vekt,
 	  CT.SKREATININ AS SKreatinin,
@@ -1579,15 +569,1103 @@ queryCtangiovarnum <-function(){
     CT.LABALLERGILATT AS LettAllergisk,
     CT.LABALLERGIALLV AS AlvorligAllergisk,
     CT.LABHEMO AS Hemodynamisk,
-    CT.STATUS AS SkjemaStatus
-  
-  FROM mce MCE
-  INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
-  INNER JOIN ctangio CT ON MCE.MCEID = CT.MCEID
-  LEFT JOIN ctfindingstatic F ON MCE.MCEID = F.MCEID
-  WHERE MCE.INTERVENTION_TYPE=4
-         ")
+    
+   	P.SSN_TYPE AS FnrType,
+   	P.SSNSUBTYPE AS FnrSubtype,
+   	P.DECEASED AS AvdodFReg,
+	  P.DECEASED_DATE as AvdodDatoFReg,
+
+   	-- Study information
+    (SELECT
+      GROUP_CONCAT(
+         IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+      FROM pasienterstudier PS
+      WHERE PS.PasientID = MCE.PATIENT_ID)
+    AS Studie,
+    
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+    CAST(NULL AS CHAR(50)) AS Fylke,
+    CAST(NULL AS CHAR(2)) AS Fylkenr,
+    MCE.PARENT_MCEID as KobletForlopsID, 
+    CT.STATUS AS SkjemaStatus 
+    
+    FROM mce MCE
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      INNER JOIN ctangio CT ON MCE.MCEID = CT.MCEID
+      LEFT JOIN ctfindingstatic F ON MCE.MCEID = F.MCEID
+      WHERE MCE.INTERVENTION_TYPE = 4
+  ")
 }
+
+
+#' @rdname getQuery
+#' @export
+queryAortaklaffvarnum <- function(){
+  paste0("
+  SELECT
+    T.CENTREID AS AvdRESH,
+    T.MCEID AS ForlopsID,
+    P.ID AS PasientID,
+    CASE WHEN MCE.INTERVENTION_TYPE = 5 THEN 'Aortaklaff' END AS ForlopsType1,
+    CASE 
+      WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
+      WHEN MCE.MCETYPE = 2 THEN 'Akutt'
+      WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
+    END AS ForlopsType2,
+  
+    -- Perkutane aortaklaffer
+    T.SCREENING AS ScreeningBeslutning,
+    T.COMPLETED_PROCEDURE AS Prosedyre,
+    T.INDICATION AS Indikasjon,
+    T.SCREENINGDATE AS BeslutningsDato,
+    T.PROCEDUREDATE AS ProsedyreDato,
+    T.AKUTOP AS AkuttOperasjon,
+  
+    -- Kliniske bakgrunnsdata
+    CASE
+      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+      WHEN P.GENDER = 1 THEN 'Mann'
+      WHEN P.GENDER = 2 THEN 'Kvinne'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,
+    P.BIRTH_DATE AS FodselsDato,
+
+    T.HEIGHT AS Hoyde,
+    T.HEIGHT_MISS AS HoydeUkjent,
+    T.WEIGHT AS Vekt,
+    T.WEIGHT_MISS AS VektUkjent,
+    T.SMOKING AS Royker,
+    T.S_CREATININ AS SKreatininFoer,
+    T.S_CREATININ_MISS AS SKreatininIkkeUtfort,
+    T.PROBNP AS ProBNPFoer,
+    T.PROBNPNT AS NTProBNPFoer,
+    T.HEMOGLOBIN AS HemoglobinFoer, -- Added in v1.13 as NOR-1345
+  
+    -- Tidligere sykdommer/behandling
+    T.HYPERTENSION AS BehHypertoni,
+    T.DIABETES AS Diabetes,
+    T.DIABETESINSULIN AS Insulin,
+    T.ATRIAL_FIBRILLATION AS Atrieflimmer,
+    T.PREVIOUS_MI AS InfarktSiste90d,
+    T.PRIOR_CARDIAC_SURGERY AS TidlHjerteoperasjon,
+    T.PRIOR_CARDIAC_SURGERY_ACB AS TidlACB,
+    T.PRIOR_CARDIAC_SURGERY_AVR AS TidlAVR,
+    T.PRIOR_CARDIAC_SURGERY_MITRALPLASTIKK AS TidlMitralplastikk,
+    T.PRIOR_CARDIAC_SURGERY_MVR AS TidlMVR,
+    T.PRIOR_CARDIAC_SURGERY_OTHER AS TidlAnnet,
+    T.PREVIOUS_PCI AS TidlPCI,
+    T.PREVIOUS_STROKE AS TidlHjerneslag,
+    T.PACEMACER_IMPLANT AS Pacemaker,
+    T.CHRONIC_PULMONARY_DISEASE AS KOLS,
+    T.PERIF_VESSELDISEASE AS PeriferKarsykdom,
+    T.OTHER_SERIOUS_ILLNESS AS AnnenAlvorligSykdom,
+    
+    -- Aktuell preoperativ status
+    T.NYHA AS NYHAKlasse,
+    T.CANADIAN AS CanadianClass,
+    T.FRAILTY AS Frailty,
+    T.NEUROLOGIC_DIS AS RedusertMobilitet,
+    T.WALKINGTEST AS Gangtest,
+    T.WALKINGTEST_MISS AS GangtestIkkeUtfort,
+    T.WALKINGTESTSPEED AS GangHastigtest,
+    T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
+    T.GRIPTEST AS Gripestyrke,
+    T.EURO2_DIALYSIS AS DialyseFoerOp,
+    T.KRITISKT AS KritiskPreopTilstand,
+    T.EURO2_URGENCY AS Hastegrad,
+    
+    -- Kontraindikasjon mot kirurgi
+    T.PERC_VALVE_DUE_TO_RISK AS PerkKlaffPgaRisiko,
+    T.PERC_VALVE_RISK_AGE AS PerkKlaffPgaRisikoAlder,
+    T.PERC_VALVE_RISK_SPIRO AS PerkKlaffPgaRisikoSpiro,
+    T.PERC_VALVE_RISK_FORMER_ACB AS PerkKlaffPgaRisikoACB,
+    T.COUNTERINDICATION AS PerkKlaffPgaRisikoSpesiell,
+    T.OTHERMORBREASON0 AS Porselenaorta,
+    T.OTHERMORBREASON1 AS Malignitet,
+    T.OTHERMORBREASON3 AS UgunstigAnatomi,
+    T.OTHERMORBREASON2 AS Steroidbehandling,
+    T.OTHERMORBREASON4 AS Stralebehandling,
+    T.OTHERMORBREASON5 AS Thoraxdeformitet,
+    T.OTHERMORB AS AnnenAlvorligSykdomKirRisiko,
+    T.PERC_VALVE_DUE_TO_PATIENT AS PerkKlaffPgaPasient,
+    T.PRESENT_HEALTH_STAT AS Helsetilstand,
+    
+    -- EKKO-funn fC8r prosedyre
+    T.VESSELAREA AS Klaffeareal,
+    T.VESSELAREA_MISS AS KlaffearealIkkeBeregnet,
+    T.ADJUSTED_VESSELAREA AS KorrigertKlaffeareal,
+    T.MAXGRADIENT AS PreMaxgradient,
+    T.MAXGRADIENT_MSEK AS PreMaxHastighet,
+    T.MAXGRADIENT_MSEK_MISS AS PreMaxHastMangler,
+    T.AVERAGEGRADIENT AS PreMiddelgradient,
+    T.AVERAGEGRADIENT_MISS AS PreMiddelgradientMangler,
+    T.LEFT_VENTRICULAR_FUNCTION AS PreVenstreVentrikkelFunksjon2011,
+    T.LEFT_VENTRICULAR_FUNCTION_EURO2 AS PreVenstreVentrikkelFunksjon,
+    T.PULMHYPERTENSION AS PulmonalHypertensjon,
+    T.AORTAINS AS PreAortainsuffisiens,
+    T.MITRALISINS AS PreMitralisinsuffisiens,
+  
+    -- CT-funn
+    T.CTPERFORMED AS ErCTForetatt,
+    T.OSTIEDIAM AS AnnulusdiameterVedCT,
+    T.ANNULUSAORTA AS AnnulusAreal,
+    T.ANNULUSAORTA_MM AS AnnulusArealmm,
+    T.PERIMETER AS AnnulusPerimeter,
+    T.AORTA_CALCIFICATION AS Aortaforkalk,
+    T.ASCENDING_AORTA_CALCIFICATION AS AortaKalkAscendens,
+    T.TYPEOF_FLAP AS TypeKlaff,
+    
+    -- OperatC8rer
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.MAIN_OPERATOR ) AS HovedOperator,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.SECOND_OPERATOR ) AS AndreOperator,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.THIRD_OPERATOR ) AS TredjeOperator,
+    (SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM taviperc_operator_mapping tavi_op, people peo where tavi_op.PEOPLEID = peo.PEOPLEID and tavi_op.MCEID = T.MCEID) AS Operatorer,
+    
+    -- Prosedyrevariabler
+    T.PUNCTIONTIME AS Punksjonstid,
+    T.ENDTIME AS Avslutningstid,
+    T.MITRALISINS AS Mitralisinsuffisiens,
+    T.PROCEDURETYPE AS OperativTilgang,
+    T.VESSELINVESSEL AS KlaffIKlaff,
+    (SELECT v.NAME FROM valve v WHERE T.INSTRUMENTTYPE = v.ID) AS TypeKlaffeprotese,
+    T.PROSTHESIS_SIZE AS ProteseStr,
+    T.PREDILATATION AS Predilatasjon,
+    T.BALLOONSIZEPRE AS PredilBallongStr,
+    T.AFTERDILATATION AS Postdilatasjon,
+    T.BALLOONSIZEPOST AS PostdilBallongStr,
+    T.PROTECTIONDEVICE AS ProtectionDevice,
+    T.SEALING AS Karlukning,
+    T.RAPIDPACING AS RapidPacing,
+    T.ANESTHESIA AS Anestesi,
+    T.SUCCESSFULPROC AS VellykketProsedyre,
+    
+    -- StrC%ledata og kontrast
+    T.LABNO AS Labnr,
+    T.BEAMDOSE AS Straaledose,
+    T.LIGHTTIME AS GjennomLysTid,
+    T.CONTRASTAGENT AS Kontrastmiddel,
+    T.CONTRASTAMOUNT AS Kontrastmengde,
+    
+    -- Komplikasjoner pC% lab
+    T.LABKOMP AS LabKomplikasjon,
+    T.LABBEHARYTMI AS LabKompArytmi,
+    T.LABNEURO AS LabKompNeurologi,
+    T.LABTAMP AS LabKompTamponade,
+    T.LABVASCULAR AS LabKompVaskular,
+    T.LABBLEEDING AS LabKompBlodning,
+    T.LABSURGVESSEL AS LabKompAkuttKlaff,
+    T.LABSURGVASC AS LabKompAkuttVaskular,
+    T.LABCORONAR AS LabKompOkklusjon,
+    T.LABANESTHESI AS LabKompAnestesi,
+    T.LABHLMACHINE AS LabKompHLMaskin,
+    T.LABKLAFF AS LabKompProtese,
+    T.LABEMBOLKLAFF AS LabKompEmboli,
+    T.LABOTHER AS LabKompAnnenKomp,
+    T.LABDECEASED AS LabKompDod,
+    T.LAB_DECEASED_DATE AS LabKompDodsdato,
+  
+    -- Komplikasjoner pC% avdelingen
+    TD.AVDCOMP AS AvdKomplikasjon,
+    TD.AVDSTROKE AS AvdKompHjerneslag,
+    TD.AVDSTROKE_DEGREE AS AvdKompHjerneslagGrad,
+    TD.AVDTIA AS AvdKompTIA,
+    TD.AVDTAMPONAD AS AvdKompTamponade,
+    TD.AVDPACEMAKER AS AvdKompPacemaker,
+    TD.AVDATRIALFIB AS AvdKompAtrieflimmer,
+    TD.AVDMI AS AvdKompHjerteinfarkt,
+    TD.AVDVASCULAR AS AvdKompVaskular,
+    TD.AVDBLEEDING AS AvdKompBlodning,
+    TD.AVDBLEEDING_DEGREE AS AvdKompBlodningGrad,
+    TD.AVDINFECTION AS AvdKompInfeksjon,
+    TD.AVDDIALYSIS AS AvdKompDialyse,
+    TD.AVDOTHER AS AvdKompAnnenKomp,
+    TD.AVDDECEASED AS AvdKompDod,
+    TD.AVD_DECEASED_DATE AS AvdKompDodsdato,
+    
+    -- Postoperative EKKO-funn
+    TD.POSTPERFORMED AS PostUndersokelseForetatt,
+    TD.POSTMAXGRADIENT AS PostMaxgradient,
+    TD.POSTMAXGRADIENT_MSEK AS PostMaxHastighet,
+    TD.POSTAVERAGEGRADIENT AS PostMiddelgradient,
+    TD.POSTAVERAGEGRADIENT_MISS AS PostMiddelgradientMangler,
+    TD.POSTLEFT_VENTRICULAR_FUNCTION AS PostVenstreVentrikkelFunksjon,
+    TD.POSTPULMHYPERTENSION AS PostPulmonalHypertensjon,
+    TD.VALVULAR_POSTAORTAINS AS PostAortainsuffisiens,
+    TD.PARAVALVULAR_LEAK AS ParavalvularLekkasje,
+    TD.PARAVALVULAR_INSUFFICIENCY AS ParavalvularInsuffisiens,
+    TD.POSTMITRALISINS AS PostMitralisinsuffisiens,
+    
+    -- Utskrivelse
+    TD.CREATININMAX AS UtskrKreatinin,
+    TD.CREATININMAX_MISS AS UtskrKreatininIkkeUtfort,
+    TD.DISCHARGEDATE AS UtskrDato,
+    TD.DISCHARGETO AS UtskrevetTil,
+  
+    -- Antikoagulantia og platehemmere ved utskrivelse
+    TD.ASA_DISCHARGE AS ASAVedUtskrivelse,
+    TD.ANTICOAGULANTS_DISCHARGE AS AntikoagulantiaVedUtskrivelse,
+    TD.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmereVedUtskrivelse,
+    
+    -- Pasientinfo
+    P.SSN_TYPE AS FnrType,
+    P.SSNSUBTYPE AS FnrSubType,
+    P.DECEASED AS AvdodFReg,
+    P.DECEASED_DATE AS DodsdatoFReg,
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+	  CAST(NULL AS CHAR(50)) AS Fylke,
+	  CAST(NULL AS CHAR(2)) AS Fylkenr,
+    MCE.PARENT_MCEID as KobletForlopsID,
+    
+     -- Study information
+    (SELECT
+      GROUP_CONCAT(
+        IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+      FROM pasienterstudier PS
+      WHERE PS.PasientID = MCE.PATIENT_ID)
+    AS Studie,
+  
+    LEAST(T.STATUS, TD.STATUS) AS SkjemaStatus,
+    T.STATUS AS SkjemaStatusHovedskjema,
+    TD.STATUS AS SkjemaStatusKomplUtsk
+  
+    FROM mce MCE
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      INNER JOIN taviperc T ON MCE.MCEID = T.MCEID
+      INNER JOIN tavidischarge TD ON MCE.MCEID = TD.MCEID
+")
+}
+
+
+
+#' @rdname getQuery
+#' @export
+queryAortaklaffoppfvarnum <- function(){
+  paste0("
+  SELECT
+	  TF.CENTREID AS AvdRESH,
+	  TF.MCEID AS ForlopsID,
+	  T.MCEID AS BasisForlopsID,
+
+    T.SCREENING AS BasisScreeningBeslutning,
+	  T.SCREENINGDATE AS BasisBeslutningsDato,
+	  T.PROCEDUREDATE AS BasisProsedyreDato,
+	  TF.FOLLOWUPDATE AS OppfDato,
+    TF.FOLLOWUP_TYPE AS OppfType,
+    TF.AVDDECEASED AS OppfAvdod,
+	  TF.DECEASEDDATE AS OppfAvdodDato,
+    TF.PROC_RELATED_DEATH AS OppfDodProsRelatert,
+
+  	-- OppfC8lging
+	  TF.HEIGHT AS Hoyde,
+    TF.HEIGHT_MISS AS HoydeUkjent,
+    TF.WEIGHT AS Vekt,
+    TF.WEIGHT_MISS AS VektUkjent,
+    TF.NYHA AS NYHA,
+    T.CANADIAN AS CanadianClass,
+	  TF.WALKINGTEST AS Gangtest,
+    TF.WALKINGTEST_MISS AS GangtestIkkeUtfort,
+    TF.WALKINGTESTSPEED AS GangHastigtest,
+    TF.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
+  	TF.S_CREATININ AS SKreatinin,
+    TF.S_CREATININ_MISS AS SKreatininIkkeUtfort,
+    TF.PROBNP AS ProBNP,
+    TF.PROBNPNT AS NTProBNP,
+  	TF.HEMOGLOBIN AS Hemoglobin,
+	  TF.HEMOGLOBIN_MISS AS HemoglobinUkjent,
+
+  	-- EKKO-funn
+  	TF.MAXGRADIENT AS MaxGradient,
+  	TF.MAXGRADIENT_MSEK AS MaxGradientMPS,
+  	TF.AVERAGEGRADIENT AS Middelgradient,
+  	TF.AVERAGEGRADIENT_MISS AS MiddelgradientMangler,
+    TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon,
+    TF.PULMHYPERTENSION AS PulmonalHypertensjon,
+    TF.AORTAINS AS Aortainsuffisiens,
+    TF.PARAVALVULAR_LEAK AS ParavalvularLekkasje,
+    TF.PARAVALVULAR_INSUFFICIENCY AS ParavalvularInsuffisiens,
+    TF.MITRALISINS AS Mitralinsuffisiens,
+
+    TF.PRESENT_HEALTH_STAT AS Helsetilstand,
+
+    -- Komplikasjoner
+    TF.COMP AS Komplikasjoner,
+    TF.ENDOCARDIT AS Endokarditt,
+    TF.DIALYSIS AS Dialyse,
+    TF.MI AS Hjerteinfarkt,
+    TF.STROKE AS Hjerneslag,
+    TF.PACEMAKER AS Pacemaker,
+    TF.PROSTHESIS AS ProteseDysfunk,
+    TF.VESSEL AS SenKarKomp,
+    TF.COMPOTHER AS AnnenKomp,
+
+	  TF.STATUS AS SkjemaStatus
+    FROM mce MCE
+      INNER JOIN tavipercfollowup TF ON MCE.MCEID = TF.MCEID
+      LEFT JOIN taviperc T ON MCE.PARENT_MCEID = T.MCEID
+ ")
+}
+
+
+#' @rdname getQuery
+#' @export
+queryAndreprosedyrervarnum <-function(){
+  paste0("
+  SELECT
+    other.CENTREID AS AvdRESH,
+    other.MCEID AS ForlopsID,
+    P.ID AS PasientID,
+
+    CASE WHEN MCE.INTERVENTION_TYPE = 7 THEN 'Andre prosedyrer' END AS ForlopsType1,
+    CASE 
+      WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
+      WHEN MCE.MCETYPE = 2 THEN 'Akutt'
+      WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
+    END AS ForlopsType2,
+    CASE
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
+      ELSE NULL
+    END AS Regtype,
+    
+    CASE
+      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+      WHEN P.GENDER = 1 THEN 'Mann'
+      WHEN P.GENDER = 2 THEN 'Kvinne'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,
+    P.BIRTH_DATE AS FodselsDato,
+    
+    -- Andre prosedyrer
+    other.PROCEDUREDATE AS ProsedyreDato,
+    other.PROCEDUREDATE_TIME AS ProsedyreTid,
+    other.PROCEDUREDATE_TIME_MISSING AS ProsedyreTidUkjent,
+    other.PROCEDURETYPE AS AnnenProsType,
+    
+    -- OperatC8r
+    (SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM other_operator_mapping oom, people peo where oom.PEOPLEID = peo.PEOPLEID and oom.MCEID = other.MCEID) AS AndreProsOperatorer,
+    
+    -- Komplikasjon pC% lab
+    other.LABKOMP AS Komplikasjon,
+    other.LABALLERGILATT AS LettAllergi,
+    other.LABALLERGIALLV AS ModeratAllergi,
+    other.LABBEHARYTMI AS Arytmi,
+    other.LABHEMO AS HemodynKomp,
+    other.LABNEURO AS NeuroKomp,
+    other.LABVASK AS VaskulKomp,
+    other.LABPERF AS Perforasjon,
+    other.LABTAMP AS Tamponade,
+    other.LABAKUTCABG AS AkuttACB,
+    other.LABANNANALLV AS AnnenAlvorligKomp,
+    other.LABDODSFALL AS Dod,
+    other.LABPROCEDURDOD AS ProsRelatertDod,
+    
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+    CAST(NULL AS CHAR(50)) AS Fylke,
+    CAST(NULL AS CHAR(2)) AS Fylkenr,
+    MCE.PARENT_MCEID as KobletForlopsID, 
+    other.STATUS AS SkjemaStatus
+
+    FROM mce MCE
+    INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+    INNER JOIN other ON MCE.MCEID = other.MCEID
+  ")
+}
+
+
+
+
+#' @rdname getQuery
+#' @export
+queryAnnendiagnostikkvarnum <-function(){
+  
+  paste0("
+  SELECT
+    MCE.CENTREID AS AvdRESH,
+    diag.MCEID AS ForlopsID,
+    P.ID AS PasientID,
+    CASE 
+      WHEN MCE.INTERVENTION_TYPE = 1 THEN 'Angio'
+      WHEN MCE.INTERVENTION_TYPE = 2 THEN 'PCI'
+      WHEN MCE.INTERVENTION_TYPE = 3 THEN 'Angio+PCI'
+    END AS ForlopsType1,
+    CASE 
+     WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
+     WHEN MCE.MCETYPE = 2 THEN 'Akutt'
+     WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
+    END AS ForlopsType2,
+    CASE
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
+      ELSE NULL
+    END AS Regtype,    
+    
+    CASE
+      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+      WHEN P.GENDER = 1 THEN 'Mann'
+      WHEN P.GENDER = 2 THEN 'Kvinne'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,
+    P.BIRTH_DATE as FodselsDato,
+  
+    
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
+    R.INDIKATION  AS Indikasjon,
+    R.INTERDAT as ProsedyreDato,
+    R.HEIGHT as Hoyde,
+    R.WEIGHT as Vekt,
+    diag.SEGMENT  AS segment,
+    diag.GRAFT  AS graft,
+    diag.METHODUSED  AS metode,
+    diag.FFR_BEFORE AS FfrFoer,
+    diag.FFR_AFTER as FfrEtter,
+    diag.IFR_BEFORE as IfrFoer,
+    diag.IFR_AFTER as IfrEtter,
+    diag.CSA_BEFORE as CsaFoer,
+    diag.CSA_AFTER as CsaEtter,
+    diag.MLD_BEFORE as MldFoer,
+    diag.MLD_EAFTER as MldEtter,
+    diag.MLA_BEFORE as MlaFoer,
+    diag.MLA_AFTER as MlaEtter,
+    diag.MXLCBI_BEFORE as MxlcbiFoer,
+    diag.MXLCBI_AFTER as MxlcbiEtter,
+    diag.CFR_BEFORE as CfrFoer,
+    diag.CFR_AFTER as CfrEtter,
+    diag.IMR_BEFORE as ImrFoer,
+    diag.IMR_AFTER as ImrEtter,
+    diag.PDPA_BEFORE as PdpaFoer,
+    diag.PDPA_AFTER as PdpaEtter,
+    diag.PAH_BEFORE as PahFoer,
+    diag.PAH_AFTER as PahEtter,
+    diag.PDH_BEFORE as PdhFoer,
+    diag.PDH_AFTER as PdhEtter,
+    
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+    CAST(NULL AS CHAR(50)) AS Fylke,
+    CAST(NULL AS CHAR(2)) AS Fylkenr,
+    MCE.PARENT_MCEID as KobletForlopsID
+    
+    FROM diagnostics diag
+      INNER JOIN mce MCE ON diag.MCEID = MCE.MCEID
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      LEFT JOIN regangio R ON diag.MCEID = R.MCEID
+  ")
+}
+
+
+
+
+#' @rdname getQuery
+#' @export
+querySegmentstentnum <-function(){
+  paste0("
+  SELECT
+    MCE.CENTREID AS AvdRESH,
+    S.ID AS SegmentID,
+    S.MCEID AS ForlopsID,
+    P.ID AS PasientID,
+    
+    CASE 
+      WHEN MCE.INTERVENTION_TYPE = 1 THEN 'Angio'
+      WHEN MCE.INTERVENTION_TYPE = 2 THEN 'PCI'
+      WHEN MCE.INTERVENTION_TYPE = 3 THEN 'Angio+PCI'
+    END AS ForlopsType1,
+    CASE 
+     WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
+     WHEN MCE.MCETYPE = 2 THEN 'Akutt'
+     WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
+    END AS ForlopsType2,
+    CASE
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+      WHEN  MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
+      ELSE NULL
+    END AS Regtype,
+   
+    CASE
+      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+      WHEN P.GENDER = 1 THEN 'Mann'
+      WHEN P.GENDER = 2 THEN 'Kvinne'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,
+    P.BIRTH_DATE as FodselsDato,
+    
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
+    R.INDIKATION  AS Indikasjon,
+    R.INTERDAT as ProsedyreDato,
+    R.HEIGHT as Hoyde,
+    R.WEIGHT as Vekt,
+    S.SEGMENT as Segment,
+    S.STENT as StentID,
+    ST.STENTNAMN AS Stentnavn,
+    ST.DES  AS StentType,
+    S.BALLONGLANGD as BallongLengde,
+    S.DEBDIAM as DEBDiameter,
+    S.DIAM as Diameter,
+    S.EFTERDILATATION  AS Etterdilatasjon,
+    S.FRAMGANG  AS LokalSuksess,
+    S.GRAFT  AS Graft,
+    S.LAKEMEDELSBALLONG  AS MedikamentellBallong,
+    S.MAXTRYCKVIDDEB AS MaksTrykkDEB,
+    S.OCKL  AS Okklusjon,
+    S.PROCTYP  AS ProsedyreType,
+    S.SEGMENT_STENT_TROMBOSE_TYPE  AS Stenttrombosetype,
+    S.STENOSKLASS  AS Stenoseklasse,
+    S.STENOSTYP  AS StenoseType,
+    S.STENTLANGD AS Stentlengde,
+    S.STENTSLUT  AS StentSlut,
+    S.UPPBLASNINGSTIDDEB AS InflasjonsTidDEB,
+    S.IVL_DIAM AS IVLDiameter,
+    S.NUMBERPULSES AS AntallPulser,
+    
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+    CAST(NULL AS CHAR(50)) AS Fylke,
+    CAST(NULL AS CHAR(2)) AS Fylkenr,
+    MCE.PARENT_MCEID as KobletForlopsID
+
+    FROM segment S
+      LEFT  JOIN stent ST ON S.STENT = ST.SID
+      INNER JOIN mce MCE ON S.MCEID = MCE.MCEID
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      LEFT JOIN regangio R ON S.MCEID = R.MCEID
+")
+}
+
+
+
+
+
+#' @rdname getQuery
+#' @export
+queryMitralklaffvarnum <-function(){
+  paste0("
+  SELECT
+	  T.CENTREID AS AvdRESH,
+	  T.MCEID AS ForlopsID,
+	  P.ID AS PasientID,
+	  
+    MCE.INTERVENTION_TYPE AS ForlopsType1,
+    CASE 
+       WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
+       WHEN MCE.MCETYPE = 2 THEN 'Akutt'
+       WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
+     END AS ForlopsType2,
+     
+     CASE
+       WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+       WHEN P.GENDER = 1 THEN 'Mann'
+       WHEN P.GENDER = 2 THEN 'Kvinne'
+       ELSE 'Ukjent'
+     END AS PasientKjonn,
+     P.BIRTH_DATE AS FodselsDato,
+
+    
+     -- Mitralklaff
+     T.SCREENING AS ScreeningBeslutning,
+     T.MITRAL_VALVE_TYPE AS Prosedyre,
+     T.PROCEDUREDATE AS ProsedyreDato,
+     
+     -- Kliniske bakgrunnsdata
+     T.HEIGHT AS Hoyde,
+     T.HEIGHT_MISS AS HoydeUkjent,
+     T.WEIGHT AS Vekt,
+     T.WEIGHT_MISS AS VektUkjent,
+     T.SMOKING AS Royker,
+     T.S_CREATININ AS KreatininFoer,
+     T.S_CREATININ_MISS AS KreatininUkjent,
+     T.PROBNP AS ProBNP,
+     T.PROBNPNT AS NTProBNPFoer,
+     T.PROBNP_MISS AS ProBNPUkjent,
+     T.HEMOGLOBIN AS HemoglobinFoer, -- Added in v1.13 as NOR-1345
+
+     -- Tidligere sykdommer/behandling
+     T.HYPERTENSION AS BehHypertoni,
+     T.DIABETES AS Diabetes,
+     T.DIABETESINSULIN AS Insulin,
+     T.ATRIAL_FIBRILLATION AS Atrieflimmer,
+     T.PREVIOUS_MI AS InfarktSiste90d,
+     T.HEARTFAILURE AS AntInnleggelserSisteAar,
+     T.HEARTFAILURE_MISS AS AntInnleggelserSisteAarUkjent,
+     T.PRIOR_CARDIAC_SURGERY AS TidlHjerteoperasjon,
+     T.PRIOR_CARDIAC_SURGERY_ACB AS TidlACB,
+     T.PRIOR_CARDIAC_SURGERY_AVR AS TidlAVR,
+     T.PRIOR_CARDIAC_SURGERY_MITRALPLASTIKK AS TidlMitralplastikk,
+     T.PRIOR_CARDIAC_SURGERY_MVR AS TidlMVR,
+     T.PRIOR_CARDIAC_SURGERY_OTHER AS TidlAnnet,
+     T.PRIORCORRECTION AS TidlKorrigering,
+     T.PREVIOUS_PCI AS TidlPCI,
+     T.PREVIOUS_STROKE AS TidlHjerneslag,
+     T.CHRONIC_PULMONARY_DISEASE AS KOLS,
+     T.PERIF_VESSELDISEASE AS PeriferKarsykdom,
+
+	   -- Aktuell preoperativ status
+     T.NYHA AS NYHAKlasse,
+     T.FRAILTY AS Frailty,
+     T.NEUROLOGIC_DIS AS RedusertMobilitet,
+     T.WALKINGTEST AS Gangtest,
+     T.WALKINGTEST_MISS AS GangtestIkkeUtfort,
+     T.WALKINGTESTSPEED AS GangHastigtest,
+     T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
+     T.GRIPTEST AS Gripestyrke,
+     T.EURO2_DIALYSIS AS DialyseFoerOp,
+     T.KRITISKT AS KritiskPreopTilstand,
+     T.EURO2_URGENCY AS Hastegrad,
+
+     -- Kontraindikasjon mot kirurgi
+     T.COUNTERINDICATION AS Kontraindikasjon,
+     T.OTHERMORBREASON0 AS Porselenaorta,
+     T.OTHERMORBREASON1 AS Malignitet,
+     T.OTHERMORBREASON3 AS UgunstigAnatomi,
+     T.OTHERMORBREASON2 AS Steroidbehandling,
+     T.OTHERMORBREASON4 AS Stralebehandling,
+     T.OTHERMORBREASON5 AS Thoraxdeformitet,
+     T.AVBOJD AS AvslaattForThorax,
+     T.PRESENT_HEALTH_STAT AS Helsetilstand,
+
+     -- EKKO-funn fC8r prosedyre
+     T.LEFT_VENTRICULAR_FUNCTION_EURO2 AS PreVenstreVentrikkelFunksjon,
+     T.AORTAINS AS PreAortainsuffisiens,
+     T.AORTASTENOS AS PreAortastenose,
+     T.TRICUSINSUFF AS PreTricuspidal,
+     T.MITRALISSTENOS AS PreMitralstenose,
+     T.MITRINSUFF AS PreMitralinsuffisiens,
+     T.MAXSPEED_MSEK AS PreMaxHastighet,
+     T.AVERAGEGRADIENT AS PreMiddelgradient,
+     T.MREROA AS PreMREROA,
+     T.MREROA_MISS AS PreMREROAUkjent,
+     T.PULMONELLHYPERTENSION AS PreHoyreVentTrykk,
+
+     -- OperatC8rer
+     (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.MAIN_OPERATOR ) AS HovedOperator,
+     (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.SECOND_OPERATOR ) AS AndreOperator,
+     (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = T.THIRD_OPERATOR ) AS TredjeOperator,
+     (SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM tavimitralis_operator_mapping tavi_op, people peo where tavi_op.PEOPLEID = peo.PEOPLEID and tavi_op.MCEID = T.MCEID) AS Operatorer,
+
+      -- Prosedyrevariabler
+     T.PUNCTIONTIME AS Punksjonstid,
+     T.ENDTIME AS Avslutningstid,
+     T.INTRODUCER AS IntroducerStr,
+     T.INTRODUCER_MISS AS IntroducerStrUkjent,
+     T.VESSELSEAL AS Karlukning,
+     T.ANESTHESIA AS Anestesi,
+     T.EKODURINGPROC AS ProsedyreEkko,
+     (SELECT v.NAME FROM valve v WHERE T.INSTRUMENTTYPE = v.ID) AS TypeKlaffeprotese,
+     T.SUCCESSFULPROC AS VellykketProsedyre,
+	
+     -- These are outcommented from the form, due to NOR-733:
+     -- TAVIMITRALIS_CRT
+     -- TAVIMITRALIS_ICD
+     -- TAVIMITRALIS_QUALCLASS
+     -- TAVIMITRALIS_PROLAPS, 6 variables
+     -- TAVIMITRALIS_MRPISA (with _MISS)
+     -- TAVIMITRALIS_VCONTRACTA (with MISS)
+     -- TAVIMITRALIS_LUNGVENREVERSE
+     -- TAVIMITRALIS_NRCLIP_ROW (with MISS)
+     -- TAVIMITRALIS_ACCESS
+
+      -- StrC%ledata og kontrast
+     T.LABNO AS Labnr,
+     T.BEAMDOSE AS Straaledose,
+     T.BEAMDOSE_MISS AS StraaledoseUkjent,
+     T.LIGHTTIME AS GjennomLysTid,
+     T.CONTRASTAGENT AS Kontrastmiddel,
+     T.CONTRASTAMOUNT AS Kontrastmengde,
+     T.CONTRASTAMOUNT_MISS AS KontrastmengdeUkjent,
+
+     -- Komplikasjoner pC% lab
+     T.LABKOMP AS LabKomplikasjon,
+     T.LABBEHARYTMI AS LabKompArytmi,
+     T.LABNEURO AS LabKompNeurologi,
+     T.LABTAMP AS LabKompTamponade,
+     T.LABPACEMAKER AS LabKompPacemaker,
+     T.LABVASCULAR AS LabKompVaskular,
+     T.LABBLEEDING AS LabKompBlodning,
+     T.LABSURGVESSEL AS LabKompAkuttKlaff,
+     T.LABSURGVASC AS LabKompAkuttVaskular,
+     T.LABANESTHESI AS LabKompAnestesi,
+     T.LABHLMACHINE AS LabKompHLMaskin,
+     T.LABEMBOLDEVICE AS LabKompEmbolisering,
+     T.LABOTHER AS LabKompAnnenKomp,
+     T.LABDECEASED AS LabKompDod,
+
+     -- Komplikasjoner pC% avdelingen
+     TD.AVDCOMP AS AvdKomplikasjon,
+     TD.AVDSTROKE AS AvdKompHjerneslag,
+     TD.AVDSTROKE_DEGREE AS AvdKompHjerneslagGrad,
+     TD.AVDTIA AS AvdKompTIA,
+     TD.AVDTAMPONAD AS AvdKompTamponade,
+     TD.AVDPACEMAKER AS AvdKompPacemaker,
+     TD.AVDATRIALFIB AS AvdKompAtrieflimmer,
+     TD.AVDMI AS AvdKompHjerteinfarkt,
+     TD.AVDVASCULAR AS AvdKompVaskular,
+     TD.AVDBLEEDING AS AvdKompBlodning,
+     TD.AVDBLEEDING_DEGREE AS AvdKompBlodningGrad,
+     TD.AVDINFECTION AS AvdKompInfeksjon,
+     TD.AVDDIALYSIS AS AvdKompDialyse,
+     TD.AVDOTHER AS AvdKompAnnenKomp,
+     TD.AVDDECEASED AS AvdKompDod,
+
+     -- Postoperative EKKO-funn
+     TD.POSTPERFORMED AS PostUndersokelseForetatt,
+     TD.POSTQUALCLASS AS PostKlassifisering,
+     TD.POSTPROLAPSA1 AS PostProlapsA1,
+     TD.POSTPROLAPSA2 AS PostProlapsA2,
+     TD.POSTPROLAPSA3 AS PostProlapsA3,
+     TD.POSTPROLAPSP1 AS PostProlapsP1,
+     TD.POSTPROLAPSP2 AS PostProlapsP2,
+     TD.POSTPROLAPSP3 AS PostProlapsP3,
+     TD.POSTLEFT_VENTRICULAR_FUNCTION_EURO2 AS PostVenstreVentrikkelFunksjon,
+     TD.POSTTRICUS_INSUFF AS PostTricuspidal,
+     TD.POSTMITRALISSTENOS AS PostMitralstenose,
+     TD.POSTMITR_INSUFF AS PostMitralinsuffisiens,
+     TD.POSTMAXGRADIENT AS PostMaxgradient,
+     TD.POSTMAXSPEED_MSEK AS PostMaxHastighet,
+     TD.POSTAVERAGEGRADIENT AS PostMiddelgradient,
+     TD.POSTMRPISA AS PostMRPISA,
+     TD.POSTMRPISA_MISS AS PostMRPISAUkjent,
+     TD.POSTMREROA AS PostMREROA,
+     TD.POSTMREROA_MISS AS PostMREROAUkjent,
+	   TD.POSTVCONTRACTA AS PostVContracta,
+     TD.POSTVCONTRACTA_MISS AS PostVContractaUkjent,
+     TD.POSTLUNGVENREVERSE AS PostReversFlow,
+     TD.POSTPULMONELLHYPERTENSION AS PostHoyreVentrikkelTrykk,
+     TD.POSTPULMONELLHYPERTENSION_MISS AS PostHoyreVentrikkelTrykkUkjent,
+
+     -- Utskrivelse
+     TD.CREATININMAX AS MaxKreatinin,
+     TD.CREATININMAX_MISS AS MaxKreatininUkjent,
+     TD.DISCHARGEDATE AS UtskrDato,
+     TD.DISCHARGETO AS UtskrevetTil,
+     -- Antikoagulantia og platehemmere ved utskrivelse
+     TD.ASA_DISCHARGE AS ASAVedUtskrivelse,
+     TD.ANTICOAGULANTS_DISCHARGE AS AntikoagulantiaVedUtskrivelse,
+     TD.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmereVedUtskrivelse,
+     
+     P.SSN_TYPE = FnrType,
+     P.DECEASED AS AvdodFReg,
+     P.DECEASED_DATE AS DodsdatoFReg,
+     P.MUNICIPALITY_NAME AS Kommune,
+     P.MUNICIPALITY_NUMBER AS KommuneNr,
+     CAST(NULL AS CHAR(50)) AS Fylke,
+     CAST(NULL AS CHAR(2)) AS Fylkenr,
+     MCE.PARENT_MCEID as KobletForlopsID, 
+  
+     - Study information
+     SELECT
+      GROUP_CONCAT(
+        IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+        FROM pasienterstudier PS
+        WHERE PS.PasientID = MCE.PATIENT_ID)
+     AS Studie,
+  
+    T.STATUS AS SkjemaStatusHovedskjema,
+    TD.STATUS AS SkjemaStatusKomplUtskr,
+	  LEAST(T.STATUS, TD.STATUS) AS SkjemaStatus
+
+    FROM mce MCE
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      INNER JOIN tavimitralis T ON MCE.MCEID = T.MCEID
+      INNER JOIN tavimitralisdischarge TD ON MCE.MCEID = TD.MCEID
+ ")
+}
+
+
+#' @rdname getQuery
+#' @export
+queryMitralklaffoppfvarnum <-function(){
+  paste0("
+  SELECT
+	  TF.CENTREID AS AvdRESH,
+	  TF.MCEID AS ForlopsID,
+	  T.MCEID AS BasisForlopsID,
+    T.SCREENING AS BasisScreeningBeslutning,
+  	T.PROCEDUREDATE AS BasisProsedyreDato,
+  	TF.FOLLOWUPDATE AS OppfDato,
+    TF.FOLLOWUP_TYPE AS OppfType,
+    TF.DECEASED AS OppfAvdod,
+	  TF.DECEASEDDATE AS OppfAvdodDato,
+    TF.PROC_RELATED_DEATH AS OppfDodProsRelatert,
+
+    -- OppfC8lging
+    TF.HEIGHT AS Hoyde,
+    TF.HEIGHT_MISS AS HoydeUkjent,
+    TF.WEIGHT AS Vekt,
+    TF.WEIGHT_MISS AS VektUkjent,
+    TF.NYHA AS NYHA,
+  	TF.WALKINGTEST AS Gangtest,
+	  TF.WALKINGTEST_MISS AS GangtestIkkeUtfort,
+    T.WALKINGTESTSPEED AS GangHastigtest,
+    T.WALKINGTESTSPEED_MISS AS GangHastigtestIkkeUtfort,
+	  TF.S_CREATININ AS Kreatinin,
+  	TF.S_CREATININ_MISS AS KreatininUkjent,
+    TF.PROBNP AS ProBNP,
+    TF.PROBNPNT AS NTProBNP,
+
+    -- EKKO-funn
+    TF.PROLAPSA1 AS ProlapsA1,
+    TF.PROLAPSA2 AS ProlapsA2,
+    TF.PROLAPSA3 AS ProlapsA3,
+    TF.PROLAPSP1 AS ProlapsP1,
+    TF.PROLAPSP2 AS ProlapsP2,
+    TF.PROLAPSP3 AS ProlapsP3,
+    TF.LEFT_VENTRICULAR_FUNCTION AS VenstreVentrikkelFunksjon,
+    TF.AORTAINS AS Aortainsuffisiens,
+    TF.AORTAINS AS Aortastenose,
+    TF.TRICUSINS AS Tricuspidal,
+    TF.MITRALISINS AS Mitralinsuffisiens,
+    TF.MITRALISSTENOS AS Mitralstenose,
+    TF.MAXVELOCITY AS MaxHastighet,
+    TF.AVGGRADIENT_MSEK AS MiddelgradientMPS,
+    TF.AVERAGEGRADIENT AS Middelgradient,
+    TF.MRPISA AS MRPISA,
+    TF.MREROA AS MREROA,
+    TF.VCONTRACTA AS VContracta,
+    TF.LUNGVENSREVERS AS FlowRevers,
+	  TF.PULMHYPERTENSION AS HoyreVentrikkelTrykk,
+	  TF.PULMHYPERTENSION_MISS AS HoyreVentrikkelTrykkUkjent,
+
+   	TF.PRESENT_HEALTH_STAT AS Helsetilstand,
+
+    	-- Komplikasjoner
+    TF.AVDCOMP AS Komplikasjoner,
+    TF.AVDSTROKE AS Hjerneslag,
+    TF.AVDTIA AS TIA,
+    TF.AVDTAMPONAD AS Tamponade,
+    TF.AVDPACEMAKER AS Pacemaker,
+    TF.AVDATRIALFIB AS Atrieflimmer,
+    TF.AVDMI AS Hjerteinfarkt,
+    TF.AVDVASCULAR AS Vaskular,
+    TF.AVDBLEEDING AS Blodning,
+    TF.AVDINFECTION AS Infeksjon,
+    TF.AVDDIALYSIS AS Dialyse,
+    TF.AVDDEVICE AS DeviceRelKomp,
+    TF.AVDOTHER AS AnnenKomp,
+
+   	TF.STATUS AS SkjemaStatus
+    FROM mce MCE
+      INNER JOIN tavimitralisfollowup TF ON MCE.MCEID = TF.MCEID
+      LEFT JOIN tavimitralis T ON MCE.PARENT_MCEID = T.MCEID
+  ")
+}
+
+#' @rdname getQuery
+#' @export
+queryTaviprom <- function(){
+  
+  paste0("
+  SELECT
+    MCE.CENTREID AS AvdRESH,
+    MCE.MCEID AS ForlopsID,
+    P.ID AS PasientID,
+    proms.REGISTRATION_TYPE AS Registreringstype,
+    P.SSN_TYPE AS FnrType,
+    tavi.PROCEDUREDATE AS ProsedyreDato,
+    
+    proms.TSSENDT AS ePromBestillingsdato,
+    proms.TSRECEIVED AS ePromMottatt,
+    proms.EXPIRY_DATE AS ePromUtloeptDato,
+    proms.STATUS AS ePromStatus,
+    
+    r.Q01 AS rose01,
+    r.Q02 AS rose02,
+    r.Q03 AS rose03,
+    r.Q04 AS rose04,
+    r.Q05 AS rose05,
+    r.FORM_COMPLETED_VIA_PROMS AS roseFerdigViaProm,
+    r.TSUPDATED AS roseDato,
+    r.STATUS AS roseStatus,
+    
+    h.Q01 AS heart01 ,
+    h.Q02 AS heart02 ,
+    h.Q03 AS heart03 ,
+    h.Q04 AS heart04 ,
+    h.Q05 AS heart05 ,
+    h.Q06 AS heart06 ,
+    h.Q07 AS heart07 ,
+    h.Q08 AS heart08 ,
+    h.Q09 AS heart09 ,
+    h.Q10 AS heart10,
+    h.Q11 AS heart11,
+    h.Q12 AS heart12,
+    h.Q13 AS heart13,
+    h.Q14 AS heart14,
+    h.FORM_COMPLETED_VIA_PROMS AS heartFerdigViaProm,
+    h.TSUPDATED AS heartDato,
+    h.STATUS AS hearStatus,
+    
+    m.Q01 AS min01,
+    m.Q02 AS min02,
+    m.Q03 AS min03,
+    m.Q04 AS min04,
+    m.Q05 AS min05,
+    m.Q06 AS min06,
+    m.Q07 AS min07,
+    m.Q08 AS min08,
+    m.Q09 AS min09,
+    m.Q10 AS min10,
+    m.Q11 AS min11,
+    m.Q12 AS min12,
+    m.Q13 AS min13,
+    m.Q14 AS min14,
+    m.Q15 AS min15,
+    m.Q16 AS min16,
+    m.Q17 AS min17,
+    m.Q18 AS min18,
+    m.Q19 AS min19,
+    m.Q20 AS min20,
+    m.Q21 AS min21,
+    m.FORM_COMPLETED_VIA_PROMS AS minFerdigViaProm,
+    m.TSUPDATED AS minDato,
+    m.STATUS AS minStatus,
+    
+    tav.Q01 AS tavi01,
+    tav.Q01_2 AS tavi01_2,
+    tav.Q02 AS tavi02,
+    tav.Q02_2 AS tavi02_2,
+    tav.Q03 AS tavi03,
+    tav.Q04 AS tavi04,
+    tav.Q05 AS tavi05,
+    tav.Q06 AS tavi06,
+    tav.Q06_2 AS tavi06_2,
+    tav.Q07 AS tavi07,
+    tav.FORM_COMPLETED_VIA_PROMS AS taviFerdigViaProm,
+    tav.TSUPDATED AS taviDato,
+    tav.STATUS AS taviStatus,
+    
+    prem.Q01 AS prem01,
+    prem.Q02 AS prem02,
+    prem.Q03 AS prem03,
+    prem.Q04 AS prem04,
+    prem.Q05 AS prem05,
+    prem.Q06 AS prem06,
+    prem.Q07 AS prem07,
+    prem.Q08 AS prem08,
+    prem.Q09 AS prem09,
+    prem.Q10 AS prem10,
+    prem.Q11 AS prem11,
+    prem.Q12 AS prem12,
+    prem.Q13 AS prem13,
+    prem.Q14 AS prem14,
+    prem.Q15 AS prem15,
+    prem.FORM_COMPLETED_VIA_PROMS AS premFerdigViaProm,
+    prem.TSUPDATED AS premDato,
+    prem.STATUS AS premStatus
+    
+    FROM 
+      proms
+      INNER JOIN mce MCE ON proms.MCEID = MCE.MCEID
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      LEFT JOIN rose_dyspnea_scale r ON MCE.MCEID = r.MCEID
+      LEFT JOIN heart_qol h ON MCE.MCEID = h.MCEID
+      LEFT JOIN minnesota_questionnaire m ON MCE.MCEID = m.MCEID
+      LEFT JOIN taviperc tavi ON MCE.MCEID = tavi.MCEID
+      LEFT JOIN tavi_additional_questions tav ON MCE.MCEID = tav.MCEID
+      LEFT JOIN prem ON MCE.MCEID = prem.MCEID
+      WHERE proms.REGISTRATION_TYPE LIKE 'TAVI%'
+")
+}
+
+
+#' @rdname getQuery
+#' @export
+queryForlopsoversikt <-function(){
+  
+  
+   # FUNGERER IKKE. 
+  # funksjoner getFriendlyName() og getListText()
+  # Har fjernet dette fra QUERY. Sjekk 03-reportviews for gammel koding
+  
+  
+  paste0("
+  SELECT
+    MCE.CENTREID AS AvdRESH,
+    P.ID AS PasientID,
+    P.ZIPCODE AS Postnr, -- TODO listed as char 4
+    CAST(NULL AS CHAR(50)) AS PostSted,
+    
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+    CAST(NULL AS CHAR(50)) AS Fylke,
+    CAST(NULL AS CHAR(2)) AS Fylkenr,
+    P.SSN_HASH AS KryptertFnr,
+    
+    CASE
+      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+      WHEN P.GENDER = 1 THEN 'Mann'
+      WHEN P.GENDER = 2 THEN 'Kvinne'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,
+    P.BIRTH_DATE AS FodselsDato,
+  
+  
+    P.NORWEGIAN AS Norsktalende,
+    CAST(NULL AS CHAR(30)) AS Sivilstatus,
+    CAST(NULL AS CHAR(50)) AS UtdanningSSB,
+    P.DECEASED AS AvdodFReg,
+    P.DECEASED_DATE AS DodsdatoFReg,
+ 
+ 
+    -- event info
+    MCE.MCEID AS ForlopsID,
+    CASE INTERVENTION_TYPE
+      WHEN 9 THEN mitralisfop.STATUS
+      WHEN 8 THEN tavifop.STATUS
+      WHEN 7 THEN o.STATUS
+      WHEN 6 THEN LEAST(mitralis.STATUS, IFNULL(mdisc.STATUS,1))
+      WHEN 5 THEN LEAST(tavi.STATUS, IFNULL(tdisc.STATUS,1))
+      WHEN 4 THEN ct.STATUS
+      ELSE LEAST(IFNULL(i.STATUS,1), a.STATUS, IFNULL(c.STATUS,1), IFNULL(d.STATUS,1))
+     END AS BasisRegStatus,
+     
+    MCE.INTERVENTION_TYPE AS ForlopsType1Num,
+    MCE.MCETYPE AS ForlopsType2Num,
+    MCE.PARENT_MCEID as KobletForlopsID,
+  
+    CASE INTERVENTION_TYPE
+      WHEN 9 THEN mitralisfop.FOLLOWUPDATE
+      WHEN 8 THEN tavifop.FOLLOWUPDATE
+      WHEN 7 THEN o.PROCEDUREDATE
+      WHEN 6 THEN mitralis.PROCEDUREDATE
+      WHEN 5 THEN tavi.PROCEDUREDATE
+      WHEN 4 THEN ct.CTDAT
+      ELSE a.INTERDAT
+    END AS HovedDato,
+    
+    CAST(NULL AS CHAR(2))  AS OppflgRegStatus,
+    CASE INTERVENTION_TYPE
+      WHEN 9 THEN '1'
+      WHEN 8 THEN '1'
+      ELSE '0'
+    END AS ErOppflg,
+    
+  CAST(NULL AS CHAR(30)) AS OppflgStatus,
+  CAST(NULL AS CHAR(6)) AS OppflgSekNr
+  
+  FROM
+    mce MCE INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+    LEFT OUTER JOIN initialcare i on MCE.MCEID = i.MCEID
+    LEFT OUTER JOIN regangio a on MCE.MCEID = a.MCEID
+    LEFT OUTER JOIN ctangio ct on MCE.MCEID = ct.MCEID
+    LEFT OUTER JOIN taviperc tavi on MCE.MCEID = tavi.MCEID
+    LEFT OUTER JOIN tavidischarge tdisc on MCE.MCEID = tdisc.MCEID
+    LEFT OUTER JOIN tavipercfollowup tavifop on MCE.MCEID = tavifop.MCEID
+    LEFT OUTER JOIN tavimitralis mitralis on MCE.MCEID = mitralis.MCEID
+    LEFT OUTER JOIN tavimitralisdischarge mdisc on MCE.MCEID = mdisc.MCEID
+    LEFT OUTER JOIN tavimitralisfollowup mitralisfop on MCE.MCEID = mitralisfop.MCEID
+    LEFT OUTER JOIN angiopcicomp c on MCE.MCEID = c.MCEID
+    LEFT OUTER JOIN discharge d on MCE.MCEID = d.MCEID
+    LEFT OUTER JOIN other o on MCE.MCEID = o.MCEID
+  ")
+}
+
+
 
 
 #' @rdname getQuery

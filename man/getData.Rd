@@ -3,32 +3,26 @@
 \name{getData}
 \alias{getData}
 \alias{getAp}
-\alias{getSo}
-\alias{getAk}
-\alias{getFo}
-\alias{getAnP}
 \alias{getCt}
+\alias{getAk}
 \alias{getAkOppf}
+\alias{getAnP}
 \alias{getAnD}
 \alias{getSs}
-\alias{getSh}
 \alias{getMk}
+\alias{getTaviProm}
+\alias{getSh}
+\alias{getFo}
+\alias{getSo}
 \alias{getPs}
 \alias{getApLight}
-\alias{getTaviProm}
 \title{Load data for NORIC}
 \usage{
 getAp(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getSo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getCt(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getAk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
-
-getFo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
-
-getAnP(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
-
-getCt(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getAkOppf(
   registryName,
@@ -39,15 +33,15 @@ getAkOppf(
   ...
 )
 
+getAnP(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+
 getAnD(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getSs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getMk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getPs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
-
-getApLight(
+getTaviProm(
   registryName,
   fromDate,
   toDate,
@@ -56,7 +50,13 @@ getApLight(
   ...
 )
 
-getTaviProm(
+getFo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+
+getSo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+
+getPs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+
+getApLight(
   registryName,
   fromDate,
   toDate,
