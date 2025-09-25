@@ -2052,7 +2052,6 @@ queryApLight <- function(){
      A.STAGED_PROCEDURE  AS StegvisProsedyre,
      A.CSS AS CanadianClass,
      A.NYHA AS NYHA,
-     A.CARD AS KardiogentSjokk,
      A.KILLIPKLASS AS KillipKlasse,
      A.FYND AS Funn,
      A.ADMISSION_ER AS AnkomstPCIDato,
@@ -2151,7 +2150,6 @@ queryApLight <- function(){
     I.HEART_RATE AS Hjertefrekvens,
     I.SYSTOLIC_BLOOD_PRESSURE AS SystoliskBlodtrykk,
     I.DIASTOLIC_BLOOD_PRESSURE AS DiastoliskBlodtrykk,
-    I.KILLIPKLASS AS KillipKlasseAnkomst,
     I.CARDIAC_SHOCK  AS KardiogentSjokkAnkomst,
 
     A.REPERTREATMENT AS GittTrombolyse,
@@ -2162,35 +2160,9 @@ queryApLight <- function(){
     I.PREVIOUS_ACB AS TidligereACBOp,
     I.PRIOR_CARDIAC_SURGERY  AS AnnenTidlKirurgi,
     I.HYPERTENSION AS Hypertoni,
-   
-    I.ASPIRIN_REG AS InitASA,
-    I.ORAL_ANTICOAGULANTS_REG AS InitAntikoagulantia,
-    I.OTHER_ANTIPLATELET_REG AS InitAndrePlatehemmere,
-    I.STATINS_REG AS InitStatiner,
-  
-    I.NSAID_REG AS InitNSAID,
-    I.ACE_INHIBITORS_REG AS InitACEHemmere,
-    I.ANGIOTENSIN_II_BLOCK_REG AS InitA2Blokkere,
-    I.BETA_BLOCKERS_REG AS InitBetaBlokkere,
-    I.CALCIUM_ANTAGONIST_REG AS InitCaHemmere,
-    I.DIAB_MED_ORAL AS InitDiabetesPrOral,
-    I.DIGITALIS_REG AS InitDigitalis,
-    I.DIURETICS_REG AS InitDiuretika,
-    I.ALDOSTERONBLOCKAD_IC AS InitAldosteronantagonist,
-    I.OTHER_LIPID_LOW_AGENTS_REG AS InitOvrigLipid,
-    I.NITRATES_REG AS InitNitroglycerin,
 
-    IL.BIOCHEMICAL_MARKER_TYPE AS Infarktmarkoer,
-    IL.BIOCHEMICAL_MARKER_VALUE AS InfarktMarkoerMax,
-    IL.CHOLESTEROL_TOTAL AS Kolesterol,
-    IL.TRIGLYCERIDES AS Triglycerider,
-    IL.HDL_CHOLESTEROL AS HDL,
-    IL.LDL_MEASURED AS MaaltLDL,
-    IL.B_GLUCOSE AS SGlukose,
-    IL.HBA1CMOL AS HbA1c,
-    IL.S_CREATININ AS Kreatinin,
-    IL.CRP AS CRP,
-    IL.HEMOGLOBIN AS Hemoglobin,
+
+
   -- Vanlige segment
     F.SEGMENT1,
     F.SEGMENT2,
@@ -2334,12 +2306,7 @@ queryApLight <- function(){
     C.AVDDODSFALL  AS AvdKompDod,
     C.AVDPROCEDURDOD AS AvdKompProsedyrerelatertDod,
   
-    C.CKMBFORE AS CKMBFor,
-    C.CKMBEFTER AS CKMBEtter,
-    C.TROPMETFORE AS TroponinMetFor,
-    C.TROPVARDEFORE AS TroponinVerdiFor,
-    C.TROPMETEFTER AS TroponinMetEtter,
-    C.TROPVARDEEFTER AS TroponinVerdiEtter,
+  
     -- Here comes numerous variables in the ANGIOPCICOMP SQL. Never used?
   
     D.DISCHARGE_DATE AS Utskrivningsdato,
@@ -2350,23 +2317,9 @@ queryApLight <- function(){
     D.ORAL_ANTICOAGULANTS_DISCHARGE AS Antikoagulantia,
     D.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmere,
     D.STATINS_DISCHARGE AS UtskrStatiner,
-    D.NSAID_DISCHARGE AS NSAID,
-    D.ACE_INHIBITORS_DISCHARGE AS ACEHemmere,
-    D.ANGIOTENSIN_II_BLOCK_DISCHARGE AS A2Blokkere,
-    D.BETA_BLOCKERS_DISCHARGE AS Betablokkere,
-    D.CALCIUM_ANTAGONIST_DISCHARGE  AS CaBlokkere,
-    D.DIAB_MED_INSULIN_DC  AS DiabetesBehandlingInsulin,
-    D.DIAB_MED_ORAL_DC AS DiabetesBehandlingPerOral,
-    D.DIGITALIS_DISCHARGE AS Digitalis,
-    D.DIURETICS_DISCHARGE AS Diuretika,
-    D.ALDOSTERONBLOCKAD_DC AS Aldosteronantagonister,
     D.OTHER_LIPID_LOW_AGENTS_DISCHARGE AS OvrigeLipidsenkere,
-    D.NITRATES_DISCHARGE AS NitroglycerinLangtid,
-    D.OTHER_SERIOUS_DISEASE AS AnnenAlvorligSykdom,
-    D.INFARCTTYPE AS InfarktType,
-    D.INFARCTCLASSIFICATION AS InfarktSubklasse,
-  
-    CAST((SELECT GROUP_CONCAT(CONCAT(diag.CODE, ' ', diag.VERSION)) FROM diagnose diag where diag.MCEID = A.MCEID) AS CHAR(50)) AS UtskrDiagnoser,
+
+
   
     P.SSN_TYPE AS FnrType,
     P.SSNSUBTYPE AS FnrSubtype,
@@ -2390,7 +2343,6 @@ queryApLight <- function(){
       INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
       INNER JOIN regangio A ON MCE.MCEID = A.MCEID
       LEFT JOIN initialcare I ON MCE.MCEID = I.MCEID
-      LEFT JOIN initialcarelab IL ON MCE.MCEID=IL.MCEID
       LEFT JOIN findingstatic F ON MCE.MCEID = F.MCEID
       LEFT JOIN pci PCI ON MCE.MCEID = PCI.MCEID
       LEFT JOIN angiopcicomp C ON MCE.MCEID = C.MCEID
