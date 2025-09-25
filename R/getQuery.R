@@ -2018,10 +2018,7 @@ queryApLight <- function(){
     END AS Regtype,
     A.INTERDAT AS ProsedyreDato,
     A.INTERDAT_TIME AS ProsedyreTid,
-    CASE A.INTERDAT_TIME_MISSING
-      WHEN 1 THEN 'Ja'
-      ELSE 'Nei'
-    END AS ProsedyreTidUkjent,
+  
     CASE (P.LOCAL_HOSPITAL) WHEN 999
                               THEN P.LOCAL_HOSPITAL_OTHER
                             ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
@@ -2032,13 +2029,8 @@ queryApLight <- function(){
 
      A.SYMPTOM_ONSET_DATE AS SymptomDato,
      A.SYMPTOM_ONSET_TIME AS SymptomTid,
-   -- 	getCheckText(A.SYMPTOM_ONSET_TIME_MISSING) AS SymptomTidUkjent, // Removed in NOR-1053 for v1.11
      A.PREHOSPITAL_ECG_DATE AS BesUtlEKGDato,
      A.PREHOSPITAL_ECG_TIME AS BesUtlEKGTid,
-     CASE A.PREHOSPITAL_ECG_TIME_MISSING
-      WHEN 1 THEN 'Ja'
-      ELSE 'Nei'
-      END AS BesUtlEKGTidUkjent,
      A.JOURTID AS Vakttid,
      A.HEIGHT AS Hoyde,
      A.WEIGHT AS Vekt,
@@ -2065,10 +2057,7 @@ queryApLight <- function(){
      A.FYND AS Funn,
      A.ADMISSION_ER AS AnkomstPCIDato,
      A.ADMISSION_ER_TIME AS AnkomstPCITid,
-     CASE A.ADMISSION_ER_TIME_MISSING
-      WHEN 1 THEN 'Ja'
-      ELSE 'Nei'
-      END AS AnkomstPCITidUkjent,
+
      A.PUNKT AS Stikksted,
      A.STENOS AS StenoseTidlBehSegment,
      A.CABG AS StenoseACBGraft,
@@ -2105,10 +2094,7 @@ queryApLight <- function(){
      A.ADJANN AS AnnenAdj,
      A.OPEN_CAPILLARY AS ApningKarDato,
      A.OPEN_CAPILLARY_TIME AS ApningKarTid,
-     CASE A.OPEN_CAPILLARY_TIME_MISSING
-      WHEN 1 THEN 'Ja'
-      ELSE 'Nei'
-      END AS ApningKarTidUkjent,
+
      CASE A.OPEN_CAP_OPEN_ANGIO
       WHEN 1 THEN 'Ja'
       ELSE 'Nei'
@@ -2145,21 +2131,13 @@ queryApLight <- function(){
      I.TRANSFERREDPATIENT  AS OverflyttetFra,
      (select h.NAME FROM hospital h where I.TRANSFERREDFROM = h.ID) AS OverflyttetFraSykehus,
      I.REFERRING_HOSP_ADMISSIONDATE AS InnleggelseHenvisendeSykehusDato,
-     CASE I.REFERRING_HOSP_ADMISSIONDATE_MISSING
-       WHEN 1 THEN 'Ja'
-       ELSE 'Nei'
-       END AS InnleggelseHenvisendeSykehusDatoUkjent,
      I.REFERRING_HOSP_ADMISSIONDATE_TIME AS InnleggelseHenvisendeSykehusTid,
-     CASE I.REFERRING_HOSP_ADMISSIONDATE_TIME_MISSING
-       WHEN 1 THEN 'Ja'
-       ELSE 'Nei'
-      END AS InnleggelseHenvisendeSykehusTidUkjent,
+
      
 
     I.PRESENTING_SYMPTOMS AS Innkomstarsak,
     I.SYMPTOM_ONSET_DATE AS SymptomdebutDato,
     I.SYMPTOM_ONSET_TIME AS SymptomdebutTid,
-  --	getCheckText(I.SYMPTOM_ONSET_TIME_MISSING) as SymptomdebutUkjent, // Removed in NOR-1053 for v1.11
     I.CPR_BEFORE_HOSPITAL  AS HLRForSykehus,
 
     I.ECG_RHYTHM AS EKGRytme,
@@ -2169,10 +2147,6 @@ queryApLight <- function(){
     I.ECG_DECISION_TRIGGERING AS BeslutningsutlosendeEKG,
     I.PREHOSPITAL_ECG_DATE AS BeslEKGDato,
     I.PREHOSPITAL_ECG_TIME AS BeslEKGTid,
-    CASE I.PREHOSPITAL_ECG_TIME_MISSING
-       WHEN 1 THEN 'Ja'
-       ELSE 'Nei'
-      END AS BeslEKGUkjent,   
 
     I.HEART_RATE AS Hjertefrekvens,
     I.SYSTOLIC_BLOOD_PRESSURE AS SystoliskBlodtrykk,
@@ -2184,10 +2158,6 @@ queryApLight <- function(){
     A.TYPE_THROMB_THERAPY_ADM AS TrombolyseMedikament,
     A.THROMB_GIVEN_DATE AS TrombolyseDato,
     A.THROMB_GIVEN_TIME AS TrombolyseTid,
-    CASE A.THROMB_GIVEN_TIME_MISSING
-       WHEN 1 THEN 'Ja'
-       ELSE 'Nei'
-      END AS TrombolyseUkjent,   
 
     I.PREVIOUS_ACB AS TidligereACBOp,
     I.PRIOR_CARDIAC_SURGERY  AS AnnenTidlKirurgi,
@@ -2409,13 +2379,7 @@ queryApLight <- function(){
   	MCE.PARENT_MCEID as KobletForlopsID,
   	MCE.PARENT_MCEID AS PrimaerForlopsID,
 
-    -- Study information
-    CAST((SELECT
-            GROUP_CONCAT(
-              IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-          FROM pasienterstudier PS
-          WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
-      AS Studie,  
+
 
     I.STATUS AS SkjemaStatusStart,
     A.STATUS AS SkjemastatusHovedskjema,

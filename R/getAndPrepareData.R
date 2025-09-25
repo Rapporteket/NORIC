@@ -888,12 +888,12 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
       - .data$SkjemaStatusUtskrivelse,
       - .data$SkjemaStatusKomplikasjoner,
       
-      # Overflødig, fordi tilhørende kont. verdi er NA:
-      - tidyselect::contains("Ukjent"),
-      
-      # Ikke i bruk
-      - .data$Studie,
-      
+      # # Overflødig, fordi tilhørende kont. verdi er NA:
+      # - tidyselect::contains("Ukjent"),
+      # 
+      # # Ikke i bruk
+      # - .data$Studie,
+      # 
       # Dobbelt opp av disse, fjerne minst komplette/feil (sept 2021):
       # Rettelse nov 2023. Vi trenger de til indikatoren, "back up " i 
       # tilfelle manglende kopierign
