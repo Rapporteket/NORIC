@@ -22,6 +22,7 @@
 #' queryForlopsoversikt
 #' querySkjemaoversikt
 #' queryPasienterstudier
+#' queryApLight
 NULL
 
 
@@ -1995,3 +1996,442 @@ queryPasienterstudier <-function(){
     LEFT JOIN study s ON s.ID = ps.STUDY
 ")
 }
+
+
+
+
+#' @rdname getQuery
+#' @export
+queryApLight <- function(){
+  paste0("
+  SELECT
+    A.CENTREID AS AvdRESH,
+    MCE.MCEID AS ForlopsID,
+    P.ID AS PasientID,
+
+    A.REGTYP AS ProsedyreType,
+    MCE.MCETYPE AS Hastegrad,
+    CASE
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
+      ELSE NULL
+    END AS Regtype,
+    A.INTERDAT AS ProsedyreDato,
+    A.INTERDAT_TIME AS ProsedyreTid,
+    CASE A.INTERDAT_TIME_MISSING
+      WHEN 1 THEN 'Ja'
+      ELSE 'Nei'
+    END AS ProsedyreTidUkjent,
+    CASE (P.LOCAL_HOSPITAL) WHEN 999
+                              THEN P.LOCAL_HOSPITAL_OTHER
+                            ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
+    END AS Lokalsykehus,
+   
+    P.GENDER AS Kjonn,
+    P.BIRTH_DATE FodselsDato,
+
+     A.SYMPTOM_ONSET_DATE AS SymptomDato,
+     A.SYMPTOM_ONSET_TIME AS SymptomTid,
+   -- 	getCheckText(A.SYMPTOM_ONSET_TIME_MISSING) AS SymptomTidUkjent, // Removed in NOR-1053 for v1.11
+     A.PREHOSPITAL_ECG_DATE AS BesUtlEKGDato,
+     A.PREHOSPITAL_ECG_TIME AS BesUtlEKGTid,
+     CASE A.PREHOSPITAL_ECG_TIME_MISSING
+      WHEN 1 THEN 'Ja'
+      ELSE 'Nei'
+      END AS BesUtlEKGTidUkjent,
+     A.JOURTID AS Vakttid,
+     A.HEIGHT AS Hoyde,
+     A.WEIGHT AS Vekt,
+     A.SKREATININ AS SKreatinin,
+     A.TIDPCI  AS TidlPCI,
+     A.TIDCABG  AS TidlABC,
+     A.SMOKING_STATUS  AS RoykeStatus,
+     A.HYPERTON  AS BehHypertoni,
+     A.STATINS AS Statiner,
+     A.TIDINF  AS TidlInfarkt,
+     A.HISTORY_OF_CHF  AS KjentNedsattVenstVentr,
+     A.DIABETES  AS Diabetes,
+     A.DIABETESINSULIN AS Insulin,
+     A.PREVIOUS_STROKE AS TidligereSlag,
+     A.PERIPHERAL_VASCULAR_DISEASE  AS PeriferKarsykdom,
+     A.INDIKATION  AS Indikasjon,
+     A.MYOKARD  AS Myokardskademarkor,
+     A.STSEGSANK  AS STSegmentSenkning,
+     A.STAGED_PROCEDURE  AS StegvisProsedyre,
+     A.CSS AS CanadianClass,
+     A.NYHA AS NYHA,
+     A.CARD AS KardiogentSjokk,
+     A.KILLIPKLASS AS KillipKlasse,
+     A.FYND AS Funn,
+     A.ADMISSION_ER AS AnkomstPCIDato,
+     A.ADMISSION_ER_TIME AS AnkomstPCITid,
+     CASE A.ADMISSION_ER_TIME_MISSING
+      WHEN 1 THEN 'Ja'
+      ELSE 'Nei'
+      END AS AnkomstPCITidUkjent,
+     A.PUNKT AS Stikksted,
+     A.STENOS AS StenoseTidlBehSegment,
+     A.CABG AS StenoseACBGraft,
+     A.STRESSKARDIOMYOPATI  AS Stresskardiomyopati,
+     A.PRIMBES AS PrimarBeslutning,
+     A.DIAGNOSTIK AS AnnenDiagHovedSpm,
+     A.DIATRYCK AS FFR,
+     A.DIADOP AS Doppler,
+     A.DIAIVUS AS IVUS,
+     A.DIAOCT AS OCT,
+     A.DIAIFR AS IFR,
+     A.DIANIRS AS NIRS,
+     A.DIACFR AS CFR,
+     A.DIAIMR AS IMR,
+     A.DIAPDPA AS PDPA,
+     A.DIAPAHYPEREMI AS PA_Hyperemi,
+     A.DIAPDHYPEREMI AS PD_Hyperemi,
+     A.DIAANN AS AnnenDiag,
+     A.EXTRAPROC AS Tilleggsprosedyrer,
+     A.CARDIAC_CATHETERIZATION AS HoyreHjerteKat,
+     A.VALVE_RECORDING AS Ventilfilming,
+     A.PERICARDIOCENTESIS AS Perikardiocentese,
+     A.ADJUVANT AS AdjuvantTerapi,
+     A.ADJPUMP AS Aortaballongpumpe,
+     A.ADJIMPELLA AS Impella,
+     A.ADJECMO AS ECMO,
+     A.ADJKAM AS AnnenVenstreKammerAssist,
+     A.ADJLUK AS MekKompr,
+     PCI.ADJDISTAL AS DistalProtectionDevice,
+     A.ADJPACE AS Pacemaker,
+     PCI.ADJTROMB AS Trombectomy,
+     A.ADJPTA AS PTAHalskar,
+     A.ADJPTSMA AS PTSMA,
+     A.ADJANN AS AnnenAdj,
+     A.OPEN_CAPILLARY AS ApningKarDato,
+     A.OPEN_CAPILLARY_TIME AS ApningKarTid,
+     CASE A.OPEN_CAPILLARY_TIME_MISSING
+      WHEN 1 THEN 'Ja'
+      ELSE 'Nei'
+      END AS ApningKarTidUkjent,
+     CASE A.OPEN_CAP_OPEN_ANGIO
+      WHEN 1 THEN 'Ja'
+      ELSE 'Nei'
+      END AS KarAapentVedAngio,
+     CASE A.OPEN_CAP_OPEN_UNSUCCESSFUL
+      WHEN 1 THEN 'Ja'
+      ELSE 'Nei'
+      END AS KarIkkeAapnet,
+     PCI.SUCCESS AS GenereltSuksess,
+     A.LABNO AS LabNummer,
+     A.STRALDOS AS Straledose,
+     A.GENOMLYSNINGSTID AS GjenLysTidSek,
+     A.KONTRASTMEDEL AS Kontrastmiddel,
+     A.KONTRASTMEDELMANGD AS KontrastMengdeMl,
+     A.ANNANKONTRASTUNDERSOK  AS AnnKonMidUndersokelse,
+     A.VASCCLOSUREDEV AS ArteriellLukning,
+     A.LABKOMP  AS LabKomplikasjon,
+     A.LABALLERGILATT  AS LabKompAllergiskLettModerat,
+     A.LABALLERGIALLV  AS LabKompAllergiskAlvorlig,
+     A.LABBEHARYTMI  AS LabKompBehkrevendeArytmi,
+     A.LABHEMO  AS LabKompHemodynamisk,
+     A.LABNEURO  AS LabKompNeurologisk,
+     A.LABVASK  AS LabKompVaskulaerIkkeKoronar,
+     A.LABTAPPAT  AS LabKompMistetStent,
+     A.LABBESTSIDO  AS LabKompVedvarSidegrensokkl,
+     A.LABPERF  AS LabKompPerforasjon,
+     A.LABTAMP  AS LabKompTamponade,
+     A.LABAKUTCABG  AS LabKompAkuttACBOperasjon,
+     A.LABANNANALLV  AS LabKompAnnenAlv,
+     A.LABDODSFALL  AS LabKompDod,
+     A.LABPROCEDURDOD  AS LabKompProsedyrerelatertDod,
+
+
+     I.TRANSFERREDPATIENT  AS OverflyttetFra,
+     (select h.NAME FROM hospital h where I.TRANSFERREDFROM = h.ID) AS OverflyttetFraSykehus,
+     I.REFERRING_HOSP_ADMISSIONDATE AS InnleggelseHenvisendeSykehusDato,
+     CASE I.REFERRING_HOSP_ADMISSIONDATE_MISSING
+       WHEN 1 THEN 'Ja'
+       ELSE 'Nei'
+       END AS InnleggelseHenvisendeSykehusDatoUkjent,
+     I.REFERRING_HOSP_ADMISSIONDATE_TIME AS InnleggelseHenvisendeSykehusTid,
+     CASE I.REFERRING_HOSP_ADMISSIONDATE_TIME_MISSING
+       WHEN 1 THEN 'Ja'
+       ELSE 'Nei'
+      END AS InnleggelseHenvisendeSykehusTidUkjent,
+     
+
+    I.PRESENTING_SYMPTOMS AS Innkomstarsak,
+    I.SYMPTOM_ONSET_DATE AS SymptomdebutDato,
+    I.SYMPTOM_ONSET_TIME AS SymptomdebutTid,
+  --	getCheckText(I.SYMPTOM_ONSET_TIME_MISSING) as SymptomdebutUkjent, // Removed in NOR-1053 for v1.11
+    I.CPR_BEFORE_HOSPITAL  AS HLRForSykehus,
+
+    I.ECG_RHYTHM AS EKGRytme,
+    I.ECG_QRS_ANNOTATION AS EKGQRS,
+    I.ECG_STT_CHANGES AS EKGSTT,
+    I.LEFT_BLOCK  AS VenstreGrenblokk,
+    I.ECG_DECISION_TRIGGERING AS BeslutningsutlosendeEKG,
+    I.PREHOSPITAL_ECG_DATE AS BeslEKGDato,
+    I.PREHOSPITAL_ECG_TIME AS BeslEKGTid,
+    CASE I.PREHOSPITAL_ECG_TIME_MISSING
+       WHEN 1 THEN 'Ja'
+       ELSE 'Nei'
+      END AS BeslEKGUkjent,   
+
+    I.HEART_RATE AS Hjertefrekvens,
+    I.SYSTOLIC_BLOOD_PRESSURE AS SystoliskBlodtrykk,
+    I.DIASTOLIC_BLOOD_PRESSURE AS DiastoliskBlodtrykk,
+    I.KILLIPKLASS AS KillipKlasseAnkomst,
+    I.CARDIAC_SHOCK  AS KardiogentSjokkAnkomst,
+
+    A.REPERTREATMENT AS GittTrombolyse,
+    A.TYPE_THROMB_THERAPY_ADM AS TrombolyseMedikament,
+    A.THROMB_GIVEN_DATE AS TrombolyseDato,
+    A.THROMB_GIVEN_TIME AS TrombolyseTid,
+    CASE A.THROMB_GIVEN_TIME_MISSING
+       WHEN 1 THEN 'Ja'
+       ELSE 'Nei'
+      END AS TrombolyseUkjent,   
+
+    I.PREVIOUS_ACB AS TidligereACBOp,
+    I.PRIOR_CARDIAC_SURGERY  AS AnnenTidlKirurgi,
+    I.HYPERTENSION AS Hypertoni,
+   
+    I.ASPIRIN_REG AS InitASA,
+    I.ORAL_ANTICOAGULANTS_REG AS InitAntikoagulantia,
+    I.OTHER_ANTIPLATELET_REG AS InitAndrePlatehemmere,
+    I.STATINS_REG AS InitStatiner,
+  
+    I.NSAID_REG AS InitNSAID,
+    I.ACE_INHIBITORS_REG AS InitACEHemmere,
+    I.ANGIOTENSIN_II_BLOCK_REG AS InitA2Blokkere,
+    I.BETA_BLOCKERS_REG AS InitBetaBlokkere,
+    I.CALCIUM_ANTAGONIST_REG AS InitCaHemmere,
+    I.DIAB_MED_ORAL AS InitDiabetesPrOral,
+    I.DIGITALIS_REG AS InitDigitalis,
+    I.DIURETICS_REG AS InitDiuretika,
+    I.ALDOSTERONBLOCKAD_IC AS InitAldosteronantagonist,
+    I.OTHER_LIPID_LOW_AGENTS_REG AS InitOvrigLipid,
+    I.NITRATES_REG AS InitNitroglycerin,
+
+    IL.BIOCHEMICAL_MARKER_TYPE AS Infarktmarkoer,
+    IL.BIOCHEMICAL_MARKER_VALUE AS InfarktMarkoerMax,
+    IL.CHOLESTEROL_TOTAL AS Kolesterol,
+    IL.TRIGLYCERIDES AS Triglycerider,
+    IL.HDL_CHOLESTEROL AS HDL,
+    IL.LDL_MEASURED AS MaaltLDL,
+    IL.B_GLUCOSE AS SGlukose,
+    IL.HBA1CMOL AS HbA1c,
+    IL.S_CREATININ AS Kreatinin,
+    IL.CRP AS CRP,
+    IL.HEMOGLOBIN AS Hemoglobin,
+  -- Vanlige segment
+    F.SEGMENT1,
+    F.SEGMENT2,
+    F.SEGMENT3,
+    F.SEGMENT4,
+    F.SEGMENT5,
+    F.SEGMENT6,
+    F.SEGMENT7,
+    F.SEGMENT8,
+    F.SEGMENT9,
+    F.SEGMENT10,
+    F.SEGMENT11,
+    F.SEGMENT12,
+    F.SEGMENT13,
+    F.SEGMENT14,
+    F.SEGMENT15,
+    F.SEGMENT16,
+    F.SEGMENT17,
+    F.SEGMENT18,
+    F.SEGMENT19,
+    F.SEGMENT20,
+  -- Vene segment
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '1' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT1VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '2' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT2VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '3' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT3VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '4' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT4VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '5' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT5VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '6' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT6VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '7' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT7VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '8' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT8VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '9' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT9VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '10' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT10VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '11' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT11VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '12' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT12VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '13' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT13VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '14' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT14VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '15' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT15VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '16' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT16VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '17' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT17VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '18' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT18VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '19' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT19VeneStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '20' AND finding.GRAFT = '1' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT20VeneStenosgrad,
+
+  -- Arterie segment
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '1' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT1ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '2' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT2ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '3' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT3ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '4' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT4ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '5' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT5ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '6' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT6ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '7' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT7ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '8' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT8ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '9' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT9ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '10' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT10ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '11' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT11ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '12' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT12ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '13' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT13ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '14' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT14ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '15' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT15ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '16' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT16ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '17' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT17ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '18' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT18ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '19' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT19ArterieStenosgrad,
+    (SELECT finding.STENOSGRAD from finding where finding.SEGMENT = '20' AND finding.GRAFT = '2' AND finding.MCEID = MCE.MCEID ORDER BY finding.ID DESC LIMIT 1) AS SEGMENT20ArterieStenosgrad,
+  
+    PCI.SEKBESLUT AS SekundaerBeslutning,
+    PCI.KOMPREV AS KomplettRevaskularisering,
+    PCI.ANTIFORE AS AntitrombotiskFor,
+    PCI.TROFORE AS TrombolyseFor,
+    PCI.ASAFORE AS ASAFor,
+    PCI.CLOFORE AS ClopidogrelFor,
+    PCI.PRAFORE AS PrasugrelFor,
+    PCI.TICFORE AS TicagrelorFor,
+    PCI.HEPFORE AS HeparinFor,
+    PCI.DALFORE AS DalteparinFor,
+    PCI.ENOFORE AS EnoxaparinFor,
+    PCI.ANNFORE AS AnnetLavmolHeparinFor,
+    PCI.BIVFORE AS BivalirudinFor,
+    PCI.FONFORE AS FondaparinuxFor,
+    PCI.ABCFORE AS AbciximabFor,
+    PCI.EPTFORE AS EptifibatidFor,
+    PCI.TIRFORE AS TirofibanFor,
+    PCI.WARFORE AS WarfarinFor,
+    PCI.DABFORE AS DabigatranFor,
+    PCI.APIFORE AS ApiksabanFor,
+    PCI.RIVFORE AS RivaroksabanFor,
+    PCI.EDOFORE AS EdoksabanFor,
+    PCI.KANGRELORFORE AS KangrelorFor,
+    PCI.OVRFORE AS AnnetAntitrombotiskFor,
+    PCI.ANTIFORE AS AntitrombotiskUnder,
+    PCI.TROUND AS TrombolyseUnder,
+    PCI.ASAUND AS ASAUnder,
+    PCI.CLOUND AS ClopidogrelUnder,
+    PCI.PRAUND AS PrasugrelUnder,
+    PCI.TICUND AS TicagrelorUnder,
+    PCI.HEPUND AS HeparinUnder,
+    PCI.DALUND AS DalteparinUnder,
+    PCI.ENOUND AS EnoxaparinUnder,
+    PCI.ANNUND AS AnnetLavmolHeparinUnder,
+    PCI.BIVUND AS BivalirudinUnder,
+    PCI.FONUND AS FondaparinuxUnder,
+    PCI.ABCUND AS AbciximabUnder,
+    PCI.EPTUND AS EptifibatidUnder,
+    PCI.TIRUND AS TirofibanUnder,
+    PCI.WARUND AS WarfarinUnder,
+    PCI.KANUND AS KangrelorUnder,
+    PCI.OVRFORE AS AnnetAntitrombotiskUnder,
+  
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = PCI.MAIN_OPERATOR ) AS PCIHovedOperator,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = PCI.SECOND_OPERATOR ) AS PCIAndreOperator,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = PCI.THIRD_OPERATOR ) AS PCITredjeOperator,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = A.MAIN_ANGIOGRAFOR ) AS Angiografor1,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = A.SECOND_ANGIOGRAFOR ) AS Angiografor2,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = A.THIRD_ANGIOGRAFOR ) AS Angiografor3,
+    CAST((SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM pci_operator_mapping aom, people peo where aom.PEOPLEID = peo.PEOPLEID and aom.MCEID = A.MCEID) AS CHAR(300)) AS PCIOperatorer,
+    CAST((SELECT GROUP_CONCAT(CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME)) FROM angio_operator_mapping aom, people peo where aom.PEOPLEID = peo.PEOPLEID and aom.MCEID = A.MCEID) AS CHAR(300)) AS AngioOperatorer,
+
+    C.AVDKOMP AS AvdKomp,
+    C.AVDALLERGISK AS AvdKompAllergisk,
+    C.AVDBLODNING AS AvdKompBlodning,
+    C.AVDBLODMAJOR AS AvdKompBlodningMajor,
+    C.AVDBLODMINOR AS AvdKompBlodningMinor,
+    C.AVDBEHPSEUDO AS AvdKompPseudoaneurysme,
+    C.AVDHEMATOM AS AvdKompHematomStor,
+    C.AVDHBFALL AS AvdKompHbFallStor,
+    C.AVDFORLANGDKOMPTID AS AvdKompForlengetTidStor,
+    C.AVDVARDTID AS AvdKompForlengetOppholdStor,
+    C.AVDULTRALJUD AS AvdKompUltralydCT,
+    C.AVDBLODTRANSFUSION AS AvdKompBlodtransfusjon,
+    C.AVDKIRURGISKATGARD AS AvdKompKirurgiskBeh,
+    C.AVDANNANBEHUTOVERKOMP AS AvdKompAnnenBehUtoverKompresjon,
+    C.AVDFORTIDAUTSATTNING AS AvdKompTidligUtsettelse,
+    C.AVDANNANVASK AS AvdKompVaskulaer,
+    C.AVDNEURO AS AvdKompNeurologiskKomp,
+    C.AVDNJURINSUFF AS AvdKompNyNyreinsuffisiens,
+    C.AVDTAMP AS AvdKompTamponade,
+    C.AVDREPCI AS AvdKompPCI,
+    C.AVDCABG AS AvdKompACB,
+    C.AVDHJARTINFARKT AS AvdKompHjerteinfarkt,
+    C.AVDANNANALLV AS AvdKompAnnenAlvorlig,
+    C.AVDDODSFALL  AS AvdKompDod,
+    C.AVDPROCEDURDOD AS AvdKompProsedyrerelatertDod,
+  
+    C.CKMBFORE AS CKMBFor,
+    C.CKMBEFTER AS CKMBEtter,
+    C.TROPMETFORE AS TroponinMetFor,
+    C.TROPVARDEFORE AS TroponinVerdiFor,
+    C.TROPMETEFTER AS TroponinMetEtter,
+    C.TROPVARDEEFTER AS TroponinVerdiEtter,
+    -- Here comes numerous variables in the ANGIOPCICOMP SQL. Never used?
+  
+    D.DISCHARGE_DATE AS Utskrivningsdato,
+    D.DEATH  AS UtskrevetDod,
+    D.DECEASED_DATE AS UtskrevetDodsdato,
+    D.DISCHARGETO AS UtskrevetTil,
+    D.ASPIRIN_DISCHARGE AS ASA,
+    D.ORAL_ANTICOAGULANTS_DISCHARGE AS Antikoagulantia,
+    D.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmere,
+    D.STATINS_DISCHARGE AS UtskrStatiner,
+    D.NSAID_DISCHARGE AS NSAID,
+    D.ACE_INHIBITORS_DISCHARGE AS ACEHemmere,
+    D.ANGIOTENSIN_II_BLOCK_DISCHARGE AS A2Blokkere,
+    D.BETA_BLOCKERS_DISCHARGE AS Betablokkere,
+    D.CALCIUM_ANTAGONIST_DISCHARGE  AS CaBlokkere,
+    D.DIAB_MED_INSULIN_DC  AS DiabetesBehandlingInsulin,
+    D.DIAB_MED_ORAL_DC AS DiabetesBehandlingPerOral,
+    D.DIGITALIS_DISCHARGE AS Digitalis,
+    D.DIURETICS_DISCHARGE AS Diuretika,
+    D.ALDOSTERONBLOCKAD_DC AS Aldosteronantagonister,
+    D.OTHER_LIPID_LOW_AGENTS_DISCHARGE AS OvrigeLipidsenkere,
+    D.NITRATES_DISCHARGE AS NitroglycerinLangtid,
+    D.OTHER_SERIOUS_DISEASE AS AnnenAlvorligSykdom,
+    D.INFARCTTYPE AS InfarktType,
+    D.INFARCTCLASSIFICATION AS InfarktSubklasse,
+  
+    CAST((SELECT GROUP_CONCAT(CONCAT(diag.CODE, ' ', diag.VERSION)) FROM diagnose diag where diag.MCEID = A.MCEID) AS CHAR(50)) AS UtskrDiagnoser,
+  
+    P.SSN_TYPE AS FnrType,
+    P.SSNSUBTYPE AS FnrSubtype,
+    P.DECEASED  AS AvdodFReg,
+    P.DECEASED_DATE as AvdodDatoFReg,
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+	  CAST(NULL AS CHAR(50)) AS Fylke,
+  	CAST(NULL AS CHAR(2)) AS Fylkenr,
+  	MCE.PARENT_MCEID as KobletForlopsID,
+  	MCE.PARENT_MCEID AS PrimaerForlopsID,
+
+    -- Study information
+    CAST((SELECT
+            GROUP_CONCAT(
+              IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+          FROM pasienterstudier PS
+          WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
+      AS Studie,  
+
+    I.STATUS AS SkjemaStatusStart,
+    A.STATUS AS SkjemastatusHovedskjema,
+    D.STATUS AS SkjemaStatusUtskrivelse,
+    C.STATUS AS SkjemaStatusKomplikasjoner
+    
+    FROM mce MCE
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      INNER JOIN regangio A ON MCE.MCEID = A.MCEID
+      LEFT JOIN initialcare I ON MCE.MCEID = I.MCEID
+      LEFT JOIN initialcarelab IL ON MCE.MCEID=IL.MCEID
+      LEFT JOIN findingstatic F ON MCE.MCEID = F.MCEID
+      LEFT JOIN pci PCI ON MCE.MCEID = PCI.MCEID
+      LEFT JOIN angiopcicomp C ON MCE.MCEID = C.MCEID
+      LEFT JOIN discharge D ON MCE.MCEID = D.MCEID
+  ")
+}  
+
+

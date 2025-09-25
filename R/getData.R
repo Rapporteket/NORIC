@@ -669,7 +669,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow,
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
 
-  queryAp <- paste0(noric::queryAngiopcinum(), 
+  queryAp <- paste0(noric::queryApLight(), 
                   "WHERE
                   A.INTERDAT >= '", fromDate, "' AND
                   A.INTERDAT <= '", toDate, "' ")
