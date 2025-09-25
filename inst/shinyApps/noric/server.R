@@ -248,7 +248,10 @@ shinyServer(function(input, output, session) {
         `Mitralklaff` = "MK",
         `PasientStudier` = "PS",
         `Skjemaoversikt` = "SO",
-        `Segment stent` = "SS"
+        `Segment stent` = "SS", 
+        `taviperc raw test` = "taviperc", 
+        `regangio raw test` = "regangio" 
+        
       )
       # EPROM is only for nasjoanl
       if (!isNationalReg(user$org())) {

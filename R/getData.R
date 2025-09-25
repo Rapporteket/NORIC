@@ -705,7 +705,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow,
   if(!is.null(singleHospital)) {
     queryAp <- paste0(queryAp, "AND A.CENTREID = ", singleHospital)
     querySs <- paste0(querySs, "AND mce.CENTREID = ", singleHospital)
-    queryAd <- paste0(queryAs, "AND mce.CENTREID = ", singleHospital)
+    queryAd <- paste0(queryAd, "AND mce.CENTREID = ", singleHospital)
   }
   
   if (singleRow) {

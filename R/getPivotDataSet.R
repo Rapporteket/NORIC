@@ -25,9 +25,20 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   . <- ""
   
   validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
-                  "MK", "PS", "SO", "SS", "TP")
+                  "MK", "PS", "SO", "SS", "TP", "taviperc", "regangio")
   
   if (setId %in% validSetId) {
+    
+    if (setId == "taviperc") {
+      dat <- rapbase::loadRegData(registryName = registryName,
+                           query = "SELECT * FROM taviperc;")
+    }
+    
+    if (setId == "regangio") {
+      dat <- rapbase::loadRegData(registryName = registryName,
+                                  query = "SELECT * FROM regangio;")
+    }
+    
     
     if (setId == "ApLight") {
       dat <- noric::getPrepApLightData(registryName = registryName,
