@@ -2,8 +2,6 @@ use noric_nasjonal;
 
 CREATE TABLE andreprosedyrervarnum AS SELECT * FROM noric_unn.andreprosedyrervarnum;
 CREATE TABLE angiopcinum AS SELECT * FROM noric_unn.angiopcinum;
-CREATE TABLE angiopcivardel1num AS SELECT * FROM noric_unn.angiopcivardel1num;
-CREATE TABLE angiopcivardel2num AS SELECT * FROM noric_unn.angiopcivardel2num;
 CREATE TABLE annendiagnostikkvarnum AS SELECT * FROM noric_unn.annendiagnostikkvarnum;
 CREATE TABLE aortaklaffoppfvarnum AS SELECT * FROM noric_unn.aortaklaffoppfvarnum;
 CREATE TABLE aortaklaffvarnum AS SELECT * FROM noric_unn.aortaklaffvarnum;
@@ -19,8 +17,6 @@ CREATE TABLE taviprom AS SELECT * FROM noric_unn.taviprom;
 
 INSERT INTO andreprosedyrervarnum (SELECT * FROM noric_bodoe.andreprosedyrervarnum);
 INSERT INTO angiopcinum (SELECT * FROM noric_bodoe.angiopcinum);
-INSERT INTO angiopcivardel1num (SELECT * FROM noric_bodoe.angiopcivardel1num);
-INSERT INTO angiopcivardel2num (SELECT * FROM noric_bodoe.angiopcivardel2num);
 INSERT INTO annendiagnostikkvarnum (SELECT * FROM noric_bodoe.annendiagnostikkvarnum);
 INSERT INTO aortaklaffoppfvarnum (SELECT * FROM noric_bodoe.aortaklaffoppfvarnum);
 INSERT INTO aortaklaffvarnum (SELECT * FROM noric_bodoe.aortaklaffvarnum);
