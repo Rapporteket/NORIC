@@ -115,6 +115,7 @@ ui <- tagList(
                           label = "Velg periode:",
                           start = ymd(Sys.Date()) - years(1),
                           end = Sys.Date(), separator = "-",
+                          language = "no",
                           weekstart = 1),
                         shiny::radioButtons(inputId = "dumpFormat",
                                             label = "Velg filformat:",

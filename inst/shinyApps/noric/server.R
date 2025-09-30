@@ -354,6 +354,7 @@ shinyServer(function(input, output, session) {
           min = as.Date("2013-01-01", format = "%Y-%m-%d"), 
           max = Sys.Date(),
           separator = "-",
+          language = "no",
           weekstart = 1)
       )
     }
