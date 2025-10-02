@@ -425,7 +425,7 @@ getMk <- function(registryName, fromDate, toDate, singleRow,
                   T.PROCEDUREDATE <= '", toDate, "' ")
   
   if(!is.null(singleHospital)) {
-    query <- paste0(query, "AND mce.CENTREID = ", singleHospital)
+    query <- paste0(query, "AND MCE.CENTREID = ", singleHospital)
   }
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")

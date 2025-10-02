@@ -478,7 +478,7 @@ queryCtangiovarnum <-function(){
       WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
       WHEN MCE.MCETYPE = 2 THEN 'Akutt'
       WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
-    END AS ForlopsType2,
+    END AS Hastegrad,
     
 	  CASE (P.LOCAL_HOSPITAL) WHEN 999
 		  THEN P.LOCAL_HOSPITAL_OTHER
@@ -716,6 +716,7 @@ queryAortaklaffvarnum <- function(){
     T.PERIMETER AS AnnulusPerimeter,
     T.AORTA_CALCIFICATION AS Aortaforkalk,
     T.ASCENDING_AORTA_CALCIFICATION AS AortaKalkAscendens,
+    
     T.TYPEOF_FLAP AS TypeKlaff,
     
     -- OperatC8rer
@@ -924,7 +925,7 @@ queryAndreprosedyrervarnum <-function(){
       WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
       WHEN MCE.MCETYPE = 2 THEN 'Akutt'
       WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
-    END AS ForlopsType2,
+    END AS Hastegrad,
     CASE
       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
@@ -997,7 +998,7 @@ queryAnnendiagnostikkvarnum <-function(){
      WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
      WHEN MCE.MCETYPE = 2 THEN 'Akutt'
      WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
-    END AS ForlopsType2,
+    END AS Hastegrad,
     CASE
       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
@@ -1012,10 +1013,7 @@ queryAnnendiagnostikkvarnum <-function(){
     END AS PasientKjonn,
     P.BIRTH_DATE as FodselsDato,
   
-    
-    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
-    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
-    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
+
     R.INDIKATION  AS Indikasjon,
     R.INTERDAT as ProsedyreDato,
     R.HEIGHT as Hoyde,
@@ -1045,6 +1043,11 @@ queryAnnendiagnostikkvarnum <-function(){
     diag.PAH_AFTER as PahEtter,
     diag.PDH_BEFORE as PdhFoer,
     diag.PDH_AFTER as PdhEtter,
+    
+        
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
+    (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
     
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
@@ -1153,7 +1156,7 @@ queryMitralklaffvarnum <-function(){
 	  T.MCEID AS ForlopsID,
 	  P.ID AS PasientID,
 	  
-    MCE.INTERVENTION_TYPE AS ForlopsType1,
+    CASE WHEN MCE.INTERVENTION_TYPE = 6 THEN 'Mitralklaff' END AS ForlopsType1,
     CASE 
        WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
        WHEN MCE.MCETYPE = 2 THEN 'Akutt'
@@ -1350,7 +1353,7 @@ queryMitralklaffvarnum <-function(){
      TD.ANTICOAGULANTS_DISCHARGE AS AntikoagulantiaVedUtskrivelse,
      TD.OTHER_ANTIPLATELET_DISCHARGE AS AndrePlatehemmereVedUtskrivelse,
      
-     P.SSN_TYPE = FnrType,
+     P.SSN_TYPE AS FnrType,
      P.DECEASED AS AvdodFReg,
      P.DECEASED_DATE AS DodsdatoFReg,
      P.MUNICIPALITY_NAME AS Kommune,
@@ -1359,13 +1362,13 @@ queryMitralklaffvarnum <-function(){
      CAST(NULL AS CHAR(2)) AS Fylkenr,
      MCE.PARENT_MCEID as KobletForlopsID, 
   
-     - Study information
-     SELECT
+     -- Study information
+    (SELECT
       GROUP_CONCAT(
-        IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-        FROM pasienterstudier PS
-        WHERE PS.PasientID = MCE.PATIENT_ID)
-     AS Studie,
+         IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+      FROM pasienterstudier PS
+      WHERE PS.PasientID = MCE.PATIENT_ID)
+    AS Studie,
   
     T.STATUS AS SkjemaStatusHovedskjema,
     TD.STATUS AS SkjemaStatusKomplUtskr,

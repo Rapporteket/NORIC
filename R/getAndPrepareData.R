@@ -254,7 +254,7 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,
   # Gjøre kategoriske variabler om til factor:
   anP %<>%
     dplyr::mutate(
-      ForlopsType2 = factor(.data$ForlopsType2,
+      Hastegrad = factor(.data$Hastegrad,
                             levels = c("Akutt",
                                        "Subakutt",
                                        "Planlagt"),
@@ -414,7 +414,7 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,
   # Gjøre kategoriske variabler om til factor:
   anD %<>%
     dplyr::mutate(
-      ForlopsType2 = factor(.data$ForlopsType2,
+      Hastegrad = factor(.data$Hastegrad,
                             levels = c("Akutt",
                                        "Subakutt",
                                        "Planlagt"),

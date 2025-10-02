@@ -27,6 +27,8 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
                   "MK", "PS", "SO", "SS", "TP", "taviperc", "regangio")
   
+  if(registryName == "noric_bergen"){singleHospital <-  NULL}
+  
   if (setId %in% validSetId) {
     
     if (setId == "taviperc") {
