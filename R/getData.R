@@ -540,50 +540,20 @@ WHERE
 
 #' @rdname getData
 #' @export
-getMk <- function(registryName, fromDate, toDate, singleRow, ...){
-  
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
-  
-  # Ask for all variables from mitralklaff in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
-  
-  query <- paste0("
-SELECT
-    mitralklaffvarnum.*,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.PasientID,
-    forlopsoversikt.FodselsDato,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID,
-    forlopsoversikt.BasisRegStatus, 
-    forlopsoversikt.Avdod,
-    forlopsoversikt.AvdodDato
+getMk <- function(registryName, fromDate, toDate, singleRow,
+                  singleHospital = NULL, ...){
 
-FROM
-    mitralklaffvarnum
-LEFT JOIN forlopsoversikt ON
-    mitralklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
-    mitralklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
-WHERE
-    mitralklaffvarnum.ProsedyreDato >= '", fromDate, "' AND
-    mitralklaffvarnum.ProsedyreDato <= '", toDate, "'"
-  )
-  
-  # SQL for one row only/complete table:
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
+
+  query <- paste0(noric::queryMitralklaffvarnum(),
+                  " WHERE
+                  T.PROCEDUREDATE >= '", fromDate,  "' AND
+                  T.PROCEDUREDATE <= '", toDate, "' ")
+
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, "AND MCE.CENTREID = ", singleHospital)
+  }
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for mitralklaffvarnum"
@@ -591,55 +561,22 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for mitralklaffvarnum"
   }
-  
+
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
+
   mKnum <- rapbase::loadRegData(registryName, query)
-  mK <- noric::erstatt_koder_m_etiketter(mKnum,
-                                         mapping = noric::mitr_map_num_tekst)
-  
-  
+  mK <- noric::erstatt_koder_m_etiketter(
+    mKnum,
+    mapping = noric::mitr_map_num_tekst) %>%
+    noric::fikse_sykehusnavn(.)
+
+  # %>%
+    # noric::utlede_alder(., var = ProsedyreDato)
+
   list(mK = mK)
 }
-# getMk <- function(registryName, fromDate, toDate, singleRow, 
-#                   singleHospital = NULL, ...){
-#   
-#   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
-#   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
-#   
-#   query <- paste0(noric::queryMitralklaffvarnum(), 
-#                   " WHERE 
-#                   T.PROCEDUREDATE >= '", fromDate,  "' AND 
-#                   T.PROCEDUREDATE <= '", toDate, "' ")
-#   
-#   if(!is.null(singleHospital)) {
-#     query <- paste0(query, "AND MCE.CENTREID = ", singleHospital)
-#   }
-#   if (singleRow) {
-#     query <- paste0(query, "\nLIMIT\n  1;")
-#     msg <- "Query single row data for mitralklaffvarnum"
-#   } else {
-#     query <- paste0(query, ";")
-#     msg <- "Query data for mitralklaffvarnum"
-#   }
-#   
-#   if ("session" %in% names(list(...))) {
-#     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-#   }
-#   
-#   mKnum <- rapbase::loadRegData(registryName, query)
-#   mK <- noric::erstatt_koder_m_etiketter(
-#     mKnum,
-#     mapping = noric::mitr_map_num_tekst) %>% 
-#     noric::fikse_sykehusnavn(.)
-#   
-#   # %>% 
-#     # noric::utlede_alder(., var = ProsedyreDato)
-# 
-#   list(mK = mK)
-# }
 
 
 
