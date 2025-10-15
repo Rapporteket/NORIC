@@ -1080,11 +1080,13 @@ querySegmentstentnum <-function(){
       WHEN MCE.INTERVENTION_TYPE = 2 THEN 'PCI'
       WHEN MCE.INTERVENTION_TYPE = 3 THEN 'Angio+PCI'
     END AS ForlopsType1,
+    
     CASE 
      WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
      WHEN MCE.MCETYPE = 2 THEN 'Akutt'
      WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
-    END AS ForlopsType2,
+    END AS Hastegrad,
+    
     CASE
       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
       WHEN  MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
@@ -1102,10 +1104,12 @@ querySegmentstentnum <-function(){
     (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.MAIN_ANGIOGRAFOR ) AS Angiografor1,
     (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.SECOND_ANGIOGRAFOR ) AS Angiografor2,
     (SELECT CONCAT(FIRSTNAME, ' ', LASTNAME) as name from people where people.PEOPLEID = R.THIRD_ANGIOGRAFOR ) AS Angiografor3,
+    
     R.INDIKATION  AS Indikasjon,
     R.INTERDAT as ProsedyreDato,
     R.HEIGHT as Hoyde,
     R.WEIGHT as Vekt,
+    
     S.SEGMENT as Segment,
     S.STENT as StentID,
     ST.STENTNAMN AS Stentnavn,
@@ -1136,10 +1140,10 @@ querySegmentstentnum <-function(){
     MCE.PARENT_MCEID as KobletForlopsID
 
     FROM segment S
-      LEFT  JOIN stent ST ON S.STENT = ST.SID
-      INNER JOIN mce MCE ON S.MCEID = MCE.MCEID
-      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
-      LEFT JOIN regangio R ON S.MCEID = R.MCEID
+    LEFT  JOIN stent ST ON S.STENT = ST.SID
+    INNER JOIN mce MCE ON S.MCEID = MCE.MCEID
+    INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+    LEFT JOIN regangio R ON S.MCEID = R.MCEID
 ")
 }
 

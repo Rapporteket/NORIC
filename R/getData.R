@@ -366,52 +366,21 @@ getAnD <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getData
 #' @export
-getSs <- function(registryName, fromDate, toDate, singleRow, 
+getSs <- function(registryName, fromDate, toDate, singleRow,
                   singleHospital = NULL, ...) {
-  
-  
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- noric::getLatestEntry(registryName)
-  }
-  
-  # Ask for all variables from segmentstent in time interval
-  # Add selected variables from forlopsoversikt
-  # 2 variables to match on: AvdRESH, ForlopsID
-  
-  query <- paste0("
-SELECT
-    segmentstentnum.*,
-    forlopsoversikt.PasientID,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID
-FROM
-    segmentstentnum
-LEFT JOIN forlopsoversikt ON
-    segmentstentnum.AvdRESH = forlopsoversikt.AvdRESH AND
-    segmentstentnum.ForlopsID = forlopsoversikt.ForlopsID
-WHERE
-    segmentstentnum.ProsedyreDato >= '", fromDate, "' AND
-    segmentstentnum.ProsedyreDato <= '", toDate, "'"
-  )
-  
+
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
+
+  query <- paste0(noric::querySegmentstentnum(),
+                  " WHERE
+                  R.INTERDAT >= '", fromDate,  "' AND
+                  R.INTERDAT <= '", toDate, "' ")
+
   if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "AND segmentstentnum.AvdRESH = ", 
-                    singleHospital)
+    query <- paste0(query, "AND MCE.CENTREID = ", singleHospital)
   }
-  
-  
-  # SQL for one row only/complete table:
+
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for segmentstentnum"
@@ -419,54 +388,20 @@ WHERE
     query <- paste0(query, ";")
     msg <- "Query data for segmentstentnum"
   }
-  
+
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
+
   sSnum <- rapbase::loadRegData(registryName, query)
   sS <- noric::erstatt_koder_m_etiketter(sSnum,
-                                         mapping = noric::segm_map_num_tekst)
-  
-  
+                                         mapping = noric::segm_map_num_tekst) %>%
+    noric::utlede_alder(., var = ProsedyreDato) %>%
+    noric::fikse_sykehusnavn(.)
+
   list(sS = sS)
 }
-# getSs <- function(registryName, fromDate, toDate, singleRow, 
-#                   singleHospital = NULL, ...) {
-#   
-#   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
-#   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
-#   
-#   query <- paste0(noric::querySegmentstentnum(), 
-#                   " WHERE 
-#                   R.INTERDAT >= '", fromDate,  "' AND 
-#                   R.INTERDAT <= '", toDate, "' ")
-#   
-#   if(!is.null(singleHospital)) {
-#     query <- paste0(query, "AND m.CENTREID = ", singleHospital)
-#   }
-#   
-#   if (singleRow) {
-#     query <- paste0(query, "\nLIMIT\n  1;")
-#     msg <- "Query single row data for segmentstentnum"
-#   } else {
-#     query <- paste0(query, ";")
-#     msg <- "Query data for segmentstentnum"
-#   }
-#   
-#   if ("session" %in% names(list(...))) {
-#     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-#   }
-#   
-#   sSnum <- rapbase::loadRegData(registryName, query)
-#   sS <- noric::erstatt_koder_m_etiketter(sSnum,
-#                                          mapping = noric::segm_map_num_tekst) %>% 
-#     noric::utlede_alder(., var = ProsedyreDato) %>% 
-#     noric::fikse_sykehusnavn(.)
-#   
-#   list(sS = sS)
-# }
-# 
+
 
 
 
