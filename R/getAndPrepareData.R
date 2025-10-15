@@ -96,9 +96,9 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
   
   # Gjor datoer om til dato-objekt:
   sO %<>% dplyr::mutate(
-    OpprettetDato = lubridate::ymd_hms(.data$OpprettetDato),
-    SistLagretDato = lubridate::ymd_hms(.data$SistLagretDato),
-    HovedDato = lubridate::ymd(.data$HovedDato))
+    OpprettetDato = lubridate::ymd_hms(OpprettetDato),
+    SistLagretDato = lubridate::ymd_hms(SistLagretDato),
+    HovedDato = lubridate::ymd(HovedDato))
   
   
   # Endre Sykehusnavn til kortere versjoner:
@@ -113,7 +113,7 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
   
   # Utledete variabler:
   sO %<>% dplyr::mutate(
-    ferdigstilt = as.ordered(ifelse(.data$SkjemaStatus == 1,
+    ferdigstilt = as.ordered(ifelse(SkjemaStatus == 1,
                                     yes = "Ferdigstilt",
                                     no = "Ikke ferdigstilt")))
   
@@ -167,8 +167,8 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow, singleHospi
   
   # utlede variabler
   aK %<>% dplyr::mutate(
-    dager_mellom_prosedyre_og_utskr = as.numeric(difftime(.data$UtskrDato,
-                                                          .data$ProsedyreDato,
+    dager_mellom_prosedyre_og_utskr = as.numeric(difftime(UtskrDato,
+                                                          ProsedyreDato,
                                                           units = "days")))
   # Indikator pacemakerbehov
   aK %<>% noric::ki_ak_pacemakerbehov(df_ak = .) 
@@ -249,7 +249,7 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,
   # Gjøre kategoriske variabler om til factor:
   anP %<>%
     dplyr::mutate(
-      ForlopsType2 = factor(.data$ForlopsType2,
+      ForlopsType2 = factor(ForlopsType2,
                             levels = c("Akutt",
                                        "Subakutt",
                                        "Planlagt"),
@@ -405,13 +405,13 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,
   # Gjøre kategoriske variabler om til factor:
   anD %<>%
     dplyr::mutate(
-      ForlopsType2 = factor(.data$ForlopsType2,
+      ForlopsType2 = factor(ForlopsType2,
                             levels = c("Akutt",
                                        "Subakutt",
                                        "Planlagt"),
                             ordered = TRUE),
       
-      segment = factor(.data$segment,
+      segment = factor(segment,
                        levels = c("Proximale RCA (1)",
                                   "Midtre RCA (2)",
                                   "Distale RCA (3)",
@@ -434,12 +434,12 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,
                                   "Septal (20)"),
                        ordered = TRUE),
       
-      graft = factor(.data$graft,
+      graft = factor(graft,
                      levels = c("Arterie",
                                 "Vene",
                                 "Nei"),
                      ordered = TRUE),
-      metode = factor(.data$metode,
+      metode = factor(metode,
                       levels = c("iFR",
                                  "FFR",
                                  "OCT",
@@ -494,14 +494,14 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,
   # (ikke fullstendig, må legge til mer etter hvert)
   sS %<>%
     dplyr::mutate(
-      Graft = factor(.data$Graft,
+      Graft = factor(Graft,
                      levels = c("Nei",
                                 "Arteriell",
                                 "Vene"),
                      exclude = NULL, # inkluderer NA i levels
                      ordered = TRUE),
       
-      Stenoseklasse = factor(.data$Stenoseklasse,
+      Stenoseklasse = factor(Stenoseklasse,
                              levels = c("A",
                                         "B1",
                                         "B1 Bifurkasjon",
@@ -512,7 +512,7 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,
                                         "Annet"),
                              ordered = TRUE),
       
-      StenoseType = factor(.data$StenoseType,
+      StenoseType = factor(StenoseType,
                            levels = c("DeNovo",
                                       "In-stent restenose",
                                       "Stenttrombose",
@@ -521,10 +521,10 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,
   # Utledet variabel:
   # ant_stent_ila_forlop = antall stenter satt inn ila ett forløp
   sS %<>%
-    dplyr::group_by(.data$AvdRESH, .data$ForlopsID) %>%
-    dplyr::mutate(antall_stent_ila_forlop = sum(!is.na(.data$StentType))) %>%
+    dplyr::group_by(AvdRESH, ForlopsID) %>%
+    dplyr::mutate(antall_stent_ila_forlop = sum(!is.na(StentType))) %>%
     dplyr::ungroup() %>%
-    dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
+    dplyr::arrange(AvdRESH, ForlopsID)
   
   sS
 }
@@ -566,21 +566,21 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
   
   # utlede variabler
   mK %<>% dplyr::mutate(
-    dager_mellom_prosedyre_og_utskr = as.numeric(difftime(.data$UtskrDato,
-                                                          .data$ProsedyreDato,
+    dager_mellom_prosedyre_og_utskr = as.numeric(difftime(UtskrDato,
+                                                          ProsedyreDato,
                                                           units = "days")))
   
   # Gjøre kategoriske variabler om til factor:
   # (ikke fullstendig, må legge til mer etter hvert)
   mK %<>%
     dplyr::mutate(
-      ForlopsType2 = factor(.data$ForlopsType2,
+      ForlopsType2 = factor(ForlopsType2,
                             levels = c("Akutt",
                                        "Subakutt",
                                        "Planlagt"),
                             ordered = TRUE),
       
-      Frailty = factor(.data$Frailty,
+      Frailty = factor(Frailty,
                        levels = c("Robust",
                                   "Intermedi\u00e6r",
                                   "Skr\u00f8pelig",
@@ -589,7 +589,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                        exclude = NULL, # inkluderer NA i levels
                        ordered = TRUE),
       
-      Hastegrad = factor(.data$Hastegrad,
+      Hastegrad = factor(Hastegrad,
                          levels = c("Elektiv",
                                     "Haster",
                                     "Akutt",
@@ -599,7 +599,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                          ordered = TRUE),
       
       PostVenstreVentrikkelFunksjon = factor(
-        .data$PostVenstreVentrikkelFunksjon,
+        PostVenstreVentrikkelFunksjon,
         levels = c("Normal",
                    "Lett nedsatt: EF 40 - 49% ",
                    "Moderat nedsatt: EF 30 - 39%",
@@ -611,7 +611,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
         ordered = TRUE),
       
       PreVenstreVentrikkelFunksjon = factor(
-        .data$PreVenstreVentrikkelFunksjon,
+        PreVenstreVentrikkelFunksjon,
         levels = c("Normal",
                    "Lett nedsatt: EF 40 - 49% ",
                    "Moderat nedsatt: EF 30 - 39%",
@@ -622,7 +622,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
         exclude = NULL,
         ordered = TRUE),
       
-      ProsedyreEkko = factor(.data$ProsedyreEkko,
+      ProsedyreEkko = factor(ProsedyreEkko,
                              levels = c("Nei",
                                         "TEE",
                                         "ICE",
@@ -633,7 +633,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
                              exclude = NULL, # inkluderer NA i levels
                              ordered = TRUE),
       
-      UtskrevetTil = factor(.data$UtskrevetTil,
+      UtskrevetTil = factor(UtskrevetTil,
                             levels = c("Hjem",
                                        "Rehabilitering",
                                        "Annet sykehus",
@@ -675,96 +675,96 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
       # Div. tidsvariabler:
       # Basert på PasInklDato:
       # Kalenderår:
-      aar_pasientinklusjon = as.ordered(lubridate::year(.data$PasInklDato)),
+      aar_pasientinklusjon = as.ordered(lubridate::year(PasInklDato)),
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
       maaned_nr_pasientinklusjon =
-        as.ordered(sprintf(fmt = "%02d", lubridate::month(.data$PasInklDato))),
+        as.ordered(sprintf(fmt = "%02d", lubridate::month(PasInklDato))),
       
       maaned_pasientinklusjon =
-        as.ordered(paste0(.data$aar_pasientinklusjon, "-",
-                          .data$maaned_nr_pasientinklusjon)),
+        as.ordered(paste0(aar_pasientinklusjon, "-",
+                          maaned_nr_pasientinklusjon)),
       # Kvartal:
-      kvartal_pasientinklusjon = lubridate::quarter(.data$PasInklDato,
+      kvartal_pasientinklusjon = lubridate::quarter(PasInklDato,
                                                     with_year = TRUE),
       kvartal_pasientinklusjon =
-        as.ordered(gsub("[[:punct:]]", "-Q", .data$kvartal_pasientinklusjon)),
+        as.ordered(gsub("[[:punct:]]", "-Q", kvartal_pasientinklusjon)),
       # Uketall:
       uke_pasientinklusjon =
         as.ordered(sprintf(fmt = "%02d",
-                           lubridate::isoweek(.data$PasInklDato))),
+                           lubridate::isoweek(PasInklDato))),
       
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
       aar_uke_pasientinklusjon = ifelse(
         # hvis uke 01 er i desember...
-        test = .data$uke_pasientinklusjon == "01" &
-          .data$maaned_nr_pasientinklusjon == "12",
+        test = uke_pasientinklusjon == "01" &
+          maaned_nr_pasientinklusjon == "12",
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
         # er spredt over (uke 01 i desember 2019 blir til 2020-01)
         yes =
-          paste0(as.integer(lubridate::year(.data$PasInklDato)) + 1, "-",
-                 .data$uke_pasientinklusjon),
+          paste0(as.integer(lubridate::year(PasInklDato)) + 1, "-",
+                 uke_pasientinklusjon),
         no =
-          paste0(.data$aar_pasientinklusjon, "-", .data$uke_pasientinklusjon)
+          paste0(aar_pasientinklusjon, "-", uke_pasientinklusjon)
       ),
       aar_uke_pasientinklusjon = ifelse(
         # hvis uke 52 eller 53 er i januar...
-        test = .data$uke_pasientinklusjon %in% c("52", "53") &
-          .data$maaned_nr_pasientinklusjon == "01",
+        test = uke_pasientinklusjon %in% c("52", "53") &
+          maaned_nr_pasientinklusjon == "01",
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
         # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
-        yes = paste0(as.integer(lubridate::year(.data$PasInklDato)) - 1, "-",
-                     .data$uke_pasientinklusjon),
-        no = .data$aar_uke_pasientinklusjon
+        yes = paste0(as.integer(lubridate::year(PasInklDato)) - 1, "-",
+                     uke_pasientinklusjon),
+        no = aar_uke_pasientinklusjon
       ),
-      aar_uke_pasientinklusjon = as.ordered(.data$aar_uke_pasientinklusjon),
+      aar_uke_pasientinklusjon = as.ordered(aar_uke_pasientinklusjon),
       # Basert på StudieStartDato:
       # Kalenderår:
-      aar_studiestart = as.ordered(lubridate::year(.data$StudieStartDato)),
+      aar_studiestart = as.ordered(lubridate::year(StudieStartDato)),
       # Måned:
       # (månedsnr er tosifret; 01, 02, ....)
       maaned_nr_studiestart =
         as.ordered(sprintf(fmt = "%02d",
-                           lubridate::month(.data$StudieStartDato))),
+                           lubridate::month(StudieStartDato))),
       maaned_studiestart =
-        as.ordered(paste0(.data$aar_studiestart, "-",
-                          .data$maaned_nr_studiestart)),
+        as.ordered(paste0(aar_studiestart, "-",
+                          maaned_nr_studiestart)),
       # Kvartal:
-      kvartal_studiestart = lubridate::quarter(.data$StudieStartDato,
+      kvartal_studiestart = lubridate::quarter(StudieStartDato,
                                                with_year = TRUE),
       kvartal_studiestart =
-        as.ordered(gsub("[[:punct:]]", "-Q", .data$kvartal_studiestart)),
+        as.ordered(gsub("[[:punct:]]", "-Q", kvartal_studiestart)),
       # Uketall:
       uke_studiestart =
         as.ordered(sprintf(fmt = "%02d",
-                           lubridate::isoweek(.data$StudieStartDato))),
+                           lubridate::isoweek(StudieStartDato))),
       # Variabel med "yyyy-ukenummer" som tar høyde for uketall spredt over to
       # kalenderår:
       aar_uke_studiestart = ifelse(
         # hvis uke 01 er i desember...
-        test = .data$uke_studiestart == "01" &
-          .data$maaned_nr_studiestart == "12",
+        test = uke_studiestart == "01" &
+          maaned_nr_studiestart == "12",
         # .. så sier vi at uken tilhører det seneste av de to årene som uke 01
         # er spredt over (uke 01 i desember 2019 blir til 2020-01)
         yes =
-          paste0(as.integer(lubridate::year(.data$StudieStartDato)) + 1, "-",
-                 .data$uke_studiestart),
-        no = paste0(.data$aar_studiestart, "-", .data$uke_studiestart)
+          paste0(as.integer(lubridate::year(StudieStartDato)) + 1, "-",
+                 uke_studiestart),
+        no = paste0(aar_studiestart, "-", uke_studiestart)
       ),
       aar_uke_studiestart = ifelse(
         # hvis uke 52 eller 53 er i januar...
         test =
-          .data$uke_studiestart %in% c("52", "53") &
-          .data$maaned_nr_studiestart == "01",
+          uke_studiestart %in% c("52", "53") &
+          maaned_nr_studiestart == "01",
         # ...sier vi at hele uken tilhører det tidligste av de to årene som uke
         # 52/53 er spredt over (1. januar 2017 som er i uke 52 blir til 2016-52)
         yes =
-          paste0(as.integer(lubridate::year(.data$StudieStartDato)) - 1, "-",
-                 .data$uke_studiestart),
-        no = .data$aar_uke_studiestart
+          paste0(as.integer(lubridate::year(StudieStartDato)) - 1, "-",
+                 uke_studiestart),
+        no = aar_uke_studiestart
       ),
-      aar_uke_studiestart = as.ordered(.data$aar_uke_studiestart),
+      aar_uke_studiestart = as.ordered(aar_uke_studiestart),
     )
   
   
@@ -802,7 +802,7 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   
   # Utledete tidsvariabler (aar, maaned, uke osv):
   ap_light %<>% noric::legg_til_tidsvariabler(df = .,
-                                              var = .data$ProsedyreDato)
+                                              var = ProsedyreDato)
   
   # Endre Sykehusnavn til kortere versjoner:
   ap_light %<>% noric::fikse_sykehusnavn(df = .)
@@ -812,24 +812,24 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   # Utlede variabler for ferdigstilt eller ikke,
   ap_light %<>%
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusStart,
+                              var = SkjemaStatusStart,
                               suffix = "StartSkjema") %>%
     
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemastatusHovedskjema,
+                              var = SkjemastatusHovedskjema,
                               suffix = "HovedSkjema") %>%
     
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusUtskrivelse,
+                              var = SkjemaStatusUtskrivelse,
                               suffix = "UtskrSkjema") %>%
     
     noric::utlede_ferdigstilt(df = .,
-                              var = .data$SkjemaStatusKomplikasjoner,
+                              var = SkjemaStatusKomplikasjoner,
                               suffix = "KomplikSkjema")
   
   # Utlede aldersklasser
   ap_light %<>% noric::utlede_aldersklasse(df = .,
-                                           var = .data$PasientAlder)
+                                           var = PasientAlder)
   
   # Legger til utledete variabler fra segment Stent til ap_light,
   # Noen er hjelpevariabler som brukes i KI-funksjonene. Disse fjernes
@@ -867,56 +867,56 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   ap_light %<>%
     dplyr::select(
       # Foretrekker de utledete "ferdigstilt.. " variablene:
-      - .data$SkjemaStatusStart,
-      - .data$SkjemastatusHovedskjema,
-      - .data$SkjemaStatusUtskrivelse,
-      - .data$SkjemaStatusKomplikasjoner,
+      - SkjemaStatusStart,
+      - SkjemastatusHovedskjema,
+      - SkjemaStatusUtskrivelse,
+      - SkjemaStatusKomplikasjoner,
       
       # Overflødig, fordi tilhørende kont. verdi er NA:
       - tidyselect::contains("Ukjent"),
       
       # Ikke i bruk
-      - .data$PasientRegDato,
-      - .data$Studie,
+      - PasientRegDato,
+      - Studie,
       
       # Dobbelt opp av disse, fjerne minst komplette/feil (sept 2021):
       # Rettelse nov 2023. Vi trenger de til indikatoren, "back up " i 
       # tilfelle manglende kopierign
-      # -.data$BesUtlEKGDato,
-      # -.data$BesUtlEKGTid,
-      -.data$KillipKlasseAnkomst,
-      -.data$KardiogentSjokk,
-      -.data$Kreatinin,
+      # -BesUtlEKGDato,
+      # -BesUtlEKGTid,
+      -KillipKlasseAnkomst,
+      -KardiogentSjokk,
+      -Kreatinin,
       
       # Fjerne alle init-medikamenter:
-      -.data$InitASA,
-      -.data$InitAntikoagulantia,
-      -.data$InitAndrePlatehemmere,
-      -.data$InitStatiner,
-      -.data$InitNSAID,
-      -.data$InitACEHemmere,
-      -.data$InitA2Blokkere,
-      -.data$InitBetaBlokkere,
-      -.data$InitCaHemmere,
-      -.data$InitDiabetesPrOral,
-      -.data$InitDigitalis,
-      -.data$InitDiuretika,
-      -.data$InitAldosteronantagonist,
-      -.data$InitOvrigLipid,
-      -.data$InitNitroglycerin,
+      -InitASA,
+      -InitAntikoagulantia,
+      -InitAndrePlatehemmere,
+      -InitStatiner,
+      -InitNSAID,
+      -InitACEHemmere,
+      -InitA2Blokkere,
+      -InitBetaBlokkere,
+      -InitCaHemmere,
+      -InitDiabetesPrOral,
+      -InitDigitalis,
+      -InitDiuretika,
+      -InitAldosteronantagonist,
+      -InitOvrigLipid,
+      -InitNitroglycerin,
       
       # Fjerne alle init blodprøver
-      - .data$Infarktmarkoer,
-      - .data$InfarktMarkoerMax,
-      - .data$Kolesterol,
-      - .data$Triglycerider,
-      - .data$HDL,
-      - .data$MaaltLDL,
-      - .data$SGlukose,
-      - .data$HbA1c,
-      - .data$Kreatinin,
-      - .data$CRP,
-      - .data$Hemoglobin,
+      - Infarktmarkoer,
+      - InfarktMarkoerMax,
+      - Kolesterol,
+      - Triglycerider,
+      - HDL,
+      - MaaltLDL,
+      - SGlukose,
+      - HbA1c,
+      - Kreatinin,
+      - CRP,
+      - Hemoglobin,
       
       # Fjerne komplikasjoner
       - tidyselect::contains("AvdKomp"),
@@ -924,42 +924,42 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
       
       
       # Mediakmenter ved utskrivelse:
-      - .data$NSAID,
-      - .data$ACEHemmere,
-      - .data$A2Blokkere,
-      - .data$Betablokkere,
-      - .data$CaBlokkere,
-      - .data$DiabetesBehandlingInsulin,
-      - .data$DiabetesBehandlingPerOral,
-      - .data$Digitalis,
-      - .data$Diuretika,
-      - .data$Aldosteronantagonister,
-      - .data$NitroglycerinLangtid,
+      - NSAID,
+      - ACEHemmere,
+      - A2Blokkere,
+      - Betablokkere,
+      - CaBlokkere,
+      - DiabetesBehandlingInsulin,
+      - DiabetesBehandlingPerOral,
+      - Digitalis,
+      - Diuretika,
+      - Aldosteronantagonister,
+      - NitroglycerinLangtid,
       
-      - .data$TroponinVerdiFor,
-      - .data$TroponinMetFor,
-      - .data$TroponinVerdiEtter,
-      - .data$TroponinMetEtter,
-      - .data$CKMBFor,
-      - .data$CKMBEtter,
+      - TroponinVerdiFor,
+      - TroponinMetFor,
+      - TroponinVerdiEtter,
+      - TroponinMetEtter,
+      - CKMBFor,
+      - CKMBEtter,
       
       # Andre variabler utskrivelse
-      - .data$InfarktType,
-      - .data$InfarktSubklasse,
-      - .data$UtskrDiagnoser,
-      - .data$AnnenAlvorligSykdom)
+      - InfarktType,
+      - InfarktSubklasse,
+      - UtskrDiagnoser,
+      - AnnenAlvorligSykdom)
   
   # Fjerne utledete hjelpevariabler
   ap_light %<>%
-    dplyr::select(- .data$antall_stent_under_opphold,
-                  - .data$satt_inn_stent_i_LMS)
+    dplyr::select(- antall_stent_under_opphold,
+                  - satt_inn_stent_i_LMS)
   
   
 
   # Gjøre kategoriske variabler om til factor:
   ap_light %<>%
     dplyr::mutate(
-      Hastegrad = factor(.data$Hastegrad,
+      Hastegrad = factor(Hastegrad,
                          levels = c("Akutt",
                                     "Subakutt",
                                     "Planlagt"),
@@ -1026,7 +1026,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
       
     tavi %<>% 
       dplyr::mutate(
-        dg_prosedyre_til_dod = dplyr::if_else(.data$Avdod == "Ja", 
+        dg_prosedyre_til_dod = dplyr::if_else(Avdod == "Ja", 
                                               as.numeric(difftime(DodsdatoFReg, 
                                                        ProsedyreDato, 
                                                        units = "days")), 
@@ -1044,27 +1044,27 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
       
       # Fikse rekkeflge
       tavi %>% 
-        dplyr::select(.data$AvdRESH,
-                      .data$Sykehusnavn,
-                      .data$PasientID, 
-                      .data$ForlopsID, 
-                      .data$FnrType, 
-                      .data$PasientAlder, 
-                      .data$PasientKjonn,
-                      .data$Avdod, 
-                      .data$DodsdatoFReg, 
-                      .data$TypeKlaffeprotese, 
-                      .data$UtskrevetTil, 
-                      .data$Prosedyre, 
-                      .data$ScreeningBeslutning, 
-                      .data$ProsedyreDato, 
-                      .data$dg_prosedyre_til_dod, 
-                      .data$eprom_bestilt, 
-                      .data$ePromStatus,
-                      .data$ePromStatus_tekst, 
-                      .data$ePromBestillingsdato:.data$ePromUtloeptDato, 
-                      .data$Registreringstype, 
-                      .data$rose01:.data$premStatus) %>% 
+        dplyr::select(AvdRESH,
+                      Sykehusnavn,
+                      PasientID, 
+                      ForlopsID, 
+                      FnrType, 
+                      PasientAlder, 
+                      PasientKjonn,
+                      Avdod, 
+                      DodsdatoFReg, 
+                      TypeKlaffeprotese, 
+                      UtskrevetTil, 
+                      Prosedyre, 
+                      ScreeningBeslutning, 
+                      ProsedyreDato, 
+                      dg_prosedyre_til_dod, 
+                      eprom_bestilt, 
+                      ePromStatus,
+                      ePromStatus_tekst, 
+                      ePromBestillingsdato:ePromUtloeptDato, 
+                      Registreringstype, 
+                      rose01:premStatus) %>% 
         # Legg til aar, maaned, uke, etc.
         noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
       
