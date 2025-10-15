@@ -148,7 +148,7 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
   aK <- noric::erstatt_koder_m_etiketter(
     df = aKnum,
     mapping = noric::aort_map_num_tekst) %>% 
-    noric::utlede_alder(., var = ProsedyreDato)%>% 
+    noric::utlede_alder(., var = ProsedyreDato) %>% 
     noric::fikse_sykehusnavn(.)
   list(aK = aK)
 }
