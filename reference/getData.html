@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.4.0</span>
       </span>
     </div>
 
@@ -49,29 +49,50 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getAp</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getSo</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getCt</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getAk</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getFo</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getAkOppf</span><span class="op">(</span></span>
+<span>  <span class="va">registryName</span>,</span>
+<span>  <span class="va">fromDate</span>,</span>
+<span>  <span class="va">toDate</span>,</span>
+<span>  <span class="va">singleRow</span>,</span>
+<span>  singleHospital <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getAnP</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">getCt</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">getAkOppf</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getAnD</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">getSs</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getMk</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getMk</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getPs</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getTaviProm</span><span class="op">(</span></span>
+<span>  <span class="va">registryName</span>,</span>
+<span>  <span class="va">fromDate</span>,</span>
+<span>  <span class="va">toDate</span>,</span>
+<span>  <span class="va">singleRow</span>,</span>
+<span>  singleHospital <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getApLight</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">getFo</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">getTaviProm</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">getSo</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">getPs</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, <span class="va">singleRow</span>, singleHospital <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">getApLight</span><span class="op">(</span></span>
+<span>  <span class="va">registryName</span>,</span>
+<span>  <span class="va">fromDate</span>,</span>
+<span>  <span class="va">toDate</span>,</span>
+<span>  <span class="va">singleRow</span>,</span>
+<span>  singleHospital <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">

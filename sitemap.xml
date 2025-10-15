@@ -24,6 +24,7 @@
 <url><loc>/reference/getPivotDataSet.html</loc></url>
 <url><loc>/reference/getPrepData.html</loc></url>
 <url><loc>/reference/getPresentHospitals.html</loc></url>
+<url><loc>/reference/getQuery.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/isNationalReg.html</loc></url>
 <url><loc>/reference/legg_til_liggedogn.html</loc></url>
@@ -44,6 +45,7 @@
 <url><loc>/reference/stagingData.html</loc></url>
 <url><loc>/reference/tavi_funksjoner.html</loc></url>
 <url><loc>/reference/utlede_OppholdsID.html</loc></url>
+<url><loc>/reference/utlede_alder.html</loc></url>
 <url><loc>/reference/utlede_aldersklasse.html</loc></url>
 <url><loc>/reference/utlede_annenDiag_variabler.html</loc></url>
 <url><loc>/reference/utlede_dod_noric.html</loc></url>
