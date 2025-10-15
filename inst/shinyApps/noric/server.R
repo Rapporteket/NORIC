@@ -875,13 +875,15 @@ shinyServer(function(input, output, session) {
   
   ## innhold kontrollpanel:
   output$dwnldControlRap <- shiny::renderUI({
-    shiny::selectInput(inputId = "dwldRapport",
-                       label = "Velg rapport:",
-                       choices = list(
-                         "Kvalitetsindikatorer" = "NORIC_kvalitetsindikator", 
-                         "Filvask avdød" = "NORIC_filvask_avdod", 
-                         "Invasive prosedyrer" = "NORIC_local_monthly", 
-                         "Aortaklaff" = "NORIC_tavi_report"))
+    shiny::selectInput(
+      inputId = "dwldRapport",
+      label = "Velg rapport:",
+      choices = list(
+        "Kvalitetsindikatorer" = "NORIC_kvalitetsindikator", 
+        "Filvask avdød" = "NORIC_filvask_avdod", 
+        "Invasive prosedyrer" = "NORIC_local_monthly",
+        "Angiografør/Operatør" = "NORIC_local_monthly_activity",
+        "Aortaklaff" = "NORIC_tavi_report"))
   })
   
   output$dwnldControl <- shiny::renderUI({
