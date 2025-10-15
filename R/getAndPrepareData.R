@@ -26,18 +26,18 @@
 #'
 #' @name getPrepData
 #' @aliases getPrepApData
-#' getPrepSoData
-#' getPrepAkData
-#' getPrepFoData
-#' getPrepAnPData
 #' getPrepCtData
+#' getPrepAkData
 #' getPrepAkOppfData
+#' getPrepAnPData
 #' getPrepAnDData
 #' getPrepSsData
 #' getPrepMkData
+#' getPrepTaviPromData
+#' getPrepFoData
+#' getPrepSoData
 #' getPrepPsData
 #' getPrepApLightData
-#' getPrepTaviPromData
 NULL
 
 #' @rdname getPrepData
@@ -82,7 +82,8 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getPrepData
 #' @export
-getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepSoData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -90,7 +91,8 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getSo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   sO <- dataListe$sO
   
   
@@ -128,7 +130,8 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepAkData <- function(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...){
+getPrepAkData <- function(registryName, fromDate, toDate, singleRow, 
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -137,7 +140,7 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow, singleHospi
                             fromDate = fromDate,
                             toDate = toDate,
                             singleRow = singleRow, 
-                            singleHospital = singleHospital )
+                            singleHospital = singleHospital)
   aK <- dataListe$aK
   
   
@@ -178,7 +181,8 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow, singleHospi
 
 #' @rdname getPrepData
 #' @export
-getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepFoData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -186,7 +190,8 @@ getPrepFoData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getFo(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   fO <- dataListe$fO
   
   
@@ -249,7 +254,7 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,
   # Gjøre kategoriske variabler om til factor:
   anP %<>%
     dplyr::mutate(
-      ForlopsType2 = factor(.data$ForlopsType2,
+      Hastegrad = factor(.data$Hastegrad,
                             levels = c("Akutt",
                                        "Subakutt",
                                        "Planlagt"),
@@ -261,7 +266,8 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getPrepData
 #' @export
-getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepCtData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -269,7 +275,8 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getCt(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   cT <- dataListe$cT
   
   
@@ -342,7 +349,8 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,
+                              singleHospital = NULL, ...){
   
   
   . <- ""
@@ -350,7 +358,8 @@ getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getAkOppf(registryName = registryName,
                                 fromDate = fromDate,
                                 toDate = toDate,
-                                singleRow = singleRow)
+                                singleRow = singleRow, 
+                                singleHospital = singleHospital)
   aKoppf <- dataListe$aKoppf
   
   
@@ -405,7 +414,7 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,
   # Gjøre kategoriske variabler om til factor:
   anD %<>%
     dplyr::mutate(
-      ForlopsType2 = factor(.data$ForlopsType2,
+      Hastegrad = factor(.data$Hastegrad,
                             levels = c("Akutt",
                                        "Subakutt",
                                        "Planlagt"),
@@ -532,7 +541,8 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getPrepData
 #' @export
-getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepMkData <- function(registryName, fromDate, toDate, singleRow,
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -540,7 +550,8 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getMk(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   mK <- dataListe$mK
   
   
@@ -647,7 +658,8 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
+getPrepPsData <- function(registryName, fromDate, toDate, singleRow, 
+                          singleHospital = NULL, ...){
   
   
   . <- ""
@@ -655,7 +667,8 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
   dataListe <- noric::getPs(registryName = registryName,
                             fromDate = fromDate,
                             toDate = toDate,
-                            singleRow = singleRow)
+                            singleRow = singleRow, 
+                            singleHospital = singleHospital)
   pS <- dataListe$pS
   
   
@@ -774,7 +787,8 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow, ...){
 
 #' @rdname getPrepData
 #' @export
-getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
+                               singleHospital = NULL, ...){
   
   
   . <- ""
@@ -782,7 +796,8 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getApLight(registryName = registryName,
                                  fromDate = fromDate,
                                  toDate = toDate,
-                                 singleRow = singleRow)
+                                 singleRow = singleRow, 
+                                 singleHospital = singleHospital)
   ap_light <- dataListe$aP
   sS <- dataListe$sS
   aD <- dataListe$aD
@@ -828,8 +843,9 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
                               suffix = "KomplikSkjema")
   
   # Utlede aldersklasser
-  ap_light %<>% noric::utlede_aldersklasse(df = .,
-                                           var = .data$PasientAlder)
+  ap_light %<>% 
+    noric::utlede_alder(df = ., var = ProsedyreDato) %>% 
+    noric::utlede_aldersklasse(df = ., var = .data$PasientAlder)
   
   # Legger til utledete variabler fra segment Stent til ap_light,
   # Noen er hjelpevariabler som brukes i KI-funksjonene. Disse fjernes
@@ -872,51 +888,50 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
       - .data$SkjemaStatusUtskrivelse,
       - .data$SkjemaStatusKomplikasjoner,
       
-      # Overflødig, fordi tilhørende kont. verdi er NA:
-      - tidyselect::contains("Ukjent"),
-      
-      # Ikke i bruk
-      - .data$PasientRegDato,
-      - .data$Studie,
-      
+      # # Overflødig, fordi tilhørende kont. verdi er NA:
+      # - tidyselect::contains("Ukjent"),
+      # 
+      # # Ikke i bruk
+      # - .data$Studie,
+      # 
       # Dobbelt opp av disse, fjerne minst komplette/feil (sept 2021):
       # Rettelse nov 2023. Vi trenger de til indikatoren, "back up " i 
       # tilfelle manglende kopierign
       # -.data$BesUtlEKGDato,
       # -.data$BesUtlEKGTid,
-      -.data$KillipKlasseAnkomst,
-      -.data$KardiogentSjokk,
-      -.data$Kreatinin,
+      # -.data$KillipKlasseAnkomst,
+      # -.data$KardiogentSjokk,
+      # -.data$Kreatinin,
       
       # Fjerne alle init-medikamenter:
-      -.data$InitASA,
-      -.data$InitAntikoagulantia,
-      -.data$InitAndrePlatehemmere,
-      -.data$InitStatiner,
-      -.data$InitNSAID,
-      -.data$InitACEHemmere,
-      -.data$InitA2Blokkere,
-      -.data$InitBetaBlokkere,
-      -.data$InitCaHemmere,
-      -.data$InitDiabetesPrOral,
-      -.data$InitDigitalis,
-      -.data$InitDiuretika,
-      -.data$InitAldosteronantagonist,
-      -.data$InitOvrigLipid,
-      -.data$InitNitroglycerin,
+      # -.data$InitASA,
+      # -.data$InitAntikoagulantia,
+      # -.data$InitAndrePlatehemmere,
+      # -.data$InitStatiner,
+      # -.data$InitNSAID,
+      # -.data$InitACEHemmere,
+      # -.data$InitA2Blokkere,
+      # -.data$InitBetaBlokkere,
+      # -.data$InitCaHemmere,
+      # -.data$InitDiabetesPrOral,
+      # -.data$InitDigitalis,
+      # -.data$InitDiuretika,
+      # -.data$InitAldosteronantagonist,
+      # -.data$InitOvrigLipid,
+      # -.data$InitNitroglycerin,
       
       # Fjerne alle init blodprøver
-      - .data$Infarktmarkoer,
-      - .data$InfarktMarkoerMax,
-      - .data$Kolesterol,
-      - .data$Triglycerider,
-      - .data$HDL,
-      - .data$MaaltLDL,
-      - .data$SGlukose,
-      - .data$HbA1c,
-      - .data$Kreatinin,
-      - .data$CRP,
-      - .data$Hemoglobin,
+      # - .data$Infarktmarkoer,
+      # - .data$InfarktMarkoerMax,
+      # - .data$Kolesterol,
+      # - .data$Triglycerider,
+      # - .data$HDL,
+      # - .data$MaaltLDL,
+      # - .data$SGlukose,
+      # - .data$HbA1c,
+      # - .data$Kreatinin,
+      # - .data$CRP,
+      # - .data$Hemoglobin,
       
       # Fjerne komplikasjoner
       - tidyselect::contains("AvdKomp"),
@@ -924,30 +939,31 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
       
       
       # Mediakmenter ved utskrivelse:
-      - .data$NSAID,
-      - .data$ACEHemmere,
-      - .data$A2Blokkere,
-      - .data$Betablokkere,
-      - .data$CaBlokkere,
-      - .data$DiabetesBehandlingInsulin,
-      - .data$DiabetesBehandlingPerOral,
-      - .data$Digitalis,
-      - .data$Diuretika,
-      - .data$Aldosteronantagonister,
-      - .data$NitroglycerinLangtid,
+      # - .data$NSAID,
+      # - .data$ACEHemmere,
+      # - .data$A2Blokkere,
+      # - .data$Betablokkere,
+      # - .data$CaBlokkere,
+      # - .data$DiabetesBehandlingInsulin,
+      # - .data$DiabetesBehandlingPerOral,
+      # - .data$Digitalis,
+      # - .data$Diuretika,
+      # - .data$Aldosteronantagonister,
+      # - .data$NitroglycerinLangtid,
       
-      - .data$TroponinVerdiFor,
-      - .data$TroponinMetFor,
-      - .data$TroponinVerdiEtter,
-      - .data$TroponinMetEtter,
-      - .data$CKMBFor,
-      - .data$CKMBEtter,
+      # - .data$TroponinVerdiFor,
+      # - .data$TroponinMetFor,
+      # - .data$TroponinVerdiEtter,
+      # - .data$TroponinMetEtter,
+      # - .data$CKMBFor,
+      # - .data$CKMBEtter,
       
       # Andre variabler utskrivelse
-      - .data$InfarktType,
-      - .data$InfarktSubklasse,
-      - .data$UtskrDiagnoser,
-      - .data$AnnenAlvorligSykdom)
+      # - .data$InfarktType,
+      # - .data$InfarktSubklasse,
+      # - .data$UtskrDiagnoser,
+      # - .data$AnnenAlvorligSykdom
+      )
   
   # Fjerne utledete hjelpevariabler
   ap_light %<>%
@@ -982,7 +998,8 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,...){
 
 #' @rdname getPrepData
 #' @export
-getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
+getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
+                                singleHospital = NULL, ...){
   
   
   . <- ""
@@ -990,7 +1007,8 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
   dataListe <- noric::getTaviProm(registryName = registryName,
                                   fromDate = fromDate,
                                   toDate = toDate,
-                                  singleRow = singleRow)
+                                  singleRow = singleRow, 
+                                  singleHospital = singleHospital)
   tP <- dataListe$taviProm
   aK <- dataListe$aK
   
@@ -1026,7 +1044,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
       
     tavi %<>% 
       dplyr::mutate(
-        dg_prosedyre_til_dod = dplyr::if_else(.data$Avdod == "Ja", 
+        dg_prosedyre_til_dod = dplyr::if_else(.data$AvdodFReg == "Ja", 
                                               as.numeric(difftime(DodsdatoFReg, 
                                                        ProsedyreDato, 
                                                        units = "days")), 
@@ -1051,7 +1069,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,...){
                       .data$FnrType, 
                       .data$PasientAlder, 
                       .data$PasientKjonn,
-                      .data$Avdod, 
+                      .data$AvdodFReg, 
                       .data$DodsdatoFReg, 
                       .data$TypeKlaffeprotese, 
                       .data$UtskrevetTil, 
