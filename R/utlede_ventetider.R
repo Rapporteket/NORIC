@@ -314,7 +314,7 @@ legg_til_liggedogn <- function(df_ap) {
 #' Antall dager fra prosedyren til utskrivingsdato etter prosedyrer på 
 #' aortaklaffen.
 #'
-#' @param af_ak data.frame med Aortaklaff data fra noric. Maa inneholde
+#' @param df_ak data.frame med Aortaklaff data fra noric. Maa inneholde
 #' variablene \code{ProsedyreDato}, \code{UtskrDato},
 #' og \code{UtskrevetTil}.
 #'

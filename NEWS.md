@@ -1,3 +1,11 @@
+# noric 3.4.0
+* hente data med SQL fra rådata, og ikke views
+* gjelder: AK, MK, AnD, AnP, CT
+* fjerne join med forlopsoversikt i R, flytte dette til SQL
+* SQL query lages som en funksjon, der sykehus og tidsperiode er gitt som 
+parametre. Heller enn å spørre etter 'alt' og bruke filter i etterkant
+* utlede alder som egen funksjon
+
 # noric 3.3.0
 * Knapp i QA for utsending av rapporter ([#228](https://github.com/Rapporteket/NORIC/pull/228))
 * Fiks oppdatering av rapport-liste i abo-fane ([#231](https://github.com/Rapporteket/NORIC/pull/231))

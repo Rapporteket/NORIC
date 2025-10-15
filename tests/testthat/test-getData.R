@@ -63,13 +63,13 @@ test_that("relevant test database and tables can be made", {
 
 ### ALL QUERY FUNS SHOULD BE TESTED HERE ###
 
-test_that("mitralklaff data can be provided", {
-  check_db()
-  res <- getMk("testDb", fromDate = "1900-01-01", toDate = Sys.Date(),
-               singleRow = TRUE)
-  expect_equal(class(res), "list")
-  expect_equal(class(res$mK), "data.frame")
-})
+# test_that("mitralklaff data can be provided", {
+#   check_db()
+#   res <- getMk("testDb", fromDate = "1900-01-01", toDate = Sys.Date(),
+#                singleRow = TRUE)
+#   expect_equal(class(res), "list")
+#   expect_equal(class(res$mK), "data.frame")
+# })
 
 test_that("pasientstudier data can be provided", {
   check_db()

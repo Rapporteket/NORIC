@@ -248,7 +248,10 @@ shinyServer(function(input, output, session) {
         `Mitralklaff` = "MK",
         `PasientStudier` = "PS",
         `Skjemaoversikt` = "SO",
-        `Segment stent` = "SS"
+        `Segment stent` = "SS", 
+        `taviperc raw test` = "taviperc", 
+        `regangio raw test` = "regangio" 
+        
       )
       # EPROM is only for nasjoanl
       if (!isNationalReg(user$org())) {
@@ -312,7 +315,8 @@ shinyServer(function(input, output, session) {
                            session = session,
                            userRole = user$role(),
                            fromDate = input$utforskerDateRange[1],
-                           toDate = input$utforskerDateRange[2])
+                           toDate = input$utforskerDateRange[2], 
+                           singleHospital = user$org())
   })
   
   metaDat <- shiny::reactive({
@@ -322,7 +326,8 @@ shinyServer(function(input, output, session) {
                            session = session,
                            userRole = user$role(),
                            fromDate = NULL,
-                           toDate = NULL)
+                           toDate = NULL, 
+                           singleHospital = NULL)
   })
   
   ## outputs

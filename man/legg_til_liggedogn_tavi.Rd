@@ -7,7 +7,7 @@
 legg_til_liggedogn_tavi(df_ak)
 }
 \arguments{
-\item{af_ak}{data.frame med Aortaklaff data fra noric. Maa inneholde
+\item{df_ak}{data.frame med Aortaklaff data fra noric. Maa inneholde
 variablene \code{ProsedyreDato}, \code{UtskrDato},
 og \code{UtskrevetTil}.}
 }

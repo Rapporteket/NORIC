@@ -49,7 +49,7 @@
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
 #'   \item \code{Regtype} = "Primær"
-#'   \item \code{UtskrevetDod}  = {"Nei","NA"}. Which means that  "Ja" or
+#'   \item \code{UtskrevetDod}  = ("Nei","NA"). Which means that  "Ja" or
 #'   "Ukjent" are excluded
 #'   }
 #' \item numerator \code{indik_blodfortynnende} has value \emph{ja} if
@@ -70,7 +70,7 @@
 #' \enumerate{
 #'   \item \code{antall_stent_under_opphold} is at least 1
 #'   \item \code{Regtype} = "Primær"
-#'   \item \code{UtskrevetDod}  = {"Nei", NA} . Which means that "Ja" or
+#'   \item \code{UtskrevetDod}  = ("Nei", NA) . Which means that "Ja" or
 #'   "Ukjent" are excluded
 #'   }
 #' \item numerator \code{indik_kolesterolsenkende} has value \emph{ja}
