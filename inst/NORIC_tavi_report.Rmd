@@ -2653,24 +2653,21 @@ query <- paste0(
  WHERE 
    mce.INTERVENTION_TYPE = 5 AND ", 
   "mce.INTERDAT >= '", fromDate, "' AND
-   mce.INTERDAT <= '", toDate, "' AND
-   mce.CENTREID = ", params$reshID, " ;"
- )
-# )
+   mce.INTERDAT <= '", toDate, "'" )
 
-# if(params$registryName %in% "noric_bergen") {
-#   # query <- paste0(query, " AND mce.CENTREID = '", params$reshID, "'") 
-# }
-# query <- paste0(query, " ;")
-#   
-# AK_alderKjonn <- rapbase::loadRegData(params$registryName, query) %>% 
-#   noric::utlede_alder(.) %>% 
-#   noric::legg_til_tidsvariabler() %>% 
-#   dplyr::mutate(PasientKjonn2 = factor(
-#     x = dplyr::case_when(PasientKjonn == "Mann" ~ "Menn",
-#                          PasientKjonn == "Kvinne" ~ "Kvinner", 
-#                          TRUE  ~ NA_character_),
-#     levels = c("Kvinner", "Menn"))) 
+if(params$registryName %in% "noric_nasjonal") {
+  query <- paste0(query, " AND mce.CENTREID = '", params$reshID, "' ")
+}
+query <- paste0(query, " ;")
+
+AK_alderKjonn <- rapbase::loadRegData(params$registryName, query) %>%
+  noric::utlede_alder(.) %>%
+  noric::legg_til_tidsvariabler() %>%
+  dplyr::mutate(PasientKjonn2 = factor(
+    x = dplyr::case_when(PasientKjonn == "Mann" ~ "Menn",
+                         PasientKjonn == "Kvinne" ~ "Kvinner",
+                         TRUE  ~ NA_character_),
+    levels = c("Kvinner", "Menn")))
 
 ```
 
@@ -2686,79 +2683,79 @@ Query `r query`.
 
 
 ```{r alderKjonnTabell}
-# cap <- paste0("Antall (andel) behandlede kvinner og menn i perioden fra ",
-#               fromDate," til ", toDate, ".")
-# 
-# tab_kjonn <-  AK_alderKjonn %>%  
-#   dplyr::count(aar, PasientKjonn2) %>% 
-#   tidyr::pivot_wider(names_from = PasientKjonn2, values_from = n) %>% 
-#   janitor::adorn_percentages() %>%
-#   janitor::adorn_totals("col", name = "Totalt") %>% 
-#   janitor::adorn_pct_formatting(digits = 0) %>% 
-#   janitor::adorn_ns(position = "front") 
-# 
-# align <- c("l", rep("c", dim(tab_kjonn)[2] - 1))
-# 
-# 
-# if (params$tableFormat == "html") {
-#   tab_kjonn %>% rename(" " = "aar") %>% 
-#     knitr::kable(caption = cap, align = align) %>%
-#     kableExtra::kable_styling(bootstrap_options = c("striped",
-#                                                     "hover",
-#                                                     "condensed"),
-#                               full_width = FALSE, 
-#                               font_size = 8) %>%
-#     kableExtra::column_spec(column = 1, width = "7em") 
-# } else if (params$tableFormat == "latex") {
-#   tab_kjonn %>% rename(" " = "aar") %>% 
-#     knitr::kable(format = params$tableFormat,
-#                  caption = cap,
-#                  booktabs = TRUE,
-#                  align = align) %>%
-#     kableExtra::kable_styling(latex_options = "HOLD_position", 
-#                               font_size = 8)
-#   
-# }
+cap <- paste0("Antall (andel) behandlede kvinner og menn i perioden fra ",
+              fromDate," til ", toDate, ".")
+
+tab_kjonn <-  AK_alderKjonn %>%
+  dplyr::count(aar, PasientKjonn2) %>%
+  tidyr::pivot_wider(names_from = PasientKjonn2, values_from = n) %>%
+  janitor::adorn_percentages() %>%
+  janitor::adorn_totals("col", name = "Totalt") %>%
+  janitor::adorn_pct_formatting(digits = 0) %>%
+  janitor::adorn_ns(position = "front")
+
+align <- c("l", rep("c", dim(tab_kjonn)[2] - 1))
+
+
+if (params$tableFormat == "html") {
+  tab_kjonn %>% rename(" " = "aar") %>%
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE,
+                              font_size = 8) %>%
+    kableExtra::column_spec(column = 1, width = "7em")
+} else if (params$tableFormat == "latex") {
+  tab_kjonn %>% rename(" " = "aar") %>%
+    knitr::kable(format = params$tableFormat,
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = align) %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position",
+                              font_size = 8)
+
+}
 ```
 
-<!-- ## Aldersfordeling -->
-<!-- **Forklaring boxplot:**  -->
-<!-- Boxplotet viser fordeling av pasientens alder på prosedyretidspunktet, for -->
-<!-- kvinner og menn de siste årene.  -->
-<!-- Medianverdien er markert av den tykke linjen midt i boksen.  -->
-<!-- De blå boksene inneholder halvparten av registreringene og -->
-<!-- er avgrenset av nedre (25%) og øvre (75%) kvartil.  -->
-<!-- Bredden på boksen kalles interkvartil bredde (IQR).  -->
-<!-- De vertikale greinene viser minste og største verdi i datasettet innenfor -->
-<!-- henholdsvis 1,5 x IQR under nedre kvartil og  -->
-<!-- 1.5 x IQR over øvre kvartil.  -->
-<!-- Punktene utenfor greinene viser uteliggere, -->
-<!-- det vil si forløp med usedvanlig lav eller høy alder.  -->
+## Aldersfordeling
+**Forklaring boxplot:**
+Boxplotet viser fordeling av pasientens alder på prosedyretidspunktet, for
+kvinner og menn de siste årene.
+Medianverdien er markert av den tykke linjen midt i boksen.
+De blå boksene inneholder halvparten av registreringene og
+er avgrenset av nedre (25%) og øvre (75%) kvartil.
+Bredden på boksen kalles interkvartil bredde (IQR).
+De vertikale greinene viser minste og største verdi i datasettet innenfor
+henholdsvis 1,5 x IQR under nedre kvartil og
+1.5 x IQR over øvre kvartil.
+Punktene utenfor greinene viser uteliggere,
+det vil si forløp med usedvanlig lav eller høy alder.
 
-<!-- ```{r figalderkjonn, fig.cap = paste0("Pasientens alder ved prosedyren, for kvinner og menn, per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"} -->
+```{r figalderkjonn, fig.cap = paste0("Pasientens alder ved prosedyren, for kvinner og menn, per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 
-<!-- AK_alderKjonn %>%  -->
-<!--   dplyr::filter(!is.na(PasientKjonn), -->
-<!--                 !is.na(PasientAlder), -->
-<!--                 PasientAlder >= 18, -->
-<!--                 PasientAlder <= 100) %>% -->
-<!--   dplyr::select(PasientAlder, PasientKjonn, aar) %>% -->
-<!--   ggplot2::ggplot(mapping= ggplot2::aes(x = aar,  -->
-<!--                                         y = PasientAlder)) + -->
-<!--   ggplot2::geom_boxplot( -->
-<!--     ggplot2::aes(fill = PasientKjonn),  -->
-<!--     na.rm = TRUE)+  -->
-<!--   ggplot2::scale_fill_manual("", values = c(colPrimary[6], colPrimary[4])) + -->
-<!--   ggplot2::theme_minimal()  + -->
-<!--   ggplot2::xlab("") +  -->
-<!--   ggplot2::ylab("Alder") +  -->
-<!--   ggplot2::theme( -->
-<!--     legend.text = ggplot2::element_text(size = 12), -->
-<!--     axis.text = ggplot2::element_text(size = 12),  -->
-<!--     axis.title = ggplot2::element_text(size = 12) -->
-<!--   ) -->
-<!-- ``` -->
+AK_alderKjonn %>%
+  dplyr::filter(!is.na(PasientKjonn),
+                !is.na(PasientAlder),
+                PasientAlder >= 18,
+                PasientAlder <= 100) %>%
+  dplyr::select(PasientAlder, PasientKjonn, aar) %>%
+  ggplot2::ggplot(mapping= ggplot2::aes(x = aar,
+                                        y = PasientAlder)) +
+  ggplot2::geom_boxplot(
+    ggplot2::aes(fill = PasientKjonn),
+    na.rm = TRUE)+
+  ggplot2::scale_fill_manual("", values = c(colPrimary[6], colPrimary[4])) +
+  ggplot2::theme_minimal()  +
+  ggplot2::xlab("") +
+  ggplot2::ylab("Alder") +
+  ggplot2::theme(
+    legend.text = ggplot2::element_text(size = 12),
+    axis.text = ggplot2::element_text(size = 12),
+    axis.title = ggplot2::element_text(size = 12)
+  )
+```
 
 
 ```{r}
