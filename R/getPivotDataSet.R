@@ -25,7 +25,8 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   . <- ""
   
   validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
-                  "MK", "PS", "SO", "SS", "TP", "taviperc", "regangio")
+                  "MK", "PS", "SO", "SS", "TP", "taviperc", "regangio", 
+                  "UtskrDiagnoser")
   
   if(registryName == "noric_bergen"){singleHospital <-  NULL}
   
@@ -39,6 +40,15 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
     if (setId == "regangio") {
       dat <- rapbase::loadRegData(registryName = registryName,
                                   query = "SELECT * FROM regangio;")
+    }
+    
+    if (setId == "UtskrDiagnoser") {
+      dat <- noric::getDk(registryName = registryName,
+                          fromDate = fromDate,
+                          toDate = toDate,
+                          singleRow = singleRow,
+                          session = session, 
+                          singleHospital = singleHospital)$dK
     }
     
     

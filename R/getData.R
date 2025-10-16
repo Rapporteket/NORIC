@@ -739,3 +739,40 @@ getApLight <- function(registryName, fromDate, toDate, singleRow,
 }
 
 
+
+#' @rdname getData
+#' @export
+getDk <- function(registryName, fromDate, toDate, singleRow,
+                  singleHospital = NULL, ...){
+  
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
+  
+  query <- paste0(noric::queryDiagnose(),
+                  " AND
+                  mce.INTERDAT >= '", fromDate,  "' AND
+                  mce.INTERDAT <= '", toDate, "' ")
+  
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, "AND mce.CENTREID = ", singleHospital)
+  }
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for UtskrDiagnoser"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for UtskrDiagnoser"
+  }
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  dK <- rapbase::loadRegData(registryName, query) %>%
+    noric::fikse_sykehusnavn(.)
+
+  list(dK = dK)
+}
+
+
+

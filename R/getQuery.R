@@ -23,6 +23,7 @@
 #' querySkjemaoversikt
 #' queryPasienterstudier
 #' queryApLight
+#' queryDiagnose
 NULL
 
 
@@ -2360,3 +2361,18 @@ queryApLight <- function(){
 }  
 
 
+
+#' @rdname getQuery
+#' @export
+queryDiagnose <- function(){
+paste0("
+  SELECT
+  mce.CENTREID AS AvdRESH,
+  mce.MCEID AS ForlopsID,
+  mce.PATIENT_ID AS PasientID,
+  mce.INTERDAT AS ProsedyreDato,
+  CAST((SELECT GROUP_CONCAT(CONCAT(diag.CODE, ' ', diag.VERSION)) FROM diagnose diag where diag.MCEID = mce.MCEID) AS CHAR(50)) AS UtskrDiagnoser
+
+  FROM mce 
+  WHERE mce.INTERVENTION_TYPE IN (1, 2, 3)
+  ")}
