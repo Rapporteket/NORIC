@@ -49,9 +49,9 @@ queryAngiopcinum <- function(){
       WHEN 1 THEN 'Ja'
       ELSE 'Nei'
     END AS ProsedyreTidUkjent,
-    CASE (P.LOCAL_HOSPITAL) WHEN 999
-                              THEN P.LOCAL_HOSPITAL_OTHER
-                            ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
+    CASE (P.LOCAL_HOSPITAL) 
+      WHEN 999 THEN P.LOCAL_HOSPITAL_OTHER
+      ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
     END AS Lokalsykehus,
    
     P.GENDER AS Kjonn,
@@ -96,6 +96,7 @@ queryAngiopcinum <- function(){
       WHEN 1 THEN 'Ja'
       ELSE 'Nei'
       END AS AnkomstPCITidUkjent,
+      
      A.PUNKT AS Stikksted,
      A.STENOS AS StenoseTidlBehSegment,
      A.CABG AS StenoseACBGraft,
@@ -136,6 +137,7 @@ queryAngiopcinum <- function(){
       WHEN 1 THEN 'Ja'
       ELSE 'Nei'
       END AS ApningKarTidUkjent,
+      
      CASE A.OPEN_CAP_OPEN_ANGIO
       WHEN 1 THEN 'Ja'
       ELSE 'Nei'
@@ -423,7 +425,7 @@ queryAngiopcinum <- function(){
     D.INFARCTTYPE AS InfarktType,
     D.INFARCTCLASSIFICATION AS InfarktSubklasse,
   
-    CAST((SELECT GROUP_CONCAT(CONCAT(diag.CODE, ' ', diag.VERSION)) FROM diagnose diag where diag.MCEID = A.MCEID) AS CHAR(50)) AS UtskrDiagnoser,
+     -- CAST((SELECT GROUP_CONCAT(CONCAT(diag.CODE, ' ', diag.VERSION)) FROM diagnose diag where diag.MCEID = A.MCEID) AS CHAR(50)) AS UtskrDiagnoser,
   
     P.SSN_TYPE AS FnrType,
     P.SSNSUBTYPE AS FnrSubtype,
@@ -437,12 +439,12 @@ queryAngiopcinum <- function(){
   	MCE.PARENT_MCEID AS PrimaerForlopsID,
 
     -- Study information
-    CAST((SELECT
-            GROUP_CONCAT(
-              IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-          FROM pasienterstudier PS
-          WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
-      AS Studie,  
+    -- CAST((SELECT
+    --        GROUP_CONCAT(
+    --          IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+    --      FROM pasienterstudier PS
+    --      WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
+    --  AS Studie,  
 
     I.STATUS AS SkjemaStatusStart,
     A.STATUS AS SkjemastatusHovedskjema,
