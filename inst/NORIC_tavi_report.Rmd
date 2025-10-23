@@ -4,7 +4,7 @@ params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
   tableFormat: html
-  reshID: 999999
+  reshId: 999999
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
@@ -85,7 +85,7 @@ if (params$registryName %in% "noric_nasjonal") {
     (as.Date(Sys.time()) - 1),
     
     noric::getLatestEntryHospital(registryName = params$registryName, 
-                                  reshID = params$reshID)
+                                  reshID = params$reshId)
   )
   
 } else {
@@ -219,7 +219,7 @@ if (params$registryName %in% "noric_nasjonal") {
                              fromDate  = periode_data$forste_dato,
                              toDate = periode_data$siste_dato,
                              singleRow = FALSE, 
-                             singleHospital = params$reshID)
+                             singleHospital = params$reshId)
   
 } else{
   # SPørring til LOKAL database. 
@@ -2656,7 +2656,7 @@ query <- paste0(
    mce.INTERDAT <= '", toDate, "'" )
 
 if(params$registryName %in% "noric_nasjonal") {
-  query <- paste0(query, " AND mce.CENTREID = '", params$reshID, "' ")
+  query <- paste0(query, " AND mce.CENTREID = '", params$reshId, "' ")
 }
 query <- paste0(query, " ;")
 
@@ -2671,11 +2671,11 @@ AK_alderKjonn <- rapbase::loadRegData(params$registryName, query) %>%
 
 ```
 
-forløp registrert ved `r params$hospitalName`. 
-Resh id er `r params$reshID` og userRole er  `r params$userRole`. 
- 
- 
-Query `r query`. 
+<!-- forløp registrert ved `r params$hospitalName`.  -->
+<!-- Resh id er `r params$reshId` og userRole er  `r params$userRole`.  -->
+
+
+<!-- Query `r query`.  -->
 
 
 ## Kjønnsfordeling

@@ -4,7 +4,7 @@ params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
   tableFormat: html
-  reshID: 999999
+  reshId: 999999
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
@@ -94,7 +94,7 @@ showN <- 14
 if(params$registryName %in% "noric_nasjonal"){
   nyeste_reg <- noric::getLatestEntryHospital(
     registryName = params$registryName, 
-    reshID = params$reshID)
+    reshID = params$reshId)
   
 } else {
   nyeste_reg <- min(
