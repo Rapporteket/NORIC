@@ -3073,7 +3073,9 @@ if (params$tableFormat == "html") {
 
 ```
 
-
+```{r include = FALSE}
+gc(verbose = TRUE) # garbage collection to free up memory
+```
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
