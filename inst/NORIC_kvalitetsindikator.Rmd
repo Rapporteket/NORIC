@@ -3,7 +3,7 @@ params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
   tableFormat: html
-  reshID: 999999
+  reshId: 999999
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
@@ -20,7 +20,9 @@ title:   |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, " sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, "(ID: ",
+params$reshId,
+") sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
@@ -394,7 +396,7 @@ nyeste_registrering_ak <- aK_nasjonalt %>%
 
 ```{r dimAK_lokalt, include=FALSE, eval=TRUE}
 dim_ak_lokalt <- aK_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>% 
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>% 
   dim(.)
 ```
 
@@ -449,7 +451,7 @@ Tabell \@ref(tab:tabFerdigtiltKompl) viser måloppnåelse per måned for
 
 #Lokalt
 ferdigstilt_lokalt <- aP_nasjonalt %>% 
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>% 
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>% 
   dplyr::filter(.data$indik_komplik_ferdig_data %in% "ja") %>% 
   janitor::tabyl(.data$maaned, 
                  .data$indik_komplik_ferdig, 
@@ -563,7 +565,7 @@ cap <- paste0(
 
 
 nstemi_24t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_nstemi_angio_innen24t,
@@ -639,7 +641,7 @@ noric::mst(tab = tabVentetid24t,
 
 # Lokalt: Andel komplette under 50% per måned?
 nstemi_komplette <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID,
+  dplyr::filter(.data$AvdRESH %in% params$reshId,
                 .data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_nstemi_angio_innen24t,
@@ -659,7 +661,7 @@ nstemi_komplette <- aP_nasjonalt %>%
 
 # LOKALT : For NSTEMI med komplette forløp
 prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
   dplyr::filter(.data$ProsedyreDato >= periode_data$forste_dato,
@@ -878,7 +880,7 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
 
 # Per ÅR: Blant alle NSTEMI, antall komplette forløp (med gyldig tid)
 nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(.data$aar,
                  .data$indik_nstemi_angio_innen24t,
@@ -895,7 +897,7 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
 
 
   nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
-    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+    dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_nstemi_angio_innen24t_data %in% "ja",
                 .data$indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
   dplyr::filter(.data$aar %in% 2018:periode_data$nyesteRegYear) %>%
@@ -1146,7 +1148,7 @@ cap <- paste0(
 
 
 nstemi_72t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_nstemi_angio_innen72t_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_nstemi_angio_innen72t,
@@ -1229,7 +1231,7 @@ if (params$rendered_by_shiny)
 ```
 
 
-`r if (params$reshID == 106944) {"<!--"}`
+`r if (params$reshId == 106944) {"<!--"}`
 
 # PCI innen 120 minutter ved STEMI
 
@@ -1245,7 +1247,7 @@ angir hvorvidt pasienten ble behandlet innnen 120 minutter eller ikke.
 Indikatoren er et  godt mål på logistikken ved behandling av denne
 pasientgruppen. 
 
-`r if (params$reshID == 106944) {"-->"}`
+`r if (params$reshId == 106944) {"-->"}`
 
 
 
@@ -1254,7 +1256,7 @@ pasientgruppen.
 
 ```{r tabIndikStemi, results='asis', warning=FALSE}
 
-if (params$reshID != 106944) {
+if (params$reshId != 106944) {
   
   cap <- paste0(
     "Antall og andel pasienter med indikasjon STEMI der tid for arteriepunksjon, ", 
@@ -1272,7 +1274,7 @@ if (params$reshID != 106944) {
   
   
   stemi_120min_lokalt <- aP_nasjonalt %>%
-    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+    dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
     dplyr::filter(.data$indik_stemi_pci_innen2t_data %in% "ja") %>%
     janitor::tabyl(.data$maaned,
                    .data$indik_stemi_pci_innen2t,
@@ -1370,7 +1372,7 @@ cap <- paste0(
 
 #Lokal
 nTrykkmaalingAP <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_trykkmaaling_data %in% "ja") %>%
   dplyr::select(.data$maaned,
                 .data$indik_trykkmaaling) %>%
@@ -1460,7 +1462,7 @@ cap <- paste0("Antall og andel prosedyrer der det er brukt supplerende ",
 
 #Lokalt
 nStentVH <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
   dplyr::select(.data$kvartal,
                 .data$indik_ivus_oct_v_stent_lms) %>%
@@ -1553,7 +1555,7 @@ cap <- paste0("Antall og andel pasienter per opphold der det er dokumentert ",
               "markert med N.")
 
 blodfortynnende_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_blodfortynnende_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_blodfortynnende,
@@ -1644,7 +1646,7 @@ cap <- paste0(
 
 #Lokalt
 kolesterolsenkende_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+  dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
   dplyr::filter(.data$indik_kolesterolsenkende_data %in% "ja") %>%
   janitor::tabyl(.data$maaned,
                  .data$indik_kolesterolsenkende,
@@ -1735,7 +1737,7 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     "permanente pacemaker for disse.")
   
   prep_tab_pacemaker_lokalt <- aK_nasjonalt %>%
-    dplyr::filter(.data$AvdRESH %in% params$reshID) %>%
+    dplyr::filter(.data$AvdRESH %in% params$reshId) %>%
     dplyr::filter(.data$indik_pacemakerbehov_data  %in% "ja") %>%
     janitor::tabyl(.data$kvartal,
                    .data$indik_pacemakerbehov,
