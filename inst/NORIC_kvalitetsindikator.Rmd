@@ -1799,6 +1799,10 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
 }
 ```
 
+```{r include = FALSE}
+gc(verbose = TRUE) # garbage collection to free up memory
+```
+
 ```{r }
 if (params$rendered_by_shiny)
   shiny::setProgress(1)  # set progress to 100%
