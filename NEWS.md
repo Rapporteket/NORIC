@@ -1,3 +1,8 @@
+# noric 3.5.0
+Entydig bruk av params$reshId i alle rapportert og reportProcessor. 
+Fjerne bruk av view i tavi-rapporten ([#241](https://github.com/Rapporteket/NORIC/issues/241))
+
+
 # noric 3.4.0
 * hente data med SQL fra rådata, og ikke views
 * gjelder: AK, MK, AnD, AnP, CT

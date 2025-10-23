@@ -4,7 +4,7 @@ params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
   tableFormat: html
-  reshID: 999999
+  reshId: 999999
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
@@ -60,7 +60,7 @@ hospitalName <- params$hospitalName
 
 ```{r }
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.05)  # set progress to 5%
+  shiny::setProgress(0.05)  # set progress to 5%
 ```
 
 
@@ -82,84 +82,84 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
 if (params$registryName %in% "noric_nasjonal") {
   nyeste_reg <- min(
-      (as.Date(Sys.time()) - 1),
-      
-      noric::getLatestEntryHospital(registryName = params$registryName, 
-                                    reshID = params$reshID)
+    (as.Date(Sys.time()) - 1),
+    
+    noric::getLatestEntryHospital(registryName = params$registryName, 
+                                  reshID = params$reshId)
   )
   
 } else {
   nyeste_reg <- min(
-      (as.Date(Sys.time()) - 1),
-      noric::getLatestEntry(registryName = params$registryName)
+    (as.Date(Sys.time()) - 1),
+    noric::getLatestEntry(registryName = params$registryName)
   )
 }
 
 
 
 periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
-    dplyr::mutate(
+  dplyr::mutate(
+    
+    
+    # SISTE DATO AVGJØR SISTE MÅNED: 
+    siste_dato_innevarende_mnd = lubridate::ceiling_date(
+      x = nyeste_reg, unit =  "month") - lubridate::days(1),
+    
+    siste_dato = dplyr::case_when(
+      # siste dato er nyeste dato --> nyeste mnd er komlett
+      siste_dato_innevarende_mnd == nyeste_reg ~ 
+        nyeste_reg, 
       
+      # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
+      siste_dato_innevarende_mnd != nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, "month") - 
+        lubridate::days(1), 
       
-      # SISTE DATO AVGJØR SISTE MÅNED: 
-      siste_dato_innevarende_mnd = lubridate::ceiling_date(
-        x = nyeste_reg, unit =  "month") - lubridate::days(1),
+      TRUE ~ as.Date(NA_character_)),
+    
+    
+    
+    
+    # SISTE DATO AVGJØR SISTE KVARTAL
+    siste_dato_innevarende_kvartal = lubridate::ceiling_date(
+      x = nyeste_reg, 
+      unit =  "quarter") - lubridate::days(1),
+    
+    kvartal_komplett_start = dplyr::case_when(
+      # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
+      siste_dato_innevarende_kvartal == nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, 
+                              unit =  "quarter"), 
       
-      siste_dato = dplyr::case_when(
-        # siste dato er nyeste dato --> nyeste mnd er komlett
-        siste_dato_innevarende_mnd == nyeste_reg ~ 
-          nyeste_reg, 
-        
-        # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
-        siste_dato_innevarende_mnd != nyeste_reg ~ 
-          lubridate::floor_date(nyeste_reg, "month") - 
-          lubridate::days(1), 
-        
-        TRUE ~ as.Date(NA_character_)),
+      # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+      siste_dato_innevarende_kvartal != nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, 
+                              unit =  "quarter") - months(3), 
       
-      
-      
-      
-      # SISTE DATO AVGJØR SISTE KVARTAL
-      siste_dato_innevarende_kvartal = lubridate::ceiling_date(
-        x = nyeste_reg, 
-        unit =  "quarter") - lubridate::days(1),
-      
-      kvartal_komplett_start = dplyr::case_when(
-        # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
-        siste_dato_innevarende_kvartal == nyeste_reg ~ 
-          lubridate::floor_date(nyeste_reg, 
-                                unit =  "quarter"), 
-        
-        # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
-        siste_dato_innevarende_kvartal != nyeste_reg ~ 
-          lubridate::floor_date(nyeste_reg, 
-                                unit =  "quarter") - months(3), 
-        
-        TRUE ~ as.Date(NA_character_)),
-      
-      
-      
-      # Inneværende år: 
-      nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
-      
-      # Fjoråret
-      sisteHeleYear = nyesteRegYear - 1, 
-
-      # Inneværende måned i år: 
-      nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
-      
-      # Første dato for SQL -spørring : 01. januar fjoråret
-      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-                             format = "%Y-%m-%d"), 
-      
-      # Aortaklaff + Segment stent (indikator per kvartal): 
-      forste_dato_kvartal = as.Date(paste0(sisteHeleYear - 1, "-01-01"),
+      TRUE ~ as.Date(NA_character_)),
+    
+    
+    
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = nyesteRegYear - 1, 
+    
+    # Inneværende måned i år: 
+    nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
+    
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                           format = "%Y-%m-%d"), 
+    
+    # Aortaklaff + Segment stent (indikator per kvartal): 
+    forste_dato_kvartal = as.Date(paste0(sisteHeleYear - 1, "-01-01"),
                                   format = "%Y-%m-%d")
-    ) %>% 
-    dplyr::select(-siste_dato_innevarende_mnd, 
-                  -siste_dato_innevarende_kvartal)
-  
+  ) %>% 
+  dplyr::select(-siste_dato_innevarende_mnd, 
+                -siste_dato_innevarende_kvartal)
+
 
 
 
@@ -193,8 +193,8 @@ timeTableMonth_aar <- data.frame(
                   by = "month")) %>% 
   dplyr::transmute(maaned = as.factor(format(x = monthDato, 
                                              format = "%Y-%m"))) %>% 
-    dplyr::transmute(
-      maaned = as.ordered(maaned))
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
 
 
 
@@ -205,7 +205,7 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
                               "%d/%m-%Y"))
 
 siste_dato_txt <- format(x = periode_data$siste_dato,
-                        format = "%d/%m-%Y")
+                         format = "%d/%m-%Y")
 ```
 
 
@@ -219,16 +219,16 @@ if (params$registryName %in% "noric_nasjonal") {
                              fromDate  = periode_data$forste_dato,
                              toDate = periode_data$siste_dato,
                              singleRow = FALSE, 
-                             singleHospital = params$reshID)
+                             singleHospital = params$reshId)
   
-  } else{
-    # SPørring til LOKAL database. 
-    # Kun et sykehus, som er registry name
-    AK <- noric::getPrepAkData(registryName = params$registryName,
-                               fromDate  = periode_data$forste_dato,
-                               toDate = periode_data$siste_dato,
-                               singleRow = FALSE, 
-                               singleHospital = NULL)
+} else{
+  # SPørring til LOKAL database. 
+  # Kun et sykehus, som er registry name
+  AK <- noric::getPrepAkData(registryName = params$registryName,
+                             fromDate  = periode_data$forste_dato,
+                             toDate = periode_data$siste_dato,
+                             singleRow = FALSE, 
+                             singleHospital = NULL)
 }   
 
 
@@ -255,7 +255,7 @@ AK %<>%
                                      "Subakutt", 
                                      "Akutt", 
                                      NA_character_)), 
-       
+    
     OperativTilgang = factor(x = OperativTilgang, 
                              levels = c("Transfemoral", 
                                         "A.subclavia", 
@@ -282,25 +282,25 @@ AK %<>%
         is.na(TypeKlaffeprotese) ~ NA_character_), 
       levels = c("Edwards", "CoreValve", "NAVITOR", "Annet", NA_character_)), 
     
-      Maaned = factor(maaned_nr, 
+    Maaned = factor(maaned_nr, 
                     levels = c("01", "02", "03", "04", "05", "06", "07", 
                                "08", "09", "10", "11", "12"),
                     labels = c("Jan", "Feb", "Mars", "April", "Mai", 
                                "Juni", "Juli", "Aug", "Sept", "Okt", 
                                "Nov", "Des")), 
     
-      KlaffIKlaff = factor(x = KlaffIKlaff, 
-                          levels = c("Nei",
-                                     "Ja", 
-                                     NA_character_)), 
+    KlaffIKlaff = factor(x = KlaffIKlaff, 
+                         levels = c("Nei",
+                                    "Ja", 
+                                    NA_character_)), 
     
-     ParavalvularInsuffisiens = factor(x = ParavalvularInsuffisiens, 
-                          levels = c("Ingen/trace",
-                                     "Liten", 
-                                     "Moderat",
-                                     "Stor",
-                                     "Ukjent",
-                                     NA_character_)), 
+    ParavalvularInsuffisiens = factor(x = ParavalvularInsuffisiens, 
+                                      levels = c("Ingen/trace",
+                                                 "Liten", 
+                                                 "Moderat",
+                                                 "Stor",
+                                                 "Ukjent",
+                                                 NA_character_)), 
     
     LabKompVaskular_janei = factor(
       x = dplyr::case_when(
@@ -320,7 +320,7 @@ AK %<>%
     LabKompEmboli_janei = factor(
       x = dplyr::case_when(
         LabKompEmboli %in% c("Ja, til aorta",
-                               "Ja, til kammere") ~ "Ja", 
+                             "Ja, til kammere") ~ "Ja", 
         TRUE ~ NA_character_), 
       levels = c("Ja", NA_character_)), 
     
@@ -330,14 +330,14 @@ AK %<>%
         TRUE ~ NA_character_), 
       levels = c("Ja", NA_character_)), 
     
-        
+    
     AvdKompBlodning_major = factor(
       x = dplyr::case_when(
         AvdKompBlodningGrad %in% c("Blødning Major") ~ "Ja", 
         TRUE ~ NA_character_), 
       levels = c("Ja", NA_character_)), 
     
-        
+    
     AvdKompBlodning_minor = factor(
       x = dplyr::case_when(
         AvdKompBlodningGrad %in% c("Blødning Minor") ~ "Ja", 
@@ -345,7 +345,7 @@ AK %<>%
       levels = c("Ja", NA_character_)), 
     
     
-  AvdKompInfeksjon_janei = factor(
+    AvdKompInfeksjon_janei = factor(
       x = dplyr::case_when(
         AvdKompInfeksjon %in% c("Annen alvorlig infeksjon", 
                                 "Pneumoni", 
@@ -353,21 +353,21 @@ AK %<>%
         TRUE ~ NA_character_), 
       levels = c("Ja", NA_character_))
     
-    ) %>% 
+  ) %>% 
   noric::legg_til_ventetid_tavi() %>% 
   noric::legg_til_liggedogn_tavi() %>% 
   noric::ki_ak_pacemakerbehov() %>% 
   dplyr::mutate(indik_pacemakerbehov = factor(x = indik_pacemakerbehov, 
-                          levels = c("nei",
-                                     "ja", 
-                                     "ikke ferdigstilt",
-                                     NA_character_)))
+                                              levels = c("nei",
+                                                         "ja", 
+                                                         "ikke ferdigstilt",
+                                                         NA_character_)))
 
 ```
 
 ```{r }
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.1)  # set progress to 10%
+  shiny::setProgress(0.1)  # set progress to 10%
 ```
 
 
@@ -446,10 +446,10 @@ df_cumplot <- merge(
 
 
 
-      
 
 
-  
+
+
 tot_fjor <- df_cumplot %>% 
   dplyr::filter(aar == periode_data$sisteHeleYear) %>% 
   dplyr::pull(Total) %>%
@@ -465,12 +465,12 @@ ylim <- c(0,
           ceiling(max(df_cumplot$max_tota, na.rm = TRUE)/50)*50)
 
 ggplot2::ggplot(df_cumplot) +
-    ggplot2::geom_line(
-      mapping = ggplot2::aes(x = Maaned, 
-                             y = Total, 
-                             group = aar, 
-                             colour =aar), 
-      linewidth = 1.5) + 
+  ggplot2::geom_line(
+    mapping = ggplot2::aes(x = Maaned, 
+                           y = Total, 
+                           group = aar, 
+                           colour =aar), 
+    linewidth = 1.5) + 
   ggplot2::scale_color_manual(
     name = "",
     values = c(colPrimary[3], colKontrast), 
@@ -483,13 +483,13 @@ ggplot2::ggplot(df_cumplot) +
                     y = tot_fjor * 0.95,
                     label = tot_fjor,
                     colour = colPrimary[3]) +
-
-     ggplot2::annotate(geom = "label", 
-                       x= periode_data$nyesteRegMnd,
-                       y = tot_aar * 0.95,
-                       label = tot_aar,
-                     colour = colKontrast) +
-
+  
+  ggplot2::annotate(geom = "label", 
+                    x= periode_data$nyesteRegMnd,
+                    y = tot_aar * 0.95,
+                    label = tot_aar,
+                    colour = colKontrast) +
+  
   ggplot2::xlab("") + 
   ggplot2::ylim(ylim) +
   ggplot2::ylab("Kumulert antall prosedyrer") + 
@@ -499,7 +499,7 @@ ggplot2::ggplot(df_cumplot) +
                  axis.title = ggplot2::element_text(size = 12), 
                  legend.text = ggplot2::element_text(size = 12), 
                  legend.position = "top")
-  
+
 
 
 ```
@@ -549,7 +549,7 @@ TabPros_aar <- merge(
   by.y = "maaned", 
   all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
-                                            periode_data$nyesteRegYear)) %>% 
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -585,15 +585,15 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14, 
                           end_row = dim(TabPros)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   TabPros %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
+                              font_size = 8) %>% 
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
     kableExtra::row_spec(row=dim(TabPros)[1]-1, hline_after =  TRUE) %>%
@@ -603,8 +603,8 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14, 
                           end_row = dim(TabPros)[1])
-
-
+  
+  
 }
 
 ```
@@ -654,7 +654,7 @@ TabHast_aar <- merge(
   by.y = "maaned", 
   all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
-                                            periode_data$nyesteRegYear)) %>% 
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -690,15 +690,15 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14, 
                           end_row = dim(TabHast)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   TabHast %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
+                              font_size = 8) %>% 
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
     kableExtra::row_spec(row=dim(TabHast)[1]-1, hline_after =  TRUE) %>%
@@ -708,8 +708,8 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14, 
                           end_row = dim(TabHast)[1])
-
-
+  
+  
 }
 
 
@@ -729,7 +729,7 @@ if (params$tableFormat == "html") {
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.2)  
+  shiny::setProgress(0.2)  
 ```
 
 
@@ -774,7 +774,7 @@ TabOpTilg_aar <- merge(
   by.y = "maaned", 
   all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
-                                            periode_data$nyesteRegYear)) %>% 
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -813,16 +813,16 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(TabOpTilg)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   TabOpTilg %>% 
     dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
+                              font_size = 8) %>% 
     kableExtra::row_spec(row = 12, hline_after = TRUE) %>%
     kableExtra::row_spec(row = 13, hline_after = TRUE)%>%
     kableExtra::row_spec(row = dim(TabOpTilg)[1] - 1, hline_after =  TRUE) %>%
@@ -834,8 +834,8 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(TabOpTilg)[1])
-
-
+  
+  
 }
 ```
 
@@ -843,7 +843,7 @@ if (params$tableFormat == "html") {
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.3)  
+  shiny::setProgress(0.3)  
 ```
 
 
@@ -892,7 +892,7 @@ TabTypeKlaff_aar <- merge(
   by.y = "maaned", 
   all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
-                                            periode_data$nyesteRegYear)) %>% 
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -931,15 +931,15 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(TabTypeKlaff)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   TabTypeKlaff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
+                              font_size = 8) %>% 
     kableExtra::row_spec(row = 12, hline_after = TRUE) %>%
     kableExtra::row_spec(row = 13, hline_after = TRUE)%>%
     kableExtra::row_spec(row = dim(TabTypeKlaff)[1] - 1,
@@ -952,8 +952,8 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(TabTypeKlaff)[1])
-
-
+  
+  
 }
 ```
 
@@ -1035,7 +1035,7 @@ klaffiklaff_aar <- merge(
   by.y = "maaned", 
   all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
-                                            periode_data$nyesteRegYear)) %>% 
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -1074,15 +1074,15 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(klaffiklaff)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   klaffiklaff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
+                              font_size = 8) %>% 
     kableExtra::row_spec(row = 12, hline_after = TRUE) %>%
     kableExtra::row_spec(row = 13, hline_after = TRUE)%>%
     kableExtra::row_spec(row = dim(klaffiklaff)[1] - 1, 
@@ -1095,8 +1095,8 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(klaffiklaff)[1])
-
-
+  
+  
 }
 ```
 
@@ -1104,7 +1104,7 @@ if (params$tableFormat == "html") {
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.5) 
+  shiny::setProgress(0.5) 
 ```
 
 
@@ -1149,7 +1149,7 @@ paraInsuff_aar <- merge(
   by.y = "maaned", 
   all.x = TRUE) %>%
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
-                                            periode_data$nyesteRegYear)) %>%
+                                             periode_data$nyesteRegYear)) %>%
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>%
   dplyr::relocate("aar", .before = "maaned")
 
@@ -1185,15 +1185,15 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14,
                           end_row = dim(paraInsuff)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   paraInsuff %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position",
-                             font_size = 8) %>%
+                              font_size = 8) %>%
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
     kableExtra::row_spec(row=dim(paraInsuff)[1]-1, hline_after =  TRUE) %>%
@@ -1203,8 +1203,8 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14,
                           end_row = dim(paraInsuff)[1])
-
-
+  
+  
 }
 ```
 
@@ -1246,7 +1246,7 @@ pasient.
 fig_df_kompLab <- AK %>%
   dplyr::select(
     aar,
-
+    
     LabKompArytmi,
     LabKompNeurologi,
     LabKompTamponade,
@@ -1328,7 +1328,7 @@ fig_df_kompLab2 <-
 
 # PLOT
 ggplot2::ggplot(data = fig_df_kompLab2) +
-    
+  
   ggplot2::geom_bar(
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
                            y = Ja, 
@@ -1393,7 +1393,7 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-      
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompVaskular_janei %in% "Ja") %>% 
@@ -1402,7 +1402,7 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompBlodning %in% "Ja") %>% 
@@ -1420,7 +1420,7 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompAkuttVaskular %in% "Ja") %>% 
@@ -1438,8 +1438,8 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
-   
+  
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompAnestesi %in% "Ja") %>% 
@@ -1448,7 +1448,7 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompHLMaskin_janei %in% "Ja") %>% 
@@ -1457,8 +1457,8 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-    merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompProtese %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1466,8 +1466,8 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompEmboli_janei %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1475,8 +1475,8 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompAnnenKomp %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1485,7 +1485,7 @@ labKomp_fjor <- merge(
         by.y = "maaned", 
         all.x = TRUE) %>% 
   
-      merge(x = ., 
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompDod %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1493,7 +1493,7 @@ labKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
+  
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
   dplyr::mutate(aar = periode_data$sisteHeleYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
@@ -1529,7 +1529,7 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-      
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompVaskular_janei %in% "Ja") %>% 
@@ -1538,7 +1538,7 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompBlodning %in% "Ja") %>% 
@@ -1556,7 +1556,7 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompAkuttVaskular %in% "Ja") %>% 
@@ -1574,8 +1574,8 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
-   
+  
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompAnestesi %in% "Ja") %>% 
@@ -1584,7 +1584,7 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompHLMaskin_janei %in% "Ja") %>% 
@@ -1593,8 +1593,8 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-    merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompProtese %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1602,8 +1602,8 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompEmboli_janei %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1611,8 +1611,8 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompAnnenKomp %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1621,7 +1621,7 @@ labKomp_aar <- merge(
         by.y = "maaned", 
         all.x = TRUE) %>% 
   
-      merge(x = ., 
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(LabKompDod %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1629,7 +1629,7 @@ labKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
+  
   janitor::adorn_totals("row", name = paste0("Totalt i ", periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
@@ -1676,16 +1676,16 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(labKompTot)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   labKompTot %>% dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
-        kableExtra::row_spec(row = 0, angle = 90) %>% 
+                              font_size = 8) %>% 
+    kableExtra::row_spec(row = 0, angle = 90) %>% 
     kableExtra::row_spec(row = 12, hline_after = TRUE) %>%
     kableExtra::row_spec(row = 13, hline_after = TRUE)%>%
     kableExtra::row_spec(row = dim(labKompTot)[1] - 1, 
@@ -1698,8 +1698,8 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(labKompTot)[1])
-
-
+  
+  
 }
 
 
@@ -1808,14 +1808,14 @@ fig_df_kompAvd2 <-
 
 # PLOT
 ggplot2::ggplot(data = fig_df_kompAvd2) +
-    
+  
   ggplot2::geom_bar(
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
                            y = Ja, 
                            alpha= aar),  
-        stat="identity",
-        width = 0.75, 
-        position = ggplot2::position_dodge(preserve = "single"), 
+    stat="identity",
+    width = 0.75, 
+    position = ggplot2::position_dodge(preserve = "single"), 
     fill = colPrimary[4]) +
   
   ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
@@ -1860,16 +1860,16 @@ avdKomp_fjor <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
- merge(x = ., 
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Moderate sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hjerneslag- moderate sekveler" = n),  
         by.x  = "maaned", 
         by.y = "maaned", 
-       all.x = TRUE) %>% 
-
-   merge(x = ., 
+        all.x = TRUE) %>% 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Lette sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1886,7 +1886,7 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-      
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompTamponade %in% "Ja") %>% 
@@ -1895,7 +1895,7 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned",
         all.x = TRUE) %>% 
-        
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompPacemaker %in% "Ja") %>% 
@@ -1913,7 +1913,7 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerteinfarkt %in% "Ja") %>% 
@@ -1931,7 +1931,7 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_fatal %in% "Ja") %>% 
@@ -1957,8 +1957,8 @@ avdKomp_fjor <- merge(
         by.y = "maaned", 
         all.x = TRUE) %>% 
   
-
-    merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Pneumoni")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1966,8 +1966,8 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-    merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Urinveisinfeksjon")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1975,8 +1975,8 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Annen alvorlig infeksjon")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1984,9 +1984,9 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
   
-    merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompDialyse %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -1994,8 +1994,8 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned",
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompDod %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2003,8 +2003,8 @@ avdKomp_fjor <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompAnnenKomp %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2029,16 +2029,16 @@ avdKomp_aar <- merge(
   by.x  = "maaned", 
   by.y = "maaned", 
   all.x = TRUE) %>% 
- merge(x = ., 
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Moderate sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
           dplyr::rename("Hjerneslag- moderate sekveler" = n),  
         by.x  = "maaned", 
         by.y = "maaned", 
-       all.x = TRUE) %>% 
-
-   merge(x = ., 
+        all.x = TRUE) %>% 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerneslagGrad %in% "Lette sekveler") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2055,7 +2055,7 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-      
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompTamponade %in% "Ja") %>% 
@@ -2064,7 +2064,7 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompPacemaker %in% "Ja") %>% 
@@ -2082,7 +2082,7 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompHjerteinfarkt %in% "Ja") %>% 
@@ -2100,8 +2100,8 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-        
-
+  
+  
   merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompBlodning_fatal %in% "Ja") %>% 
@@ -2127,8 +2127,8 @@ avdKomp_aar <- merge(
         by.y = "maaned", 
         all.x = TRUE) %>% 
   
-
-    merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Pneumoni")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2136,8 +2136,8 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-    merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Urinveisinfeksjon")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2145,8 +2145,8 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompInfeksjon %in% c("Annen alvorlig infeksjon")) %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2154,9 +2154,9 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
   
-    merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompDialyse %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2164,8 +2164,8 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompDod %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2173,8 +2173,8 @@ avdKomp_aar <- merge(
         by.x  = "maaned", 
         by.y = "maaned", 
         all.x = TRUE) %>% 
-
-      merge(x = ., 
+  
+  merge(x = ., 
         y = AK %>%  
           dplyr::filter(AvdKompAnnenKomp %in% "Ja") %>% 
           dplyr::count(maaned, .drop = FALSE) %>% 
@@ -2228,17 +2228,17 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(avdKompTot)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   avdKompTot %>% 
     dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
-        kableExtra::row_spec(row = 0, angle = 90) %>% 
+                              font_size = 8) %>% 
+    kableExtra::row_spec(row = 0, angle = 90) %>% 
     kableExtra::row_spec(row = 12, hline_after = TRUE) %>%
     kableExtra::row_spec(row = 13, hline_after = TRUE)%>%
     kableExtra::row_spec(row = dim(avdKompTot)[1] - 1,
@@ -2251,8 +2251,8 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(avdKompTot)[1])
-
-
+  
+  
 }
 
 
@@ -2294,14 +2294,14 @@ AK %>%
   dplyr::filter(ForlopsType2 == "Planlagt", 
                 !is.na(ventetid_tavi)) %>% 
   dplyr::select(ventetid_tavi, Maaned, aar) %>% 
-    ggplot2::ggplot(mapping= ggplot2::aes(x = Maaned, 
-                                          y = ventetid_tavi)) +
-    ggplot2::geom_boxplot(
-        ggplot2::aes(alpha = aar, 
-                     colour = aar), 
-        na.rm = TRUE, 
-        fill = colPrimary[4],
-        position = ggplot2::position_dodge(preserve= "single"), ) +
+  ggplot2::ggplot(mapping= ggplot2::aes(x = Maaned, 
+                                        y = ventetid_tavi)) +
+  ggplot2::geom_boxplot(
+    ggplot2::aes(alpha = aar, 
+                 colour = aar), 
+    na.rm = TRUE, 
+    fill = colPrimary[4],
+    position = ggplot2::position_dodge(preserve= "single"), ) +
   ggplot2::scale_x_discrete(drop = FALSE) +
   ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
   ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
@@ -2325,7 +2325,7 @@ AK %>%
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.6) 
+  shiny::setProgress(0.6) 
 ```
 
 
@@ -2366,7 +2366,7 @@ utskrTil_aar <- merge(
   by.y = "maaned", 
   all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
-                                            periode_data$nyesteRegYear)) %>% 
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -2405,16 +2405,16 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(utskrTil)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   utskrTil %>% 
     dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
+                              font_size = 8) %>% 
     kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
     kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
     kableExtra::row_spec(row=dim(utskrTil)[1]-1, hline_after =  TRUE) %>%
@@ -2424,8 +2424,8 @@ if (params$tableFormat == "html") {
     kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
                           start_row = 14, 
                           end_row = dim(utskrTil)[1])
-
-
+  
+  
 }
 ```
 
@@ -2437,7 +2437,7 @@ if (params$tableFormat == "html") {
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.7) 
+  shiny::setProgress(0.7) 
 ```
 
 
@@ -2464,14 +2464,14 @@ AK %>%
                 liggedogn_tavi>= 0, 
                 liggedogn_tavi <=30) %>% 
   dplyr::select(liggedogn_tavi, UtskrevetTil, aar) %>% 
-    ggplot2::ggplot(mapping= ggplot2::aes(x = UtskrevetTil, 
-                                          y = liggedogn_tavi)) +
-    ggplot2::geom_boxplot(
-        ggplot2::aes(alpha = aar, 
-                     colour = aar), 
-        na.rm = TRUE, 
-        fill = colPrimary[4],
-        position = ggplot2::position_dodge(preserve= "single")) +
+  ggplot2::ggplot(mapping= ggplot2::aes(x = UtskrevetTil, 
+                                        y = liggedogn_tavi)) +
+  ggplot2::geom_boxplot(
+    ggplot2::aes(alpha = aar, 
+                 colour = aar), 
+    na.rm = TRUE, 
+    fill = colPrimary[4],
+    position = ggplot2::position_dodge(preserve= "single")) +
   ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
   ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
   ggplot2::ylim(0, 30)+
@@ -2497,7 +2497,7 @@ AK %>%
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.8) 
+  shiny::setProgress(0.8) 
 ```
 
 
@@ -2545,7 +2545,7 @@ pmBeh_aar <- merge(
   by.y = "maaned", 
   all.x = TRUE) %>% 
   janitor::adorn_totals("row", name = paste0("Totalt hittil i ",
-                                            periode_data$nyesteRegYear)) %>% 
+                                             periode_data$nyesteRegYear)) %>% 
   dplyr::mutate(aar = periode_data$nyesteRegYear) %>% 
   dplyr::relocate("aar", .before = "maaned") 
 
@@ -2584,16 +2584,16 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(pmBeh)[1])
-
+  
 } else if (params$tableFormat == "latex") {
   pmBeh %>% 
     dplyr::select(-aar) %>% rename(" " = "maaned") %>% 
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = "r") %>%
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
     kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8) %>% 
+                              font_size = 8) %>% 
     kableExtra::row_spec(row = 12, hline_after = TRUE) %>%
     kableExtra::row_spec(row = 13, hline_after = TRUE)%>%
     kableExtra::row_spec(row = dim(pmBeh)[1] - 1, hline_after = TRUE) %>%
@@ -2605,8 +2605,8 @@ if (params$tableFormat == "html") {
       group_label = as.character(periode_data$nyesteRegYear),
       start_row = 14, 
       end_row = dim(pmBeh)[1])
-
-
+  
+  
 }
 ```
 
@@ -2615,7 +2615,7 @@ if (params$tableFormat == "html") {
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.9) 
+  shiny::setProgress(0.9) 
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -2630,161 +2630,129 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 ```{r GetData2, include=FALSE, cache=FALSE}
 
 # 10 år tilbake i tid, men ikke lenger tilbake enn 2017 (nasj. dekning). 
-fromDate <- max(
-  as.Date(paste0(periode_data$nyesteRegYear - 9, "-01-01"), 
-          format = "%Y-%m-%d"),
-  as.Date("2017-01-01", 
-          format = "%Y-%m-%d")) 
-  
-
+fromDate <- max(as.Date(paste0(periode_data$nyesteRegYear - 9, "-01-01"), 
+                        format = "%Y-%m-%d"),
+                as.Date("2017-01-01", format = "%Y-%m-%d")) 
 toDate <- periode_data$siste_dato
 
 
+query <- paste0(
+ "SELECT 
+   CASE
+     WHEN IFNULL(patient.GENDER,0) = 0 THEN 'Ikke angitt'
+     WHEN patient.GENDER = 1 THEN 'Mann'
+     WHEN patient.GENDER = 2 THEN 'Kvinne'
+     ELSE 'Ukjent'
+   END AS PasientKjonn,
+   
+   patient.BIRTH_DATE AS FodselsDato,  
+   mce.INTERDAT AS ProsedyreDato, 
+   mce.CENTREID AS AvdRESH
+ FROM mce 
+   INNER JOIN patient ON mce.PATIENT_ID = patient.ID  
+ WHERE 
+   mce.INTERVENTION_TYPE = 5 AND ", 
+  "mce.INTERDAT >= '", fromDate, "' AND
+   mce.INTERDAT <= '", toDate, "'" )
 
-if(params$registryName %in% "noric_nasjonal"){
-  # SPørring til NASJONAL database. 
-  # Kun utvalgt sykehus
-  query <- paste0(
-  
-  "SELECT aortaklaffvarnum.AvdRESH, 
-          aortaklaffvarnum.ForlopsID, 
-          aortaklaffvarnum.ProsedyreDato, 
-          forlopsoversikt.PasientKjonn,
-          forlopsoversikt.PasientAlder
-    FROM
-          aortaklaffvarnum
-    LEFT JOIN forlopsoversikt ON
-          aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
-          aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
-   WHERE
-         ProsedyreDato >= '", fromDate, "' AND
-         ProsedyreDato <= '", toDate, "'", 
-   "AND aortaklaffvarnum.AvdRESH = ", params$reshID, 
-   ";")
+if(params$registryName %in% "noric_nasjonal") {
+  query <- paste0(query, " AND mce.CENTREID = '", params$reshId, "' ")
+}
+query <- paste0(query, " ;")
 
-    AK_alderKjonnnum <- rapbase::loadRegData(
-      registryName = params$registryName,
-      query = query)
-    AK_alderKjonn <- noric::erstatt_koder_m_etiketter(
-      AK_alderKjonnnum,
-      mapping = noric::aort_map_num_tekst)
-
-  
-  
-  } else{
-    # SPørring til LOKAL database. 
-    # Kun et sykehus, som er registry name
-      query <- paste0(
-  
-  "SELECT aortaklaffvarnum.AvdRESH, 
-          aortaklaffvarnum.ForlopsID, 
-          aortaklaffvarnum.ProsedyreDato, 
-          forlopsoversikt.PasientKjonn,
-          forlopsoversikt.PasientAlder
-    FROM
-          aortaklaffvarnum
-    LEFT JOIN forlopsoversikt ON
-          aortaklaffvarnum.AvdRESH = forlopsoversikt.AvdRESH AND
-          aortaklaffvarnum.ForlopsID = forlopsoversikt.ForlopsID
-   WHERE
-         ProsedyreDato >= '", fromDate, "' AND
-         ProsedyreDato <= '", toDate, "'", 
-   ";")
-
-    AK_alderKjonnnum <- rapbase::loadRegData(
-      registryName = params$registryName,
-      query = query)
-    AK_alderKjonn <- noric::erstatt_koder_m_etiketter(
-      AK_alderKjonnnum,
-      mapping = noric::aort_map_num_tekst)
-
-  
-}   
-
-AK_alderKjonn %<>% noric::legg_til_tidsvariabler() %>% 
+AK_alderKjonn <- rapbase::loadRegData(params$registryName, query) %>%
+  noric::utlede_alder(.) %>%
+  noric::legg_til_tidsvariabler() %>%
   dplyr::mutate(PasientKjonn2 = factor(
     x = dplyr::case_when(PasientKjonn == "Mann" ~ "Menn",
-                         PasientKjonn == "Kvinne" ~ "Kvinner", 
+                         PasientKjonn == "Kvinne" ~ "Kvinner",
                          TRUE  ~ NA_character_),
-    levels = c("Kvinner", "Menn"))) 
+    levels = c("Kvinner", "Menn")))
 
 ```
 
+<!-- forløp registrert ved `r params$hospitalName`.  -->
+<!-- Resh id er `r params$reshId` og userRole er  `r params$userRole`.  -->
+
+
+<!-- Query `r query`.  -->
 
 
 ## Kjønnsfordeling
+
+
 
 ```{r alderKjonnTabell}
 cap <- paste0("Antall (andel) behandlede kvinner og menn i perioden fra ",
               fromDate," til ", toDate, ".")
 
-tab_kjonn <-  AK_alderKjonn %>%  
-  dplyr::count(aar, PasientKjonn2) %>% 
-  tidyr::pivot_wider(names_from = PasientKjonn2, values_from = n) %>% 
+tab_kjonn <-  AK_alderKjonn %>%
+  dplyr::count(aar, PasientKjonn2) %>%
+  tidyr::pivot_wider(names_from = PasientKjonn2, values_from = n) %>%
   janitor::adorn_percentages() %>%
-  janitor::adorn_totals("col", name = "Totalt") %>% 
-  janitor::adorn_pct_formatting(digits = 0) %>% 
-  janitor::adorn_ns(position = "front") 
+  janitor::adorn_totals("col", name = "Totalt") %>%
+  janitor::adorn_pct_formatting(digits = 0) %>%
+  janitor::adorn_ns(position = "front")
 
 align <- c("l", rep("c", dim(tab_kjonn)[2] - 1))
 
 
 if (params$tableFormat == "html") {
-  tab_kjonn %>% rename(" " = "aar") %>% 
+  tab_kjonn %>% rename(" " = "aar") %>%
     knitr::kable(caption = cap, align = align) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped",
                                                     "hover",
                                                     "condensed"),
-                              full_width = FALSE, 
+                              full_width = FALSE,
                               font_size = 8) %>%
-    kableExtra::column_spec(column = 1, width = "7em") 
+    kableExtra::column_spec(column = 1, width = "7em")
 } else if (params$tableFormat == "latex") {
-  tab_kjonn %>% rename(" " = "aar") %>% 
+  tab_kjonn %>% rename(" " = "aar") %>%
     knitr::kable(format = params$tableFormat,
-               caption = cap,
-               booktabs = TRUE,
-               align = align) %>%
-    kableExtra::kable_styling(latex_options = "HOLD_position", 
-                             font_size = 8)
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = align) %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position",
+                              font_size = 8)
 
 }
 ```
 
 ## Aldersfordeling
-**Forklaring boxplot:** 
+**Forklaring boxplot:**
 Boxplotet viser fordeling av pasientens alder på prosedyretidspunktet, for
-kvinner og menn de siste årene. 
-Medianverdien er markert av den tykke linjen midt i boksen. 
+kvinner og menn de siste årene.
+Medianverdien er markert av den tykke linjen midt i boksen.
 De blå boksene inneholder halvparten av registreringene og
-er avgrenset av nedre (25%) og øvre (75%) kvartil. 
-Bredden på boksen kalles interkvartil bredde (IQR). 
+er avgrenset av nedre (25%) og øvre (75%) kvartil.
+Bredden på boksen kalles interkvartil bredde (IQR).
 De vertikale greinene viser minste og største verdi i datasettet innenfor
-henholdsvis 1,5 x IQR under nedre kvartil og 
-1.5 x IQR over øvre kvartil. 
+henholdsvis 1,5 x IQR under nedre kvartil og
+1.5 x IQR over øvre kvartil.
 Punktene utenfor greinene viser uteliggere,
-det vil si forløp med usedvanlig lav eller høy alder. 
+det vil si forløp med usedvanlig lav eller høy alder.
 
 ```{r figalderkjonn, fig.cap = paste0("Pasientens alder ved prosedyren, for kvinner og menn, per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 
-AK_alderKjonn %>% 
+AK_alderKjonn %>%
   dplyr::filter(!is.na(PasientKjonn),
                 !is.na(PasientAlder),
                 PasientAlder >= 18,
                 PasientAlder <= 100) %>%
   dplyr::select(PasientAlder, PasientKjonn, aar) %>%
-    ggplot2::ggplot(mapping= ggplot2::aes(x = aar, 
-                                          y = PasientAlder)) +
-    ggplot2::geom_boxplot(
-        ggplot2::aes(fill = PasientKjonn), 
-        na.rm = TRUE)+ 
+  ggplot2::ggplot(mapping= ggplot2::aes(x = aar,
+                                        y = PasientAlder)) +
+  ggplot2::geom_boxplot(
+    ggplot2::aes(fill = PasientKjonn),
+    na.rm = TRUE)+
   ggplot2::scale_fill_manual("", values = c(colPrimary[6], colPrimary[4])) +
   ggplot2::theme_minimal()  +
-  ggplot2::xlab("") + 
-  ggplot2::ylab("Alder") + 
+  ggplot2::xlab("") +
+  ggplot2::ylab("Alder") +
   ggplot2::theme(
     legend.text = ggplot2::element_text(size = 12),
-    axis.text = ggplot2::element_text(size = 12), 
+    axis.text = ggplot2::element_text(size = 12),
     axis.title = ggplot2::element_text(size = 12)
   )
 ```
@@ -2792,6 +2760,6 @@ AK_alderKjonn %>%
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(1.0) 
+  shiny::setProgress(1.0) 
 ```
 
