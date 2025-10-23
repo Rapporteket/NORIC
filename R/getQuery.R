@@ -2371,8 +2371,10 @@ paste0("
   mce.MCEID AS ForlopsID,
   mce.PATIENT_ID AS PasientID,
   mce.INTERDAT AS ProsedyreDato,
-  CAST((SELECT GROUP_CONCAT(CONCAT(diag.CODE, ' ', diag.VERSION)) FROM diagnose diag where diag.MCEID = mce.MCEID) AS CHAR(50)) AS UtskrDiagnoser
+  diagnose.CODE,
+  diagnose.VERSION
 
-  FROM mce 
-  WHERE mce.INTERVENTION_TYPE IN (1, 2, 3)
+  FROM  diagnose
+  LEFT JOIN mce ON diagnose.MCEID = mce.MCEID
+  ORDER BY  mce.MCEID ASC
   ")}

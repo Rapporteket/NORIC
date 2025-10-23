@@ -25,8 +25,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   . <- ""
   
   validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
-                  "MK", "PS", "SO", "SS", "TP", "taviperc", "regangio", 
-                  "UtskrDiagnoser")
+                  "MK", "PS", "SO", "SS", "TP", "taviperc", "regangio")
   
   if(registryName == "noric_bergen"){singleHospital <-  NULL}
   
@@ -42,16 +41,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                   query = "SELECT * FROM regangio;")
     }
     
-    if (setId == "UtskrDiagnoser") {
-      dat <- noric::getDk(registryName = registryName,
-                          fromDate = fromDate,
-                          toDate = toDate,
-                          singleRow = singleRow,
-                          session = session, 
-                          singleHospital = singleHospital)$dK
-    }
-    
-    
+
     if (setId == "ApLight") {
       dat <- noric::getPrepApLightData(registryName = registryName,
                                        fromDate = fromDate,

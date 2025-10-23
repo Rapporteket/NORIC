@@ -566,7 +566,8 @@ shinyServer(function(input, output, session) {
       "PasienterStudier",
       "SegmentStent",
       # "segment_history",
-      "SkjemaOversikt"
+      "SkjemaOversikt", 
+      "UtskrDiagnoser"
     )
   )
   

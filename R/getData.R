@@ -749,7 +749,7 @@ getDk <- function(registryName, fromDate, toDate, singleRow,
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
   query <- paste0(noric::queryDiagnose(),
-                  " AND
+                  " WHERE
                   mce.INTERDAT >= '", fromDate,  "' AND
                   mce.INTERDAT <= '", toDate, "' ")
   
