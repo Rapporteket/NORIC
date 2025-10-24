@@ -250,8 +250,7 @@ shinyServer(function(input, output, session) {
         `Skjemaoversikt` = "SO",
         `Segment stent` = "SS", 
         `taviperc raw test` = "taviperc", 
-        `regangio raw test` = "regangio" , 
-        `UtskrDiagnoser` = "UtskrDiagnoser"
+        `regangio raw test` = "regangio" 
         
       )
       # EPROM is only for nasjoanl

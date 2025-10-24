@@ -769,7 +769,8 @@ getDk <- function(registryName, fromDate, toDate, singleRow,
   }
   
   dK <- rapbase::loadRegData(registryName, query) %>%
-    noric::fikse_sykehusnavn(.)
+    noric::fikse_sykehusnavn(.) %>% 
+    dplyr::arrange(AvdRESH, ForlopsID)
 
   list(dK = dK)
 }

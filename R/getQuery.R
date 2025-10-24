@@ -426,8 +426,6 @@ queryAngiopcinum <- function(){
     D.INFARCTTYPE AS InfarktType,
     D.INFARCTCLASSIFICATION AS InfarktSubklasse,
   
-     -- CAST((SELECT GROUP_CONCAT(CONCAT(diag.CODE, ' ', diag.VERSION)) FROM diagnose diag where diag.MCEID = A.MCEID) AS CHAR(50)) AS UtskrDiagnoser,
-  
     P.SSN_TYPE AS FnrType,
     P.SSNSUBTYPE AS FnrSubtype,
     P.DECEASED  AS AvdodFReg,
@@ -440,12 +438,12 @@ queryAngiopcinum <- function(){
   	MCE.PARENT_MCEID AS PrimaerForlopsID,
 
     -- Study information
-    -- CAST((SELECT
-    --        GROUP_CONCAT(
-    --          IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-    --      FROM pasienterstudier PS
-    --      WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
-    --  AS Studie,  
+     CAST((SELECT
+            GROUP_CONCAT(
+              IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+          FROM pasienterstudier PS
+          WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
+      AS Studie,  
 
     I.STATUS AS SkjemaStatusStart,
     A.STATUS AS SkjemastatusHovedskjema,
@@ -2376,5 +2374,4 @@ paste0("
 
   FROM  diagnose
   LEFT JOIN mce ON diagnose.MCEID = mce.MCEID
-  ORDER BY  mce.MCEID ASC
   ")}
