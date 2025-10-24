@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.6.0</span>
       </span>
     </div>
 
@@ -41,6 +41,11 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="3.6.0" id="noric-360">noric 3.6.0<a class="anchor" aria-label="anchor" href="#noric-360"></a></h2>
+<ul><li>Fjerne view for Segment stent.</li>
+<li>Fjerne view for angiopcivarnum. Variabelen UtskDiagnose var svært ressurskrevende å hente ut med SQL (over 10 min). Fjerner denne fra getAp og lager egen tabell i datadump som inneholder en utndertabell med diagnoser ved utskrivelse (en rad per diagnose).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="3.5.0" id="noric-350">noric 3.5.0<a class="anchor" aria-label="anchor" href="#noric-350"></a></h2>
 <p>Entydig bruk av params$reshId i alle rapportert og reportProcessor. Fjerne bruk av view i tavi-rapporten (<a href="https://github.com/Rapporteket/NORIC/issues/241" class="external-link">#241</a>)</p>
