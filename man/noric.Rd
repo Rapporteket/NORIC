@@ -46,7 +46,7 @@ Artwork is accessed in the same way as for the noweb-files, \emph{e.g}
 Authors:
 \itemize{
   \item Mary Autenried \email{mary.gerina.autenried@helse-bergen.no}
-  \item Are Edvardsen \email{biorakel@gmail.com} (\href{https://orcid.org/0000-0002-5210-3656}{ORCID})
+  \item Arnfinn Hykkerud Steindal \email{Arnfinn.Hykkerud.Steindal@helse-nord.no}
 }
 
 }
