@@ -41,7 +41,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                   query = "SELECT * FROM regangio;")
     }
     
-    
+
     if (setId == "ApLight") {
       dat <- noric::getPrepApLightData(registryName = registryName,
                                        fromDate = fromDate,
