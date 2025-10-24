@@ -16,6 +16,7 @@
 \alias{getSo}
 \alias{getPs}
 \alias{getApLight}
+\alias{getDk}
 \title{Load data for NORIC}
 \usage{
 getAp(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
@@ -64,6 +65,8 @@ getApLight(
   singleHospital = NULL,
   ...
 )
+
+getDk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}

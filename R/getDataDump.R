@@ -24,7 +24,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              # "segment_history",
                              "MitralklaffVar",
                              "PasienterStudier", 
-                             "AortaklaffProm"))
+                             "AortaklaffProm", 
+                             "UtskrDiagnoser"))
   
   
   if (tableName %in% "AngioPCIVar"){
@@ -124,6 +125,15 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                                    toDate = toDate,
                                    singleRow = FALSE)
     tab <- tab_list$taviProm
+    
+  }
+  
+  if (tableName %in% "UtskrDiagnoser") {
+    tab_list <- noric::getDk(registryName = registryName,
+                                   fromDate = fromDate,
+                                   toDate = toDate,
+                                   singleRow = FALSE)
+    tab <- tab_list$dK
     
   }
 

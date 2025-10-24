@@ -16,6 +16,7 @@
 \alias{querySkjemaoversikt}
 \alias{queryPasienterstudier}
 \alias{queryApLight}
+\alias{queryDiagnose}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryAngiopcinum()
@@ -45,6 +46,8 @@ querySkjemaoversikt(fromDate, toDate)
 queryPasienterstudier()
 
 queryApLight()
+
+queryDiagnose()
 }
 \arguments{
 \item{fromDate}{Character string of format YYYY-MM-DD with start date. Value

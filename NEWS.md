@@ -1,3 +1,10 @@
+# noric 3.6.0
+* Fjerne view for Segment stent.
+* Fjerne view for angiopcivarnum.
+Variabelen UtskDiagnose var svært ressurskrevende å hente ut med SQL 
+(over 10 min). Fjerner denne fra getAp og lager egen tabell i datadump som
+inneholder en utndertabell med diagnoser ved utskrivelse (en rad per diagnose).
+
 # noric 3.5.0
 Entydig bruk av params$reshId i alle rapportert og reportProcessor. 
 Fjerne bruk av view i tavi-rapporten ([#241](https://github.com/Rapporteket/NORIC/issues/241))
