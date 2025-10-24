@@ -118,18 +118,9 @@ shinyServer(function(input, output, session) {
   
   
   # render file function for re-use
-  contentFile <- function(
-    file,
-    srcFile,
-    tmpFile,
-    type,
-    useReportProcessor = FALSE,
-    orgId,
-    orgName,
-    registryName = "noric",
-    userFullName,
-    userRole
-  ) {
+  contentFile <- function(file, srcFile, tmpFile, type, tableFormat,
+                          useReportProcessor = FALSE, orgId, orgName,
+                          registryName = "noric", userFullName, userRole) {
     
     src <- normalizePath(system.file(srcFile, package = "noric"))
     # temporarily switch to the temp dir, in case we do not have write
@@ -137,31 +128,6 @@ shinyServer(function(input, output, session) {
     owd <- setwd(tempdir())
     on.exit(setwd(owd))
     file.copy(src, tmpFile, overwrite = TRUE)
-    
-    if(!useReportProcessor){
-      out <- rmarkdown::render(
-        tmpFile,
-        output_format = switch(
-          type,
-          PDF = rmarkdown::pdf_document(),
-          HTML = rmarkdown::html_document(),
-          BEAMER = rmarkdown::beamer_presentation(theme = "Hannover"),
-          REVEAL = revealjs::revealjs_presentation(theme = "sky")),
-        
-        params = list(
-          tableFormat = switch(
-            type,
-            PDF = "latex",
-            HTML = "html",
-            BEAMER = "latex",
-            REVEAL = "html"),
-          hospitalName = hospitalName,
-          author = author,
-          reshId = reshId,
-          registryName = registryName),
-        output_dir = tempdir())
-    }
-    
     
     if(useReportProcessor){
       withProgress(message = 'Rendering, please wait!', {
@@ -179,8 +145,7 @@ shinyServer(function(input, output, session) {
           userRole = userRole,
           userOperator = "unknown operator",
           rendered_by_shiny = TRUE,
-          tableFormat = "latex"
-        )})
+          tableFormat = tableFormat)})
     }
     
     file.rename(out, file)
@@ -458,14 +423,19 @@ shinyServer(function(input, output, session) {
   
   # Samlerapporter
   output$prosedyrer <- renderUI({
-    htmlRenderRmd("NORIC_local_monthly.Rmd", params = list(
-      author = userFullName,
-      hospitalName = hospitalName(),
-      tableFormat = "html",
-      reshId = user$org(),
-      registryName = registryName()
-    ))
-  })
+    
+     contentFile(file = "noric_loacl_montly", 
+                srcFile = "NORIC_local_monthly.Rmd", 
+                tmpFile = basename(tempfile(fileext = ".Rmd")),
+                type = "html",
+                orgId = user$org(),
+                orgName = hospitalName(),
+                userFullName = user$fullName(),
+                userRole = user$role(),
+                registryName = registryName(),
+                useReportProcessor = TRUE, 
+                tableFormat = "html") 
+    })
   
   output$aktivitet <- renderUI({
     htmlRenderRmd("NORIC_local_monthly_activity.Rmd", params = list(
@@ -503,7 +473,8 @@ shinyServer(function(input, output, session) {
                   userFullName = user$fullName(),
                   userRole = user$role(),
                   registryName = registryName(),
-                  useReportProcessor = TRUE)
+                  useReportProcessor = TRUE, 
+                  tableFormat = "latex")
     }
   )
   
@@ -523,7 +494,8 @@ shinyServer(function(input, output, session) {
                   userFullName = user$fullName(),
                   userRole = user$role(),
                   registryName = registryName(),
-                  useReportProcessor = TRUE)
+                  useReportProcessor = TRUE, 
+                  tableFormat = "latex")
     }
   )
   
@@ -544,7 +516,8 @@ shinyServer(function(input, output, session) {
                   userFullName = user$fullName(),
                   userRole = user$role(),
                   registryName = registryName(),
-                  useReportProcessor = TRUE)
+                  useReportProcessor = TRUE, 
+                  tableFormat = "latex")
     }
   )
   

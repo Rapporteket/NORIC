@@ -77,7 +77,8 @@ reportProcessor <- function(report,
   
   
   stopifnot(outputType %in% c("html", "pdf"))
-
+  stopifnot(tableFormat %in% c("html", "latex"))
+  
   filePath <- NULL
 
   if (title == "") {
@@ -116,7 +117,7 @@ reportProcessor <- function(report,
       params = list(
         author = author,
         hospitalName = orgName,
-        tableFormat = "latex",
+        tableFormat = tableFormat,
         
         reshId = orgId,
         registryName = registryName,
@@ -136,7 +137,7 @@ reportProcessor <- function(report,
       params = list(
         author = author,
         hospitalName = orgName,
-        tableFormat = "latex",
+        tableFormat = tableFormat,
         
         reshId = orgId,
         registryName = registryName,
@@ -173,7 +174,7 @@ reportProcessor <- function(report,
       params = list(
         author = author,
         hospitalName = orgName,
-        tableFormat = "latex",
+        tableFormat = tableFormat,
 
         reshId = orgId,
         registryName = registryName,
@@ -193,7 +194,7 @@ reportProcessor <- function(report,
       params = list(
         author = author,
         hospitalName = orgName,
-        tableFormat = "latex",
+        tableFormat = tableFormat,
         
         reshId = orgId,
         registryName = registryName,
@@ -212,7 +213,7 @@ reportProcessor <- function(report,
       params = list(
         author = author,
         hospitalName = orgName,
-        tableFormat = "latex",
+        tableFormat = tableFormat,
         
         reshId = orgId,
         registryName = registryName,
