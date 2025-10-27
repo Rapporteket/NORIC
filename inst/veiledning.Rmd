@@ -1,11 +1,10 @@
 ---
 title: "Veiledning"
 params:
-  author: "Anon author"
+  author: ukjent forfatter
   hospitalName: "Ukjent sykehus"
   tableFormat: "html"
   reshId: "999999"
-  rendered_by_shiny: FALSE
 author: "NORIC"
 date: '`r format(Sys.time(), "%d. %B %Y")`'
 ---

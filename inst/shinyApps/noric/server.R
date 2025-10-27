@@ -105,9 +105,7 @@ shinyServer(function(input, output, session) {
                           registryName = "noric", userFullName, userRole) {
     
     src <- normalizePath(system.file(srcFile, package = "noric"))
-    file.copy(from = src, 
-              to = tmpFile, 
-              overwrite = TRUE)
+    file.copy(from = src, to = tmpFile, overwrite = TRUE)
     # temporarily switch to the temp dir, in case we do not have write
     # permission to the current working directory
     owd <- setwd(tempdir())
@@ -124,7 +122,6 @@ shinyServer(function(input, output, session) {
         registryName = registryName,
         userFullName = userFullName,
         userRole = userRole,
-        userOperator = "unknown operator",
         rendered_by_shiny = TRUE,
         tableFormat = tableFormat)
     })
@@ -197,9 +194,8 @@ shinyServer(function(input, output, session) {
         `Skjemaoversikt` = "SO",
         `Segment stent` = "SS", 
         `taviperc raw test` = "taviperc", 
-        `regangio raw test` = "regangio" 
-        
-      )
+        `regangio raw test` = "regangio"
+        )
       # EPROM is only for nasjoanl
       if (!isNationalReg(user$org())) {
         dataSets <- within(dataSets, rm("Aortaklaff eprom"))
@@ -634,8 +630,7 @@ shinyServer(function(input, output, session) {
           "orgId",
           "registryName",
           "userFullName",
-          "userRole",
-          "userOperator")
+          "userRole")
   
   pv <- c("pdf",
           "Månedsresultater",
@@ -644,8 +639,7 @@ shinyServer(function(input, output, session) {
           "user$org()",
           "registryName",
           "userFullName",
-          "user$role()",
-          "unknown operator")
+          "user$role()")
   
   subReports <- shiny::reactiveVal(
     list()
@@ -731,8 +725,7 @@ shinyServer(function(input, output, session) {
                      "orgId",
                      "registryName",
                      "userFullName",
-                     "userRole",
-                     "userOperator"),
+                     "userRole"),
       paramValues = c("NORIC_kvalitetsindikator",
                       "pdf",
                       "Månedsresultater",
@@ -741,8 +734,7 @@ shinyServer(function(input, output, session) {
                       999999,
                       "registryName()",
                       "userFullName",
-                      "user$role()",
-                      "unknown operator")
+                      "user$role()")
     ), 
     
     
@@ -758,8 +750,7 @@ shinyServer(function(input, output, session) {
                      "orgId",
                      "registryName",
                      "userFullName",
-                     "userRole",
-                     "userOperator"),
+                     "userRole"),
       paramValues = c("NORIC_local_monthly",
                       "pdf",
                       "Månedsresultater",
@@ -768,8 +759,7 @@ shinyServer(function(input, output, session) {
                       999999,
                       "registryName()",
                       "userFullName",
-                      "user$role()",
-                      "unknown operator")
+                      "user$role()")
     ), 
     
     `Aortaklaff` = list(
@@ -784,8 +774,7 @@ shinyServer(function(input, output, session) {
                      "orgId",
                      "registryName",
                      "userFullName",
-                     "userRole",
-                     "userOperator"),
+                     "userRole"),
       paramValues = c("NORIC_tavi_report",
                       "pdf",
                       "Månedsresultater",
@@ -794,11 +783,8 @@ shinyServer(function(input, output, session) {
                       999999,
                       "registryName()",
                       "userFullName",
-                      "user$role()",
-                      "unknown operator")
+                      "user$role()")
     )
-    
-    
   )
   
   orgDispatch <- rapbase::autoReportOrgServer("noricDispatch", orgs)
@@ -1022,9 +1008,8 @@ shinyServer(function(input, output, session) {
         "orgId",
         "registryName",
         "userFullName",
-        "userRole",
-        "userOperator"
-      )),
+        "userRole"
+        )),
       paramValues = shiny::reactive(c(
         "ki",
         "unknown author",
@@ -1032,9 +1017,8 @@ shinyServer(function(input, output, session) {
         999999,
         "registryName()",
         "userFullName()",
-        "user$role()",
-        "unknown operator"
-      ))
+        "user$role()"
+        ))
     )
   )
   
