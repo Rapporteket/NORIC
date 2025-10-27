@@ -74,11 +74,7 @@ reportProcessor <- function(report,
                           "noric_stavanger", 
                           "noric_stolav", 
                           "noric_unn"))
-  
-  
-  stopifnot(outputType %in% c("html", "pdf"))
-  stopifnot(tableFormat %in% c("html", "latex"))
-  
+ 
   filePath <- NULL
 
   if (title == "") {

@@ -426,7 +426,7 @@ AP %<>%
 ```
 
 ```{r }
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.1)  # set progress to 10%
 ```
 
@@ -593,7 +593,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.2)  # set progress to 20%
 ```
 
@@ -728,7 +728,7 @@ if (params$tableFormat == "html") {
 <br/>
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.3)  # set progress to 30%
 ```
 
@@ -873,7 +873,7 @@ if (params$tableFormat == "html") {
 ```
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.4)  # set progress to 40%
 ```
 
@@ -1290,7 +1290,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE )
     shiny::setProgress(0.5)  # set progress to 50%
 ```
 
@@ -2377,7 +2377,7 @@ if (params$tableFormat == "html") {
 
  
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.6)  # set progress to 60%
 ```
 
@@ -2689,7 +2689,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.7)  # set progress to 70%
 ```
 
@@ -2857,7 +2857,7 @@ TabNStent %>%  ggplot2::ggplot(
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.8)  # set progress to 80%
 ```
 
@@ -2966,7 +2966,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.9)  # set progress to 90%
 ```
 
@@ -3073,11 +3073,16 @@ if (params$tableFormat == "html") {
 
 ```
 
+```{r}
+if (params$rendered_by_shiny == TRUE)
+    shiny::setProgress(0.99)  # set progress to 100%
+```
+
 ```{r include = FALSE}
 gc(verbose = TRUE) # garbage collection to free up memory
 ```
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(1)  # set progress to 100%
 ```

@@ -59,8 +59,8 @@ hospitalName <- params$hospitalName
 
 
 ```{r }
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.05)  # set progress to 5%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.01)  # set progress to 5%
 ```
 
 
@@ -208,6 +208,10 @@ siste_dato_txt <- format(x = periode_data$siste_dato,
                          format = "%d/%m-%Y")
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE )
+  shiny::setProgress(0.05)  # set progress to 10%
+```
 
 
 ```{r GetData, include=FALSE, cache=FALSE}
@@ -366,7 +370,7 @@ AK %<>%
 ```
 
 ```{r }
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE )
   shiny::setProgress(0.1)  # set progress to 10%
 ```
 
@@ -415,11 +419,7 @@ Totalt `r AK %>% nrow()` aortaklaff-prosedyrer ligger til grunn for rapporten,
 
 
 ## Kumulert antall prosedyrer per år
-```{r FigKumulertProde, fig.cap =  paste0("Kumulert antall prosedyrer på aortaklaff registrert i NORIC ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
-
-
-
-
+```{r FigKumulertProdePrep, echo = FALSE}
 
 df_cumplot <- merge(
   x = timeTableMonth %>% 
@@ -433,22 +433,13 @@ df_cumplot <- merge(
       aar = substr(maaned, 1, 4)), 
   y = AK %>% dplyr::count(maaned, aar), 
   all.x = TRUE) %>% 
-  dplyr::mutate(
-    n = ifelse(is.na(n), 0, n)) %>% 
+  dplyr::mutate(n = ifelse(is.na(n), 0, n)) %>% 
   dplyr::group_by(aar) %>%  
-  dplyr::mutate(
-    Total = cumsum(n), 
-    max_tota = max(Total, na.rm = TRUE),
-    
-    Label = ifelse(Total == max_tota, 
-                   as.character(max_tota), 
-                   NA_character_))
-
-
-
-
-
-
+  dplyr::mutate(Total = cumsum(n), 
+                max_tota = max(Total, na.rm = TRUE),
+                Label = ifelse(Total == max_tota, 
+                               as.character(max_tota), 
+                               NA_character_))
 
 tot_fjor <- df_cumplot %>% 
   dplyr::filter(aar == periode_data$sisteHeleYear) %>% 
@@ -460,11 +451,9 @@ tot_aar <- df_cumplot %>%
   dplyr::pull(Total) %>% 
   max(., na.rm = TRUE)
 
+ylim <- c(0, ceiling(max(df_cumplot$max_tota, na.rm = TRUE)/50)*50)
 
-ylim <- c(0, 
-          ceiling(max(df_cumplot$max_tota, na.rm = TRUE)/50)*50)
-
-ggplot2::ggplot(df_cumplot) +
+plot_kumul <- ggplot2::ggplot(df_cumplot) +
   ggplot2::geom_line(
     mapping = ggplot2::aes(x = Maaned, 
                            y = Total, 
@@ -499,13 +488,20 @@ ggplot2::ggplot(df_cumplot) +
                  axis.title = ggplot2::element_text(size = 12), 
                  legend.text = ggplot2::element_text(size = 12), 
                  legend.position = "top")
-
-
-
 ```
 
 
 
+
+
+```{r FigKumulertpdf, include=knitr::is_latex_output(), fig.cap =  paste0("Kumulert antall prosedyrer på aortaklaff registrert i NORIC ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."), fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.width = 8, fig.height = 5}
+  plot_kumul
+```
+
+
+```{r FigKumulertProdehtml, include=knitr::is_html_output(), fig.cap =  paste0("Kumulert antall prosedyrer på aortaklaff registrert i NORIC ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."), fig.align = "center", , fig.width = 8, fig.height = 5}
+  plot_kumul
+```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
 \newpage
@@ -728,7 +724,7 @@ if (params$tableFormat == "html") {
 <br/>
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.2)  
 ```
 
@@ -842,7 +838,7 @@ if (params$tableFormat == "html") {
 <br/>
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.3)  
 ```
 
@@ -1103,7 +1099,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.5) 
 ```
 
@@ -1320,14 +1316,10 @@ fig_df_kompLab2 <-
   dplyr::group_by(aar) %>% 
   dplyr::mutate(Sortering = 1:n()) %>% 
   ungroup()
-```
-
-
-```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på lab. For alle prosedyrer fra fjoråret og hittil i år (t.o.m ", siste_dato_txt,"). Hvis det er registrert flere komplikasjoner på samme pasient er disse talt opp hver for seg.") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
 
 
 # PLOT
-ggplot2::ggplot(data = fig_df_kompLab2) +
+plot_komplik_lab <- ggplot2::ggplot(data = fig_df_kompLab2) +
   
   ggplot2::geom_bar(
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
@@ -1361,8 +1353,19 @@ ggplot2::ggplot(data = fig_df_kompLab2) +
   # Fjerne akse-tittel:
   ggplot2::labs(x = NULL, 
                 y = NULL)
-
 ```
+
+
+```{r FigLabKomplpdf, include=knitr::is_latex_output(), fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på lab. For alle prosedyrer fra fjoråret og hittil i år (t.o.m ", siste_dato_txt,"). Hvis det er registrert flere komplikasjoner på samme pasient er disse talt opp hver for seg.") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+
+plot_komplik_lab
+```
+
+```{r FigLabKomplhtml, include=knitr::is_html_output(), fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på lab. For alle prosedyrer fra fjoråret og hittil i år (t.o.m ", siste_dato_txt,"). Hvis det er registrert flere komplikasjoner på samme pasient er disse talt opp hver for seg.") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center"}
+
+plot_komplik_lab
+```
+
 
 
 ```{r tabLabKompPrepFjor}
@@ -1800,14 +1803,9 @@ fig_df_kompAvd2 <-
   dplyr::group_by(aar) %>% 
   dplyr::mutate(Sortering = 1:n()) %>% 
   ungroup()
-```
-
-
-```{r FigAvdKompl, fig.cap = paste0("Antall komplikasjoner på avdeling etter prosedyren. For alle prosedyrer fra fjoråret og hittil i år (t.o.m ", siste_dato_txt, "). Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
-
 
 # PLOT
-ggplot2::ggplot(data = fig_df_kompAvd2) +
+plot_avd_komp <- ggplot2::ggplot(data = fig_df_kompAvd2) +
   
   ggplot2::geom_bar(
     mapping = ggplot2::aes(x = reorder(type_komplikasjon, Sortering) ,
@@ -1841,9 +1839,18 @@ ggplot2::ggplot(data = fig_df_kompAvd2) +
   # Fjerne akse-tittel:
   ggplot2::labs(x = NULL, 
                 y = NULL)
-
 ```
 
+
+```{r FigAvdKomplPdf, include=knitr::is_latex_output(), fig.cap = paste0("Antall komplikasjoner på avdeling etter prosedyren. For alle prosedyrer fra fjoråret og hittil i år (t.o.m ", siste_dato_txt, "). Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+
+plot_avd_komp
+```
+
+```{r FigAvdKomplHtml, include=knitr::is_html_output(), fig.cap = paste0("Antall komplikasjoner på avdeling etter prosedyren. For alle prosedyrer fra fjoråret og hittil i år (t.o.m ", siste_dato_txt, "). Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center"}
+
+plot_avd_komp
+```
 
 
 
@@ -2287,10 +2294,8 @@ Merk at datovariablene ikke nødvendigvis er filvasket.
 <br/><br/><br/>
 
 
-```{r figVentetid, fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Prosedyrene er fra tidsrommet fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
-
-
-AK %>% 
+```{r figVentetidPrep, warning=FALSE}
+plot_ventetid_tavi <- AK %>% 
   dplyr::filter(ForlopsType2 == "Planlagt", 
                 !is.na(ventetid_tavi)) %>% 
   dplyr::select(ventetid_tavi, Maaned, aar) %>% 
@@ -2319,12 +2324,19 @@ AK %>%
 
 
 
+```{r figVentetidPdf, include=knitr::is_latex_output(), fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Prosedyrene er fra tidsrommet fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
+plot_ventetid_tavi
+```
 
+
+```{r figVentetidHtml, include=knitr::is_html_output(), fig.cap = paste0("Ventetid for planlagte prosedyrer på aortaklaff er beregnet som antall dager mellom dato for screeningbeslutning og prosedyredatoen. Prosedyrene er fra tidsrommet fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", warning=FALSE}
+plot_ventetid_tavi
+```
 
 <br/>
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.6) 
 ```
 
@@ -2436,7 +2448,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.7) 
 ```
 
@@ -2456,10 +2468,8 @@ datovariablene ikke nødvendigvis er filvasket.
 
 <br/><br/>
 
-```{r figLiggetid, fig.cap = paste0("Liggetid for prosedyrer på aortaklaff er beregnet som antall dager mellom prosedyredatoen og utskrivelsesdasto. Negative liggetider (feilregistrert), eller liggetider over 30 dager er fjernet. Prosedyrene er fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt ,"). Merk at antall prosedyrer i hver gruppe kan være svært ulikt."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
-
-
-AK %>% 
+```{r figLiggetidPrep}
+plot_liggetid <- AK %>% 
   dplyr::filter(!is.na(liggedogn_tavi), 
                 liggedogn_tavi>= 0, 
                 liggedogn_tavi <=30) %>% 
@@ -2488,6 +2498,15 @@ AK %>%
 ```
 
 
+```{r figLiggetidPdf, include=knitr::is_latex_output(), fig.cap = paste0("Liggetid for prosedyrer på aortaklaff er beregnet som antall dager mellom prosedyredatoen og utskrivelsesdasto. Negative liggetider (feilregistrert), eller liggetider over 30 dager er fjernet. Prosedyrene er fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt ,"). Merk at antall prosedyrer i hver gruppe kan være svært ulikt."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+plot_liggetid
+```
+
+```{r figLiggetidHtml, include=knitr::is_html_output(), fig.cap = paste0("Liggetid for prosedyrer på aortaklaff er beregnet som antall dager mellom prosedyredatoen og utskrivelsesdasto. Negative liggetider (feilregistrert), eller liggetider over 30 dager er fjernet. Prosedyrene er fra hele fjoråret og hittil i år (t.o.m ", siste_dato_txt ,"). Merk at antall prosedyrer i hver gruppe kan være svært ulikt."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center"}
+plot_liggetid
+```
+
+
 
 `r if(params$tableFormat !="latex") {"<!--"}`
 \newpage
@@ -2496,7 +2515,7 @@ AK %>%
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.8) 
 ```
 
@@ -2614,7 +2633,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.9) 
 ```
 
@@ -2637,7 +2656,7 @@ toDate <- periode_data$siste_dato
 
 
 query <- paste0(
- "SELECT 
+  "SELECT 
    CASE
      WHEN IFNULL(patient.GENDER,0) = 0 THEN 'Ikke angitt'
      WHEN patient.GENDER = 1 THEN 'Mann'
@@ -2652,7 +2671,7 @@ query <- paste0(
    INNER JOIN patient ON mce.PATIENT_ID = patient.ID  
  WHERE 
    mce.INTERVENTION_TYPE = 5 AND ", 
-  "mce.INTERDAT >= '", fromDate, "' AND
+ "mce.INTERDAT >= '", fromDate, "' AND
    mce.INTERDAT <= '", toDate, "'" )
 
 if(params$registryName %in% "noric_nasjonal") {
@@ -2671,11 +2690,6 @@ AK_alderKjonn <- rapbase::loadRegData(params$registryName, query) %>%
 
 ```
 
-<!-- forløp registrert ved `r params$hospitalName`.  -->
-<!-- Resh id er `r params$reshId` og userRole er  `r params$userRole`.  -->
-
-
-<!-- Query `r query`.  -->
 
 
 ## Kjønnsfordeling
@@ -2714,7 +2728,7 @@ if (params$tableFormat == "html") {
                  align = align) %>%
     kableExtra::kable_styling(latex_options = "HOLD_position",
                               font_size = 8)
-
+  
 }
 ```
 
@@ -2732,10 +2746,8 @@ henholdsvis 1,5 x IQR under nedre kvartil og
 Punktene utenfor greinene viser uteliggere,
 det vil si forløp med usedvanlig lav eller høy alder.
 
-```{r figalderkjonn, fig.cap = paste0("Pasientens alder ved prosedyren, for kvinner og menn, per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
-
-
-AK_alderKjonn %>%
+```{r figalderkjonnPrep}
+plot_alder_kjonn <- AK_alderKjonn %>%
   dplyr::filter(!is.na(PasientKjonn),
                 !is.na(PasientAlder),
                 PasientAlder >= 18,
@@ -2757,12 +2769,26 @@ AK_alderKjonn %>%
   )
 ```
 
+```{r figalderkjonnPdf, include=knitr::is_latex_output(), fig.cap = paste0("Pasientens alder ved prosedyren, for kvinner og menn, per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+plot_alder_kjonn
+```
+
+
+```{r figalderkjonnHtml, include=knitr::is_html_output(), fig.cap = paste0("Pasientens alder ved prosedyren, for kvinner og menn, per i år fra ", fromDate," til ", toDate, "."),  fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center"}
+plot_alder_kjonn
+```
+
+```{r}
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.99) 
+```
+
 ```{r include = FALSE}
 gc(verbose = TRUE) # garbage collection to free up memory
 ```
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(1.0) 
 ```
 
