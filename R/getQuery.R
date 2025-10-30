@@ -851,6 +851,7 @@ queryAortaklaffoppfvarnum <- function(){
 	  TF.CENTREID AS AvdRESH,
 	  TF.MCEID AS ForlopsID,
 	  T.MCEID AS BasisForlopsID,
+	  MCE.PATIENT_ID AS PasientID
 
     T.SCREENING AS BasisScreeningBeslutning,
 	  T.SCREENINGDATE AS BasisBeslutningsDato,
@@ -1608,7 +1609,10 @@ queryForlopsoversikt <-function(){
       WHEN MCE.INTERVENTION_TYPE = 5 THEN 'Aortaklaff'
       WHEN MCE.INTERVENTION_TYPE = 6 THEN 'Mitralklaff'
       WHEN MCE.INTERVENTION_TYPE = 7 THEN 'Andre prosedyrer'
+      WHEN MCE.INTERVENTION_TYPE = 8 THEN 'Oppfølging aortaklaff'
+      WHEN MCE.INTERVENTION_TYPE = 9 THEN 'Oppfølging mitralklaff'
     END AS ForlopsType1,
+    
     MCE.MCETYPE AS ForlopsType2Num,
     CASE 
      WHEN MCE.MCETYPE = 1 THEN 'Planlagt'

@@ -187,37 +187,37 @@ getAkOppf <- function(registryName, fromDate, toDate, singleRow,
   aKoppf <- rapbase::loadRegData(registryName, query)
   
   
-  query_fo_temp <- paste0("
-   SELECT
-    forlopsoversikt.AvdRESH,
-    forlopsoversikt.ForlopsID,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.PasientID,
-    forlopsoversikt.BasisRegStatus,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID,
-    forlopsoversikt.Avdod,
-    forlopsoversikt.AvdodDato,
-    forlopsoversikt.ErOppflg ,
-    forlopsoversikt.OppflgStatus,
-    forlopsoversikt.OppflgSekNr,
-    forlopsoversikt.OppflgRegStatus
-  FROM
-    forlopsoversikt;")
-  
-  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
-  
-  aKoppf %<>% dplyr::left_join(., 
-                               fo_tmp,
-                               by = c("AvdRESH", "ForlopsID"))
-  
+  # query_fo_temp <- paste0("
+  #  SELECT
+  #   forlopsoversikt.AvdRESH,
+  #   forlopsoversikt.ForlopsID,
+  #   forlopsoversikt.Sykehusnavn,
+  #   forlopsoversikt.PasientID,
+  #   forlopsoversikt.BasisRegStatus,
+  #   forlopsoversikt.Kommune,
+  #   forlopsoversikt.KommuneNr,
+  #   forlopsoversikt.Fylke,
+  #   forlopsoversikt.Fylkenr,
+  #   forlopsoversikt.PasientKjonn,
+  #   forlopsoversikt.PasientAlder,
+  #   forlopsoversikt.ForlopsType1,
+  #   forlopsoversikt.ForlopsType2,
+  #   forlopsoversikt.KobletForlopsID,
+  #   forlopsoversikt.Avdod,
+  #   forlopsoversikt.AvdodDato,
+  #   forlopsoversikt.ErOppflg ,
+  #   forlopsoversikt.OppflgStatus,
+  #   forlopsoversikt.OppflgSekNr,
+  #   forlopsoversikt.OppflgRegStatus
+  # FROM
+  #   forlopsoversikt;")
+  # 
+  # fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
+  # 
+  # aKoppf %<>% dplyr::left_join(., 
+  #                              fo_tmp,
+  #                              by = c("AvdRESH", "ForlopsID"))
+  # 
   list(aKoppf = aKoppf)
 }
 
