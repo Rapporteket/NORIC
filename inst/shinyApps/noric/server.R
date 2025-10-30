@@ -529,7 +529,7 @@ shinyServer(function(input, output, session) {
       "MitralklaffVar",
       "PasienterStudier",
       "SegmentStent",
-      # "segment_history",
+       "segment_history",
       "SkjemaOversikt", 
       "UtskrDiagnoser"
     )
