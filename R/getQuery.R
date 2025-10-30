@@ -1596,6 +1596,7 @@ queryForlopsoversikt <-function(){
   paste0("
   SELECT
     MCE.CENTREID AS AvdRESH,
+    MCE.INTERDAT AS Interdat,
     P.ID AS PasientID,
     P.ZIPCODE AS Postnr, -- TODO listed as char 4
     CAST(NULL AS CHAR(50)) AS PostSted,

@@ -15,7 +15,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   stopifnot(tableName %in% c("AngioPCIVar",
                              "SkjemaOversikt",
                              "AortaklaffVar",
-                             "ForlopsOversikt",
+                             "ForlopsOversikt_ignorererKaldender",
                              "AndreProsedyrerVar",
                              "CTAngioVar",
                              "AortaklaffOppfVar",
@@ -53,7 +53,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab <- tab_list$aK
   }
   
-  if (tableName %in% "ForlopsOversikt") {
+  if (tableName %in% "ForlopsOversikt_ignorererKaldender") {
     tab_list <- noric::getFo(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,

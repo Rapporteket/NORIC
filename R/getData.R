@@ -540,12 +540,15 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
 getFo <- function(registryName, fromDate, toDate, singleRow, 
                   singleHospital = NULL, ...) {
   
-  # FO: Datoer. Blandet dato for prosedyre, oppfølging, prom. 
-  # Hente hele datasettet uansett fromDate, toDate
-  query <- noric::queryForlopsoversikt()
+  query <- paste0(
+    noric::queryForlopsoversikt())
+    # , 
+    # " WHERE MCE.INTERDAT >= '", fromDate,  "' AND
+    #   MCE.INTERDAT <= '", toDate, "' ")
+  
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "WHERE mce.CENTREID = ", 
+                    "WHERE MCE.CENTREID = ", 
                     singleHospital)
   }
   
@@ -561,7 +564,7 @@ getFo <- function(registryName, fromDate, toDate, singleRow,
   }
   
   fO <- rapbase::loadRegData(registryName, query) %>% 
-    noric::utlede_alder(., HovedDato) %>% 
+    # noric::utlede_alder(., HovedDato) %>% 
     noric::fikse_sykehusnavn(.)
   
   list(fO = fO)

@@ -244,7 +244,7 @@ shinyServer(function(input, output, session) {
         `Aortaklaff eprom` = "TP",
         `Aortaklaff oppfølging` = "AKOppf",
         `CT Angio` = "CT",
-        `Forløpsoversikt` = "FO",
+        `Forløpsoversikt (uten kalender)` = "FO",
         `Mitralklaff` = "MK",
         `PasientStudier` = "PS",
         `Skjemaoversikt` = "SO",
@@ -266,7 +266,7 @@ shinyServer(function(input, output, session) {
         `Annen diagnostikk` = "AnD",
         `Aortaklaff` = "AK",
         `CT Angio` = "CT",
-        `Forløpsoversikt` = "FO",
+        `Forløpsoversikt (uten kalender)` = "FO",
         `Skjemaoversikt` = "SO",
         `Segment stent` = "SS"
       )
@@ -560,7 +560,7 @@ shinyServer(function(input, output, session) {
       "AortaklaffOppfVar",
       "AortaklaffProm",
       "CTAngioVar",
-      "ForlopsOversikt",
+      "ForlopsOversikt_ignorererKaldender",
       "MitralklaffVar",
       "PasienterStudier",
       "SegmentStent",
