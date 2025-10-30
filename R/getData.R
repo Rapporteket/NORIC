@@ -564,7 +564,7 @@ getFo <- function(registryName, fromDate, toDate, singleRow,
   }
   
   fO <- rapbase::loadRegData(registryName, query) %>% 
-    # noric::utlede_alder(., HovedDato) %>% 
+    noric::utlede_alder(., HovedDato) %>%
     noric::fikse_sykehusnavn(.)
   
   list(fO = fO)

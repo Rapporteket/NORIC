@@ -1587,58 +1587,36 @@ queryTaviprom <- function(){
 #' @export
 queryForlopsoversikt <-function(){
   
-  
-   # FUNGERER IKKE. 
-  # funksjoner getFriendlyName() og getListText()
-  # Har fjernet dette fra QUERY. Sjekk 03-reportviews for gammel koding
-  
-  
   paste0("
   SELECT
     MCE.CENTREID AS AvdRESH,
-    MCE.INTERDAT AS Interdat,
     P.ID AS PasientID,
-    P.ZIPCODE AS Postnr, -- TODO listed as char 4
-    CAST(NULL AS CHAR(50)) AS PostSted,
-    
-    P.MUNICIPALITY_NAME AS Kommune,
-    P.MUNICIPALITY_NUMBER AS KommuneNr,
-    CAST(NULL AS CHAR(50)) AS Fylke,
-    CAST(NULL AS CHAR(2)) AS Fylkenr,
     P.SSN_HASH AS KryptertFnr,
-    
-    CASE
-      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
-      WHEN P.GENDER = 1 THEN 'Mann'
-      WHEN P.GENDER = 2 THEN 'Kvinne'
-      ELSE 'Ukjent'
-    END AS PasientKjonn,
-    P.BIRTH_DATE AS FodselsDato,
-  
-  
-    P.NORWEGIAN AS Norsktalende,
-    CAST(NULL AS CHAR(30)) AS Sivilstatus,
-    CAST(NULL AS CHAR(50)) AS UtdanningSSB,
-    P.DECEASED AS AvdodFReg,
-    P.DECEASED_DATE AS DodsdatoFReg,
- 
- 
-    -- event info
     MCE.MCEID AS ForlopsID,
-    CASE INTERVENTION_TYPE
-      WHEN 9 THEN mitralisfop.STATUS
-      WHEN 8 THEN tavifop.STATUS
-      WHEN 7 THEN o.STATUS
-      WHEN 6 THEN LEAST(mitralis.STATUS, IFNULL(mdisc.STATUS,1))
-      WHEN 5 THEN LEAST(tavi.STATUS, IFNULL(tdisc.STATUS,1))
-      WHEN 4 THEN ct.STATUS
-      ELSE LEAST(IFNULL(i.STATUS,1), a.STATUS, IFNULL(c.STATUS,1), IFNULL(d.STATUS,1))
-     END AS BasisRegStatus,
-     
-    MCE.INTERVENTION_TYPE AS ForlopsType1Num,
-    MCE.MCETYPE AS ForlopsType2Num,
     MCE.PARENT_MCEID as KobletForlopsID,
-  
+    CASE
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
+      ELSE NULL
+    END AS Regtype,
+    MCE.INTERVENTION_TYPE AS ForlopsType1Num,
+    CASE 
+      WHEN MCE.INTERVENTION_TYPE = 1 THEN 'Angio'
+      WHEN MCE.INTERVENTION_TYPE = 2 THEN 'PCI'
+      WHEN MCE.INTERVENTION_TYPE = 3 THEN 'Angio+PCI'
+      WHEN MCE.INTERVENTION_TYPE = 4 THEN 'CT-Angio'
+      WHEN MCE.INTERVENTION_TYPE = 5 THEN 'Aortaklaff'
+      WHEN MCE.INTERVENTION_TYPE = 6 THEN 'Mitralklaff'
+      WHEN MCE.INTERVENTION_TYPE = 7 THEN 'Andre prosedyrer'
+    END AS ForlopsType1,
+    MCE.MCETYPE AS ForlopsType2Num,
+    CASE 
+     WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
+     WHEN MCE.MCETYPE = 2 THEN 'Akutt'
+     WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
+    END AS ForlopsType2,
+    
+    MCE.INTERDAT AS Interdat,
     CASE INTERVENTION_TYPE
       WHEN 9 THEN mitralisfop.FOLLOWUPDATE
       WHEN 8 THEN tavifop.FOLLOWUPDATE
@@ -1649,30 +1627,61 @@ queryForlopsoversikt <-function(){
       ELSE a.INTERDAT
     END AS HovedDato,
     
-    CAST(NULL AS CHAR(2))  AS OppflgRegStatus,
+    P.ZIPCODE AS Postnr, -- TODO listed as char 4
+    CAST(NULL AS CHAR(50)) AS PostSted,
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+    CAST(NULL AS CHAR(50)) AS Fylke,
+    CAST(NULL AS CHAR(2)) AS Fylkenr,
+    
+    CASE
+      WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
+      WHEN P.GENDER = 1 THEN 'Mann'
+      WHEN P.GENDER = 2 THEN 'Kvinne'
+      ELSE 'Ukjent'
+    END AS PasientKjonn,
+    P.BIRTH_DATE AS FodselsDato,
+
+    P.NORWEGIAN AS Norsktalende,
+    CAST(NULL AS CHAR(30)) AS Sivilstatus,
+    CAST(NULL AS CHAR(50)) AS UtdanningSSB,
+    P.DECEASED  AS AvdodFReg,
+    P.DECEASED_DATE as AvdodDatoFReg,
+
+    -- event info
+    CASE INTERVENTION_TYPE
+      WHEN 9 THEN mitralisfop.STATUS
+      WHEN 8 THEN tavifop.STATUS
+      WHEN 7 THEN o.STATUS
+      WHEN 6 THEN LEAST(mitralis.STATUS, IFNULL(mdisc.STATUS,1))
+      WHEN 5 THEN LEAST(tavi.STATUS, IFNULL(tdisc.STATUS,1))
+      WHEN 4 THEN ct.STATUS
+      ELSE LEAST(IFNULL(i.STATUS,1), a.STATUS, IFNULL(c.STATUS,1), IFNULL(d.STATUS,1))
+     END AS BasisRegStatus,
+     
     CASE INTERVENTION_TYPE
       WHEN 9 THEN '1'
       WHEN 8 THEN '1'
       ELSE '0'
     END AS ErOppflg,
-    
-  CAST(NULL AS CHAR(30)) AS OppflgStatus,
-  CAST(NULL AS CHAR(6)) AS OppflgSekNr
+    CAST(NULL AS CHAR(2))  AS OppflgRegStatus,
+    CAST(NULL AS CHAR(30)) AS OppflgStatus,
+    CAST(NULL AS CHAR(6)) AS OppflgSekNr
   
-  FROM
-    mce MCE INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
-    LEFT OUTER JOIN initialcare i on MCE.MCEID = i.MCEID
-    LEFT OUTER JOIN regangio a on MCE.MCEID = a.MCEID
-    LEFT OUTER JOIN ctangio ct on MCE.MCEID = ct.MCEID
-    LEFT OUTER JOIN taviperc tavi on MCE.MCEID = tavi.MCEID
-    LEFT OUTER JOIN tavidischarge tdisc on MCE.MCEID = tdisc.MCEID
-    LEFT OUTER JOIN tavipercfollowup tavifop on MCE.MCEID = tavifop.MCEID
-    LEFT OUTER JOIN tavimitralis mitralis on MCE.MCEID = mitralis.MCEID
-    LEFT OUTER JOIN tavimitralisdischarge mdisc on MCE.MCEID = mdisc.MCEID
-    LEFT OUTER JOIN tavimitralisfollowup mitralisfop on MCE.MCEID = mitralisfop.MCEID
-    LEFT OUTER JOIN angiopcicomp c on MCE.MCEID = c.MCEID
-    LEFT OUTER JOIN discharge d on MCE.MCEID = d.MCEID
-    LEFT OUTER JOIN other o on MCE.MCEID = o.MCEID
+    FROM
+      mce MCE INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      LEFT OUTER JOIN initialcare i on MCE.MCEID = i.MCEID
+      LEFT OUTER JOIN regangio a on MCE.MCEID = a.MCEID
+      LEFT OUTER JOIN ctangio ct on MCE.MCEID = ct.MCEID
+      LEFT OUTER JOIN taviperc tavi on MCE.MCEID = tavi.MCEID
+      LEFT OUTER JOIN tavidischarge tdisc on MCE.MCEID = tdisc.MCEID
+      LEFT OUTER JOIN tavipercfollowup tavifop on MCE.MCEID = tavifop.MCEID
+      LEFT OUTER JOIN tavimitralis mitralis on MCE.MCEID = mitralis.MCEID
+      LEFT OUTER JOIN tavimitralisdischarge mdisc on MCE.MCEID = mdisc.MCEID
+      LEFT OUTER JOIN tavimitralisfollowup mitralisfop on MCE.MCEID = mitralisfop.MCEID
+      LEFT OUTER JOIN angiopcicomp c on MCE.MCEID = c.MCEID
+      LEFT OUTER JOIN discharge d on MCE.MCEID = d.MCEID
+      LEFT OUTER JOIN other o on MCE.MCEID = o.MCEID
   ")
 }
 
@@ -2364,7 +2373,7 @@ queryApLight <- function(){
 #' @rdname getQuery
 #' @export
 queryDiagnose <- function(){
-paste0("
+  paste0("
   SELECT
   mce.CENTREID AS AvdRESH,
   mce.MCEID AS ForlopsID,
