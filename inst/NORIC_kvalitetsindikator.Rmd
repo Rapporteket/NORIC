@@ -4,7 +4,7 @@ params:
   hospitalName: ukjent sykehus
   tableFormat: html
   reshId: 999999
-  registryName: rapbase
+  registryName: Ukjent register
   userFullName: Ukjent bruker
   userRole: ukjent rolle
   rendered_by_shiny: FALSE

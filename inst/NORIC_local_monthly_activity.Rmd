@@ -75,6 +75,12 @@ showN <- 14
 ```
 
 
+```{r}
+if (params$rendered_by_shiny == TRUE)
+    shiny::setProgress(0.1)  # set progress to 35%
+```
+
+
 ```{r latest_entry, include=FALSE, eval=TRUE}
 # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
 
@@ -172,6 +178,11 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
 ```
 
 
+```{r}
+if (params$rendered_by_shiny == TRUE)
+    shiny::setProgress(0.2)  # set progress to 35%
+```
+
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
 
 timeTableMonth <- data.frame(
@@ -222,6 +233,11 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
 ```
 
 
+```{r}
+if (params$rendered_by_shiny == TRUE)
+    shiny::setProgress(0.3)  # set progress to 35%
+```
+
 
 
 ```{r GetData, include=FALSE, cache=FALSE}
@@ -232,6 +248,13 @@ AP <- noric::getPrepApData(registryName = params$registryName,
                            singleRow = FALSE)
 
 ```
+
+
+```{r}
+if (params$rendered_by_shiny == TRUE)
+    shiny::setProgress(0.4)  # set progress to 35%
+```
+
 
 ```{r APprepare, include=FALSE, eval=TRUE}
 rangeProsDato <- format(range(AP$ProsedyreDato), 
@@ -295,8 +318,8 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.35)  # set progress to 35%
+if (params$rendered_by_shiny == TRUE)
+    shiny::setProgress(0.5)  # set progress to 35%
 ```
 <br/><br/>
 
@@ -397,7 +420,7 @@ if (params$tableFormat == "html") {
 ```
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(0.7)  # set progress to 70%
 ```
 
@@ -509,6 +532,6 @@ gc(verbose = TRUE) # garbage collection to free up memory
 ```
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
     shiny::setProgress(1)  # set progress to 100%
 ```
