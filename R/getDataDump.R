@@ -15,15 +15,15 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   stopifnot(tableName %in% c("AngioPCIVar",
                              "SkjemaOversikt",
                              "AortaklaffVar",
-                             "ForlopsOversikt",
+                             "ForlopsOversikt_ignorererKaldender",
                              "AndreProsedyrerVar",
                              "CTAngioVar",
                              "AortaklaffOppfVar",
                              "AnnenDiagnostikkVar",
                              "SegmentStent",
-                             # "segment_history",
+                             "segment_history",
                              "MitralklaffVar",
-                             "PasienterStudier", 
+                             "PasienterStudier_ignorerKalender", 
                              "AortaklaffProm", 
                              "UtskrDiagnoser"))
   
@@ -53,7 +53,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab <- tab_list$aK
   }
   
-  if (tableName %in% "ForlopsOversikt") {
+  if (tableName %in% "ForlopsOversikt_ignorererKaldender") {
     tab_list <- noric::getFo(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
@@ -110,7 +110,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab <- tab_list$mK
   }
   
-  if (tableName %in% "PasienterStudier") {
+  if (tableName %in% "PasienterStudier_ignorerKalender") {
     tab_list <- noric::getPs(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,

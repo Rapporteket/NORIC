@@ -4,7 +4,7 @@
 #'
 #' The functions \code{getAp}, \code{getSs}, \code{getAk} etc. load the
 #' AP-, SS- and AK- tables etc. respectively. For most tables, the query adds
-#' selected variables from  \emph{forlopsoversikt}.
+#' selected variables from other tables e.g. \emph{patient}.
 #'
 #' @param registryName Character string defining the registry name.
 #' @param fromDate Character string of format YYYY-MM-DD with start date. Value
@@ -109,8 +109,6 @@ getCt <- function(registryName, fromDate, toDate, singleRow,
     mapping = noric::CTANG_map_num_tekst) %>% 
     noric::utlede_alder(var = UndersokDato)%>% 
     noric::fikse_sykehusnavn(.)
-  
-  
   list(cT = cT)
 }
 
@@ -185,39 +183,6 @@ getAkOppf <- function(registryName, fromDate, toDate, singleRow,
   }
   
   aKoppf <- rapbase::loadRegData(registryName, query)
-  
-  
-  query_fo_temp <- paste0("
-   SELECT
-    forlopsoversikt.AvdRESH,
-    forlopsoversikt.ForlopsID,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.PasientID,
-    forlopsoversikt.BasisRegStatus,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder,
-    forlopsoversikt.ForlopsType1,
-    forlopsoversikt.ForlopsType2,
-    forlopsoversikt.KobletForlopsID,
-    forlopsoversikt.Avdod,
-    forlopsoversikt.AvdodDato,
-    forlopsoversikt.ErOppflg ,
-    forlopsoversikt.OppflgStatus,
-    forlopsoversikt.OppflgSekNr,
-    forlopsoversikt.OppflgRegStatus
-  FROM
-    forlopsoversikt;")
-  
-  fo_tmp <- rapbase::loadRegData(registryName, query_fo_temp)
-  
-  aKoppf %<>% dplyr::left_join(., 
-                               fo_tmp,
-                               by = c("AvdRESH", "ForlopsID"))
-  
   list(aKoppf = aKoppf)
 }
 
@@ -228,7 +193,6 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
-  
   
   query <- paste0(noric::queryAndreprosedyrervarnum(), 
                   "WHERE
@@ -296,7 +260,6 @@ getAnD <- function(registryName, fromDate, toDate, singleRow,
                                           mapping = noric::ADVN_map_num_tekst) %>% 
     noric::utlede_alder(., var = ProsedyreDato) %>% 
     noric::fikse_sykehusnavn(.)
-  
   list(anD = anD)
 }
 
@@ -335,7 +298,6 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
                                          mapping = noric::segm_map_num_tekst) %>%
     noric::utlede_alder(., var = ProsedyreDato) %>%
     noric::fikse_sykehusnavn(.)
-
   list(sS = sS)
 }
 
@@ -540,12 +502,11 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
 getFo <- function(registryName, fromDate, toDate, singleRow, 
                   singleHospital = NULL, ...) {
   
-  # FO: Datoer. Blandet dato for prosedyre, oppfølging, prom. 
-  # Hente hele datasettet uansett fromDate, toDate
-  query <- noric::queryForlopsoversikt()
+  query <- paste0(
+    noric::queryForlopsoversikt())
   if(!is.null(singleHospital)) {
     query <- paste0(query, 
-                    "WHERE mce.CENTREID = ", 
+                    "WHERE MCE.CENTREID = ", 
                     singleHospital)
   }
   
@@ -561,9 +522,8 @@ getFo <- function(registryName, fromDate, toDate, singleRow,
   }
   
   fO <- rapbase::loadRegData(registryName, query) %>% 
-    noric::utlede_alder(., HovedDato) %>% 
+    noric::utlede_alder(., HovedDato) %>%
     noric::fikse_sykehusnavn(.)
-  
   list(fO = fO)
 }
 
@@ -613,33 +573,14 @@ getSo <- function(registryName, fromDate, toDate, singleRow,
 getPs <- function(registryName, fromDate, toDate, singleRow, 
                   singleHospital = NULL, ...){
   
-  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
-  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
-  
-  
-  query <- paste0("
-SELECT
-    pasienterstudier.*,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.FodselsDato,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder
+  # Ingen filter på dato her. MERK: Noen pasienter er inkludert i 2012. 
+  # Disse er med i datauttrekk
+  query <- noric::queryPasienterstudier()
 
-FROM
-    pasienterstudier
-LEFT JOIN forlopsoversikt ON
-    pasienterstudier.AvdRESH = forlopsoversikt.AvdRESH AND
-    pasienterstudier.PasientID = forlopsoversikt.PasientID
-WHERE
-    pasienterstudier.PasInklDato >= '", fromDate, "' AND
-    pasienterstudier.PasInklDato <= '", toDate, "'"
-  )
+  if(!is.null(singleHospital)) {
+    query <- paste0(query, "AND ps.CENTREID = ", singleHospital)
+  }
   
-  # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for pasienterstudier"
@@ -652,10 +593,9 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  pS <- rapbase::loadRegData(registryName, query)
-  
-  
-  
+  pS <- rapbase::loadRegData(registryName, query) %>% 
+    noric::utlede_alder(., PasInklDato) %>%
+    noric::fikse_sykehusnavn(.)
   list(pS = pS)
 }
 
