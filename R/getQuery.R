@@ -853,7 +853,7 @@ queryAortaklaffoppfvarnum <- function(){
 	  TF.CENTREID AS AvdRESH,
 	  TF.MCEID AS ForlopsID,
 	  T.MCEID AS BasisForlopsID,
-	  MCE.PATIENT_ID AS PasientID
+	  MCE.PATIENT_ID AS PasientID,
 
     T.SCREENING AS BasisScreeningBeslutning,
 	  T.SCREENINGDATE AS BasisBeslutningsDato,
