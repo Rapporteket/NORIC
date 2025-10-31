@@ -779,9 +779,6 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow,
       ),
       aar_uke_studiestart = as.ordered(.data$aar_uke_studiestart),
     )
-  
-  
-  
   pS
 }
 
