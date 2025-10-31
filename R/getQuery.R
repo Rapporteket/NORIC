@@ -438,13 +438,15 @@ queryAngiopcinum <- function(){
   	MCE.PARENT_MCEID AS PrimaerForlopsID,
 
     -- Study information
-     CAST((SELECT
-            GROUP_CONCAT(
-              IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-          FROM pasienterstudier PS
-          WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
-      AS Studie,  
+    -- CAST((SELECT
+    --        GROUP_CONCAT(
+    --          IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+    --      FROM pasienterstudier PS
+    --      WHERE PS.PasientID = MCE.PATIENT_ID) AS CHAR(75))
+    --  AS Studie,  
 
+
+    
     I.STATUS AS SkjemaStatusStart,
     A.STATUS AS SkjemastatusHovedskjema,
     D.STATUS AS SkjemaStatusUtskrivelse,
@@ -579,12 +581,12 @@ queryCtangiovarnum <-function(){
 	  P.DECEASED_DATE as AvdodDatoFReg,
 
    	-- Study information
-    (SELECT
-      GROUP_CONCAT(
-         IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-      FROM pasienterstudier PS
-      WHERE PS.PasientID = MCE.PATIENT_ID)
-    AS Studie,
+    -- (SELECT
+    --   GROUP_CONCAT(
+    --      IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+    --   FROM pasienterstudier PS
+    --   WHERE PS.PasientID = MCE.PATIENT_ID)
+    -- AS Studie,
     
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
@@ -823,12 +825,12 @@ queryAortaklaffvarnum <- function(){
     MCE.PARENT_MCEID as KobletForlopsID,
     
      -- Study information
-    (SELECT
-      GROUP_CONCAT(
-        IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-      FROM pasienterstudier PS
-      WHERE PS.PasientID = MCE.PATIENT_ID)
-    AS Studie,
+  -- (SELECT
+  --   GROUP_CONCAT(
+  --     IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+  --   FROM pasienterstudier PS
+  --   WHERE PS.PasientID = MCE.PATIENT_ID)
+  -- AS Studie,
   
     LEAST(T.STATUS, TD.STATUS) AS SkjemaStatus,
     T.STATUS AS SkjemaStatusHovedskjema,
@@ -1370,12 +1372,12 @@ queryMitralklaffvarnum <-function(){
      MCE.PARENT_MCEID as KobletForlopsID, 
   
      -- Study information
-    (SELECT
-      GROUP_CONCAT(
-         IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
-      FROM pasienterstudier PS
-      WHERE PS.PasientID = MCE.PATIENT_ID)
-    AS Studie,
+    --  (SELECT
+    --    GROUP_CONCAT(
+    --       IF ((DATEDIFF(P.REGISTERED_DATE, PS.PasInklDato) > 0) AND (DATEDIFF(P.REGISTERED_DATE, PS.StudieAvsluttDato) < 0 OR PS.StudieAvsluttDato IS NULL), CONCAT(PS.StudieNavn), NULL))
+    --    FROM pasienterstudier PS
+    --    WHERE PS.PasientID = MCE.PATIENT_ID)
+    --  AS Studie,
   
     T.STATUS AS SkjemaStatusHovedskjema,
     TD.STATUS AS SkjemaStatusKomplUtskr,
