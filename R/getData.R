@@ -616,33 +616,12 @@ getSo <- function(registryName, fromDate, toDate, singleRow,
 getPs <- function(registryName, fromDate, toDate, singleRow, 
                   singleHospital = NULL, ...){
   
-  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
-  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
-  
-  
-  query <- paste0("
-SELECT
-    pasienterstudier.*,
-    forlopsoversikt.Sykehusnavn,
-    forlopsoversikt.FodselsDato,
-    forlopsoversikt.Kommune,
-    forlopsoversikt.KommuneNr,
-    forlopsoversikt.Fylke,
-    forlopsoversikt.Fylkenr,
-    forlopsoversikt.PasientKjonn,
-    forlopsoversikt.PasientAlder
+  # Ingen filter på dato her. MERK: Noen pasienter er inkludert i 2012. 
+  # Disse er med i datauttrekk
+  query <- noric::queryPasienterstudier()
 
-FROM
-    pasienterstudier
-LEFT JOIN forlopsoversikt ON
-    pasienterstudier.AvdRESH = forlopsoversikt.AvdRESH AND
-    pasienterstudier.PasientID = forlopsoversikt.PasientID
-WHERE
-    pasienterstudier.PasInklDato >= '", fromDate, "' AND
-    pasienterstudier.PasInklDato <= '", toDate, "'"
-  )
   
-  # SQL for one row only/complete table:
+    # SQL for one row only/complete table:
   if (singleRow) {
     query <- paste0(query, "\nLIMIT\n  1;")
     msg <- "Query single row data for pasienterstudier"
@@ -655,10 +634,10 @@ WHERE
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
   
-  pS <- rapbase::loadRegData(registryName, query)
-  
-  
-  
+  pS <- rapbase::loadRegData(registryName, query) %>% 
+    noric::utlede_alder(., PasInklDato) %>%
+    noric::fikse_sykehusnavn(.)
+
   list(pS = pS)
 }
 

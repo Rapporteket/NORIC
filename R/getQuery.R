@@ -905,6 +905,7 @@ queryAortaklaffoppfvarnum <- function(){
     TF.VESSEL AS SenKarKomp,
     TF.COMPOTHER AS AnnenKomp,
 
+
 	  TF.STATUS AS SkjemaStatus
     FROM mce MCE
       INNER JOIN tavipercfollowup TF ON MCE.MCEID = TF.MCEID
@@ -2002,21 +2003,40 @@ querySkjemaoversikt <-function(fromDate, toDate){
 queryPasienterstudier <-function(){
   paste0("
   SELECT
-    ps.PATIENT_ID AS PasientID,
     ps.CENTREID AS AvdRESH,
+    ps.PATIENT_ID AS PasientID,
     s.ID AS StudieID,
     s.NAME AS StudieNavn,
-    getListText('STUDY_PROCEDURE_TYPE', s.PROCEDURE_TYPE) AS ProsedyreType,
+    CASE 
+      WHEN s.PROCEDURE_TYPE = 1 THEN 'Angio/PCI'
+      WHEN s.PROCEDURE_TYPE = 2 THEN 'CT-Angio'
+      WHEN s.PROCEDURE_TYPE = 3 THEN 'Aortaklaff'
+      WHEN s.PROCEDURE_TYPE = 4 THEN 'Mitralklaff'
+    END AS ProsedyreType,
+    
     ps.INCLUSION_DATE AS PasInklDato,
     ps.STOP_INCLUSION_DATE AS PasAvsluttDato,
     s.START_DATE AS StudieStartDato,
     s.STOP_INCLUSION_DATE AS StudieAvsluttDato,
     s.STOP_FOLLOWUP_DATE AS StudieOppflgAvslDato,
-    getListText('STUDY_STATUS', s.STATUS) AS StudieStatus
-  FROM
+    CASE 
+      WHEN s.STATUS = 1 THEN 'Åpen'
+      WHEN s.STATUS = 2 THEN 'Avsluttet inklusjon'
+      WHEN s.STATUS = 3 THEN 'Avsluttet oppfølging'
+    END AS StudieStatus, 
+    
+    P.GENDER AS Kjonn,
+    P.BIRTH_DATE FodselsDato,
+    P.MUNICIPALITY_NAME AS Kommune,
+    P.MUNICIPALITY_NUMBER AS KommuneNr,
+	  CAST(NULL AS CHAR(50)) AS Fylke,
+  	CAST(NULL AS CHAR(2)) AS Fylkenr
+    
+    FROM
     patientstudy ps
     LEFT JOIN study s ON s.ID = ps.STUDY
-")
+    LEFT JOIN patient P ON ps.PATIENT_ID = P.ID
+    ")
 }
 
 

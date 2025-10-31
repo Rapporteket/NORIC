@@ -23,7 +23,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              "SegmentStent",
                              "segment_history",
                              "MitralklaffVar",
-                             "PasienterStudier", 
+                             "PasienterStudier_ignorerKalender", 
                              "AortaklaffProm", 
                              "UtskrDiagnoser"))
   
@@ -110,7 +110,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab <- tab_list$mK
   }
   
-  if (tableName %in% "PasienterStudier") {
+  if (tableName %in% "PasienterStudier_ignorerKalender") {
     tab_list <- noric::getPs(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
