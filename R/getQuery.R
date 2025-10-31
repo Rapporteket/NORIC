@@ -2051,21 +2051,23 @@ queryApLight <- function(){
   SELECT
     A.CENTREID AS AvdRESH,
     MCE.MCEID AS ForlopsID,
+    MCE.PARENT_MCEID as KobletForlopsID,
+    MCE.PARENT_MCEID as PrimaerForlopsID,
     P.ID AS PasientID,
-
-    A.REGTYP AS ProsedyreType,
-    MCE.MCETYPE AS Hastegrad,
     CASE
       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
       WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
       ELSE NULL
     END AS Regtype,
+    A.REGTYP AS ProsedyreType,
+    MCE.MCETYPE AS Hastegrad,
+
     A.INTERDAT AS ProsedyreDato,
     A.INTERDAT_TIME AS ProsedyreTid,
   
-    CASE (P.LOCAL_HOSPITAL) WHEN 999
-                              THEN P.LOCAL_HOSPITAL_OTHER
-                            ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
+    CASE (P.LOCAL_HOSPITAL) 
+      WHEN 999 THEN P.LOCAL_HOSPITAL_OTHER
+      ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
     END AS Lokalsykehus,
    
     P.GENDER AS Kjonn,
@@ -2169,14 +2171,11 @@ queryApLight <- function(){
      A.LABANNANALLV  AS LabKompAnnenAlv,
      A.LABDODSFALL  AS LabKompDod,
      A.LABPROCEDURDOD  AS LabKompProsedyrerelatertDod,
-
-
+     
      I.TRANSFERREDPATIENT  AS OverflyttetFra,
      (select h.NAME FROM hospital h where I.TRANSFERREDFROM = h.ID) AS OverflyttetFraSykehus,
      I.REFERRING_HOSP_ADMISSIONDATE AS InnleggelseHenvisendeSykehusDato,
      I.REFERRING_HOSP_ADMISSIONDATE_TIME AS InnleggelseHenvisendeSykehusTid,
-
-     
 
     I.PRESENTING_SYMPTOMS AS Innkomstarsak,
     I.SYMPTOM_ONSET_DATE AS SymptomdebutDato,
@@ -2204,8 +2203,6 @@ queryApLight <- function(){
     I.PREVIOUS_ACB AS TidligereACBOp,
     I.PRIOR_CARDIAC_SURGERY  AS AnnenTidlKirurgi,
     I.HYPERTENSION AS Hypertoni,
-
-
 
   -- Vanlige segment
     F.SEGMENT1,
@@ -2350,9 +2347,7 @@ queryApLight <- function(){
     C.AVDDODSFALL  AS AvdKompDod,
     C.AVDPROCEDURDOD AS AvdKompProsedyrerelatertDod,
   
-  
     -- Here comes numerous variables in the ANGIOPCICOMP SQL. Never used?
-  
     D.DISCHARGE_DATE AS Utskrivningsdato,
     D.DEATH  AS UtskrevetDod,
     D.DECEASED_DATE AS UtskrevetDodsdato,
@@ -2363,8 +2358,6 @@ queryApLight <- function(){
     D.STATINS_DISCHARGE AS UtskrStatiner,
     D.OTHER_LIPID_LOW_AGENTS_DISCHARGE AS OvrigeLipidsenkere,
 
-
-  
     P.SSN_TYPE AS FnrType,
     P.SSNSUBTYPE AS FnrSubtype,
     P.DECEASED  AS AvdodFReg,
@@ -2373,10 +2366,6 @@ queryApLight <- function(){
     P.MUNICIPALITY_NUMBER AS KommuneNr,
 	  CAST(NULL AS CHAR(50)) AS Fylke,
   	CAST(NULL AS CHAR(2)) AS Fylkenr,
-  	MCE.PARENT_MCEID as KobletForlopsID,
-  	MCE.PARENT_MCEID AS PrimaerForlopsID,
-
-
 
     I.STATUS AS SkjemaStatusStart,
     A.STATUS AS SkjemastatusHovedskjema,
