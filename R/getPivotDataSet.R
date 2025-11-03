@@ -25,7 +25,9 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   . <- ""
   
   validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
-                  "MK", "PS", "SO", "SS", "TP", "taviperc", "regangio")
+                  "MK", "PS", "SO", "SS", "TP", "taviperc", "regangio", 
+                "rose_dyspnea_scale", "heart_qol", "minnesota_questionnaire", 
+                "tavi_additional_questions", "prem")
   
   if(registryName == "noric_bergen"){singleHospital <-  NULL}
   
@@ -41,6 +43,31 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                   query = "SELECT * FROM regangio;")
     }
     
+    if (setId == "rose_dyspnea_scale") {
+      dat <- rapbase::loadRegData(registryName = registryName,
+                                  query = "SELECT * FROM rose_dyspnea_scale;")
+    }  
+    
+    if (setId == "heart_qol") {
+      dat <- rapbase::loadRegData(registryName = registryName,
+                                  query = "SELECT * FROM heart_qol;")
+    }    
+    if (setId == "minnesota_questionnaire") {
+      dat <- rapbase::loadRegData(registryName = registryName,
+                                  query = "SELECT * FROM minnesota_questionnaire;")
+    }    
+    if (setId == "tavi_additional_questions") {
+      dat <- rapbase::loadRegData(registryName = registryName,
+                                  query = "SELECT * FROM tavi_additional_questions;")
+    }    
+    if (setId == "prem") {
+      dat <- rapbase::loadRegData(registryName = registryName,
+                                  query = "SELECT * FROM prem;")
+    }
+    if (setId == "proms") {
+      dat <- rapbase::loadRegData(registryName = registryName,
+                                  query = "SELECT * FROM proms;")
+    }
 
     if (setId == "ApLight") {
       dat <- noric::getPrepApLightData(registryName = registryName,

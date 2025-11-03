@@ -194,12 +194,18 @@ shinyServer(function(input, output, session) {
         `Skjemaoversikt` = "SO",
         `Segment stent` = "SS", 
         `taviperc raw test` = "taviperc", 
-        `regangio raw test` = "regangio"
-        )
-      # EPROM is only for nasjoanl
-      if (!isNationalReg(user$org())) {
-        dataSets <- within(dataSets, rm("Aortaklaff eprom"))
-      }
+        `regangio raw test` = "regangio", 
+        `rose_dyspnea_scale` = "rose_dyspnea_scale", 
+        `heart_qol` = "heart_qol", 
+        `minnesota_questionnaire` = "minnesota_questionnaire", 
+        `tavi_additional_questions` = "tavi_additional_questions", 
+        `prem` = "prem", 
+        `proms` = "proms"
+      )
+      # # EPROM is only for nasjoanl
+      # if (!isNationalReg(user$org())) {
+      #   dataSets <- within(dataSets, rm("Aortaklaff eprom"))
+      # }
     } else {
       dataSets <- list(
         `Bruk og valg av data...` = "info",
