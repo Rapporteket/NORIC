@@ -15,15 +15,26 @@
 mapOrgReshId <- function(registryName, asNamedList = FALSE, newNames = FALSE) {
 
   query <- "
-SELECT
-  Sykehusnavn AS name,
-  AvdResh AS id
-FROM
-  skjemaoversikt
-GROUP BY
-  Sykehusnavn,
-  AvdResh;"
+  SELECT
+    centreattribute.`ATTRIBUTEVALUE` AS name,
+    centreattribute.ID AS id
+  FROM centreattribute
+  WHERE 
+    centreattribute.`ATTRIBUTENAME` = 'FRIENDLYNAME' 
+    ;"
+  
+  
+#   query <- "
+# SELECT
+#   Sykehusnavn AS name,
+#   AvdResh AS id
+# FROM
+#   skjemaoversikt
+# GROUP BY
+#   Sykehusnavn,
+#   AvdResh;"
 
+  
   res <- rapbase::loadRegData(registryName, query)
 
   if(newNames){
