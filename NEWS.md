@@ -1,3 +1,18 @@
+# noric 3.7.0
+ 
+*Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
+bruker ikke fromDate og toDate)
+* Fjerne view for PasienterStudier(MERK: problemer med kalender for denne, 
+bruker ikke fromDate og toDate)
+MERK2: I gammel håndtering viste PS alle pasienter med studier en gang per
+forløp (left_join(fo, ps, by= pasientid)). Nå viser vi bare alle pasienter
+med studie. Inge forlopsid
+* Fjerne Skjemaoversikt
+* noric::mapOrgId, noric::getLatestEntry og getLatestEntryHospital bruker 
+skjemaoversikt i noric_nasjonal, tilpasse denne når SO er fjernet
+
+
+
 # noric 3.6.0
 * Fjerne view for Segment stent.
 * Fjerne view for angiopcivarnum.

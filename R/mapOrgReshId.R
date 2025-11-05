@@ -14,16 +14,26 @@
 
 mapOrgReshId <- function(registryName, asNamedList = FALSE, newNames = FALSE) {
 
+  if(registryName == "noric_nasjonal"){
   query <- "
-SELECT
-  Sykehusnavn AS name,
-  AvdResh AS id
-FROM
-  skjemaoversikt
-GROUP BY
-  Sykehusnavn,
-  AvdResh;"
-
+    SELECT
+      Sykehusnavn AS name,
+      AvdResh AS id
+    FROM
+      skjemaoversikt
+    GROUP BY
+      Sykehusnavn,
+      AvdResh ;"
+  } else {
+  query <- "
+    SELECT
+      centreattribute.`ATTRIBUTEVALUE` AS name,
+      centreattribute.ID AS id
+    FROM 
+      centreattribute
+    WHERE 
+      centreattribute.`ATTRIBUTENAME` = 'FRIENDLYNAME' ;"
+  }
   res <- rapbase::loadRegData(registryName, query)
 
   if(newNames){

@@ -41,7 +41,7 @@ queryTaviprom()
 
 queryForlopsoversikt()
 
-querySkjemaoversikt(fromDate, toDate)
+querySkjemaoversikt(fromDate, toDate, singleHospital)
 
 queryPasienterstudier()
 
@@ -55,6 +55,8 @@ NULL if no filter on date.}
 
 \item{toDate}{Character string of format YYYY-MM-DD with end date. Value
 NULL if no filter on date.}
+
+\item{singleHospital}{NULL if national, reshid if query for one hospital}
 }
 \value{
 query as string

@@ -14,27 +14,41 @@
 #' @export
 getLatestEntry <- function(registryName) {
 
-  query <- paste0("
-SELECT
-  max(HovedDato) AS date
-FROM
-  skjemaoversikt;"
-                  )
-
-  rapbase::loadRegData(registryName, query = query)$date
+  if(registryName == "noric_nasjonal"){
+    query <- "
+      SELECT
+        max(HovedDato) AS date
+      FROM
+        skjemaoversikt;"
+  } else{query <- "
+      SELECT
+        max(mce.INTERDAT) AS date
+      FROM 
+        mce; "
+    }
+ rapbase::loadRegData(registryName, query = query)$date
 }
 
 #' @rdname getLatestEntry
 #' @export
 getLatestEntryHospital <- function(registryName, reshID = 99999) {
   
-  query <- paste0("
-SELECT
-  max(HovedDato) AS date
-FROM
-  skjemaoversikt 
-WHERE AvdRESH=", 
-  reshID, ";"  )
-  
+  if(registryName == "noric_nasjonal"){
+    query <- paste0("
+    SELECT
+      max(HovedDato) AS date
+    FROM
+      skjemaoversikt 
+    WHERE AvdRESH=", 
+     reshID, ";"  )
+  } else {
+    query <- paste0("
+    SELECT
+      max(mce.INTERDAT) AS date
+    FROM
+      mce 
+    WHERE mce.CENTREID = ", 
+           reshID, ";"  )
+  }
   rapbase::loadRegData(registryName, query = query)$date
 }
