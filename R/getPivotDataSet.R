@@ -29,8 +29,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                 "rose_dyspnea_scale", "heart_qol", "minnesota_questionnaire", 
                 "tavi_additional_questions", "prem")
   
-  if(registryName == "noric_bergen"){singleHospital <-  NULL}
-  
+
   if (setId %in% validSetId) {
     
     if (setId == "taviperc") {

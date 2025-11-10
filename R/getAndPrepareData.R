@@ -16,7 +16,7 @@
 #' relevant usecase will be when only description is needed. By default set to
 #' FALSE
 #' @param singleHospital if only data from one hospital, when national database. 
-#' Default value is NULL, contains reshID of selected hospital else. 
+#' Default value is 0, contains reshID of selected hospital else. 
 #' @param ... Optional arguments to be passed to the function
 #' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek
@@ -43,7 +43,7 @@ NULL
 #' @rdname getPrepData
 #' @export
 getPrepApData <- function(registryName, fromDate, toDate, singleRow, 
-                          singleHospital = NULL, ...){
+                          singleHospital = 0, ...){
   
   
   . <- ""
@@ -83,7 +83,7 @@ getPrepApData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepSoData <- function(registryName, fromDate, toDate, singleRow,
-                          singleHospital = NULL, ...){
+                          singleHospital = 0, ...){
   
   
   . <- ""
@@ -131,7 +131,7 @@ getPrepSoData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepAkData <- function(registryName, fromDate, toDate, singleRow, 
-                          singleHospital = NULL, ...){
+                          singleHospital = 0, ...){
   
   
   . <- ""
@@ -182,7 +182,7 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepFoData <- function(registryName, fromDate, toDate, singleRow,
-                          singleHospital = NULL, ...){
+                          singleHospital = 0, ...){
   
   
   . <- ""
@@ -220,7 +220,7 @@ getPrepFoData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,
-                           singleHospital = NULL, ...){
+                           singleHospital = 0, ...){
   
   
   . <- ""
@@ -267,7 +267,7 @@ getPrepAnPData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepCtData <- function(registryName, fromDate, toDate, singleRow,
-                          singleHospital = NULL, ...){
+                          singleHospital = 0, ...){
   
   
   . <- ""
@@ -350,7 +350,7 @@ getPrepCtData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,
-                              singleHospital = NULL, ...){
+                              singleHospital = 0, ...){
   
   
   . <- ""
@@ -379,7 +379,7 @@ getPrepAkOppfData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,
-                           singleHospital = NULL, ...){
+                           singleHospital = 0, ...){
   
   
   . <- ""
@@ -467,7 +467,7 @@ getPrepAnDData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepSsData <- function(registryName, fromDate, toDate, singleRow,
-                          singleHospital = NULL, ...){
+                          singleHospital = 0, ...){
   
   
   . <- ""
@@ -542,7 +542,7 @@ getPrepSsData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepMkData <- function(registryName, fromDate, toDate, singleRow,
-                          singleHospital = NULL, ...){
+                          singleHospital = 0, ...){
   
   
   . <- ""
@@ -659,7 +659,7 @@ getPrepMkData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepPsData <- function(registryName, fromDate, toDate, singleRow, 
-                          singleHospital = NULL, ...){
+                          singleHospital = 0, ...){
   
   
   . <- ""
@@ -785,7 +785,7 @@ getPrepPsData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
-                               singleHospital = NULL, ...){
+                               singleHospital = 0, ...){
   
   dataListe <- noric::getApLight(registryName = registryName,
                                  fromDate = fromDate,
@@ -876,7 +876,7 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getPrepData
 #' @export
 getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
-                                singleHospital = NULL, ...){
+                                singleHospital = 0, ...){
   
   
   . <- ""

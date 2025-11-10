@@ -7,20 +7,27 @@ library(shiny)
 shinyServer(function(input, output, session) {
   
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
+  registryName = "noric_bergen"
+  # map_db_resh <-
+  #   rapbase::getConfig("rapbaseConfig.yml")$reg$noric$databases |>
+  #   unlist() |>
+  #   matrix(nrow=2) |>
+  #   t() |>
+  #   as.data.frame() |>
+  #   dplyr::rename(dbname = V1, AvdRESH = V2)
+  # 
+  # map_orgname <- map_db_resh |>
+  #   dplyr::rename(Sykehusnavn = dbname) |>
+  #   fikse_sykehusnavn() |>
+  #   dplyr::rename(UnitId = AvdRESH,
+  #                 orgname = Sykehusnavn)
   
-  map_db_resh <-
-    rapbase::getConfig("rapbaseConfig.yml")$reg$noric$databases |>
-    unlist() |>
-    matrix(nrow=2) |>
-    t() |>
-    as.data.frame() |>
-    dplyr::rename(dbname = V1, AvdRESH = V2)
-  
-  map_orgname <- map_db_resh |>
-    dplyr::rename(Sykehusnavn = dbname) |>
-    fikse_sykehusnavn() |>
-    dplyr::rename(UnitId = AvdRESH,
-                  orgname = Sykehusnavn)
+  map_orgname <- noric::mapOrgReshId(registryName = registryName, 
+                                     asNamedList = FALSE, 
+                                     newNames = FALSE) %>% 
+    rbind(data.frame(name = "Nasjonal", id = 0)) %>% 
+       dplyr::rename(UnitId = id,
+                     orgname = name)
   
   user <- rapbase::navbarWidgetServer2(
     "navbar-widget",
@@ -31,9 +38,9 @@ shinyServer(function(input, output, session) {
   
   # Parameters that may change depending on the role and org of user
   ## setting values that do depend on a Rapporteket context
-  registryName <- reactive(
-    map_db_resh$dbname[map_db_resh$AvdRESH == user$org()]
-  )
+  # registryName <- reactive(
+  #   map_db_resh$dbname[map_db_resh$AvdRESH == user$org()]
+  # )
   userFullName <- Sys.getenv("FALK_USER_FULLNAME")
   hospitalName <- reactive(
     map_orgname$orgname[map_orgname$UnitId ==  user$org()]
@@ -69,7 +76,7 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     }
     
-    if (isNationalReg(shiny::req(user$org()))) {
+    if (shiny::req(user$org()) == 0) {
       shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
       shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
       shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
@@ -77,7 +84,7 @@ shinyServer(function(input, output, session) {
     }
     
     ## dispatchment and use stats hidden when not national registry
-    if (!isNationalReg(shiny::req(user$org()))) {
+    if (shiny::req(user$org()) != 0) {
       shiny::hideTab(inputId = "tabs", target = "Utsending")
       shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
@@ -130,7 +137,7 @@ shinyServer(function(input, output, session) {
   
   # datadump function for re-use
   contentDump <- function(file, type) {
-    d <- noric::getDataDump(registryName = registryName(),
+    d <- noric::getDataDump(registryName = registryName,
                             tableName = input$dumpDataSet,
                             fromDate = input$dumpDateRange[1],
                             toDate = input$dumpDateRange[2],
@@ -259,7 +266,7 @@ shinyServer(function(input, output, session) {
   
   dat <- shiny::reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
-                           registryName = registryName(),
+                           registryName = registryName,
                            singleRow = FALSE,
                            session = session,
                            userRole = user$role(),
@@ -270,13 +277,13 @@ shinyServer(function(input, output, session) {
   
   metaDat <- shiny::reactive({
     noric::getPivotDataSet(setId = input$selectedDataSet,
-                           registryName = registryName(),
+                           registryName = registryName,
                            singleRow = TRUE,
                            session = session,
                            userRole = user$role(),
                            fromDate = NULL,
                            toDate = NULL, 
-                           singleHospital = NULL)
+                           singleHospital = user$org())
   })
   
   ## outputs
@@ -359,7 +366,7 @@ shinyServer(function(input, output, session) {
   kodebok <- noric::getKodebokMedUtledetedVar()
   metaDatKb <- shiny::reactive({
     noric::getPivotDataSet(setId = input$kbdTab,
-                           registryName = registryName(),
+                           registryName = registryName,
                            session = session,
                            userRole = user$role(),
                            singleRow = TRUE, 
@@ -418,7 +425,7 @@ shinyServer(function(input, output, session) {
             hospitalName = hospitalName(),
             tableFormat = "html",
             reshId = user$org(),
-            registryName = registryName(),
+            registryName = registryName,
             userFullName = user$fullName(),
             userRole = user$role(),
             rendered_by_shiny = TRUE
@@ -438,7 +445,7 @@ shinyServer(function(input, output, session) {
             hospitalName = hospitalName(),
             tableFormat = "html",
             reshId = user$org(),
-            registryName = registryName(),
+            registryName = registryName,
             userFullName = user$fullName(),
             userRole = user$role(),
             rendered_by_shiny = TRUE
@@ -457,7 +464,7 @@ shinyServer(function(input, output, session) {
             hospitalName = hospitalName(),
             tableFormat = "html",
             reshId = user$org(),
-            registryName = registryName(),
+            registryName = registryName,
             userFullName = user$fullName(),
             userRole = user$role(),
             rendered_by_shiny = TRUE
@@ -478,7 +485,7 @@ shinyServer(function(input, output, session) {
                   orgName = hospitalName(),
                   userFullName = user$fullName(),
                   userRole = user$role(),
-                  registryName = registryName(),
+                  registryName = registryName,
                   tableFormat = "latex")
     }
   )
@@ -496,7 +503,7 @@ shinyServer(function(input, output, session) {
                   orgName = hospitalName(),
                   userFullName = user$fullName(),
                   userRole = user$role(),
-                  registryName = registryName(),
+                  registryName = registryName,
                   tableFormat = "latex")
     }
   )
@@ -514,7 +521,7 @@ shinyServer(function(input, output, session) {
                   orgName = hospitalName(),
                   userFullName = user$fullName(),
                   userRole = user$role(),
-                  registryName = registryName(),
+                  registryName = registryName,
                   tableFormat = "latex")
     }
   )
@@ -542,7 +549,7 @@ shinyServer(function(input, output, session) {
   )
   
   observeEvent(list(user$role(), user$org()), {
-    if (!(user$role() == "SC" & noric::isNationalReg(reshId = user$org()))) {
+    if (!(user$role() == "SC" & user$org() == 0)) {
       # Remove if not national SC-role
       dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "AortaklaffProm"])
     }
@@ -595,7 +602,7 @@ shinyServer(function(input, output, session) {
   
   # Verktøy - Metadata
   meta <- shiny::reactive({
-    noric::describeRegistryDb(registryName = registryName())
+    noric::describeRegistryDb(registryName = registryName)
   })
   
   output$metaControl <- shiny::renderUI({
@@ -624,7 +631,7 @@ shinyServer(function(input, output, session) {
   
   # Abonnement og verktøy-utsending
   orgs <- noric::mapOrgReshId(
-    registryName =  map_db_resh$dbname[map_db_resh$AvdRESH == 0],
+    registryName =  registryName,
     asNamedList = TRUE,
     newNames = TRUE)
   
@@ -662,7 +669,7 @@ shinyServer(function(input, output, session) {
       )
     ))
     
-    if (!isNationalReg(user$org()) && user$role() == "SC") {
+    if (user$role() == "SC" & shiny::req(user$org()) != 0) {
       subReportsOperator <- list(
         `Angiografør/Operatør` = list(
           synopsis = "Angiografør/Operatør siste \u00E5r",
@@ -700,7 +707,7 @@ shinyServer(function(input, output, session) {
     user$orgName(),
     user$fullName(),
     user$role(),
-    registryName()
+    registryName
   ))
   
   ## serve subscriptions (Abonnement)
@@ -738,7 +745,7 @@ shinyServer(function(input, output, session) {
                       "unknown author",
                       "unknown organization",
                       999999,
-                      "registryName()",
+                      "registryName",
                       "userFullName",
                       "user$role()")
     ), 
@@ -763,7 +770,7 @@ shinyServer(function(input, output, session) {
                       "unknown author",
                       "unknown organization",
                       999999,
-                      "registryName()",
+                      "registryName",
                       "userFullName",
                       "user$role()")
     ), 
@@ -787,7 +794,7 @@ shinyServer(function(input, output, session) {
                       "unknown author",
                       "unknown organization",
                       999999,
-                      "registryName()",
+                      "registryName",
                       "userFullName",
                       "user$role()")
     )
@@ -800,12 +807,12 @@ shinyServer(function(input, output, session) {
   )
   dispatchParamValues <- shiny::reactive(
     c(orgDispatch$name(), orgDispatch$value(), 
-      registryName(), user$fullName(), user$role())
+      registryName, user$fullName(), user$role())
   )
   
   eligible <- reactiveVal(FALSE)
   observeEvent(list(user$org(), user$role()), {
-    eligible(all(c(user$role() == "SC", isNationalReg(user$org()))))
+    eligible(all(c(user$role() == "SC", user$org() == 0)))
   })
   ## serve dispatchments (Utsending)
   rapbase::autoReportServer(
@@ -826,9 +833,9 @@ shinyServer(function(input, output, session) {
   
   #Verktøy - nedlasting rapporter
   orgs_df <- shiny::reactiveVal(orgs)
-  shiny::observeEvent(registryName(), {
+  shiny::observeEvent(registryName, {
     # Update orgs_df when registryName changes
-    orgs_df(noric::mapOrgReshId(registryName = registryName(),
+    orgs_df(noric::mapOrgReshId(registryName = registryName,
                                 asNamedList = FALSE,
                                 newNames = TRUE))
   })
@@ -872,7 +879,7 @@ shinyServer(function(input, output, session) {
                   orgName = orgs_df()[orgs_df()$id == input$dwldSykehus, "name"],
                   userFullName = user$fullName(),
                   userRole = user$role(),
-                  registryName = registryName())
+                  registryName = registryName)
     })
   
   # Verktøy - brukerstatistikk
@@ -914,9 +921,9 @@ shinyServer(function(input, output, session) {
   shiny::observeEvent(input$lagNyStaging, {
     message("Lager ny staging data...")
     shiny::withProgress(message = "Lager ny staging data, vent!", value = 0, {
-      noric::makeStagingDataKi(registryName = registryName(),
+      noric::makeStagingDataKi(registryName = registryName,
                                rendered_by_shiny = TRUE)
-      rv$staged <- noric::makeStagingDataFrame(registryName = registryName())
+      rv$staged <- noric::makeStagingDataFrame(registryName = registryName)
     })
     message("Ny staging data laget!")
   })
@@ -972,10 +979,10 @@ shinyServer(function(input, output, session) {
     rowNum <- parseDeleteEvent(input$deletePressed)
     
     # Slette valgt datasett
-    rowName <- rapbase::listStagingData(registryName = registryName())[rowNum]
-    rapbase::deleteStagingData(registryName = registryName(),
+    rowName <- rapbase::listStagingData(registryName = registryName)[rowNum]
+    rapbase::deleteStagingData(registryName = registryName,
                                dataName = rowName)
-    rv$staged <- noric::makeStagingDataFrame(registryName = registryName())
+    rv$staged <- noric::makeStagingDataFrame(registryName = registryName)
   })
   
   output$stagingDataTable <- DT::renderDataTable(
@@ -997,7 +1004,7 @@ shinyServer(function(input, output, session) {
   bulletinParamValues <- shiny::reactive(
     c(orgDataStaging$name(),
       orgDataStaging$value(),
-      registryName(),
+      registryName,
       user$fullName(),
       user$role()
     )
@@ -1021,7 +1028,7 @@ shinyServer(function(input, output, session) {
         "unknown author",
         "unknown organization",
         999999,
-        "registryName()",
+        "registryName",
         "userFullName()",
         "user$role()"
         ))
