@@ -91,82 +91,75 @@ showN <- 14
 
 
 # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
-if(params$registryName %in% "noric_nasjonal"){
-  nyeste_reg <- noric::getLatestEntryHospital(
-    registryName = params$registryName, 
-    reshID = params$reshId)
-  
-} else {
-  nyeste_reg <- min(
-      (as.Date(Sys.time()) - 1),
-      noric::getLatestEntry(registryName = params$registryName)
-  )
-}
+nyeste_reg <- noric::getLatestEntryHospital(
+  registryName = params$registryName, 
+  reshID = params$reshId)
+
 
 
 periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
-    dplyr::mutate(
+  dplyr::mutate(
+    
+    
+    # SISTE DATO AVGJØR SISTE MÅNED: 
+    siste_dato_innevarende_mnd = lubridate::ceiling_date(
+      x = nyeste_reg, unit =  "month") - lubridate::days(1),
+    
+    siste_dato = dplyr::case_when(
+      # siste dato er nyeste dato --> nyeste mnd er komlett
+      siste_dato_innevarende_mnd == nyeste_reg ~ 
+        nyeste_reg, 
       
+      # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
+      siste_dato_innevarende_mnd != nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, "month") - 
+        lubridate::days(1), 
       
-      # SISTE DATO AVGJØR SISTE MÅNED: 
-      siste_dato_innevarende_mnd = lubridate::ceiling_date(
-        x = nyeste_reg, unit =  "month") - lubridate::days(1),
+      TRUE ~ as.Date(NA_character_)),
+    
+    
+    
+    
+    # SISTE DATO AVGJØR SISTE KVARTAL
+    siste_dato_innevarende_kvartal = lubridate::ceiling_date(
+      x = nyeste_reg, 
+      unit =  "quarter") - lubridate::days(1),
+    
+    kvartal_komplett_start = dplyr::case_when(
+      # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
+      siste_dato_innevarende_kvartal == nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, 
+                              unit =  "quarter"), 
       
-      siste_dato = dplyr::case_when(
-        # siste dato er nyeste dato --> nyeste mnd er komlett
-        siste_dato_innevarende_mnd == nyeste_reg ~ 
-          nyeste_reg, 
-        
-        # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
-        siste_dato_innevarende_mnd != nyeste_reg ~ 
-          lubridate::floor_date(nyeste_reg, "month") - 
-          lubridate::days(1), 
-        
-        TRUE ~ as.Date(NA_character_)),
+      # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+      siste_dato_innevarende_kvartal != nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, 
+                              unit =  "quarter") - months(3), 
       
-      
-      
-      
-      # SISTE DATO AVGJØR SISTE KVARTAL
-      siste_dato_innevarende_kvartal = lubridate::ceiling_date(
-        x = nyeste_reg, 
-        unit =  "quarter") - lubridate::days(1),
-      
-      kvartal_komplett_start = dplyr::case_when(
-        # siste dato i kvartalet er lik nyeste dato --> kvartalet er komplett
-        siste_dato_innevarende_kvartal == nyeste_reg ~ 
-          lubridate::floor_date(nyeste_reg, 
-                                unit =  "quarter"), 
-        
-        # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
-        siste_dato_innevarende_kvartal != nyeste_reg ~ 
-          lubridate::floor_date(nyeste_reg, 
-                                unit =  "quarter") - months(3), 
-        
-        TRUE ~ as.Date(NA_character_)),
-      
-      
-      
-      # Inneværende år: 
-      nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
-      
-      # Fjoråret
-      sisteHeleYear = nyesteRegYear - 1, 
-
-      # Inneværende måned i år: 
-      nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
-      
-      # Første dato for SQL -spørring : 01. januar fjoråret
-      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-                             format = "%Y-%m-%d"), 
-      
-      # Aortaklaff + Segment stent (indikator per kvartal): 
-      forste_dato_kvartal = as.Date(paste0(sisteHeleYear - 1, "-01-01"),
+      TRUE ~ as.Date(NA_character_)),
+    
+    
+    
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = nyesteRegYear - 1, 
+    
+    # Inneværende måned i år: 
+    nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
+    
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                           format = "%Y-%m-%d"), 
+    
+    # Aortaklaff + Segment stent (indikator per kvartal): 
+    forste_dato_kvartal = as.Date(paste0(sisteHeleYear - 1, "-01-01"),
                                   format = "%Y-%m-%d")
-    ) %>% 
-    dplyr::select(-siste_dato_innevarende_mnd, 
-                  -siste_dato_innevarende_kvartal)
-  
+  ) %>% 
+  dplyr::select(-siste_dato_innevarende_mnd, 
+                -siste_dato_innevarende_kvartal)
+
 
 
 ```
@@ -205,8 +198,8 @@ timeTableMonth_aar <- data.frame(
                   by = "month")) %>% 
   dplyr::transmute(maaned = as.factor(format(x = monthDato, 
                                              format = "%Y-%m"))) %>% 
-    dplyr::transmute(
-      maaned = as.ordered(maaned))
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
 
 
 t_timeTableMonth_aar <- data.frame(t(timeTableMonth_aar[-1]))
@@ -229,7 +222,8 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
 AP <- noric::getPrepApData(registryName = params$registryName,
                            fromDate  = periode_data$forste_dato,
                            toDate = periode_data$siste_dato,
-                           singleRow = FALSE)
+                           singleRow = FALSE, 
+                           singleHospital = params$reshId)
 
 ```
 
@@ -296,7 +290,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.35)  # set progress to 35%
+  shiny::setProgress(0.35)  # set progress to 35%
 ```
 <br/><br/>
 
@@ -371,7 +365,7 @@ if (params$tableFormat == "html") {
                           periode_data$nyesteRegYear)),
       bold = TRUE,
       font_size = 12)
-
+  
 } else if (params$tableFormat == "latex") {
   TabAngiografor %>% rename(" " = "forkortetNavnAngiografor") %>% 
     knitr::kable(format = params$tableFormat,
@@ -398,7 +392,7 @@ if (params$tableFormat == "html") {
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(0.7)  # set progress to 70%
+  shiny::setProgress(0.7)  # set progress to 70%
 ```
 
 
@@ -479,7 +473,7 @@ if (params$tableFormat == "html") {
                           periode_data$nyesteRegYear)),
       bold = TRUE,
       font_size = 12)
-
+  
 } else if (params$tableFormat == "latex") {
   TabPciOperator %>% rename(" " = "forkortetNavnPCIoperator") %>% 
     knitr::kable(format = params$tableFormat,
@@ -510,5 +504,5 @@ gc(verbose = TRUE) # garbage collection to free up memory
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-    shiny::setProgress(1)  # set progress to 100%
+  shiny::setProgress(1)  # set progress to 100%
 ```

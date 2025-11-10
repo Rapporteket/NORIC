@@ -80,22 +80,11 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 
 # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
-if (params$registryName %in% "noric_nasjonal") {
-  nyeste_reg <- min(
-    (as.Date(Sys.time()) - 1),
-    
-    noric::getLatestEntryHospital(registryName = params$registryName, 
-                                  reshID = params$reshId)
-  )
-  
-} else {
-  nyeste_reg <- min(
-    (as.Date(Sys.time()) - 1),
-    noric::getLatestEntry(registryName = params$registryName)
-  )
-}
-
-
+nyeste_reg <- min(
+  (as.Date(Sys.time()) - 1),
+  noric::getLatestEntryHospital(registryName = params$registryName, 
+                                reshID = params$reshId)
+)
 
 periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
   dplyr::mutate(
@@ -211,31 +200,14 @@ siste_dato_txt <- format(x = periode_data$siste_dato,
 
 
 ```{r GetData, include=FALSE, cache=FALSE}
-
-if (params$registryName %in% "noric_nasjonal") {
-  # SPørring til NASJONAL database. 
-  # Kun utvalgt sykehus
-  AK <- noric::getPrepAkData(registryName = params$registryName,
-                             fromDate  = periode_data$forste_dato,
-                             toDate = periode_data$siste_dato,
-                             singleRow = FALSE, 
-                             singleHospital = params$reshId)
-  
-} else{
-  # SPørring til LOKAL database. 
-  # Kun et sykehus, som er registry name
-  AK <- noric::getPrepAkData(registryName = params$registryName,
-                             fromDate  = periode_data$forste_dato,
-                             toDate = periode_data$siste_dato,
-                             singleRow = FALSE, 
-                             singleHospital = NULL)
-}   
-
-
+AK <- noric::getPrepAkData(registryName = params$registryName,
+                           fromDate  = periode_data$forste_dato,
+                           toDate = periode_data$siste_dato,
+                           singleRow = FALSE, 
+                           singleHospital = params$reshId)
 ```
 
 ```{r prepdata}
-
 AK %<>% 
   dplyr::mutate(
     Prosedyre2 = factor(
@@ -2628,37 +2600,30 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 
 
 ```{r GetData2, include=FALSE, cache=FALSE}
-
 # 10 år tilbake i tid, men ikke lenger tilbake enn 2017 (nasj. dekning). 
 fromDate <- max(as.Date(paste0(periode_data$nyesteRegYear - 9, "-01-01"), 
                         format = "%Y-%m-%d"),
                 as.Date("2017-01-01", format = "%Y-%m-%d")) 
 toDate <- periode_data$siste_dato
 
-
 query <- paste0(
- "SELECT 
+  "SELECT 
    CASE
      WHEN IFNULL(patient.GENDER,0) = 0 THEN 'Ikke angitt'
      WHEN patient.GENDER = 1 THEN 'Mann'
      WHEN patient.GENDER = 2 THEN 'Kvinne'
      ELSE 'Ukjent'
    END AS PasientKjonn,
-   
    patient.BIRTH_DATE AS FodselsDato,  
    mce.INTERDAT AS ProsedyreDato, 
    mce.CENTREID AS AvdRESH
  FROM mce 
    INNER JOIN patient ON mce.PATIENT_ID = patient.ID  
  WHERE 
-   mce.INTERVENTION_TYPE = 5 AND ", 
-  "mce.INTERDAT >= '", fromDate, "' AND
-   mce.INTERDAT <= '", toDate, "'" )
-
-if(params$registryName %in% "noric_nasjonal") {
-  query <- paste0(query, " AND mce.CENTREID = '", params$reshId, "' ")
-}
-query <- paste0(query, " ;")
+   mce.INTERVENTION_TYPE = 5 AND 
+   mce.INTERDAT >= '", fromDate, "' AND
+   mce.INTERDAT <= '", toDate, "'  AND 
+   mce.CENTREID = '", params$reshId, "' ; ")
 
 AK_alderKjonn <- rapbase::loadRegData(params$registryName, query) %>%
   noric::utlede_alder(.) %>%
@@ -2671,16 +2636,8 @@ AK_alderKjonn <- rapbase::loadRegData(params$registryName, query) %>%
 
 ```
 
-<!-- forløp registrert ved `r params$hospitalName`.  -->
-<!-- Resh id er `r params$reshId` og userRole er  `r params$userRole`.  -->
-
-
-<!-- Query `r query`.  -->
-
 
 ## Kjønnsfordeling
-
-
 
 ```{r alderKjonnTabell}
 cap <- paste0("Antall (andel) behandlede kvinner og menn i perioden fra ",
@@ -2714,7 +2671,7 @@ if (params$tableFormat == "html") {
                  align = align) %>%
     kableExtra::kable_styling(latex_options = "HOLD_position",
                               font_size = 8)
-
+  
 }
 ```
 

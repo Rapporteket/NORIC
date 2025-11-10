@@ -77,7 +77,10 @@ reportProcessor <- function(report,
   
   
   stopifnot(outputType %in% c("html", "pdf"))
-
+  if (orgId == 0) {
+    warning("SingleHospital should be selected!")
+  }
+  
   filePath <- NULL
 
   if (title == "") {
