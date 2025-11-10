@@ -43,7 +43,7 @@ shinyServer(function(input, output, session) {
   # )
   userFullName <- Sys.getenv("FALK_USER_FULLNAME")
   hospitalName <- reactive(
-    map_orgname$orgname[map_orgname$UnitId ==  user$org()]
+    map_orgname$orgname[map_orgname$UnitId == user$org()]
   )
   
   # Hide tabs
@@ -643,7 +643,8 @@ shinyServer(function(input, output, session) {
           "orgId",
           "registryName",
           "userFullName",
-          "userRole")
+          "userRole", 
+          "tableFormat")
   
   pv <- c("pdf",
           "Månedsresultater",
@@ -652,7 +653,8 @@ shinyServer(function(input, output, session) {
           "user$org()",
           "registryName",
           "userFullName",
-          "user$role()")
+          "user$role()", 
+          "latex")
   
   subReports <- shiny::reactiveVal(
     list()
@@ -700,14 +702,16 @@ shinyServer(function(input, output, session) {
     "orgName",
     "userFullName",
     "userRole",
-    "registryName"
+    "registryName", 
+    "tableFormat"
   ))
   subParamValues <- shiny::reactive(c(
     user$org(),
     user$orgName(),
     user$fullName(),
     user$role(),
-    registryName
+    registryName, 
+    "latex"
   ))
   
   ## serve subscriptions (Abonnement)
@@ -738,7 +742,8 @@ shinyServer(function(input, output, session) {
                      "orgId",
                      "registryName",
                      "userFullName",
-                     "userRole"),
+                     "userRole", 
+                     "tableFormat"),
       paramValues = c("NORIC_kvalitetsindikator",
                       "pdf",
                       "Månedsresultater",
@@ -747,7 +752,8 @@ shinyServer(function(input, output, session) {
                       999999,
                       "registryName",
                       "userFullName",
-                      "user$role()")
+                      "user$role()", 
+                      "latex")
     ), 
     
     
@@ -763,7 +769,8 @@ shinyServer(function(input, output, session) {
                      "orgId",
                      "registryName",
                      "userFullName",
-                     "userRole"),
+                     "userRole", 
+                     "tableFormat"),
       paramValues = c("NORIC_local_monthly",
                       "pdf",
                       "Månedsresultater",
@@ -772,7 +779,8 @@ shinyServer(function(input, output, session) {
                       999999,
                       "registryName",
                       "userFullName",
-                      "user$role()")
+                      "user$role()", 
+                      "latex")
     ), 
     
     `Aortaklaff` = list(
@@ -787,7 +795,8 @@ shinyServer(function(input, output, session) {
                      "orgId",
                      "registryName",
                      "userFullName",
-                     "userRole"),
+                     "userRole", 
+                     "tableFormat"),
       paramValues = c("NORIC_tavi_report",
                       "pdf",
                       "Månedsresultater",
@@ -796,18 +805,20 @@ shinyServer(function(input, output, session) {
                       999999,
                       "registryName",
                       "userFullName",
-                      "user$role()")
+                      "user$role()", 
+                      "latex")
     )
   )
   
   orgDispatch <- rapbase::autoReportOrgServer("noricDispatch", orgs)
   
   dispatchParamNames <- shiny::reactive(
-    c("orgName", "orgId", "registryName", "userFullName", "userRole")
+    c("orgName", "orgId", "registryName", "userFullName", 
+      "userRole", "tableFormat")
   )
   dispatchParamValues <- shiny::reactive(
     c(orgDispatch$name(), orgDispatch$value(), 
-      registryName, user$fullName(), user$role())
+      registryName, user$fullName(), user$role(), "latex")
   )
   
   eligible <- reactiveVal(FALSE)
@@ -879,7 +890,8 @@ shinyServer(function(input, output, session) {
                   orgName = orgs_df()[orgs_df()$id == input$dwldSykehus, "name"],
                   userFullName = user$fullName(),
                   userRole = user$role(),
-                  registryName = registryName)
+                  registryName = registryName, 
+                  tableFormat = "latex")
     })
   
   # Verktøy - brukerstatistikk

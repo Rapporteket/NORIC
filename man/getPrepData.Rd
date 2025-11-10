@@ -22,7 +22,7 @@ getPrepApData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -31,7 +31,7 @@ getPrepSoData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -40,7 +40,7 @@ getPrepAkData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -49,7 +49,7 @@ getPrepFoData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -58,7 +58,7 @@ getPrepAnPData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -67,7 +67,7 @@ getPrepCtData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -76,7 +76,7 @@ getPrepAkOppfData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -85,7 +85,7 @@ getPrepAnDData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -94,7 +94,7 @@ getPrepSsData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -103,7 +103,7 @@ getPrepMkData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -112,7 +112,7 @@ getPrepPsData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -121,7 +121,7 @@ getPrepApLightData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -130,7 +130,7 @@ getPrepTaviPromData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 }
@@ -152,7 +152,7 @@ relevant usecase will be when only description is needed. By default set to
 FALSE}
 
 \item{singleHospital}{if only data from one hospital, when national database. 
-Default value is NULL, contains reshID of selected hospital else.}
+Default value is 0, contains reshID of selected hospital else.}
 
 \item{...}{Optional arguments to be passed to the function}
 }
