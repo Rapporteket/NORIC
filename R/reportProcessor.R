@@ -27,8 +27,6 @@
 #' user requesting the report. Default is "unknown person name".
 #' @param userRole Character string giving a user role, normally the one of the
 #' user requesting the report. Default is "unknown role".
-#' @param userOperator Character string with some name of an operator, whatever
-#' that is... Default is "unknown operator".
 #' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
 #' returned.
 #' @param tableFormat Character string giving the format of the report. Must be 
@@ -52,7 +50,6 @@ reportProcessor <- function(report,
                             registryName = "noric",
                             userFullName = "unknown person name",
                             userRole = "unknown role",
-                            userOperator = "unknown operator",
                             rendered_by_shiny = FALSE,
                             tableFormat = "latex") {
 
