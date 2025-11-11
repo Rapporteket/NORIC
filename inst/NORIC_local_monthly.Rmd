@@ -4,7 +4,7 @@ params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
   tableFormat: html
-  reshID: 999999
+  reshId: 999999
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
@@ -93,7 +93,7 @@ showN <- 14
 if(params$registryName %in% "noric_nasjonal"){
   nyeste_reg <- noric::getLatestEntryHospital(
     registryName = params$registryName, 
-    reshID = params$reshID)
+    reshID = params$reshId)
   
 } else {
   nyeste_reg <- min(
@@ -217,13 +217,13 @@ if(params$registryName %in% "noric_nasjonal"){
                              fromDate  = periode_data$forste_dato,
                              toDate = periode_data$siste_dato,
                              singleRow = FALSE, 
-                             singleHospital = params$reshID)
+                             singleHospital = params$reshId)
   
   AnP <- noric::getPrepAnPData(registryName = params$registryName,
                                fromDate  = periode_data$forste_dato,
                                toDate = periode_data$siste_dato,
                                singleRow = FALSE, 
-                             singleHospital = params$reshID)
+                             singleHospital = params$reshId)
   
   evaluate_AnP <- nrow(AnP) > 0 # for conditional running of AnP-related chunks
   # (TRUE when AnP contains data)
@@ -233,13 +233,13 @@ if(params$registryName %in% "noric_nasjonal"){
                              fromDate  = periode_data$forste_dato,
                              toDate = periode_data$siste_dato,
                              singleRow = FALSE, 
-                             singleHospital = params$reshID)
+                             singleHospital = params$reshId)
   
   AnD <- noric::getPrepAnDData(registryName = params$registryName,
                              fromDate  = periode_data$forste_dato,
                              toDate = periode_data$siste_dato,
                              singleRow = FALSE, 
-                             singleHospital = params$reshID)
+                             singleHospital = params$reshId)
   
   
   } else{
@@ -3073,7 +3073,9 @@ if (params$tableFormat == "html") {
 
 ```
 
-
+```{r include = FALSE}
+gc(verbose = TRUE) # garbage collection to free up memory
+```
 
 ```{r}
 if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
