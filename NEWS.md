@@ -1,3 +1,12 @@
+# noric 3.8.0: Sammenslåing databaser
+ 
+Overgang til èn felles database for alle sykehusene (noric_bergen). 
+Hente innhold i Rapporteket fra denne databasen. Oppdatere rapbaseConfig til 
+å bruke kun èn database. Tilpasse innhold og tilganger på Rapporteket til 
+nytt databaseoppsett. Bruke eksisterende tilganger. Innføring av parameteren
+'singleHospital'.
+
+
 # noric 3.7.0
  
 *Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
