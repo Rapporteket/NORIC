@@ -8,26 +8,15 @@ shinyServer(function(input, output, session) {
   
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
   registryName = "noric_bergen"
-  # map_db_resh <-
-  #   rapbase::getConfig("rapbaseConfig.yml")$reg$noric$databases |>
-  #   unlist() |>
-  #   matrix(nrow=2) |>
-  #   t() |>
-  #   as.data.frame() |>
-  #   dplyr::rename(dbname = V1, AvdRESH = V2)
-  # 
-  # map_orgname <- map_db_resh |>
-  #   dplyr::rename(Sykehusnavn = dbname) |>
-  #   fikse_sykehusnavn() |>
-  #   dplyr::rename(UnitId = AvdRESH,
-  #                 orgname = Sykehusnavn)
-  
+
   map_orgname <- noric::mapOrgReshId(registryName = registryName, 
                                      asNamedList = FALSE, 
                                      newNames = FALSE) %>% 
-    rbind(data.frame(name = "Nasjonal", id = 0)) %>% 
-       dplyr::rename(UnitId = id,
-                     orgname = name)
+    dplyr::transmute(AvdRESH = id) %>% 
+    noric::fikse_sykehusnavn(.) %>% 
+    rbind(data.frame(Sykehusnavn = "Nasjonal", AvdRESH = 0)) %>% 
+    dplyr::rename(UnitId = AvdRESH,
+                  orgname = Sykehusnavn)
   
   user <- rapbase::navbarWidgetServer2(
     "navbar-widget",
@@ -1012,7 +1001,7 @@ shinyServer(function(input, output, session) {
         "registryName",
         "userFullName",
         "userRole"
-        )),
+      )),
       paramValues = shiny::reactive(c(
         "ki",
         "unknown author",
@@ -1021,7 +1010,7 @@ shinyServer(function(input, output, session) {
         "registryName",
         "userFullName()",
         "user$role()"
-        ))
+      ))
     )
   )
   
