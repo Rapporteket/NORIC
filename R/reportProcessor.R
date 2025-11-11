@@ -19,7 +19,7 @@
 #' "unknown author".
 #' @param orgName Character string with the name of the organization/hospital.
 #' Default is "unknown organization".
-#' @param orgId Integer (?) with the id of the organization/hospital. Default is
+#' @param orgId Integer. with the id of the organization/hospital. Default is
 #' 999999.
 #' @param registryName Character string with registry name. Default is
 #' "noric".

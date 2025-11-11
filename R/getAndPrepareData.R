@@ -15,8 +15,8 @@
 #' @param singleRow Logical defining if only one row is to be returned. A
 #' relevant usecase will be when only description is needed. By default set to
 #' FALSE
-#' @param singleHospital if only data from one hospital, when national database. 
-#' Default value is 0, contains reshID of selected hospital else. 
+#' @param singleHospital Integer. Contains reshID from which data is loaded. 
+#' Value 0 is national. 
 #' @param ... Optional arguments to be passed to the function
 #' @importFrom dplyr filter mutate mutate_all select left_join
 #' @importFrom lubridate ymd year month quarter isoweek

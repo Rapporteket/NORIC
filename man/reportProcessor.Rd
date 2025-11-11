@@ -34,7 +34,7 @@ default.}
 \item{orgName}{Character string with the name of the organization/hospital.
 Default is "unknown organization".}
 
-\item{orgId}{Integer (?) with the id of the organization/hospital. Default is
+\item{orgId}{Integer. with the id of the organization/hospital. Default is
 999999.}
 
 \item{registryName}{Character string with registry name. Default is

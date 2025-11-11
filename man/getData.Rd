@@ -59,8 +59,8 @@ NULL if no filter on date.}
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE.}
 
-\item{singleHospital}{if only data from one hospital, when national database. 
-Default value is 0, contains reshID of selected hospital else.}
+\item{singleHospital}{Integer. Contains reshID from which data is loaded. 
+Value 0 is national.}
 
 \item{...}{Optional arguments to be passed to the function.}
 }

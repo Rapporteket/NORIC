@@ -13,8 +13,8 @@
 #' NULL if no filter on date.
 #' @param singleRow Logical if only one row from the table is to be provided.
 #' Default value is FALSE.
-#' @param singleHospital if only data from one hospital, when national database. 
-#' Default value is 0, contains reshID of selected hospital else. 
+#' @param singleHospital Integer. Contains reshID from which data is loaded. 
+#' Value 0 is national. 
 #' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
@@ -505,9 +505,7 @@ getFo <- function(registryName, fromDate, toDate, singleRow,
   query <- paste0(
     noric::queryForlopsoversikt())
   if(singleHospital != 0) {
-    query <- paste0(query, 
-                    "WHERE MCE.CENTREID = ", 
-                    singleHospital)
+    query <- paste0(query, "WHERE MCE.CENTREID = ", singleHospital)
   }
   
   if (singleRow) {

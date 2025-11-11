@@ -151,8 +151,8 @@ for NORIC.}
 relevant usecase will be when only description is needed. By default set to
 FALSE}
 
-\item{singleHospital}{if only data from one hospital, when national database. 
-Default value is 0, contains reshID of selected hospital else.}
+\item{singleHospital}{Integer. Contains reshID from which data is loaded. 
+Value 0 is national.}
 
 \item{...}{Optional arguments to be passed to the function}
 }
