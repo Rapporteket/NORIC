@@ -40,7 +40,7 @@ ui <- shiny::tagList(
       ),
       shiny::fluidRow(
         column(12, rpivotTable::rpivotTableOutput("pivotSurvey")))
-      ),
+    ),
     
     
     shiny::tabPanel(
@@ -48,7 +48,7 @@ ui <- shiny::tagList(
       shiny::sidebarLayout(
         shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
         shiny::mainPanel(shiny::htmlOutput("kbdData")))
-      ),
+    ),
     
     
     shiny::navbarMenu(
@@ -102,8 +102,10 @@ ui <- shiny::tagList(
           shiny::dateRangeInput(
             inputId = "dumpDateRange", 
             label = "Velg periode:",
-            start = ymd(Sys.Date()) - years(1),
-            end = Sys.Date(), separator = "-",
+            start = as.Date(x = "01-01-2013", format = "%d-%m-%Y"),
+            end = Sys.Date(), 
+            min = as.Date("2013-01-01", format = "%Y-%m-%d"), 
+            separator = "-",
             weekstart = 1),
           shiny::radioButtons(inputId = "dumpFormat",
                               label = "Velg filformat:",

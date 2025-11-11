@@ -125,7 +125,8 @@ shinyServer(function(input, output, session) {
                             tableName = input$dumpDataSet,
                             fromDate = input$dumpDateRange[1],
                             toDate = input$dumpDateRange[2],
-                            session = session)
+                            session = session, 
+                            singleHospital = user$org())
     if (type == "xlsx-csv") {
       readr::write_excel_csv2(d, file)
     } else {
@@ -351,7 +352,8 @@ shinyServer(function(input, output, session) {
                            userRole = user$role(),
                            singleRow = TRUE, 
                            fromDate = NULL,
-                           toDate = NULL)
+                           toDate = NULL, 
+                           singleHospital = user$org())
   })
   
   ## innhold kontrollpanel:
