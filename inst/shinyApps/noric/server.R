@@ -854,19 +854,14 @@ shinyServer(function(input, output, session) {
   )
   rapbase::statsGuideServer("noricStatsGuide",
                             registryName = "noric")
-  
-  tinyeligible <- reactiveVal(FALSE)
-  observeEvent(user$role(), {
-    tinyeligible(user$role() == "SC")
-  })
+
   # Verktøy - Eksport
-  rapbase::exportUCServer2(id = "noricExport", 
-                           registryName = registryName,
-                           repoName = "noric", 
-                           eligible = shiny::req(tinyeligible))
-  
-  rapbase::exportGuideServer2(id = "noricExportGuide",
-                              registryName = registryName)
+  rapbase::exportUCServer(id = "noricExport",
+                          registryName = registryName,
+                          repoName = "noric")
+
+  rapbase::exportGuideServer(id = "noricExportGuide",
+                             registryName = registryName)
   
   
   # Verktøy - Staging data
