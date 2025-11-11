@@ -1,3 +1,30 @@
+#' Add variable PasientAlder
+#'
+#' Years between birth date and proceduredate (depends on df)
+#'
+#' @param df data.frame, must contain a column with FodselsDato
+#' @param var is the variable name of procedure date in \code{df}. Default
+#' value is \code{ProcedureDate}.
+#' @return The input data.frame \code{df} is returned as it is,  with one new
+#'  column named \code{PasientAlder} added.
+#'
+#'
+#' @export
+#' @examples
+#' df <-data.frame(FodselsDato = as.Date(c("1950-01-01", "1999-01-01")), 
+#'                 ProsedyreDato = as.Date(c("2020-01-10", "2024-01-10")))
+#' utlede_alder(df) 
+utlede_alder <- function(df, var = ProsedyreDato){
+  df %>% 
+    dplyr::mutate(
+      PasientAlder = lubridate::as.period(
+        x = lubridate::interval(start = FodselsDato, end = {{var}}),
+        unit = "years")$year) %>% 
+  dplyr::relocate(PasientAlder, .after = FodselsDato)
+  
+}
+
+
 #' Add variable aldersklasse in decades
 #'
 #' Groups together ages in age-classes of decades, p.ex. "50-59" where ages 50
@@ -11,6 +38,7 @@
 #' value is \code{PasientAlder}.
 #' @return The input data.frame \code{df} is returned as it is,  with one new
 #'  column named \code{aldersklasse} added.
+#'
 #'
 #' @export
 #' @examples

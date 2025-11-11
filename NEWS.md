@@ -1,3 +1,38 @@
+# noric 3.7.0
+ 
+*Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
+bruker ikke fromDate og toDate)
+* Fjerne view for PasienterStudier(MERK: problemer med kalender for denne, 
+bruker ikke fromDate og toDate)
+MERK2: I gammel håndtering viste PS alle pasienter med studier en gang per
+forløp (left_join(fo, ps, by= pasientid)). Nå viser vi bare alle pasienter
+med studie. Inge forlopsid
+* Fjerne Skjemaoversikt
+* noric::mapOrgId, noric::getLatestEntry og getLatestEntryHospital bruker 
+skjemaoversikt i noric_nasjonal, tilpasse denne når SO er fjernet
+
+
+
+# noric 3.6.0
+* Fjerne view for Segment stent.
+* Fjerne view for angiopcivarnum.
+Variabelen UtskDiagnose var svært ressurskrevende å hente ut med SQL 
+(over 10 min). Fjerner denne fra getAp og lager egen tabell i datadump som
+inneholder en utndertabell med diagnoser ved utskrivelse (en rad per diagnose).
+
+# noric 3.5.0
+Entydig bruk av params$reshId i alle rapportert og reportProcessor. 
+Fjerne bruk av view i tavi-rapporten ([#241](https://github.com/Rapporteket/NORIC/issues/241))
+
+
+# noric 3.4.0
+* hente data med SQL fra rådata, og ikke views
+* gjelder: AK, MK, AnD, AnP, CT
+* fjerne join med forlopsoversikt i R, flytte dette til SQL
+* SQL query lages som en funksjon, der sykehus og tidsperiode er gitt som 
+parametre. Heller enn å spørre etter 'alt' og bruke filter i etterkant
+* utlede alder som egen funksjon
+
 # noric 3.3.0
 * Knapp i QA for utsending av rapporter ([#228](https://github.com/Rapporteket/NORIC/pull/228))
 * Fiks oppdatering av rapport-liste i abo-fane ([#231](https://github.com/Rapporteket/NORIC/pull/231))

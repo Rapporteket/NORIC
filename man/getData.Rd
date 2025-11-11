@@ -3,46 +3,70 @@
 \name{getData}
 \alias{getData}
 \alias{getAp}
-\alias{getSo}
-\alias{getAk}
-\alias{getFo}
-\alias{getAnP}
 \alias{getCt}
+\alias{getAk}
 \alias{getAkOppf}
+\alias{getAnP}
 \alias{getAnD}
 \alias{getSs}
-\alias{getSh}
 \alias{getMk}
+\alias{getTaviProm}
+\alias{getSh}
+\alias{getFo}
+\alias{getSo}
 \alias{getPs}
 \alias{getApLight}
-\alias{getTaviProm}
+\alias{getDk}
 \title{Load data for NORIC}
 \usage{
 getAp(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getSo(registryName, fromDate, toDate, singleRow, ...)
+getCt(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getAk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getFo(registryName, fromDate, toDate, singleRow, ...)
+getAkOppf(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
 getAnP(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
-
-getCt(registryName, fromDate, toDate, singleRow, ...)
-
-getAkOppf(registryName, fromDate, toDate, singleRow, ...)
 
 getAnD(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
 getSs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getMk(registryName, fromDate, toDate, singleRow, ...)
+getMk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getPs(registryName, fromDate, toDate, singleRow, ...)
+getTaviProm(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
 
-getApLight(registryName, fromDate, toDate, singleRow, ...)
+getFo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 
-getTaviProm(registryName, fromDate, toDate, singleRow, ...)
+getSo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+
+getPs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+
+getApLight(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = NULL,
+  ...
+)
+
+getDk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
@@ -72,5 +96,5 @@ Functions for loading data needed by NORIC from a database
 \details{
 The functions \code{getAp}, \code{getSs}, \code{getAk} etc. load the
 AP-, SS- and AK- tables etc. respectively. For most tables, the query adds
-selected variables from  \emph{forlopsoversikt}.
+selected variables from other tables e.g. \emph{patient}.
 }

@@ -44,3 +44,4 @@ check/
 kobling_varnavn.R
 utforsk.R
 ignore
+file*.Rmd
