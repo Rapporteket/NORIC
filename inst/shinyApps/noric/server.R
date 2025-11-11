@@ -19,21 +19,17 @@ shinyServer(function(input, output, session) {
                   orgname = Sykehusnavn)
   
   user <- rapbase::navbarWidgetServer2(
-    "navbar-widget",
+    id = "navbar-widget",
     orgName = "noric",
     caller = "noric",
     map_orgname = shiny::req(map_orgname)
   )
   
   # Parameters that may change depending on the role and org of user
-  ## setting values that do depend on a Rapporteket context
-  # registryName <- reactive(
-  #   map_db_resh$dbname[map_db_resh$AvdRESH == user$org()]
-  # )
   userFullName <- Sys.getenv("FALK_USER_FULLNAME")
-  hospitalName <- reactive(
+  hospitalName <- shiny::reactive(
     map_orgname$orgname[map_orgname$UnitId == user$org()]
-  )
+    )
   
   # Hide tabs
   ## when role is 'LU' or some tabs for role 'LC'
@@ -88,16 +84,16 @@ shinyServer(function(input, output, session) {
   
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
-    paste(paste0(fileBaseName,
-                 as.character(as.integer(as.POSIXct(Sys.time()))), 
-                 ".pdf"))
+    paste0(fileBaseName,
+           as.character(as.integer(as.POSIXct(Sys.time()))), 
+           ".pdf")
   }
   
   
   # render file function for re-use
   contentFile <- function(file, srcFile, tmpFile, type, tableFormat,
                           useReportProcessor = FALSE, orgId, orgName,
-                          registryName = "noric", userFullName, userRole) {
+                          registryName, userFullName, userRole) {
     
     src <- normalizePath(system.file(srcFile, package = "noric"))
     file.copy(from = src, to = tmpFile, overwrite = TRUE)
@@ -108,7 +104,7 @@ shinyServer(function(input, output, session) {
     
     shiny::withProgress(message = 'Lager pdf, vent litt...', {
       out <- noric::reportProcessor(
-        report = sub(pattern  = ".Rmd", replacement =  "", x = srcFile),
+        report = sub(pattern = ".Rmd", replacement = "", x = srcFile),
         outputType = type,
         title = "unknown title",
         author = "unknown author",
@@ -137,13 +133,11 @@ shinyServer(function(input, output, session) {
     }
   }
   
-  # widget
+  # WIDGET
   output$appUserName <- shiny::renderText(userFullName)
   output$appOrgName <- shiny::renderText(paste(hospitalName(),
                                                user$role(),
                                                sep = ", "))
-  
-  # User info in widget
   userInfo <- rapbase::howWeDealWithPersonalData(session, callerPkg = "noric")
   shiny::observeEvent(input$userInfo, {
     shinyalert::shinyalert(title = "Dette vet Rapporteket om deg:", 
@@ -154,9 +148,9 @@ shinyServer(function(input, output, session) {
                            closeOnClickOutside = TRUE,
                            html = TRUE, 
                            confirmButtonText = rapbase::noOptOutOk())
-  })
+    })
   
-  # Start
+  # START
   output$veiledning <- shiny::renderUI({
     rapbase::renderRmd(
       sourceFile = system.file("veiledning.Rmd", package = "noric"),
@@ -169,8 +163,7 @@ shinyServer(function(input, output, session) {
       ))
   })
   
-  # Utforsker
-  ## Data sets available
+  # UTFORSKER
   dataSets <- shiny::reactive({
     if (user$role() == "SC") {
       dataSets <- list(
@@ -197,10 +190,10 @@ shinyServer(function(input, output, session) {
         `prem` = "prem", 
         `proms` = "proms"
       )
-      # # EPROM is only for nasjoanl
-      # if (!isNationalReg(user$org())) {
-      #   dataSets <- within(dataSets, rm("Aortaklaff eprom"))
-      # }
+      if (user$org() != 0) {
+        dataSets <- within(dataSets, rm("Aortaklaff eprom"))
+      }
+      
     } else {
       dataSets <- list(
         `Bruk og valg av data...` = "info",
@@ -218,7 +211,7 @@ shinyServer(function(input, output, session) {
     return(dataSets)
   })
   
-  ## reactive vals for utforsker
+  ## reactive values for utforsker
   rvals <- reactiveValues()
   rvals$showPivotTable <- FALSE
   rvals$togglePivotingText <- "Last valgte data!"
@@ -304,13 +297,12 @@ shinyServer(function(input, output, session) {
           max = Sys.Date(),
           separator = "-",
           weekstart = 1)
-      )
-    }
+      )}
   })
   
   
   output$selectVars <- shiny::renderUI({
-    req(input$selectedDataSet, dataSets)
+    shiny::req(input$selectedDataSet, dataSets)
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
       h4(paste0("Valgt datasett: ",
                 names(dataSets())[dataSets() == input$selectedDataSet], 
@@ -401,9 +393,8 @@ shinyServer(function(input, output, session) {
   
   
   # SAMLERAPPORT
-  output$prosedyrer <- renderUI({
-    shiny::withProgress(
-      message = 'Laster, dette kan ta litt tid...', {
+  output$prosedyrer <- shiny::renderUI({
+    shiny::withProgress(message = 'Laster, dette kan ta litt tid...', {
         rapbase::renderRmd(
           sourceFile = system.file("NORIC_local_monthly.Rmd", 
                                    package = "noric"),
@@ -421,9 +412,8 @@ shinyServer(function(input, output, session) {
       })
   })
   
-  output$aktivitet <- renderUI({
-    shiny::withProgress(
-      message = 'Laster, dette kan ta litt tid...', {
+  output$aktivitet <- shiny::renderUI({
+    shiny::withProgress(message = 'Laster, dette kan ta litt tid...', {
         rapbase::renderRmd(
           sourceFile = system.file("NORIC_local_monthly_activity.Rmd",
                                    package = "noric"),
@@ -441,9 +431,8 @@ shinyServer(function(input, output, session) {
       }) 
   })
   
-  output$tavi <- renderUI({
-    shiny::withProgress(
-      message = 'Laster, dette kan ta litt tid...', {
+  output$tavi <- shiny::renderUI({
+    shiny::withProgress(message = 'Laster, dette kan ta litt tid...', {
         rapbase::renderRmd(
           sourceFile = system.file("NORIC_tavi_report.Rmd", package = "noric"),
           outputType = "html_fragment",
@@ -475,8 +464,7 @@ shinyServer(function(input, output, session) {
                   userRole = user$role(),
                   registryName = registryName,
                   tableFormat = "latex")
-    }
-  )
+    })
   
   output$downloadReportAktivitet <- shiny::downloadHandler(
     filename = function() {
@@ -493,8 +481,7 @@ shinyServer(function(input, output, session) {
                   userRole = user$role(),
                   registryName = registryName,
                   tableFormat = "latex")
-    }
-  )
+    })
   
   output$downloadReportTavi <- shiny::downloadHandler(
     filename = function() {
@@ -511,14 +498,13 @@ shinyServer(function(input, output, session) {
                   userRole = user$role(),
                   registryName = registryName,
                   tableFormat = "latex")
-    }
-  )
+    })
   
   
-  # Datadump
+  # DATADUMP
   
   ## Data sets available for datadump
-  dataSetsDump <- reactiveVal(
+  dataSetsDump <- shiny::reactiveVal(
     c("AndreProsedyrerVar",
       "AnnenDiagnostikkVar",
       "AngioPCIVar",
@@ -532,11 +518,10 @@ shinyServer(function(input, output, session) {
       "SegmentStent",
       "segment_history",
       "SkjemaOversikt", 
-      "UtskrDiagnoser"
-    )
+      "UtskrDiagnoser")
   )
   
-  observeEvent(list(user$role(), user$org()), {
+  shiny::observeEvent(list(user$role(), user$org()), {
     if (!(user$role() == "SC" & user$org() == 0)) {
       # Remove if not national SC-role
       dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "AortaklaffProm"])
@@ -550,19 +535,16 @@ shinyServer(function(input, output, session) {
                          choices = dataSetsDump()))
   })
   
-  
   output$dataDumpInfo <- shiny::renderUI({
     p(paste("Valgt for nedlasting:", input$dumpDataSet))
   })
   
   output$dumpDownload <- shiny::downloadHandler(
     filename = function() {
-      basename(tempfile(pattern = input$dumpDataSet,
-                        fileext = ".csv"))
+      basename(tempfile(pattern = input$dumpDataSet, fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file = file, 
-                  type = input$dumpFormat)
+      contentDump(file = file, type = input$dumpFormat)
     }
   )
   
