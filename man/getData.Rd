@@ -19,54 +19,33 @@
 \alias{getDk}
 \title{Load data for NORIC}
 \usage{
-getAp(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getAp(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getCt(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getCt(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getAk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getAk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getAkOppf(
-  registryName,
-  fromDate,
-  toDate,
-  singleRow,
-  singleHospital = NULL,
-  ...
-)
+getAkOppf(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getAnP(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getAnP(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getAnD(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getAnD(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getSs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getSs(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getMk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getMk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getTaviProm(
-  registryName,
-  fromDate,
-  toDate,
-  singleRow,
-  singleHospital = NULL,
-  ...
-)
+getTaviProm(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getFo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getFo(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getSo(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getSo(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getPs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getPs(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getApLight(
-  registryName,
-  fromDate,
-  toDate,
-  singleRow,
-  singleHospital = NULL,
-  ...
-)
+getApLight(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getDk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getDk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
@@ -80,8 +59,8 @@ NULL if no filter on date.}
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE.}
 
-\item{singleHospital}{if only data from one hospital, when national database. 
-Default value is NULL, contains reshID of selected hospital else.}
+\item{singleHospital}{Integer. Contains reshID from which data is loaded. 
+Value 0 is national.}
 
 \item{...}{Optional arguments to be passed to the function.}
 }

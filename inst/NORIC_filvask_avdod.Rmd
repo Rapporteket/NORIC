@@ -3,7 +3,7 @@ params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
   tableFormat: html
-  reshID: 999999
+  reshId: 999999
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
@@ -26,10 +26,8 @@ abstract:  '`r paste0("Vi har fått på plass overføring av dødsdato fra Folke
 "Vi vil i en periode sette fokus på disse pasientene hos registratorene ved sykehusene. Alle deres tilbakemeldinger om eventuelle problemstillinger knyttet til registreringene er svært verdifulle for oss og mottas med takk på e-post til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)! Avhengig av disse tilbakemeldingene vil vi utarbeide retningslinjer som kan benyttes i registreringsarbeidet og/eller forbedre selve innregistreringsløsningen.", "\\newline ", "\\newline ", 
 "Etterhvert som forløpene kontrolleres, vil dere muligens komme over pasienter som er helt riktig registrerte i NORIC. Vi ber dere sende oss en e-post med ForløpsID-ene det gjelder, slik at de kan fjernes fra disse listene før produksjon av neste rapport. ", "\\newline ", "\\newline ", "Rapporten inkluderer forløp fra om med 1. januar i fjoråret og til og med hele inneværende års produksjon. Forløp med indikasjon _Donorutredning_ er ikke med i rapporten.")`'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
-registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
 reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
-userFullName: '`r params$userFullName`'
 linkcolor: darkblue
 output:
   fig_caption: yes
@@ -121,7 +119,7 @@ aP <- noric::getPrepApData(
   fromDate  = periode_data$forste_dato,
   toDate = periode_data$siste_dato, 
   singleRow = FALSE,
-  singleHospital = params$reshID)
+  singleHospital = params$reshId)
 
 ```
 

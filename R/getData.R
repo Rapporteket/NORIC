@@ -13,8 +13,8 @@
 #' NULL if no filter on date.
 #' @param singleRow Logical if only one row from the table is to be provided.
 #' Default value is FALSE.
-#' @param singleHospital if only data from one hospital, when national database. 
-#' Default value is NULL, contains reshID of selected hospital else. 
+#' @param singleHospital Integer. Contains reshID from which data is loaded. 
+#' Value 0 is national. 
 #' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
@@ -39,7 +39,7 @@ NULL
 #' @rdname getData
 #' @export
 getAp <- function(registryName, fromDate, toDate, singleRow,
-                  singleHospital = NULL, ...) {
+                  singleHospital = 0, ...) {
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -48,7 +48,7 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
                   "WHERE
                   A.INTERDAT >= '", fromDate, "' AND
                   A.INTERDAT <= '", toDate, "' ")
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND A.CENTREID = ", singleHospital)
   }
   
@@ -77,7 +77,7 @@ getAp <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getCt <- function(registryName, fromDate, toDate, singleRow,
-                  singleHospital = NULL, ...){
+                  singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -87,7 +87,7 @@ getCt <- function(registryName, fromDate, toDate, singleRow,
                   CT.CTDAT >= '", fromDate, "' AND
                   CT.CTDAT <= '", toDate, "' ")
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND CT.CENTREID = ", singleHospital)
   }
   
@@ -117,7 +117,7 @@ getCt <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getAk <- function(registryName, fromDate, toDate, singleRow, 
-                  singleHospital = NULL, ...){
+                  singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -127,7 +127,7 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
                   T.PROCEDUREDATE >= '", fromDate, "' AND
                   T.PROCEDUREDATE <= '", toDate, "'")
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND T.CENTREID = ", singleHospital)
   }
   if (singleRow) {
@@ -155,7 +155,7 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getAkOppf <- function(registryName, fromDate, toDate, singleRow,
-                      singleHospital = NULL, ...){
+                      singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -166,7 +166,7 @@ getAkOppf <- function(registryName, fromDate, toDate, singleRow,
                   T.PROCEDUREDATE <= '", toDate, "'")
   
   # NB usikker på om vi skal bruke TF eller T her. followup eller tavi
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND TF.CENTREID = ", singleHospital)
   }
   
@@ -189,7 +189,7 @@ getAkOppf <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getAnP <- function(registryName, fromDate, toDate, singleRow,
-                   singleHospital = NULL, ...) {                  
+                   singleHospital = 0, ...) {                  
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -198,7 +198,7 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
                   "WHERE
                   other.PROCEDUREDATE >= '", fromDate, "' AND
                   other.PROCEDUREDATE <= '", toDate, "'")
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, 
                     "AND other.CENTREID = ", 
                     singleHospital)
@@ -230,7 +230,7 @@ getAnP <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getAnD <- function(registryName, fromDate, toDate, singleRow,
-                   singleHospital = NULL, ...) {
+                   singleHospital = 0, ...) {
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
   
@@ -239,7 +239,7 @@ getAnD <- function(registryName, fromDate, toDate, singleRow,
                   R.INTERDAT >= '", fromDate,  "' AND 
                   R.INTERDAT <= '", toDate, "' ")
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND MCE.CENTREID = ", singleHospital)
   }
   
@@ -267,7 +267,7 @@ getAnD <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getSs <- function(registryName, fromDate, toDate, singleRow,
-                  singleHospital = NULL, ...) {
+                  singleHospital = 0, ...) {
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -277,7 +277,7 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
                   R.INTERDAT >= '", fromDate,  "' AND
                   R.INTERDAT <= '", toDate, "' ")
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND MCE.CENTREID = ", singleHospital)
   }
   
@@ -307,7 +307,7 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
 #' #' @rdname getData
 #' #' @export
 #' getSh <- function(registryName, fromDate, toDate, singleRow, 
-#'                   singleHospital = NULL, ...) {
+#'                   singleHospital = 0, ...) {
 #'   
 #'   
 #'   # SQL possible for defined time-interval:
@@ -344,7 +344,7 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
 #'     segment_history.ORGINTERDAT <= '", toDate, "'"
 #'   )
 #'   
-#'   if(!is.null(singleHospital)) {
+#'   if(singleHospital != 0) {
 #'     query <- paste0(query, 
 #'                     "AND segment_history.CENTRE_ID = ", 
 #'                     singleHospital)
@@ -375,7 +375,7 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getMk <- function(registryName, fromDate, toDate, singleRow,
-                  singleHospital = NULL, ...){
+                  singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -385,7 +385,7 @@ getMk <- function(registryName, fromDate, toDate, singleRow,
                   T.PROCEDUREDATE >= '", fromDate,  "' AND
                   T.PROCEDUREDATE <= '", toDate, "' ")
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND MCE.CENTREID = ", singleHospital)
   }
   if (singleRow) {
@@ -418,7 +418,7 @@ getMk <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getTaviProm <- function(registryName, fromDate, toDate, singleRow, 
-                        singleHospital = NULL, ...){
+                        singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -464,7 +464,7 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
     tavi.PROCEDUREDATE <= '", toDate, "'
     ")
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     queryAk <- paste0(queryAk, "AND T.CENTREID = ", singleHospital)
     queryProm <- paste0(queryProm, "AND MCE.CENTREID = ", singleHospital)
   }
@@ -500,14 +500,12 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getFo <- function(registryName, fromDate, toDate, singleRow, 
-                  singleHospital = NULL, ...) {
+                  singleHospital = 0, ...) {
   
   query <- paste0(
     noric::queryForlopsoversikt())
-  if(!is.null(singleHospital)) {
-    query <- paste0(query, 
-                    "WHERE MCE.CENTREID = ", 
-                    singleHospital)
+  if(singleHospital != 0) {
+    query <- paste0(query, "WHERE MCE.CENTREID = ", singleHospital)
   }
   
   if (singleRow) {
@@ -532,7 +530,7 @@ getFo <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getSo <- function(registryName, fromDate, toDate, singleRow, 
-                  singleHospital = NULL, ...) {
+                  singleHospital = 0, ...) {
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -542,7 +540,7 @@ getSo <- function(registryName, fromDate, toDate, singleRow,
                                       toDate = toDate, 
                                       singleHospital)
   
-  # if(!is.null(singleHospital)) {
+  # if(singleHospital != 0) {
   #   query <- paste0(query, "AND A.CENTREID = ", singleHospital)
   # }
   
@@ -570,13 +568,13 @@ getSo <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getPs <- function(registryName, fromDate, toDate, singleRow, 
-                  singleHospital = NULL, ...){
+                  singleHospital = 0, ...){
   
   # Ingen filter på dato her. MERK: Noen pasienter er inkludert i 2012. 
   # Disse er med i datauttrekk
   query <- noric::queryPasienterstudier()
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND ps.CENTREID = ", singleHospital)
   }
   
@@ -602,7 +600,7 @@ getPs <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getApLight <- function(registryName, fromDate, toDate, singleRow, 
-                       singleHospital = NULL, ...) {
+                       singleHospital = 0, ...) {
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -640,7 +638,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow,
         mce.INTERDAT >= '", fromDate, "' AND
         mce.INTERDAT <= '", toDate, "' ")
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     queryAp <- paste0(queryAp, "AND A.CENTREID = ", singleHospital)
     querySs <- paste0(querySs, "AND mce.CENTREID = ", singleHospital)
     queryAd <- paste0(queryAd, "AND mce.CENTREID = ", singleHospital)
@@ -682,7 +680,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow,
 #' @rdname getData
 #' @export
 getDk <- function(registryName, fromDate, toDate, singleRow,
-                  singleHospital = NULL, ...){
+                  singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
   if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
@@ -692,7 +690,7 @@ getDk <- function(registryName, fromDate, toDate, singleRow,
                   mce.INTERDAT >= '", fromDate,  "' AND
                   mce.INTERDAT <= '", toDate, "' ")
   
-  if(!is.null(singleHospital)) {
+  if(singleHospital != 0) {
     query <- paste0(query, "AND mce.CENTREID = ", singleHospital)
   }
   if (singleRow) {
