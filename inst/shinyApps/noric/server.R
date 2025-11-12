@@ -853,15 +853,15 @@ shinyServer(function(input, output, session) {
     eligible = shiny::req(eligible)
   )
   rapbase::statsGuideServer("noricStatsGuide",
-                            registryName = "noric")
+                            "noric")
 
   # Verktøy - Eksport
-  rapbase::exportUCServer(id = "noricExport",
-                          registryName = registryName,
-                          repoName = "noric")
+  rapbase::exportUCServer("noricExport",
+                          registryName,
+                          "noric")
 
-  rapbase::exportGuideServer(id = "noricExportGuide",
-                             registryName = registryName)
+  rapbase::exportGuideServer("noricExportGuide",
+                             registryName)
   
   
   # Verktøy - Staging data
