@@ -8,7 +8,6 @@
 <url><loc>/reference/autoReport.html</loc></url>
 <url><loc>/reference/avdod_opphold.html</loc></url>
 <url><loc>/reference/compound_assignment_pipe.html</loc></url>
-<url><loc>/reference/createNational.html</loc></url>
 <url><loc>/reference/def_utledete_var.html</loc></url>
 <url><loc>/reference/describeRegistryDb.html</loc></url>
 <url><loc>/reference/erstatt_koder_m_etiketter.html</loc></url>
@@ -26,7 +25,6 @@
 <url><loc>/reference/getPresentHospitals.html</loc></url>
 <url><loc>/reference/getQuery.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
-<url><loc>/reference/isNationalReg.html</loc></url>
 <url><loc>/reference/legg_til_liggedogn.html</loc></url>
 <url><loc>/reference/legg_til_liggedogn_tavi.html</loc></url>
 <url><loc>/reference/legg_til_tidsvariabler.html</loc></url>
@@ -35,7 +33,6 @@
 <url><loc>/reference/legg_til_ventetid_tavi.html</loc></url>
 <url><loc>/reference/loadRegDataAngioPCI.html</loc></url>
 <url><loc>/reference/loadRegDataStent.html</loc></url>
-<url><loc>/reference/makeRegistryName.html</loc></url>
 <url><loc>/reference/makeStandardTable.html</loc></url>
 <url><loc>/reference/mapOrgReshId.html</loc></url>
 <url><loc>/reference/noric.html</loc></url>
