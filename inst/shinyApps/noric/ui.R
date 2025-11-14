@@ -1,31 +1,25 @@
 library(lubridate)
 library(magrittr)
-library(rapbase)
 library(rpivotTable)
 library(shiny)
 library(shinyalert)
 library(shinycssloaders)
 
 
-addResourcePath("rap", system.file("www", package = "rapbase"))
 regTitle <- "NORIC"
 
 ui <- shiny::tagList(
   shiny::navbarPage(
-    title = div(a(includeHTML(system.file("www/logo.svg",
-                                          package = "rapbase"))),
-                regTitle),
+    title = rapbase::title(regTitle),
     windowTitle = regTitle,
-    theme = "rap/bootstrap.css",
+    theme = rapbase::theme(),
     id = "tabs",
     
     shiny::tabPanel(
       title = "Start",
       rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
       shiny::mainPanel(width = 12,
-                       shiny::htmlOutput("veiledning", inline = TRUE),
-                       tags$head(tags$link(rel = "shortcut icon", 
-                                           href = "rap/favicon.ico")))
+                       shiny::htmlOutput("veiledning", inline = TRUE))
     ),
     
     shiny::tabPanel(
