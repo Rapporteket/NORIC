@@ -51,9 +51,9 @@ queryAngiopcinum <- function(){
       WHEN 1 THEN 'Ja'
       ELSE 'Nei'
     END AS ProsedyreTidUkjent,
-    CASE (P.LOCAL_HOSPITAL) 
-      WHEN 999 THEN P.LOCAL_HOSPITAL_OTHER
-      ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
+    CASE (MCE.LOCAL_HOSPITAL) 
+      WHEN 999 THEN MCE.LOCAL_HOSPITAL_OTHER
+      ELSE (SELECT NAME FROM hospital WHERE hospital.ID = MCE.LOCAL_HOSPITAL)
     END AS Lokalsykehus,
    
     P.GENDER AS Kjonn,
@@ -484,9 +484,9 @@ queryCtangiovarnum <-function(){
       WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
     END AS Hastegrad,
     
-	  CASE (P.LOCAL_HOSPITAL) WHEN 999
-		  THEN P.LOCAL_HOSPITAL_OTHER
-		  ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
+	  CASE (MCE.LOCAL_HOSPITAL) WHEN 999
+		  THEN MCE.LOCAL_HOSPITAL_OTHER
+		  ELSE (SELECT NAME FROM hospital WHERE hospital.ID = MCE.LOCAL_HOSPITAL)
 	    END AS Lokalsykehus,
 	    
 	  CT.CTDAT AS UndersokDato,
@@ -2047,9 +2047,9 @@ queryApLight <- function(){
     A.INTERDAT AS ProsedyreDato,
     A.INTERDAT_TIME AS ProsedyreTid,
   
-    CASE (P.LOCAL_HOSPITAL) 
-      WHEN 999 THEN P.LOCAL_HOSPITAL_OTHER
-      ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
+    CASE (MCE.LOCAL_HOSPITAL) 
+      WHEN 999 THEN MCE.LOCAL_HOSPITAL_OTHER
+      ELSE (SELECT NAME FROM hospital WHERE hospital.ID = MCE.LOCAL_HOSPITAL)
     END AS Lokalsykehus,
    
     P.GENDER AS Kjonn,
