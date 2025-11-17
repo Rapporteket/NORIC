@@ -1,3 +1,8 @@
+# noric 3.9.0
+
+Oppdatert håndtering av Lokalsykehus (nå på prosedyreskjema). 
+...
+
 # noric 3.8.0: Sammenslåing databaser
  
 Overgang til èn felles database for alle sykehusene (noric_bergen). 
