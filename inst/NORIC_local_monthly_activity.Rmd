@@ -18,7 +18,7 @@ abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsninge
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
+reglogo: '`r system.file("NORIC_logo.png", package = "noric")`'
 userFullName: '`r params$userFullName`'
 linkcolor: darkblue
 output:

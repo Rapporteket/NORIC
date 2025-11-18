@@ -27,7 +27,7 @@ abstract:  '`r paste0("Vi har fått på plass overføring av dødsdato fra Folke
 "Etterhvert som forløpene kontrolleres, vil dere muligens komme over pasienter som er helt riktig registrerte i NORIC. Vi ber dere sende oss en e-post med ForløpsID-ene det gjelder, slik at de kan fjernes fra disse listene før produksjon av neste rapport. ", "\\newline ", "\\newline ", "Rapporten inkluderer forløp fra om med 1. januar i fjoråret og til og med hele inneværende års produksjon. Forløp med indikasjon _Donorutredning_ er ikke med i rapporten.")`'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
+reglogo: '`r system.file("NORIC_logo.png", package = "noric")`'
 linkcolor: darkblue
 output:
   fig_caption: yes
