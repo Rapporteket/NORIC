@@ -666,18 +666,16 @@ shinyServer(function(input, output, session) {
   ))
   
   ## serve subscriptions (Abonnement)
-  shiny::observeEvent(subReports(), {
-    rapbase::autoReportServer(
-      id = "noricSubscription",
-      registryName = "noric",
-      type = "subscription",
-      paramNames = subParamNames,
-      paramValues = subParamValues,
-      reports = subReports(),
-      orgs = orgs,
-      user = user
-    )
-  })
+  rapbase::autoReportServer(
+    id = "noricSubscription",
+    registryName = "noric",
+    type = "subscription",
+    paramNames = subParamNames,
+    paramValues = subParamValues,
+    reports = subReports,
+    orgs = orgs,
+    user = user
+  )
   
   # Ny Utsending 
   dispatch <- list(

@@ -1,3 +1,8 @@
+# noric 3.8.1
+
+* Fikset bug i autoreport-fane ([#256](https://github.com/Rapporteket/NORIC/pull/256))
+* Tilpasninger til ny rapbase-versjon ([#255](https://github.com/Rapporteket/NORIC/pull/255))
+
 # noric 3.8.0: Sammenslåing databaser
  
 Overgang til èn felles database for alle sykehusene (noric_bergen). 
@@ -9,7 +14,7 @@ nytt databaseoppsett. Bruke eksisterende tilganger. Innføring av parameteren
 
 # noric 3.7.0
  
-*Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
+* Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
 bruker ikke fromDate og toDate)
 * Fjerne view for PasienterStudier(MERK: problemer med kalender for denne, 
 bruker ikke fromDate og toDate)
