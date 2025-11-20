@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">noric</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.8.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.8.1</span>
       </span>
     </div>
 
@@ -42,13 +42,21 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="3.8.1" id="noric-381">noric 3.8.1<a class="anchor" aria-label="anchor" href="#noric-381"></a></h2>
+<ul><li>Fikset bug i autoreport-fane (<a href="https://github.com/Rapporteket/NORIC/pull/256" class="external-link">#256</a>)</li>
+<li>Tilpasninger til ny rapbase-versjon (<a href="https://github.com/Rapporteket/NORIC/pull/255" class="external-link">#255</a>)</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="3.8.0" id="noric-380-sammenslåing-databaser">noric 3.8.0: Sammenslåing databaser<a class="anchor" aria-label="anchor" href="#noric-380-sammensl%C3%A5ing-databaser"></a></h2>
 <p>Overgang til èn felles database for alle sykehusene (noric_bergen). Hente innhold i Rapporteket fra denne databasen. Oppdatere rapbaseConfig til å bruke kun èn database. Tilpasse innhold og tilganger på Rapporteket til nytt databaseoppsett. Bruke eksisterende tilganger. Innføring av parameteren ‘singleHospital’.</p>
 </div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="3.7.0" id="noric-370">noric 3.7.0<a class="anchor" aria-label="anchor" href="#noric-370"></a></h2>
-<p><em>Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, bruker ikke fromDate og toDate) </em> Fjerne view for PasienterStudier(MERK: problemer med kalender for denne, bruker ikke fromDate og toDate) MERK2: I gammel håndtering viste PS alle pasienter med studier en gang per forløp (left_join(fo, ps, by= pasientid)). Nå viser vi bare alle pasienter med studie. Inge forlopsid * Fjerne Skjemaoversikt * noric::mapOrgId, noric::getLatestEntry og getLatestEntryHospital bruker skjemaoversikt i noric_nasjonal, tilpasse denne når SO er fjernet</p>
-</div>
+<ul><li>Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, bruker ikke fromDate og toDate)</li>
+<li>Fjerne view for PasienterStudier(MERK: problemer med kalender for denne, bruker ikke fromDate og toDate) MERK2: I gammel håndtering viste PS alle pasienter med studier en gang per forløp (left_join(fo, ps, by= pasientid)). Nå viser vi bare alle pasienter med studie. Inge forlopsid</li>
+<li>Fjerne Skjemaoversikt</li>
+<li>noric::mapOrgId, noric::getLatestEntry og getLatestEntryHospital bruker skjemaoversikt i noric_nasjonal, tilpasse denne når SO er fjernet</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="3.6.0" id="noric-360">noric 3.6.0<a class="anchor" aria-label="anchor" href="#noric-360"></a></h2>
 <ul><li>Fjerne view for Segment stent.</li>
