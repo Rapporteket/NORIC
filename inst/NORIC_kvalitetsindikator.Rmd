@@ -25,7 +25,7 @@ params$reshId,
 ") sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
+reglogo: '`r system.file("NORIC_logo.png", package = "noric")`'
 linkcolor: darkblue
 output:
   fig_caption: yes

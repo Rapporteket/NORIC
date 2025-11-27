@@ -7,7 +7,7 @@ library(shiny)
 shinyServer(function(input, output, session) {
   
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
-  registryName = "noric_bergen"
+  registryName = Sys.getenv("MYSQL_DB_DATA")
 
   map_orgname <- noric::mapOrgReshId(registryName = registryName, 
                                      asNamedList = FALSE, 

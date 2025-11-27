@@ -1,7 +1,13 @@
+
+# noric 3.9.0
+
+Oppdatert håndtering av Lokalsykehus (nå på prosedyreskjema). 
+
 # noric 3.8.1
 
 * Fikset bug i autoreport-fane ([#256](https://github.com/Rapporteket/NORIC/pull/256))
 * Tilpasninger til ny rapbase-versjon ([#255](https://github.com/Rapporteket/NORIC/pull/255))
+
 
 # noric 3.8.0: Sammenslåing databaser
  
