@@ -7,7 +7,7 @@ library(shiny)
 shinyServer(function(input, output, session) {
   
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
-  registryName = Sys.getenv("MYSQL_DB_DATA")
+  registryName <- "noric_bergen"
 
   map_orgname <- noric::mapOrgReshId(registryName = registryName, 
                                      asNamedList = FALSE, 
@@ -170,7 +170,7 @@ shinyServer(function(input, output, session) {
       dataSets <- list(
         `Bruk og valg av data...` = "info",
         `Angio PCI med utledete variabler` = "ApLight",
-        `Angio PCI rådata` = "AP",
+        `Angio PCI` = "AP",
         `Andre prosedyrer` = "AnP",
         `Annen diagnostikk` = "AnD",
         `Aortaklaff` = "AK",
@@ -193,6 +193,14 @@ shinyServer(function(input, output, session) {
       )
       if (user$org() != 0) {
         dataSets <- within(dataSets, rm("Aortaklaff eprom"))
+        dataSets <- within(dataSets, rm("taviperc raw test"))
+        dataSets <- within(dataSets, rm("regangio raw test"))
+        dataSets <- within(dataSets, rm("rose_dyspnea_scale"))
+        dataSets <- within(dataSets, rm("heart_qol"))    
+        dataSets <- within(dataSets, rm("minnesota_questionnaire"))
+        dataSets <- within(dataSets, rm("tavi_additional_questions"))   
+        dataSets <- within(dataSets, rm("prem"))
+        dataSets <- within(dataSets, rm("proms"))        
       }
       
     } else {
