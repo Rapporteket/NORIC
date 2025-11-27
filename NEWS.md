@@ -1,3 +1,6 @@
+# noric 3.9.1
+- bugfix liste utforsker SCrolle
+- midlertidig quick fix tilgang
 
 # noric 3.9.0
 
