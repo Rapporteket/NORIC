@@ -56,7 +56,7 @@ NULL if no filter on date.}
 \item{toDate}{Character string of format YYYY-MM-DD with end date. Value
 NULL if no filter on date.}
 
-\item{singleHospital}{NULL if national, reshid if query for one hospital}
+\item{singleHospital}{0 if national, reshid if query for one hospital}
 }
 \value{
 query as string

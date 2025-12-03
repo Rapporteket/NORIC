@@ -6,7 +6,7 @@
 #' NULL if no filter on date.
 #' @param toDate Character string of format YYYY-MM-DD with end date. Value
 #' NULL if no filter on date.
-#' @param singleHospital NULL if national, reshid if query for one hospital
+#' @param singleHospital 0 if national, reshid if query for one hospital
 
 #' @return query as string
 #' @name getQuery
@@ -1696,7 +1696,7 @@ queryForlopsoversikt <-function(){
 #' @export
 querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   
-  if(is.null(singleHospital)){
+  if(singleHospital == 0){
     condition_hospital <- " "
   } else {
     condition_hospital <- paste0(" skjema.CENTREID = '", singleHospital, "' AND ")
