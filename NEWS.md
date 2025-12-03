@@ -1,3 +1,7 @@
+# noric 3.9.2
+* sykehusene kommer i alfabetisk rekkefølge i nedtrekksmeny
+* Bug for query i SO nasjonal
+
 # noric 3.9.1
 - bugfix liste utforsker SCrolle
 - midlertidig quick fix tilgang
