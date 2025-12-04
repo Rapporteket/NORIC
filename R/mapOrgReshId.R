@@ -21,7 +21,9 @@ mapOrgReshId <- function(registryName, asNamedList = FALSE, newNames = FALSE) {
     FROM 
       centreattribute
     WHERE 
-      centreattribute.`ATTRIBUTENAME` = 'FRIENDLYNAME' ;"
+      centreattribute.`ATTRIBUTENAME` = 'FRIENDLYNAME' 
+    AND
+      centreattribute.id NOT IN (4218011) ;"
   
   res <- rapbase::loadRegData(registryName, query)
 
@@ -30,7 +32,8 @@ mapOrgReshId <- function(registryName, asNamedList = FALSE, newNames = FALSE) {
       dplyr::mutate(AvdRESH = id) %>% 
       noric::fikse_sykehusnavn(.) %>% 
       dplyr::select(id, Sykehusnavn) %>% 
-      dplyr::rename("name" = "Sykehusnavn")
+      dplyr::rename("name" = "Sykehusnavn") %>% 
+      dplyr::arrange(name)
   }
   
   if (asNamedList) {
