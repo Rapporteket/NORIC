@@ -1,3 +1,6 @@
+# noric 3.9.3
+* Nyeste versjon av rapbase, med fiks av epostutsending
+
 # noric 3.9.2
 * sykehusene kommer i alfabetisk rekkefølge i nedtrekksmeny
 * Bug for query i SO nasjonal
