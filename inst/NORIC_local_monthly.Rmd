@@ -403,7 +403,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 ## Antall prosedyrer
 Rapporten er generert med utgangspunkt i NORIC's database for
 `r params$hospitalName`. Det presenteres månedlige resultater for hele 
-fjorårets registreringer på aortaklaff,
+fjorårets registreringer på invasiv koronar angiografi og PCI,
 samt alle fullførte måndeder hittil i år.
 Den siste prosedyredatoen som er med i tabellene og 
 figurene er `r format(periode_data$siste_dato, '%d. %B %Y')`. 
@@ -2765,6 +2765,11 @@ if (params$tableFormat == "html") {
 
 <br/><br/>
 
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
 ## Stenter per prosedyre
 Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`.
 Antall prosedyrer med minst 1 stent er 
@@ -2772,6 +2777,8 @@ Antall prosedyrer med minst 1 stent er
 `r periode_data$sisteHeleYear ` og 
 `r AP %>% dplyr::filter(Nstents>0, aar %in% periode_data$nyesteRegYear) %>% nrow()` i 
 `r periode_data$nyesteRegYear `. 
+
+<br/>
 
 ```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
 
