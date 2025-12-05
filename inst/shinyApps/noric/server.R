@@ -815,7 +815,8 @@ shinyServer(function(input, output, session) {
                        choices = list(
                          "Kvalitetsindikatorer" = "NORIC_kvalitetsindikator", 
                          "Filvask avdød" = "NORIC_filvask_avdod", 
-                         "Invasive prosedyrer" = "NORIC_local_monthly", 
+                         "Invasive prosedyrer" = "NORIC_local_monthly",
+                         "Angiografør/Operatør" = "NORIC_local_monthly_activity",
                          "Aortaklaff" = "NORIC_tavi_report"))
   })
   
