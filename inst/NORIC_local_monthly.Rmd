@@ -957,7 +957,7 @@ TabTillegg %<>%
 
 ### Annen diagnostikk i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
-cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
+cap <- paste0("Antall prosedyrer registrert i NORIC der det er utført ",
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
               rangeProsDato, ".")
 
@@ -1054,7 +1054,7 @@ if (params$tableFormat == "html") {
 
 ### Tilleggsprosedyrer i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
-cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
+cap <- paste0("Antall tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografi og/eller PCI per måned ved ",
               params$hospitalName, " i perioden ", rangeProsDato, ".")
 
@@ -1149,7 +1149,7 @@ if (params$tableFormat == "html") {
 
 ### Adjuvant terapi i direkte tilknytning til Angio og/eller PCI
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
-cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
+cap <- paste0("Antall prosedyrer registrert i NORIC der det er utført ",
               "tilleggsbehandling i tilknytning til angiografi og/eller PCI ",
               "per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato, ".")
