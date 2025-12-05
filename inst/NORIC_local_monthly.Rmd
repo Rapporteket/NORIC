@@ -421,7 +421,7 @@ Totalt `r AP %>% nrow()` invasive prosedyrer ligger til grunn for rapporten,
 # Invasive koronare prosedyrer
 
 ## Prosedyretype {#prosedyretype}
-```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -558,7 +558,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ## Hastegrad
-```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width =8 , fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width =8 , fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -699,7 +699,7 @@ Indikasjonen *Annet* inkluderer blant annet
 prosedyrer utført som ledd i utredning av hjerteklaffsykdom
 eller hjerterytmeforstyrrelser. 
 
-```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
+```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width="\\textwidth", warning=FALSE}
 
 
 Indikasjon2Maaned <- AP %>%
@@ -1276,7 +1276,7 @@ pasient.
 
 <br/> <br/>
 
-```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 
 
@@ -2780,7 +2780,7 @@ Antall prosedyrer med minst 1 stent er
 
 <br/>
 
-```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
+```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, "."), warning=FALSE}
 
 TabNStent <- AP %>% 
   dplyr::filter(Nstents > 0) %>% 
