@@ -155,15 +155,17 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
   }
   
   if (tableName %in% "MergeReportFID") {
-    noric::getMergeReportMce(registryName = registryName)$d_merger_report_mce
+    tab <- noric::getMergeReportMce(registryName = registryName)$d_merger_report_mce
   }
 
   if (tableName %in% "MergeReportPID") {
-    noric::getMergeReportPid(registryName = registryName)$d_merger_report_pid
+    tab <- noric::getMergeReportPid(registryName = registryName)$d_merger_report_pid
   }
 
   
   if (tableName %in% "MergeReportSegmentId") {
-    noric::getMergeReportSegmentId(registryName = registryName)$d_merger_report_sid
+    tab <- noric::getMergeReportSegmentId(registryName = registryName)$d_merger_report_sid
   }
+  
+  tab
 }

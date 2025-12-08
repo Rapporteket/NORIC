@@ -755,7 +755,8 @@ getMergeReportMce <- function(registryName){
                   FROM merger_report_mce ;")) %>%
     dplyr::inner_join(x =., 
                       y = hosp_id, 
-                      by = "ID")
+                      by = "ID") %>% 
+    dplyr::select(-"ID")
 
   list(d_merger_report_mce = d_merger_report_mce)
 }
@@ -800,7 +801,8 @@ getMergeReportPid <- function(registryName){
                   FROM merger_report_pid ;")) %>%
     dplyr::inner_join(x =., 
                       y = hosp_id, 
-                      by = "ID")
+                      by = "ID")%>% 
+    dplyr::select(-"ID")
   
   list(d_merger_report_pid = d_merger_report_pid)
 }
@@ -844,7 +846,8 @@ getMergeReportSegmentId <- function(registryName){
                   FROM merger_report_segment ;")) %>%
     dplyr::inner_join(x =., 
                       y = hosp_id, 
-                      by = "ID")
+                      by = "ID")%>% 
+    dplyr::select(-"ID")
   
   list(d_merger_report_sid = d_merger_report_sid)
 }
