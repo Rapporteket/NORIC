@@ -241,17 +241,12 @@ AK %<>%
         TypeKlaffeprotese %in% c("Edwards SAPIEN 3", 
                                  "Edwards SAPIEN 3 Ultra", 
                                  "Edwards SAPIEN XT", 
-                                 "Edwards", 
-                                 "Edwards SAPIEN 3 Ultra RESILIA", 
-                                 "Edwards RESILIA") ~ "Edwards", 
+                                 "Edwards") ~ "Edwards", 
         
         TypeKlaffeprotese %in% c("CoreValve Evolut PRO", 
                                  "CoreValve Evolut R", 
                                  "CoreValve", 
-                                 "Evolut FX", 
-                                 "Evolut FX Plus",
-                                 "Evolut FX pluss", 
-                                 "Evolt FX pluss") ~ "CoreValve",  
+                                 "Evolut FX") ~ "CoreValve",  
         
         TypeKlaffeprotese %in% c("NAVITOR") ~ "NAVITOR", 
         
