@@ -69,13 +69,11 @@ colKontrast <- "#FF7260"
 
 ``` 
 
-```{r parametre}
-showN <- 14
+
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.05)  
 ```
-
-
-
-
 
 ```{r latest_entry, include=FALSE, eval=TRUE}
 # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
@@ -162,6 +160,11 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.10)  
+```
+
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
 
 timeTableMonth <- data.frame(
@@ -200,6 +203,10 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
                               "%d/%m-%Y"))
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.15)  
+```
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
@@ -232,6 +239,10 @@ AnD <- noric::getPrepAnDData(registryName = params$registryName,
                              singleHospital = params$reshId)
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.20)  
+``` 
 
 ```{r AnPPrepare,include=evaluate_AnP, eval=evaluate_AnP}
 
@@ -267,6 +278,10 @@ AnP %<>%
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.25)  
+```
 
 ```{r SSprepare,include=FALSE, eval=TRUE}
 
@@ -308,6 +323,10 @@ SS %<>% dplyr::mutate(
 ```
 
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.30)  
+```
 
 ```{r APprepare, include=FALSE, eval=TRUE}
 
@@ -380,8 +399,8 @@ AP %<>%
 ```
 
 ```{r }
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.1)  # set progress to 10%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.35)
 ```
 
 `r if(params$tableFormat !="html") {"<!--"}`
@@ -546,11 +565,10 @@ if (params$tableFormat == "html") {
 ```
 
 
-```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.2)  # set progress to 20%
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.4)  
 ```
-
 <br/>
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -681,9 +699,9 @@ if (params$tableFormat == "html") {
 
 <br/>
 
-```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.3)  # set progress to 30%
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.45)  
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -826,11 +844,10 @@ if (params$tableFormat == "html") {
 
 ```
 
-```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.4)  # set progress to 40%
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.50)  
 ```
-
 <br/>
 
 ## Annen diagnostikk og tilleggsprosedyrer
@@ -955,6 +972,12 @@ TabTillegg %<>%
 ```
 <br/>
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.55)  
+```
+
+
 ### Annen diagnostikk i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
 cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
@@ -1050,6 +1073,10 @@ if (params$tableFormat == "html") {
 }
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.60)  
+```
 <br/>
 
 ### Tilleggsprosedyrer i direkte tilknytning til Angio/PCI
@@ -1145,6 +1172,10 @@ if (params$tableFormat == "html") {
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.65)  
+```
 
 
 ### Adjuvant terapi i direkte tilknytning til Angio og/eller PCI
@@ -1244,8 +1275,8 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.5)  # set progress to 50%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.70) 
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -1645,6 +1676,12 @@ if (params$tableFormat == "html") {
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.75)  
+```
+
+
 
 `r if(params$tableFormat !="latex") {"<!--"}`
 \newpage
@@ -1922,10 +1959,6 @@ ggplot2::ggplot(data = endelig_alle) +
                 y = NULL)
 
 ```
-
-
-
-
 
 
 
@@ -2331,8 +2364,8 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.6)  # set progress to 60%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.80)
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -2643,11 +2676,12 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.7)  # set progress to 70%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.85)
 ```
 
 <br/><br/>
+
 
 # Stentbruk og intervensjoner
 
@@ -2811,8 +2845,8 @@ TabNStent %>%  ggplot2::ggplot(
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.8)  # set progress to 80%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.90) 
 ```
 
 <br/>
@@ -2920,8 +2954,8 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.9)  # set progress to 90%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.95)
 ```
 
 `r if(params$tableFormat !="latex" & evaluate_AnP == FALSE) {"<!--"}`
@@ -3032,6 +3066,6 @@ gc(verbose = TRUE) # garbage collection to free up memory
 ```
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(1)  # set progress to 100%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(1)  
 ```
