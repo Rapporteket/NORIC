@@ -1,4 +1,4 @@
-# noric 3.9.3
+# noric 3.9.4
 - bugfix månedsrapport
 
 # noric 3.9.1
