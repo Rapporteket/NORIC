@@ -1,3 +1,6 @@
+# noric 3.9.4
+- bugfix månedsrapport
+
 # noric 3.9.3
 * Nyeste versjon av rapbase, med fiks av epostutsending
 
