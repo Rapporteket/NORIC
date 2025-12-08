@@ -182,26 +182,10 @@ shinyServer(function(input, output, session) {
         `Mitralklaff` = "MK",
         `PasientStudier (ignorer kalender)` = "PS",
         `Skjemaoversikt` = "SO",
-        `Segment stent` = "SS", 
-        `taviperc raw test` = "taviperc", 
-        `regangio raw test` = "regangio", 
-        `rose_dyspnea_scale` = "rose_dyspnea_scale", 
-        `heart_qol` = "heart_qol", 
-        `minnesota_questionnaire` = "minnesota_questionnaire", 
-        `tavi_additional_questions` = "tavi_additional_questions", 
-        `prem` = "prem", 
-        `proms` = "proms"
+        `Segment stent` = "SS"
       )
       if (user$org() != 0) {
         dataSets <- within(dataSets, rm("Aortaklaff eprom"))
-        dataSets <- within(dataSets, rm("taviperc raw test"))
-        dataSets <- within(dataSets, rm("regangio raw test"))
-        dataSets <- within(dataSets, rm("rose_dyspnea_scale"))
-        dataSets <- within(dataSets, rm("heart_qol"))    
-        dataSets <- within(dataSets, rm("minnesota_questionnaire"))
-        dataSets <- within(dataSets, rm("tavi_additional_questions"))   
-        dataSets <- within(dataSets, rm("prem"))
-        dataSets <- within(dataSets, rm("proms"))        
       }
       
     } else {
@@ -212,6 +196,7 @@ shinyServer(function(input, output, session) {
         `Andre prosedyrer` = "AnP",
         `Annen diagnostikk` = "AnD",
         `Aortaklaff` = "AK",
+        `Mitralklaff` = "MK",
         `CT Angio` = "CT",
         `Forløpsoversikt (ignorer kalender)` = "FO",
         `Skjemaoversikt` = "SO",
