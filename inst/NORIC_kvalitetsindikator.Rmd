@@ -20,9 +20,7 @@ title:   |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, "(ID: ",
-params$reshId,
-") sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
 reglogo: '`r system.file("NORIC_logo.png", package = "noric")`'
