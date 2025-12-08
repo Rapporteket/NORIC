@@ -1,6 +1,6 @@
 Package: noric
 Title: Provide R Resources for NORIC at Rapporteket
-Version: 3.9.1
+Version: 3.9.5
 Authors@R: c(
   person("Kristina",
          "Skaare",
