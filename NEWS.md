@@ -1,3 +1,10 @@
+# noric 3.9.5
+* Smårusk: rettet i datadump for logg
+* Henter reshID fra Angio PCI og ikke centreattribute, bruker alltid 
+egendefinerte sykehusnavn
+* Opprydning tilgang verktøy for SC-rolle
+* Fikse tallene i progress bar for månedsrapporter
+
 # noric 3.9.3
 * Nyeste versjon av rapbase, med fiks av epostutsending
 
