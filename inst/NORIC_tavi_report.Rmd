@@ -59,7 +59,7 @@ hospitalName <- params$hospitalName
 
 
 ```{r }
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.05)  # set progress to 5%
 ```
 
@@ -241,12 +241,17 @@ AK %<>%
         TypeKlaffeprotese %in% c("Edwards SAPIEN 3", 
                                  "Edwards SAPIEN 3 Ultra", 
                                  "Edwards SAPIEN XT", 
-                                 "Edwards") ~ "Edwards", 
+                                 "Edwards", 
+                                 "Edwards SAPIEN 3 Ultra RESILIA", 
+                                 "Edwards RESILIA") ~ "Edwards", 
         
         TypeKlaffeprotese %in% c("CoreValve Evolut PRO", 
                                  "CoreValve Evolut R", 
                                  "CoreValve", 
-                                 "Evolut FX") ~ "CoreValve",  
+                                 "Evolut FX", 
+                                 "Evolut FX Plus",
+                                 "Evolut FX pluss", 
+                                 "Evolt FX pluss") ~ "CoreValve",  
         
         TypeKlaffeprotese %in% c("NAVITOR") ~ "NAVITOR", 
         
@@ -338,7 +343,7 @@ AK %<>%
 ```
 
 ```{r }
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.1)  # set progress to 10%
 ```
 
@@ -700,7 +705,7 @@ if (params$tableFormat == "html") {
 <br/>
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.2)  
 ```
 
@@ -814,7 +819,7 @@ if (params$tableFormat == "html") {
 <br/>
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.3)  
 ```
 
@@ -1075,7 +1080,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE )
   shiny::setProgress(0.5) 
 ```
 
@@ -2296,7 +2301,7 @@ AK %>%
 <br/>
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.6) 
 ```
 
@@ -2408,7 +2413,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.7) 
 ```
 
@@ -2468,7 +2473,7 @@ AK %>%
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.8) 
 ```
 
@@ -2586,7 +2591,7 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(0.9) 
 ```
 
@@ -2719,7 +2724,7 @@ gc(verbose = TRUE) # garbage collection to free up memory
 ```
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
+if (params$rendered_by_shiny == TRUE)
   shiny::setProgress(1.0) 
 ```
 
