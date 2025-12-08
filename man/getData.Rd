@@ -16,6 +16,9 @@
 \alias{getSo}
 \alias{getPs}
 \alias{getApLight}
+\alias{getMergeReportMce}
+\alias{getMergeReportPid}
+\alias{getMergeReportSegmentId}
 \alias{getDk}
 \title{Load data for NORIC}
 \usage{
@@ -46,6 +49,12 @@ getPs(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 getApLight(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
 getDk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
+
+getMergeReportMce(registryName)
+
+getMergeReportPid(registryName)
+
+getMergeReportSegmentId(registryName)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}

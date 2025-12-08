@@ -528,13 +528,19 @@ shinyServer(function(input, output, session) {
       "SegmentStent",
       "segment_history",
       "SkjemaOversikt", 
-      "UtskrDiagnoser")
+      "UtskrDiagnoser", 
+      "MergeReportFID", 
+      "MergeReportPID", 
+      "MergeReportSegmentId")
   )
   
   shiny::observeEvent(list(user$role(), user$org()), {
     if (!(user$role() == "SC" & user$org() == 0)) {
       # Remove if not national SC-role
       dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "AortaklaffProm"])
+      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportFID"])
+      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportPID"])
+      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportSegmentId"])
     }
   })
   
