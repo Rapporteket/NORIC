@@ -10,8 +10,7 @@ shinyServer(function(input, output, session) {
   registryName <- "noric_bergen"
 
   map_orgname <- noric::mapOrgReshId(registryName = registryName, 
-                                     asNamedList = FALSE, 
-                                     newNames = FALSE) %>% 
+                                     asNamedList = FALSE) %>% 
     dplyr::transmute(AvdRESH = id) %>% 
     noric::fikse_sykehusnavn(.) %>% 
     rbind(data.frame(Sykehusnavn = "Nasjonal", AvdRESH = 0)) %>% 
@@ -73,6 +72,8 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Utsending")
       shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Eksport")
+      shiny::hideTab(inputId = "tabs", target = "Staging data")
     }
     
     if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
@@ -597,8 +598,7 @@ shinyServer(function(input, output, session) {
   # Abonnement og verktøy-utsending
   orgs <- noric::mapOrgReshId(
     registryName =  registryName,
-    asNamedList = TRUE,
-    newNames = TRUE)
+    asNamedList = TRUE)
   
   ## currently, function parameters are the same for all reports
   pn <- c("outputType",
@@ -810,8 +810,7 @@ shinyServer(function(input, output, session) {
   shiny::observeEvent(registryName, {
     # Update orgs_df when registryName changes
     orgs_df(noric::mapOrgReshId(registryName = registryName,
-                                asNamedList = FALSE,
-                                newNames = TRUE))
+                                asNamedList = FALSE))
   })
   
   ## innhold kontrollpanel:
