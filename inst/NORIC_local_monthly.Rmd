@@ -422,7 +422,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 ## Antall prosedyrer
 Rapporten er generert med utgangspunkt i NORIC's database for
 `r params$hospitalName`. Det presenteres månedlige resultater for hele 
-fjorårets registreringer på aortaklaff,
+fjorårets registreringer på invasiv koronar angiografi og PCI,
 samt alle fullførte måndeder hittil i år.
 Den siste prosedyredatoen som er med i tabellene og 
 figurene er `r format(periode_data$siste_dato, '%d. %B %Y')`. 
@@ -440,7 +440,7 @@ Totalt `r AP %>% nrow()` invasive prosedyrer ligger til grunn for rapporten,
 # Invasive koronare prosedyrer
 
 ## Prosedyretype {#prosedyretype}
-```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -576,7 +576,7 @@ if (params$rendered_by_shiny == TRUE)
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ## Hastegrad
-```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width =8 , fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width =8 , fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -717,7 +717,7 @@ Indikasjonen *Annet* inkluderer blant annet
 prosedyrer utført som ledd i utredning av hjerteklaffsykdom
 eller hjerterytmeforstyrrelser. 
 
-```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
+```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width="\\textwidth", warning=FALSE}
 
 
 Indikasjon2Maaned <- AP %>%
@@ -980,7 +980,7 @@ if (params$rendered_by_shiny == TRUE)
 
 ### Annen diagnostikk i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
-cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
+cap <- paste0("Antall prosedyrer registrert i NORIC der det er utført ",
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
               rangeProsDato, ".")
 
@@ -1081,7 +1081,7 @@ if (params$rendered_by_shiny == TRUE)
 
 ### Tilleggsprosedyrer i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
-cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
+cap <- paste0("Antall tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografi og/eller PCI per måned ved ",
               params$hospitalName, " i perioden ", rangeProsDato, ".")
 
@@ -1180,7 +1180,7 @@ if (params$rendered_by_shiny == TRUE)
 
 ### Adjuvant terapi i direkte tilknytning til Angio og/eller PCI
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
-cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
+cap <- paste0("Antall prosedyrer registrert i NORIC der det er utført ",
               "tilleggsbehandling i tilknytning til angiografi og/eller PCI ",
               "per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato, ".")
@@ -1307,7 +1307,7 @@ pasient.
 
 <br/> <br/>
 
-```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 
 
@@ -2390,8 +2390,7 @@ tabHovedKomplett <- AP %>%
   dplyr::transmute(
     maaned = maaned,
     Totalt = `-1`+ `0` + `1`, 
-    Ferdigstilt = `1`, 
-    Andel = (round(Ferdigstilt/Totalt, 2) *100))
+    Ferdigstilt = `1`)
 
 TabHovedKomplett_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -2418,8 +2417,8 @@ TabHovedKomplett_aar <- merge(
 
 TabHovedKomplett <- rbind(
   TabHovedKomplett_fjor, 
-  TabHovedKomplett_aar
-)
+  TabHovedKomplett_aar) %>% 
+  mutate(Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
 
 TabHovedKomplett[TabHovedKomplett == 0] <- " - "
@@ -2489,8 +2488,7 @@ tabKomplikKomplett <- AP %>%
   dplyr::transmute(
     maaned = maaned,
     Totalt = `-1`+ `0` + `1`,
-    Ferdigstilt = `1`,
-    Andel = (round(Ferdigstilt/Totalt, 2) *100))
+    Ferdigstilt = `1`)
 
 TabKomplikKomplett_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -2517,8 +2515,8 @@ TabKomplikKomplett_aar <- merge(
 
 TabKomplikKomplett <- rbind(
   TabKomplikKomplett_fjor, 
-  TabKomplikKomplett_aar
-)
+  TabKomplikKomplett_aar) %>% 
+  mutate(Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
 
 TabKomplikKomplett[TabKomplikKomplett == 0] <- " - "
@@ -2591,8 +2589,7 @@ tab_UtskrKomplett <- AP %>%
   dplyr::transmute(
     maaned = maaned,
     Totalt = `-1`+ `0` + `1`, 
-    Ferdigstilt = `1`, 
-    Andel = (round(Ferdigstilt/Totalt, 2) *100))
+    Ferdigstilt = `1`)
 
 TabUtskrKomplett_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -2619,8 +2616,8 @@ TabUtskrKomplett_aar <- merge(
 
 TabUtskrKomplett<- rbind(
   TabUtskrKomplett_fjor, 
-  TabUtskrKomplett_aar
-)
+  TabUtskrKomplett_aar) %>% 
+  mutate(Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
 
 TabUtskrKomplett[TabUtskrKomplett == 0] <- " - "
@@ -2799,6 +2796,11 @@ if (params$tableFormat == "html") {
 
 <br/><br/>
 
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
 ## Stenter per prosedyre
 Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`.
 Antall prosedyrer med minst 1 stent er 
@@ -2807,7 +2809,9 @@ Antall prosedyrer med minst 1 stent er
 `r AP %>% dplyr::filter(Nstents>0, aar %in% periode_data$nyesteRegYear) %>% nrow()` i 
 `r periode_data$nyesteRegYear `. 
 
-```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
+<br/>
+
+```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, "."), warning=FALSE}
 
 TabNStent <- AP %>% 
   dplyr::filter(Nstents > 0) %>% 
