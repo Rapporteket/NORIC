@@ -1,3 +1,12 @@
+# noric 4.0.0 - Endelig overgang til én database
+Fra #3.8.0 og nyere gjøres SQL spørringer nå til én nasjonal database. 
+Litt små rettelser før release i PROD.
+* Smårusk: rettet i datadump for logg
+* Henter reshID fra Angio PCI og ikke centreattribute, bruker alltid 
+egendefinerte sykehusnavn
+* Opprydning tilgang verktøy for SC-rolle
+* Fikse tallene i progress bar for månedsrapporter
+
 # noric 3.9.4
 - bugfix månedsrapport
 
