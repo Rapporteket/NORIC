@@ -177,9 +177,9 @@ shinyServer(function(input, output, session) {
         `Aortaklaff` = "AK",
         `Aortaklaff eprom` = "TP",
         `Aortaklaff oppfølging` = "AKOppf",
+        `Mitralklaff` = "MK",
         `CT Angio` = "CT",
         `Forløpsoversikt (ignorer kalender)` = "FO",
-        `Mitralklaff` = "MK",
         `PasientStudier (ignorer kalender)` = "PS",
         `Skjemaoversikt` = "SO",
         `Segment stent` = "SS"
@@ -192,7 +192,7 @@ shinyServer(function(input, output, session) {
       dataSets <- list(
         `Bruk og valg av data...` = "info",
         `Angio PCI med utledete variabler` = "ApLight",
-        `Angio PCI rådata` = "AP",
+        `Angio PCI` = "AP",
         `Andre prosedyrer` = "AnP",
         `Annen diagnostikk` = "AnD",
         `Aortaklaff` = "AK",
