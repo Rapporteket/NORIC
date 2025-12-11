@@ -17,6 +17,8 @@
 \alias{queryPasienterstudier}
 \alias{queryApLight}
 \alias{queryDiagnose}
+\alias{query_angio_labassistent}
+\alias{query_pci_labassistent}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryAngiopcinum()
@@ -48,6 +50,10 @@ queryPasienterstudier()
 queryApLight()
 
 queryDiagnose()
+
+query_angio_labassistent()
+
+query_pci_labassistent()
 }
 \arguments{
 \item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
