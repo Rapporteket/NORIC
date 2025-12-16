@@ -18,7 +18,7 @@ abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsninge
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
+reglogo: '`r system.file("NORIC_logo.png", package = "noric")`'
 userFullName: '`r params$userFullName`'
 linkcolor: darkblue
 output:
@@ -69,13 +69,11 @@ colKontrast <- "#FF7260"
 
 ``` 
 
-```{r parametre}
-showN <- 14
+
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.05)  
 ```
-
-
-
-
 
 ```{r latest_entry, include=FALSE, eval=TRUE}
 # DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
@@ -162,6 +160,11 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.10)  
+```
+
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
 
 timeTableMonth <- data.frame(
@@ -200,6 +203,10 @@ rangeProsDato <- paste(format(periode_data$forste_dato,
                               "%d/%m-%Y"))
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.15)  
+```
 
 ```{r GetData, include=FALSE, cache=FALSE}
 
@@ -232,6 +239,10 @@ AnD <- noric::getPrepAnDData(registryName = params$registryName,
                              singleHospital = params$reshId)
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.20)  
+``` 
 
 ```{r AnPPrepare,include=evaluate_AnP, eval=evaluate_AnP}
 
@@ -267,6 +278,10 @@ AnP %<>%
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.25)  
+```
 
 ```{r SSprepare,include=FALSE, eval=TRUE}
 
@@ -308,6 +323,10 @@ SS %<>% dplyr::mutate(
 ```
 
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.30)  
+```
 
 ```{r APprepare, include=FALSE, eval=TRUE}
 
@@ -380,8 +399,8 @@ AP %<>%
 ```
 
 ```{r }
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.1)  # set progress to 10%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.35)
 ```
 
 `r if(params$tableFormat !="html") {"<!--"}`
@@ -403,7 +422,7 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 ## Antall prosedyrer
 Rapporten er generert med utgangspunkt i NORIC's database for
 `r params$hospitalName`. Det presenteres månedlige resultater for hele 
-fjorårets registreringer på aortaklaff,
+fjorårets registreringer på invasiv koronar angiografi og PCI,
 samt alle fullførte måndeder hittil i år.
 Den siste prosedyredatoen som er med i tabellene og 
 figurene er `r format(periode_data$siste_dato, '%d. %B %Y')`. 
@@ -421,7 +440,7 @@ Totalt `r AP %>% nrow()` invasive prosedyrer ligger til grunn for rapporten,
 # Invasive koronare prosedyrer
 
 ## Prosedyretype {#prosedyretype}
-```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNProsedyreType, fig.cap =  paste0("Antall koronare angiografier og/eller PCI registrert i NORIC per måned ved ", params$hospitalName, " i perioden ", rangeProsDato ,  "."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -546,11 +565,10 @@ if (params$tableFormat == "html") {
 ```
 
 
-```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.2)  # set progress to 20%
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.4)  
 ```
-
 <br/>
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -558,7 +576,7 @@ if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
 `r if(params$tableFormat !="latex") {"-->"}`
 
 ## Hastegrad
-```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width =8 , fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r FigNHastegrad, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og hastegrad ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width =8 , fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 pal <- colPrimary[c(5, 3, 1)]
 
@@ -681,9 +699,9 @@ if (params$tableFormat == "html") {
 
 <br/>
 
-```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.3)  # set progress to 30%
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.45)  
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -699,7 +717,7 @@ Indikasjonen *Annet* inkluderer blant annet
 prosedyrer utført som ledd i utredning av hjerteklaffsykdom
 eller hjerterytmeforstyrrelser. 
 
-```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width="\\textwidth"}
+```{r FigNIndikasjon, fig.cap = paste0("Antall prosedyrer registrert i NORIC per måned og indikasjon ved ", params$hospitalName, " i perioden ", rangeProsDato, "."), fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width="\\textwidth", warning=FALSE}
 
 
 Indikasjon2Maaned <- AP %>%
@@ -826,11 +844,10 @@ if (params$tableFormat == "html") {
 
 ```
 
-```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.4)  # set progress to 40%
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.50)  
 ```
-
 <br/>
 
 ## Annen diagnostikk og tilleggsprosedyrer
@@ -955,9 +972,15 @@ TabTillegg %<>%
 ```
 <br/>
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.55)  
+```
+
+
 ### Annen diagnostikk i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre1,  results = 'asis'}
-cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
+cap <- paste0("Antall prosedyrer registrert i NORIC der det er utført ",
               "annen diagnostikk per måned ved ", params$hospitalName, " i perioden ", 
               rangeProsDato, ".")
 
@@ -1050,11 +1073,15 @@ if (params$tableFormat == "html") {
 }
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.60)  
+```
 <br/>
 
 ### Tilleggsprosedyrer i direkte tilknytning til Angio/PCI
 ```{r TabTilleggsProsedyre2,  results = 'asis'}
-cap <- paste0("Antall (andel) tilleggsprosedyrer registrert i NORIC der det er ",
+cap <- paste0("Antall tilleggsprosedyrer registrert i NORIC der det er ",
               "utført koronare angiografi og/eller PCI per måned ved ",
               params$hospitalName, " i perioden ", rangeProsDato, ".")
 
@@ -1145,11 +1172,15 @@ if (params$tableFormat == "html") {
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.65)  
+```
 
 
 ### Adjuvant terapi i direkte tilknytning til Angio og/eller PCI
 ```{r TabTilleggsProsedyre3,  results = 'asis'}
-cap <- paste0("Antall (andel) prosedyrer registrert i NORIC der det er utført ",
+cap <- paste0("Antall prosedyrer registrert i NORIC der det er utført ",
               "tilleggsbehandling i tilknytning til angiografi og/eller PCI ",
               "per måned ved ", params$hospitalName,
               " i perioden ", rangeProsDato, ".")
@@ -1244,8 +1275,8 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.5)  # set progress to 50%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.70) 
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -1276,7 +1307,7 @@ pasient.
 
 <br/> <br/>
 
-```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth"}
+```{r FigLabKompl, fig.cap = paste0("Antall komplikasjoner oppstått i tilknytning til selve prosedyren mens pasienten fortsatt ", "er på hjertekateteriseringslaboratoriet. ", "Sammenlagt i perioden fra ", rangeProsDato, ". Hvis det er registrert flere komplikasjoner på samme ", "pasient er disse talt opp hver for seg. ") , echo=FALSE, fig.pos="H", fig.width = 10, fig.height = 10, fig.align = "center", out.width = "\\textwidth", warning=FALSE}
 
 
 
@@ -1645,6 +1676,12 @@ if (params$tableFormat == "html") {
 
 ```
 
+```{r }
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.75)  
+```
+
+
 
 `r if(params$tableFormat !="latex") {"<!--"}`
 \newpage
@@ -1922,10 +1959,6 @@ ggplot2::ggplot(data = endelig_alle) +
                 y = NULL)
 
 ```
-
-
-
-
 
 
 
@@ -2331,8 +2364,8 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.6)  # set progress to 60%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.80)
 ```
 
 `r if(params$tableFormat !="latex") {"<!--"}`
@@ -2357,8 +2390,7 @@ tabHovedKomplett <- AP %>%
   dplyr::transmute(
     maaned = maaned,
     Totalt = `-1`+ `0` + `1`, 
-    Ferdigstilt = `1`, 
-    Andel = (round(Ferdigstilt/Totalt, 2) *100))
+    Ferdigstilt = `1`)
 
 TabHovedKomplett_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -2385,8 +2417,8 @@ TabHovedKomplett_aar <- merge(
 
 TabHovedKomplett <- rbind(
   TabHovedKomplett_fjor, 
-  TabHovedKomplett_aar
-)
+  TabHovedKomplett_aar) %>% 
+  mutate(Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
 
 TabHovedKomplett[TabHovedKomplett == 0] <- " - "
@@ -2456,8 +2488,7 @@ tabKomplikKomplett <- AP %>%
   dplyr::transmute(
     maaned = maaned,
     Totalt = `-1`+ `0` + `1`,
-    Ferdigstilt = `1`,
-    Andel = (round(Ferdigstilt/Totalt, 2) *100))
+    Ferdigstilt = `1`)
 
 TabKomplikKomplett_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -2484,8 +2515,8 @@ TabKomplikKomplett_aar <- merge(
 
 TabKomplikKomplett <- rbind(
   TabKomplikKomplett_fjor, 
-  TabKomplikKomplett_aar
-)
+  TabKomplikKomplett_aar) %>% 
+  mutate(Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
 
 TabKomplikKomplett[TabKomplikKomplett == 0] <- " - "
@@ -2558,8 +2589,7 @@ tab_UtskrKomplett <- AP %>%
   dplyr::transmute(
     maaned = maaned,
     Totalt = `-1`+ `0` + `1`, 
-    Ferdigstilt = `1`, 
-    Andel = (round(Ferdigstilt/Totalt, 2) *100))
+    Ferdigstilt = `1`)
 
 TabUtskrKomplett_fjor <- merge(
   x = timeTableMonth_fjor,
@@ -2586,8 +2616,8 @@ TabUtskrKomplett_aar <- merge(
 
 TabUtskrKomplett<- rbind(
   TabUtskrKomplett_fjor, 
-  TabUtskrKomplett_aar
-)
+  TabUtskrKomplett_aar) %>% 
+  mutate(Andel = (round(Ferdigstilt/Totalt, 2) *100))
 
 
 TabUtskrKomplett[TabUtskrKomplett == 0] <- " - "
@@ -2643,11 +2673,12 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.7)  # set progress to 70%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.85)
 ```
 
 <br/><br/>
+
 
 # Stentbruk og intervensjoner
 
@@ -2765,6 +2796,11 @@ if (params$tableFormat == "html") {
 
 <br/><br/>
 
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
 ## Stenter per prosedyre
 Antall stenter per prosedyre ved `r params$hospitalName` registrert i NORIC i perioden `r rangeProsDato`.
 Antall prosedyrer med minst 1 stent er 
@@ -2773,7 +2809,9 @@ Antall prosedyrer med minst 1 stent er
 `r AP %>% dplyr::filter(Nstents>0, aar %in% periode_data$nyesteRegYear) %>% nrow()` i 
 `r periode_data$nyesteRegYear `. 
 
-```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, ".")}
+<br/>
+
+```{r FigNstentPerProsedyre, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = paste0("Antall stenter per prosedyre for ", params$hospitalName, " i perioden ", rangeProsDato, "."), warning=FALSE}
 
 TabNStent <- AP %>% 
   dplyr::filter(Nstents > 0) %>% 
@@ -2811,8 +2849,8 @@ TabNStent %>%  ggplot2::ggplot(
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.8)  # set progress to 80%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.90) 
 ```
 
 <br/>
@@ -2920,8 +2958,8 @@ if (params$tableFormat == "html") {
 
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(0.9)  # set progress to 90%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(0.95)
 ```
 
 `r if(params$tableFormat !="latex" & evaluate_AnP == FALSE) {"<!--"}`
@@ -3032,6 +3070,6 @@ gc(verbose = TRUE) # garbage collection to free up memory
 ```
 
 ```{r}
-if (params$rendered_by_shiny == TRUE && params$tableFormat == "latex")
-  shiny::setProgress(1)  # set progress to 100%
+if (params$rendered_by_shiny == TRUE)
+  shiny::setProgress(1)  
 ```

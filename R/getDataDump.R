@@ -28,7 +28,10 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              "MitralklaffVar",
                              "PasienterStudier_ignorerKalender", 
                              "AortaklaffProm", 
-                             "UtskrDiagnoser"))
+                             "UtskrDiagnoser", 
+                             "MergeReportFID", 
+                             "MergeReportPID", 
+                             "MergeReportSegmentId"))
   
   
   if (tableName %in% "AngioPCIVar"){
@@ -140,7 +143,6 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                                    singleRow = FALSE,
                                    singleHospital = singleHospital)
     tab <- tab_list$taviProm
-    
   }
   
   if (tableName %in% "UtskrDiagnoser") {
@@ -150,18 +152,20 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              singleRow = FALSE,
                              singleHospital = singleHospital)
     tab <- tab_list$dK
-    
   }
   
-  # if (tableName %in% "segment_history") {
-  #   tab_list <- noric::getSh(registryName = registryName,
-  #                                  fromDate = fromDate,
-  #                                  toDate = toDate,
-  #                                  singleRow = FALSE)
-  #   tab <- tab_list$sH
-  # 
-  # }
+  if (tableName %in% "MergeReportFID") {
+    tab <- noric::getMergeReportMce(registryName = registryName)$d_merger_report_mce
+  }
+
+  if (tableName %in% "MergeReportPID") {
+    tab <- noric::getMergeReportPid(registryName = registryName)$d_merger_report_pid
+  }
+
+  
+  if (tableName %in% "MergeReportSegmentId") {
+    tab <- noric::getMergeReportSegmentId(registryName = registryName)$d_merger_report_sid
+  }
   
   tab
-  
 }

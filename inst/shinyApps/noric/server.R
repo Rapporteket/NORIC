@@ -7,11 +7,10 @@ library(shiny)
 shinyServer(function(input, output, session) {
   
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
-  registryName = "noric_bergen"
+  registryName <- "noric_bergen"
 
   map_orgname <- noric::mapOrgReshId(registryName = registryName, 
-                                     asNamedList = FALSE, 
-                                     newNames = FALSE) %>% 
+                                     asNamedList = FALSE) %>% 
     dplyr::transmute(AvdRESH = id) %>% 
     noric::fikse_sykehusnavn(.) %>% 
     rbind(data.frame(Sykehusnavn = "Nasjonal", AvdRESH = 0)) %>% 
@@ -73,6 +72,8 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Utsending")
       shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Eksport")
+      shiny::hideTab(inputId = "tabs", target = "Staging data")
     }
     
     if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
@@ -170,7 +171,7 @@ shinyServer(function(input, output, session) {
       dataSets <- list(
         `Bruk og valg av data...` = "info",
         `Angio PCI med utledete variabler` = "ApLight",
-        `Angio PCI rådata` = "AP",
+        `Angio PCI` = "AP",
         `Andre prosedyrer` = "AnP",
         `Annen diagnostikk` = "AnD",
         `Aortaklaff` = "AK",
@@ -181,15 +182,7 @@ shinyServer(function(input, output, session) {
         `Mitralklaff` = "MK",
         `PasientStudier (ignorer kalender)` = "PS",
         `Skjemaoversikt` = "SO",
-        `Segment stent` = "SS", 
-        `taviperc raw test` = "taviperc", 
-        `regangio raw test` = "regangio", 
-        `rose_dyspnea_scale` = "rose_dyspnea_scale", 
-        `heart_qol` = "heart_qol", 
-        `minnesota_questionnaire` = "minnesota_questionnaire", 
-        `tavi_additional_questions` = "tavi_additional_questions", 
-        `prem` = "prem", 
-        `proms` = "proms"
+        `Segment stent` = "SS"
       )
       if (user$org() != 0) {
         dataSets <- within(dataSets, rm("Aortaklaff eprom"))
@@ -203,6 +196,7 @@ shinyServer(function(input, output, session) {
         `Andre prosedyrer` = "AnP",
         `Annen diagnostikk` = "AnD",
         `Aortaklaff` = "AK",
+        `Mitralklaff` = "MK",
         `CT Angio` = "CT",
         `Forløpsoversikt (ignorer kalender)` = "FO",
         `Skjemaoversikt` = "SO",
@@ -520,13 +514,19 @@ shinyServer(function(input, output, session) {
       "SegmentStent",
       "segment_history",
       "SkjemaOversikt", 
-      "UtskrDiagnoser")
+      "UtskrDiagnoser", 
+      "MergeReportFID", 
+      "MergeReportPID", 
+      "MergeReportSegmentId")
   )
   
   shiny::observeEvent(list(user$role(), user$org()), {
     if (!(user$role() == "SC" & user$org() == 0)) {
       # Remove if not national SC-role
       dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "AortaklaffProm"])
+      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportFID"])
+      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportPID"])
+      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportSegmentId"])
     }
   })
   
@@ -583,8 +583,7 @@ shinyServer(function(input, output, session) {
   # Abonnement og verktøy-utsending
   orgs <- noric::mapOrgReshId(
     registryName =  registryName,
-    asNamedList = TRUE,
-    newNames = TRUE)
+    asNamedList = TRUE)
   
   ## currently, function parameters are the same for all reports
   pn <- c("outputType",
@@ -666,18 +665,16 @@ shinyServer(function(input, output, session) {
   ))
   
   ## serve subscriptions (Abonnement)
-  shiny::observeEvent(subReports(), {
-    rapbase::autoReportServer(
-      id = "noricSubscription",
-      registryName = "noric",
-      type = "subscription",
-      paramNames = subParamNames,
-      paramValues = subParamValues,
-      reports = subReports(),
-      orgs = orgs,
-      user = user
-    )
-  })
+  rapbase::autoReportServer(
+    id = "noricSubscription",
+    registryName = "noric",
+    type = "subscription",
+    paramNames = subParamNames,
+    paramValues = subParamValues,
+    reports = subReports,
+    orgs = orgs,
+    user = user
+  )
   
   # Ny Utsending 
   dispatch <- list(
@@ -798,8 +795,7 @@ shinyServer(function(input, output, session) {
   shiny::observeEvent(registryName, {
     # Update orgs_df when registryName changes
     orgs_df(noric::mapOrgReshId(registryName = registryName,
-                                asNamedList = FALSE,
-                                newNames = TRUE))
+                                asNamedList = FALSE))
   })
   
   ## innhold kontrollpanel:
@@ -809,7 +805,8 @@ shinyServer(function(input, output, session) {
                        choices = list(
                          "Kvalitetsindikatorer" = "NORIC_kvalitetsindikator", 
                          "Filvask avdød" = "NORIC_filvask_avdod", 
-                         "Invasive prosedyrer" = "NORIC_local_monthly", 
+                         "Invasive prosedyrer" = "NORIC_local_monthly",
+                         "Angiografør/Operatør" = "NORIC_local_monthly_activity",
                          "Aortaklaff" = "NORIC_tavi_report"))
   })
   

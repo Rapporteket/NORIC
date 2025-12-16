@@ -35,6 +35,9 @@
 #' getSo
 #' getPs
 #' getApLight
+#' getMergeReportMce
+#' getMergeReportPid
+#' getMergeReportSegmentId
 NULL
 #' @rdname getData
 #' @export
@@ -714,3 +717,137 @@ getDk <- function(registryName, fromDate, toDate, singleRow,
 
 
 
+#' @rdname getData
+#' @export
+getMergeReportMce <- function(registryName){
+  
+  # HOSPITAL ID
+  hosp_id <- rapbase::loadRegData(
+    registryName = registryName,
+    query = paste0("SELECT ID, FROM_INSTANCE 
+                  FROM merger_report 
+                  WHERE FROM_INSTANCE NOT IN ('no-merge') ;")) %>%
+    dplyr::left_join(x = ., 
+                     y = data.frame(FROM_INSTANCE = c("noric_ahus",
+                                                      "noric_feiring",
+                                                      "noric_soerlandet",
+                                                      "noric_stavanger",
+                                                      "noric_stolav",
+                                                      "noric_unn",
+                                                      "noric_ous_rh",
+                                                      "noric_ous_ull",
+                                                      "noric_bodoe"), 
+                                    AvdRESH = c(108141, 
+                                                106944, 
+                                                114150, 
+                                                105502, 
+                                                104284, 
+                                                101619, 
+                                                700422, 
+                                                109880, 
+                                                4210141)), 
+                     by = "FROM_INSTANCE") %>% 
+    noric::fikse_sykehusnavn()
+  
+  d_merger_report_mce <- rapbase::loadRegData(
+    registryName = registryName,
+    query = paste0("SELECT * 
+                  FROM merger_report_mce ;")) %>%
+    dplyr::inner_join(x =., 
+                      y = hosp_id, 
+                      by = "ID") %>% 
+    dplyr::select(-"ID")
+
+  list(d_merger_report_mce = d_merger_report_mce)
+}
+
+
+
+#' @rdname getData
+#' @export
+getMergeReportPid <- function(registryName){
+  
+  # HOSPITAL ID
+  hosp_id <- rapbase::loadRegData(
+    registryName = registryName,
+    query = paste0("SELECT ID, FROM_INSTANCE 
+                  FROM merger_report 
+                  WHERE FROM_INSTANCE NOT IN ('no-merge') ;")) %>%
+    dplyr::left_join(x = ., 
+                     y = data.frame(FROM_INSTANCE = c("noric_ahus",
+                                                      "noric_feiring",
+                                                      "noric_soerlandet",
+                                                      "noric_stavanger",
+                                                      "noric_stolav",
+                                                      "noric_unn",
+                                                      "noric_ous_rh",
+                                                      "noric_ous_ull",
+                                                      "noric_bodoe"), 
+                                    AvdRESH = c(108141, 
+                                                106944, 
+                                                114150, 
+                                                105502, 
+                                                104284, 
+                                                101619, 
+                                                700422, 
+                                                109880, 
+                                                4210141)), 
+                     by = "FROM_INSTANCE") %>% 
+    noric::fikse_sykehusnavn()
+  
+  d_merger_report_pid <- rapbase::loadRegData(
+    registryName = registryName,
+    query = paste0("SELECT * 
+                  FROM merger_report_pid ;")) %>%
+    dplyr::inner_join(x =., 
+                      y = hosp_id, 
+                      by = "ID")%>% 
+    dplyr::select(-"ID")
+  
+  list(d_merger_report_pid = d_merger_report_pid)
+}
+
+
+#' @rdname getData
+#' @export
+getMergeReportSegmentId <- function(registryName){
+  
+  # HOSPITAL ID
+  hosp_id <- rapbase::loadRegData(
+    registryName = registryName,
+    query = paste0("SELECT ID, FROM_INSTANCE 
+                  FROM merger_report 
+                  WHERE FROM_INSTANCE NOT IN ('no-merge') ;")) %>%
+    dplyr::left_join(x = ., 
+                     y = data.frame(FROM_INSTANCE = c("noric_ahus",
+                                                      "noric_feiring",
+                                                      "noric_soerlandet",
+                                                      "noric_stavanger",
+                                                      "noric_stolav",
+                                                      "noric_unn",
+                                                      "noric_ous_rh",
+                                                      "noric_ous_ull",
+                                                      "noric_bodoe"), 
+                                    AvdRESH = c(108141, 
+                                                106944, 
+                                                114150, 
+                                                105502, 
+                                                104284, 
+                                                101619, 
+                                                700422, 
+                                                109880, 
+                                                4210141)), 
+                     by = "FROM_INSTANCE") %>% 
+    noric::fikse_sykehusnavn()
+  
+  d_merger_report_sid <- rapbase::loadRegData(
+    registryName = registryName,
+    query = paste0("SELECT * 
+                  FROM merger_report_segment ;")) %>%
+    dplyr::inner_join(x =., 
+                      y = hosp_id, 
+                      by = "ID")%>% 
+    dplyr::select(-"ID")
+  
+  list(d_merger_report_sid = d_merger_report_sid)
+}

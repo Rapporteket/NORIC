@@ -1,3 +1,37 @@
+# noric 4.0.0 - Endelig overgang til én database
+Fra #3.8.0 og nyere gjøres SQL spørringer nå til én nasjonal database. 
+Litt små rettelser før release i PROD.
+* Smårusk: rettet i datadump for logg
+* Henter reshID fra Angio PCI og ikke centreattribute, bruker alltid 
+egendefinerte sykehusnavn
+* Opprydning tilgang verktøy for SC-rolle
+* Fikse tallene i progress bar for månedsrapporter
+
+# noric 3.9.4
+- bugfix månedsrapport
+
+# noric 3.9.3
+* Nyeste versjon av rapbase, med fiks av epostutsending
+
+# noric 3.9.2
+* sykehusene kommer i alfabetisk rekkefølge i nedtrekksmeny
+* Bug for query i SO nasjonal
+* Gjøre klar datadumper med logg fra merge
+
+# noric 3.9.1
+- bugfix liste utforsker SCrolle
+- midlertidig quick fix tilgang
+
+# noric 3.9.0
+
+Oppdatert håndtering av Lokalsykehus (nå på prosedyreskjema). 
+
+# noric 3.8.1
+
+* Fikset bug i autoreport-fane ([#256](https://github.com/Rapporteket/NORIC/pull/256))
+* Tilpasninger til ny rapbase-versjon ([#255](https://github.com/Rapporteket/NORIC/pull/255))
+
+
 # noric 3.8.0: Sammenslåing databaser
  
 Overgang til èn felles database for alle sykehusene (noric_bergen). 
@@ -9,7 +43,7 @@ nytt databaseoppsett. Bruke eksisterende tilganger. Innføring av parameteren
 
 # noric 3.7.0
  
-*Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
+* Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
 bruker ikke fromDate og toDate)
 * Fjerne view for PasienterStudier(MERK: problemer med kalender for denne, 
 bruker ikke fromDate og toDate)
