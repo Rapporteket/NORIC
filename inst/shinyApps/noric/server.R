@@ -553,7 +553,7 @@ shinyServer(function(input, output, session) {
   
   # Verktøy - Metadata
   meta <- shiny::reactive({
-    noric::describeRegistryDb(registryName = registryName)
+    rapbase::describeRegistryDb(registryName = registryName)
   })
   
   output$metaControl <- shiny::renderUI({
