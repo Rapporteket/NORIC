@@ -19,6 +19,8 @@
 \alias{getMergeReportMce}
 \alias{getMergeReportPid}
 \alias{getMergeReportSegmentId}
+\alias{getAngioAssistent}
+\alias{getPciAssistent}
 \alias{getDk}
 \title{Load data for NORIC}
 \usage{
@@ -55,6 +57,10 @@ getMergeReportMce(registryName)
 getMergeReportPid(registryName)
 
 getMergeReportSegmentId(registryName)
+
+getAngioAssistent(registryName, fromDate, toDate)
+
+getPciAssistent(registryName, fromDate, toDate)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
