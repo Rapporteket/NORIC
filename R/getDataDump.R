@@ -31,7 +31,9 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              "UtskrDiagnoser", 
                              "MergeReportFID", 
                              "MergeReportPID", 
-                             "MergeReportSegmentId"))
+                             "MergeReportSegmentId", 
+                             "angio_assistent", 
+                             "pci_assistent"))
   
   
   if (tableName %in% "AngioPCIVar"){
@@ -165,6 +167,21 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
   
   if (tableName %in% "MergeReportSegmentId") {
     tab <- noric::getMergeReportSegmentId(registryName = registryName)$d_merger_report_sid
+  }
+  
+  if (tableName %in% "angio_assistent") {
+    tab <- noric::getAngioAssistent(registryName = registryName, 
+                                    fromDate = fromDate,
+                                    toDate = toDate, 
+                                    singleRow = FALSE,
+                                    singleHospital = singleHospital)$dAngioAss
+  }
+  if (tableName %in% "pci_assistent") {
+    tab <- noric::getPciAssistent(registryName = registryName, 
+                                  fromDate = fromDate,
+                                  toDate = toDate, 
+                                  singleRow = FALSE,
+                                  singleHospital = singleHospital)$dPciAss
   }
   
   tab

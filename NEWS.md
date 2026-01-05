@@ -1,3 +1,6 @@
+# noric 4.0.1 Datadump med laboratorieassistent
+Lage datadump for Angio_labassistent og Pci_labassistent. Tilgengelig i SC Nasjonal
+
 # noric 4.0.0 - Endelig overgang til én database
 Fra #3.8.0 og nyere gjøres SQL spørringer nå til én nasjonal database. 
 Litt små rettelser før release i PROD.
