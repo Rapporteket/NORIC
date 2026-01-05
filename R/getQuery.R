@@ -25,6 +25,8 @@
 #' queryPasienterstudier
 #' queryApLight
 #' queryDiagnose
+#' queryPciLabassistent
+#' queryAngioLabassistent
 NULL
 
 
@@ -2379,14 +2381,13 @@ queryDiagnose <- function(){
 
 #' @rdname getQuery
 #' @export
-query_angio_labassistent <- function() {
+queryAngioLabassistent <- function() {
   paste0("
   SELECT
-  mce.CENTREID, 
-  mce.MCEID,
-  mce.CENTREID,
-  mce.INTERDAT AS ProsedyreDato,
-  (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = angio_labassistant_mapping.PEOPLEID ) AS angioAssistent
+    mce.CENTREID AS AvdRESH,
+    mce.MCEID AS ForlopsID,
+    mce.INTERDAT AS ProsedyreDato,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = angio_labassistant_mapping.PEOPLEID ) AS angioAssistent
   FROM mce 
   INNER JOIN angio_labassistant_mapping ON mce.MCEID = angio_labassistant_mapping.MCEID
   ")
@@ -2394,14 +2395,13 @@ query_angio_labassistent <- function() {
 
 #' @rdname getQuery
 #' @export
-query_pci_labassistent <- function() {
+queryPciLabassistent <- function() {
   paste0("
   SELECT
-  mce.CENTREID, 
-  mce.MCEID,
-  mce.CENTREID,
-  mce.INTERDAT AS ProsedyreDato,
-  (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = pci_labassistant_mapping.PEOPLEID ) AS pciAssistent
+    mce.CENTREID AS AvdRESH,
+    mce.MCEID AS ForlopsID,
+    mce.INTERDAT AS ProsedyreDato,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = pci_labassistant_mapping.PEOPLEID ) AS pciAssistent
   FROM mce 
   INNER JOIN pci_labassistant_mapping ON mce.MCEID = pci_labassistant_mapping.MCEID ")
 }

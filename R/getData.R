@@ -38,6 +38,8 @@
 #' getMergeReportMce
 #' getMergeReportPid
 #' getMergeReportSegmentId
+#' getAngioAssistent
+#' getPciAssistent
 NULL
 #' @rdname getData
 #' @export
@@ -682,7 +684,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getData
 #' @export
-getDk <- function(registryName, fromDate, toDate, singleRow,
+getDk <- function(registryName, cccccc, singleRow,
                   singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
@@ -850,4 +852,76 @@ getMergeReportSegmentId <- function(registryName){
     dplyr::select(-"ID")
   
   list(d_merger_report_sid = d_merger_report_sid)
+}
+
+
+#' @rdname getData
+#' @export
+getPciAssistent <- function(registryName, fromDate, toDate, singleRow, 
+                            singleHospital = 0, ...){
+  
+  
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
+  
+  query <- paste0(noric::queryPciLabassistent(),
+                  " WHERE
+                  mce.INTERDAT >= '", fromDate,  "' AND
+                  mce.INTERDAT <= '", toDate, "' ")
+  
+  if(singleHospital != 0) {
+    query <- paste0(query, "AND mce.CENTREID = ", singleHospital)
+  }
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for PCI labassistent"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for PCI labassistent"
+  }
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  dPciAss <- rapbase::loadRegData(registryName, query) %>%
+    noric::fikse_sykehusnavn(.) %>% 
+    dplyr::arrange(AvdRESH, ForlopsID)
+  
+  list(dPciAss = dPciAss)
+}
+
+#' @rdname getData
+#' @export
+getAngioAssistent <- function(registryName, fromDate, toDate, singleRow,
+                              singleHospital = 0, ...){
+  
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
+  
+  query <- paste0(noric::queryAngioLabassistent(),
+                  " WHERE
+                  mce.INTERDAT >= '", fromDate,  "' AND
+                  mce.INTERDAT <= '", toDate, "' ")
+  
+  if(singleHospital != 0) {
+    query <- paste0(query, "AND mce.CENTREID = ", singleHospital)
+  }
+  if (singleRow) {
+    query <- paste0(query, "\nLIMIT\n  1;")
+    msg <- "Query single row data for Angio labassistent"
+  } else {
+    query <- paste0(query, ";")
+    msg <- "Query data for Angio labassistent"
+  }
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  dAngioAss <- rapbase::loadRegData(registryName, query) %>%
+    noric::fikse_sykehusnavn(.) %>% 
+    dplyr::arrange(AvdRESH, ForlopsID)
+  
+  list(dAngioAss = dAngioAss)
 }

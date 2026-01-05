@@ -172,12 +172,16 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
   if (tableName %in% "angio_assistent") {
     tab <- noric::getAngioAssistent(registryName = registryName, 
                                     fromDate = fromDate,
-                                    toDate = toDate)$d_angioassistent
+                                    toDate = toDate, 
+                                    singleRow = FALSE,
+                                    singleHospital = singleHospital)$dAngioAss
   }
   if (tableName %in% "pci_assistent") {
     tab <- noric::getPciAssistent(registryName = registryName, 
                                   fromDate = fromDate,
-                                  toDate = toDate)$d_pciassistent
+                                  toDate = toDate, 
+                                  singleRow = FALSE,
+                                  singleHospital = singleHospital)$dPciAss
   }
   
   tab
