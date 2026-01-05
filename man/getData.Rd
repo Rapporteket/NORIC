@@ -50,7 +50,7 @@ getPs(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
 getApLight(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getDk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
+getDk(registryName, cccccc, singleRow, singleHospital = 0, ...)
 
 getMergeReportMce(registryName)
 
@@ -58,9 +58,23 @@ getMergeReportPid(registryName)
 
 getMergeReportSegmentId(registryName)
 
-getAngioAssistent(registryName, fromDate, toDate)
+getPciAssistent(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 
-getPciAssistent(registryName, fromDate, toDate)
+getAngioAssistent(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
