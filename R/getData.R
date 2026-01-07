@@ -580,7 +580,7 @@ getPs <- function(registryName, fromDate, toDate, singleRow,
   query <- noric::queryPasienterstudier()
   
   if(singleHospital != 0) {
-    query <- paste0(query, "AND ps.CENTREID = ", singleHospital)
+    query <- paste0(query, "WHERE ps.CENTREID = ", singleHospital)
   }
   
   if (singleRow) {
