@@ -684,7 +684,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getData
 #' @export
-getDk <- function(registryName, cccccc, singleRow,
+getDk <- function(registryName, fromDate, toDate, singleRow,
                   singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
