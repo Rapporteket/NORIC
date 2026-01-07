@@ -1,3 +1,8 @@
+# noric 4.0.2 Bugfix
+fikset 
+* kommfeil i indikator-rapport
+* query for UtskrDiagnoser og PasienterStudier
+
 # noric 4.0.1 Datadump med laboratorieassistent
 Lage datadump for Angio_labassistent og Pci_labassistent. Tilgengelig i SC Nasjonal
 
