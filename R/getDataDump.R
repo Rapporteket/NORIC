@@ -24,7 +24,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              "AortaklaffOppfVar",
                              "AnnenDiagnostikkVar",
                              "SegmentStent",
-                             "segment_history",
+                             # "segment_history",
                              "MitralklaffVar",
                              "PasienterStudier_ignorerKalender", 
                              "AortaklaffProm", 
@@ -185,4 +185,6 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
   }
   
   tab
+  
+  
 }
