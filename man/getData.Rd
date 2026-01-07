@@ -50,7 +50,7 @@ getPs(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
 getApLight(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getDk(registryName, cccccc, singleRow, singleHospital = 0, ...)
+getDk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
 getMergeReportMce(registryName)
 

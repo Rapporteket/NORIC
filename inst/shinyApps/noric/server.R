@@ -512,7 +512,7 @@ shinyServer(function(input, output, session) {
       "MitralklaffVar",
       "PasienterStudier_ignorerKalender",
       "SegmentStent",
-      "segment_history",
+      # "segment_history",
       "SkjemaOversikt", 
       "UtskrDiagnoser", 
       "MergeReportFID", 

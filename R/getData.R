@@ -580,7 +580,7 @@ getPs <- function(registryName, fromDate, toDate, singleRow,
   query <- noric::queryPasienterstudier()
   
   if(singleHospital != 0) {
-    query <- paste0(query, "AND ps.CENTREID = ", singleHospital)
+    query <- paste0(query, "WHERE ps.CENTREID = ", singleHospital)
   }
   
   if (singleRow) {
@@ -684,7 +684,7 @@ getApLight <- function(registryName, fromDate, toDate, singleRow,
 
 #' @rdname getData
 #' @export
-getDk <- function(registryName, cccccc, singleRow,
+getDk <- function(registryName, fromDate, toDate, singleRow,
                   singleHospital = 0, ...){
   
   if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
