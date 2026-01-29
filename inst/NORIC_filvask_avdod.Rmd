@@ -170,6 +170,7 @@ aP %<>%
     .data$LabKompDod, 
     .data$LabKompProsedyrerelatertDod,
     .data$AvdKompDod,
+    .data$AvdKompProsedyrerelatertDod,
     .data$AvdodFReg, 
     .data$AvdodDatoFReg,
     .data$Utskrivningsdato,
@@ -183,6 +184,8 @@ aP %<>%
   noric::utlede_OppholdsID(.) %>% 
   noric::utlede_dod_noric(.) %>% 
   noric::avdod_opphold(.) %>% 
+  noric::utlede_dod_prosedyrerelatert_noric(.) %>% 
+  noric::avdod_prosedyrerelatert_opphold(.) %>% 
   
   #TIdsdifferanser
   dplyr:: mutate(
@@ -609,6 +612,79 @@ aP %>%
 
 
 ```
+
+\bigskip \bigskip \bigskip 
+
+
+
+
+# Folkeregistrert død rundt prosedyredato, sjekk prosedyrerelatert død
+Følgende pasienter har _AvdodDatoFReg_ enten før prosedyredatoen eller inntil 
+to dager etter. Eksklusert er pasienter registrerte som avdød på lab eller 
+avdeling, og der dødsfallet er prosedyrerelatert. 
+
+
+Vi ber sykehusene om å sjekke i journal om disse pasientene har dødd på
+lab/avdeling og om dødsfallet var prosedyrerelatert. Dersom det er tilfelle,
+ønsker vi at NORIC-registreringen blir oppdatert. Merk at alle primær- og/eller
+sekundærforløp som henger sammen er listet opp. Tabellen inneholder alle
+pasienter, uavhenging av status for utskrivelse, det kan være noe overlapp med tabell 1.2. 
+
+
+```{r tab8, results='asis', warning=FALSE}
+cap <- paste0(params$hospitalName,
+              ": Alle forløp der pasienten er enten ", 
+              "avdød før prosedyren eller inntil 2 dager etter den, ", 
+              "i perioden fra 01. jan ", 
+              periode_data$sisteHeleYear,
+              " til og med ",
+              format(periode_data$siste_dato, '%d. %B %Y'), 
+              ". Pasienter som er registrert med prosedyrerelatert død på ", 
+              "lab eller avdeling er ekskludert.")
+
+
+dod_etter_prs <- aP %>%  
+  dplyr::filter(.data$dager_proc_avdod %in% 0:2 | .data$dager_proc_avdod < 0, 
+                ! .data$Indikasjon %in% "Donorutredning", 
+                dod_prosedyrerelatert_opphold == "Nei") %>%
+  dplyr::select(.data$OppholdsID) %>% 
+  dplyr::distinct() %>% 
+  dplyr::pull()
+
+aP %>% 
+  dplyr::filter(.data$OppholdsID %in% dod_etter_prs) %>% 
+  dplyr::arrange(.data$OppholdsID) %>% 
+  dplyr::select(.data$PasientID,
+                .data$ForlopsID, 
+                .data$Regtype,
+                .data$ProsedyreDato,
+                .data$AvdodDatoFReg, 
+                .data$LabKompDod, 
+                .data$LabKompProsedyrerelatertDod,
+                .data$AvdKompDod,
+                .data$AvdKompProsedyrerelatertDod) %>%
+  dplyr::rename(ProsDato = ProsedyreDato, 
+                AvdodFReg = AvdodDatoFReg,
+                LabDod = LabKompDod,
+                LabProsRel =  LabKompProsedyrerelatertDod,
+                AvdDod = AvdKompDod,
+                AvdProsRel = AvdKompProsedyrerelatertDod) %>% 
+  noric::mst(tab = .,
+             type = params$tableFormat,
+             cap = cap,
+             label = "tab8")
+
+```
+
+
+
+```{r }
+if (params$rendered_by_shiny)
+  shiny::setProgress(0.98)  
+```
+
+
+
 
 ```{r include = FALSE}
 gc(verbose = TRUE) # garbage collection to free up memory
