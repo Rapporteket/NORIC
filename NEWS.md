@@ -1,3 +1,7 @@
+# noric 4.1.0 Filvask avdød med prosedyrerelatert død
+Lagt til en liste med alle pasienter som har dødd før prosedyren eller inntil
+to dager etter. Ber sykehusene og å sjekke om prosedyrerelatert død kan mangle.
+
 # noric 4.0.2 Bugfix
 fikset 
 * kommfeil i indikator-rapport
