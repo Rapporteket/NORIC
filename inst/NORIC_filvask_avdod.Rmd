@@ -184,9 +184,9 @@ aP %<>%
   noric::utlede_OppholdsID(.) %>% 
   noric::utlede_dod_noric(.) %>% 
   noric::avdod_opphold(.) %>% 
-  noric::utlede_dod_prosedyrerelatert_noric(.) %>% 
-  noric::avdod_prosedyrerelatert_opphold(.) %>% 
-  
+  noric::utlede_lab_avd_dod_noric(.) %>% 
+  noric::avdod_lab_avd_dod_opphold(.) %>% 
+ 
   #TIdsdifferanser
   dplyr:: mutate(
     dager_proc_avdod = as.numeric(difftime(.data$AvdodDatoFReg,
@@ -621,7 +621,7 @@ aP %>%
 # Folkeregistrert død rundt prosedyredato, sjekk prosedyrerelatert død
 Følgende pasienter har _AvdodDatoFReg_ enten før prosedyredatoen eller inntil 
 to dager etter. Eksklusert er pasienter registrerte som avdød på lab eller 
-avdeling, og der dødsfallet er prosedyrerelatert. 
+avdeling.  
 
 
 Vi ber sykehusene om å sjekke i journal om disse pasientene har dødd på
@@ -639,14 +639,14 @@ cap <- paste0(params$hospitalName,
               periode_data$sisteHeleYear,
               " til og med ",
               format(periode_data$siste_dato, '%d. %B %Y'), 
-              ". Pasienter som er registrert med prosedyrerelatert død på ", 
-              "lab eller avdeling er ekskludert.")
+              ". Pasienter som er registrert med død på lab eller avdeling ", 
+              "under oppholdet er ekskludert.")
 
 
 dod_etter_prs <- aP %>%  
   dplyr::filter(.data$dager_proc_avdod %in% 0:2 | .data$dager_proc_avdod < 0, 
                 ! .data$Indikasjon %in% "Donorutredning", 
-                dod_prosedyrerelatert_opphold == "Nei") %>%
+                dod_lab_avd_dod_opphold %in% "Nei") %>%
   dplyr::select(.data$OppholdsID) %>% 
   dplyr::distinct() %>% 
   dplyr::pull()

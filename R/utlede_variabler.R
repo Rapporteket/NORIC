@@ -241,58 +241,61 @@ avdod_opphold <- function(df_ap) {
     dplyr::ungroup()
 }
 
-#' Minst en registrering av prosedyrerelatert død under forløpet
+
+
+
+#' Minst en registrering av død på lab/avdeling under forløpet
 #'
-#'Funksjonen \code{utlede_prosedyrerelatertdod_noric} genererer en 
+#'Funksjonen \code{utlede_lab_avd_dod_noric} genererer en 
 #'ny variabel i AP-datasettet:
-#' \code{dod_prosedyrerelatert_noric}. Dersom minst en av variablene 
-#'\code{LabKompProsedyrerelatertDod} eller \code{AvdKompProsedyrerelatertDod} 
-#'har verdien \emph{Ja},  så regnes pasienten som prosedyrerelatert død under 
+#' \code{dod_lab_avd_dod_noric}. Dersom minst en av variablene 
+#'\code{LabKompDod} eller \code{AvdKompDod} 
+#'har verdien \emph{Ja},  så regnes pasienten som  død under 
 #'forløpet. Gjelder alle typer forløp, primær og sekundær. 
-#'Brukes sammen med funksjonen \code{avdod_prosedyrerelatert_opphold} for å gruppere 
+#'Brukes sammen med funksjonen \code{avdod_lab_avd_dod_noric_opphold} for å gruppere 
 #'NORIC-opphold sammen. 
 #'
 #'@param df_ap data.frame med AngioPCI-data tabellen. Må inneholde variablene
-#'\code{LabKompProsedyrerelatertDod} og \code{AvdKompProsedyrerelatertDod}.
+#'\code{LabKompDod} og \code{AvdKompDod}.
 #'@return Funksjonen returnerer \code{ap_df}, med en ny kolonne
-#'ved navn \code{dod_prosedyrerelatert_noric}.
+#'ved navn \code{dod_lab_avd_dod_noric}.
 #' @examples
-#' x <- data.frame(LabKompProsedyrerelatertDod = c("Ja", "Nei", "Ukjent", NA, 
-#'                                                 "Ja", "Nei", "Ukjent", NA), 
-#'                 AvdKompProsedyrerelatertDod = c("Ja","Ja", 
-#'                                                 "Nei", "Nei", 
-#'                                                 "Ukjent", "Ukjent", 
-#'                                                 NA, NA))
-#' noric::utlede_dod_prosedyrerelatert_noric(x)                                               
+#' x <- data.frame(LabKompDod = c("Ja", "Nei", "Ukjent", NA, 
+#'                                "Ja", "Nei", "Ukjent", NA), 
+#'                 AvdKompDod = c("Ja","Ja", 
+#'                                "Nei", "Nei", 
+#'                                "Ukjent", "Ukjent", 
+#'                                NA, NA))
+#' noric::utlede_lab_avd_dod_noric(x)                                               
 #' @export
-utlede_dod_prosedyrerelatert_noric <- function(df_ap){
-  stopifnot(all(c("LabKompProsedyrerelatertDod",
-                  "AvdKompProsedyrerelatertDod") %in% names(df_ap)))
+utlede_lab_avd_dod_noric <- function(df_ap){
+  stopifnot(all(c("LabKompDod",
+                  "AvdKompDod") %in% names(df_ap)))
   
   df_ap %>% 
     dplyr::mutate(
-      dod_prosedyrerelatert_noric = dplyr::if_else(
-        condition = (LabKompProsedyrerelatertDod %in% "Ja" |
-                       AvdKompProsedyrerelatertDod %in% "Ja"),
+      dod_lab_avd_dod_noric = dplyr::if_else(
+        condition = (LabKompDod %in% "Ja" |
+                       AvdKompDod %in% "Ja"),
         true = "Ja",
         false = "Nei",
         missing = "Nei"))
   
 }
 
-#' Minst en gang prosedyrerelatert død under NORIC-oppholdet
+#' Minst en gang død på lab/avd under NORIC-oppholdet
 #'
 #' Funksjonen grupperer primær- og sekundærforløp sammen, ved hjelp 
 #' av \code{OppholdsID}. En ny variabel blir generert i AP-tabellen: 
-#' \code{dod_prosedyrerelatert_opphold}. Denne variabelen får verdien \emph{Ja} dersom  
-#' \code{dod_prosedyrerelatert_noric} har verdien \emph{Ja} for minst et av forløpene med felles
+#' \code{dod_lab_avd_dod_opphold}. Denne variabelen får verdien \emph{Ja} dersom  
+#' \code{dod_lab_avd_dod_noric} har verdien \emph{Ja} for minst et av forløpene med felles
 #' \code{OppholdsID} og får verdien \emph{Nei} dersom ingen av forløpene 
 #' med felles \code{OppholdsID} har registrering av avdød. Funksjonen brukes
 #' sammen med \code{noric::utlede_OppholdsID} og 
-#' \code{noric::utlede_dod_prosedyrerelatert_noric}.
+#' \code{noric::utlede_lab_avd_dod_noric}.
 #' 
 #' @param df_ap data.frame med AngioPCI-data tabellen. Må inneholde variablene 
-#'\code{AvdRESH}, \code{OppholdsID} og \code{dod_prosedyrerelatert_noric}. 
+#'\code{AvdRESH}, \code{OppholdsID} og \code{dod_lab_avd_dod_noric}. 
 #' @return Funksjonen returnerer \code{ap_df}, med en ny kolonne
 #' ved navn \code{dod_prosedyrerelatert_opphold}.
 #'
@@ -302,35 +305,32 @@ utlede_dod_prosedyrerelatert_noric <- function(df_ap){
 #'                Regtype = c("Primær", "Sekundær", rep("Primær", 4), 
 #'                            "Sekundær", "Sekundær"), 
 #'                PrimaerForlopsID = c(1, 1, 2, 2, 3, 4, 4, 4), 
-#'                LabKompProsedyrerelatertDod = c("Nei", "Nei", "Ukjent", NA, 
+#'                LabKompDod = c("Nei", "Nei", "Ukjent", NA, 
 #'                                                "Ja", "Nei", "Ukjent", "Ja"), 
-#'                AvdKompProsedyrerelatertDod = c("Nei","Ja", 
+#'                AvdKompDod = c("Nei","Ja", 
 #'                                                "Nei", "Nei", 
 #'                                                "Ukjent", "Ukjent", 
 #'                                                 NA, NA))
 #' x %>%  
 #'   noric::utlede_OppholdsID(.) %>% 
-#'   noric::utlede_dod_prosedyrerelatert_noric(.) %>% 
-#'   noric::avdod_prosedyrerelatert_opphold(.)  %>% 
+#'   noric::utlede_lab_avd_dod_noric(.) %>% 
+#'   noric::avdod_lab_avd_dod_opphold(.)  %>% 
 #'   dplyr::arrange(OppholdsID)              
 #'
 #'
 #' @export
-avdod_prosedyrerelatert_opphold <- function(df_ap) {
+avdod_lab_avd_dod_opphold <- function(df_ap) {
   
   stopifnot(all(c("AvdRESH",
                   "OppholdsID",
-                  "dod_prosedyrerelatert_noric") %in% names(df_ap)))
+                  "dod_lab_avd_dod_noric") %in% names(df_ap)))
   
   df_ap %>%
     dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
     dplyr::mutate(
-      dod_prosedyrerelatert_opphold = ifelse(
-        all(.data$dod_prosedyrerelatert_noric == "Nei"),
+      dod_lab_avd_dod_opphold = ifelse(
+        all(.data$dod_lab_avd_dod_noric == "Nei"),
         "Nei",
         "Ja")) %>%
     dplyr::ungroup()
 }
-
-
-
