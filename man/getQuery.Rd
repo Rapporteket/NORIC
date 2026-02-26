@@ -17,6 +17,8 @@
 \alias{queryPasienterstudier}
 \alias{queryApLight}
 \alias{queryDiagnose}
+\alias{queryPciLabassistent}
+\alias{queryAngioLabassistent}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryAngiopcinum()
@@ -48,6 +50,10 @@ queryPasienterstudier()
 queryApLight()
 
 queryDiagnose()
+
+queryAngioLabassistent()
+
+queryPciLabassistent()
 }
 \arguments{
 \item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
@@ -56,7 +62,7 @@ NULL if no filter on date.}
 \item{toDate}{Character string of format YYYY-MM-DD with end date. Value
 NULL if no filter on date.}
 
-\item{singleHospital}{NULL if national, reshid if query for one hospital}
+\item{singleHospital}{0 if national, reshid if query for one hospital}
 }
 \value{
 query as string

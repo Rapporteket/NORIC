@@ -1,6 +1,61 @@
+# noric 4.1.0 Filvask avdød med prosedyrerelatert død
+Lagt til en liste med alle pasienter som har dødd før prosedyren eller inntil
+to dager etter. Ber sykehusene og å sjekke om prosedyrerelatert død kan mangle.
+
+# noric 4.0.2 Bugfix
+fikset 
+* kommfeil i indikator-rapport
+* query for UtskrDiagnoser og PasienterStudier
+
+# noric 4.0.1 Datadump med laboratorieassistent
+Lage datadump for Angio_labassistent og Pci_labassistent. Tilgengelig i SC Nasjonal
+
+# noric 4.0.0 - Endelig overgang til én database
+Fra #3.8.0 og nyere gjøres SQL spørringer nå til én nasjonal database. 
+Litt små rettelser før release i PROD.
+* Smårusk: rettet i datadump for logg
+* Henter reshID fra Angio PCI og ikke centreattribute, bruker alltid 
+egendefinerte sykehusnavn
+* Opprydning tilgang verktøy for SC-rolle
+* Fikse tallene i progress bar for månedsrapporter
+
+# noric 3.9.4
+- bugfix månedsrapport
+
+# noric 3.9.3
+* Nyeste versjon av rapbase, med fiks av epostutsending
+
+# noric 3.9.2
+* sykehusene kommer i alfabetisk rekkefølge i nedtrekksmeny
+* Bug for query i SO nasjonal
+* Gjøre klar datadumper med logg fra merge
+
+# noric 3.9.1
+- bugfix liste utforsker SCrolle
+- midlertidig quick fix tilgang
+
+# noric 3.9.0
+
+Oppdatert håndtering av Lokalsykehus (nå på prosedyreskjema). 
+
+# noric 3.8.1
+
+* Fikset bug i autoreport-fane ([#256](https://github.com/Rapporteket/NORIC/pull/256))
+* Tilpasninger til ny rapbase-versjon ([#255](https://github.com/Rapporteket/NORIC/pull/255))
+
+
+# noric 3.8.0: Sammenslåing databaser
+ 
+Overgang til èn felles database for alle sykehusene (noric_bergen). 
+Hente innhold i Rapporteket fra denne databasen. Oppdatere rapbaseConfig til 
+å bruke kun èn database. Tilpasse innhold og tilganger på Rapporteket til 
+nytt databaseoppsett. Bruke eksisterende tilganger. Innføring av parameteren
+'singleHospital'.
+
+
 # noric 3.7.0
  
-*Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
+* Fjerne view for Forlopsoversikt (MERK: problemer med kalender for denne, 
 bruker ikke fromDate og toDate)
 * Fjerne view for PasienterStudier(MERK: problemer med kalender for denne, 
 bruker ikke fromDate og toDate)

@@ -6,7 +6,7 @@
 #' NULL if no filter on date.
 #' @param toDate Character string of format YYYY-MM-DD with end date. Value
 #' NULL if no filter on date.
-#' @param singleHospital NULL if national, reshid if query for one hospital
+#' @param singleHospital 0 if national, reshid if query for one hospital
 
 #' @return query as string
 #' @name getQuery
@@ -25,6 +25,8 @@
 #' queryPasienterstudier
 #' queryApLight
 #' queryDiagnose
+#' queryPciLabassistent
+#' queryAngioLabassistent
 NULL
 
 
@@ -51,10 +53,8 @@ queryAngiopcinum <- function(){
       WHEN 1 THEN 'Ja'
       ELSE 'Nei'
     END AS ProsedyreTidUkjent,
-    CASE (P.LOCAL_HOSPITAL) 
-      WHEN 999 THEN P.LOCAL_HOSPITAL_OTHER
-      ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
-    END AS Lokalsykehus,
+   (SELECT NAME FROM hospital WHERE hospital.ID = MCE.LOCAL_HOSPITAL) AS Lokalsykehus,
+    MCE.LOCAL_HOSPITAL_OTHER AS LokalsykehusAnnet,
    
     P.GENDER AS Kjonn,
     P.BIRTH_DATE FodselsDato,
@@ -484,10 +484,8 @@ queryCtangiovarnum <-function(){
       WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
     END AS Hastegrad,
     
-	  CASE (P.LOCAL_HOSPITAL) WHEN 999
-		  THEN P.LOCAL_HOSPITAL_OTHER
-		  ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
-	    END AS Lokalsykehus,
+	  (SELECT NAME FROM hospital WHERE hospital.ID = MCE.LOCAL_HOSPITAL) AS Lokalsykehus,
+	  MCE.LOCAL_HOSPITAL_OTHER AS LokalsykehusAnnet,
 	    
 	  CT.CTDAT AS UndersokDato,
 	  
@@ -1700,7 +1698,7 @@ queryForlopsoversikt <-function(){
 #' @export
 querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   
-  if(is.null(singleHospital)){
+  if(singleHospital == 0){
     condition_hospital <- " "
   } else {
     condition_hospital <- paste0(" skjema.CENTREID = '", singleHospital, "' AND ")
@@ -1722,7 +1720,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
     initialcare skjema
     LEFT JOIN regangio  ON skjema.MCEID = regangio.MCEID
   WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     regangio.INTERDAT >= '", fromDate, "' AND
     regangio.INTERDAT <= '", toDate, "'
   
@@ -1741,7 +1739,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     regangio skjema
    WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.INTERDAT >= '", fromDate, "' AND
     skjema.INTERDAT <= '", toDate, "'
 
@@ -1761,7 +1759,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
     angiopcicomp skjema
     LEFT JOIN regangio  ON skjema.MCEID = regangio.MCEID
    WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     regangio.INTERDAT >= '", fromDate, "' AND
     regangio.INTERDAT <= '", toDate, "'
 
@@ -1781,7 +1779,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
     discharge skjema
   LEFT JOIN regangio  ON skjema.MCEID = regangio.MCEID
   WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     regangio.INTERDAT >= '", fromDate, "' AND
     regangio.INTERDAT <= '", toDate, "'
 
@@ -1800,7 +1798,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     ctangio skjema
   WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.CTDAT >= '", fromDate, "' AND
     skjema.CTDAT <= '", toDate, "'
 
@@ -1819,7 +1817,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     taviperc skjema
   WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.PROCEDUREDATE >= '", fromDate, "' AND
     skjema.PROCEDUREDATE <= '", toDate, "'
 
@@ -1838,7 +1836,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     tavidischarge skjema
   WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.DISCHARGEDATE >= '", fromDate, "' AND
     skjema.DISCHARGEDATE <= '", toDate, "'
 
@@ -1857,7 +1855,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     tavipercfollowup skjema
    WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.FOLLOWUPDATE >= '", fromDate, "' AND
     skjema.FOLLOWUPDATE <= '", toDate, "'
 
@@ -1877,7 +1875,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
    tavimitralis skjema
   WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.PROCEDUREDATE >= '", fromDate, "' AND
     skjema.PROCEDUREDATE <= '", toDate, "'
 
@@ -1896,7 +1894,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     tavimitralisdischarge skjema
   WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.DISCHARGEDATE >= '", fromDate, "' AND
     skjema.DISCHARGEDATE <= '", toDate, "'
 
@@ -1915,7 +1913,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     tavimitralisfollowup skjema
    WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.FOLLOWUPDATE >= '", fromDate, "' AND
     skjema.FOLLOWUPDATE <= '", toDate, "'
 
@@ -1935,7 +1933,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     tavimitralisdischarge skjema
   WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.DISCHARGEDATE >= '", fromDate, "' AND
     skjema.DISCHARGEDATE <= '", toDate, "'
 
@@ -1954,7 +1952,7 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     tavidischarge skjema
    WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.DISCHARGEDATE >= '", fromDate, "' AND
     skjema.DISCHARGEDATE <= '", toDate, "'
 
@@ -1974,11 +1972,11 @@ querySkjemaoversikt <-function(fromDate, toDate, singleHospital){
   FROM
     other skjema
    WHERE ", 
-    condition_hospital, "
+         condition_hospital, "
     skjema.PROCEDUREDATE >= '", fromDate, "' AND
     skjema.PROCEDUREDATE <= '", toDate, "'
 "
-)}
+  )}
 
 
 
@@ -2047,10 +2045,8 @@ queryApLight <- function(){
     A.INTERDAT AS ProsedyreDato,
     A.INTERDAT_TIME AS ProsedyreTid,
   
-    CASE (P.LOCAL_HOSPITAL) 
-      WHEN 999 THEN P.LOCAL_HOSPITAL_OTHER
-      ELSE (SELECT NAME FROM hospital WHERE hospital.ID = P.LOCAL_HOSPITAL)
-    END AS Lokalsykehus,
+	  (SELECT NAME FROM hospital WHERE hospital.ID = MCE.LOCAL_HOSPITAL) AS Lokalsykehus,
+    MCE.LOCAL_HOSPITAL_OTHER AS LokalsykehusAnnet,
    
     P.GENDER AS Kjonn,
     P.BIRTH_DATE FodselsDato,
@@ -2382,3 +2378,30 @@ queryDiagnose <- function(){
   FROM  diagnose
   LEFT JOIN mce ON diagnose.MCEID = mce.MCEID
   ")}
+
+#' @rdname getQuery
+#' @export
+queryAngioLabassistent <- function() {
+  paste0("
+  SELECT
+    mce.CENTREID AS AvdRESH,
+    mce.MCEID AS ForlopsID,
+    mce.INTERDAT AS ProsedyreDato,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = angio_labassistant_mapping.PEOPLEID ) AS angioAssistent
+  FROM mce 
+  INNER JOIN angio_labassistant_mapping ON mce.MCEID = angio_labassistant_mapping.MCEID
+  ")
+}
+
+#' @rdname getQuery
+#' @export
+queryPciLabassistent <- function() {
+  paste0("
+  SELECT
+    mce.CENTREID AS AvdRESH,
+    mce.MCEID AS ForlopsID,
+    mce.INTERDAT AS ProsedyreDato,
+    (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = pci_labassistant_mapping.PEOPLEID ) AS pciAssistent
+  FROM mce 
+  INNER JOIN pci_labassistant_mapping ON mce.MCEID = pci_labassistant_mapping.MCEID ")
+}
