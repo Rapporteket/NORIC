@@ -519,7 +519,9 @@ shinyServer(function(input, output, session) {
       "MergeReportPID", 
       "MergeReportSegmentId", 
       "angio_assistent", 
-      "pci_assistent")
+      "pci_assistent", 
+      "Pasientinfo" 
+    )
   )
   
   shiny::observeEvent(list(user$role(), user$org()), {
@@ -531,6 +533,7 @@ shinyServer(function(input, output, session) {
       dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportSegmentId"])
       dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "angio_assistent"])
       dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "pci_assistent"])
+      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "Pasientinfo"])
     }
   })
   

@@ -27,6 +27,7 @@
 #' queryDiagnose
 #' queryPciLabassistent
 #' queryAngioLabassistent
+#' queryPatientInfo
 NULL
 
 
@@ -2394,4 +2395,13 @@ queryPciLabassistent <- function() {
     (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = pci_labassistant_mapping.PEOPLEID ) AS pciAssistent
   FROM mce 
   INNER JOIN pci_labassistant_mapping ON mce.MCEID = pci_labassistant_mapping.MCEID ")
+}
+
+#' @rdname getQuery
+#' @export
+queryPatientInfo <- function() {
+  paste0("
+  SELECT ID, SSN_TYPE, SSNSUBTYPE, BIRTH_DATE, GENDER, ADDR_TYPE, TOWN,
+  MUNICIPALITY_NUMBER, MUNICIPALITY_NAME, COUNTY, DECEASED,	DECEASED_DATE
+  FROM patient" )
 }

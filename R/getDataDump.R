@@ -33,7 +33,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              "MergeReportPID", 
                              "MergeReportSegmentId", 
                              "angio_assistent", 
-                             "pci_assistent"))
+                             "pci_assistent", 
+                             "Pasientinfo"))
   
   
   if (tableName %in% "AngioPCIVar"){
@@ -183,6 +184,11 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                                   singleRow = FALSE,
                                   singleHospital = singleHospital)$dPciAss
   }
+  if (tableName %in% "Pasientinfo"){
+    tab <- noric::getPI(registryName = registryName)$d_patientinfo
+  }
+  
+  tab
   
   tab
   
