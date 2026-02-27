@@ -21,6 +21,7 @@
 \alias{getMergeReportSegmentId}
 \alias{getAngioAssistent}
 \alias{getPciAssistent}
+\alias{getPI}
 \alias{getDk}
 \title{Load data for NORIC}
 \usage{
