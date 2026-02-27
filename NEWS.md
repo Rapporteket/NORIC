@@ -1,3 +1,6 @@
+# noric 4.1.1 Fylke fra riktig tabell
+Fylke er nå tilgjengeliggjort i databasen, oppdaterer SQL.
+
 # noric 4.1.0 Filvask avdød med prosedyrerelatert død
 Lagt til en liste med alle pasienter som har dødd før prosedyren eller inntil
 to dager etter. Ber sykehusene og å sjekke om prosedyrerelatert død kan mangle.
