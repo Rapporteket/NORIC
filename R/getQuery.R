@@ -27,6 +27,7 @@
 #' queryDiagnose
 #' queryPciLabassistent
 #' queryAngioLabassistent
+#' queryPatientInfo
 NULL
 
 
@@ -433,8 +434,7 @@ queryAngiopcinum <- function(){
     P.DECEASED_DATE as AvdodDatoFReg,
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-	  CAST(NULL AS CHAR(50)) AS Fylke,
-  	CAST(NULL AS CHAR(2)) AS Fylkenr,
+	  P.COUNTY AS Fylke,
   	MCE.PARENT_MCEID as KobletForlopsID,
   	MCE.PARENT_MCEID AS PrimaerForlopsID,
 
@@ -589,8 +589,7 @@ queryCtangiovarnum <-function(){
     
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-    CAST(NULL AS CHAR(50)) AS Fylke,
-    CAST(NULL AS CHAR(2)) AS Fylkenr,
+	  P.COUNTY AS Fylke,
     MCE.PARENT_MCEID as KobletForlopsID, 
     CT.STATUS AS SkjemaStatus 
     
@@ -819,8 +818,7 @@ queryAortaklaffvarnum <- function(){
     P.DECEASED_DATE AS DodsdatoFReg,
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-	  CAST(NULL AS CHAR(50)) AS Fylke,
-	  CAST(NULL AS CHAR(2)) AS Fylkenr,
+ 	  P.COUNTY AS Fylke,
     MCE.PARENT_MCEID as KobletForlopsID,
     
      -- Study information
@@ -970,8 +968,7 @@ queryAndreprosedyrervarnum <-function(){
     
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-    CAST(NULL AS CHAR(50)) AS Fylke,
-    CAST(NULL AS CHAR(2)) AS Fylkenr,
+	  P.COUNTY AS Fylke,
     MCE.PARENT_MCEID as KobletForlopsID, 
     other.STATUS AS SkjemaStatus
 
@@ -1055,9 +1052,8 @@ queryAnnendiagnostikkvarnum <-function(){
     
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-    CAST(NULL AS CHAR(50)) AS Fylke,
-    CAST(NULL AS CHAR(2)) AS Fylkenr,
-    MCE.PARENT_MCEID as KobletForlopsID
+ 	  P.COUNTY AS Fylke,
+ 	  MCE.PARENT_MCEID as KobletForlopsID
     
     FROM diagnostics diag
       INNER JOIN mce MCE ON diag.MCEID = MCE.MCEID
@@ -1139,8 +1135,7 @@ querySegmentstentnum <-function(){
     
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-    CAST(NULL AS CHAR(50)) AS Fylke,
-    CAST(NULL AS CHAR(2)) AS Fylkenr,
+   	P.COUNTY AS Fylke,
     MCE.PARENT_MCEID as KobletForlopsID
 
     FROM segment S
@@ -1366,8 +1361,7 @@ queryMitralklaffvarnum <-function(){
      P.DECEASED_DATE AS DodsdatoFReg,
      P.MUNICIPALITY_NAME AS Kommune,
      P.MUNICIPALITY_NUMBER AS KommuneNr,
-     CAST(NULL AS CHAR(50)) AS Fylke,
-     CAST(NULL AS CHAR(2)) AS Fylkenr,
+     P.COUNTY AS Fylke,
      MCE.PARENT_MCEID as KobletForlopsID, 
   
      -- Study information
@@ -1637,9 +1631,8 @@ queryForlopsoversikt <-function(){
     CAST(NULL AS CHAR(50)) AS PostSted,
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-    CAST(NULL AS CHAR(50)) AS Fylke,
-    CAST(NULL AS CHAR(2)) AS Fylkenr,
-    
+    P.COUNTY AS Fylke,
+
     CASE
       WHEN IFNULL(P.GENDER,0) = 0 THEN 'Ikke angitt'
       WHEN P.GENDER = 1 THEN 'Mann'
@@ -2011,9 +2004,8 @@ queryPasienterstudier <-function(){
     P.BIRTH_DATE FodselsDato,
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-	  CAST(NULL AS CHAR(50)) AS Fylke,
-  	CAST(NULL AS CHAR(2)) AS Fylkenr
-    
+	 	P.COUNTY AS Fylke,
+ 
     FROM
     patientstudy ps
     LEFT JOIN study s ON s.ID = ps.STUDY
@@ -2342,8 +2334,7 @@ queryApLight <- function(){
     P.DECEASED_DATE as AvdodDatoFReg,
     P.MUNICIPALITY_NAME AS Kommune,
     P.MUNICIPALITY_NUMBER AS KommuneNr,
-	  CAST(NULL AS CHAR(50)) AS Fylke,
-  	CAST(NULL AS CHAR(2)) AS Fylkenr,
+	  P.COUNTY AS Fylke,
 
     I.STATUS AS SkjemaStatusStart,
     A.STATUS AS SkjemastatusHovedskjema,
@@ -2404,4 +2395,13 @@ queryPciLabassistent <- function() {
     (SELECT CONCAT(peo.FIRSTNAME, ' ', peo.LASTNAME) from people peo where peo.PEOPLEID = pci_labassistant_mapping.PEOPLEID ) AS pciAssistent
   FROM mce 
   INNER JOIN pci_labassistant_mapping ON mce.MCEID = pci_labassistant_mapping.MCEID ")
+}
+
+#' @rdname getQuery
+#' @export
+queryPatientInfo <- function() {
+  paste0("
+  SELECT ID, SSN_TYPE, SSNSUBTYPE, BIRTH_DATE, GENDER, ADDR_TYPE, TOWN,
+  MUNICIPALITY_NUMBER, MUNICIPALITY_NAME, COUNTY, DECEASED,	DECEASED_DATE
+  FROM patient" )
 }
