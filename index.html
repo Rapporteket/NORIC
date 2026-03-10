@@ -69,7 +69,7 @@
 </h2>
 <p>You can install the released version of NORIC from <a href="https://github.com/Rapporteket/NORIC" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"Rapporteket/NORIC"</span>, ref <span class="op">=</span> <span class="st">"master"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"Rapporteket/NORIC"</span>, ref <span class="op">=</span> <span class="st">"main"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
@@ -83,7 +83,7 @@
 <div class="section level2">
 <h2 id="develop">Develop<a class="anchor" aria-label="anchor" href="#develop"></a>
 </h2>
-<p>Contributors submit their code to the rel (release) branch which is subject to testing at Rapporteket. Upon acceptance rel will me merged to the master branch and tagged.</p>
+<p>Contributors submit their code to the main branch throug pull requests which is subject to testing. Upon acceptance PR will me merged to the main branch.</p>
 </div>
 <div class="section level2">
 <h2 id="ethics">Ethics<a class="anchor" aria-label="anchor" href="#ethics"></a>
@@ -130,8 +130,9 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/rapporteket/noric/releases" class="external-link"><img src="https://img.shields.io/github/v/release/rapporteket/noric?sort=semver" alt="Version"></a></li>
-<li><a href="https://github.com/rapporteket/noric/actions" class="external-link"><img src="https://github.com/rapporteket/noric/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
-<li><a href="https://codecov.io/gh/Rapporteket/NORIC?branch=master" class="external-link"><img src="https://codecov.io/gh/Rapporteket/NORIC/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://github.com/Rapporteket/NORIC/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/Rapporteket/NORIC/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/Rapporteket/NORIC/actions/workflows/harbor.yaml" class="external-link"><img src="https://github.com/Rapporteket/NORIC/actions/workflows/harbor.yaml/badge.svg?event=release" alt="Publish Docker image"></a></li>
+<li><a href="https://codecov.io/gh/Rapporteket/NORIC?branch=main" class="external-link"><img src="https://codecov.io/gh/Rapporteket/NORIC/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://www.tidyverse.org/lifecycle/#maturing" class="external-link"><img src="https://img.shields.io/badge/lifecycle-maturing-blue.svg" alt="Lifecycle: maturing"></a></li>
 <li><a href="https://www.gnu.org/licenses/gpl-3.0" class="external-link"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a></li>
 <li><a href="https://github.com/rapporteket/noric/issues" class="external-link"><img src="https://img.shields.io/github/issues/rapporteket/noric.svg" alt="GitHub open issues"></a></li>
