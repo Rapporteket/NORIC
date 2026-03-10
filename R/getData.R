@@ -40,6 +40,7 @@
 #' getMergeReportSegmentId
 #' getAngioAssistent
 #' getPciAssistent
+#' getPI
 NULL
 #' @rdname getData
 #' @export
@@ -924,4 +925,21 @@ getAngioAssistent <- function(registryName, fromDate, toDate, singleRow,
     dplyr::arrange(AvdRESH, ForlopsID)
   
   list(dAngioAss = dAngioAss)
+}
+
+
+#' @rdname getPI
+#' @export
+getPI <- function(registryName, ...){
+  
+  query <- paste0(noric::queryPatientInfo(), ";")
+  msg <- "Query data for patient info"
+  
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  dPI <- rapbase::loadRegData(registryName, query)
+  list(d_patientinfo = dPI)
 }
