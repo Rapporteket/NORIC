@@ -124,56 +124,56 @@ shinyServer(function(input, output, session) {
           )
         )
       )
-    }
-    if (user$role() %in% c("SC", "CC")) {
-      # Angiografør/Operatør legges som et valg under Månedsrapporter for SC og CC.
-      shiny::insertTab(
-        inputId = "tabs",
-        shiny::tabPanel(
-          title = "Angiografør/Operatør",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(
-              style = "position:fixed;width:130px;",
-              h5("Last ned rapporten (pdf)"),
-              shiny::downloadButton("downloadReportAktivitet", "Hent!"),
-              width = 2),
-            shiny::mainPanel(
-              shiny::htmlOutput("aktivitet", inline = TRUE)
+      if (user$role() %in% c("SC", "CC")) {
+        # Angiografør/Operatør legges som et valg under Månedsrapporter for SC og CC.
+        shiny::insertTab(
+          inputId = "tabs",
+          shiny::tabPanel(
+            title = "Angiografør/Operatør",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                style = "position:fixed;width:130px;",
+                h5("Last ned rapporten (pdf)"),
+                shiny::downloadButton("downloadReportAktivitet", "Hent!"),
+                width = 2),
+              shiny::mainPanel(
+                shiny::htmlOutput("aktivitet", inline = TRUE)
+              )
             )
-          )
-        ),
-        position = "after",
-        target = "Invasive prosedyrer"
-      )
-    }
-    if (user$org() %in% c(
-      102966, # Haukeland
-      700422, # Rikshospitalet
-      109880, # Ullevål
-      104284, # St. Olavs
-      101619 # UNN
-    )) {
-      # Aortaklaff legges som et valg under Månedsrapporter for de fem sykehusene
-      # som gjør aortaklaff-operasjoner.
-      shiny::insertTab(
-        inputId = "tabs",
-        shiny::tabPanel(
-          title = "Aortaklaff",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(
-              style = "position:fixed;width:130px;",
-              h5("Last ned rapporten (pdf)"),
-              shiny::downloadButton("downloadReportTavi", "Hent!"),
-              width = 2
-            ),
-            shiny::mainPanel(
-              shiny::htmlOutput("tavi", inline = TRUE)
+          ),
+          position = "after",
+          target = "Invasive prosedyrer"
+        )
+      }
+      if (user$org() %in% c(
+        102966, # Haukeland
+        700422, # Rikshospitalet
+        109880, # Ullevål
+        104284, # St. Olavs
+        101619 # UNN
+      )) {
+        # Aortaklaff legges som et valg under Månedsrapporter for de fem sykehusene
+        # som gjør aortaklaff-operasjoner.
+        shiny::insertTab(
+          inputId = "tabs",
+          shiny::tabPanel(
+            title = "Aortaklaff",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                style = "position:fixed;width:130px;",
+                h5("Last ned rapporten (pdf)"),
+                shiny::downloadButton("downloadReportTavi", "Hent!"),
+                width = 2
+              ),
+              shiny::mainPanel(
+                shiny::htmlOutput("tavi", inline = TRUE)
+              )
             )
-          )
-        ),
-        position = "after",
-        target = "Invasive prosedyrer"
-      )
+          ),
+          position = "after",
+          target = "Invasive prosedyrer"
+        )
+      }
     }
     if (user$role() %in% c("SC", "CC")) {
       shiny::appendTab(
