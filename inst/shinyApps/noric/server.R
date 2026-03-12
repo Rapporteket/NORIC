@@ -33,7 +33,6 @@ shinyServer(function(input, output, session) {
   # Hide tabs
   ## when role is 'LU' or some tabs for role 'LC'
   shiny::observeEvent(list(user$role(), user$org()), {
-    shiny::showTab(inputId = "tabs", target = "Utforsker")
     shiny::showTab(inputId = "tabs", target = "Datadump")
     shiny::showTab(inputId = "tabs", target = "Verktøy")
     shiny::showTab(inputId = "tabs", target = "Angiografør/Operatør")
@@ -47,7 +46,6 @@ shinyServer(function(input, output, session) {
     shiny::showTab(inputId = "tabs", target = "Aortaklaff")
     
     if (shiny::req(user$role()) == "LU") {
-      shiny::hideTab(inputId = "tabs", target = "Utforsker")
       shiny::hideTab(inputId = "tabs", target = "Datadump")
       shiny::hideTab(inputId = "tabs", target = "Verktøy")
       shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
@@ -261,7 +259,36 @@ shinyServer(function(input, output, session) {
                            toDate = NULL, 
                            singleHospital = user$org())
   })
-  
+
+  ###################
+  # Utforsker-panel #
+  ###################
+
+  # skal ikke vises for LU-bruker.
+  shiny::observeEvent(user$role(), {
+    if (user$role() == "LU") {
+      shiny::removeTab(inputId = "tabs", target = "Utforsker")
+    } else {
+      shiny::appendTab(
+        inputId = "tabs",
+        shiny::tabPanel(
+          title = "Utforsker",
+          shiny::fluidRow(
+            column(6, shiny::uiOutput("selectDataSet")),
+            column(6, shiny::uiOutput("utforskerDateRange"))),
+          shiny::fluidRow(
+            column(12, shiny::uiOutput("selectVars"))),
+          shiny::fluidRow(
+            column(12, shiny::uiOutput("togglePivotSurvey"))
+          ),
+          shiny::fluidRow(
+            column(12, rpivotTable::rpivotTableOutput("pivotSurvey")))
+        )
+      )
+    }
+  })
+
+
   ## outputs
   output$selectDataSet <- shiny::renderUI({
     if (rvals$showPivotTable) {

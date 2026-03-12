@@ -22,20 +22,6 @@ ui <- shiny::tagList(
                        shiny::htmlOutput("veiledning", inline = TRUE))
     ),
     
-    shiny::tabPanel(
-      title = "Utforsker",
-      shiny::fluidRow(
-        column(6, shiny::uiOutput("selectDataSet")),
-        column(6, shiny::uiOutput("utforskerDateRange"))),
-      shiny::fluidRow(
-        column(12, shiny::uiOutput("selectVars"))),
-      shiny::fluidRow(
-        column(12, shiny::uiOutput("togglePivotSurvey"))
-      ),
-      shiny::fluidRow(
-        column(12, rpivotTable::rpivotTableOutput("pivotSurvey")))
-    ),
-    
     
     shiny::tabPanel(
       title = "Kodebok",
