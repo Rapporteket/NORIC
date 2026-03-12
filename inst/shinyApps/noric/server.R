@@ -29,37 +29,10 @@ shinyServer(function(input, output, session) {
   hospitalName <- shiny::reactive(
     map_orgname$orgname[map_orgname$UnitId == user$org()]
     )
-  
-  # Hide tabs
-  ## when role is 'LU' or some tabs for role 'LC'
-  shiny::observeEvent(list(user$role(), user$org()), {
-    shiny::showTab(inputId = "tabs", target = "Verktøy")
-    shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
-    shiny::showTab(inputId = "tabs", target = "Utsending")
-    shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
-
-    if (shiny::req(user$role()) == "LU") {
-      shiny::hideTab(inputId = "tabs", target = "Verktøy")
-      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-    } else if (shiny::req(user$role()) == "LC") {
-      shiny::hideTab(inputId = "tabs", target = "Verktøy")
-      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-    }
-
-    ## dispatchment and use stats hidden when not national registry
-    if (shiny::req(user$org()) != 0) {
-      shiny::hideTab(inputId = "tabs", target = "Utsending")
-      shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
-      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-      shiny::hideTab(inputId = "tabs", target = "Eksport")
-      shiny::hideTab(inputId = "tabs", target = "Staging data")
-    }
-
-  })
 
   shiny::observeEvent(list(user$role(), user$org()), {
     # Fjern alle faner før vi legger til de som skal vises for den enkelte bruker.
-    # Hvis ikke vil faner legges på flere ganger hvis man bytter bruker/rolle.
+    # Hvis ikke vil faner legges på flere ganger hvis man bytter org/rolle.
     shiny::removeTab(inputId = "tabs", target = "Utforsker")
     shiny::removeTab(inputId = "tabs", target = "Kodebok")
     shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
@@ -67,6 +40,12 @@ shinyServer(function(input, output, session) {
     shiny::removeTab(inputId = "tabs", target = "Aortaklaff")
     shiny::removeTab(inputId = "tabs", target = "Datadump")
     shiny::removeTab(inputId = "tabs", target = "Abonnement")
+    shiny::removeTab(inputId = "tabs", target = "Verktøy")
+    shiny::removeTab(inputId = "tabs", target = "Nedlasting rapporter")
+    shiny::removeTab(inputId = "tabs", target = "Utsending")
+    shiny::removeTab(inputId = "tabs", target = "Bruksstatistikk")
+    shiny::removeTab(inputId = "tabs", target = "Staging data")
+    shiny::removeTab(inputId = "tabs", target = "Eksport")
     if (user$role() != "LU") {
       # Uforsker-fane skal ikke vises for LU-bruker.
       shiny::appendTab(
@@ -218,6 +197,110 @@ shinyServer(function(input, output, session) {
               rapbase::autoReportUI("noricSubscription")))
         )
       )
+    }
+
+    # Verktøy-fane
+    if (user$role() %in% c("SC", "CC")) {
+      shiny::appendTab(
+        inputId = "tabs",
+        shiny::navbarMenu(
+          title = "Verktøy",
+
+          shiny::tabPanel(
+            title = "Metadata",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(shiny::uiOutput("metaControl")),
+              shiny::mainPanel(shiny::htmlOutput("metaData")))
+          )
+        )
+      )
+
+      if (user$org() == 0) {
+        shiny::insertTab(
+          inputId = "tabs",
+          shiny::tabPanel(
+            title = "Eksport",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
+              shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide")))
+          ),
+          position = "after",
+          target = "Metadata"
+        )
+
+        shiny::insertTab(
+          inputId = "tabs",
+          shiny::tabPanel(
+            title = "Utsending",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::autoReportOrgInput("noricDispatch"),
+                rapbase::autoReportInput("noricDispatch")
+              ),
+              shiny::mainPanel(
+                rapbase::autoReportUI("noricDispatch")))
+          ),
+          position = "before",
+          target = "Eksport"
+        )
+
+
+        shiny::insertTab(
+          inputId = "tabs",
+
+          shiny::tabPanel(
+            title = "Nedlasting rapporter",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                shiny::uiOutput("dwnldControlRap"),
+                shiny::uiOutput("dwnldControl")),
+              shiny::mainPanel(
+                shiny::htmlOutput("dwldInfo"),
+                shiny::downloadButton("dwnldReport", "Hent rapport!")))
+          ),
+          position = "before",
+          target = "Eksport"
+        )
+
+        shiny::insertTab(
+          inputId = "tabs",
+          shiny::tabPanel(
+            title = "Bruksstatistikk",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::statsInput("noricStats"),
+                rapbase::statsGuideUI("noricStatsGuide")
+              ),
+              shiny::mainPanel(rapbase::statsUI("noricStats")))
+          ),
+          position = "before",
+          target = "Eksport"
+        )
+
+
+        shiny::insertTab(
+          inputId = "tabs",
+          shiny::tabPanel(
+            title = "Staging data",
+            shiny::titlePanel("Liste alle staging data"),
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(htmlOutput("stagingControl")),
+              shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))
+            ),
+            br(),
+            shiny::titlePanel("Regelmessing etablering av staging data"),
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::autoReportOrgInput("noricBulletin"),
+                rapbase::autoReportInput("noricBulletin")
+              ),
+              shiny::mainPanel(
+                rapbase::autoReportUI("noricBulletin"))
+            )),
+          position = "after",
+          target = "Eksport"
+        )
+      }
     }
   })
 
