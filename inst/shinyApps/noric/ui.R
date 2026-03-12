@@ -20,16 +20,7 @@ ui <- shiny::tagList(
       rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
       shiny::mainPanel(width = 12,
                        shiny::htmlOutput("veiledning", inline = TRUE))
-    ),
-    
-    
-    shiny::tabPanel(
-      title = "Kodebok",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
-        shiny::mainPanel(shiny::htmlOutput("kbdData")))
-    ),
-    
+    ),    
     
     shiny::navbarMenu(
       title = "Månedsrapporter",

@@ -36,7 +36,6 @@ shinyServer(function(input, output, session) {
     shiny::showTab(inputId = "tabs", target = "Datadump")
     shiny::showTab(inputId = "tabs", target = "Verktøy")
     shiny::showTab(inputId = "tabs", target = "Angiografør/Operatør")
-    shiny::showTab(inputId = "tabs", target = "Kodebok")
     shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
     shiny::showTab(inputId = "tabs", target = "Prosedyrer")
     shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
@@ -49,7 +48,6 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Datadump")
       shiny::hideTab(inputId = "tabs", target = "Verktøy")
       shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
-      shiny::hideTab(inputId = "tabs", target = "Kodebok")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
     } else if (shiny::req(user$role()) == "LC") {
       shiny::hideTab(inputId = "tabs", target = "Datadump")
@@ -79,7 +77,40 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  
+  shiny::observeEvent(list(user$role(), user$org()), {
+    if (user$role() == "LU") {
+      # Utforsker og Kodebok skal ikke vises for LU-bruker.
+      shiny::removeTab(inputId = "tabs", target = "Utforsker")
+      shiny::removeTab(inputId = "tabs", target = "Kodebok")
+    } else {
+      shiny::appendTab(
+        inputId = "tabs",
+        shiny::tabPanel(
+          title = "Utforsker",
+          shiny::fluidRow(
+            column(6, shiny::uiOutput("selectDataSet")),
+            column(6, shiny::uiOutput("utforskerDateRange"))),
+          shiny::fluidRow(
+            column(12, shiny::uiOutput("selectVars"))),
+          shiny::fluidRow(
+            column(12, shiny::uiOutput("togglePivotSurvey"))
+          ),
+          shiny::fluidRow(
+            column(12, rpivotTable::rpivotTableOutput("pivotSurvey")))
+        )
+      )
+      shiny::appendTab(
+        inputId = "tabs",
+        shiny::tabPanel(
+          title = "Kodebok",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
+            shiny::mainPanel(shiny::htmlOutput("kbdData")))
+        )
+      )
+    }
+  })
+
   
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
@@ -258,34 +289,6 @@ shinyServer(function(input, output, session) {
                            fromDate = NULL,
                            toDate = NULL, 
                            singleHospital = user$org())
-  })
-
-  ###################
-  # Utforsker-panel #
-  ###################
-
-  # skal ikke vises for LU-bruker.
-  shiny::observeEvent(user$role(), {
-    if (user$role() == "LU") {
-      shiny::removeTab(inputId = "tabs", target = "Utforsker")
-    } else {
-      shiny::appendTab(
-        inputId = "tabs",
-        shiny::tabPanel(
-          title = "Utforsker",
-          shiny::fluidRow(
-            column(6, shiny::uiOutput("selectDataSet")),
-            column(6, shiny::uiOutput("utforskerDateRange"))),
-          shiny::fluidRow(
-            column(12, shiny::uiOutput("selectVars"))),
-          shiny::fluidRow(
-            column(12, shiny::uiOutput("togglePivotSurvey"))
-          ),
-          shiny::fluidRow(
-            column(12, rpivotTable::rpivotTableOutput("pivotSurvey")))
-        )
-      )
-    }
   })
 
 
