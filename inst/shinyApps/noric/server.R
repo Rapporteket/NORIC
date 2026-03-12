@@ -33,7 +33,6 @@ shinyServer(function(input, output, session) {
   # Hide tabs
   ## when role is 'LU' or some tabs for role 'LC'
   shiny::observeEvent(list(user$role(), user$org()), {
-    shiny::showTab(inputId = "tabs", target = "Datadump")
     shiny::showTab(inputId = "tabs", target = "Verktøy")
     shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
     shiny::showTab(inputId = "tabs", target = "Abonnement")
@@ -41,11 +40,9 @@ shinyServer(function(input, output, session) {
     shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
 
     if (shiny::req(user$role()) == "LU") {
-      shiny::hideTab(inputId = "tabs", target = "Datadump")
       shiny::hideTab(inputId = "tabs", target = "Verktøy")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
     } else if (shiny::req(user$role()) == "LC") {
-      shiny::hideTab(inputId = "tabs", target = "Datadump")
       shiny::hideTab(inputId = "tabs", target = "Verktøy")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
     }
@@ -73,6 +70,7 @@ shinyServer(function(input, output, session) {
     shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::removeTab(inputId = "tabs", target = "Angiografør/Operatør")
     shiny::removeTab(inputId = "tabs", target = "Aortaklaff")
+    shiny::removeTab(inputId = "tabs", target = "Datadump")
     if (user$role() != "LU") {
       # Uforsker-fane skal ikke vises for LU-bruker.
       shiny::appendTab(
@@ -152,7 +150,7 @@ shinyServer(function(input, output, session) {
         target = "Invasive prosedyrer"
       )
     }
-    if(user$org() %in% c(
+    if (user$org() %in% c(
       102966, # Haukeland
       700422, # Rikshospitalet
       109880, # Ullevål
@@ -179,6 +177,35 @@ shinyServer(function(input, output, session) {
         ),
         position = "after",
         target = "Invasive prosedyrer"
+      )
+    }
+    if (user$role() %in% c("SC", "CC")) {
+      shiny::appendTab(
+        inputId = "tabs",
+        shiny::tabPanel(
+          title = "Datadump",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(
+              width = 4,
+              shiny::uiOutput(outputId = "selectDumpSet"),
+              shiny::dateRangeInput(
+                inputId = "dumpDateRange",
+                label = "Velg periode:",
+                start = as.Date(x = "01-01-2013", format = "%d-%m-%Y"),
+                end = Sys.Date(),
+                min = as.Date("2013-01-01", format = "%Y-%m-%d"),
+                separator = "-",
+                weekstart = 1),
+              shiny::radioButtons(inputId = "dumpFormat",
+                label = "Velg filformat:",
+                choices = c("csv", "xlsx-csv")),
+              shiny::downloadButton(outputId = "dumpDownload", label =  "Hent!")
+            ),
+            shiny::mainPanel(
+              shiny::htmlOutput("dataDumpInfo")
+            )
+          )
+        )
       )
     }
   })
