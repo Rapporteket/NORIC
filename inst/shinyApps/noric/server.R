@@ -35,34 +35,25 @@ shinyServer(function(input, output, session) {
   shiny::observeEvent(list(user$role(), user$org()), {
     shiny::showTab(inputId = "tabs", target = "Datadump")
     shiny::showTab(inputId = "tabs", target = "Verktøy")
-    shiny::showTab(inputId = "tabs", target = "Angiografør/Operatør")
     shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
-    shiny::showTab(inputId = "tabs", target = "Prosedyrer")
-    shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::showTab(inputId = "tabs", target = "Abonnement")
     shiny::showTab(inputId = "tabs", target = "Utsending")
     shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
-    shiny::showTab(inputId = "tabs", target = "Aortaklaff")
-    
+
     if (shiny::req(user$role()) == "LU") {
       shiny::hideTab(inputId = "tabs", target = "Datadump")
       shiny::hideTab(inputId = "tabs", target = "Verktøy")
-      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
     } else if (shiny::req(user$role()) == "LC") {
       shiny::hideTab(inputId = "tabs", target = "Datadump")
       shiny::hideTab(inputId = "tabs", target = "Verktøy")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     }
-    
+
     if (shiny::req(user$org()) == 0) {
-      shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
-      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
-      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
       shiny::hideTab(inputId = "tabs", target = "Abonnement")
     }
-    
+
     ## dispatchment and use stats hidden when not national registry
     if (shiny::req(user$org()) != 0) {
       shiny::hideTab(inputId = "tabs", target = "Utsending")
@@ -71,42 +62,123 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Eksport")
       shiny::hideTab(inputId = "tabs", target = "Staging data")
     }
-    
-    if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
-      shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
-    }
+
   })
-  
+
   shiny::observeEvent(list(user$role(), user$org()), {
-    if (user$role() == "LU") {
-      # Utforsker og Kodebok skal ikke vises for LU-bruker.
-      shiny::removeTab(inputId = "tabs", target = "Utforsker")
-      shiny::removeTab(inputId = "tabs", target = "Kodebok")
-    } else {
+    # Fjern alle faner før vi legger til de som skal vises for den enkelte bruker.
+    # Hvis ikke vil faner legges på flere ganger hvis man bytter bruker/rolle.
+    shiny::removeTab(inputId = "tabs", target = "Utforsker")
+    shiny::removeTab(inputId = "tabs", target = "Kodebok")
+    shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
+    shiny::removeTab(inputId = "tabs", target = "Angiografør/Operatør")
+    shiny::removeTab(inputId = "tabs", target = "Aortaklaff")
+    if (user$role() != "LU") {
+      # Uforsker-fane skal ikke vises for LU-bruker.
       shiny::appendTab(
         inputId = "tabs",
         shiny::tabPanel(
           title = "Utforsker",
           shiny::fluidRow(
             column(6, shiny::uiOutput("selectDataSet")),
-            column(6, shiny::uiOutput("utforskerDateRange"))),
+            column(6, shiny::uiOutput("utforskerDateRange"))
+          ),
           shiny::fluidRow(
-            column(12, shiny::uiOutput("selectVars"))),
+            column(12, shiny::uiOutput("selectVars"))
+          ),
           shiny::fluidRow(
             column(12, shiny::uiOutput("togglePivotSurvey"))
           ),
           shiny::fluidRow(
-            column(12, rpivotTable::rpivotTableOutput("pivotSurvey")))
+            column(12, rpivotTable::rpivotTableOutput("pivotSurvey"))
+          )
         )
       )
+    }
+    if (user$role() != "LU") {
+      # Kodebok-fane skal ikke vises for LU-bruker.
       shiny::appendTab(
         inputId = "tabs",
         shiny::tabPanel(
           title = "Kodebok",
           shiny::sidebarLayout(
             shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
-            shiny::mainPanel(shiny::htmlOutput("kbdData")))
+            shiny::mainPanel(shiny::htmlOutput("kbdData"))
+          )
         )
+      )
+    }
+    if (user$org() != 0) {
+      # Nasjonal bruker skal ikke se månedsrapporter, da disse er sykehus-spesifikke.
+      shiny::appendTab(
+        inputId = "tabs",
+        shiny::navbarMenu(
+          title = "Månedsrapporter",
+          shiny::tabPanel(
+            title = "Invasive prosedyrer",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                style = "position:fixed;width:130px;",
+                h5("Last ned rapporten (pdf)"),
+                shiny::downloadButton("downloadReportProsedyrer", "Hent!"),
+                width = 2
+              ),
+              shiny:: mainPanel(
+                shiny:: htmlOutput("prosedyrer", inline = TRUE)
+              )
+            )
+          )
+        )
+      )
+    }
+    if (user$role() %in% c("SC", "CC")) {
+      # Angiografør/Operatør legges som et valg under Månedsrapporter for SC og CC.
+      shiny::insertTab(
+        inputId = "tabs",
+        shiny::tabPanel(
+          title = "Angiografør/Operatør",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(
+              style = "position:fixed;width:130px;",
+              h5("Last ned rapporten (pdf)"),
+              shiny::downloadButton("downloadReportAktivitet", "Hent!"),
+              width = 2),
+            shiny::mainPanel(
+              shiny::htmlOutput("aktivitet", inline = TRUE)
+            )
+          )
+        ),
+        position = "after",
+        target = "Invasive prosedyrer"
+      )
+    }
+    if(user$org() %in% c(
+      102966, # Haukeland
+      700422, # Rikshospitalet
+      109880, # Ullevål
+      104284, # St. Olavs
+      101619 # UNN
+    )) {
+      # Aortaklaff legges som et valg under Månedsrapporter for de fem sykehusene
+      # som gjør aortaklaff-operasjoner.
+      shiny::insertTab(
+        inputId = "tabs",
+        shiny::tabPanel(
+          title = "Aortaklaff",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(
+              style = "position:fixed;width:130px;",
+              h5("Last ned rapporten (pdf)"),
+              shiny::downloadButton("downloadReportTavi", "Hent!"),
+              width = 2
+            ),
+            shiny::mainPanel(
+              shiny::htmlOutput("tavi", inline = TRUE)
+            )
+          )
+        ),
+        position = "after",
+        target = "Invasive prosedyrer"
       )
     }
   })

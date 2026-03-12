@@ -22,46 +22,6 @@ ui <- shiny::tagList(
                        shiny::htmlOutput("veiledning", inline = TRUE))
     ),    
     
-    shiny::navbarMenu(
-      title = "Månedsrapporter",
-      
-      shiny::tabPanel(
-        title = "Invasive prosedyrer",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            style = "position:fixed;width:130px;",
-            h5("Last ned rapporten (pdf)"),
-            shiny::downloadButton("downloadReportProsedyrer", "Hent!"),
-            width = 2
-          ),
-          shiny:: mainPanel(
-            shiny:: htmlOutput("prosedyrer", inline = TRUE)))
-      ),
-      
-      shiny::tabPanel(
-        title = "Angiografør/Operatør",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            style = "position:fixed;width:130px;",
-            h5("Last ned rapporten (pdf)"),
-            shiny::downloadButton("downloadReportAktivitet", "Hent!"),
-            width = 2),
-          shiny::mainPanel(
-            shiny::htmlOutput("aktivitet", inline = TRUE)))
-      ), 
-      
-      shiny::tabPanel(
-        title = "Aortaklaff",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            style = "position:fixed;width:130px;",
-            h5("Last ned rapporten (pdf)"),
-            shiny::downloadButton("downloadReportTavi", "Hent!"),
-            width = 2
-          ),
-          shiny::mainPanel(
-            shiny::htmlOutput("tavi", inline = TRUE))))
-    ),
     
     
     shiny::tabPanel(
