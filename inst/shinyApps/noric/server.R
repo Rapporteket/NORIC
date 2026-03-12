@@ -35,7 +35,6 @@ shinyServer(function(input, output, session) {
   shiny::observeEvent(list(user$role(), user$org()), {
     shiny::showTab(inputId = "tabs", target = "Verktøy")
     shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
-    shiny::showTab(inputId = "tabs", target = "Abonnement")
     shiny::showTab(inputId = "tabs", target = "Utsending")
     shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
 
@@ -45,10 +44,6 @@ shinyServer(function(input, output, session) {
     } else if (shiny::req(user$role()) == "LC") {
       shiny::hideTab(inputId = "tabs", target = "Verktøy")
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
-    }
-
-    if (shiny::req(user$org()) == 0) {
-      shiny::hideTab(inputId = "tabs", target = "Abonnement")
     }
 
     ## dispatchment and use stats hidden when not national registry
@@ -71,6 +66,7 @@ shinyServer(function(input, output, session) {
     shiny::removeTab(inputId = "tabs", target = "Angiografør/Operatør")
     shiny::removeTab(inputId = "tabs", target = "Aortaklaff")
     shiny::removeTab(inputId = "tabs", target = "Datadump")
+    shiny::removeTab(inputId = "tabs", target = "Abonnement")
     if (user$role() != "LU") {
       # Uforsker-fane skal ikke vises for LU-bruker.
       shiny::appendTab(
@@ -205,6 +201,21 @@ shinyServer(function(input, output, session) {
               shiny::htmlOutput("dataDumpInfo")
             )
           )
+        )
+      )
+    }
+    if (user$org() != 0) {
+      # Nasjonal bruker skal ikke se abonnement-fane, da denne er sykehus-spesifikk.
+      shiny::appendTab(
+        inputId = "tabs",
+        shiny::tabPanel(
+          title = "Abonnement",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(
+              rapbase::autoReportInput("noricSubscription")
+            ),
+            shiny::mainPanel(
+              rapbase::autoReportUI("noricSubscription")))
         )
       )
     }

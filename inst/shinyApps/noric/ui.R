@@ -23,16 +23,6 @@ ui <- shiny::tagList(
     ),    
     
     
-    shiny::tabPanel(
-      title = "Abonnement",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          rapbase::autoReportInput("noricSubscription")
-        ),
-        shiny::mainPanel(
-          rapbase::autoReportUI("noricSubscription")))
-    ),
-    
     shiny::navbarMenu(
       title = "Verktøy",
       
