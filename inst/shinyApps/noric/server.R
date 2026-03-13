@@ -36,16 +36,9 @@ shinyServer(function(input, output, session) {
     shiny::removeTab(inputId = "tabs", target = "Utforsker")
     shiny::removeTab(inputId = "tabs", target = "Kodebok")
     shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
-    shiny::removeTab(inputId = "tabs", target = "Angiografør/Operatør")
-    shiny::removeTab(inputId = "tabs", target = "Aortaklaff")
     shiny::removeTab(inputId = "tabs", target = "Datadump")
     shiny::removeTab(inputId = "tabs", target = "Abonnement")
     shiny::removeTab(inputId = "tabs", target = "Verktøy")
-    shiny::removeTab(inputId = "tabs", target = "Nedlasting rapporter")
-    shiny::removeTab(inputId = "tabs", target = "Utsending")
-    shiny::removeTab(inputId = "tabs", target = "Bruksstatistikk")
-    shiny::removeTab(inputId = "tabs", target = "Staging data")
-    shiny::removeTab(inputId = "tabs", target = "Eksport")
     if (user$role() != "LU") {
       # Uforsker-fane skal ikke vises for LU-bruker.
       shiny::appendTab(
