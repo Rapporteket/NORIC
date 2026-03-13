@@ -1,3 +1,6 @@
+# noric 4.3.0 Erstatte hideTab/showTab med removeTab/appendTab 
+Skjulte faner sendes da aldri fra server til browser.
+
 # noric 4.2.0 Fylke tilgjengeliggjort
 Fylke er nå tilgjengeliggjort i databasen, oppdaterer SQL.
 Datadump med pasientinfo (på PID) i nasjonal SC rolle
