@@ -1,3 +1,6 @@
+# noric 4.3.1 Nyeste versjon av rapbase
+Inneholder felles utsending av rapporter.
+
 # noric 4.3.0 Erstatte hideTab/showTab med removeTab/appendTab 
 Skjulte faner sendes da aldri fra server til browser.
 
