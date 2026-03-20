@@ -29,274 +29,59 @@ shinyServer(function(input, output, session) {
   hospitalName <- shiny::reactive(
     map_orgname$orgname[map_orgname$UnitId == user$org()]
     )
-
+  
+  # Hide tabs
+  ## when role is 'LU' or some tabs for role 'LC'
   shiny::observeEvent(list(user$role(), user$org()), {
-    # Fjern alle faner før vi legger til de som skal vises for den enkelte bruker.
-    # Hvis ikke vil faner legges på flere ganger hvis man bytter org/rolle.
-    shiny::removeTab(inputId = "tabs", target = "Utforsker")
-    shiny::removeTab(inputId = "tabs", target = "Kodebok")
-    shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
-    shiny::removeTab(inputId = "tabs", target = "Datadump")
-    shiny::removeTab(inputId = "tabs", target = "Abonnement")
-    shiny::removeTab(inputId = "tabs", target = "Verktøy")
-    if (user$role() != "LU") {
-      # Uforsker-fane skal ikke vises for LU-bruker.
-      shiny::appendTab(
-        inputId = "tabs",
-        shiny::tabPanel(
-          title = "Utforsker",
-          shiny::fluidRow(
-            column(6, shiny::uiOutput("selectDataSet")),
-            column(6, shiny::uiOutput("utforskerDateRange"))
-          ),
-          shiny::fluidRow(
-            column(12, shiny::uiOutput("selectVars"))
-          ),
-          shiny::fluidRow(
-            column(12, shiny::uiOutput("togglePivotSurvey"))
-          ),
-          shiny::fluidRow(
-            column(12, rpivotTable::rpivotTableOutput("pivotSurvey"))
-          )
-        )
-      )
+    shiny::showTab(inputId = "tabs", target = "Utforsker")
+    shiny::showTab(inputId = "tabs", target = "Datadump")
+    shiny::showTab(inputId = "tabs", target = "Verktøy")
+    shiny::showTab(inputId = "tabs", target = "Angiografør/Operatør")
+    shiny::showTab(inputId = "tabs", target = "Kodebok")
+    shiny::showTab(inputId = "tabs", target = "Nedlasting rapporter")
+    shiny::showTab(inputId = "tabs", target = "Prosedyrer")
+    shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
+    shiny::showTab(inputId = "tabs", target = "Abonnement")
+    shiny::showTab(inputId = "tabs", target = "Utsending")
+    shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
+    shiny::showTab(inputId = "tabs", target = "Aortaklaff")
+    
+    if (shiny::req(user$role()) == "LU") {
+      shiny::hideTab(inputId = "tabs", target = "Utforsker")
+      shiny::hideTab(inputId = "tabs", target = "Datadump")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
+      shiny::hideTab(inputId = "tabs", target = "Kodebok")
+      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+    } else if (shiny::req(user$role()) == "LC") {
+      shiny::hideTab(inputId = "tabs", target = "Datadump")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
     }
-    if (user$role() != "LU") {
-      # Kodebok-fane skal ikke vises for LU-bruker.
-      shiny::appendTab(
-        inputId = "tabs",
-        shiny::tabPanel(
-          title = "Kodebok",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
-            shiny::mainPanel(shiny::htmlOutput("kbdData"))
-          )
-        )
-      )
+    
+    if (shiny::req(user$org()) == 0) {
+      shiny::hideTab(inputId = "tabs", target = "Prosedyrer")
+      shiny::hideTab(inputId = "tabs", target = "Angiografør/Operatør")
+      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::hideTab(inputId = "tabs", target = "Abonnement")
     }
-    if (user$org() != 0) {
-      # Nasjonal bruker skal ikke se månedsrapporter, da disse er sykehus-spesifikke.
-      shiny::appendTab(
-        inputId = "tabs",
-        shiny::navbarMenu(
-          title = "Månedsrapporter",
-          shiny::tabPanel(
-            title = "Invasive prosedyrer",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                style = "position:fixed;width:130px;",
-                h5("Last ned rapporten (pdf)"),
-                shiny::downloadButton("downloadReportProsedyrer", "Hent!"),
-                width = 2
-              ),
-              shiny:: mainPanel(
-                shiny:: htmlOutput("prosedyrer", inline = TRUE)
-              )
-            )
-          )
-        )
-      )
-      if (user$role() %in% c("SC", "CC")) {
-        # Angiografør/Operatør legges som et valg under Månedsrapporter for SC og CC.
-        shiny::insertTab(
-          inputId = "tabs",
-          shiny::tabPanel(
-            title = "Angiografør/Operatør",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                style = "position:fixed;width:130px;",
-                h5("Last ned rapporten (pdf)"),
-                shiny::downloadButton("downloadReportAktivitet", "Hent!"),
-                width = 2),
-              shiny::mainPanel(
-                shiny::htmlOutput("aktivitet", inline = TRUE)
-              )
-            )
-          ),
-          position = "after",
-          target = "Invasive prosedyrer"
-        )
-      }
-      if (user$org() %in% c(
-        102966, # Haukeland
-        700422, # Rikshospitalet
-        109880, # Ullevål
-        104284, # St. Olavs
-        101619 # UNN
-      )) {
-        # Aortaklaff legges som et valg under Månedsrapporter for de fem sykehusene
-        # som gjør aortaklaff-operasjoner.
-        shiny::insertTab(
-          inputId = "tabs",
-          shiny::tabPanel(
-            title = "Aortaklaff",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                style = "position:fixed;width:130px;",
-                h5("Last ned rapporten (pdf)"),
-                shiny::downloadButton("downloadReportTavi", "Hent!"),
-                width = 2
-              ),
-              shiny::mainPanel(
-                shiny::htmlOutput("tavi", inline = TRUE)
-              )
-            )
-          ),
-          position = "after",
-          target = "Invasive prosedyrer"
-        )
-      }
+    
+    ## dispatchment and use stats hidden when not national registry
+    if (shiny::req(user$org()) != 0) {
+      shiny::hideTab(inputId = "tabs", target = "Utsending")
+      shiny::hideTab(inputId = "tabs", target = "Bruksstatistikk")
+      shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
+      shiny::hideTab(inputId = "tabs", target = "Eksport")
+      shiny::hideTab(inputId = "tabs", target = "Staging data")
     }
-    if (user$role() %in% c("SC", "CC")) {
-      shiny::appendTab(
-        inputId = "tabs",
-        shiny::tabPanel(
-          title = "Datadump",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(
-              width = 4,
-              shiny::uiOutput(outputId = "selectDumpSet"),
-              shiny::dateRangeInput(
-                inputId = "dumpDateRange",
-                label = "Velg periode:",
-                start = as.Date(x = "01-01-2013", format = "%d-%m-%Y"),
-                end = Sys.Date(),
-                min = as.Date("2013-01-01", format = "%Y-%m-%d"),
-                separator = "-",
-                weekstart = 1),
-              shiny::radioButtons(inputId = "dumpFormat",
-                label = "Velg filformat:",
-                choices = c("csv", "xlsx-csv")),
-              shiny::downloadButton(outputId = "dumpDownload", label =  "Hent!")
-            ),
-            shiny::mainPanel(
-              shiny::htmlOutput("dataDumpInfo")
-            )
-          )
-        )
-      )
-    }
-    if (user$org() != 0) {
-      # Nasjonal bruker skal ikke se abonnement-fane, da denne er sykehus-spesifikk.
-      shiny::appendTab(
-        inputId = "tabs",
-        shiny::tabPanel(
-          title = "Abonnement",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(
-              rapbase::autoReportInput("noricSubscription")
-            ),
-            shiny::mainPanel(
-              rapbase::autoReportUI("noricSubscription")))
-        )
-      )
-    }
-
-    # Verktøy-fane
-    if (user$role() %in% c("SC", "CC")) {
-      shiny::appendTab(
-        inputId = "tabs",
-        shiny::navbarMenu(
-          title = "Verktøy",
-
-          shiny::tabPanel(
-            title = "Metadata",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(shiny::uiOutput("metaControl")),
-              shiny::mainPanel(shiny::htmlOutput("metaData")))
-          )
-        )
-      )
-
-      if (user$org() == 0) {
-        shiny::insertTab(
-          inputId = "tabs",
-          shiny::tabPanel(
-            title = "Eksport",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
-              shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide")))
-          ),
-          position = "after",
-          target = "Metadata"
-        )
-
-        shiny::insertTab(
-          inputId = "tabs",
-          shiny::tabPanel(
-            title = "Utsending",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::autoReportOrgInput("noricDispatch"),
-                rapbase::autoReportInput("noricDispatch")
-              ),
-              shiny::mainPanel(
-                rapbase::autoReportUI("noricDispatch")))
-          ),
-          position = "before",
-          target = "Eksport"
-        )
-
-
-        shiny::insertTab(
-          inputId = "tabs",
-
-          shiny::tabPanel(
-            title = "Nedlasting rapporter",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                shiny::uiOutput("dwnldControlRap"),
-                shiny::uiOutput("dwnldControl")),
-              shiny::mainPanel(
-                shiny::htmlOutput("dwldInfo"),
-                shiny::downloadButton("dwnldReport", "Hent rapport!")))
-          ),
-          position = "before",
-          target = "Eksport"
-        )
-
-        shiny::insertTab(
-          inputId = "tabs",
-          shiny::tabPanel(
-            title = "Bruksstatistikk",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::statsInput("noricStats"),
-                rapbase::statsGuideUI("noricStatsGuide")
-              ),
-              shiny::mainPanel(rapbase::statsUI("noricStats")))
-          ),
-          position = "before",
-          target = "Eksport"
-        )
-
-
-        shiny::insertTab(
-          inputId = "tabs",
-          shiny::tabPanel(
-            title = "Staging data",
-            shiny::titlePanel("Liste alle staging data"),
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(htmlOutput("stagingControl")),
-              shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))
-            ),
-            br(),
-            shiny::titlePanel("Regelmessing etablering av staging data"),
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::autoReportOrgInput("noricBulletin"),
-                rapbase::autoReportInput("noricBulletin")
-              ),
-              shiny::mainPanel(
-                rapbase::autoReportUI("noricBulletin"))
-            )),
-          position = "after",
-          target = "Eksport"
-        )
-      }
+    
+    if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
+      shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
     }
   })
-
+  
+  
   
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
@@ -476,8 +261,7 @@ shinyServer(function(input, output, session) {
                            toDate = NULL, 
                            singleHospital = user$org())
   })
-
-
+  
   ## outputs
   output$selectDataSet <- shiny::renderUI({
     if (rvals$showPivotTable) {
