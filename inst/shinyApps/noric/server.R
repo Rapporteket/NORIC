@@ -144,6 +144,27 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  output$angioReport <- shiny::renderUI({
+    # Angio report not for national or LU/LC users.
+    if (user$org() == 0 | !(user$role() %in% c("SC", "CC"))) {
+      NULL
+    } else {
+      shiny::tagList(
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
+            shiny::downloadButton("downloadReportAktivitet", "Hent!"),
+            width = 2
+          ),
+          shiny::mainPanel(
+            shiny::htmlOutput("aktivitet", inline = TRUE)
+          )
+        )
+      )
+    }
+  })
+
 
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
