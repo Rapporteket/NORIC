@@ -80,9 +80,36 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
     }
   })
-  
-  
-  
+
+   output$startTab <- shiny::renderUI({
+    shiny::mainPanel(width = 12,
+                     shiny::htmlOutput("veiledning", inline = TRUE))
+   })
+
+   output$utforskerTab <- shiny::renderUI({
+    # Explorer tab not for LU user.
+    if (user$role() == "LU") {
+      NULL
+    } else {
+      shiny::tagList(
+        shiny::fluidRow(
+          column(6, shiny::uiOutput("selectDataSet")),
+          column(6, shiny::uiOutput("utforskerDateRange"))
+        ),
+        shiny::fluidRow(
+          column(12, shiny::uiOutput("selectVars"))
+        ),
+        shiny::fluidRow(
+          column(12, shiny::uiOutput("togglePivotSurvey"))
+        ),
+        shiny::fluidRow(
+          column(12, rpivotTable::rpivotTableOutput("pivotSurvey"))
+        )
+      )
+    }
+  })
+
+
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
     paste0(fileBaseName,
