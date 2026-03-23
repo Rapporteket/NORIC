@@ -37,15 +37,7 @@ ui <- shiny::tagList(
       
       shiny::tabPanel(
         title = "Invasive prosedyrer",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            style = "position:fixed;width:130px;",
-            h5("Last ned rapporten (pdf)"),
-            shiny::downloadButton("downloadReportProsedyrer", "Hent!"),
-            width = 2
-          ),
-          shiny:: mainPanel(
-            shiny:: htmlOutput("prosedyrer", inline = TRUE)))
+        shiny::uiOutput("prosedyrerReport")
       ),
       
       shiny::tabPanel(

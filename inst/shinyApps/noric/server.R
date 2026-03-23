@@ -123,6 +123,27 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  output$prosedyrerReport <- shiny::renderUI({
+    # Prosedyrer report not for national user.
+    if (user$org() == 0) {
+      NULL
+    } else {
+      shiny::tagList(
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            style = "position:fixed;width:130px;",
+            h5("Last ned rapporten (pdf)"),
+            shiny::downloadButton("downloadReportProsedyrer", "Hent!"),
+            width = 2
+          ),
+          shiny:: mainPanel(
+            shiny:: htmlOutput("prosedyrer", inline = TRUE)
+          )
+        )
+      )
+    }
+  })
+
 
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
