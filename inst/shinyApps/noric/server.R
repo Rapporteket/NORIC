@@ -109,6 +109,20 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  output$kodebokTab <- shiny::renderUI({
+    # Code book tab not for LU user.
+    if (user$role() == "LU") {
+      NULL
+    } else {
+      shiny::tagList(
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
+          shiny::mainPanel(shiny::htmlOutput("kbdData"))
+        )
+      )
+    }
+  })
+
 
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {

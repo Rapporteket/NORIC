@@ -28,9 +28,7 @@ ui <- shiny::tagList(
     
     shiny::tabPanel(
       title = "Kodebok",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
-        shiny::mainPanel(shiny::htmlOutput("kbdData")))
+      shiny::uiOutput("kodebokTab")
     ),
     
     
