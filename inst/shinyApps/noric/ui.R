@@ -61,25 +61,7 @@ ui <- shiny::tagList(
     
     shiny::tabPanel(
       title = "Datadump",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          width = 4,
-          shiny::uiOutput(outputId = "selectDumpSet"),
-          shiny::dateRangeInput(
-            inputId = "dumpDateRange", 
-            label = "Velg periode:",
-            start = as.Date(x = "01-01-2013", format = "%d-%m-%Y"),
-            end = Sys.Date(), 
-            min = as.Date("2013-01-01", format = "%Y-%m-%d"), 
-            separator = "-",
-            weekstart = 1),
-          shiny::radioButtons(inputId = "dumpFormat",
-                              label = "Velg filformat:",
-                              choices = c("csv", "xlsx-csv")),
-          shiny::downloadButton(outputId = "dumpDownload", label =  "Hent!")
-        ),
-        shiny::mainPanel(
-          shiny::htmlOutput("dataDumpInfo")))
+      shiny::uiOutput("datadumpTab")
     ),
     
     
