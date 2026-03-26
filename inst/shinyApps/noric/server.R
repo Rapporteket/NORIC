@@ -194,6 +194,105 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  output$metadataTab <- shiny::renderUI({
+    # metadata tab not for LU/LC user.
+    if (!(user$role() %in% c("SC", "CC"))) {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(shiny::uiOutput("metaControl")),
+        shiny::mainPanel(shiny::htmlOutput("metaData"))
+      )
+    }
+  })
+
+  output$dispatchTab <- shiny::renderUI({
+    # Dispatch tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::autoReportOrgInput("noricDispatch"),
+          rapbase::autoReportInput("noricDispatch")
+        ),
+        shiny::mainPanel(
+          rapbase::autoReportUI("noricDispatch")
+        )
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$dwnldReportTab <- shiny::renderUI({
+    # dwnldReport tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          shiny::uiOutput("dwnldControlRap"),
+          shiny::uiOutput("dwnldControl")),
+        shiny::mainPanel(
+          shiny::htmlOutput("dwldInfo"),
+          shiny::downloadButton("dwnldReport", "Hent rapport!")
+        )
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$statsTab <- shiny::renderUI({
+    # stats tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::statsInput("noricStats"),
+          rapbase::statsGuideUI("noricStatsGuide")
+        ),
+        shiny::mainPanel(rapbase::statsUI("noricStats"))
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$exportTab <- shiny::renderUI({
+    # export tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
+        shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$stagingTab <- shiny::renderUI({
+    # staging tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::tagList(
+        shiny::titlePanel("Liste alle staging data"),
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(htmlOutput("stagingControl")),
+          shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))
+        ),
+        br(),
+        shiny::titlePanel("Regelmessing etablering av staging data"),
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::autoReportOrgInput("noricBulletin"),
+            rapbase::autoReportInput("noricBulletin")
+          ),
+          shiny::mainPanel(
+            rapbase::autoReportUI("noricBulletin")
+          )
+        )
+      )
+    } else {
+      NULL
+    }
+  })
+
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
     paste0(fileBaseName,
