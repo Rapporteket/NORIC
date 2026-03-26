@@ -39,7 +39,6 @@ Imports:
   revealjs,
   rlang,
   rmarkdown,
-  rpivotTable,
   shiny,
   shinyalert,
   shinycssloaders,
@@ -53,4 +52,5 @@ Remotes:
 RoxygenNote: 7.3.2
 Suggests: 
     covr, 
+    rpivotTable,
     testthat
