@@ -14,7 +14,7 @@ ui <- shiny::tagList(
     windowTitle = regTitle,
     theme = rapbase::theme(),
     id = "tabs",
-    
+
     shiny::tabPanel(
       title = "Start",
       rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
@@ -24,27 +24,27 @@ ui <- shiny::tagList(
       title = "Utforsker",
       shiny::uiOutput("utforskerTab")
     ),
-    
-    
+
+
     shiny::tabPanel(
       title = "Kodebok",
       shiny::uiOutput("kodebokTab")
     ),
-    
-    
+
+
     shiny::navbarMenu(
       title = "Månedsrapporter",
-      
+
       shiny::tabPanel(
         title = "Invasive prosedyrer",
         shiny::uiOutput("prosedyrerReport")
       ),
-      
+
       shiny::tabPanel(
         title = "Angiografør/Operatør",
         shiny::uiOutput("angioReport")
-      ), 
-      
+      ),
+
       shiny::tabPanel(
         title = "Aortaklaff",
         shiny::sidebarLayout(
@@ -57,14 +57,14 @@ ui <- shiny::tagList(
           shiny::mainPanel(
             shiny::htmlOutput("tavi", inline = TRUE))))
     ),
-    
-    
+
+
     shiny::tabPanel(
       title = "Datadump",
       shiny::uiOutput("datadumpTab")
     ),
-    
-    
+
+
     shiny::tabPanel(
       title = "Abonnement",
       shiny::sidebarLayout(

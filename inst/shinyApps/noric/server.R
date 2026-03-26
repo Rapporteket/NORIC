@@ -81,12 +81,13 @@ shinyServer(function(input, output, session) {
     }
   })
 
-   output$startTab <- shiny::renderUI({
+  output$startTab <- shiny::renderUI({
     shiny::mainPanel(width = 12,
-                     shiny::htmlOutput("veiledning", inline = TRUE))
-   })
+      shiny::htmlOutput("veiledning", inline = TRUE)
+    )
+  })
 
-   output$utforskerTab <- shiny::renderUI({
+  output$utforskerTab <- shiny::renderUI({
     # Explorer tab not for LU user.
     if (user$role() == "LU") {
       NULL
@@ -114,11 +115,9 @@ shinyServer(function(input, output, session) {
     if (user$role() == "LU") {
       NULL
     } else {
-      shiny::tagList(
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
-          shiny::mainPanel(shiny::htmlOutput("kbdData"))
-        )
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
+        shiny::mainPanel(shiny::htmlOutput("kbdData"))
       )
     }
   })
@@ -128,17 +127,15 @@ shinyServer(function(input, output, session) {
     if (user$org() == 0) {
       NULL
     } else {
-      shiny::tagList(
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            style = "position:fixed;width:130px;",
-            h5("Last ned rapporten (pdf)"),
-            shiny::downloadButton("downloadReportProsedyrer", "Hent!"),
-            width = 2
-          ),
-          shiny:: mainPanel(
-            shiny:: htmlOutput("prosedyrer", inline = TRUE)
-          )
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          style = "position:fixed;width:130px;",
+          h5("Last ned rapporten (pdf)"),
+          shiny::downloadButton("downloadReportProsedyrer", "Hent!"),
+          width = 2
+        ),
+        shiny:: mainPanel(
+          shiny:: htmlOutput("prosedyrer", inline = TRUE)
         )
       )
     }
@@ -149,17 +146,15 @@ shinyServer(function(input, output, session) {
     if (user$org() == 0 | !(user$role() %in% c("SC", "CC"))) {
       NULL
     } else {
-      shiny::tagList(
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            style = "position:fixed;width:130px;",
-            h5("Last ned rapporten (pdf)"),
-            shiny::downloadButton("downloadReportAktivitet", "Hent!"),
-            width = 2
-          ),
-          shiny::mainPanel(
-            shiny::htmlOutput("aktivitet", inline = TRUE)
-          )
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          style = "position:fixed;width:130px;",
+          h5("Last ned rapporten (pdf)"),
+          shiny::downloadButton("downloadReportAktivitet", "Hent!"),
+          width = 2
+        ),
+        shiny::mainPanel(
+          shiny::htmlOutput("aktivitet", inline = TRUE)
         )
       )
     }
@@ -175,16 +170,19 @@ shinyServer(function(input, output, session) {
           width = 4,
           shiny::uiOutput(outputId = "selectDumpSet"),
           shiny::dateRangeInput(
-            inputId = "dumpDateRange", 
+            inputId = "dumpDateRange",
             label = "Velg periode:",
             start = as.Date(x = "01-01-2013", format = "%d-%m-%Y"),
-            end = Sys.Date(), 
-            min = as.Date("2013-01-01", format = "%Y-%m-%d"), 
+            end = Sys.Date(),
+            min = as.Date("2013-01-01", format = "%Y-%m-%d"),
             separator = "-",
-            weekstart = 1),
-          shiny::radioButtons(inputId = "dumpFormat",
-                              label = "Velg filformat:",
-                              choices = c("csv", "xlsx-csv")),
+            weekstart = 1
+          ),
+          shiny::radioButtons(
+            inputId = "dumpFormat",
+            label = "Velg filformat:",
+            choices = c("csv", "xlsx-csv")
+          ),
           shiny::downloadButton(outputId = "dumpDownload", label =  "Hent!")
         ),
         shiny::mainPanel(
