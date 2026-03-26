@@ -48,7 +48,8 @@ Imports:
   yaml
 Remotes:
   Rapporteket/rapbase@main,
-  andrewsali/shinycssloaders
+  andrewsali/shinycssloaders,
+  smartinsightsfromdata/rpivotTable
 RoxygenNote: 7.3.2
 Suggests: 
     covr, 
