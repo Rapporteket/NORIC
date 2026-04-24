@@ -33,7 +33,7 @@ Imports:
   lubridate,
   magrittr,
   markdown,
-  rapbase,
+  rapbase (>= 3.6.0),
   RColorBrewer,
   readr,
   revealjs,
