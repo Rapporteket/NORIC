@@ -19,7 +19,7 @@
 #' "unknown author".
 #' @param orgName Character string with the name of the organization/hospital.
 #' Default is "unknown organization".
-#' @param orgId Integer (?) with the id of the organization/hospital. Default is
+#' @param orgId Integer. with the id of the organization/hospital. Default is
 #' 999999.
 #' @param registryName Character string with registry name. Default is
 #' "noric".
@@ -27,8 +27,6 @@
 #' user requesting the report. Default is "unknown person name".
 #' @param userRole Character string giving a user role, normally the one of the
 #' user requesting the report. Default is "unknown role".
-#' @param userOperator Character string with some name of an operator, whatever
-#' that is... Default is "unknown operator".
 #' @param rendered_by_shiny boolean. if TRUE progression of pdf-generation is
 #' returned.
 #' @param tableFormat Character string giving the format of the report. Must be 
@@ -52,7 +50,6 @@ reportProcessor <- function(report,
                             registryName = "noric",
                             userFullName = "unknown person name",
                             userRole = "unknown role",
-                            userOperator = "unknown operator",
                             rendered_by_shiny = FALSE,
                             tableFormat = "latex") {
 
@@ -63,21 +60,14 @@ reportProcessor <- function(report,
                           "NORIC_filvask_avdod", 
                           "NORIC_tavi_report"))
 
-  stopifnot(registryName %in% c("noric_nasjonal",
-                          "noric_ahus",
-                          "noric_bergen",
-                          "noric_bodoe", 
-                          "noric_feiring", 
-                          "noric_ous_rh", 
-                          "noric_ous_ull", 
-                          "noric_soerlandet",
-                          "noric_stavanger", 
-                          "noric_stolav", 
-                          "noric_unn"))
+  stopifnot(registryName %in% "noric_bergen")
   
   
   stopifnot(outputType %in% c("html", "pdf"))
-
+  if (orgId == 0) {
+    warning("SingleHospital should be selected!")
+  }
+  
   filePath <- NULL
 
   if (title == "") {
