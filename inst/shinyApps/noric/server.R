@@ -80,9 +80,218 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
     }
   })
-  
-  
-  
+
+  output$startTab <- shiny::renderUI({
+    shiny::mainPanel(width = 12,
+      shiny::htmlOutput("veiledning", inline = TRUE)
+    )
+  })
+
+  output$utforskerTab <- shiny::renderUI({
+    # Explorer tab not for LU user.
+    if (user$role() == "LU") {
+      NULL
+    } else {
+      shiny::tagList(
+        shiny::fluidRow(
+          column(6, shiny::uiOutput("selectDataSet")),
+          column(6, shiny::uiOutput("utforskerDateRange"))
+        ),
+        shiny::fluidRow(
+          column(12, shiny::uiOutput("selectVars"))
+        ),
+        shiny::fluidRow(
+          column(12, shiny::uiOutput("togglePivotSurvey"))
+        ),
+        shiny::fluidRow(
+          column(12, rpivotTable::rpivotTableOutput("pivotSurvey"))
+        )
+      )
+    }
+  })
+
+  output$kodebokTab <- shiny::renderUI({
+    # Code book tab not for LU user.
+    if (user$role() == "LU") {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(shiny::uiOutput("kbControl"), width = 2),
+        shiny::mainPanel(shiny::htmlOutput("kbdData"))
+      )
+    }
+  })
+
+  output$prosedyrerReport <- shiny::renderUI({
+    # Prosedyrer report not for national user.
+    if (user$org() == 0) {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          style = "position:fixed;width:130px;",
+          h5("Last ned rapporten (pdf)"),
+          shiny::downloadButton("downloadReportProsedyrer", "Hent!"),
+          width = 2
+        ),
+        shiny:: mainPanel(
+          shiny:: htmlOutput("prosedyrer", inline = TRUE)
+        )
+      )
+    }
+  })
+
+  output$angioReport <- shiny::renderUI({
+    # Angio report not for national or LU/LC users.
+    if (user$org() == 0 | !(user$role() %in% c("SC", "CC"))) {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          style = "position:fixed;width:130px;",
+          h5("Last ned rapporten (pdf)"),
+          shiny::downloadButton("downloadReportAktivitet", "Hent!"),
+          width = 2
+        ),
+        shiny::mainPanel(
+          shiny::htmlOutput("aktivitet", inline = TRUE)
+        )
+      )
+    }
+  })
+
+  output$datadumpTab <- shiny::renderUI({
+    # datadump tab not for LU/LC user.
+    if (!(user$role() %in% c("SC", "CC"))) {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          width = 4,
+          shiny::uiOutput(outputId = "selectDumpSet"),
+          shiny::dateRangeInput(
+            inputId = "dumpDateRange",
+            label = "Velg periode:",
+            start = as.Date(x = "01-01-2013", format = "%d-%m-%Y"),
+            end = Sys.Date(),
+            min = as.Date("2013-01-01", format = "%Y-%m-%d"),
+            separator = "-",
+            language = "no",
+            weekstart = 1
+          ),
+          shiny::radioButtons(
+            inputId = "dumpFormat",
+            label = "Velg filformat:",
+            choices = c("csv", "xlsx-csv")
+          ),
+          shiny::downloadButton(outputId = "dumpDownload", label =  "Hent!")
+        ),
+        shiny::mainPanel(
+          shiny::htmlOutput("dataDumpInfo")
+        )
+      )
+    }
+  })
+
+  output$metadataTab <- shiny::renderUI({
+    # metadata tab not for LU/LC user.
+    if (!(user$role() %in% c("SC", "CC"))) {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(shiny::uiOutput("metaControl")),
+        shiny::mainPanel(shiny::htmlOutput("metaData"))
+      )
+    }
+  })
+
+  output$dispatchTab <- shiny::renderUI({
+    # Dispatch tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::autoReportOrgInput("noricDispatch"),
+          rapbase::autoReportInput("noricDispatch")
+        ),
+        shiny::mainPanel(
+          rapbase::autoReportUI("noricDispatch")
+        )
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$dwnldReportTab <- shiny::renderUI({
+    # dwnldReport tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          shiny::uiOutput("dwnldControlRap"),
+          shiny::uiOutput("dwnldControl")),
+        shiny::mainPanel(
+          shiny::htmlOutput("dwldInfo"),
+          shiny::downloadButton("dwnldReport", "Hent rapport!")
+        )
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$statsTab <- shiny::renderUI({
+    # stats tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::statsInput("noricStats"),
+          rapbase::statsGuideUI("noricStatsGuide")
+        ),
+        shiny::mainPanel(rapbase::statsUI("noricStats"))
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$exportTab <- shiny::renderUI({
+    # export tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
+        shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
+      )
+    } else {
+      NULL
+    }
+  })
+
+  output$stagingTab <- shiny::renderUI({
+    # staging tab only for national user.
+    if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+      shiny::tagList(
+        shiny::titlePanel("Liste alle staging data"),
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(htmlOutput("stagingControl")),
+          shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))
+        ),
+        br(),
+        shiny::titlePanel("Regelmessing etablering av staging data"),
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::autoReportOrgInput("noricBulletin"),
+            rapbase::autoReportInput("noricBulletin")
+          ),
+          shiny::mainPanel(
+            rapbase::autoReportUI("noricBulletin")
+          )
+        )
+      )
+    } else {
+      NULL
+    }
+  })
+
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
     paste0(fileBaseName,
