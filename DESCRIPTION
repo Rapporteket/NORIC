@@ -33,7 +33,7 @@ Imports:
   lubridate,
   magrittr,
   markdown,
-  rapbase,
+  rapbase (>= 3.6.0),
   RColorBrewer,
   readr,
   revealjs,
@@ -48,7 +48,7 @@ Imports:
   xtable,
   yaml
 Remotes:
-  Rapporteket/rapbase@main,
+  Rapporteket/rapbase,
   andrewsali/shinycssloaders,
   smartinsightsfromdata/rpivotTable
 RoxygenNote: 7.3.2
