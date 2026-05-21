@@ -45,3 +45,21 @@ kobling_varnavn.R
 utforsk.R
 ignore
 file*.Rmd
+
+# Many kinds of data files
+*.rda
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.sav
+*.dta
+*.sas7bdat
+*.rds
+*.RData
+*.sql
+
+*.zip
+*.tar
+*.gz
+
