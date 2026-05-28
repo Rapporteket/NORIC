@@ -710,13 +710,15 @@ shinyServer(function(input, output, session) {
   # DATADUMP
   
   ## Data sets available for datadump
-  dataSetsDump <- shiny::reactiveVal(
-    c("AndreProsedyrerVar",
+  dataSetsDump <- shiny::reactiveVal(c())
+  
+  shiny::observeEvent(list(user$role(), user$org()), {
+    dataSetsDump(c(
+      "AndreProsedyrerVar",
       "AnnenDiagnostikkVar",
       "AngioPCIVar",
       "AortaklaffVar",
       "AortaklaffOppfVar",
-      "AortaklaffProm",
       "CTAngioVar",
       "ForlopsOversikt_ignorererKaldender",
       "MitralklaffVar",
@@ -724,26 +726,21 @@ shinyServer(function(input, output, session) {
       "SegmentStent",
       # "segment_history",
       "SkjemaOversikt", 
-      "UtskrDiagnoser", 
-      "MergeReportFID", 
-      "MergeReportPID", 
-      "MergeReportSegmentId", 
-      "angio_assistent", 
-      "pci_assistent", 
-      "Pasientinfo" 
-    )
-  )
-  
-  shiny::observeEvent(list(user$role(), user$org()), {
-    if (!(user$role() == "SC" & user$org() == 0)) {
-      # Remove if not national SC-role
-      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "AortaklaffProm"])
-      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportFID"])
-      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportPID"])
-      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "MergeReportSegmentId"])
-      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "angio_assistent"])
-      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "pci_assistent"])
-      dataSetsDump(dataSetsDump()[!dataSetsDump() %in% "Pasientinfo"])
+      "UtskrDiagnoser"
+    ))
+
+    if (user$role() == "SC" & user$org() == 0) {
+      # Add if national SC-role
+      dataSetsDump(c(
+        dataSetsDump(),
+        "AortaklaffProm",
+        "MergeReportFID",
+        "MergeReportPID",
+        "MergeReportSegmentId",
+        "angio_assistent",
+        "pci_assistent",
+        "Pasientinfo"
+      ))
     }
   })
   

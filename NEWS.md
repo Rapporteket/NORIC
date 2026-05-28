@@ -1,3 +1,6 @@
+# noric 4.3.2 Fiks i liste oved nedlastbare tabeller
+Tabeller til nasjonal bruker kom ikke alltid opp i menyen.
+
 # noric 4.3.1 Nyeste versjon av rapbase
 Inneholder felles utsending av rapporter.
 
