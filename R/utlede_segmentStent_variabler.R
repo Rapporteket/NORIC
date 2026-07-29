@@ -75,14 +75,7 @@
 #' \code{legg_til_wireforsok_per_kar()}.
 #'
 #' @name utlede_segmentStent_variabler
-#' @aliases
-#' legg_til_antall_stent
-#' legg_til_antall_stent_opphold
-#' utlede_kar_segment_stent
-#' utlede_kar_graft_segment_stent
-#' satt_inn_stent_i_lms
-#' legg_til_pci_per_kar
-#' legg_til_wireforsok_per_kar
+#' @aliases legg_til_antall_stent legg_til_antall_stent_opphold utlede_kar_segment_stent utlede_kar_graft_segment_stent satt_inn_stent_i_lms legg_til_pci_per_kar legg_til_wireforsok_per_kar
 #'
 #'
 #' @examples

@@ -25,21 +25,9 @@
 #' done (e.g. added variables from FO, added time-variables, rename hospitals)
 #'
 #' @name getPrepData
-#' @aliases getPrepApData
-#' getPrepCtData
-#' getPrepAkData
-#' getPrepAkOppfData
-#' getPrepAnPData
-#' getPrepAnDData
-#' getPrepSsData
-#' getPrepMkData
-#' getPrepTaviPromData
-#' getPrepFoData
-#' getPrepSoData
-#' getPrepPsData
-#' getPrepApLightData
-NULL
-
+#' @aliases getPrepApData getPrepCtData getPrepAkData getPrepAkOppfData getPrepAnPData getPrepAnDData getPrepSsData getPrepMkData getPrepTaviPromData getPrepFoData getPrepSoData getPrepPsData getPrepApLightData NULL
+#' 
+#' 
 #' @rdname getPrepData
 #' @export
 getPrepApData <- function(registryName, fromDate, toDate, singleRow, 

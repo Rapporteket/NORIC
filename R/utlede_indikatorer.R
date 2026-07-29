@@ -162,16 +162,8 @@
 #'
 #'
 #' @name utlede_kvalitesindikatorer
-#' @aliases
-#' ki_ferdigstilt_komplikasjoner
-#' ki_trykkmaaling_utfoert
-#' ki_ivus_oct_ved_stenting_lms
-#' ki_foreskr_blodfortynnende
-#' ki_foreskr_kolesterolsenkende
-#' ki_nstemi_utredet_innen24t
-#' ki_nstemi_utredet_innen72t
-#' ki_stemi_pci_innen120min
-#' ki_ak_pacemakerbehov
+#' @aliases ki_ferdigstilt_komplikasjoner ki_trykkmaaling_utfoert ki_ivus_oct_ved_stenting_lms ki_foreskr_blodfortynnende ki_foreskr_kolesterolsenkende ki_nstemi_utredet_innen24t ki_nstemi_utredet_innen72t ki_stemi_pci_innen120min ki_ak_pacemakerbehov
+#' 
 #'
 #' @examples
 #'  x <- data.frame(

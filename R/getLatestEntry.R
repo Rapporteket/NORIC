@@ -7,8 +7,7 @@
 #' @return A Date object
 
 #' @name getLatestEntry
-#' @aliases getLatestEntryHospital
-#' NULL
+#' @aliases getLatestEntryHospital NULL
 #' 
 #' @rdname getLatestEntry
 #' @export

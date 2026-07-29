@@ -42,10 +42,8 @@
 #'
 #'
 #' @name utlede_annenDiag_variabler
-#' @aliases
-#' utlede_kar_annen_diag
-#' legg_til_trykk_bilde_per_kar
-#' legg_til_trykkmaalinger
+#' @aliases utlede_kar_annen_diag legg_til_trykk_bilde_per_kar legg_til_trykkmaalinger
+#'
 #'
 #' @examples
 #' df_ad <- data.frame(

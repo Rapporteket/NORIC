@@ -51,7 +51,7 @@ Remotes:
   Rapporteket/rapbase,
   andrewsali/shinycssloaders,
   smartinsightsfromdata/rpivotTable
-RoxygenNote: 7.3.2
 Suggests: 
     covr, 
     testthat
+Config/roxygen2/version: 8.0.0
