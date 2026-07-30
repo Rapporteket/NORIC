@@ -31,6 +31,7 @@ library(knitr)
 library(kableExtra)
 library(dplyr)
 library(janitor)
+library(forcats)
 
 options(knitr.table.format = params$tableFormat)
 
@@ -236,23 +237,47 @@ AK %<>%
                                         "Annen", 
                                         NA_character_)), 
     
-    TypeKlaffeprotese2 = factor(
-      x = dplyr::case_when(
-        TypeKlaffeprotese %in% c("Edwards SAPIEN 3", 
-                                 "Edwards SAPIEN 3 Ultra", 
-                                 "Edwards SAPIEN XT", 
-                                 "Edwards") ~ "Edwards", 
-        
-        TypeKlaffeprotese %in% c("CoreValve Evolut PRO", 
-                                 "CoreValve Evolut R", 
-                                 "CoreValve", 
-                                 "Evolut FX") ~ "CoreValve",  
-        
-        TypeKlaffeprotese %in% c("NAVITOR") ~ "NAVITOR", 
-        
-        !is.na(TypeKlaffeprotese) ~ "Annet", 
-        is.na(TypeKlaffeprotese) ~ NA_character_), 
-      levels = c("Edwards", "CoreValve", "NAVITOR", "Annet", NA_character_)), 
+    # TypeKlaffeprotese2 = factor(
+    #   x = dplyr::case_when(
+    #     TypeKlaffeprotese %in% c("Edwards SAPIEN 3", 
+    #                              "Edwards SAPIEN 3 Ultra", 
+    #                              "Edwards SAPIEN XT", 
+    #                              "Edwards") ~ "Edwards", 
+    #     
+    #     TypeKlaffeprotese %in% c("CoreValve Evolut PRO", 
+    #                              "CoreValve Evolut R", 
+    #                              "CoreValve", 
+    #                              "Evolut FX") ~ "CoreValve",  
+    #     
+    #     TypeKlaffeprotese %in% c("NAVITOR") ~ "NAVITOR", 
+    #     
+    #     !is.na(TypeKlaffeprotese) ~ "Annet", 
+    #     is.na(TypeKlaffeprotese) ~ NA_character_), 
+    #   levels = c("Edwards", "CoreValve", "NAVITOR", "Annet", NA_character_)), 
+    
+    TypeKlaffeprotese2 = dplyr::recode(TypeKlaffeprotese,
+                             "CoreValve" = "Evolut",
+                             "CoreValve Evolut R" = "Evolut",
+                             "CoreValve Evolut PRO" = "Evolut",
+                             "Evolt FX pluss" = "Evolut",
+                             "Evolut FX" = "Evolut",
+                             "Evolut FX Plus" = "Evolut",
+                             "Evolut FX pluss"= "Evolut",
+                             "Edwards" = "Sapien",
+                             "Edwards RESILIA" = "Sapien",
+                             "Edwards SAPIEN 3" = "Sapien",
+                             "Edwards SAPIEN 3 Ultra" = "Sapien",
+                             "Edwards SAPIEN 3 Ultra RESILIA" = "Sapien", 
+                             "Edwards SAPIEN XT" = "Sapien",
+                             "NAVITOR" = "Navitor",
+                             "Meril Myval Octacor" = "Myval",
+                             "Meril Myval Octapro" = "Myval",
+                             .missing = "Missing",
+                             .default = "Annet"),
+  
+  
+  TypeKlaffeprotese2 = forcats::fct_relevel(TypeKlaffeprotese2,
+                           c("Evolut", "Sapien", "Navitor", "Myval", "Annet")),
     
     Maaned = factor(maaned_nr, 
                     levels = c("01", "02", "03", "04", "05", "06", "07", 
