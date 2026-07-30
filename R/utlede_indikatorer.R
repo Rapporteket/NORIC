@@ -356,22 +356,37 @@ ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
       # IVUS og/eller OCT er utført
       indik_ivus_oct_v_stent_lms = dplyr::case_when(
         
-        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
-          (.data$IVUS == "Ja" | .data$OCT == "Ja") ~ "ja",
+        # MINST EN JA --> JA
+        indik_ivus_oct_v_stent_lms_data == "ja" &
+          (IVUS == "Ja" | OCT == "Ja") ~ "ja",
         
-        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
-          (.data$IVUS != "Ja" & .data$OCT != "Ja") ~ "nei",
+        # Hovedspørsmål = Ukjent + IVUS og OCT lik NA --> Manglende
+        indik_ivus_oct_v_stent_lms_data == "ja" &
+          AnnenDiagHovedSpm == "Ukjent" &
+          (IVUS != "Ja" & OCT != "Ja") ~ "manglende",
         
-        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
-          is.na(.data$IVUS) & .data$OCT != "Ja" ~ "nei",
+        # Hovedspørsmål = Ukjent + IVUS lik NA og OCT ikke lik JA --> Manglende
+        indik_ivus_oct_v_stent_lms_data == "ja" &
+          AnnenDiagHovedSpm == "Ukjent" &
+          is.na(IVUS) & OCT != "Ja" ~ "manglende",
         
-        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
-          .data$IVUS != "Ja" & is.na(.data$OCT) ~ "nei",
+        # Hovedspørsmål = Ukjent + IVUS ikke lik JA og OCT lik NA --> Manglende
+        indik_ivus_oct_v_stent_lms_data == "ja" &
+          AnnenDiagHovedSpm == "Ukjent" &
+          IVUS != "Ja" & is.na(OCT) ~ "manglende",
         
-        .data$indik_ivus_oct_v_stent_lms_data == "ja" &
-          is.na(.data$IVUS) & is.na(.data$OCT) ~ "nei",
+        # Hovedspørsmål = Ukjent + IVUS og OCT lik NA --> Manglende
+        indik_ivus_oct_v_stent_lms_data == "ja" &
+          AnnenDiagHovedSpm == "Ukjent" &
+          is.na(IVUS) & is.na(OCT) ~ "manglende",
         
-        .data$indik_ivus_oct_v_stent_lms_data == "nei" ~ NA_character_,
+        # Hovedspørsmål = JA/NEI + IVUS og OCT lik NEI/Ukjent --> NEI
+        indik_ivus_oct_v_stent_lms_data == "ja" &
+          AnnenDiagHovedSpm %in% c("Ja", "Nei") &
+          (!IVUS %in% "Ja" & !OCT %in% "Ja") ~ "nei",
+        
+        
+        indik_ivus_oct_v_stent_lms_data == "nei" ~ NA_character_,
         
         FALSE ~ NA_character_))
 }
