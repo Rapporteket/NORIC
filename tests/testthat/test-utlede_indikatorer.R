@@ -69,73 +69,76 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
       "FFR",
       "IFR",
       "IMR", "PDPA", "PA_Hyperemi", "PD_Hyperemi",
-      "indik_trykkmaaling_data",
-      "indik_trykkmaaling"))
+      paste0("SEGMENT", 1:20), 
+      "TidlABC", 
+      "AnnenDiagHovedSpm",
+      "indik_trykkmaaling_uten_normale_data",
+      "indik_trykkmaaling_uten_normale"))
   
   testthat::expect_true(all(
     x_out %>%
       dplyr::filter(.data$Indikasjon == "Stabil koronarsykdom") %>%
-      dplyr::pull(.data$indik_trykkmaaling_data) == "ja"))
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale_data) == "ja"))
   
   testthat::expect_true(all(
     x_out %>%
       dplyr::filter(.data$Indikasjon != "Stabil koronarsykdom" |
                       is.na(.data$Indikasjon)) %>%
-      dplyr::pull(.data$indik_trykkmaaling_data) == "nei"))
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale_data) == "nei"))
   
   
   testthat::expect_true(
     all(x_out %>%
-          dplyr::filter(.data$indik_trykkmaaling_data == "nei") %>%
-          dplyr::select(.data$indik_trykkmaaling) %>%
+          dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "nei") %>%
+          dplyr::select(.data$indik_trykkmaaling_uten_normale) %>%
           is.na()))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$FFR == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$FFR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$IFR == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$IFR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$IMR == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$IMR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$PDPA == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$PDPA == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$PA_Hyperemi == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
-  
-  
-  testthat::expect_true(all(
-    x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" & .data$PD_Hyperemi == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$PA_Hyperemi == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$PD_Hyperemi == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
+  
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" &
                       (.data$FFR != "Ja" | is.na(.data$FFR)) &
                       (.data$IFR != "Ja" | is.na(.data$IFR)) &
                       (.data$IMR != "Ja" | is.na(.data$IMR)) &
                       (.data$PDPA != "Ja" | is.na(.data$PDPA)) &
                       (.data$PA_Hyperemi != "Ja" | is.na(.data$PA_Hyperemi)) &
                       (.data$PD_Hyperemi != "Ja" | is.na(.data$PD_Hyperemi))) %>%
-      dplyr::pull(.data$indik_trykkmaaling) == "nei"))
+      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "nei"))
   
   
   
