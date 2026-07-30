@@ -1,3 +1,9 @@
+# noric 4.4.0 Nyeste versjon av rapbase
+Diverse fiks
+* Variabelnavnet Hastegrad i TAVI-modulen er endret til HastegradEuroSCORE
+* Gruppering av klaffetyper er endret
+
+
 # noric 4.3.1 Nyeste versjon av rapbase
 Inneholder felles utsending av rapporter.
 
