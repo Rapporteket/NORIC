@@ -208,7 +208,7 @@ AK <- noric::getPrepAkData(registryName = params$registryName,
                            singleHospital = params$reshId)
 ```
 
-```{r prepdata}
+```{r prepdata, warning=FALSE}
 AK %<>% 
   dplyr::mutate(
     Prosedyre2 = factor(
@@ -236,24 +236,6 @@ AK %<>%
                                         "Transapical", 
                                         "Annen", 
                                         NA_character_)), 
-    
-    # TypeKlaffeprotese2 = factor(
-    #   x = dplyr::case_when(
-    #     TypeKlaffeprotese %in% c("Edwards SAPIEN 3", 
-    #                              "Edwards SAPIEN 3 Ultra", 
-    #                              "Edwards SAPIEN XT", 
-    #                              "Edwards") ~ "Edwards", 
-    #     
-    #     TypeKlaffeprotese %in% c("CoreValve Evolut PRO", 
-    #                              "CoreValve Evolut R", 
-    #                              "CoreValve", 
-    #                              "Evolut FX") ~ "CoreValve",  
-    #     
-    #     TypeKlaffeprotese %in% c("NAVITOR") ~ "NAVITOR", 
-    #     
-    #     !is.na(TypeKlaffeprotese) ~ "Annet", 
-    #     is.na(TypeKlaffeprotese) ~ NA_character_), 
-    #   levels = c("Edwards", "CoreValve", "NAVITOR", "Annet", NA_character_)), 
     
     TypeKlaffeprotese2 = dplyr::recode(TypeKlaffeprotese,
                              "CoreValve" = "Evolut",
