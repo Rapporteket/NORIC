@@ -201,6 +201,7 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                  "IVUS",
                  "OCT",
                  "satt_inn_stent_i_LMS",
+                 "AnnenDiagHovedSpm",
                  "indik_ivus_oct_v_stent_lms_data",
                  "indik_ivus_oct_v_stent_lms"))
   
