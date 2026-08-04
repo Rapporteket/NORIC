@@ -292,52 +292,20 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
     dplyr::mutate(
       
       # Datagrunnlag for indikatoren
-      
-      # # Gammel datagrunnlag for indikatoren
-      # indik_trykkmaaling_data = dplyr::if_else(
-      #   condition = .data$Indikasjon %in% c("Stabil koronarsykdom"),
-      #   true = "ja",
-      #   false = "nei",
-      #   missing = "nei"),
-      
-      # Ny datagrunnlag:
-      indik_trykkmaaling_uten_normale_data = case_when(
+
+      indik_trykkmaaling_data = dplyr::case_when(
         ProsedyreDato >= as.Date("01-01-2017", format = "%d-%d-%Y") &
           Indikasjon %in% c("Stabil koronarsykdom") & 
-          if_any((SEGMENT1:SEGMENT20),~.x %in% 2:5) &
+          dplyr::if_any((SEGMENT1:SEGMENT20),~.x %in% 2:5) &
           TidlABC %in% c("Nei", "Ukjent", NA_character_) ~ "ja", 
         TRUE ~ "nei"),
       
       
-      # # Gammel indikator:
-      # # CAse when starter nederst.
-      # # Default er NA, deretter er alle med datagrunnlag "nei" NA
-      # # Alle med datagrunnlag "ja" blir først "Nei", til sist bytter de med
-      # # minst en trykkmåling til "ja".
-      # 
-      # indik_trykkmaaling = dplyr::case_when(
-      #   
-      #   # utlede verdi for indikatoren dersom datagrunnlag = "ja"
-      #   # og minst en trykkmåling utført
-      #   .data$indik_trykkmaaling_data == "ja" &
-      #     (.data$FFR == "Ja" |
-      #        .data$IFR == "Ja" |
-      #        .data$PDPA == "Ja" |
-      #        .data$IMR == "Ja" |
-      #        .data$PA_Hyperemi == "Ja" |
-      #        .data$PD_Hyperemi == "Ja") ~ "ja",
-      #   
-      #   .data$indik_trykkmaaling_data == "ja"  ~ "nei",
-      #   .data$indik_trykkmaaling_data == "nei" ~ NA_character_,
-      #   FALSE ~ NA_character_)
-      
-      
-      # Ny:
       # Måloppnåelse
-      indik_trykkmaaling_uten_normale = dplyr::case_when(
+      indik_trykkmaaling = dplyr::case_when(
         
         # MINST EN JA --> JA
-        (.data$indik_trykkmaaling_uten_normale_data == "ja" &
+        (.data$indik_trykkmaaling_data == "ja" &
            (.data$FFR == "Ja" |
               .data$IFR == "Ja" |
               .data$PDPA == "Ja" |
@@ -346,7 +314,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
               .data$PD_Hyperemi == "Ja")) ~ "ja",
         
         # Hovedspørsmål = Ukjent + ALLE Trykkmålingerer lik NA --> NA
-        (.data$indik_trykkmaaling_uten_normale_data == "ja" &
+        (.data$indik_trykkmaaling_data == "ja" &
            AnnenDiagHovedSpm == "Ukjent" &
            is.na(.data$FFR) &
            is.na(.data$IFR) &
@@ -356,7 +324,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
            is.na(.data$PD_Hyperemi)) ~ "manglende",
         
         # Hovedspørsmål = JA/NEI + Trykkmålingerer lik NA/NEI --> Nei
-        (.data$indik_trykkmaaling_uten_normale_data == "ja" &
+        (.data$indik_trykkmaaling_data == "ja" &
            AnnenDiagHovedSpm %in% c("Ja", "Nei") &
            (!.data$FFR %in% "Ja"  &
               !.data$IFR %in% "Ja"  &
@@ -364,8 +332,8 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
               !.data$IMR %in% "Ja"  &
               !.data$PA_Hyperemi %in% "Ja"  &
               !.data$PD_Hyperemi %in% "Ja" )) ~ "nei",
-        # .data$indik_trykkmaaling_uten_normale_data == "ja"  ~ "nei",
-        .data$indik_trykkmaaling_uten_normale_data == "nei" ~ NA_character_,
+        # .data$indik_trykkmaaling_data == "ja"  ~ "nei",
+        .data$indik_trykkmaaling_data == "nei" ~ NA_character_,
         FALSE ~ NA_character_)
       )
 }
