@@ -955,11 +955,8 @@ getRawData <- function(registryName, tableName, ...){
   query <- noric::queryRawData(tableName)
   msg <- "Query rawdata"
   
-  
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
   }
-  
   return(rapbase::loadRegData(registryName, query))
-  
 }

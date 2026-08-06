@@ -75,6 +75,7 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
       shiny::hideTab(inputId = "tabs", target = "Eksport")
       shiny::hideTab(inputId = "tabs", target = "Staging data")
+      shiny::hideTab(inputId = "tabs", target = "Rawdata")
     }
     
     if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
@@ -795,23 +796,17 @@ shinyServer(function(input, output, session) {
   
   
   # DATADUMP - RAW
-  
-  ## Data sets available for datadump
-  rawDataSetsDump <- shiny::reactiveVal(
-    c("proms", 
-      "heart_attack_additionally_questions"
-    )
-  )
-  
   output$selectDumpRaw <- shiny::renderUI({
+    rawDataSetsDump <- names(meta())
     htmltools::tagList(
       shiny::selectInput(inputId = "dumpRawDataSet",
-                         label = "Velg Rawdata:",
-                         choices = rawDataSetsDump()))
+                         label = "Velg rådata:",
+                         choices = rawDataSetsDump)
+    )
   })
   
   output$rawDataDumpInfo <- shiny::renderUI({
-    p(paste("Rawdata for nedlasting:", input$dumpRawDataSet))
+    p(paste("Rådata for nedlasting:", input$dumpRawDataSet))
   })
   
   output$dumpRawDownload <- shiny::downloadHandler(
@@ -823,14 +818,7 @@ shinyServer(function(input, output, session) {
     }
   )
   
-  
-  
-  
-  
-  
-  
-  
-  
+
   # Verktøy - Metadata
   meta <- shiny::reactive({
     rapbase::describeRegistryDb(registryName = registryName)

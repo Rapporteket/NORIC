@@ -2410,5 +2410,5 @@ queryPatientInfo <- function() {
 #' @rdname getQuery
 #' @export
 queryRawData<- function(tablename) {
-  paste(" select * from ",  tablename, ";")
+  paste("SELECT * FROM ",  tablename, ";")
 }

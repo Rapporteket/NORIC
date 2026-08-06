@@ -22,6 +22,7 @@
 \alias{getAngioAssistent}
 \alias{getPciAssistent}
 \alias{getPI}
+\alias{getRawData}
 \alias{getDk}
 \title{Load data for NORIC}
 \usage{
@@ -76,6 +77,10 @@ getAngioAssistent(
   singleHospital = 0,
   ...
 )
+
+getPI(registryName, ...)
+
+getRawData(registryName, tableName, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}

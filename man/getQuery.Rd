@@ -20,6 +20,7 @@
 \alias{queryPciLabassistent}
 \alias{queryAngioLabassistent}
 \alias{queryPatientInfo}
+\alias{queryRawData}
 \title{Fetch queries to NORIC raw data tables}
 \usage{
 queryAngiopcinum()
@@ -57,6 +58,8 @@ queryAngioLabassistent()
 queryPciLabassistent()
 
 queryPatientInfo()
+
+queryRawData(tablename)
 }
 \arguments{
 \item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
