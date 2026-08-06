@@ -28,6 +28,7 @@
 #' queryPciLabassistent
 #' queryAngioLabassistent
 #' queryPatientInfo
+#' queryRawData
 NULL
 
 
@@ -2404,4 +2405,10 @@ queryPatientInfo <- function() {
   SELECT ID, SSN_TYPE, SSNSUBTYPE, BIRTH_DATE, GENDER, ADDR_TYPE, TOWN,
   MUNICIPALITY_NUMBER, MUNICIPALITY_NAME, COUNTY, DECEASED,	DECEASED_DATE
   FROM patient" )
+}
+
+#' @rdname getQuery
+#' @export
+queryRawData<- function(tablename) {
+  paste(" select * from ",  tablename, ";")
 }

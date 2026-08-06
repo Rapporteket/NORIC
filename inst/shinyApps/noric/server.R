@@ -362,6 +362,14 @@ shinyServer(function(input, output, session) {
     }
   }
   
+  # datadump function for re-use
+  contentDumpRaw <- function(file) {
+    d <- noric::getRawData(registryName = registryName,
+                           tableName = input$dumpRawDataSet,
+                           session = session, 
+                           singleHospital = user$org())
+    readr::write_csv2(d, file)
+  }  
   # WIDGET
   output$appUserName <- shiny::renderText(userFullName)
   output$appOrgName <- shiny::renderText(paste(hospitalName(),
@@ -802,16 +810,16 @@ shinyServer(function(input, output, session) {
                          choices = rawDataSetsDump()))
   })
   
-  output$dataDumpInfo <- shiny::renderUI({
-    p(paste("Valgt for nedlasting:", input$dumpRawDataSet))
+  output$rawDataDumpInfo <- shiny::renderUI({
+    p(paste("Rawdata for nedlasting:", input$dumpRawDataSet))
   })
   
-  output$dumpDownload <- shiny::downloadHandler(
+  output$dumpRawDownload <- shiny::downloadHandler(
     filename = function() {
       basename(tempfile(pattern = input$dumpRawDataSet, fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file = file, type = input$dumpFormat)
+      contentDumpRaw(file = file)
     }
   )
   

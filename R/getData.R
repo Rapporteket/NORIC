@@ -41,6 +41,7 @@
 #' getAngioAssistent
 #' getPciAssistent
 #' getPI
+#' getRawData
 NULL
 #' @rdname getData
 #' @export
@@ -928,7 +929,7 @@ getAngioAssistent <- function(registryName, fromDate, toDate, singleRow,
 }
 
 
-#' @rdname getPI
+#' @rdname getData
 #' @export
 getPI <- function(registryName, ...){
   
@@ -942,4 +943,23 @@ getPI <- function(registryName, ...){
   
   dPI <- rapbase::loadRegData(registryName, query)
   list(d_patientinfo = dPI)
+}
+
+
+
+
+#' @rdname getData
+#' @export 
+getRawData <- function(registryName, tableName, ...){
+  
+  query <- noric::queryRawData(tableName)
+  msg <- "Query rawdata"
+  
+  
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+  
+  return(rapbase::loadRegData(registryName, query))
+  
 }
