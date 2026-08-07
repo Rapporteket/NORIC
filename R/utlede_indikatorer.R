@@ -276,7 +276,8 @@ ki_ferdigstilt_komplikasjoner <- function(df_ap) {
 #' @export
 ki_trykkmaaling_utfoert <- function(df_ap) {
   
-  stopifnot(all(c("Indikasjon",
+  stopifnot(all(c("ProsedyreDato",
+                  "Indikasjon",
                   "FFR",
                   "IFR",
                   "PDPA",
@@ -294,7 +295,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
       # Datagrunnlag for indikatoren
 
       indik_trykkmaaling_data = dplyr::case_when(
-        ProsedyreDato >= as.Date("01-01-2017", format = "%d-%d-%Y") &
+        ProsedyreDato >= as.Date("01-01-2017", format = "%d-%m-%Y") &
           Indikasjon %in% c("Stabil koronarsykdom") & 
           dplyr::if_any((SEGMENT1:SEGMENT20),~.x %in% 2:5) &
           TidlABC %in% c("Nei", "Ukjent", NA_character_) ~ "ja", 
@@ -313,9 +314,9 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
               .data$PA_Hyperemi == "Ja" |
               .data$PD_Hyperemi == "Ja")) ~ "ja",
         
-        # Hovedspørsmål = Ukjent + ALLE Trykkmålingerer lik NA --> NA
+        # Hovedspørsmål = Ukjent/NA + ALLE Trykkmålingerer lik NA --> NA
         (.data$indik_trykkmaaling_data == "ja" &
-           AnnenDiagHovedSpm == "Ukjent" &
+           AnnenDiagHovedSpm %in% c("Ukjent", NA) &
            is.na(.data$FFR) &
            is.na(.data$IFR) &
            is.na(.data$PDPA) &
@@ -332,7 +333,6 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
               !.data$IMR %in% "Ja"  &
               !.data$PA_Hyperemi %in% "Ja"  &
               !.data$PD_Hyperemi %in% "Ja" )) ~ "nei",
-        # .data$indik_trykkmaaling_data == "ja"  ~ "nei",
         .data$indik_trykkmaaling_data == "nei" ~ NA_character_,
         FALSE ~ NA_character_)
       )
