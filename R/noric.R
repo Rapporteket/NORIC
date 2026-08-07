@@ -27,6 +27,4 @@
 #' Artwork is accessed in the same way as for the noweb-files, \emph{e.g}
 #' \code{system.file("some_nice_logo.pdf", package = "noric")}
 #'
-#' @docType package
-#' @name noric
-NULL
+"_PACKAGE"

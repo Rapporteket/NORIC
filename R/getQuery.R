@@ -10,25 +10,7 @@
 
 #' @return query as string
 #' @name getQuery
-#' @aliases queryAngiopcinum
-#' queryCtangiovarnum
-#' queryAortaklaffvarnum
-#' queryAortaklaffoppfvarnum
-#' queryAndreprosedyrervarnum
-#' queryAnnendiagnostikkvarnum
-#' querySegmentstentnum
-#' queryMitralklaffvarnum
-#' queryMitralklaffoppfvarnum
-#' queryTaviprom
-#' queryForlopsoversikt
-#' querySkjemaoversikt
-#' queryPasienterstudier
-#' queryApLight
-#' queryDiagnose
-#' queryPciLabassistent
-#' queryAngioLabassistent
-#' queryPatientInfo
-NULL
+#' @aliases queryAngiopcinum queryCtangiovarnum queryAortaklaffvarnum queryAortaklaffoppfvarnum queryAndreprosedyrervarnum queryAnnendiagnostikkvarnum querySegmentstentnum queryMitralklaffvarnum queryMitralklaffoppfvarnum queryTaviprom queryForlopsoversikt querySkjemaoversikt queryPasienterstudier queryApLight queryDiagnose queryPciLabassistent queryAngioLabassistent queryPatientInfo NULL
 
 
 

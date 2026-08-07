@@ -40,12 +40,7 @@
 #' @param author "ukjent"
 #
 #' @name stagingData
-#' @aliases makeStagingDataKi
-#' makeStagingDataFrame
-#' checkValidStagingData
-#' deleteOldStagingData
-#' bulletinProcessorStaging
-NULL
+#' @aliases makeStagingDataKi makeStagingDataFrame checkValidStagingData deleteOldStagingData bulletinProcessorStaging NULL
 
 #' @rdname stagingData
 #' @export
