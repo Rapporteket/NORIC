@@ -51,96 +51,151 @@ testthat::test_that("ki_ferdigstilt_komplikasjoner works", {
 testthat::test_that("ki_trykkmaaling_utfoert works", {
   
   x <- data.frame(
+    ProsedyreDato = c(rep(as.Date("01-01-2018", format = "%d-%m-%Y"), 23),
+                      rep(as.Date("01-06-2016", format = "%d-%m-%Y"), 2)), 
     Indikasjon = c(rep("Stabil koronarsykdom", 6), NA, NA, "Annet",
-                   rep("Stabil koronarsykdom", 6)),
-    FFR = c(NA, "Ja", "Ja", NA, "Ja", "Ukjent", "Nei", "Ja", "Ja", rep(NA, 6)),
-    IFR = c(NA, "Ja", "Nei", "Ja", "Ukjent", NA, NA, "Ja", NA,  rep(NA, 6)),
-    IMR = c(rep(NA, 9),  "Ja","Ja", "Ja", "Ukjent", "Nei", "Nei"),
-    PDPA = c(rep(NA, 9), "Ja","Ja", "Ja" , "Ukjent", "Nei", "Nei"),
-    PA_Hyperemi = c(rep(NA, 9),   "Ja","Ja", "Nei" , "Ukjent","Nei", "Nei"),
-    PD_Hyperemi = c(rep(NA, 9),   "Ja", "Nei", "Nei", "Ukjent", "Ja", NA))
-  
+                   rep("Stabil koronarsykdom", 16)),
+    FFR = c(NA, "Ja", "Ja", NA, "Ja", "Ukjent", "Nei", "Ja", "Ja", rep(NA, 16)),
+    IFR = c(NA, "Ja", "Nei", "Ja", "Ukjent", NA, NA, "Ja", NA,  rep(NA, 16)),
+    IMR = c(rep(NA, 9),  "Ja","Ja", "Ja", "Ukjent", "Nei", "Nei", rep(NA, 10)),
+    PDPA = c(rep(NA, 9), "Ja","Ja", "Ja" , "Ukjent", "Nei", "Nei", rep(NA, 10)),
+    PA_Hyperemi = c(rep(NA, 9), "Ja","Ja", "Nei" , "Ukjent","Nei", "Nei", rep(NA, 10)),
+    PD_Hyperemi = c(rep(NA, 9), "Ja", "Nei", "Nei", "Ukjent", "Ja", rep(NA, 11)),
+    TidlABC = c("Nei", rep("Ja", 4),
+                rep(c("Nei", "Ukjent", NA_character_), 3),
+                rep(NA_character_, 11)),
+    SEGMENT1 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT2 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT3 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT4 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT5 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT6 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT7 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT8 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT9 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT10 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT11 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT12 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT13 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT14 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT15 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT16 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT17 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT18 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT19 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    SEGMENT20 = c(rep(2, 21), 1, 1, rep(2, 2)),
+    AnnenDiagHovedSpm = c("Ukjent", rep(NA, 6), "Ja", "Nei", "Nei",
+                          rep("Ukjent", 3), "Ja", "Nei", "Ja",
+                          rep("Ukjent", 5), rep(NA, 4)))
   
   x_out <- noric::ki_trykkmaaling_utfoert(df_ap = x)
   
   testthat::expect_equal(
     names(x_out),
-    c("Indikasjon",
+    c("ProsedyreDato",
+      "Indikasjon",
       "FFR",
       "IFR",
       "IMR", "PDPA", "PA_Hyperemi", "PD_Hyperemi",
-      paste0("SEGMENT", 1:20), 
       "TidlABC", 
+      paste0("SEGMENT", 1:20), 
       "AnnenDiagHovedSpm",
-      "indik_trykkmaaling_uten_normale_data",
-      "indik_trykkmaaling_uten_normale"))
+      "indik_trykkmaaling_data",
+      "indik_trykkmaaling"))
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$Indikasjon == "Stabil koronarsykdom") %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale_data) == "ja"))
+      dplyr::filter(.data$ProsedyreDato >= as.Date("01-01-2017",
+                                                   format = "%d-%d-%Y") &
+                      .data$Indikasjon %in% c("Stabil koronarsykdom") & 
+                       dplyr::if_any(
+                         (SEGMENT1:SEGMENT20),~.x %in% 2:5) &
+                      .data$TidlABC %in% c("Nei", "Ukjent", NA_character_)) %>%
+      dplyr::pull(.data$indik_trykkmaaling_data) == "ja"))
   
   testthat::expect_true(all(
     x_out %>%
       dplyr::filter(.data$Indikasjon != "Stabil koronarsykdom" |
-                      is.na(.data$Indikasjon)) %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale_data) == "nei"))
+                      is.na(.data$Indikasjon) |
+                      .data$ProsedyreDato < as.Date("01-01-2017",
+                                                     format = "%d-%d-%Y") |
+                      dplyr::if_any(
+                        (SEGMENT1:SEGMENT20),~.x %in% c(0,1,6, NA)) |
+                      .data$TidlABC == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling_data) == "nei"))
   
   
   testthat::expect_true(
     all(x_out %>%
-          dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "nei") %>%
-          dplyr::select(.data$indik_trykkmaaling_uten_normale) %>%
+          dplyr::filter(.data$indik_trykkmaaling_data == "nei") %>%
+          dplyr::select(indik_trykkmaaling) %>%
           is.na()))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$FFR == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+                      .data$FFR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$IFR == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+                      .data$IFR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$IMR == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+                      .data$IMR == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$PDPA == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+                      .data$PDPA == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$PA_Hyperemi == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
-  
-  
-  testthat::expect_true(all(
-    x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" & .data$PD_Hyperemi == "Ja") %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "ja"))
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+                      .data$PA_Hyperemi == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$indik_trykkmaaling_uten_normale_data == "ja" &
-                      (.data$FFR != "Ja" | is.na(.data$FFR)) &
-                      (.data$IFR != "Ja" | is.na(.data$IFR)) &
-                      (.data$IMR != "Ja" | is.na(.data$IMR)) &
-                      (.data$PDPA != "Ja" | is.na(.data$PDPA)) &
-                      (.data$PA_Hyperemi != "Ja" | is.na(.data$PA_Hyperemi)) &
-                      (.data$PD_Hyperemi != "Ja" | is.na(.data$PD_Hyperemi))) %>%
-      dplyr::pull(.data$indik_trykkmaaling_uten_normale) == "nei"))
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+                      .data$PD_Hyperemi == "Ja") %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "ja"))
   
   
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+                      .data$AnnenDiagHovedSpm == "Ukjent" &
+                      is.na(.data$FFR) &
+                      is.na(.data$IFR) &
+                      is.na(.data$PDPA) &
+                      is.na(.data$IMR) &
+                      is.na(.data$PA_Hyperemi) &
+                      is.na(.data$PD_Hyperemi)) %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "manglende"))
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(.data$indik_trykkmaaling_data == "ja" &
+                      .data$AnnenDiagHovedSpm %in% c("Ja", "Nei") &
+                      (!.data$FFR %in% "Ja"  &
+                         !.data$IFR %in% "Ja"  &
+                         !.data$PDPA %in% "Ja"  &
+                         !.data$IMR %in% "Ja"  &
+                         !.data$PA_Hyperemi %in% "Ja"  &
+                         !.data$PD_Hyperemi %in% "Ja" )) %>%
+      dplyr::pull(.data$indik_trykkmaaling) == "nei"))
   
   testthat::expect_error(
     noric::ki_trykkmaaling_utfoert(
@@ -176,13 +231,22 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                 rep(c("Nei", "Ukjent", NA_character_), 6),
                 NA_character_, NA_character_),
     IVUS = rep(c("Ja", "Ja", "Nei", "Ukjent", NA_character_), 6),
-    OCT = rep(c("Nei", "Ja", "Nei", "Ukjent", NA_character_), 6))
-  
+    OCT = rep(c("Nei", "Ja", "Nei", "Ukjent", NA_character_), 6),
+    AnnenDiagHovedSpm = c(rep("Ja", 5), rep("Nei", 5), rep("Ukjent", 5),
+                          rep(NA_character_, 5),
+                          rep(c("Ja", "Nei", "Ukjent",
+                                NA_character_, NA_character_), 2)))
   
   ss_test <- data.frame(
     AvdRESH = rep(1, 10),
     ForlopsID = c(1:3, 10:13, 20:22),
-    Segment = c(1:5, 5, 5, 5, 10, 40),
+    Segment = c("(1) Proximale RCA",
+                "(2) Midtre RCA", 
+                "(3) Distale RCA", 
+                "(4) PDA/RPD",
+                rep("(5) Ve hovedstamme", 4),
+                "(10) Andre diagonal",
+                "(16) PLA fra venstre"),
     Graft = rep("Nei", 10),
     StentType = c(rep(NA_character_, 3), rep("A", 4), rep("B", 3))
   )
@@ -200,8 +264,8 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                  "TidlABC",
                  "IVUS",
                  "OCT",
-                 "satt_inn_stent_i_LMS",
                  "AnnenDiagHovedSpm",
+                 "satt_inn_stent_i_LMS",
                  "indik_ivus_oct_v_stent_lms_data",
                  "indik_ivus_oct_v_stent_lms"))
   
