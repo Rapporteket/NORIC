@@ -1,3 +1,6 @@
+# noric 4.4.0 Nedlasting rawdata
+Tilgjengeliggjort alle rådata for nedlasting (nasjonal SC)
+
 # noric 4.3.1 Nyeste versjon av rapbase
 Inneholder felles utsending av rapporter.
 
