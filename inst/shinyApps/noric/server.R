@@ -4,11 +4,12 @@ library(readr)
 library(rpivotTable)
 library(shiny)
 
+
 shinyServer(function(input, output, session) {
   
   rapbase::appLogger(session = session, msg = "Starting NORIC application")
   registryName <- "noric_bergen"
-
+  
   map_orgname <- noric::mapOrgReshId(registryName = registryName, 
                                      asNamedList = FALSE) %>% 
     dplyr::transmute(AvdRESH = id) %>% 
@@ -28,7 +29,7 @@ shinyServer(function(input, output, session) {
   userFullName <- Sys.getenv("FALK_USER_FULLNAME")
   hospitalName <- shiny::reactive(
     map_orgname$orgname[map_orgname$UnitId == user$org()]
-    )
+  )
   
   # Hide tabs
   ## when role is 'LU' or some tabs for role 'LC'
@@ -74,19 +75,20 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Nedlasting rapporter")
       shiny::hideTab(inputId = "tabs", target = "Eksport")
       shiny::hideTab(inputId = "tabs", target = "Staging data")
+      shiny::hideTab(inputId = "tabs", target = "Rawdata")
     }
     
     if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
       shiny::hideTab(inputId = "tabs", target = "Aortaklaff")
     }
   })
-
+  
   output$startTab <- shiny::renderUI({
     shiny::mainPanel(width = 12,
-      shiny::htmlOutput("veiledning", inline = TRUE)
+                     shiny::htmlOutput("veiledning", inline = TRUE)
     )
   })
-
+  
   output$utforskerTab <- shiny::renderUI({
     # Explorer tab not for LU user.
     if (user$role() == "LU") {
@@ -109,7 +111,7 @@ shinyServer(function(input, output, session) {
       )
     }
   })
-
+  
   output$kodebokTab <- shiny::renderUI({
     # Code book tab not for LU user.
     if (user$role() == "LU") {
@@ -121,7 +123,7 @@ shinyServer(function(input, output, session) {
       )
     }
   })
-
+  
   output$prosedyrerReport <- shiny::renderUI({
     # Prosedyrer report not for national user.
     if (user$org() == 0) {
@@ -140,7 +142,7 @@ shinyServer(function(input, output, session) {
       )
     }
   })
-
+  
   output$angioReport <- shiny::renderUI({
     # Angio report not for national or LU/LC users.
     if (user$org() == 0 | !(user$role() %in% c("SC", "CC"))) {
@@ -159,7 +161,7 @@ shinyServer(function(input, output, session) {
       )
     }
   })
-
+  
   output$datadumpTab <- shiny::renderUI({
     # datadump tab not for LU/LC user.
     if (!(user$role() %in% c("SC", "CC"))) {
@@ -192,7 +194,24 @@ shinyServer(function(input, output, session) {
       )
     }
   })
-
+  
+  output$datadumpRaw <- shiny::renderUI({
+    # datadump tab not for LU/LC user.
+    if (!(user$role() %in% c("SC"))) {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          width = 4,
+          shiny::uiOutput(outputId = "selectDumpRaw"),
+          shiny::downloadButton(outputId = "dumpRawDownload", label =  "Hent!")
+        ),
+        shiny::mainPanel(
+          shiny::htmlOutput("rawDataDumpInfo")
+        )
+      )
+    }
+  })
   output$metadataTab <- shiny::renderUI({
     # metadata tab not for LU/LC user.
     if (!(user$role() %in% c("SC", "CC"))) {
@@ -204,7 +223,7 @@ shinyServer(function(input, output, session) {
       )
     }
   })
-
+  
   output$dispatchTab <- shiny::renderUI({
     # Dispatch tab only for national user.
     if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
@@ -221,7 +240,7 @@ shinyServer(function(input, output, session) {
       NULL
     }
   })
-
+  
   output$dwnldReportTab <- shiny::renderUI({
     # dwnldReport tab only for national user.
     if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
@@ -238,7 +257,7 @@ shinyServer(function(input, output, session) {
       NULL
     }
   })
-
+  
   output$statsTab <- shiny::renderUI({
     # stats tab only for national user.
     if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
@@ -253,7 +272,7 @@ shinyServer(function(input, output, session) {
       NULL
     }
   })
-
+  
   output$exportTab <- shiny::renderUI({
     # export tab only for national user.
     if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
@@ -265,7 +284,7 @@ shinyServer(function(input, output, session) {
       NULL
     }
   })
-
+  
   output$stagingTab <- shiny::renderUI({
     # staging tab only for national user.
     if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
@@ -291,7 +310,7 @@ shinyServer(function(input, output, session) {
       NULL
     }
   })
-
+  
   # filename function for re-use
   downloadFilename <- function(fileBaseName) {
     paste0(fileBaseName,
@@ -344,6 +363,14 @@ shinyServer(function(input, output, session) {
     }
   }
   
+  # datadump function for re-use
+  contentDumpRaw <- function(file) {
+    d <- noric::getRawData(registryName = registryName,
+                           tableName = input$dumpRawDataSet,
+                           session = session, 
+                           singleHospital = user$org())
+    readr::write_csv2(d, file)
+  }  
   # WIDGET
   output$appUserName <- shiny::renderText(userFullName)
   output$appOrgName <- shiny::renderText(paste(hospitalName(),
@@ -359,7 +386,7 @@ shinyServer(function(input, output, session) {
                            closeOnClickOutside = TRUE,
                            html = TRUE, 
                            confirmButtonText = rapbase::noOptOutOk())
-    })
+  })
   
   # START
   output$veiledning <- shiny::renderUI({
@@ -601,58 +628,58 @@ shinyServer(function(input, output, session) {
   # SAMLERAPPORT
   output$prosedyrer <- shiny::renderUI({
     shiny::withProgress(message = 'Laster, dette kan ta litt tid...', {
-        rapbase::renderRmd(
-          sourceFile = system.file("NORIC_local_monthly.Rmd", 
-                                   package = "noric"),
-          outputType = "html_fragment",
-          params = list(
-            author = user$fullName(),
-            hospitalName = hospitalName(),
-            tableFormat = "html",
-            reshId = user$org(),
-            registryName = registryName,
-            userFullName = user$fullName(),
-            userRole = user$role(),
-            rendered_by_shiny = TRUE
-          ))
-      })
+      rapbase::renderRmd(
+        sourceFile = system.file("NORIC_local_monthly.Rmd", 
+                                 package = "noric"),
+        outputType = "html_fragment",
+        params = list(
+          author = user$fullName(),
+          hospitalName = hospitalName(),
+          tableFormat = "html",
+          reshId = user$org(),
+          registryName = registryName,
+          userFullName = user$fullName(),
+          userRole = user$role(),
+          rendered_by_shiny = TRUE
+        ))
+    })
   })
   
   output$aktivitet <- shiny::renderUI({
     shiny::withProgress(message = 'Laster, dette kan ta litt tid...', {
-        rapbase::renderRmd(
-          sourceFile = system.file("NORIC_local_monthly_activity.Rmd",
-                                   package = "noric"),
-          outputType = "html_fragment",
-          params = list(
-            author = user$fullName(),
-            hospitalName = hospitalName(),
-            tableFormat = "html",
-            reshId = user$org(),
-            registryName = registryName,
-            userFullName = user$fullName(),
-            userRole = user$role(),
-            rendered_by_shiny = TRUE
-          ))
-      }) 
+      rapbase::renderRmd(
+        sourceFile = system.file("NORIC_local_monthly_activity.Rmd",
+                                 package = "noric"),
+        outputType = "html_fragment",
+        params = list(
+          author = user$fullName(),
+          hospitalName = hospitalName(),
+          tableFormat = "html",
+          reshId = user$org(),
+          registryName = registryName,
+          userFullName = user$fullName(),
+          userRole = user$role(),
+          rendered_by_shiny = TRUE
+        ))
+    }) 
   })
   
   output$tavi <- shiny::renderUI({
     shiny::withProgress(message = 'Laster, dette kan ta litt tid...', {
-        rapbase::renderRmd(
-          sourceFile = system.file("NORIC_tavi_report.Rmd", package = "noric"),
-          outputType = "html_fragment",
-          params = list(
-            author = user$fullName(),
-            hospitalName = hospitalName(),
-            tableFormat = "html",
-            reshId = user$org(),
-            registryName = registryName,
-            userFullName = user$fullName(),
-            userRole = user$role(),
-            rendered_by_shiny = TRUE
-          ))
-      }) 
+      rapbase::renderRmd(
+        sourceFile = system.file("NORIC_tavi_report.Rmd", package = "noric"),
+        outputType = "html_fragment",
+        params = list(
+          author = user$fullName(),
+          hospitalName = hospitalName(),
+          tableFormat = "html",
+          reshId = user$org(),
+          registryName = registryName,
+          userFullName = user$fullName(),
+          userRole = user$role(),
+          rendered_by_shiny = TRUE
+        ))
+    }) 
   })
   
   output$downloadReportProsedyrer <- shiny::downloadHandler(
@@ -707,7 +734,7 @@ shinyServer(function(input, output, session) {
     })
   
   
-  # DATADUMP
+  # DATADUMP - DATADUMP
   
   ## Data sets available for datadump
   dataSetsDump <- shiny::reactiveVal(
@@ -768,6 +795,30 @@ shinyServer(function(input, output, session) {
   )
   
   
+  # DATADUMP - RAW
+  output$selectDumpRaw <- shiny::renderUI({
+    rawDataSetsDump <- names(meta())
+    htmltools::tagList(
+      shiny::selectInput(inputId = "dumpRawDataSet",
+                         label = "Velg rådata:",
+                         choices = rawDataSetsDump)
+    )
+  })
+  
+  output$rawDataDumpInfo <- shiny::renderUI({
+    p(paste("Rådata for nedlasting:", input$dumpRawDataSet))
+  })
+  
+  output$dumpRawDownload <- shiny::downloadHandler(
+    filename = function() {
+      basename(tempfile(pattern = input$dumpRawDataSet, fileext = ".csv"))
+    },
+    content = function(file) {
+      contentDumpRaw(file = file)
+    }
+  )
+  
+
   # Verktøy - Metadata
   meta <- shiny::reactive({
     rapbase::describeRegistryDb(registryName = registryName)
@@ -1068,12 +1119,12 @@ shinyServer(function(input, output, session) {
   )
   rapbase::statsGuideServer("noricStatsGuide",
                             registryName = "noric")
-
+  
   # Verktøy - Eksport
   rapbase::exportUCServer("noricExport",
                           registryName,
                           "noric")
-
+  
   rapbase::exportGuideServer("noricExportGuide",
                              registryName)
   
