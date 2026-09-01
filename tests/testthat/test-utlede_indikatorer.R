@@ -232,33 +232,43 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                 rep(c("Nei", "Ukjent", NA_character_), 6),
                 NA_character_, NA_character_),
     IVUS = rep(c("Ja", "Ja", "Nei", "Ukjent", NA_character_), 6),
-    OCT = rep(c("Nei", "Ja", "Nei", "Ukjent", NA_character_), 6))
-  
+    OCT = rep(c("Nei", "Ja", "Nei", "Ukjent", NA_character_), 6),
+    AnnenDiagHovedSpm = c(rep("Ja", 5), rep("Nei", 5), rep("Ukjent", 2),
+                          rep("Nei", 3), rep(NA_character_, 5),
+                          rep(c("Ja", "Nei", "Ukjent",
+                                NA_character_, NA_character_), 2)))
   
   ss_test <- data.frame(
-    AvdRESH = rep(1, 10),
-    ForlopsID = c(1:3, 10:13, 20:22),
-    Segment = c(1:5, 5, 5, 5, 10, 40),
-    Graft = rep("Nei", 10),
-    StentType = c(rep(NA_character_, 3), rep("A", 4), rep("B", 3))
+    AvdRESH = rep(1, 20),
+    ForlopsID = c(1:6, 10:15, 20:27),
+    Segment = c("(1) Proximale RCA",
+                rep("(2) Midtre RCA", 5), 
+                "(3) Distale RCA", 
+                "(4) PDA/RPD",
+                rep("(5) Ve hovedstamme", 10),
+                "(10) Andre diagonal",
+                "(16) PLA fra venstre"),
+    Graft = rep("Nei", 20),
+    StentType = c(rep(NA_character_, 8), rep("A", 8), rep("B", 4))
   )
   
   
-  x_out <- ap_test %<>%
+  x_out <- ap_test %>%
     noric::satt_inn_stent_i_lms(., df_ss = ss_test) %>%
     noric::ki_ivus_oct_ved_stenting_lms()
   
   # Forventede kolonne-navn
   testthat::expect_equal(names(x_out),
-               c("AvdRESH",
-                 "ForlopsID",
-                 "Indikasjon",
-                 "TidlABC",
-                 "IVUS",
-                 "OCT",
-                 "satt_inn_stent_i_LMS",
-                 "indik_ivus_oct_v_stent_lms_data",
-                 "indik_ivus_oct_v_stent_lms"))
+                         c("AvdRESH",
+                           "ForlopsID",
+                           "Indikasjon",
+                           "TidlABC",
+                           "IVUS",
+                           "OCT",
+                           "AnnenDiagHovedSpm",
+                           "satt_inn_stent_i_LMS",
+                           "indik_ivus_oct_v_stent_lms_data",
+                           "indik_ivus_oct_v_stent_lms"))
   
   # Forventer disse indikasjonene dersom datagrunnlag = ja
   testthat::expect_true(all(
