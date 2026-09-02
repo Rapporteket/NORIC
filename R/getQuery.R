@@ -10,25 +10,7 @@
 
 #' @return query as string
 #' @name getQuery
-#' @aliases queryAngiopcinum
-#' queryCtangiovarnum
-#' queryAortaklaffvarnum
-#' queryAortaklaffoppfvarnum
-#' queryAndreprosedyrervarnum
-#' queryAnnendiagnostikkvarnum
-#' querySegmentstentnum
-#' queryMitralklaffvarnum
-#' queryMitralklaffoppfvarnum
-#' queryTaviprom
-#' queryForlopsoversikt
-#' querySkjemaoversikt
-#' queryPasienterstudier
-#' queryApLight
-#' queryDiagnose
-#' queryPciLabassistent
-#' queryAngioLabassistent
-#' queryPatientInfo
-#' queryRawData
+#' @aliases queryAngiopcinum queryCtangiovarnum queryAortaklaffvarnum queryAortaklaffoppfvarnum queryAndreprosedyrervarnum queryAnnendiagnostikkvarnum querySegmentstentnum queryMitralklaffvarnum queryMitralklaffoppfvarnum queryTaviprom queryForlopsoversikt querySkjemaoversikt queryPasienterstudier queryApLight queryDiagnose queryPciLabassistent queryAngioLabassistent queryPatientInfo queryRawData
 NULL
 
 
@@ -677,7 +659,7 @@ queryAortaklaffvarnum <- function(){
     T.GRIPTEST AS Gripestyrke,
     T.EURO2_DIALYSIS AS DialyseFoerOp,
     T.KRITISKT AS KritiskPreopTilstand,
-    T.EURO2_URGENCY AS Hastegrad,
+    T.EURO2_URGENCY AS HastegradEuroSCORE,
     
     -- Kontraindikasjon mot kirurgi
     T.PERC_VALVE_DUE_TO_RISK AS PerkKlaffPgaRisiko,

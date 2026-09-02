@@ -21,27 +21,7 @@
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getAp
-#' getCt
-#' getAk
-#' getAkOppf
-#' getAnP
-#' getAnD
-#' getSs
-#' getMk
-#' getTaviProm
-#' getSh
-#' getFo
-#' getSo
-#' getPs
-#' getApLight
-#' getMergeReportMce
-#' getMergeReportPid
-#' getMergeReportSegmentId
-#' getAngioAssistent
-#' getPciAssistent
-#' getPI
-#' getRawData
+#' @aliases getAp getCt getAk getAkOppf getAnP getAnD getSs getMk getTaviProm getSh getFo getSo getPs getApLight getMergeReportMce getMergeReportPid getMergeReportSegmentId getAngioAssistent getPciAssistent getPI getRawData
 NULL
 #' @rdname getData
 #' @export
@@ -155,6 +135,7 @@ getAk <- function(registryName, fromDate, toDate, singleRow,
     mapping = noric::aort_map_num_tekst) %>% 
     noric::utlede_alder(., var = ProsedyreDato) %>% 
     noric::fikse_sykehusnavn(.)
+  
   list(aK = aK)
 }
 
@@ -307,76 +288,6 @@ getSs <- function(registryName, fromDate, toDate, singleRow,
     noric::fikse_sykehusnavn(.)
   list(sS = sS)
 }
-
-
-
-
-#' #' @rdname getData
-#' #' @export
-#' getSh <- function(registryName, fromDate, toDate, singleRow, 
-#'                   singleHospital = 0, ...) {
-#'   
-#'   
-#'   # SQL possible for defined time-interval:
-#'   if (is.null(fromDate)) {
-#'     fromDate <- as.Date("1900-01-01")
-#'   }
-#'   if (is.null(toDate)) {
-#'     toDate <- noric::getLatestEntry(registryName)
-#'   }
-#'   
-#'   # Ask for all variables from segment_history in time interval
-#'   # Add selected variables from forlopsoversikt
-#'   # 2 variables to match on: AvdRESH, ForlopsID
-#'   
-#'   query <- paste0("
-#' SELECT
-#'     segment_history.*,
-#'     forlopsoversikt.PasientID,
-#'     forlopsoversikt.Kommune,
-#'     forlopsoversikt.KommuneNr,
-#'     forlopsoversikt.Fylke,
-#'     forlopsoversikt.Fylkenr,
-#'     forlopsoversikt.PasientAlder,
-#'     forlopsoversikt.ForlopsType1,
-#'     forlopsoversikt.ForlopsType2,
-#'     forlopsoversikt.KobletForlopsID
-#' FROM
-#'     segment_history
-#' LEFT JOIN forlopsoversikt ON
-#'     segment_history.CENTRE_ID = forlopsoversikt.AvdRESH AND
-#'     segment_history.MCEID = forlopsoversikt.ForlopsID
-#' WHERE
-#'     segment_history.ORGINTERDAT >= '", fromDate, "' AND
-#'     segment_history.ORGINTERDAT <= '", toDate, "'"
-#'   )
-#'   
-#'   if(singleHospital != 0) {
-#'     query <- paste0(query, 
-#'                     "AND segment_history.CENTRE_ID = ", 
-#'                     singleHospital)
-#'   }
-#'   
-#'   
-#'   # SQL for one row only/complete table:
-#'   if (singleRow) {
-#'     query <- paste0(query, "\nLIMIT\n  1;")
-#'     msg <- "Query single row data for segment_history"
-#'   } else {
-#'     query <- paste0(query, ";")
-#'     msg <- "Query data for segment_history"
-#'   }
-#'   
-#'   if ("session" %in% names(list(...))) {
-#'     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-#'   }
-#'   
-#'   sH <- rapbase::loadRegData(registryName, query)
-#'   
-#'   
-#'   list(sH = sH)
-#' }
-
 
 
 #' @rdname getData
@@ -955,8 +866,7 @@ getRawData <- function(registryName, tableName, ...){
   query <- noric::queryRawData(tableName)
   msg <- "Query rawdata"
   
-  if ("session" %in% names(list(...))) {
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-  }
+  rapbase::repLogger(session = NULL, msg = msg)
+  
   return(rapbase::loadRegData(registryName, query))
 }

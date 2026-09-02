@@ -1,6 +1,6 @@
 Package: noric
 Title: Provide R Resources for NORIC at Rapporteket
-Version: 4.4.0
+Version: 4.5.0
 Authors@R: c(
   person("Kristina",
          "Skaare",
@@ -54,4 +54,4 @@ Remotes:
 Suggests: 
     covr, 
     testthat
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0

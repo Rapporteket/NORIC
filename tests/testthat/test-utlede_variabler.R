@@ -44,22 +44,22 @@ testthat::test_that("Utlede OppholdsID fungerer", {
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ForlopsID %in% c(1, 5)) %>%
-      dplyr::pull(.data$OppholdsID) == 1))
+      dplyr::filter(ForlopsID %in% c(1, 5)) %>%
+      dplyr::pull(OppholdsID) == 1))
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$ForlopsID %in% c(3, 6)) %>%
-      dplyr::pull(.data$OppholdsID) == 3))
+      dplyr::filter(ForlopsID %in% c(3, 6)) %>%
+      dplyr::pull(OppholdsID) == 3))
   
   testthat:: expect_equal(
     x_out %>%
-      dplyr::filter(.data$Regtype  == "Primær") %>%
-      dplyr::pull(.data$OppholdsID),
+      dplyr::filter(Regtype  == "Primær") %>%
+      dplyr::pull(OppholdsID),
     
     x_out %>%
-      dplyr::filter(.data$Regtype  == "Primær") %>%
-      dplyr::pull(.data$ForlopsID))
+      dplyr::filter(Regtype  == "Primær") %>%
+      dplyr::pull(ForlopsID))
   
   
 })
@@ -134,47 +134,47 @@ testthat::test_that("Død under NORIC-forløpet fungerer", {
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$LabKompDod %in% "Ja") %>% 
-      dplyr::pull(.data$dod_noric) == "Ja"))
+      dplyr::filter(LabKompDod %in% "Ja") %>% 
+      dplyr::pull(dod_noric) == "Ja"))
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$AvdKompDod %in% "Ja") %>% 
-      dplyr::pull(.data$dod_noric) == "Ja"))
+      dplyr::filter(AvdKompDod %in% "Ja") %>% 
+      dplyr::pull(dod_noric) == "Ja"))
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$UtskrevetDod %in% "Ja") %>% 
-      dplyr::pull(.data$dod_noric) == "Ja"))
+      dplyr::filter(UtskrevetDod %in% "Ja") %>% 
+      dplyr::pull(dod_noric) == "Ja"))
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(.data$UtskrevetDodsdato %in% 
+      dplyr::filter(UtskrevetDodsdato %in% 
                       as.Date("2021-01-01", format = "%Y-%m-%d")) %>% 
-      dplyr::pull(.data$dod_noric) == "Ja"))
+      dplyr::pull(dod_noric) == "Ja"))
   
   
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(! .data$LabKompDod %in% "Ja", 
-                    ! .data$AvdKompDod %in% "Ja", 
-                    ! .data$UtskrevetDod %in% "Ja", 
-                    is.na(.data$UtskrevetDodsdato)) %>% 
-      dplyr::pull(.data$dod_noric) == "Nei"))
+      dplyr::filter(! LabKompDod %in% "Ja", 
+                    ! AvdKompDod %in% "Ja", 
+                    ! UtskrevetDod %in% "Ja", 
+                    is.na(UtskrevetDodsdato)) %>% 
+      dplyr::pull(dod_noric) == "Nei"))
   
   testthat::expect_true(
     x_out %>%
-      dplyr::filter(.data$dod_noric %in% "Nei") %>% 
+      dplyr::filter(dod_noric %in% "Nei") %>% 
       nrow() == 12)
   
   testthat::expect_true(
     x_out %>%
-      dplyr::filter(.data$dod_noric %in% "Ja") %>% 
+      dplyr::filter(dod_noric %in% "Ja") %>% 
       nrow() == 60)
   
   testthat::expect_equal(
     object = x_out %>% 
-      dplyr::select(.data$dod_noric) %>% 
+      dplyr::select(dod_noric) %>% 
       dplyr::distinct() %>% 
       dplyr::pull(),
     
@@ -205,13 +205,13 @@ testthat::test_that("Død under NORIC-oppholdet fungerer", {
   
   testthat::expect_true(all(
     x_out %>% 
-      dplyr::filter(.data$OppholdsID %in% c(1, 4)) %>% 
-      dplyr::pull(.data$dod_opphold) == "Ja"))
+      dplyr::filter(OppholdsID %in% c(1, 4)) %>% 
+      dplyr::pull(dod_opphold) == "Ja"))
   
   testthat::expect_true(all(
     x_out %>% 
-      dplyr::filter(.data$OppholdsID %in% c(2, 3, 5)) %>% 
-      dplyr::pull(.data$dod_opphold) == "Nei"))
+      dplyr::filter(OppholdsID %in% c(2, 3, 5)) %>% 
+      dplyr::pull(dod_opphold) == "Nei"))
   
   
 })
@@ -245,24 +245,24 @@ testthat::test_that("Tester at funksjonene samhandler", {
     
     testthat::expect_true(all(
       x_out %>% 
-        dplyr::filter(.data$ForlopsID %in% c(1, 3, 6)) %>% 
-        dplyr::pull(.data$dod_noric) == "Ja"))
+        dplyr::filter(ForlopsID %in% c(1, 3, 6)) %>% 
+        dplyr::pull(dod_noric) == "Ja"))
 
     testthat::expect_true(all(
       x_out %>% 
-        dplyr::filter(! .data$ForlopsID %in% c(1, 3, 6)) %>% 
-        dplyr::pull(.data$dod_noric) == "Nei"))
+        dplyr::filter(! ForlopsID %in% c(1, 3, 6)) %>% 
+        dplyr::pull(dod_noric) == "Nei"))
     
     
     testthat::expect_true(all(
       x_out %>% 
-        dplyr::filter(.data$OppholdsID %in% c(1, 3, 4)) %>% 
-        dplyr::pull(.data$dod_opphold) == "Ja"))
+        dplyr::filter(OppholdsID %in% c(1, 3, 4)) %>% 
+        dplyr::pull(dod_opphold) == "Ja"))
     
     testthat::expect_true(all(
       x_out %>% 
-        dplyr::filter(! .data$OppholdsID %in% c(1, 3, 4)) %>% 
-        dplyr::pull(.data$dod_opphold) == "Nei"))
+        dplyr::filter(! OppholdsID %in% c(1, 3, 4)) %>% 
+        dplyr::pull(dod_opphold) == "Nei"))
     
   })
   

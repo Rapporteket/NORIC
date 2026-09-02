@@ -16,22 +16,22 @@ getKodebokMedUtledetedVar <- function() {
   
   
   noric::getKodebokData() %>% 
-    dplyr::select(.data$skjemanavn, 
-                  .data$fysisk_feltnavn, 
-                  .data$ledetekst, 
-                  .data$listeverdier, 
-                  .data$listetekst, 
-                  .data$aktiveringsspm, 
-                  .data$underspm, 
-                  .data$innfort, 
-                  .data$tabell) %>% 
-    dplyr::mutate(listeverdier = as.character(.data$listeverdier)) %>%
+    dplyr::select(skjemanavn, 
+                  fysisk_feltnavn, 
+                  ledetekst, 
+                  listeverdier, 
+                  listetekst, 
+                  aktiveringsspm, 
+                  underspm, 
+                  innfort, 
+                  tabell) %>% 
+    dplyr::mutate(listeverdier = as.character(listeverdier)) %>%
     dplyr::bind_rows(noric::def_utledete_var %>%
-                       dplyr::select(.data$skjemanavn,
-                                     .data$fysisk_feltnavn,
-                                     .data$ledetekst, 
-                                     .data$listeverdier, 
-                                     .data$listetekst) %>% 
+                       dplyr::select(skjemanavn,
+                                     fysisk_feltnavn,
+                                     ledetekst, 
+                                     listeverdier, 
+                                     listetekst) %>% 
                        tidyr::replace_na(replace = list(listeverdier= "NA"))) 
   
   

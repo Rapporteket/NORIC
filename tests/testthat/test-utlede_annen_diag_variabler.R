@@ -237,43 +237,43 @@ test_that("legg_til_trykk_bilde_per_kar is correct", {
 # 
 #   testthat::expect_true(all(
 #     test_out %>%
-#       dplyr::filter(.data$ForlopsID == 1,.data$ AvdRESH ==1) %>%
-#       dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd)  == "Ja"))
+#       dplyr::filter(ForlopsID == 1, AvdRESH ==1) %>%
+#       dplyr::select(IMR, PdPa, Pa, Pd)  == "Ja"))
 # 
 # 
 #   testthat::expect_true(all(
 #     test_out %>%
-#       dplyr::filter(.data$ForlopsID == 2,.data$ AvdRESH ==1) %>%
-#       dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>% is.na()))
+#       dplyr::filter(ForlopsID == 2, AvdRESH ==1) %>%
+#       dplyr::select(IMR, PdPa, Pa, Pd) %>% is.na()))
 # 
 # 
 #   testthat::expect_equal(
 #     test_out %>%
-#       dplyr::filter(.data$ForlopsID == 3, .data$ AvdRESH ==1) %>%
-#       dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
+#       dplyr::filter(ForlopsID == 3,  AvdRESH ==1) %>%
+#       dplyr::select(IMR, PdPa, Pa, Pd) %>%
 #       as.character(),
 #     c("Ja", "Nei", "Nei", "Nei"))
 # 
 # 
 #   testthat::expect_equal(
 #     test_out %>%
-#       dplyr::filter(.data$ForlopsID == 4, .data$ AvdRESH ==1) %>%
-#       dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
+#       dplyr::filter(ForlopsID == 4,  AvdRESH ==1) %>%
+#       dplyr::select(IMR, PdPa, Pa, Pd) %>%
 #       as.character(),
 #     c("Nei", "Ja", "Nei", "Nei"))
 # 
 #   testthat::expect_equal(
 #     test_out %>%
-#       dplyr::filter(.data$ForlopsID == 5, .data$ AvdRESH ==1) %>%
-#       dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
+#       dplyr::filter(ForlopsID == 5,  AvdRESH ==1) %>%
+#       dplyr::select(IMR, PdPa, Pa, Pd) %>%
 #       as.character(),
 #     c("Nei", "Nei", "Ja", "Nei"))
 # 
 # 
 #   testthat::expect_equal(
 #     test_out %>%
-#       dplyr::filter(.data$ForlopsID == 6, .data$ AvdRESH ==1) %>%
-#       dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) %>%
+#       dplyr::filter(ForlopsID == 6,  AvdRESH ==1) %>%
+#       dplyr::select(IMR, PdPa, Pa, Pd) %>%
 #       as.character(),
 #     c("Nei",  "Nei", "Nei","Ja"))
 # 
@@ -281,8 +281,8 @@ test_that("legg_til_trykk_bilde_per_kar is correct", {
 # 
 #   testthat::expect_true(all(
 #     test_out %>%
-#       dplyr::filter(.data$ForlopsID %in% 7:8,.data$ AvdRESH ==1) %>%
-#       dplyr::select(.data$IMR, .data$PdPa, .data$Pa, .data$Pd) == "Nei"))
+#       dplyr::filter(ForlopsID %in% 7:8, AvdRESH ==1) %>%
+#       dplyr::select(IMR, PdPa, Pa, Pd) == "Nei"))
 # 
 # 
 # 
