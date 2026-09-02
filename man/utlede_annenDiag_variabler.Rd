@@ -15,7 +15,7 @@ legg_til_trykkmaalinger(df_ap, df_ad)
 }
 \arguments{
 \item{df_ad}{NORIC's \emph{AnnenDiag}-table, must contain variables
-\code{ForlopsID}, \code{AVdRESH}, \code{segment}, \code{graft} and
+\code{ForlopsID}, \code{AvdRESH}, \code{segment}, \code{graft} and
 \code{metode}}
 
 \item{df_ap}{NORIC's \emph{AngioPCIVar}-table, must contain variables
