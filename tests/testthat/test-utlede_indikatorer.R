@@ -352,7 +352,7 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
       dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja" &
                       (.data$IVUS != "Ja" | is.na(.data$IVUS)) &
                       (.data$OCT != "Ja" | is.na(.data$OCT))) %>%
-      dplyr::pull(.data$indik_ivus_oct_v_stent_lms) == "nei"))
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms) %in% c("nei", "manglende")))
   
   
   # Forventer feilmelding dersom variabler mangler
@@ -368,11 +368,17 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                          TidlABC = "Nei",
                          IVUS = "Ja",
                          OOCT = "Nei")))
+  
+  # Forventer feilmelding dersom indikatorene er NA der 
+  # datagrunnlageter "ja" og satt inn stent er "ja
+  testthat::expect_error(all(
+    x_out %>%
+      dplyr::filter(.data$indik_ivus_oct_v_stent_lms_data == "ja" &
+                      data$satt_inn_stent_i_LMS %in% c("ja")) %>%
+      dplyr::pull(.data$indik_ivus_oct_v_stent_lms) %in% c("ja",
+                                                           "nei",
+                                                           "manglende")))
 })
-
-
-
-
 
 
 
