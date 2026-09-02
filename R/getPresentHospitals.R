@@ -11,8 +11,7 @@
 #' @return character string with AvdRESH
 #' 
 #' @name getPresentHospitals
-#' @aliases getPresentHospitalsAp
-#' getPresentHospitalsAk
+#' @aliases getPresentHospitalsAp getPresentHospitalsAk
 NULL
  
 

@@ -8,7 +8,7 @@
 
 #' @name getLatestEntry
 #' @aliases getLatestEntryHospital
-#' NULL
+NULL
 #' 
 #' @rdname getLatestEntry
 #' @export

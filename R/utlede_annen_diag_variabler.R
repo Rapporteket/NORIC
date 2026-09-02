@@ -30,7 +30,7 @@
 #' available in \code{df_ad}), the values for the 4 new variables are <NA>.
 #'
 #' @param df_ad NORIC's \emph{AnnenDiag}-table, must contain variables
-#' \code{ForlopsID}, \code{AVdRESH}, \code{segment}, \code{graft} and
+#' \code{ForlopsID}, \code{AvdRESH}, \code{segment}, \code{graft} and
 #' \code{metode}
 #'
 #' @param df_ap NORIC's \emph{AngioPCIVar}-table, must contain variables
@@ -42,10 +42,8 @@
 #'
 #'
 #' @name utlede_annenDiag_variabler
-#' @aliases
-#' utlede_kar_annen_diag
-#' legg_til_trykk_bilde_per_kar
-#' legg_til_trykkmaalinger
+#' @aliases utlede_kar_annen_diag legg_til_trykk_bilde_per_kar legg_til_trykkmaalinger
+NULL
 #'
 #' @examples
 #' df_ad <- data.frame(

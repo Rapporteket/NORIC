@@ -56,31 +56,3 @@ value "Nei" is attributed if no if this method not is performed.
 For procedures where no measures are done on segment-level (e.g. no entries
 available in \code{df_ad}), the values for the 4 new variables are <NA>.
 }
-\examples{
-df_ad <- data.frame(
-   ForlopsID = c(1, 1, 3, 3, 5),
-   AvdRESH = rep(1,5),
-   segment = c("PDA/RPD (4)",
-               "PLA (18)",
-               "Midtre LAD (7)",
-               "Ve hovedstamme (5)",
-               "Ve hovedstamme (5)"),
-   graft = c("Nei",
-             "Arteriell",
-             "Vene",
-             "Nei",
-             "Nei"),
-   metode = c("FFR", "FFR", NA, "test", "FFR"))
-
-
-df_ap <-data.frame(
-   ForlopsID = c(1, 2, 3, 4, 5),
-   AvdRESH = rep(1,5))
-
-
-utlede_kar_annen_diag(df_ad)
-legg_til_trykk_bilde_per_kar(df_ap = df_ap,
-                             df_ad = df_ad,
-                             metodeType = "FFR")
-
-}
