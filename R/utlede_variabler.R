@@ -53,7 +53,7 @@ utlede_aldersklasse <- function(df, var = PasientAlder) {
         include.lowest = TRUE,
         labels = c("18-49", "50-59", "60-69", "70-79", "80-89", "90-99"),
         ordered_result = TRUE)) %>%
-    dplyr::relocate(.data$aldersklasse, .after = {{ var }})
+    dplyr::relocate(aldersklasse, .after = {{ var }})
   
 }
 
@@ -82,9 +82,9 @@ utlede_OppholdsID <- function(df) {
   stopifnot(c("Regtype", "ForlopsID", "PrimaerForlopsID") %in% names(df))
   
   df %>%
-    dplyr::mutate(OppholdsID = ifelse(.data$Regtype == "Primær",
-                                      yes = .data$ForlopsID,
-                                      no = .data$PrimaerForlopsID))
+    dplyr::mutate(OppholdsID = ifelse(Regtype == "Primær",
+                                      yes = ForlopsID,
+                                      no = PrimaerForlopsID))
   
 }
 
@@ -125,7 +125,7 @@ utlede_OppholdsID <- function(df) {
 #'                       suffix = "komplikSkjema")
 
 utlede_ferdigstilt <- function(df,
-                               var = .data$SkjemaStatusStart,
+                               var = SkjemaStatusStart,
                                suffix = "startSkjema") {
   
   dplyr::mutate(
@@ -175,10 +175,10 @@ utlede_dod_noric <- function(df_ap){
   df_ap %>% 
     dplyr::mutate(
       dod_noric = dplyr::if_else(
-        condition = (.data$AvdKompDod %in% "Ja" |
-                       .data$LabKompDod %in% "Ja" |
-                       .data$UtskrevetDod %in% "Ja" |
-                       !is.na(.data$UtskrevetDodsdato)),
+        condition = (AvdKompDod %in% "Ja" |
+                       LabKompDod %in% "Ja" |
+                       UtskrevetDod %in% "Ja" |
+                       !is.na(UtskrevetDodsdato)),
         true = "Ja",
         false = "Nei",
         missing = "Nei"))
@@ -232,10 +232,10 @@ avdod_opphold <- function(df_ap) {
                   "dod_noric") %in% names(df_ap)))
   
   df_ap %>%
-    dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
+    dplyr::group_by(AvdRESH, OppholdsID) %>%
     dplyr::mutate(
       dod_opphold = ifelse(
-        all(.data$dod_noric == "Nei"),
+        all(dod_noric == "Nei"),
         "Nei",
         "Ja")) %>%
     dplyr::ungroup()
@@ -326,10 +326,10 @@ avdod_lab_avd_dod_opphold <- function(df_ap) {
                   "dod_lab_avd_dod_noric") %in% names(df_ap)))
   
   df_ap %>%
-    dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
+    dplyr::group_by(AvdRESH, OppholdsID) %>%
     dplyr::mutate(
       dod_lab_avd_dod_opphold = ifelse(
-        all(.data$dod_lab_avd_dod_noric == "Nei"),
+        all(dod_lab_avd_dod_noric == "Nei"),
         "Nei",
         "Ja")) %>%
     dplyr::ungroup()
