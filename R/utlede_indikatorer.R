@@ -180,21 +180,69 @@
 #'  noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
 #'
 #'  x <- data.frame(
-#'       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
-#'       FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-#'       IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA),
-#'       PDPA = rep(NA, 6),
-#'       IMR = rep(NA, 6),
-#'       PA_Hyperemi = rep(NA, 6),
-#'       PD_Hyperemi = rep(NA, 6))
+#'         ProsedyreDato = c(rep(as.Date("01-01-2018", format = "%d-%m-%Y"), 23),
+#'                           rep(as.Date("01-06-2016", format = "%d-%m-%Y"), 2)),
+#'         Indikasjon = c(rep("Stabil koronarsykdom", 6), NA, NA, "Annet",
+#'                        rep("Stabil koronarsykdom", 16)),
+#'         FFR = c(NA, "Ja", "Ja", NA, "Ja", "Ukjent", "Nei", "Ja", "Ja", rep(NA, 16)),
+#'         IFR = c(NA, "Ja", "Nei", "Ja", "Ukjent", NA, NA, "Ja", NA,  rep(NA, 16)),
+#'         IMR = c(rep(NA, 9),  "Ja","Ja", "Ja", "Ukjent", "Nei", "Nei", rep(NA, 10)),
+#'         PDPA = c(rep(NA, 9), "Ja","Ja", "Ja" , "Ukjent", "Nei", "Nei", rep(NA, 10)),
+#'         PA_Hyperemi = c(rep(NA, 9), "Ja","Ja", "Nei" , "Ukjent","Nei", "Nei", rep(NA, 10)),
+#'         PD_Hyperemi = c(rep(NA, 9), "Ja", "Nei", "Nei", "Ukjent", "Ja", rep(NA, 11)),
+#'         TidlABC = c("Nei", rep("Ja", 4),
+#'                     rep(c("Nei", "Ukjent", NA_character_), 3),
+#'                     rep(NA_character_, 11)),
+#'         SEGMENT1 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT2 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT3 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT4 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT5 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT6 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT7 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT8 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT9 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT10 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT11 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT12 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT13 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT14 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT15 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT16 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT17 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT18 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT19 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         SEGMENT20 = c(rep(2, 21), 1, 1, rep(2, 2)),
+#'         AnnenDiagHovedSpm = c("Ukjent", rep(NA, 6), "Ja", "Nei", "Nei",
+#'                               rep("Ukjent", 3), "Ja", "Nei", "Ja",
+#'                               rep("Ukjent", 5), rep(NA, 4)))
 #'  noric::ki_trykkmaaling_utfoert(df_ap = x)
 #'
 #'  x <- data.frame(
-#'       Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "Annet"),
-#'       TidlABC = rep("Nei", 6),
-#'       satt_inn_stent_i_LMS = c(rep("ja", 4), NA, "nei"),
-#'       IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-#'       OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
+#'         AvdRESH = rep(1, 30),
+#'         ForlopsID = 1:30,
+#'         Indikasjon = rep(c("Vitieutredning",
+#'                            "Uklare brystsmerter",
+#'                            "Annet",
+#'                            "Hjertestans uten STEMI",
+#'                            "Hjertesvikt/kardiomyopati",
+#'                            "Komplettering av tidligere PCI",
+#'                            "UAP",
+#'                            "NSTEMI",
+#'                            "NoeTull!",
+#'                            NA_character_), 3),
+#'         TidlABC = c(rep("Ja", 10),
+#'                     rep(c("Nei", "Ukjent", NA_character_), 6),
+#'                     NA_character_, NA_character_),
+#'         IVUS = rep(c("Ja", "Ja", "Nei", "Ukjent", NA_character_), 6),
+#'         OCT = rep(c("Nei", "Ja", "Nei", "Ukjent", NA_character_), 6),
+#'         AnnenDiagHovedSpm = c(rep("Ja", 5), rep("Nei", 5), rep("Ukjent", 2),
+#'                               rep("Nei", 3), rep(NA_character_, 5),
+#'                               rep(c("Ja", "Nei", "Ukjent",
+#'                                     NA_character_, NA_character_), 2)),
+#'         satt_inn_stent_i_LMS = c(rep("nei", 6), rep(NA_character_, 3),
+#'                                  rep("nei", 2), rep("ja", 4), rep(NA_character_, 4),
+#'                                  rep("ja", 6), rep("nei", 2), rep(NA_character_,3)))
 #'  noric::ki_ivus_oct_ved_stenting_lms(df_ap = x)
 #'
 #'  x <- data.frame(
@@ -395,22 +443,22 @@ ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
         
         # Hovedspørsmål = Ukjent + IVUS og OCT lik NA --> Manglende
         indik_ivus_oct_v_stent_lms_data == "ja" &
-          AnnenDiagHovedSpm == "Ukjent" &
+          AnnenDiagHovedSpm %in% c("Ukjent", NA) &
           (IVUS != "Ja" & OCT != "Ja") ~ "manglende",
         
         # Hovedspørsmål = Ukjent + IVUS lik NA og OCT ikke lik JA --> Manglende
         indik_ivus_oct_v_stent_lms_data == "ja" &
-          AnnenDiagHovedSpm == "Ukjent" &
+          AnnenDiagHovedSpm  %in% c("Ukjent", NA) &
           is.na(IVUS) & OCT != "Ja" ~ "manglende",
         
         # Hovedspørsmål = Ukjent + IVUS ikke lik JA og OCT lik NA --> Manglende
         indik_ivus_oct_v_stent_lms_data == "ja" &
-          AnnenDiagHovedSpm == "Ukjent" &
+          AnnenDiagHovedSpm %in% c("Ukjent", NA) &
           IVUS != "Ja" & is.na(OCT) ~ "manglende",
         
         # Hovedspørsmål = Ukjent + IVUS og OCT lik NA --> Manglende
         indik_ivus_oct_v_stent_lms_data == "ja" &
-          AnnenDiagHovedSpm == "Ukjent" &
+          AnnenDiagHovedSpm %in% c("Ukjent", NA) &
           is.na(IVUS) & is.na(OCT) ~ "manglende",
         
         # Hovedspørsmål = JA/NEI + IVUS og OCT lik NEI/Ukjent --> NEI
