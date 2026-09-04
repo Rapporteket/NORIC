@@ -4,7 +4,7 @@
 \alias{mapOrgReshId}
 \title{Make mapping between unit name and id}
 \usage{
-mapOrgReshId(registryName, asNamedList = FALSE, newNames = FALSE)
+mapOrgReshId(registryName, asNamedList = FALSE)
 }
 \arguments{
 \item{registryName}{Character string providing registry name key}
@@ -12,9 +12,6 @@ mapOrgReshId(registryName, asNamedList = FALSE, newNames = FALSE)
 \item{asNamedList}{Logical whether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.}
-
-\item{newNames}{Logical whether to provide updated hospital names (TRUE) or 
-hospital names existing in database (FALSE). Default is FALSE.}
 }
 \value{
 A data frame with columns name and id or a list of named ids

@@ -11,8 +11,7 @@
 #' @return character string with AvdRESH
 #' 
 #' @name getPresentHospitals
-#' @aliases getPresentHospitalsAp
-#' getPresentHospitalsAk
+#' @aliases getPresentHospitalsAp getPresentHospitalsAk
 NULL
  
 
@@ -33,12 +32,12 @@ getPresentHospitalsAp <-function(registryName,
    
   query <- paste0("
     SELECT 
-      DISTINCT AvdRESH 
+      DISTINCT regangio.CENTREID AS AvdRESH 
     FROM
-      angiopcinum 
+      regangio 
     WHERE
-     ProsedyreDato >= '", fromDate, "' AND
-     ProsedyreDato <= '", toDate, "'", 
+     regangio.INTERDAT >= '", fromDate, "' AND
+     regangio.INTERDAT <= '", toDate, "'", 
     ";")
   
   rapbase::loadRegData(registryName = registryName, 
@@ -62,12 +61,12 @@ getPresentHospitalsAk <-function(registryName,
   
   query <- paste0("
     SELECT 
-      DISTINCT AvdRESH 
+      DISTINCT taviperc.CENTREID AS AvdRESH 
     FROM
-      aortaklaffvarnum 
+      taviperc 
     WHERE
-     ProsedyreDato >= '", fromDate, "' AND
-     ProsedyreDato <= '", toDate, "'", 
+     taviperc.PROCEDUREDATE >= '", fromDate, "' AND
+     taviperc.PROCEDUREDATE <= '", toDate, "'", 
     ";")
 
   rapbase::loadRegData(registryName = registryName,

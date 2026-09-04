@@ -4,7 +4,7 @@
 \alias{utlede_ferdigstilt}
 \title{Add binary variable for table-status}
 \usage{
-utlede_ferdigstilt(df, var = .data$SkjemaStatusStart, suffix = "startSkjema")
+utlede_ferdigstilt(df, var = SkjemaStatusStart, suffix = "startSkjema")
 }
 \arguments{
 \item{df}{data.frame, must contain a numerical status-variable with values

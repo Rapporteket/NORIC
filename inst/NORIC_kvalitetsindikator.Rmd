@@ -3,7 +3,7 @@ params:
   author: ukjent forfatter
   hospitalName: ukjent sykehus
   tableFormat: html
-  reshID: 999999
+  reshId: 999999
   registryName: rapbase
   userFullName: Ukjent bruker
   userRole: ukjent rolle
@@ -14,7 +14,7 @@ header-includes:
   - \usepackage{rotating}
   - \usepackage{float}
   - \usepackage{booktabs}
-title:   | 
+title:   |  
   | Kvalitetsindikatorer fra NORIC
   |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
@@ -22,10 +22,8 @@ title:   |
   |
 abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, " sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ." , "\\newline ", "\\newline ", "Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.no](mailto:noric@helse-bergen.no)") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
-registryName: NORIC
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "noric"))`'
-reglogo: '`r system.file("logoNORIC.png", package = "noric")`'
-userFullName: '`r params$userFullName`'
+reglogo: '`r system.file("NORIC_logo.png", package = "noric")`'
 linkcolor: darkblue
 output:
   fig_caption: yes
@@ -81,9 +79,9 @@ if (params$rendered_by_shiny)
 
 
 ```{r load_data, include=FALSE, cache=FALSE}
- 
+
 # 1) DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
-  
+
 # NYESTE DATO: 
 # Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
 # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
@@ -91,7 +89,7 @@ if (params$rendered_by_shiny)
 # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
 # overføringer har stoppet opp
 # I rapporten bruker vi kun hele (komplette = fullførte måneder)
-  
+
 # ELDSTE DATO: 
 # generelt :Januar fra i fjor (hele foregående år skal vise i rapporten)
 # AK: Bruker 5 siste kvartal. Kan gå lenger tilbake enn fjoråret, dersom i 
@@ -99,12 +97,14 @@ if (params$rendered_by_shiny)
 # SS: Brukes til "antall_stent_under_opphold" (foreskriving av medikamenter) +          
 # "stenting_av_venstre_hovedstamme" (IVUS/OCT - Per kvartal!)
 kilde <- "prod"
-  
+
 periode_data <- data.frame(
-    # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
-    nyeste_reg = min(
-      (as.Date(Sys.time()) - 1), 
-      noric::getLatestEntry(registryName = params$registryName))) %>% 
+  # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
+  nyeste_reg = min(
+    (as.Date(Sys.time()) - 1), 
+    noric::getLatestEntry(registryName = params$registryName))) %>% 
+  
+  dplyr::mutate(
     
     dplyr::mutate(
       
@@ -156,185 +156,200 @@ periode_data <- data.frame(
       # Fjoråret
       sisteHeleYear = nyesteRegYear - 1, 
       
-      # Første dato for SQL -spørring : 01. januar fjoråret
-      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-                             format = "%Y-%m-%d"), 
+      # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
+      siste_dato_innevarende_kvartal != nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, 
+                              unit =  "quarter") - months(3), 
       
-      # Aortaklaff + Segment stent (indikator per kvartal): 
-      forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
-                                  format = "%Y-%m-%d")
-    ) %>% 
-    dplyr::select(-siste_dato_innevarende_mnd, 
-                  -siste_dato_innevarende_kvartal)
-  
-  # 2) HENTE DATASETTENE (SQL-spørring)
-  sS_nasjonalt <- noric::getPrepSsData(
-    registryName = params$registryName,
-    fromDate  = periode_data$forste_dato_ak_ss,
-    toDate = periode_data$siste_dato,
-    singleRow = FALSE,
-    singleHospital = NULL)
-  
-  # Hardkodet 2018- dags dato pga figur 4,5 og 6
-  aP_nasjonalt <- noric::getPrepApData(
-    registryName = params$registryName,
-    fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),
-    toDate = periode_data$siste_dato,
-    singleRow = FALSE,
-    singleHospital = NULL)
-  
-  aK_nasjonalt <- noric::getPrepAkData(
-    registryName = params$registryName,
-    fromDate  = periode_data$forste_dato_ak_ss,
-    toDate = periode_data$siste_dato,
-    singleRow = FALSE,
-    singleHospital = NULL)
-  
-  anD_nasjonalt <- noric::getPrepAnDData(
-    registryName = params$registryName,
-    fromDate  = periode_data$forste_dato,
-    toDate = periode_data$siste_dato,
-    singleRow = FALSE,
-    singleHospital = NULL)
-  
-  # 3) VELGE KUN DE VARIABLENE VI TRENGER FRA HJELPEDATASETTENE
-  sS_nasjonalt %<>%
-    dplyr::select(ProsedyreDato,
-                  StentType,
-                  Segment,
-                  Graft,
-                  ForlopsID,
-                  Sykehusnavn,
-                  AvdRESH,
-                  aar,
-                  maaned,
-                  kvartal)
-  
-  anD_nasjonalt %<>%
-    dplyr::select(ForlopsID,
-                  AvdRESH,
-                  metode)
-  
-  # 4a) BEARBEIDE OG UTLEDE NYE VARIABLER
-  aP_nasjonalt %<>%
-    dplyr::select(
-      AvdRESH,
-      Sykehusnavn,
-      Regtype,
-      PrimaerForlopsID,
-      ProsedyreDato,
-      ProsedyreTid,
-      ProsedyreType,
-      OverflyttetFra,
-      AnkomstPCIDato,
-      AnkomstPCITid,
-      InnleggelseHenvisendeSykehusDato,
-      InnleggelseHenvisendeSykehusTid,
-      Innkomstarsak,
-      Indikasjon,
-      Hastegrad,
-      BesUtlEKGDato,
-      BesUtlEKGTid,
-      BeslEKGDato, 
-      BeslEKGTid,
-      BeslutningsutlosendeEKG,
-      GittTrombolyse,
-      HLRForSykehus,
-      KobletForlopsID,
-      ForlopsType2,
-      IFR,
-      FFR,
-      IMR,
-      IVUS,
-      OCT,
-      PDPA, 
-      PA_Hyperemi, 
-      PD_Hyperemi,
-      ForlopsID,
-      ASA,
-      AndrePlatehemmere,
-      AndrePlatehemmere,
-      Antikoagulantia,
-      UtskrStatiner,
-      TidlABC,
-      UtskrevetDod,
-      SkjemaStatusStart,
-      SkjemastatusHovedskjema,
-      SkjemaStatusUtskrivelse,
-      SkjemaStatusKomplikasjoner
-    ) %>%
+      TRUE ~ as.Date(NA_character_)),
     
-    noric::utlede_OppholdsID(.) %>%
     
-    noric::utlede_ferdigstilt(df = .,
-                              var = SkjemaStatusStart,
-                              suffix = "StartSkjema") %>%
-    noric::utlede_ferdigstilt(df = .,
-                              var = SkjemastatusHovedskjema,
-                              suffix = "HovedSkjema") %>%
-    noric::utlede_ferdigstilt(df = .,
-                              var = SkjemaStatusUtskrivelse,
-                              suffix = "UtskrSkjema") %>%
-    noric::utlede_ferdigstilt(df = .,
-                              var = SkjemaStatusKomplikasjoner,
-                              suffix = "KomplikSkjema") %>%
     
-    noric::legg_til_antall_stent(df_ap = ., df_ss = sS_nasjonalt) %>%
-    noric::legg_til_antall_stent_opphold(df_ap = .) %>%
-    noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>%
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
     
-    # #  Legge til utledete variabler fra annen Diagnostikk. Hjelpevariabler for
-    # # trykkmåling. Disse fjernes før tabellen legges i utforsker
-    # noric::legg_til_trykkmaalinger(df_ap = .,
-    #                                df_ad = anD_nasjonalt) %>%
-    # 
-    # LEgg til hjelpevariabler for ventetider
-    noric::legg_til_ventetid_nstemi_timer(.) %>%
-    noric::legg_til_ventetid_stemi_min(.) %>%
+    # Fjoråret
+    sisteHeleYear = nyesteRegYear - 1, 
     
-    # Legge til kvalitetsindikatorene:
-    noric::ki_ferdigstilt_komplikasjoner(df_ap = .) %>%
-    noric::ki_trykkmaaling_utfoert(df_ap = .) %>%
-    noric::ki_ivus_oct_ved_stenting_lms(df_ap = .) %>%
-    noric::ki_foreskr_blodfortynnende(df_ap = .) %>%
-    noric::ki_foreskr_kolesterolsenkende(df_ap = .) %>%
-    noric::ki_nstemi_utredet_innen24t() %>%
-    noric::ki_nstemi_utredet_innen72t() %>%
-    noric::ki_stemi_pci_innen120min() %>%
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                           format = "%Y-%m-%d"), 
     
-    dplyr::mutate(
-      maaned = as.factor(format(x = ProsedyreDato, format = "%Y-%m")),
-      aar = lubridate::year(ProsedyreDato),
-      kvartal = paste0(lubridate::year(ProsedyreDato),
-                       " Q",
-                       lubridate::quarter(ProsedyreDato,
-                                          with_year = FALSE))) %>%
-    dplyr::mutate(admissionType = dplyr::case_when(
-      OverflyttetFra %in% "Annet sykehus" ~ "Overflyttet",
-      OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
-                                  "Omdirigert ambulanse") ~ "Direkte",
-      TRUE ~ NA_character_))
+    # Aortaklaff + Segment stent (indikator per kvartal): 
+    forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
+                                format = "%Y-%m-%d")
+  ) %>% 
+  dplyr::select(-siste_dato_innevarende_mnd, 
+                -siste_dato_innevarende_kvartal)
+
+# 2) HENTE DATASETTENE (SQL-spørring)
+sS_nasjonalt <- noric::getPrepSsData(
+  registryName = params$registryName,
+  fromDate  = periode_data$forste_dato_ak_ss,
+  toDate = periode_data$siste_dato,
+  singleRow = FALSE, 
+  singleHospital = 0)
+
+# Hardkodet 2018- dags dato pga figur 4,5 og 6
+aP_nasjonalt <- noric::getPrepApData(
+  params$registryName,
+  fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),
+  toDate = periode_data$siste_dato,
+  singleRow = FALSE, 
+  singleHospital = 0)
+
+
+aK_nasjonalt <- noric::getPrepAkData(
+  registryName = params$registryName,
+  fromDate  = periode_data$forste_dato_ak_ss,
+  toDate = periode_data$siste_dato,
+  singleRow = FALSE, 
+  singleHospital = 0)
+
+
+anD_nasjonalt <- noric::getPrepAnDData(
+  registryName = params$registryName,
+  fromDate  = periode_data$forste_dato,
+  toDate = periode_data$siste_dato,
+  singleRow = FALSE, 
+  singleHospital = 0)
+
+
+# 3) VELGE KUN DE VARIABLENE VI TRENGER FRA HJELPEDATASETTENE
+sS_nasjonalt %<>%
+  dplyr::select(ProsedyreDato,
+                StentType,
+                Segment,
+                Graft,
+                ForlopsID,
+                Sykehusnavn,
+                AvdRESH,
+                aar,
+                maaned,
+                kvartal)
+
+anD_nasjonalt %<>%
+  dplyr::select(ForlopsID,
+                AvdRESH,
+                metode)
+
+# 4a) BEARBEIDE OG UTLEDE NYE VARIABLER
+aP_nasjonalt %<>%
+  dplyr::select(
+    AvdRESH,
+    Sykehusnavn,
+    Regtype,
+    PrimaerForlopsID,
+    ProsedyreDato,
+    ProsedyreTid,
+    ProsedyreType,
+    OverflyttetFra,
+    AnkomstPCIDato,
+    AnkomstPCITid,
+    InnleggelseHenvisendeSykehusDato,
+    InnleggelseHenvisendeSykehusTid,
+    Innkomstarsak,
+    Indikasjon,
+    BesUtlEKGDato,
+    BesUtlEKGTid,
+    BeslEKGDato, 
+    BeslEKGTid,
+    BeslutningsutlosendeEKG,
+    GittTrombolyse,
+    HLRForSykehus,
+    KobletForlopsID,
+    Hastegrad,
+    IFR,
+    FFR,
+    IMR,
+    IVUS,
+    OCT,
+    PDPA, 
+    PA_Hyperemi, 
+    PD_Hyperemi,
+    ForlopsID,
+    ASA,
+    AndrePlatehemmere,
+    AndrePlatehemmere,
+    AnnenDiagHovedSpm,
+    Antikoagulantia,
+    UtskrStatiner,
+    TidlABC,
+    contains("SEGMENT"), 
+    UtskrevetDod,
+    SkjemaStatusStart,
+    SkjemastatusHovedskjema,
+    SkjemaStatusUtskrivelse,
+    SkjemaStatusKomplikasjoner
+  ) %>%
   
-  # 4b) BEARBEIDE OG UTLEDE NYE VARIABLER
-  aK_nasjonalt %<>%
-    dplyr::select(
-      ProsedyreDato,
-      AvdKompPacemaker,
-      LabKompDod,
-      TypeKlaffeprotese,
-      Sykehusnavn,
-      AvdRESH,
-      ForlopsID,
-      Pacemaker,
-      SkjemaStatusHovedskjema) %>% 
-    
-    dplyr::mutate(
-      kvartal = paste0(
-        lubridate::year(ProsedyreDato),
-        " Q",
-        lubridate::quarter(ProsedyreDato, with_year = FALSE))) %>%
-    noric::ki_ak_pacemakerbehov(df_ak = .)
+  noric::utlede_OppholdsID(.) %>%
   
+  noric::utlede_ferdigstilt(df = .,
+                            var = SkjemaStatusStart,
+                            suffix = "StartSkjema") %>%
+  noric::utlede_ferdigstilt(df = .,
+                            var = SkjemastatusHovedskjema,
+                            suffix = "HovedSkjema") %>%
+  noric::utlede_ferdigstilt(df = .,
+                            var = SkjemaStatusUtskrivelse,
+                            suffix = "UtskrSkjema") %>%
+  noric::utlede_ferdigstilt(df = .,
+                            var = SkjemaStatusKomplikasjoner,
+                            suffix = "KomplikSkjema") %>%
+  
+  noric::legg_til_antall_stent(df_ap = ., df_ss = sS_nasjonalt) %>%
+  noric::legg_til_antall_stent_opphold(df_ap = .) %>%
+  noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>%
+  
+
+  # LEgg til hjelpevariabler for ventetider
+  noric::legg_til_ventetid_nstemi_timer(.) %>%
+  noric::legg_til_ventetid_stemi_min(.) %>%
+  
+  # Legge til kvalitetsindikatorene:
+  noric::ki_ferdigstilt_komplikasjoner(df_ap = .) %>%
+  noric::ki_trykkmaaling_utfoert(df_ap = .) %>%
+  noric::ki_ivus_oct_ved_stenting_lms(df_ap = .) %>%
+  noric::ki_foreskr_blodfortynnende(df_ap = .) %>%
+  noric::ki_foreskr_kolesterolsenkende(df_ap = .) %>%
+  noric::ki_nstemi_utredet_innen24t() %>%
+  noric::ki_nstemi_utredet_innen72t() %>%
+  noric::ki_stemi_pci_innen120min() %>%
+  
+  dplyr::mutate(
+    maaned = as.factor(format(x = ProsedyreDato, format = "%Y-%m")),
+    aar = lubridate::year(ProsedyreDato),
+    kvartal = paste0(lubridate::year(ProsedyreDato),
+                     " Q",
+                     lubridate::quarter(ProsedyreDato,
+                                        with_year = FALSE))) %>%
+  dplyr::mutate(admissionType = dplyr::case_when(
+    OverflyttetFra %in% "Annet sykehus" ~ "Overflyttet",
+    OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
+                                "Omdirigert ambulanse") ~ "Direkte",
+    TRUE ~ NA_character_))
+
+# 4b) BEARBEIDE OG UTLEDE NYE VARIABLER
+aK_nasjonalt %<>%
+  dplyr::select(
+    ProsedyreDato,
+    AvdKompPacemaker,
+    LabKompDod,
+    TypeKlaffeprotese,
+    Sykehusnavn,
+    AvdRESH,
+    ForlopsID,
+    Pacemaker,
+    SkjemaStatusHovedskjema) %>% 
+  
+  dplyr::mutate(
+    kvartal = paste0(
+      lubridate::year(ProsedyreDato),
+      " Q",
+      lubridate::quarter(ProsedyreDato, with_year = FALSE))) %>%
+  noric::ki_ak_pacemakerbehov(df_ak = .)
+
 
 ```
 
@@ -425,7 +440,7 @@ nyeste_registrering_ak <- aK_nasjonalt %>%
 
 ```{r dimAK_lokalt, include=FALSE, eval=TRUE}
 dim_ak_lokalt <- aK_nasjonalt %>% 
-  dplyr::filter(AvdRESH %in% params$reshID) %>% 
+  dplyr::filter(AvdRESH %in% params$reshId) %>% 
   dim(.)
 ```
 
@@ -852,7 +867,7 @@ digs <-  rep(0, dim(tabVentetid24t)[2])
 
 
 ```{r pagebreakVentetidNSTEMIfigLinje, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 
 ```
 
@@ -864,7 +879,7 @@ digs <-  rep(0, dim(tabVentetid24t)[2])
 
 # Lokalt: Andel komplette under 50% per måned?
 nstemi_komplette <- aP_nasjonalt %>%
-  dplyr::filter(AvdRESH %in% params$reshID,
+  dplyr::filter(AvdRESH %in% params$reshId,
                 indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(maaned,
                  indik_nstemi_angio_innen24t,
@@ -884,7 +899,7 @@ nstemi_komplette <- aP_nasjonalt %>%
 
 # LOKALT : For NSTEMI med komplette forløp
 prep_figVentetid24t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
   dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
                 indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
   dplyr::filter(ProsedyreDato >= periode_data$forste_dato,
@@ -1020,21 +1035,21 @@ prep_fig_ventetid24t <- rbind(prep_figVentetid24t_nasjonalt,
 ```{r figVentetid24TFacetWrap, warning=FALSE, fig.width = 8, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap = cap}
 
 
-  cap <- paste0(
-    "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter ", 
-    "innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
-    "Figurene viser pasienter innlagt direkte på PCI-sykehus og pasienter ", 
-    "overflyttet fra annet sykehus hver for seg og samlet. ", 
-    "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
-    "Per måned, fra hele siste året til og med siste hele måned. ", 
-    "Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn ", 
-    "5 forløp vises ikke i diagrammet.")
+cap <- paste0(
+  "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter ", 
+  "innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
+  "Figurene viser pasienter innlagt direkte på PCI-sykehus og pasienter ", 
+  "overflyttet fra annet sykehus hver for seg og samlet. ", 
+  "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
+  "Per måned, fra hele siste året til og med siste hele måned. ", 
+  "Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn ", 
+  "5 forløp vises ikke i diagrammet.")
 
 
 ggplot2::ggplot(data = prep_fig_ventetid24t,
-                        aes(x = maaned,
-                            y = value,
-                            group = Sykehus)) +
+                aes(x = maaned,
+                    y = value,
+                    group = Sykehus)) +
   ggplot2::geom_line(aes(colour = Sykehus)) +
   ggplot2::geom_point(aes(colour = Sykehus))  +
   ggplot2::geom_hline(yintercept = 0.5,
@@ -1047,10 +1062,10 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
   ggplot2::coord_cartesian(ylim = c(0, 1)) +
   ggplot2::scale_y_continuous(breaks = seq(from = 0, to =1, length.out = 6),
                               labels = paste0(seq(from = 0, to =1, length.out = 6)*100, "%")) +
-
+  
   #xaksen
   ggplot2::scale_x_discrete(guide = guide_axis(angle = 45), name = "") +
-
+  
   #Layout
   ggplot2::theme(
     text = element_text(size = 14),
@@ -1059,20 +1074,20 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
     axis.text.x = element_text(angle=45, vjust =1, hjust=1 ),
     axis.title = ggplot2::element_blank(),
     axis.ticks = element_blank(),
-
+    
     
     legend.title = ggplot2::element_blank(),
     legend.position = "bottom",
     legend.background = ggplot2::element_blank(),
     legend.key = element_blank(), 
     legend.text = ggplot2::element_text(size = 14),
-
+    
     # Layout bacgroupd,
     panel.spacing.y = unit(2, "lines"),
     strip.background = element_blank(),
     # panel.background = element_rect(fill = "white", colour ="#cbcbcb"),
     panel.background = ggplot2::element_blank(),
-
+    
     #This removes all minor gridlines and adds major y gridlines.
     panel.grid.minor = ggplot2::element_blank(),
     panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"),
@@ -1080,8 +1095,8 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
     # # tab
     # plot.tag = ggplot2::element_text(
     #   margin = margin(t=40))
-
-)
+    
+  )
 
 
 
@@ -1092,7 +1107,7 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
 
 
 ```{r pagebreakVentetidNSTEMIfigSoyle, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 
 ```
 
@@ -1103,7 +1118,7 @@ ggplot2::ggplot(data = prep_fig_ventetid24t,
 
 # Per ÅR: Blant alle NSTEMI, antall komplette forløp (med gyldig tid)
 nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
   dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja") %>%
   janitor::tabyl(aar,
                  indik_nstemi_angio_innen24t,
@@ -1119,8 +1134,8 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
 ```{r prep_nstemi_year_lokalt, results='asis', warning=FALSE}
 
 
-  nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
-    dplyr::filter(AvdRESH %in% params$reshID) %>%
+nstemiAP_fra2018_lokalt <- aP_nasjonalt %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
   dplyr::filter(indik_nstemi_angio_innen24t_data %in% "ja",
                 indik_nstemi_angio_innen24t %in% c("ja", "nei")) %>%
   dplyr::filter(aar %in% 2018:periode_data$nyesteRegYear) %>%
@@ -1161,7 +1176,7 @@ nstemi_komplett_year_lokalt <- aP_nasjonalt %>%
       Type %in% "innen_24t_samlet" ~ "Samlet"  )) %>%
   
   
- dplyr::select(aar, name, value) %>%
+  dplyr::select(aar, name, value) %>%
   dplyr::group_by(aar, name) %>%
   dplyr::distinct()
 
@@ -1241,9 +1256,9 @@ nstemiAP_fra2018_nasjonalt <- aP_nasjonalt %>%
 
 ```{r prep_nstemi_year_nasjonalt_lokalt, results='asis', warning=FALSE}
 
-  timeTableYear_Samlet <- cbind(timeTableYear, name = "Samlet")
-  timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
-  timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
+timeTableYear_Samlet <- cbind(timeTableYear, name = "Samlet")
+timeTableYear_Direkte <- cbind(timeTableYear, name = "Direkte")
+timeTableYear_Overflyttet <- cbind(timeTableYear, name = "Overflyttet")
 
 timeTableYear_SDO <- rbind(timeTableYear_Samlet,
                            timeTableYear_Direkte,
@@ -1294,25 +1309,25 @@ ggplot2::ggplot(
   ggplot2::geom_hline(yintercept = 0.5, 
                       colour = colKontrast,
                       linetype = "dashed") +
-
+  
   ggplot2::facet_wrap(~name, nrow = 3 , scales = "free") +
   
-   # Y aksen
+  # Y aksen
   ggplot2::coord_cartesian(ylim = c(0, 1)) +
   ggplot2::scale_y_continuous(breaks = seq(from = 0, to =1, length.out = 6),
                               labels = paste0(seq(from = 0, to =1, length.out = 6)*100, "%")) +
-
+  
   # X-aksen
   ggplot2::scale_x_continuous(breaks = prep_figVentetid24t_year %>% 
-                             dplyr::select(aar) %>%
-                             dplyr::distinct() %>% 
-                             dplyr::pull(), 
-                            labels = prep_figVentetid24t_year %>% 
-                             dplyr::select(aar) %>%
-                             dplyr::distinct() %>% 
-                             dplyr::pull()) +
+                                dplyr::select(aar) %>%
+                                dplyr::distinct() %>% 
+                                dplyr::pull(), 
+                              labels = prep_figVentetid24t_year %>% 
+                                dplyr::select(aar) %>%
+                                dplyr::distinct() %>% 
+                                dplyr::pull()) +
   ggplot2::scale_fill_manual(values = c(colPrimary[5], colPrimary[2])) +
-
+  
   #Layout
   ggplot2::theme(
     text = element_text(size = 14),
@@ -1321,27 +1336,27 @@ ggplot2::ggplot(
     # axis.text.x = element_text(angle=45, vjust =1, hjust=1 ),
     axis.title = ggplot2::element_blank(),
     axis.ticks = element_blank(),
-
+    
     
     legend.title = ggplot2::element_blank(),
     legend.position = "bottom",
     legend.background = ggplot2::element_blank(),
     legend.key = element_blank(), 
     legend.text = ggplot2::element_text(size = 14),
-
+    
     # Layout bacgroupd (mellomrom plot)
     panel.spacing.y = unit(2, "lines"),
     panel.background = ggplot2::element_blank(), 
     panel.grid = ggplot2::element_line(color = "#cbcbcb"), 
     strip.background = element_blank(),
- 
+    
     #This removes all minor gridlines and adds major y gridlines.
     panel.grid.minor = ggplot2::element_blank(),
     panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"),
     panel.grid.major.x = ggplot2::element_blank()
     
-)
- 
+  )
+
 
 ```
 
@@ -1355,23 +1370,23 @@ ggplot2::ggplot(
 
 
 cap <- paste0(
-"Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter ", 
-"innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
-"Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og ", 
-"pasienter overflyttet fra annet sykehus. ", 
-"Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.", 
-"Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus ",
-"og tid for arteriepunksjon er registrert. ", 
-"For forløp der pasienten har blitt overført fra et annet sykehus, ", 
-"er komplett data der både tid for innleggelse i henvisende sykehus og tid for ", 
-"arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data ", 
-"eller færre enn 5 forløp blir markert med stjerne og andel forløp med ", 
-"ventetid under 72 timer beregnes ikke. (Målnivå: 80 \\%)"
+  "Antall og andel pasienter med indikasjon NSTEMI som innen 72 timer etter ", 
+  "innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
+  "Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og ", 
+  "pasienter overflyttet fra annet sykehus. ", 
+  "Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.", 
+  "Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus ",
+  "og tid for arteriepunksjon er registrert. ", 
+  "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
+  "er komplett data der både tid for innleggelse i henvisende sykehus og tid for ", 
+  "arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data ", 
+  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ", 
+  "ventetid under 72 timer beregnes ikke. (Målnivå: 80 \\%)"
 )
 
 
 nstemi_72t_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
   dplyr::filter(indik_nstemi_angio_innen72t_data %in% "ja") %>%
   janitor::tabyl(maaned,
                  indik_nstemi_angio_innen72t,
@@ -1444,7 +1459,7 @@ noric::mst(tab = tabVentetid72t,
 
 
 ```{r pagebreakVentetidNSTEMI72t, results = "asis", eval = (params$tableFormat == "latex")}
-  cat("\n\n\\pagebreak\n")
+cat("\n\n\\pagebreak\n")
 
 ```
 
@@ -1454,7 +1469,7 @@ if (params$rendered_by_shiny)
 ```
 
 
-`r if (params$reshID == 106944) {"<!--"}`
+`r if (params$reshId == 106944) {"<!--"}`
 
 # PCI innen 120 minutter ved STEMI
 
@@ -1470,7 +1485,7 @@ angir hvorvidt pasienten ble behandlet innnen 120 minutter eller ikke.
 Indikatoren er et  godt mål på logistikken ved behandling av denne
 pasientgruppen. 
 
-`r if (params$reshID == 106944) {"-->"}`
+`r if (params$reshId == 106944) {"-->"}`
 
 
 
@@ -1479,7 +1494,7 @@ pasientgruppen.
 
 ```{r tabIndikStemi, results='asis', warning=FALSE}
 
-if (params$reshID != 106944) {
+if (params$reshId != 106944) {
   
   cap <- paste0(
     "Antall og andel pasienter med indikasjon STEMI der tid for arteriepunksjon, ", 
@@ -1497,7 +1512,7 @@ if (params$reshID != 106944) {
   
   
   stemi_120min_lokalt <- aP_nasjonalt %>%
-    dplyr::filter(AvdRESH %in% params$reshID) %>%
+    dplyr::filter(AvdRESH %in% params$reshId) %>%
     dplyr::filter(indik_stemi_pci_innen2t_data %in% "ja") %>%
     janitor::tabyl(maaned,
                    indik_stemi_pci_innen2t,
@@ -1595,7 +1610,7 @@ cap <- paste0(
 
 #Lokal
 nTrykkmaalingAP <- aP_nasjonalt %>%
-  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
   dplyr::filter(indik_trykkmaaling_data %in% "ja") %>%
   dplyr::select(maaned,
                 indik_trykkmaaling) %>%
@@ -1685,7 +1700,7 @@ cap <- paste0("Antall og andel prosedyrer der det er brukt supplerende ",
 
 #Lokalt
 nStentVH <- aP_nasjonalt %>%
-  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
   dplyr::filter(indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
   dplyr::select(kvartal,
                 indik_ivus_oct_v_stent_lms) %>%
@@ -1694,16 +1709,16 @@ nStentVH <- aP_nasjonalt %>%
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
-
+    
     Prosent = paste0(round(ja / Totalt * 100, 1), " %"),
     Totalt = ifelse(Totalt < 5,
                     yes = "N",
                     no = Totalt),
-
+    
     utfortIvusOct = ifelse(Totalt %in% "N",
                            yes = NA,
                            no = ja),
-
+    
     Prosent = ifelse(Totalt %in% "N",
                      yes = NA,
                      no = Prosent)) %>%
@@ -1778,7 +1793,7 @@ cap <- paste0("Antall og andel pasienter per opphold der det er dokumentert ",
               "markert med N.")
 
 blodfortynnende_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
   dplyr::filter(indik_blodfortynnende_data %in% "ja") %>%
   janitor::tabyl(maaned,
                  indik_blodfortynnende,
@@ -1869,7 +1884,7 @@ cap <- paste0(
 
 #Lokalt
 kolesterolsenkende_lokalt <- aP_nasjonalt %>%
-  dplyr::filter(AvdRESH %in% params$reshID) %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
   dplyr::filter(indik_kolesterolsenkende_data %in% "ja") %>%
   janitor::tabyl(maaned,
                  indik_kolesterolsenkende,
@@ -1960,7 +1975,7 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     "permanente pacemaker for disse.")
   
   prep_tab_pacemaker_lokalt <- aK_nasjonalt %>%
-    dplyr::filter(AvdRESH %in% params$reshID) %>%
+    dplyr::filter(AvdRESH %in% params$reshId) %>%
     dplyr::filter(indik_pacemakerbehov_data  %in% "ja") %>%
     janitor::tabyl(kvartal,
                    indik_pacemakerbehov,
@@ -2022,6 +2037,10 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
              align = rep("c", 4), 
              label = "tabPacemakerBehov")
 }
+```
+
+```{r include = FALSE}
+gc(verbose = TRUE) # garbage collection to free up memory
 ```
 
 ```{r }

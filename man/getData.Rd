@@ -3,46 +3,84 @@
 \name{getData}
 \alias{getData}
 \alias{getAp}
-\alias{getSo}
-\alias{getAk}
-\alias{getFo}
-\alias{getAnP}
 \alias{getCt}
+\alias{getAk}
 \alias{getAkOppf}
+\alias{getAnP}
 \alias{getAnD}
 \alias{getSs}
-\alias{getSh}
 \alias{getMk}
+\alias{getTaviProm}
+\alias{getSh}
+\alias{getFo}
+\alias{getSo}
 \alias{getPs}
 \alias{getApLight}
-\alias{getTaviProm}
+\alias{getMergeReportMce}
+\alias{getMergeReportPid}
+\alias{getMergeReportSegmentId}
+\alias{getAngioAssistent}
+\alias{getPciAssistent}
+\alias{getPI}
+\alias{getRawData}
+\alias{getDk}
 \title{Load data for NORIC}
 \usage{
-getAp(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getAp(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getSo(registryName, fromDate, toDate, singleRow, ...)
+getCt(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getAk(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getAk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getFo(registryName, fromDate, toDate, singleRow, ...)
+getAkOppf(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getAnP(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getAnP(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getCt(registryName, fromDate, toDate, singleRow, ...)
+getAnD(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getAkOppf(registryName, fromDate, toDate, singleRow, ...)
+getSs(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getAnD(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getMk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getSs(registryName, fromDate, toDate, singleRow, singleHospital = NULL, ...)
+getTaviProm(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getMk(registryName, fromDate, toDate, singleRow, ...)
+getFo(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getPs(registryName, fromDate, toDate, singleRow, ...)
+getSo(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getApLight(registryName, fromDate, toDate, singleRow, ...)
+getPs(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
-getTaviProm(registryName, fromDate, toDate, singleRow, ...)
+getApLight(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
+
+getDk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
+
+getMergeReportMce(registryName)
+
+getMergeReportPid(registryName)
+
+getMergeReportSegmentId(registryName)
+
+getPciAssistent(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
+
+getAngioAssistent(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
+
+getPI(registryName, ...)
+
+getRawData(registryName, tableName, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
@@ -56,8 +94,8 @@ NULL if no filter on date.}
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE.}
 
-\item{singleHospital}{if only data from one hospital, when national database. 
-Default value is NULL, contains reshID of selected hospital else.}
+\item{singleHospital}{Integer. Contains reshID from which data is loaded. 
+Value 0 is national.}
 
 \item{...}{Optional arguments to be passed to the function.}
 }
@@ -72,5 +110,5 @@ Functions for loading data needed by NORIC from a database
 \details{
 The functions \code{getAp}, \code{getSs}, \code{getAk} etc. load the
 AP-, SS- and AK- tables etc. respectively. For most tables, the query adds
-selected variables from  \emph{forlopsoversikt}.
+selected variables from other tables e.g. \emph{patient}.
 }

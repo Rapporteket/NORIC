@@ -3,18 +3,18 @@
 \name{getPrepData}
 \alias{getPrepData}
 \alias{getPrepApData}
-\alias{getPrepSoData}
-\alias{getPrepAkData}
-\alias{getPrepFoData}
-\alias{getPrepAnPData}
 \alias{getPrepCtData}
+\alias{getPrepAkData}
 \alias{getPrepAkOppfData}
+\alias{getPrepAnPData}
 \alias{getPrepAnDData}
 \alias{getPrepSsData}
 \alias{getPrepMkData}
+\alias{getPrepTaviPromData}
+\alias{getPrepFoData}
+\alias{getPrepSoData}
 \alias{getPrepPsData}
 \alias{getPrepApLightData}
-\alias{getPrepTaviPromData}
 \title{Data managment on tables}
 \usage{
 getPrepApData(
@@ -22,42 +22,70 @@ getPrepApData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
-getPrepSoData(registryName, fromDate, toDate, singleRow, ...)
+getPrepSoData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 
 getPrepAkData(
   registryName,
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
-getPrepFoData(registryName, fromDate, toDate, singleRow, ...)
+getPrepFoData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 
 getPrepAnPData(
   registryName,
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
-getPrepCtData(registryName, fromDate, toDate, singleRow, ...)
+getPrepCtData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 
-getPrepAkOppfData(registryName, fromDate, toDate, singleRow, ...)
+getPrepAkOppfData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 
 getPrepAnDData(
   registryName,
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
@@ -66,17 +94,45 @@ getPrepSsData(
   fromDate,
   toDate,
   singleRow,
-  singleHospital = NULL,
+  singleHospital = 0,
   ...
 )
 
-getPrepMkData(registryName, fromDate, toDate, singleRow, ...)
+getPrepMkData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 
-getPrepPsData(registryName, fromDate, toDate, singleRow, ...)
+getPrepPsData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 
-getPrepApLightData(registryName, fromDate, toDate, singleRow, ...)
+getPrepApLightData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 
-getPrepTaviPromData(registryName, fromDate, toDate, singleRow, ...)
+getPrepTaviPromData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
 }
 \arguments{
 \item{registryName}{String providing the registry name}
@@ -95,8 +151,8 @@ for NORIC.}
 relevant usecase will be when only description is needed. By default set to
 FALSE}
 
-\item{singleHospital}{if only data from one hospital, when national database. 
-Default value is NULL, contains reshID of selected hospital else.}
+\item{singleHospital}{Integer. Contains reshID from which data is loaded. 
+Value 0 is national.}
 
 \item{...}{Optional arguments to be passed to the function}
 }

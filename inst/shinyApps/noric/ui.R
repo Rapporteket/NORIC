@@ -1,229 +1,113 @@
 library(lubridate)
 library(magrittr)
-library(rapbase)
 library(rpivotTable)
 library(shiny)
 library(shinyalert)
 library(shinycssloaders)
 
 
-addResourcePath("rap", system.file("www", package = "rapbase"))
 regTitle <- "NORIC"
 
-ui <- tagList(
-  navbarPage(
-    title = div(a(includeHTML(system.file("www/logo.svg",
-                                          package = "rapbase"))),
-                regTitle),
+ui <- shiny::tagList(
+  shiny::navbarPage(
+    title = rapbase::regTitle(regTitle),
     windowTitle = regTitle,
-    theme = "rap/bootstrap.css",
+    theme = rapbase::rapTheme(),
     id = "tabs",
     
-    tabPanel("Start",
-             rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
-             mainPanel(width = 12,
-                       htmlOutput("veiledning", inline = TRUE),
-                       tags$head(tags$link(rel = "shortcut icon", href = "rap/favicon.ico"))
-             )
+    shiny::tabPanel(
+      title = "Start",
+      rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
+      shiny::uiOutput("startTab")
+    ),
+    shiny::tabPanel(
+      title = "Utforsker",
+      shiny::uiOutput("utforskerTab")
     ),
     
-    tabPanel("Utforsker",
-             fluidRow(
-               column(6, uiOutput("selectDataSet")),
-               column(6, uiOutput("utforskerDateRange"))),
-             fluidRow(
-               column(12, 
-                      uiOutput("selectVars"))),
-             fluidRow(
-               column(12, uiOutput("togglePivotSurvey"))
-             ),
-             fluidRow(
-               column(12,
-                      rpivotTableOutput("pivotSurvey")
-               )
-             )
+    
+    shiny::tabPanel(
+      title = "Kodebok",
+      shiny::uiOutput("kodebokTab")
     ),
-    
-    shiny::tabPanel("Kodebok",
-                    sidebarLayout(
-                      sidebarPanel(uiOutput("kbControl"), width = 2),
-                      mainPanel(htmlOutput("kbdData"))
-                    )),
-    
-    
     
     
     shiny::navbarMenu(
       title = "Månedsrapporter",
-     
-       tabPanel(
-        "Invasive prosedyrer",
-        sidebarLayout(
-          sidebarPanel(
-            style = "position:fixed;width:130px;",
-            h5("Last ned rapporten (pdf)"),
-            downloadButton("downloadReportProsedyrer", "Hent!"),
-            width = 2
-          ),
-          mainPanel(
-            htmlOutput("prosedyrer", inline = TRUE)
-          )
-        )
+      
+      shiny::tabPanel(
+        title = "Invasive prosedyrer",
+        shiny::uiOutput("prosedyrerReport")
       ),
       
-      tabPanel(
-        "Angiografør/Operatør",
-        sidebarLayout(
-          sidebarPanel(
+      shiny::tabPanel(
+        title = "Angiografør/Operatør",
+        shiny::uiOutput("angioReport")
+      ),
+      
+      shiny::tabPanel(
+        title = "Aortaklaff",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
             style = "position:fixed;width:130px;",
             h5("Last ned rapporten (pdf)"),
-            downloadButton("downloadReportAktivitet", "Hent!"),
-            width = 2),
-          mainPanel(
-            htmlOutput("aktivitet", inline = TRUE)
-          )
-        )
-      ), 
-      
-      
-      tabPanel(
-        "Aortaklaff",
-        sidebarLayout(
-          sidebarPanel(
-            style = "position:fixed;width:130px;",
-            h5("Last ned rapporten (pdf)"),
-            downloadButton("downloadReportTavi", "Hent!"),
+            shiny::downloadButton("downloadReportTavi", "Hent!"),
             width = 2
           ),
-          mainPanel(
-            htmlOutput("tavi", inline = TRUE)
-          )
-        )
-      )
-      
-      ) ,
-
-    
-    
-    shiny::tabPanel("Datadump",
-                    shiny::sidebarLayout(
-                      shiny::sidebarPanel(
-                        width = 4,
-                        shiny::uiOutput(outputId = "selectDumpSet"),
-                        shiny::dateRangeInput(
-                          inputId = "dumpDateRange", 
-                          label = "Velg periode:",
-                          start = ymd(Sys.Date()) - years(1),
-                          end = Sys.Date(), separator = "-",
-                          weekstart = 1),
-                        shiny::radioButtons(inputId = "dumpFormat",
-                                            label = "Velg filformat:",
-                                            choices = c("csv", "xlsx-csv")),
-                        shiny::downloadButton(outputId = "dumpDownload",
-                                              label =  "Hent!")
-                      ),
-                      mainPanel(
-                        htmlOutput("dataDumpInfo") 
-                      )
-                    )
+          shiny::mainPanel(
+            shiny::htmlOutput("tavi", inline = TRUE))))
     ),
-
+    
+    
+    shiny::navbarMenu(
+      title = "Datadump",
+      
+      shiny::tabPanel(
+        title = "Datasett",
+        shiny::uiOutput("datadumpTab")
+      ), 
+      shiny::tabPanel(
+        title = "Rawdata",
+        shiny::uiOutput("datadumpRaw")
+      ) 
+    ),
+    
+    
     shiny::tabPanel(
-      "Abonnement",
+      title = "Abonnement",
       shiny::sidebarLayout(
         shiny::sidebarPanel(
           rapbase::autoReportInput("noricSubscription")
         ),
         shiny::mainPanel(
-          rapbase::autoReportUI("noricSubscription")
-        )
-      )
+          rapbase::autoReportUI("noricSubscription")))
     ),
-
+    
     shiny::navbarMenu(
-      "Verktøy",
-
-      tabPanel("Lag nasjonal database",
-               sidebarLayout(
-                 sidebarPanel(uiOutput("nationalControl")),
-                 mainPanel(
-                  shiny::p(
-                    shiny::em("Her er det foreløpig ikke noe informasjon.")
-                  )
-                 )
-               )
-      ),
-
-      tabPanel("Metadata",
-               sidebarLayout(
-                 sidebarPanel(uiOutput("metaControl")),
-                 mainPanel(htmlOutput("metaData"))
-               )
-      ),
-      
+      title = "Verktøy",
       shiny::tabPanel(
-        "Utsending",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            rapbase::autoReportOrgInput("noricDispatch"),
-            rapbase::autoReportInput("noricDispatch")
-          ),
-          shiny::mainPanel(
-            rapbase::autoReportUI("noricDispatch")
-          )
-        )
+        title = "Metadata",
+        shiny::uiOutput("metadataTab")
       ),
-
-
-      tabPanel("Nedlasting rapporter",
-               sidebarLayout(
-                 sidebarPanel(
-                   uiOutput("dwnldControlRap"), 
-                   uiOutput("dwnldControl")),
-                 mainPanel(
-                   htmlOutput("dwldInfo"),
-                   downloadButton("dwnldReport", "Hent rapport!"))
-               )
-      ),
-
       shiny::tabPanel(
-        "Bruksstatistikk",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            rapbase::statsInput("noricStats"),
-            rapbase::statsGuideUI("noricStatsGuide")
-          ),
-          shiny::mainPanel(rapbase::statsUI("noricStats"))
-        )
+        title = "Utsending",
+        shiny::uiOutput("dispatchTab")
       ),
-
       shiny::tabPanel(
-        "Eksport",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(rapbase::exportUCInput("noricExport")),
-          shiny::mainPanel(rapbase::exportGuideUI("noricExportGuide"))
-        )
-      ), 
-
-
+        title = "Nedlasting rapporter",
+        shiny::uiOutput("dwnldReportTab")
+      ),
+      shiny::tabPanel(
+        title = "Bruksstatistikk",
+        shiny::uiOutput("statsTab")
+      ),
+      shiny::tabPanel(
+        title = "Eksport",
+        shiny::uiOutput("exportTab")
+      ),
       shiny::tabPanel(
         title = "Staging data",
-        shiny::titlePanel("Liste alle staging data"),
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(htmlOutput("stagingControl")),
-          shiny::mainPanel(DT::dataTableOutput("stagingDataTable"))
-        ),
-        br(),
-        shiny::titlePanel("Regelmessing etablering av staging data"),
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            rapbase::autoReportOrgInput("noricBulletin"),
-            rapbase::autoReportInput("noricBulletin")
-          ),
-          shiny::mainPanel(
-            rapbase::autoReportUI("noricBulletin")
-          )
-        )
+        shiny::uiOutput("stagingTab")
       )
     )
   )

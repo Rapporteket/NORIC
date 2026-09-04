@@ -4,7 +4,7 @@
 \alias{getDataDump}
 \title{Query data for dumps}
 \usage{
-getDataDump(registryName, tableName, fromDate, toDate, ...)
+getDataDump(registryName, tableName, fromDate, toDate, singleHospital, ...)
 }
 \arguments{
 \item{registryName}{String registry name}
@@ -16,6 +16,9 @@ NULL if no filter on date.}
 
 \item{toDate}{Character string of format YYYY-MM-DD with end date. Value
 NULL if no filter on date.}
+
+\item{singleHospital}{Integer. Contains reshID from which data is loaded. 
+Value 0 is national.}
 
 \item{...}{Additional parameters to be passed to the function}
 }

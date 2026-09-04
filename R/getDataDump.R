@@ -6,16 +6,19 @@
 #' NULL if no filter on date.
 #' @param toDate Character string of format YYYY-MM-DD with end date. Value
 #' NULL if no filter on date.
+#' @param singleHospital Integer. Contains reshID from which data is loaded. 
+#' Value 0 is national. 
 #' @param ... Additional parameters to be passed to the function
 #' @return A data frame with registry data
 #' @export
 
-getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
+getDataDump <- function(registryName, tableName, fromDate, toDate, 
+                        singleHospital, ...) {
   
   stopifnot(tableName %in% c("AngioPCIVar",
                              "SkjemaOversikt",
                              "AortaklaffVar",
-                             "ForlopsOversikt",
+                             "ForlopsOversikt_ignorererKaldender",
                              "AndreProsedyrerVar",
                              "CTAngioVar",
                              "AortaklaffOppfVar",
@@ -23,15 +26,23 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              "SegmentStent",
                              # "segment_history",
                              "MitralklaffVar",
-                             "PasienterStudier", 
-                             "AortaklaffProm"))
+                             "PasienterStudier_ignorerKalender", 
+                             "AortaklaffProm", 
+                             "UtskrDiagnoser", 
+                             "MergeReportFID", 
+                             "MergeReportPID", 
+                             "MergeReportSegmentId", 
+                             "angio_assistent", 
+                             "pci_assistent", 
+                             "Pasientinfo"))
   
   
   if (tableName %in% "AngioPCIVar"){
     tab_list <- noric::getAp(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = FALSE)
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
     
     tab <- tab_list$aP
   }
@@ -40,7 +51,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getSo(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = FALSE)
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
     tab <- tab_list$sO
   }
   
@@ -48,15 +60,17 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getAk(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = FALSE)
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
     tab <- tab_list$aK
   }
   
-  if (tableName %in% "ForlopsOversikt") {
+  if (tableName %in% "ForlopsOversikt_ignorererKaldender") {
     tab_list <- noric::getFo(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = FALSE)
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
     tab <- tab_list$fO
   }
   
@@ -64,7 +78,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getAnP(registryName = registryName,
                               fromDate = fromDate,
                               toDate = toDate,
-                              singleRow = FALSE)
+                              singleRow = FALSE,
+                              singleHospital = singleHospital)
     tab <- tab_list$anP
   }
   
@@ -72,7 +87,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getCt(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = FALSE)
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
     tab <- tab_list$cT
   }
   
@@ -80,7 +96,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getAkOppf(registryName = registryName,
                                  fromDate = fromDate,
                                  toDate = toDate,
-                                 singleRow = FALSE)
+                                 singleRow = FALSE,
+                                 singleHospital = singleHospital)
     tab <- tab_list$aKoppf
   }
   
@@ -88,7 +105,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getAnD(registryName = registryName,
                               fromDate = fromDate,
                               toDate = toDate,
-                              singleRow = FALSE)
+                              singleRow = FALSE,
+                              singleHospital = singleHospital)
     tab <- tab_list$anD
   }
   
@@ -96,7 +114,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getSs(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = FALSE)
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
     tab <- tab_list$sS
   }
   
@@ -105,15 +124,17 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getMk(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = FALSE)
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
     tab <- tab_list$mK
   }
   
-  if (tableName %in% "PasienterStudier") {
+  if (tableName %in% "PasienterStudier_ignorerKalender") {
     tab_list <- noric::getPs(registryName = registryName,
                              fromDate = fromDate,
                              toDate = toDate,
-                             singleRow = FALSE)
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
     tab <- tab_list$pS
   }
   
@@ -122,20 +143,54 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
     tab_list <- noric::getTaviProm(registryName = registryName,
                                    fromDate = fromDate,
                                    toDate = toDate,
-                                   singleRow = FALSE)
+                                   singleRow = FALSE,
+                                   singleHospital = singleHospital)
     tab <- tab_list$taviProm
-    
+  }
+  
+  if (tableName %in% "UtskrDiagnoser") {
+    tab_list <- noric::getDk(registryName = registryName,
+                             fromDate = fromDate,
+                             toDate = toDate,
+                             singleRow = FALSE,
+                             singleHospital = singleHospital)
+    tab <- tab_list$dK
+  }
+  
+  if (tableName %in% "MergeReportFID") {
+    tab <- noric::getMergeReportMce(registryName = registryName)$d_merger_report_mce
   }
 
-  # if (tableName %in% "segment_history") {
-  #   tab_list <- noric::getSh(registryName = registryName,
-  #                                  fromDate = fromDate,
-  #                                  toDate = toDate,
-  #                                  singleRow = FALSE)
-  #   tab <- tab_list$sH
-  # 
-  # }
+  if (tableName %in% "MergeReportPID") {
+    tab <- noric::getMergeReportPid(registryName = registryName)$d_merger_report_pid
+  }
 
+  
+  if (tableName %in% "MergeReportSegmentId") {
+    tab <- noric::getMergeReportSegmentId(registryName = registryName)$d_merger_report_sid
+  }
+  
+  if (tableName %in% "angio_assistent") {
+    tab <- noric::getAngioAssistent(registryName = registryName, 
+                                    fromDate = fromDate,
+                                    toDate = toDate, 
+                                    singleRow = FALSE,
+                                    singleHospital = singleHospital)$dAngioAss
+  }
+  if (tableName %in% "pci_assistent") {
+    tab <- noric::getPciAssistent(registryName = registryName, 
+                                  fromDate = fromDate,
+                                  toDate = toDate, 
+                                  singleRow = FALSE,
+                                  singleHospital = singleHospital)$dPciAss
+  }
+  if (tableName %in% "Pasientinfo"){
+    tab <- noric::getPI(registryName = registryName)$d_patientinfo
+  }
+  
   tab
+  
+  tab
+  
   
 }

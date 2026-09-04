@@ -11,7 +11,8 @@ getPivotDataSet(
   session,
   userRole,
   fromDate,
-  toDate
+  toDate,
+  singleHospital
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ By default set to FALSE}
 \item{fromDate}{first date to fetch}
 
 \item{toDate}{last date to fetch}
+
+\item{singleHospital}{AvdRESH to fetch data from}
 }
 \value{
 data frame
