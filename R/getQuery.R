@@ -57,7 +57,7 @@ queryAngiopcinum <- function(){
      A.WEIGHT AS Vekt,
      A.SKREATININ AS SKreatinin,
      A.TIDPCI  AS TidlPCI,
-     A.TIDCABG  AS TidlABC,
+     A.TIDCABG  AS TidlACB,
      A.SMOKING_STATUS  AS RoykeStatus,
      A.HYPERTON  AS BehHypertoni,
      A.STATINS AS Statiner,
