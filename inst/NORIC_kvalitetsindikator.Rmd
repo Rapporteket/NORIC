@@ -105,11 +105,7 @@ periode_data <- data.frame(
     noric::getLatestEntry(registryName = params$registryName))) %>% 
   
   dplyr::mutate(
-    
-    dplyr::mutate(
-      
-      
-      
+  
       # SISTE DATO AVGJØR SISTE MÅNED: 
       siste_dato_innevarende_mnd = lubridate::ceiling_date(
         x = nyeste_reg, 
@@ -127,8 +123,7 @@ periode_data <- data.frame(
         
         TRUE ~ as.Date(NA_character_)),
       
-      
-      
+    
       
       # SISTE DATO AVGJØR SISTE KVARTAL
       siste_dato_innevarende_kvartal = lubridate::ceiling_date(
@@ -154,30 +149,21 @@ periode_data <- data.frame(
       nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
       
       # Fjoråret
+      sisteHeleYear = nyesteRegYear - 1,
+      
+      # Inneværende år: 
+      nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+      
+      # Fjoråret
       sisteHeleYear = nyesteRegYear - 1, 
       
-      # siste dato i kvartalet er ulik nyeste dato -->bruk forrige kvartal
-      siste_dato_innevarende_kvartal != nyeste_reg ~ 
-        lubridate::floor_date(nyeste_reg, 
-                              unit =  "quarter") - months(3), 
+      # Første dato for SQL -spørring : 01. januar fjoråret
+      forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                             format = "%Y-%m-%d"), 
       
-      TRUE ~ as.Date(NA_character_)),
-    
-    
-    
-    # Inneværende år: 
-    nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
-    
-    # Fjoråret
-    sisteHeleYear = nyesteRegYear - 1, 
-    
-    # Første dato for SQL -spørring : 01. januar fjoråret
-    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-                           format = "%Y-%m-%d"), 
-    
-    # Aortaklaff + Segment stent (indikator per kvartal): 
-    forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
-                                format = "%Y-%m-%d")
+      # Aortaklaff + Segment stent (indikator per kvartal): 
+      forste_dato_ak_ss = as.Date(paste0(sisteHeleYear -1, "-01-01"),
+                                  format = "%Y-%m-%d")
   ) %>% 
   dplyr::select(-siste_dato_innevarende_mnd, 
                 -siste_dato_innevarende_kvartal)
