@@ -5,6 +5,7 @@ Diverse fiks
 * Gruppering av klaffetyper er endret.
 * Variabelen TidlABC er endret til TidlACB i angio/PCI-tabellen
 * Fiks av mapping-filen til segment stent
+* Slått sammen gammel og ny variabeler for Malignitet og Stralebehandling i TAVI-modulen
 
 
 # noric 4.4.0 Nedlasting rawdata
