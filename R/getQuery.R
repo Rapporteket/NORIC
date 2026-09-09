@@ -57,7 +57,7 @@ queryAngiopcinum <- function(){
      A.WEIGHT AS Vekt,
      A.SKREATININ AS SKreatinin,
      A.TIDPCI  AS TidlPCI,
-     A.TIDCABG  AS TidlABC,
+     A.TIDCABG  AS TidlACB,
      A.SMOKING_STATUS  AS RoykeStatus,
      A.HYPERTON  AS BehHypertoni,
      A.STATINS AS Statiner,
@@ -668,10 +668,16 @@ queryAortaklaffvarnum <- function(){
     T.PERC_VALVE_RISK_FORMER_ACB AS PerkKlaffPgaRisikoACB,
     T.COUNTERINDICATION AS PerkKlaffPgaRisikoSpesiell,
     T.OTHERMORBREASON0 AS Porselenaorta,
-    T.OTHERMORBREASON1 AS Malignitet,
+    CASE
+      WHEN T.PREVIOUS_ILLNESS_MALIGNANCY IS NULL THEN T.OTHERMORBREASON1
+      ELSE T.PREVIOUS_ILLNESS_MALIGNANCY
+    END AS Malignitet,
     T.OTHERMORBREASON3 AS UgunstigAnatomi,
     T.OTHERMORBREASON2 AS Steroidbehandling,
-    T.OTHERMORBREASON4 AS Stralebehandling,
+    CASE
+      WHEN T.PREVIOUS_ILLNESS_RADIATION_THERAPY IS NULL THEN T.OTHERMORBREASON4
+      ELSE T.PREVIOUS_ILLNESS_RADIATION_THERAPY
+    END AS Stralebehandling,
     T.OTHERMORBREASON5 AS Thoraxdeformitet,
     T.OTHERMORB AS AnnenAlvorligSykdomKirRisiko,
     T.PERC_VALVE_DUE_TO_PATIENT AS PerkKlaffPgaPasient,
@@ -2035,7 +2041,7 @@ queryApLight <- function(){
      A.WEIGHT AS Vekt,
      A.SKREATININ AS SKreatinin,
      A.TIDPCI  AS TidlPCI,
-     A.TIDCABG  AS TidlABC,
+     A.TIDCABG  AS TidlACB,
      A.SMOKING_STATUS  AS RoykeStatus,
      A.HYPERTON  AS BehHypertoni,
      A.STATINS AS Statiner,

@@ -61,7 +61,7 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
     PDPA = c(rep(NA, 9), "Ja","Ja", "Ja" , "Ukjent", "Nei", "Nei", rep(NA, 10)),
     PA_Hyperemi = c(rep(NA, 9), "Ja","Ja", "Nei" , "Ukjent","Nei", "Nei", rep(NA, 10)),
     PD_Hyperemi = c(rep(NA, 9), "Ja", "Nei", "Nei", "Ukjent", "Ja", rep(NA, 11)),
-    TidlABC = c("Nei", rep("Ja", 4),
+    TidlACB = c("Nei", rep("Ja", 4),
                 rep(c("Nei", "Ukjent", NA_character_), 3),
                 rep(NA_character_, 11)),
     SEGMENT1 = c(rep(2, 21), 1, 1, rep(2, 2)),
@@ -97,7 +97,7 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
       "FFR",
       "IFR",
       "IMR", "PDPA", "PA_Hyperemi", "PD_Hyperemi",
-      "TidlABC", 
+      "TidlACB", 
       paste0("SEGMENT", 1:20), 
       "AnnenDiagHovedSpm",
       "indik_trykkmaaling_data",
@@ -110,7 +110,7 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
                       Indikasjon %in% c("Stabil koronarsykdom") & 
                        dplyr::if_any(
                          (SEGMENT1:SEGMENT20),~.x %in% 2:5) &
-                      TidlABC %in% c("Nei", "Ukjent", NA_character_)) %>%
+                      TidlACB %in% c("Nei", "Ukjent", NA_character_)) %>%
       dplyr::pull(indik_trykkmaaling_data) == "ja"))
   
   testthat::expect_true(all(
@@ -121,7 +121,7 @@ testthat::test_that("ki_trykkmaaling_utfoert works", {
                                                      format = "%d-%d-%Y") |
                       dplyr::if_any(
                         (SEGMENT1:SEGMENT20),~.x %in% c(0,1,6, NA)) |
-                      TidlABC == "Ja") %>%
+                      TidlACB == "Ja") %>%
       dplyr::pull(indik_trykkmaaling_data) == "nei"))
   
   
@@ -228,7 +228,7 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                        "NSTEMI",
                        "NoeTull!",
                        NA_character_), 3),
-    TidlABC = c(rep("Ja", 10),
+    TidlACB = c(rep("Ja", 10),
                 rep(c("Nei", "Ukjent", NA_character_), 6),
                 NA_character_, NA_character_),
     IVUS = rep(c("Ja", "Ja", "Nei", "Ukjent", NA_character_), 6),
@@ -262,7 +262,7 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                          c("AvdRESH",
                            "ForlopsID",
                            "Indikasjon",
-                           "TidlABC",
+                           "TidlACB",
                            "IVUS",
                            "OCT",
                            "AnnenDiagHovedSpm",
@@ -289,11 +289,11 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
       dplyr::filter(indik_ivus_oct_v_stent_lms_data == "ja") %>%
       dplyr::pull(satt_inn_stent_i_LMS) == "ja"))
   
-  # Forventer disse verdiene av TidlABC dersom datagrunnlag = ja
+  # Forventer disse verdiene av TidlACB dersom datagrunnlag = ja
   testthat::expect_true(all(
     x_out %>%
       dplyr::filter(indik_ivus_oct_v_stent_lms_data == "ja") %>%
-      dplyr::pull(TidlABC) %in% c("Ukjent", "Nei", NA)))
+      dplyr::pull(TidlACB) %in% c("Ukjent", "Nei", NA)))
   
   
   
@@ -310,10 +310,10 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
                                              "NSTEMI")) %>%
       dplyr::pull(indik_ivus_oct_v_stent_lms_data)  == "nei"))
   
-  # Forventer at datagrunnlag er nei, dersom disse verdiene av TidlABC
+  # Forventer at datagrunnlag er nei, dersom disse verdiene av TidlACB
   testthat::expect_true(all(
     x_out %>%
-      dplyr::filter(!TidlABC %in% c("Nei", "Ukjent", NA)) %>%
+      dplyr::filter(!TidlACB %in% c("Nei", "Ukjent", NA)) %>%
       dplyr::pull(indik_ivus_oct_v_stent_lms_data)  == "nei"))
   
   # Forventer at datagrunnlag er nei, dersom stent ikke satt inn
@@ -365,7 +365,7 @@ test_that("ki_ivus_oct_ved_stenting_lms works", {
     noric::ki_ivus_oct_ved_stenting_lms(
       df_ap = data.frame(Indikasjon = "Stabil koronarsykdom",
                          satt_inn_stent_i_LMS = "ja",
-                         TidlABC = "Nei",
+                         TidlACB = "Nei",
                          IVUS = "Ja",
                          OOCT = "Nei")))
   

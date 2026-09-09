@@ -257,7 +257,7 @@ aP_nasjonalt %<>%
     AnnenDiagHovedSpm,
     Antikoagulantia,
     UtskrStatiner,
-    TidlABC,
+    TidlACB,
     contains("SEGMENT"), 
     UtskrevetDod,
     SkjemaStatusStart,
