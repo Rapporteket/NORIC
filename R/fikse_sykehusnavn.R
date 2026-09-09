@@ -30,5 +30,5 @@ fikse_sykehusnavn <- function(df) {
       AvdRESH == 101619 ~ "UNN Tromsø",
       AvdRESH == 0 ~ "Nasjonal",
       TRUE ~ NA_character_)) %>%
-    dplyr::relocate(.data$Sykehusnavn, .after = .data$AvdRESH)
+    dplyr::relocate(Sykehusnavn, .after = AvdRESH)
 }

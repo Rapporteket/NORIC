@@ -53,6 +53,7 @@ export(getPrepTaviPromData)
 export(getPresentHospitalsAk)
 export(getPresentHospitalsAp)
 export(getPs)
+export(getRawData)
 export(getSo)
 export(getSs)
 export(getTaviProm)
@@ -100,6 +101,7 @@ export(queryMitralklaffvarnum)
 export(queryPasienterstudier)
 export(queryPatientInfo)
 export(queryPciLabassistent)
+export(queryRawData)
 export(querySegmentstentnum)
 export(querySkjemaoversikt)
 export(queryTaviprom)
@@ -115,19 +117,27 @@ export(utlede_kar_annen_diag)
 export(utlede_kar_graft_segment_stent)
 export(utlede_kar_segment_stent)
 export(utlede_lab_avd_dod_noric)
-importFrom(dplyr,filter)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,mutate_all)
-importFrom(dplyr,select)
-importFrom(lubridate,isoweek)
-importFrom(lubridate,month)
-importFrom(lubridate,quarter)
-importFrom(lubridate,year)
-importFrom(lubridate,ymd)
-importFrom(magrittr,"%$%")
-importFrom(magrittr,"%<>%")
-importFrom(magrittr,"%>%")
-importFrom(rlang,":=")
-importFrom(rlang,.data)
+importFrom(dplyr,
+  filter,
+  left_join,
+  mutate,
+  mutate_all,
+  select
+)
+importFrom(lubridate,
+  isoweek,
+  month,
+  quarter,
+  year,
+  ymd
+)
+importFrom(magrittr,
+  "%$%",
+  "%<>%",
+  "%>%"
+)
+importFrom(rlang,
+  ":=",
+  .data
+)
 importFrom(stats,setNames)
