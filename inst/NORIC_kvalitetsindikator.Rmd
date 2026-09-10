@@ -1050,7 +1050,6 @@ prep_figVentetid24t_year <-
 
 ```{r figVentetid24TSamletAar, warning=FALSE, fig.width = 8, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=cap}
 
-
 cap <- paste0(
   "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse ",
   "i sykehus har blitt utredet med invasiv koronar angiografi. ", 
@@ -1211,15 +1210,6 @@ noric::mst(tab = tabVentetid72t,
 ```
 
 
-
-
-
-
-
-
-
-
-
 ```{r pagebreakVentetidNSTEMI72t, results = "asis", eval = (params$tableFormat == "latex")}
 cat("\n\n\\pagebreak\n")
 
@@ -1351,20 +1341,24 @@ innsnevringer har vist seg
 ikke og hvorvidt det bør utføres utblokking av åren eller ei. Europeiske
 retningslinjer har en sterk anbefaling om bruk av nevnte metoder. Indikatoren
 viser antall og andel prosedyrer der det har blitt utført trykkmåling ved
-kransårerøntgen hos pasienter med stabil angina pectoris. Tabell
+kransårerøntgen hos pasienter med stabil angina pectoris og der angiografi 
+viser minst ett segment med stenosegrad mellom 30 - 99 %. Tabell
 \@ref(tab:TabNtrykkmaaling) viser måloppnåelse per måned for 
 `r params$hospitalName` og nasjonalt (Mål $\geq$ 30 %). 
+
+
 
 
 ```{r TabNtrykkmaaling, results='asis', warning=FALSE}
 
 cap <- paste0(
   "Antall og andel prosedyrer der det ved indikasjon stabil ",
-  "koronarsykdom har blitt utført trykkmåling i form av enten",
-  "fractional flow reserve (FFR), ",
+  "koronarsykdom og der angiografi viser minst ett segment med ",
+  "stenosegrad mellom 30 - 99 \\% har blitt utført trykkmåling i ",
+  "form av entenfractional flow reserve (FFR), ",
   "instantaneous wave-free ratio (iFR), ",
   "index of microvascular resistance (IMR), ",
-  "resting distal coronary pressure to aortic pressure ratio (Pd/Pa), ",
+  "resting distal coronary pressure to aortic pressure ratio  ",
   "coronary artery aortic pressure (Pa-hyperemi) eller ",
   "coronary artery distal pressure (Pd-hyperemi). ",
   "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
@@ -1381,7 +1375,6 @@ nTrykkmaalingAP <- aP_nasjonalt %>%
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
-    
     Prosent = paste0(round(ja / Totalt * 100, 1)," %"),
     
     Totalt = ifelse(Totalt < 5,
@@ -1395,7 +1388,6 @@ nTrykkmaalingAP <- aP_nasjonalt %>%
     Prosent = ifelse(Totalt %in% "N",
                      yes = NA,
                      no = Prosent)) %>%
-  
   dplyr::select(maaned,
                 Totalt,
                 utfortTrykkmaaling,
