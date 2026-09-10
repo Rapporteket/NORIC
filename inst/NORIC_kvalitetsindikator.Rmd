@@ -1050,7 +1050,6 @@ prep_figVentetid24t_year <-
 
 ```{r figVentetid24TSamletAar, warning=FALSE, fig.width = 8, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth", fig.cap=cap}
 
-
 cap <- paste0(
   "Andel pasienter med indikasjon NSTEMI som innen 24 timer etter innleggelse ",
   "i sykehus har blitt utredet med invasiv koronar angiografi. ", 
@@ -1136,7 +1135,7 @@ cap <- paste0(
   "innleggelse i sykehus har blitt utredet med invasiv koronar angiografi. ", 
   "Tabellen inkluderer både pasienter innlagt direkte på PCI-sykehus og ", 
   "pasienter overflyttet fra annet sykehus. ", 
-  "Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert.", 
+  "Pasienter overflyttet fra annen avdeling på samme sykehus er ekskludert. ", 
   "Komplett data ved direkte innleggelse er der både tid for ankomst PCI-sykehus ",
   "og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
@@ -1209,15 +1208,6 @@ noric::mst(tab = tabVentetid72t,
            label = "tabVentetid72t")
 
 ```
-
-
-
-
-
-
-
-
-
 
 
 ```{r pagebreakVentetidNSTEMI72t, results = "asis", eval = (params$tableFormat == "latex")}
@@ -1351,23 +1341,30 @@ innsnevringer har vist seg
 ikke og hvorvidt det bør utføres utblokking av åren eller ei. Europeiske
 retningslinjer har en sterk anbefaling om bruk av nevnte metoder. Indikatoren
 viser antall og andel prosedyrer der det har blitt utført trykkmåling ved
-kransårerøntgen hos pasienter med stabil angina pectoris. Tabell
+kransårerøntgen hos pasienter med stabil angina pectoris og der angiografi 
+viser minst ett segment med stenosegrad mellom 30 - 99 %. Tabell
 \@ref(tab:TabNtrykkmaaling) viser måloppnåelse per måned for 
 `r params$hospitalName` og nasjonalt (Mål $\geq$ 30 %). 
+
+
 
 
 ```{r TabNtrykkmaaling, results='asis', warning=FALSE}
 
 cap <- paste0(
   "Antall og andel prosedyrer der det ved indikasjon stabil ",
-  "koronarsykdom har blitt utført trykkmåling i form av enten",
-  "fractional flow reserve (FFR), ",
+  "koronarsykdom og der angiografi viser minst ett segment med ",
+  "stenosegrad mellom 30 - 99 \\% har blitt utført trykkmåling i ",
+  "form av enten fractional flow reserve (FFR), ",
   "instantaneous wave-free ratio (iFR), ",
   "index of microvascular resistance (IMR), ",
-  "resting distal coronary pressure to aortic pressure ratio (Pd/Pa), ",
+  "resting distal coronary pressure to aortic pressure ratio  ",
   "coronary artery aortic pressure (Pa-hyperemi) eller ",
   "coronary artery distal pressure (Pd-hyperemi). ",
-  "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
+  "Med 'komplette' menes forløp der variabelen 'Annen diagnostikk' ikke er ",
+  "manglende eller ukjent. Måneder med mindre enn 50 \\% komplette data ",
+  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ",
+  "utført trykkmåling beregnes ikke.")
 
 
 #Lokal
@@ -1381,46 +1378,49 @@ nTrykkmaalingAP <- aP_nasjonalt %>%
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
+    # Komplette er alle som er ja/nei, men ikke manglende
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Totalt,
+    komplette_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Totalt, "*"),
+      false = paste0(komplette_antall, " av ", Totalt),
+      missing = NA_character_),
     
-    Prosent = paste0(round(ja / Totalt * 100, 1)," %"),
-    
-    Totalt = ifelse(Totalt < 5,
-                    yes = "N",
-                    no = Totalt),
-    
-    utfortTrykkmaaling = ifelse(Totalt %in% "N",
-                                yes = NA,
-                                no = ja),
-    
-    Prosent = ifelse(Totalt %in% "N",
-                     yes = NA,
-                     no = Prosent)) %>%
-  
+    # Blandt komplette: Utført trykkmåling ,
+    utfortTrykkmaaling_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
+      missing = NA_character_)) %>%
+      
   dplyr::select(maaned,
-                Totalt,
-                utfortTrykkmaaling,
-                Prosent)
+                komplette_tekst,
+                utfortTrykkmaaling_tekst)
 
 #Nasjonal
 nTrykkmaalingAP_nasj <- aP_nasjonalt %>%
-  dplyr::filter(indik_trykkmaaling_data %in% "ja") %>%
-  dplyr::select(maaned,
-                indik_trykkmaaling) %>%
+  dplyr::filter(indik_trykkmaaling_data %in% "ja",
+                indik_trykkmaaling %in% c("ja", "nei")) %>%
   janitor::tabyl(maaned,
                  indik_trykkmaaling,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::transmute(
     maaned = maaned,
-    Nasjonalt = paste0(round(ja / Totalt * 100, 1)," %"))
+    Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
 
 #Tabell
 tabTrykkmaalingAP <- timeTableMonth %>%
   dplyr::left_join(., nTrykkmaalingAP, by = c("maaned")) %>%
   dplyr::left_join(., nTrykkmaalingAP_nasj, by = c("maaned")) %>%
-  dplyr::rename("Måned" = maaned,
-                "Utført trykkmåling" = utfortTrykkmaaling) %>%
+  dplyr::rename(
+    "Måned" = maaned,
+    "Komplette av datagrunnlaget" = komplette_tekst,
+    "Utført trykkmåling av komplette" = utfortTrykkmaaling_tekst) %>%
   replace(is.na(.), "-")
+
 
 noric::mst(tab = tabTrykkmaalingAP,
            type = params$tableFormat,
@@ -1454,10 +1454,14 @@ Tabell \@ref(tab:TabNstentingVH) viser måloppnåelse per måned for
 
 
 ```{r TabNstentingVH, results='asis', warning=FALSE}
-cap <- paste0("Antall og andel prosedyrer der det er brukt supplerende ",
-              "billeddiagnostike metoder (IVUS og/eller OCT). ",
-              "Kvartaler med mindre enn 5 observasjoner er markert med N.")
-
+cap <- paste0(
+  "Antall og andel prosedyrer der det er brukt supplerende ",
+  "billeddiagnostike metoder (IVUS og/eller OCT). ",
+  "Med 'komplette' menes forløp der variabelen 'Annen diagnostikk' ikke er ",
+  "manglende eller ukjent. Kvartaler med mindre enn 50 \\% komplette data ",
+  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ",
+  "supplerende bildeframstilling i tilknytning til PCI av venstre hovedstamme ",
+  "beregnes ikke. ")
 
 
 #Lokalt
@@ -1471,42 +1475,50 @@ nStentVH <- aP_nasjonalt %>%
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::mutate(
-    
-    Prosent = paste0(round(ja / Totalt * 100, 1), " %"),
-    Totalt = ifelse(Totalt < 5,
-                    yes = "N",
-                    no = Totalt),
-    
-    utfortIvusOct = ifelse(Totalt %in% "N",
-                           yes = NA,
-                           no = ja),
-    
-    Prosent = ifelse(Totalt %in% "N",
-                     yes = NA,
-                     no = Prosent)) %>%
+    # Komplette er alle som er ja/nei, men ikke manglende
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Totalt,
+    komplette_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Totalt, "*"),
+      false = paste0(komplette_antall, " av ", Totalt),
+      missing = NA_character_),
+
+    # Blandt komplette: 
+    #   Bildeframstilling i tilknytning til PCI av venstre hovedstamme.
+   utfortIvusOct_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
+      missing = NA_character_)) %>%
+
   dplyr::select(kvartal,
-                Totalt,
-                utfortIvusOct,
-                Prosent)
+                komplette_tekst,
+                utfortIvusOct_tekst)
+
 
 #Nasjonalt
 nStentVH_nasjonalt <- aP_nasjonalt %>%
-  dplyr::filter(indik_ivus_oct_v_stent_lms_data %in% "ja") %>%
-  dplyr::select(kvartal,
-                indik_ivus_oct_v_stent_lms) %>%
+  dplyr::filter(indik_ivus_oct_v_stent_lms_data %in% "ja",
+                indik_ivus_oct_v_stent_lms %in% c("ja", "nei")) %>%
   janitor::tabyl(kvartal,
                  indik_ivus_oct_v_stent_lms,
                  show_missing_levels = TRUE) %>%
   janitor::adorn_totals("col", name = "Totalt") %>%
   dplyr::transmute(
     kvartal = kvartal,
-    Nasjonalt = paste0(round(ja / Totalt * 100, 1), " %"))
+    Nasjonalt =  paste0(round(100 * ja / Totalt, 1), "%"))
+
 
 #Tabell
 tabStentVH <- timeTableQuarter %>%
   dplyr::left_join(., nStentVH, by = c("kvartal")) %>%
   dplyr::left_join(., nStentVH_nasjonalt, by = c("kvartal")) %>%
-  dplyr::rename("Utført IVUS/OCT" = utfortIvusOct) %>%
+  dplyr::rename(
+    "Kvartal" = kvartal,
+    "Komplette av datagrunnlaget" = komplette_tekst,
+    "Utført IVUS/OCT av komplette" = utfortIvusOct_tekst) %>%
   replace(is.na(.), "-")
 
 
