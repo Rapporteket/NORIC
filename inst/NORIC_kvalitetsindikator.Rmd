@@ -368,7 +368,7 @@ timeTableQuarter <- data.frame(
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
 # Hele forrige år og alle påbegynte måneder hittil i år
 forsteDatoSisteMonth <- lubridate::floor_date(periode_data$siste_dato, 
-                                              "month") 
+                                              "month")
 timeTableMonth <- data.frame(
   monthDato = seq(as.Date(paste0(periode_data$sisteHeleYear, 
                                  "-01-01")), 
