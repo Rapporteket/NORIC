@@ -1,3 +1,6 @@
+# noric 4.7.0
+* Ny kvalitetsindikator for strålebelastning (Angio og TAVI)
+
 # noric 4.6.0 Nyeste versjon av rapbase
 * Variabelen TidlABC er endret til TidlACB i angio/PCI-tabellen
 * Fiks av mapping-filen til segment stent
@@ -8,7 +11,6 @@ Diverse fiks
 * Endring av kvalitetsindikatorene trykkmåling og IVUS/OCT ved stening i LMS.
 * Variabelnavnet Hastegrad i TAVI-modulen er endret til HastegradEuroSCORE.
 * Gruppering av klaffetyper er endret.
-
 
 
 # noric 4.4.0 Nedlasting rawdata
