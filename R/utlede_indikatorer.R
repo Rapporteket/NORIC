@@ -36,7 +36,7 @@
 #'   "Komplettering av tidligere PCI", "UAP", "NSTEMI",
 #'   "Stabil koronarsykdom"
 #'   \item \code{satt_inn_stent_i_LMS} = "ja"
-#'   \item \code{TidlABC} is one of "Nei", "Ukjent", NA
+#'   \item \code{TidlACB} is one of "Nei", "Ukjent", NA
 #'   }
 #' \item numerator \code{indik_ivus_oct_v_stent_lms} has value \emph{ja} if
 #' IVUS and/or OCT has been performed.
@@ -154,7 +154,7 @@
 #' contain some of the variables \code{SkjemaStatusKomplikasjoner},
 #' \code{SkjemaStatusUtskrivelse}, \code{Regtype},
 #' \code{Indikasjon}, \code{FFR}, \code{IFR},
-#' \code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
+#' \code{satt_inn_stent_i_LMS}, \code{TidlACB}, \code{IVUS}, \code{OCT},
 #' \code{antall_stent_under_opphold}, ...
 #' @param df_ak NORIC's \code{AortaklaffVar}-table. 
 #' Depending on indicators, must contain some of the variables
@@ -182,7 +182,7 @@ NULL
 #'         PDPA = c(rep(NA, 9), "Ja","Ja", "Ja" , "Ukjent", "Nei", "Nei", rep(NA, 10)),
 #'         PA_Hyperemi = c(rep(NA, 9), "Ja","Ja", "Nei" , "Ukjent","Nei", "Nei", rep(NA, 10)),
 #'         PD_Hyperemi = c(rep(NA, 9), "Ja", "Nei", "Nei", "Ukjent", "Ja", rep(NA, 11)),
-#'         TidlABC = c("Nei", rep("Ja", 4),
+#'         TidlACB = c("Nei", rep("Ja", 4),
 #'                     rep(c("Nei", "Ukjent", NA_character_), 3),
 #'                     rep(NA_character_, 11)),
 #'         SEGMENT1 = c(rep(2, 21), 1, 1, rep(2, 2)),
@@ -223,7 +223,7 @@ NULL
 #'                            "NSTEMI",
 #'                            "NoeTull!",
 #'                            NA_character_), 3),
-#'         TidlABC = c(rep("Ja", 10),
+#'         TidlACB = c(rep("Ja", 10),
 #'                     rep(c("Nei", "Ukjent", NA_character_), 6),
 #'                     NA_character_, NA_character_),
 #'         IVUS = rep(c("Ja", "Ja", "Nei", "Ukjent", NA_character_), 6),
@@ -333,7 +333,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
                   "PA_Hyperemi",
                   "PD_Hyperemi", 
                   paste0("SEGMENT", 1:20), 
-                  "TidlABC", 
+                  "TidlACB", 
                   "AnnenDiagHovedSpm") %in% names(df_ap)))
   
   
@@ -346,7 +346,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
         ProsedyreDato >= as.Date("01-01-2017", format = "%d-%m-%Y") &
           Indikasjon %in% c("Stabil koronarsykdom") & 
           dplyr::if_any((SEGMENT1:SEGMENT20),~.x %in% 2:5) &
-          TidlABC %in% c("Nei", "Ukjent", NA_character_) ~ "ja", 
+          TidlACB %in% c("Nei", "Ukjent", NA_character_) ~ "ja", 
         TRUE ~ "nei"),
       
       
@@ -392,7 +392,7 @@ ki_trykkmaaling_utfoert <- function(df_ap) {
 ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
   
   stopifnot(all(c("Indikasjon",
-                  "TidlABC",
+                  "TidlACB",
                   "IVUS",
                   "OCT",
                   "satt_inn_stent_i_LMS", 
@@ -409,7 +409,7 @@ ki_ivus_oct_ved_stenting_lms <- function(df_ap) {
       #  ~ prosedyre med stenting av venstre hovedstamme (Segment5 = LMS = VH)
       indik_ivus_oct_v_stent_lms_data = dplyr::if_else(
         condition =
-          (.data$TidlABC %in% c("Nei", "Ukjent") | is.na(.data$TidlABC)) &
+          (.data$TidlACB %in% c("Nei", "Ukjent") | is.na(.data$TidlACB)) &
           .data$Indikasjon %in% c("Vitieutredning",
                                   "Uklare brystsmerter",
                                   "Annet",

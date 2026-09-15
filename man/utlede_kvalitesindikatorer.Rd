@@ -36,7 +36,7 @@ ki_ak_pacemakerbehov(df_ak)
 contain some of the variables \code{SkjemaStatusKomplikasjoner},
 \code{SkjemaStatusUtskrivelse}, \code{Regtype},
 \code{Indikasjon}, \code{FFR}, \code{IFR},
-\code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
+\code{satt_inn_stent_i_LMS}, \code{TidlACB}, \code{IVUS}, \code{OCT},
 \code{antall_stent_under_opphold}, ...}
 
 \item{df_ak}{NORIC's \code{AortaklaffVar}-table. 
@@ -81,7 +81,7 @@ when \emph{Indikasjon = Stabil koronarsykdom}.
   "Komplettering av tidligere PCI", "UAP", "NSTEMI",
   "Stabil koronarsykdom"
   \item \code{satt_inn_stent_i_LMS} = "ja"
-  \item \code{TidlABC} is one of "Nei", "Ukjent", NA
+  \item \code{TidlACB} is one of "Nei", "Ukjent", NA
   }
 \item numerator \code{indik_ivus_oct_v_stent_lms} has value \emph{ja} if
 IVUS and/or OCT has been performed.
