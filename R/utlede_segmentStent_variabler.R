@@ -75,15 +75,8 @@
 #' \code{legg_til_wireforsok_per_kar()}.
 #'
 #' @name utlede_segmentStent_variabler
-#' @aliases
-#' legg_til_antall_stent
-#' legg_til_antall_stent_opphold
-#' utlede_kar_segment_stent
-#' utlede_kar_graft_segment_stent
-#' satt_inn_stent_i_lms
-#' legg_til_pci_per_kar
-#' legg_til_wireforsok_per_kar
-#'
+#' @aliases legg_til_antall_stent legg_til_antall_stent_opphold utlede_kar_segment_stent utlede_kar_graft_segment_stent satt_inn_stent_i_lms legg_til_pci_per_kar legg_til_wireforsok_per_kar
+NULL 
 #'
 #' @examples
 #'df_ap <- data.frame(ForlopsID = 1:5,
@@ -176,18 +169,18 @@ legg_til_antall_stent <- function(df_ap, df_ss) {
   
   # Count number of non-missing entries in StentType for each procedure
   ant_stent <- df_ss %>%
-    dplyr::select(.data$AvdRESH, .data$ForlopsID, .data$StentType) %>%
-    dplyr::arrange(., .data$AvdRESH)  %>%
-    dplyr::group_by(.data$AvdRESH) %>%
-    dplyr::count(.data$ForlopsID,
-                 wt = !is.na(.data$StentType)) %>%
-    dplyr::rename("antall_stent" = .data$n)
+    dplyr::select(AvdRESH, ForlopsID, StentType) %>%
+    dplyr::arrange(., AvdRESH)  %>%
+    dplyr::group_by(AvdRESH) %>%
+    dplyr::count(ForlopsID,
+                 wt = !is.na(StentType)) %>%
+    dplyr::rename("antall_stent" = n)
   
   # Add new variable to df_ap before returning df_ap
   dplyr::left_join(df_ap,
                    ant_stent,
                    by = c("AvdRESH", "ForlopsID")) %>%
-    dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
+    dplyr::arrange(AvdRESH, ForlopsID)
 }
 
 
@@ -205,16 +198,16 @@ legg_til_antall_stent_opphold <- function(df_ap) {
   df_ap %>%
     
     # Gruppere oppholdene sammen
-    dplyr::group_by(.data$AvdRESH, .data$OppholdsID) %>%
+    dplyr::group_by(AvdRESH, OppholdsID) %>%
     
     # Antall stent satt inn under opphold
     # Dersom ingen informajon i SS for noen av forløpene for oppholdet -->NA
     # Dersom minst en informasjon i SS (selv om dette er "0 stent") --> summen
     dplyr::mutate(
       antall_stent_under_opphold = ifelse(
-        all(is.na(.data$antall_stent)),
+        all(is.na(antall_stent)),
         NA,
-        sum(.data$antall_stent, na.rm = TRUE))) %>%
+        sum(antall_stent, na.rm = TRUE))) %>%
     
     dplyr::ungroup()
   
@@ -246,41 +239,41 @@ satt_inn_stent_i_lms <- function(df_ap, df_ss) {
     
     # Legge til variabel kar
     noric::utlede_kar_segment_stent(.) %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$kar,
-                  .data$StentType) %>%
-    dplyr::arrange(.data$AvdRESH, .data$ForlopsID, .data$kar) %>%
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  kar,
+                  StentType) %>%
+    dplyr::arrange(AvdRESH, ForlopsID, kar) %>%
     
     # Teller om minst en stent ble satt inn i LMS
     # Dersom 0 stent i karet  n=0 --> "nei"
     # Dersom minst en stent i karet blir verdien n > 0 --> "ja"
-    dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar,
-                 wt = !is.na(.data$StentType)) %>%
+    dplyr::count(AvdRESH, ForlopsID, kar,
+                 wt = !is.na(StentType)) %>%
     dplyr::mutate(stent_i_kar = ifelse(
-      test = .data$n > 0,
+      test = n > 0,
       yes = "ja",
       no = "nei")) %>%
-    dplyr::select(- .data$n) %>%
+    dplyr::select(- n) %>%
     dplyr::distinct() %>%
     
     # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
     # datasettet SS (finner dem med funksjonen nesting),
     # komplettes manglende nivåer av kar med verdien "nei"
-    tidyr::complete(.data$kar,
+    tidyr::complete(kar,
                     tidyr::nesting(ForlopsID, AvdRESH),
                     fill = list(stent_i_kar = "nei")) %>%
     
     # format med en rad per variabel:
-    tidyr::pivot_wider(names_from = .data$kar,
-                       values_from = .data$stent_i_kar) %>%
+    tidyr::pivot_wider(names_from = kar,
+                       values_from = stent_i_kar) %>%
     
     # Beholde bare LMS, fjerne de andre karene
-    dplyr::select(.data$AvdRESH,
-                  .data$ForlopsID,
-                  .data$LMS) %>%
+    dplyr::select(AvdRESH,
+                  ForlopsID,
+                  LMS) %>%
     
-    dplyr::rename("satt_inn_stent_i_LMS" = .data$LMS)
+    dplyr::rename("satt_inn_stent_i_LMS" = LMS)
   
   
   # Legg til 1 ny variablel i AP : stent_i_LMS = ja/nei/NA.
@@ -307,21 +300,21 @@ utlede_kar_segment_stent <- function(df_ss) {
     df_ss,
     
     kar = factor(dplyr::case_when(
-      .data$Graft %in% c("Arteriell", "Vene") ~ "Graft",
-      .data$Segment %in% c("(1) Proximale RCA",
+      Graft %in% c("Arteriell", "Vene") ~ "Graft",
+      Segment %in% c("(1) Proximale RCA",
                            "(2) Midtre RCA", 
                            "(3) Distale RCA", 
                            "(4) PDA/RPD", 
                            "(18) PLA", 
                            "(19) Høyrekammergren") ~ "RCA",
-      .data$Segment == "(5) Ve hovedstamme" ~ "LMS",
-      .data$Segment %in% c("(6) Proximale LAD",
+      Segment == "(5) Ve hovedstamme" ~ "LMS",
+      Segment %in% c("(6) Proximale LAD",
                            "(7) Midtre LAD",
                            "(8) Distale LAD", 
                            "(9) Første diagonal", 
                            "(10) Andre diagonal", 
                            "(20) Septal") ~ "LAD",
-      .data$Segment %in% c("(11) Proximale LCx", 
+      Segment %in% c("(11) Proximale LCx", 
                            "(12) Første obtusa marginal", 
                            "(13) Andre obtusa marginal", 
                            "(14) Distale LCx", 
@@ -353,89 +346,89 @@ utlede_kar_graft_segment_stent <- function(df_ss) {
     df_ss,
     
     kar_graft = factor(dplyr::case_when(
-      .data$Segment %in% c("(1) Proximale RCA", 
+      Segment %in% c("(1) Proximale RCA", 
                            "(2) Midtre RCA", 
                            "(3) Distale RCA", 
                            "(4) PDA/RPD", 
                            "(18) PLA", 
                            "(19) Høyrekammergren") &
-        .data$Graft == "Nei" ~ "RCA",
+        Graft == "Nei" ~ "RCA",
       
-      .data$Segment == "(5) Ve hovedstamme" &
-        .data$Graft == "Nei" ~ "LMS",
+      Segment == "(5) Ve hovedstamme" &
+        Graft == "Nei" ~ "LMS",
       
-      .data$Segment %in% c("(6) Proximale LAD",
+      Segment %in% c("(6) Proximale LAD",
                            "(7) Midtre LAD", 
                            "(8) Distale LAD", 
                            "(9) Første diagonal", 
                            "(10) Andre diagonal",
                            "(20) Septal") &
-        .data$Graft == "Nei"~ "LAD",
+        Graft == "Nei"~ "LAD",
       
-      .data$Segment %in% c("(11) Proximale LCx", 
+      Segment %in% c("(11) Proximale LCx", 
                            "(12) Første obtusa marginal", 
                            "(13) Andre obtusa marginal",
                            "(14) Distale LCx",
                            "(15) LPD",
                            "(16) PLA fra venstre",
                            "(17) Intermediær") &
-        .data$Graft == "Nei"~ "CX",
+        Graft == "Nei"~ "CX",
       
-      .data$Segment %in% c("(1) Proximale RCA", 
+      Segment %in% c("(1) Proximale RCA", 
                            "(2) Midtre RCA", 
                            "(3) Distale RCA", 
                            "(4) PDA/RPD", 
                            "(18) PLA", 
                            "(19) Høyrekammergren")  &
-        .data$Graft == "Arteriell" ~ "RCA_arterieGraft",
+        Graft == "Arteriell" ~ "RCA_arterieGraft",
       
-      .data$Segment == "(5) Ve hovedstamme" &
-        .data$Graft == "Arteriell" ~ NA_character_,
+      Segment == "(5) Ve hovedstamme" &
+        Graft == "Arteriell" ~ NA_character_,
       
-      .data$Segment %in% c("(6) Proximale LAD",
+      Segment %in% c("(6) Proximale LAD",
                            "(7) Midtre LAD", 
                            "(8) Distale LAD", 
                            "(9) Første diagonal", 
                            "(10) Andre diagonal",
                            "(20) Septal")  &
-        .data$Graft == "Arteriell"~ "LAD_arterieGraft",
+        Graft == "Arteriell"~ "LAD_arterieGraft",
       
-      .data$Segment %in% c("(11) Proximale LCx", 
+      Segment %in% c("(11) Proximale LCx", 
                            "(12) Første obtusa marginal", 
                            "(13) Andre obtusa marginal",
                            "(14) Distale LCx",
                            "(15) LPD",
                            "(16) PLA fra venstre",
                            "(17) Intermediær") &
-        .data$Graft == "Arteriell"~ "CX_arterieGraft",
+        Graft == "Arteriell"~ "CX_arterieGraft",
       
-      .data$Segment %in% c("(1) Proximale RCA", 
+      Segment %in% c("(1) Proximale RCA", 
                            "(2) Midtre RCA", 
                            "(3) Distale RCA", 
                            "(4) PDA/RPD", 
                            "(18) PLA", 
                            "(19) Høyrekammergren")  &
-        .data$Graft == "Vene" ~ "RCA_veneGraft",
+        Graft == "Vene" ~ "RCA_veneGraft",
       
-      .data$Segment == "(5) Ve hovedstamme" &
-        .data$Graft == "Vene" ~ NA_character_,
+      Segment == "(5) Ve hovedstamme" &
+        Graft == "Vene" ~ NA_character_,
       
-      .data$Segment %in% c("(6) Proximale LAD",
+      Segment %in% c("(6) Proximale LAD",
                            "(7) Midtre LAD", 
                            "(8) Distale LAD", 
                            "(9) Første diagonal", 
                            "(10) Andre diagonal",
                            "(20) Septal")  &
-        .data$Graft == "Vene" ~ "LAD_veneGraft",
+        Graft == "Vene" ~ "LAD_veneGraft",
       
-      .data$Segment %in% c("(11) Proximale LCx", 
+      Segment %in% c("(11) Proximale LCx", 
                            "(12) Første obtusa marginal", 
                            "(13) Andre obtusa marginal",
                            "(14) Distale LCx",
                            "(15) LPD",
                            "(16) PLA fra venstre",
                            "(17) Intermediær")  &
-        .data$Graft == "Vene" ~ "CX_veneGraft"),
+        Graft == "Vene" ~ "CX_veneGraft"),
       
       levels = c("LMS",
                  "LAD",
@@ -475,51 +468,51 @@ legg_til_pci_per_kar <- function(df_ap, df_ss) {
     
     # Legge til variabel kar_graft
     noric::utlede_kar_graft_segment_stent(.) %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$kar_graft,
-                  .data$ProsedyreType) %>%
-    dplyr::arrange(.data$AvdRESH, .data$ForlopsID, .data$kar_graft) %>%
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  kar_graft,
+                  ProsedyreType) %>%
+    dplyr::arrange(AvdRESH, ForlopsID, kar_graft) %>%
     
     # Fjerner Wireforsøk og teller alle andre PCI-prosedyrer per kar
     # Dersom 0 prosedyrer i karet (Kun wireforsøk) blir verdien n=0 --> "nei"
     # Dersom minst en prosedyre i karet blir verdien n > 0 --> "ja"
-    dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
-                 wt = .data$ProsedyreType != "Wireforsøk") %>%
+    dplyr::count(AvdRESH, ForlopsID, kar_graft,
+                 wt = ProsedyreType != "Wireforsøk") %>%
     dplyr::mutate(pci_kar = ifelse(
-      test = .data$n > 0,
+      test = n > 0,
       yes = "ja",
       no = "nei")) %>%
-    dplyr::select(- .data$n) %>%
+    dplyr::select(- n) %>%
     dplyr::distinct() %>%
     
     # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
     # datasettet SS (finner dem med funksjonen nesting),
     # komplettes manglende nivåer av kar_graft med verdien "nei"
-    tidyr::complete(.data$kar_graft,
+    tidyr::complete(kar_graft,
                     tidyr::nesting(ForlopsID, AvdRESH),
                     fill = list(pci_kar = "nei")) %>%
     
     # format med en rad per variabel:
-    tidyr::pivot_wider(names_from = .data$kar_graft,
-                       values_from = .data$pci_kar) %>%
+    tidyr::pivot_wider(names_from = kar_graft,
+                       values_from = pci_kar) %>%
     
     # Rekkefølge nye variabler, og nytt navn
-    dplyr::select(.data$AvdRESH,
-                  .data$ForlopsID,
-                  .data$LMS,
-                  .data$LAD,
-                  .data$RCA,
-                  .data$CX,
-                  .data$LAD_arterieGraft,
-                  .data$RCA_arterieGraft,
-                  .data$CX_arterieGraft,
-                  .data$LAD_veneGraft,
-                  .data$RCA_veneGraft,
-                  .data$CX_veneGraft) %>%
+    dplyr::select(AvdRESH,
+                  ForlopsID,
+                  LMS,
+                  LAD,
+                  RCA,
+                  CX,
+                  LAD_arterieGraft,
+                  RCA_arterieGraft,
+                  CX_arterieGraft,
+                  LAD_veneGraft,
+                  RCA_veneGraft,
+                  CX_veneGraft) %>%
     dplyr::rename_with(.data = .,
                        .fn = function(x) paste0("PCI_", x),
-                       .cols =  .data$LMS:.data$CX_veneGraft)
+                       .cols =  LMS:CX_veneGraft)
   
   
   
@@ -556,51 +549,51 @@ legg_til_wireforsok_per_kar <- function(df_ap, df_ss) {
     
     # Legge til variabel kar_graft
     utlede_kar_graft_segment_stent(.) %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$kar_graft,
-                  .data$ProsedyreType) %>%
-    dplyr::arrange(.data$AvdRESH, .data$ForlopsID, .data$kar_graft) %>%
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  kar_graft,
+                  ProsedyreType) %>%
+    dplyr::arrange(AvdRESH, ForlopsID, kar_graft) %>%
     
     # Teller kun wireforsok,per kar
     # Dersom 0 wireforsøk i karet blir verdien n=0 --> "nei"
     # Dersom minst et wireforsøk i karet blir verdien n > 0 --> "ja"
-    dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar_graft,
-                 wt = .data$ProsedyreType == "Wireforsøk") %>%
+    dplyr::count(AvdRESH, ForlopsID, kar_graft,
+                 wt = ProsedyreType == "Wireforsøk") %>%
     dplyr::mutate(wire_kar = ifelse(
-      test = .data$n > 0,
+      test = n > 0,
       yes = "ja",
       no = "nei")) %>%
-    dplyr::select(- .data$n) %>%
+    dplyr::select(- n) %>%
     dplyr::distinct() %>%
     
     # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
     # datasettet SS (finner dem med funksjonen nesting),
     # komplettes manglende nivåer av kar_graft med verdien "nei"
-    tidyr::complete(.data$kar_graft,
+    tidyr::complete(kar_graft,
                     tidyr::nesting(ForlopsID, AvdRESH),
                     fill = list(wire_kar = "nei")) %>%
     
     # format med en rad per variabel:
-    tidyr::pivot_wider(names_from = .data$kar_graft,
-                       values_from = .data$wire_kar) %>%
+    tidyr::pivot_wider(names_from = kar_graft,
+                       values_from = wire_kar) %>%
     
     # Rekkefølge nye variabler, og nytt navn
-    dplyr::select(.data$AvdRESH,
-                  .data$ForlopsID,
-                  .data$LMS,
-                  .data$LAD,
-                  .data$RCA,
-                  .data$CX,
-                  .data$LAD_arterieGraft,
-                  .data$RCA_arterieGraft,
-                  .data$CX_arterieGraft,
-                  .data$LAD_veneGraft,
-                  .data$RCA_veneGraft,
-                  .data$CX_veneGraft) %>%
+    dplyr::select(AvdRESH,
+                  ForlopsID,
+                  LMS,
+                  LAD,
+                  RCA,
+                  CX,
+                  LAD_arterieGraft,
+                  RCA_arterieGraft,
+                  CX_arterieGraft,
+                  LAD_veneGraft,
+                  RCA_veneGraft,
+                  CX_veneGraft) %>%
     dplyr::rename_with(.data = .,
                        .fn = function(x) paste0("wireforsok_", x),
-                       .cols =  .data$LMS:.data$CX_veneGraft)
+                       .cols =  LMS:CX_veneGraft)
   
   
   

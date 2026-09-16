@@ -69,11 +69,11 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$OverflyttetFra %in% c("Omdirigert ambulanse",
+        OverflyttetFra %in% c("Omdirigert ambulanse",
                                     "Nei, direkte inn til dette sykehus"),
-        (is.na(.data$ProsedyreDato) | is.na(.data$ProsedyreTid) |
-           is.na(.data$AnkomstPCIDato) | is.na(.data$AnkomstPCITid))) %>%
-      dplyr::pull(.data$ventetid_nstemi_timer) %>%
+        (is.na(ProsedyreDato) | is.na(ProsedyreTid) |
+           is.na(AnkomstPCIDato) | is.na(AnkomstPCITid))) %>%
+      dplyr::pull(ventetid_nstemi_timer) %>%
       is.na()))
   
   
@@ -82,11 +82,11 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        .data$OverflyttetFra %in% c("Annet sykehus"),
-        (is.na(.data$ProsedyreDato) | is.na(.data$ProsedyreTid) |
-           is.na(.data$InnleggelseHenvisendeSykehusDato) |
-           is.na(.data$InnleggelseHenvisendeSykehusTid))) %>%
-      dplyr::pull(.data$ventetid_nstemi_timer) %>%
+        OverflyttetFra %in% c("Annet sykehus"),
+        (is.na(ProsedyreDato) | is.na(ProsedyreTid) |
+           is.na(InnleggelseHenvisendeSykehusDato) |
+           is.na(InnleggelseHenvisendeSykehusTid))) %>%
+      dplyr::pull(ventetid_nstemi_timer) %>%
       is.na()))
   
   
@@ -94,11 +94,11 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
   expect_true(all(
     x_out %>%
       dplyr::filter(
-        !.data$OverflyttetFra %in%
+        !OverflyttetFra %in%
           c("Annet sykehus",
             "Omdirigert ambulanse",
             "Nei, direkte inn til dette sykehus")) %>%
-      dplyr::pull(.data$ventetid_nstemi_timer) %>%
+      dplyr::pull(ventetid_nstemi_timer) %>%
       is.na()))
   
   # Forventer disse tidene dersom direkte innlagt
@@ -107,10 +107,10 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
     
     x_out %>%
       dplyr::filter(
-        .data$OverflyttetFra %in%
+        OverflyttetFra %in%
           c("Omdirigert ambulanse",
             "Nei, direkte inn til dette sykehus")) %>%
-      dplyr::pull(.data$ventetid_nstemi_timer))
+      dplyr::pull(ventetid_nstemi_timer))
   
   
   # Forventer disse tidene dersom overført
@@ -119,9 +119,9 @@ test_that("legg_til_ventetid_nstemi_timer() works", {
     
     x_out %>%
       dplyr::filter(
-        .data$OverflyttetFra %in%
+        OverflyttetFra %in%
           c("Annet sykehus")) %>%
-      dplyr::pull(.data$ventetid_nstemi_timer))
+      dplyr::pull(ventetid_nstemi_timer))
   
   
 })
@@ -202,8 +202,8 @@ test_that("legg_til_ventetid_stemi_min() works", {
   # Forventer at ventetid mangler dersom prosedyredato mangler
   expect_true(all(
     x_out %>%
-      dplyr::filter(is.na(.data$ProsedyreDato) | is.na(.data$ProsedyreTid))  %>%
-      dplyr::pull(.data$ventetid_stemi_min) %>%
+      dplyr::filter(is.na(ProsedyreDato) | is.na(ProsedyreTid))  %>%
+      dplyr::pull(ventetid_stemi_min) %>%
       is.na()))
  
   # Forventer at ventetid mangler dersom ingen EKG
@@ -211,14 +211,14 @@ test_that("legg_til_ventetid_stemi_min() works", {
     x_out %>%
       dplyr::filter(
         
-        (is.na(.data$BeslEKGDato) | is.na(.data$BeslEKGTid)) &
-          (is.na(.data$BesUtlEKGDato) | is.na(.data$BesUtlEKGTid)))   %>%
-      dplyr::pull(.data$ventetid_stemi_min) %>%
+        (is.na(BeslEKGDato) | is.na(BeslEKGTid)) &
+          (is.na(BesUtlEKGDato) | is.na(BesUtlEKGTid)))   %>%
+      dplyr::pull(ventetid_stemi_min) %>%
       is.na()))
   
   # Forventet ventetid er denne vektoren
   expect_equal(
-    x_out %>% dplyr::pull(.data$ventetid_stemi_min),
+    x_out %>% dplyr::pull(ventetid_stemi_min),
     c(80.0, 120.0, 1342585.0, 140.0, -65.0, 
       -1440.0, NA, 29.5, NA, NA, 60.0, NA))
   
@@ -267,51 +267,51 @@ testthat::test_that("legg_til_liggedogn fungerer", {
   
   testthat::expect_true(
     df_out %>%
-      dplyr::filter(.data$Regtype == "Sekundær") %>%
-      dplyr::pull(.data$liggedogn_data) == "nei")
+      dplyr::filter(Regtype == "Sekundær") %>%
+      dplyr::pull(liggedogn_data) == "nei")
   
   
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(
-        .data$Regtype == "Primær" &
-          (is.na(.data$OverflyttetFra) |
-             .data$OverflyttetFra == "Annen  avdeling på sykehuset")) %>%
-      dplyr::pull(.data$liggedogn_data) == "nei"))
+        Regtype == "Primær" &
+          (is.na(OverflyttetFra) |
+             OverflyttetFra == "Annen  avdeling på sykehuset")) %>%
+      dplyr::pull(liggedogn_data) == "nei"))
   
   
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(
-        .data$Regtype == "Primær",
-        .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
+        Regtype == "Primær",
+        OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                     "Omdirigert ambulanse",
                                     "Annet sykehus") &
-          .data$liggedogn >= 0 &
-          .data$liggedogn <= 60) %>%
-      dplyr::pull(.data$liggedogn_data) == "ja"))
+          liggedogn >= 0 &
+          liggedogn <= 60) %>%
+      dplyr::pull(liggedogn_data) == "ja"))
   
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(
-        .data$Regtype == "Primær",
-        .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
+        Regtype == "Primær",
+        OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                     "Omdirigert ambulanse",
                                     "Annet sykehus") &
-          (.data$liggedogn < 0 | .data$liggedogn > 60)) %>%
-      dplyr::pull(.data$liggedogn_data) == "ugyldig tid"
+          (liggedogn < 0 | liggedogn > 60)) %>%
+      dplyr::pull(liggedogn_data) == "ugyldig tid"
   ))
   
   
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(
-        .data$Regtype == "Primær" &
-          .data$OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
+        Regtype == "Primær" &
+          OverflyttetFra %in% c("Nei, direkte inn til dette sykehus",
                                       "Omdirigert ambulanse",
                                       "Annet sykehus") &
           is.na(liggedogn)) %>%
-      dplyr::pull(.data$liggedogn_data) == "manglende" ))
+      dplyr::pull(liggedogn_data) == "manglende" ))
   
   
   
@@ -319,8 +319,8 @@ testthat::test_that("legg_til_liggedogn fungerer", {
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(
-        .data$liggedogn_data %in% c("ja", "ugyldig tid")) %>%
-      dplyr::pull(.data$liggedogn),
+        liggedogn_data %in% c("ja", "ugyldig tid")) %>%
+      dplyr::pull(liggedogn),
     
     c(1, 365, -29797, -1095, 395))
   

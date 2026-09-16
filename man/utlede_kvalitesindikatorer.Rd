@@ -36,7 +36,7 @@ ki_ak_pacemakerbehov(df_ak)
 contain some of the variables \code{SkjemaStatusKomplikasjoner},
 \code{SkjemaStatusUtskrivelse}, \code{Regtype},
 \code{Indikasjon}, \code{FFR}, \code{IFR},
-\code{satt_inn_stent_i_LMS}, \code{TidlABC}, \code{IVUS}, \code{OCT},
+\code{satt_inn_stent_i_LMS}, \code{TidlACB}, \code{IVUS}, \code{OCT},
 \code{antall_stent_under_opphold}, ...}
 
 \item{df_ak}{NORIC's \code{AortaklaffVar}-table. 
@@ -81,7 +81,7 @@ when \emph{Indikasjon = Stabil koronarsykdom}.
   "Komplettering av tidligere PCI", "UAP", "NSTEMI",
   "Stabil koronarsykdom"
   \item \code{satt_inn_stent_i_LMS} = "ja"
-  \item \code{TidlABC} is one of "Nei", "Ukjent", NA
+  \item \code{TidlACB} is one of "Nei", "Ukjent", NA
   }
 \item numerator \code{indik_ivus_oct_v_stent_lms} has value \emph{ja} if
 IVUS and/or OCT has been performed.
@@ -192,76 +192,4 @@ dersom \code{AvdKompPacemaker} er \emph{ja} og
 \code{indik_pacemakerbehov} har verdien \emph{ikke ferdigstilte} dersom 
 \code{SkjemaStatusHoveskjema} er \emph{-1} eller \emph{0}.
 }
-}
-\examples{
- x <- data.frame(
-      SkjemaStatusKomplikasjoner = c(-1, 1, 0, NA, NA, NA), 
-      Regtype = c(rep("Primær", 5), NA))
- noric::ki_ferdigstilt_komplikasjoner(df_ap = x)
-
- x <- data.frame(
-      Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "annet"),
-      FFR = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-      IFR = c("Ja", "Nei", "Ukjent", NA, NA, NA),
-      PDPA = rep(NA, 6),
-      IMR = rep(NA, 6),
-      PA_Hyperemi = rep(NA, 6),
-      PD_Hyperemi = rep(NA, 6))
- noric::ki_trykkmaaling_utfoert(df_ap = x)
-
- x <- data.frame(
-      Indikasjon = c(rep("Stabil koronarsykdom", 4), NA, "Annet"),
-      TidlABC = rep("Nei", 6),
-      satt_inn_stent_i_LMS = c(rep("ja", 4), NA, "nei"),
-      IVUS = c("Ja", "Ja", NA, "Ukjent", "Nei", "Ja"),
-      OCT = c("Ja", "Nei", "Ukjent", NA, NA, NA))
- noric::ki_ivus_oct_ved_stenting_lms(df_ap = x)
-
- x <- data.frame(
-      antall_stent_under_opphold = 1:6,
-      Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
-      SkjemaStatusUtskrivelse = 1,
-      UtskrevetDod = c(rep("Nei", 5), "Ja"),
-      ASA = c("Ja", "Nei", "Ukjent", "Ja", "Ja", "Nei"),
-      AndrePlatehemmere = c(NA, "Annet", "Clopidogrel (Plavix)",
-                            "Nei", "Nei", NA),
-      Antikoagulantia = c(NA, "Annet", "Lixiana", "Marevan",  NA, "Exanta"),
-      UtskrStatiner = c("Ja", "Ja", NA, "Nei", "Ukjent", "Ja"))
-noric::ki_foreskr_blodfortynnende(df_ap = x)
-noric::ki_foreskr_kolesterolsenkende(df_ap = x)
-
- x <- data.frame(
-      Indikasjon = c("Annet", NA, "NSTEMI", "NSTEMI", "NSTEMI", "NSTEMI"),
-      Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
-      Innkomstarsak = rep(c("Brystesmerter", "Øvrig", "Dyspne"), 2),
-      Hastegrad = rep("Subakutt", 6),
-      OverflyttetFra = c("Annen  avdeling på sykehuset",
-                         rep("Annet sykehus", 2),
-                         rep("Omdirigert ambulanse", 3)),
-      ventetid_nstemi_timer = c(0, 0, 5, 100, NA, -0.1))
-noric::ki_nstemi_utredet_innen24t(df_ap = x)
-noric::ki_nstemi_utredet_innen72t(df_ap = x)
-
- x <- data.frame(
-      AvdRESH = 1:6,
-      Indikasjon = c("Annet", rep("STEMI",5)),
-      Regtype = c("Primær", "Primær", "Sekundær", rep("Primær", 3)),
-      GittTrombolyse = rep("Nei", 6),
-      Hastegrad = rep("Akutt", 6),
-      HLRForSykehus = rep("Nei", 6),
-      ProsedyreType = rep("Angio + PCI", 6),
-      BeslutningsutlosendeEKG = rep("Prehospitalt", 6),
-      ventetid_stemi_min = c(-10, 20, 110, 120, 1150, 1480))
-noric::ki_stemi_pci_innen120min(df_ap = x)
-
-
-x <- data.frame(
-      AvdRESH = c(NA, 0,102966, 101619, 109880, rep(106944,7)), 
-      TypeKlaffeprotese = c(rep("CoreValve", 2), NA, rep("CoreValve", 9)),
-      LabKompDod = c("Nei", "Nei", "Nei", "Ja", NA, rep("Nei", 7)), 
-      Pacemaker = c(rep("Nei", 4), "Ja", rep("Nei", 7)), 
-      SkjemaStatusHovedskjema = c(rep(1, 5), 0, -1, rep(1, 5)), 
-      AvdKompPacemaker = rep(c("Ja", "Nei", "Ukjent", NA), 3))
-noric::ki_ak_pacemakerbehov(df_ak = x)
-
 }

@@ -45,6 +45,7 @@ Artwork is accessed in the same way as for the noweb-files, \emph{e.g}
 
 Authors:
 \itemize{
+  \item Kristina Skaare \email{kristina.skare@helse-bergen.no}
   \item Mary Autenried \email{mary.gerina.autenried@helse-bergen.no}
   \item Arnfinn Hykkerud Steindal \email{Arnfinn.Hykkerud.Steindal@helse-nord.no}
 }

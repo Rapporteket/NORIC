@@ -30,7 +30,7 @@
 #' available in \code{df_ad}), the values for the 4 new variables are <NA>.
 #'
 #' @param df_ad NORIC's \emph{AnnenDiag}-table, must contain variables
-#' \code{ForlopsID}, \code{AVdRESH}, \code{segment}, \code{graft} and
+#' \code{ForlopsID}, \code{AvdRESH}, \code{segment}, \code{graft} and
 #' \code{metode}
 #'
 #' @param df_ap NORIC's \emph{AngioPCIVar}-table, must contain variables
@@ -42,10 +42,8 @@
 #'
 #'
 #' @name utlede_annenDiag_variabler
-#' @aliases
-#' utlede_kar_annen_diag
-#' legg_til_trykk_bilde_per_kar
-#' legg_til_trykkmaalinger
+#' @aliases utlede_kar_annen_diag legg_til_trykk_bilde_per_kar legg_til_trykkmaalinger
+NULL
 #'
 #' @examples
 #' df_ad <- data.frame(
@@ -90,27 +88,27 @@ utlede_kar_annen_diag <- function(df_ad) {
   df_ad %>%
     dplyr::mutate(
       kar = factor(dplyr::case_when(
-        .data$graft %in% c("Arterie", "Vene") ~ "Graft",
-        .data$segment %in% c("Proximale RCA (1)",
+        graft %in% c("Arterie", "Vene") ~ "Graft",
+        segment %in% c("Proximale RCA (1)",
                              "Midtre RCA (2)",
                              "Distale RCA (3)",
                              "PDA/RPD (4)",
                              "PLA (18)",
                              "Høyrekammergren (19)") ~ "RCA",
-        .data$segment %in% c("Proximale LAD (6)",
+        segment %in% c("Proximale LAD (6)",
                              "Midtre LAD (7)",
                              "Distale LAD (8)",
                              "Første diagonal (9)",
                              "Andre diagonal (10)",
                              "Septal (20)")   ~ "LAD",
-        .data$segment %in% c("Proximale LCx (11)",
+        segment %in% c("Proximale LCx (11)",
                              "Første obtusa marginal (12)",
                              "Andre obtusa marginal (13)",
                              "Distale LCx (14)",
                              "LPD (15)",
                              "PLA fra venstre (16)",
                              "Intermediær (17)")  ~ "CX",
-        .data$segment == "Ve hovedstamme (5)" ~ "LMS",
+        segment == "Ve hovedstamme (5)" ~ "LMS",
         TRUE ~ NA_character_),
 
         levels = c("LMS",
@@ -151,48 +149,48 @@ legg_til_trykk_bilde_per_kar <- function(df_ap,
 
     # Legge til variabel kar_graft
     utlede_kar_annen_diag(.) %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$kar,
-                  .data$metode) %>%
-    dplyr::arrange(.data$AvdRESH, .data$ForlopsID, .data$kar) %>%
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  kar,
+                  metode) %>%
+    dplyr::arrange(AvdRESH, ForlopsID, kar) %>%
 
     # Teller kun metode = metodeType
     # Dersom 0 undersøkelser i karet av denne metoden blir verdien n=0-->"nei"
     # Dersom minst en undersøkelse med denne metoden i karet blir verdien
     #    n > 0 --> "ja"
-    dplyr::count(.data$AvdRESH, .data$ForlopsID, .data$kar,
-                 wt = .data$metode == metodeType) %>%
+    dplyr::count(AvdRESH, ForlopsID, kar,
+                 wt = metode == metodeType) %>%
     dplyr::mutate(
       verdi_kar = ifelse(
-        test = .data$n > 0,
+        test = n > 0,
         yes = "ja",
         no = "nei")) %>%
-    dplyr::select(- .data$n) %>%
+    dplyr::select(- n) %>%
     dplyr::distinct() %>%
 
     # For alle kombinasjoner av ForlopsID og AvdRESH som har minst en rad i
     # datasettet AD (finner dem med funksjonen nesting),
     # komplettes manglende nivåer av kar med verdien "nei"
-    tidyr::complete(.data$kar,
+    tidyr::complete(kar,
                     tidyr::nesting(ForlopsID, AvdRESH),
                     fill = list(verdi_kar = "nei")) %>%
 
     # format wide med en rad per variabel:
-    tidyr::pivot_wider(names_from = .data$kar,
-                       values_from = .data$verdi_kar) %>%
+    tidyr::pivot_wider(names_from = kar,
+                       values_from = verdi_kar) %>%
 
     # Rekkefølge nye variabler, og nytt navn
-    dplyr::select(.data$AvdRESH,
-                  .data$ForlopsID,
-                  .data$LMS,
-                  .data$LAD,
-                  .data$RCA,
-                  .data$CX,
-                  .data$Graft) %>%
+    dplyr::select(AvdRESH,
+                  ForlopsID,
+                  LMS,
+                  LAD,
+                  RCA,
+                  CX,
+                  Graft) %>%
     dplyr::rename_with(.data = .,
                        .fn = function(x) paste0(metodeType, "_", x),
-                       .cols =  .data$LMS:.data$Graft)
+                       .cols =  LMS:Graft)
 
 
   # Returnere df_ap, hvor de 5 nye variablene er lagt til.
@@ -230,63 +228,63 @@ legg_til_trykkmaalinger <- function(df_ap, df_ad) {
   # Count number of entries with metode == "IMR" for each procedure, if at
   # least one entry, say yes to method.
   ant_imr <- df_ad %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$metode) %>%
-    dplyr::arrange(., .data$AvdRESH)  %>%
-    dplyr::group_by(.data$AvdRESH) %>%
-    dplyr::count(.data$ForlopsID,
-                 wt = .data$metode == "IMR") %>%
-    dplyr::mutate(IMR = ifelse(test = .data$n > 0,
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  metode) %>%
+    dplyr::arrange(., AvdRESH)  %>%
+    dplyr::group_by(AvdRESH) %>%
+    dplyr::count(ForlopsID,
+                 wt = metode == "IMR") %>%
+    dplyr::mutate(IMR = ifelse(test = n > 0,
                                yes = "Ja",
                                no = "Nei")) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-.data$n)
+    dplyr::select(-n)
 
 
 
   ant_pdpa <- df_ad %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$metode) %>%
-    dplyr::arrange(., .data$AvdRESH)  %>%
-    dplyr::group_by(.data$AvdRESH) %>%
-    dplyr::count(.data$ForlopsID,
-                 wt = .data$metode == "Pd/Pa") %>%
-    dplyr::mutate(PdPa = ifelse(test = .data$n > 0,
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  metode) %>%
+    dplyr::arrange(., AvdRESH)  %>%
+    dplyr::group_by(AvdRESH) %>%
+    dplyr::count(ForlopsID,
+                 wt = metode == "Pd/Pa") %>%
+    dplyr::mutate(PdPa = ifelse(test = n > 0,
                                 yes = "Ja",
                                 no = "Nei")) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-.data$n)
+    dplyr::select(-n)
 
   ant_pa <- df_ad %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$metode) %>%
-    dplyr::arrange(., .data$AvdRESH)  %>%
-    dplyr::group_by(.data$AvdRESH) %>%
-    dplyr::count(.data$ForlopsID,
-                 wt = .data$metode == "Pa-hyperemi") %>%
-    dplyr::mutate(Pa = ifelse(test = .data$n > 0,
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  metode) %>%
+    dplyr::arrange(., AvdRESH)  %>%
+    dplyr::group_by(AvdRESH) %>%
+    dplyr::count(ForlopsID,
+                 wt = metode == "Pa-hyperemi") %>%
+    dplyr::mutate(Pa = ifelse(test = n > 0,
                               yes = "Ja",
                               no = "Nei")) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-.data$n)
+    dplyr::select(-n)
 
 
   ant_pd <- df_ad %>%
-    dplyr::select(.data$ForlopsID,
-                  .data$AvdRESH,
-                  .data$metode) %>%
-    dplyr::arrange(., .data$AvdRESH)  %>%
-    dplyr::group_by(.data$AvdRESH) %>%
-    dplyr::count(.data$ForlopsID,
-                 wt = .data$metode == "Pd-hyperemi") %>%
-    dplyr::mutate(Pd = ifelse(test = .data$n > 0,
+    dplyr::select(ForlopsID,
+                  AvdRESH,
+                  metode) %>%
+    dplyr::arrange(., AvdRESH)  %>%
+    dplyr::group_by(AvdRESH) %>%
+    dplyr::count(ForlopsID,
+                 wt = metode == "Pd-hyperemi") %>%
+    dplyr::mutate(Pd = ifelse(test = n > 0,
                               yes = "Ja",
                               no = "Nei")) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-.data$n)
+    dplyr::select(-n)
 
 
 
@@ -305,6 +303,6 @@ legg_til_trykkmaalinger <- function(df_ap, df_ad) {
     dplyr::left_join(.,
                      ant_pd,
                      by = c("AvdRESH", "ForlopsID")) %>%
-    dplyr::arrange(.data$AvdRESH, .data$ForlopsID)
+    dplyr::arrange(AvdRESH, ForlopsID)
 
 }
