@@ -1,3 +1,6 @@
+# noric 4.6.1 Bugfix
+Oppdatere filer for bruk av pakken forcats
+
 # noric 4.6.0 Nyeste versjon av rapbase
 * Variabelen TidlABC er endret til TidlACB i angio/PCI-tabellen
 * Fiks av mapping-filen til segment stent
