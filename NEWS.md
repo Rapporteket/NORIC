@@ -2,7 +2,6 @@
 * Fiks HastegradEUROSCORE i mapping-filen
 * Fjerne gamle variabler: Malignitet og Strålebehandling
 * ForlopsType2 i TAVI-mpdulen endres til Hastegrad
-* Fjern ekstra skråstrek foran prosenttegnet i tabeltekst i månedsrapport
 
 
 # noric 4.6.1 Bugfix
