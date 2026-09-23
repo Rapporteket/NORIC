@@ -13,7 +13,6 @@ header-includes:
   - \usepackage{booktabs}
   - \usepackage{rotating}
   - \usepackage{float}
-  - \usepackage{booktabs}
 title:   |  
   | Kvalitetsindikatorer fra NORIC
   |
@@ -27,7 +26,7 @@ reglogo: '`r system.file("NORIC_logo.png", package = "noric")`'
 linkcolor: darkblue
 output:
   fig_caption: yes
----
+---   
 
 ```{r knitrOptions, include=FALSE}
 library(magrittr)
@@ -37,7 +36,6 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(noric)
-# library(gridExtra) Sjekk om rapporten fungerer uten denne pakken
 
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
@@ -73,7 +71,7 @@ colKontrast <- "#FF7260"
 
 ```{r }
 if (params$rendered_by_shiny)
-  shiny::setProgress(0.05)  # set progress to 5%
+  shiny::setProgress(0.1)  # set progress to 10%
 ```
 
 
@@ -339,7 +337,7 @@ aK_nasjonalt %<>%
 
 ```{r }
 if (params$rendered_by_shiny)
-  shiny::setProgress(0.1)  # set progress to 10%
+  shiny::setProgress(0.2)  # set progress to 20%
 ```
 
 
@@ -377,7 +375,7 @@ timeTableMonth <- data.frame(
 
 ```{r }
 if (params$rendered_by_shiny)
-  shiny::setProgress(0.15)  # set progress to 15%
+  shiny::setProgress(0.3)  # set progress to 30%
 ```
 
 
@@ -411,7 +409,7 @@ if (dim_ak_lokalt[1] > 10) {
 
 ```{r }
 if (params$rendered_by_shiny)
-  shiny::setProgress(0.25)  # set progress to 25%
+  shiny::setProgress(0.4)  # set progress to 40%
 ```
 
 
@@ -500,7 +498,7 @@ tabFerdigtiltKompl <- timeTableMonth %>%
 
 
 cap <- paste0(
-  "Antall og andel ferdigstilte komplikasjonsskjemaer etter måned. ", 
+  "Antall og andel ferdigstilte komplikasjonsskjemaer etter måned. ",
   "Andel beregnes ikke for måneder med færre enn 5 observasjoner.")
 
 noric::mst(tab = tabFerdigtiltKompl, 
@@ -519,7 +517,7 @@ cat("\n\n\\pagebreak\n")
 
 ```{r }
 if (params$rendered_by_shiny)
-  shiny::setProgress(0.35)  # set progress to 35%
+  shiny::setProgress(0.5)  # set progress to 50%
 ```
 
 # Invasiv utredning ved NSTEMI
@@ -559,7 +557,7 @@ cap <- paste0(
   "PCI-sykehus og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid ", 
-  "for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett ",
+  "for arteriepunksjon er registrert. Måneder med mindre enn 50 \\% komplett ",
   " data eller færre enn 5 forløp blir markert med stjerne og andel forløp ", 
   "med ventetid under 24 timer beregnes ikke. (Målnivå: 50 \\%)")
 
@@ -804,7 +802,7 @@ cap <- paste0(
   "overflyttet fra annet sykehus hver for seg og samlet. ", 
   "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
   "Per måned, fra hele siste året til og med siste hele måned. ", 
-  "Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn ", 
+  "Måneder der sykehuset har færre enn 50 \\% komplette data eller færre enn ", 
   "5 forløp vises ikke i diagrammet.")
 
 
@@ -1140,7 +1138,7 @@ cap <- paste0(
   "og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid for ", 
-  "arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data ", 
+  "arteriepunksjon er registrert. Måneder med mindre enn 50 \\% komplett data ", 
   "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ", 
   "ventetid under 72 timer beregnes ikke. (Målnivå: 80 \\%)"
 )
@@ -1217,7 +1215,7 @@ cat("\n\n\\pagebreak\n")
 
 ```{r }
 if (params$rendered_by_shiny)
-  shiny::setProgress(0.75)  # set progress to 75%
+  shiny::setProgress(0.7)  # set progress to 70%
 ```
 
 
@@ -1258,7 +1256,7 @@ if (params$reshId != 106944) {
     "Ekskludert er også pasienter som kun har fått utført angiografi, og ikke PCI. ",
     "Med 'komplette' menes forløp der både tidspunkt for arteriepunksjon og ", 
     " beslutningsutløsende EKG er registrert og gyldige. ", 
-    "Måneder med mindre enn 50\\% komplette data eller færre enn 5 forløp blir ", 
+    "Måneder med mindre enn 50 \\% komplette data eller færre enn 5 forløp blir ", 
     "markert med stjerne og andel pasienter med PCI innen 120 minutter ", 
     "beregnes ikke for disse. (Målnivå: 80 \\%)")
   
@@ -1744,7 +1742,7 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     "Antall og andel pasienter som har fått implantert permanent pacemaker ",
     "under sykehusoppholdet etter kateterbasert innsetting av aortaklaff. ",
     "Kun registreringer der prosedyreskjemaet er ferdigstilt er tatt med. ",
-    "Kvartal der andel ferdigstilte prosedyreskjemaer er mindre enn 50\\% ",
+    "Kvartal der andel ferdigstilte prosedyreskjemaer er mindre enn 50 \\% ",
     "blir markert med stjerne og vi regner ikke ut andel implanterte ",
     "permanente pacemaker for disse.")
   

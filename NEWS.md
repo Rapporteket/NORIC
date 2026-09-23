@@ -1,3 +1,9 @@
+# noric 4.6.2 Småfiks
+* Fiks HastegradEUROSCORE i mapping-filen
+* Fjerne gamle variabler: Malignitet og Strålebehandling
+* ForlopsType2 i TAVI-mpdulen endres til Hastegrad
+
+
 # noric 4.6.1 Bugfix
 Oppdatere filer for bruk av pakken forcats
 
