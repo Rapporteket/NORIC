@@ -598,7 +598,7 @@ queryAortaklaffvarnum <- function(){
       WHEN MCE.MCETYPE = 1 THEN 'Planlagt'
       WHEN MCE.MCETYPE = 2 THEN 'Akutt'
       WHEN MCE.MCETYPE = 3 THEN 'Subakutt'
-    END AS ForlopsType2,
+    END AS Hastegrad,
   
     -- Perkutane aortaklaffer
     T.SCREENING AS ScreeningBeslutning,
@@ -668,16 +668,10 @@ queryAortaklaffvarnum <- function(){
     T.PERC_VALVE_RISK_FORMER_ACB AS PerkKlaffPgaRisikoACB,
     T.COUNTERINDICATION AS PerkKlaffPgaRisikoSpesiell,
     T.OTHERMORBREASON0 AS Porselenaorta,
-    CASE
-      WHEN T.PREVIOUS_ILLNESS_MALIGNANCY IS NULL THEN T.OTHERMORBREASON1
-      ELSE T.PREVIOUS_ILLNESS_MALIGNANCY
-    END AS Malignitet,
+    T.PREVIOUS_ILLNESS_MALIGNANCY AS Malignitet,
     T.OTHERMORBREASON3 AS UgunstigAnatomi,
     T.OTHERMORBREASON2 AS Steroidbehandling,
-    CASE
-      WHEN T.PREVIOUS_ILLNESS_RADIATION_THERAPY IS NULL THEN T.OTHERMORBREASON4
-      ELSE T.PREVIOUS_ILLNESS_RADIATION_THERAPY
-    END AS Stralebehandling,
+    T.PREVIOUS_ILLNESS_RADIATION_THERAPY AS Stralebehandling,
     T.OTHERMORBREASON5 AS Thoraxdeformitet,
     T.OTHERMORB AS AnnenAlvorligSykdomKirRisiko,
     T.PERC_VALVE_DUE_TO_PATIENT AS PerkKlaffPgaPasient,

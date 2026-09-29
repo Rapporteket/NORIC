@@ -46,7 +46,8 @@ Imports:
   tidyr,
   tidyselect,
   xtable,
-  yaml
+  yaml,
+  forcats
 Remotes:
   Rapporteket/rapbase,
   andrewsali/shinycssloaders,

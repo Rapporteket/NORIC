@@ -208,7 +208,7 @@ AK <- noric::getPrepAkData(registryName = params$registryName,
                            singleHospital = params$reshId)
 ```
 
-```{r prepdata}
+```{r prepdata, warning=FALSE}
 AK %<>% 
   dplyr::mutate(
     Prosedyre2 = factor(
@@ -223,7 +223,7 @@ AK %<>%
                  "Avbrutt", 
                  NA_character_)),
     
-    ForlopsType2 = factor(x = ForlopsType2, 
+    Hastegrad = factor(x = Hastegrad, 
                           levels = c("Planlagt",
                                      "Subakutt", 
                                      "Akutt", 
@@ -255,13 +255,14 @@ AK %<>%
       "NAVITOR" = "Navitor",
       "Meril Myval Octacor" = "Myval",
       "Meril Myval Octapro" = "Myval",
+      "Annen" = "Annen",
       .missing = "Missing",
       .default = "Annet"),
     
     
     TypeKlaffeprotese2 = forcats::fct_relevel(
       TypeKlaffeprotese2,
-      c("Evolut", "Sapien", "Navitor", "Myval", "Annet")), 
+      c("Evolut", "Sapien", "Navitor", "Myval", "Annen", "Missing", "Annet")), 
     
     Maaned = factor(maaned_nr, 
                     levels = c("01", "02", "03", "04", "05", "06", "07", 
@@ -617,7 +618,7 @@ cap <- paste0("Fordeling av hastegrad registrert i NORIC ",
 TabHast_fjor <- merge(
   x = timeTableMonth_fjor,
   y = AK %>%  
-    janitor::tabyl(maaned, ForlopsType2) %>% 
+    janitor::tabyl(maaned, Hastegrad) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
   by.y = "maaned", 
@@ -629,7 +630,7 @@ TabHast_fjor <- merge(
 TabHast_aar <- merge(
   x = timeTableMonth_aar,
   y = AK %>%  
-    janitor::tabyl(maaned, ForlopsType2) %>% 
+    janitor::tabyl(maaned, Hastegrad) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
   by.y = "maaned", 
@@ -852,7 +853,7 @@ TabTypeKlaff_fjor <- merge(
   x = timeTableMonth_fjor,
   y = AK %>%  
     filter(Prosedyre %in% c("TAVI")) %>% 
-    janitor::tabyl(maaned, TypeKlaffeprotese2) %>% 
+    janitor::tabyl(maaned, TypeKlaffeprotese2, show_missing_levels = FALSE) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
   by.y = "maaned", 
@@ -867,7 +868,7 @@ TabTypeKlaff_aar <- merge(
   x = timeTableMonth_aar,
   y = AK %>% 
     filter(Prosedyre %in% c("TAVI")) %>% 
-    janitor::tabyl(maaned, TypeKlaffeprotese2) %>% 
+    janitor::tabyl(maaned, TypeKlaffeprotese2, show_missing_levels = FALSE) %>% 
     janitor::adorn_totals("col", name= "Totalt"), 
   by.x  = "maaned", 
   by.y = "maaned", 
@@ -2272,7 +2273,7 @@ Merk at datovariablene ikke nødvendigvis er filvasket.
 
 
 AK %>% 
-  dplyr::filter(ForlopsType2 == "Planlagt", 
+  dplyr::filter(Hastegrad == "Planlagt", 
                 !is.na(ventetid_tavi)) %>% 
   dplyr::select(ventetid_tavi, Maaned, aar) %>% 
   ggplot2::ggplot(mapping= ggplot2::aes(x = Maaned, 
