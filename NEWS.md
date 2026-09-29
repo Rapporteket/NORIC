@@ -1,11 +1,5 @@
-# noric 4.6.2 Småfiks
-* Fiks HastegradEUROSCORE i mapping-filen
-* Fjerne gamle variabler: Malignitet og Strålebehandling
-* ForlopsType2 i TAVI-mpdulen endres til Hastegrad
-
-
-# noric 4.6.1 Bugfix
-Oppdatere filer for bruk av pakken forcats
+# noric 4.7.0
+* Ny kvalitetsindikator for strålebelastning (Angio og TAVI)
 
 # noric 4.6.0 Nyeste versjon av rapbase
 * Variabelen TidlABC er endret til TidlACB i angio/PCI-tabellen
@@ -17,7 +11,6 @@ Diverse fiks
 * Endring av kvalitetsindikatorene trykkmåling og IVUS/OCT ved stening i LMS.
 * Variabelnavnet Hastegrad i TAVI-modulen er endret til HastegradEuroSCORE.
 * Gruppering av klaffetyper er endret.
-
 
 
 # noric 4.4.0 Nedlasting rawdata

@@ -164,6 +164,9 @@ getPrepAkData <- function(registryName, fromDate, toDate, singleRow,
   # Indikator pacemakerbehov
   aK %<>% noric::ki_ak_pacemakerbehov(df_ak = .) 
   
+  # Indikator strålebelastning
+  aK %<>% noric::ki_straaledose_tavi(df_ak = .)
+  
   aK
 }
 
@@ -822,7 +825,8 @@ getPrepApLightData <- function(registryName, fromDate, toDate, singleRow,
     noric::ki_nstemi_utredet_innen24t(df_ap = .) %>%
     noric::ki_nstemi_utredet_innen72t(df_ap = .) %>% 
     noric::legg_til_ventetid_stemi_min(df_ap = .) %>%
-    noric::ki_stemi_pci_innen120min(df_ap = .)
+    noric::ki_stemi_pci_innen120min(df_ap = .) %>%
+    noric::ki_straaledose_angio(df_ap = .)
   
   
   # Legg til liggedogn

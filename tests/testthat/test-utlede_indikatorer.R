@@ -1378,6 +1378,9 @@ testthat::test_that("ki_pacemakerbehov works", {
       df_ak = data.frame(tullenavn = c(1, 1, 1))))
 })
 
+# Legg inn test for ki_straaledose_angio
 
+
+# Legg inn test for ki_straaledose_tavi
 
 

@@ -882,3 +882,99 @@ ki_ak_pacemakerbehov <- function(df_ak) {
       
       
 }
+
+#' @rdname utlede_kvalitesindikatorer
+#' @export
+ki_straaledose_angio <- function(df_ap) {
+  
+  stopifnot(all(c("ProsedyreType", 
+                  "Straledose",
+                  "Vekt", 
+                  "TidlACB",
+                  "FFR",
+                  "IFR",
+                  "PDPA",
+                  "IMR",
+                  "PA_Hyperemi",
+                  "PD_Hyperemi", 
+                  "NIRS",
+                  "IVUS", 
+                  "OCT", 
+                  "AdjuvantTerapi", 
+                  "Tilleggsprosedyrer") %in% names(df_ap)))
+  
+  
+  df_ap %>%
+    dplyr::mutate(
+      
+      # Datagrunnlag for indikatoren
+      indik_straaledose_angio_data = dplyr::if_else(
+        condition = (.data$ProsedyreType %in% "Angio" &
+                       !.data$TidlACB %in% "Ja" & 
+                       .data$Vekt >= 55 & .data$Vekt <= 90 &
+                       ! .data$FFR %in% "Ja" &
+                       ! .data$IFR %in% "Ja" &
+                       ! .data$PDPA %in% "Ja" &
+                       ! .data$PD_Hyperemi %in% "Ja" &
+                       ! .data$PA_Hyperemi %in% "Ja" &
+                       ! .data$IMR %in% "Ja" &
+                       ! .data$NIRS %in% "Ja" &
+                       ! .data$IVUS %in% "Ja" &
+                       ! .data$OCT %in% "Ja" &
+                       ! .data$AdjuvantTerapi %in% "Ja" &
+                       ! .data$Tilleggsprosedyrer %in% "Ja"),
+        true = "ja",
+        false = "nei",
+        missing = "nei"),
+      
+      
+      indik_straaledose_angio = dplyr::case_when(
+        .data$indik_straaledose_angio_data == "ja" & 
+          .data$Straledose %in% c(NA, 99000) ~ "manglende", 
+        .data$indik_straaledose_angio_data == "ja" & 
+          .data$Straledose < 2000 ~ "ja", 
+        .data$indik_straaledose_angio_data == "ja" & 
+          .data$Straledose >= 2000 ~ "nei", 
+        .data$indik_straaledose_angio_data == "nei" ~ NA_character_, 
+        TRUE ~ "tom" )
+    )
+}
+
+
+#' @rdname utlede_kvalitesindikatorer
+#' @export
+ki_straaledose_tavi <- function(df_ak) {
+  
+  stopifnot(all(c("TypeKlaffeprotese", 
+                  "Straaledose",
+                  "AvdRESH",
+                  "ProsedyreDato") %in% names(df_ak)))
+  
+  
+  df_ak %>%
+    dplyr::mutate(
+      
+      # Datagrunnlag for indikatoren
+      indik_straaledose_tavi_data = dplyr::if_else(
+        condition = (as.Date(.data$ProsedyreDato) >= as.Date("2017-01-01") &
+                       !is.na(.data$TypeKlaffeprotese) & 
+                       .data$AvdRESH %in% c(102966, # HUS
+                                            101619, # UNN
+                                            109880, # Ullevål
+                                            104284, # St.Olavs
+                                            700422)), # Riksen
+        true = "ja",
+        false = "nei",
+        missing = "nei"),
+      
+      
+      indik_straaledose_tavi = dplyr::case_when(
+        indik_straaledose_tavi_data == "ja" & Straaledose %in% c(NA, 99000) ~ "manglende", 
+        indik_straaledose_tavi_data == "ja" & Straaledose < 7500 ~ "ja", 
+        indik_straaledose_tavi_data == "ja" & Straaledose >= 7500 ~ "nei", 
+        indik_straaledose_tavi_data == "nei" ~ NA_character_, 
+        TRUE ~ "tom" )
+    )
+}
+
+
