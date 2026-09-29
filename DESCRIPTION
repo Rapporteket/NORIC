@@ -50,8 +50,7 @@ Imports:
   forcats
 Remotes:
   Rapporteket/rapbase,
-  andrewsali/shinycssloaders,
-  smartinsightsfromdata/rpivotTable
+  andrewsali/shinycssloaders
 Suggests: 
     covr, 
     testthat
