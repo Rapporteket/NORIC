@@ -905,7 +905,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
         
         !is.na(eprom_bestilt) ~ 
           "ja")
-    )
+    ) 
   
   tavi %<>% 
     dplyr::mutate(
@@ -926,7 +926,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
     noric::legg_til_taviStatus()
   
   # Fikse rekkeflge
-  tavi %>% 
+  tavi %<>% 
     dplyr::select(AvdRESH,
                   Sykehusnavn,
                   PasientID, 
@@ -951,6 +951,24 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
                   rose01:premStatus) %>% 
     # Legg til aar, maaned, uke, etc.
     noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
-  
+ 
+  tavi %>% 
+    mutate(
+      datagrunnlag_test = case_when(
+        
+        eprom_bestilt == "nei, før innføring av prom" ~ "nei, før innføring av prom", 
+        eprom_bestilt == "nei, registreringen er for ny" ~ "nei, registreringen er for ny", 
+        eprom_bestilt == "nei" ~ "ikke bestilt", 
+        ePromStatus == 1 ~ "Bestilt, venter på svar", 
+        ePromStatus == 2 ~ "Bestilt, utløpt",
+        ePromStatus == 3 ~ "Bestilt og besvart",
+        ePromStatus == 4 & form_order_status_error_code == 1 ~ "Bestilt, men 'unreachable'", 
+        ePromStatus == 4 & is.na(form_order_status_error_code) ~ "Bestilt, ukjent error",
+        ePromStatus == 6 & form_order_status_error_code == 1 ~ "Bestilt, men 'unreachable'",
+        ePromStatus == 6 & is.na(form_order_status_error_code) ~ "Bestilt, ukjent error",
+        ePromStatus ==  is.na(form_order_status_error_code) ~ "Bestilt, ukjent error",
+        TRUE ~ "error"
+        
+      ))
 }
 
