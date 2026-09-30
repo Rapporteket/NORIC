@@ -932,10 +932,11 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
                   PasientID, 
                   ForlopsID, 
                   FnrType, 
+                  FnrSubtype,
                   PasientAlder, 
                   PasientKjonn,
                   AvdodFReg, 
-                  DodsdatoFReg, 
+                  DodsdatoFReg,
                   TypeKlaffeprotese, 
                   UtskrevetTil, 
                   Prosedyre, 
@@ -954,6 +955,16 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
  
   tavi %>% 
     mutate(
+      kriterie_alder = ifelse(PasientAlder >= 18, "ja", "nei"), 
+      kriterie_norsk = ifelse(FnrType %in% c(1, 4) & !FnrSubype %in% c(2, 4), "ja", "nei"), 
+      kriterie_levende = ifelse(
+        AvdodFReg %in% 0 |
+          (AvdodFReg %in% 1 & DodsdatoFReg > (ProsedyreDato %+% lubrdidate::months(3))), "ja", "nei"), 
+      kriterie_sykehjem = ifelse(!UtskrevetTil %in% 4 , "ja", "nei"), 
+      kriterie_ferdigstilt = ifelse(), 
+      kriterie_instrumenttype = .
+        kriterie_ikke allerede taviprom,
+      
       datagrunnlag_test = case_when(
         
         eprom_bestilt == "nei, før innføring av prom" ~ "nei, før innføring av prom", 

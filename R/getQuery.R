@@ -1456,6 +1456,7 @@ queryTaviprom <- function(){
     P.ID AS PasientID,
     proms.REGISTRATION_TYPE AS Registreringstype,
     P.SSN_TYPE AS FnrType,
+    P.SSNSUBTYPE AS FnrSubtype,
     tavi.PROCEDUREDATE AS ProsedyreDato,
     
     proms.TSSENDT AS ePromBestillingsdato,
