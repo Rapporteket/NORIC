@@ -949,7 +949,10 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
                   form_order_status_error_code,
                   ePromBestillingsdato:ePromUtloeptDato, 
                   Registreringstype, 
-                  rose01:premStatus) %>% 
+                  rose01:premStatus, 
+                  TSUPDATED_pros, 
+                  TSUPDATED_utsk, 
+                  TSCREATED_pros, TSCREATED_utsk) %>% 
     # Legg til aar, maaned, uke, etc.
     noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
  
@@ -959,36 +962,58 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
                                       "ja", "nei", NA_character_), 
       dod_innen_4mnd = dplyr::if_else((difftime(ProsedyreDato %m+% months(4), DodsdatoFReg) >= 0),
                                       "ja", "nei", NA_character_),
+     
       kriterie_alder = ifelse(PasientAlder >= 18, "ja", "nei"), 
       kriterie_norsk = ifelse(
         FnrType %in% c("Norsk personnr", "SyntPop nummer") & 
           !FnrSubtype %in% c(2, 4),
         "ja", "nei"), 
+      
       kriterie_levende = ifelse(
         AvdodFReg %in% "Nei" |
-          (AvdodFReg %in% "Ja" & dod_innen_3mnd %in% "nei"), "ja", "nei"), 
+          (AvdodFReg %in% "Ja" & dod_innen_3mnd %in% "nei"), 
+        "ja", "nei"), 
       
-      kriterie_sykehjem = ifelse(!UtskrevetTil %in% 4 , "ja", "nei"), 
+      kriterie_sykehjem = ifelse(!UtskrevetTil %in% "Sykehjem" , "ja", "nei"), 
+      
       kriterie_satt_inn_klaff = ifelse(
-        (!is.na(TypeKlaffeprotese) & Prosedyre %in% 1) |
+        (!is.na(TypeKlaffeprotese) & Prosedyre %in% "TAVI") |
           (!is.na(TypeKlaffeprotese) & !is.na(ScreeningBeslutning)), 
         "ja", "nei"),
+      
+      # kriterie_enesteprom = ifelse(
+      #   sjekk om forsøk på bestilling 
+      #   er etter eventuel karens for
+      #   forrige prsoedyre "ja", "nei"),
+      
+      kriterie_alle = ifelse(kriterie_alder %in% "ja" &
+                               kriterie_norsk %in% "ja" &
+                               kriterie_levende %in% "ja" &
+                               kriterie_sykehjem %in% "ja" &
+                               kriterie_satt_inn_klaff %in% "ja", 
+                             "ja", "nei"),
 
-      datagrunnlag_test = case_when(
+      datagrunnlag_taviprom = dplyr::case_when(
+        kriterie_alle %in% "ja" & 
+          eprom_bestilt == "ja" ~ "Ja",
         
-        eprom_bestilt == "nei, før innføring av prom" ~ "nei, før innføring av prom", 
-        eprom_bestilt == "nei, registreringen er for ny" ~ "nei, registreringen er for ny", 
-        eprom_bestilt == "nei" ~ "ikke bestilt", 
-        ePromStatus == 1 ~ "Bestilt, venter på svar", 
-        ePromStatus == 2 ~ "Bestilt, utløpt",
-        ePromStatus == 3 ~ "Bestilt og besvart",
-        ePromStatus == 4 & form_order_status_error_code == 1 ~ "Bestilt, men 'unreachable'", 
-        ePromStatus == 4 & is.na(form_order_status_error_code) ~ "Bestilt, ukjent error",
-        ePromStatus == 6 & form_order_status_error_code == 1 ~ "Bestilt, men 'unreachable'",
-        ePromStatus == 6 & is.na(form_order_status_error_code) ~ "Bestilt, ukjent error",
-        ePromStatus ==  is.na(form_order_status_error_code) ~ "Bestilt, ukjent error",
-        TRUE ~ "error"
-        
+        kriterie_alle %in% "ja" & 
+          eprom_bestilt == "nei" &
+          !aar %in% 2023 ~ "Nei: Kriterier OK, mangler utsending (mulig etterreg./fl. tavi) ", # Mulig etter-registrering elle rikke første tavi!
+ 
+       kriterie_alle %in% "ja" & 
+         eprom_bestilt == "nei" &
+         aar %in% 2023 ~ "Nei: Feil fra 2023", # Mulig etter-registrering!
+      
+        kriterie_alle %in% "nei" & 
+         eprom_bestilt == "nei" ~ "Nei: Mangler kriterier",     
+       
+        kriterie_alle %in% "nei" & 
+          eprom_bestilt == "ja" ~ "Nei: Mangler kriterie, prom feilaktig sendt ", # Mulig etter-registrering!
+         
+         eprom_bestilt %in% "nei, før innføring av prom" ~ "Nei: Før innføring av prom", 
+         eprom_bestilt %in% "nei, registreringen er for ny" ~ "Nei: Registreringen er for ny", 
+         TRUE ~ NA_character_
       ))
 }
 
