@@ -952,7 +952,8 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
                   rose01:premStatus, 
                   TSUPDATED_pros, 
                   TSUPDATED_utsk, 
-                  TSCREATED_pros, TSCREATED_utsk) %>% 
+                  TSCREATED_pros,
+                  TSCREATED_utsk) %>% 
     # Legg til aar, maaned, uke, etc.
     noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
  

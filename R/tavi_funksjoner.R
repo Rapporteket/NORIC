@@ -23,7 +23,7 @@ legg_til_taviStatus <- function(df){
     ePromStatus %in% 1 ~ "ordered", 
     ePromStatus %in% 2 ~ "expired", 
     ePromStatus %in% 3 ~ "completed", 
-    ePromStatus %in% 4 ~ "failed",
+    ePromStatus %in% c(4,6) ~ "failed",
     TRUE ~ NA_character_)) %>% 
     dplyr::relocate(ePromStatus_tekst, .after = ePromStatus)
 }
