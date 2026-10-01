@@ -883,7 +883,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
   tavi <- dplyr::left_join(
     aK, 
     tP %>%
-      dplyr::select(-ProsedyreDato, -FnrType) %>% 
+      dplyr::select(-ProsedyreDato, -FnrType, -FnrSubtype) %>% 
       dplyr::mutate(
         eprom_bestilt = "ja"), 
     by = c("ForlopsID", "AvdRESH", "PasientID")) 
@@ -955,16 +955,25 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
  
   tavi %>% 
     mutate(
+      dod_innen_3mnd = dplyr::if_else((difftime(ProsedyreDato %m+% months(3), DodsdatoFReg) >= 0),
+                                      "ja", "nei", NA_character_), 
+      dod_innen_4mnd = dplyr::if_else((difftime(ProsedyreDato %m+% months(4), DodsdatoFReg) >= 0),
+                                      "ja", "nei", NA_character_),
       kriterie_alder = ifelse(PasientAlder >= 18, "ja", "nei"), 
-      kriterie_norsk = ifelse(FnrType %in% c(1, 4) & !FnrSubype %in% c(2, 4), "ja", "nei"), 
+      kriterie_norsk = ifelse(
+        FnrType %in% c("Norsk personnr", "SyntPop nummer") & 
+          !FnrSubtype %in% c(2, 4),
+        "ja", "nei"), 
       kriterie_levende = ifelse(
-        AvdodFReg %in% 0 |
-          (AvdodFReg %in% 1 & DodsdatoFReg > (ProsedyreDato %+% lubrdidate::months(3))), "ja", "nei"), 
-      kriterie_sykehjem = ifelse(!UtskrevetTil %in% 4 , "ja", "nei"), 
-      kriterie_ferdigstilt = ifelse(), 
-      kriterie_instrumenttype = .
-        kriterie_ikke allerede taviprom,
+        AvdodFReg %in% "Nei" |
+          (AvdodFReg %in% "Ja" & dod_innen_3mnd %in% "nei"), "ja", "nei"), 
       
+      kriterie_sykehjem = ifelse(!UtskrevetTil %in% 4 , "ja", "nei"), 
+      kriterie_satt_inn_klaff = ifelse(
+        (!is.na(TypeKlaffeprotese) & Prosedyre %in% 1) |
+          (!is.na(TypeKlaffeprotese) & !is.na(ScreeningBeslutning)), 
+        "ja", "nei"),
+
       datagrunnlag_test = case_when(
         
         eprom_bestilt == "nei, før innføring av prom" ~ "nei, før innføring av prom", 
