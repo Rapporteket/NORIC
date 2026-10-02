@@ -1456,12 +1456,14 @@ queryTaviprom <- function(){
     P.ID AS PasientID,
     proms.REGISTRATION_TYPE AS Registreringstype,
     P.SSN_TYPE AS FnrType,
+    P.SSNSUBTYPE AS FnrSubtype,
     tavi.PROCEDUREDATE AS ProsedyreDato,
     
     proms.TSSENDT AS ePromBestillingsdato,
     proms.TSRECEIVED AS ePromMottatt,
     proms.EXPIRY_DATE AS ePromUtloeptDato,
     proms.STATUS AS ePromStatus,
+    proms.FORM_ORDER_STATUS_ERROR_CODE	AS form_order_status_error_code,	
     
     r.Q01 AS rose01,
     r.Q02 AS rose02,
