@@ -59,7 +59,7 @@ angp_varnavn_kobl <-
         "A.WEIGHT AS Vekt",
         "A.SKREATININ AS SKreatinin",
         "A.TIDPCI  AS TidlPCI",
-        "A.TIDCABG  AS TidlABC",
+        "A.TIDCABG  AS TidlACB",
         "A.SMOKING_STATUS  AS RoykeStatus",
         "A.HYPERTON  AS BehHypertoni",
         "A.STATINS AS Statiner",
@@ -1347,7 +1347,7 @@ aort_varnavn_kobl <-
         "T.GRIPTEST AS Gripestyrke",
         "T.EURO2_DIALYSIS AS DialyseFoerOp",
         "T.KRITISKT AS KritiskPreopTilstand",
-        "T.EURO2_URGENCY AS Hastegrad",
+        "T.EURO2_URGENCY AS HastegradEUROSCORE",
         
         #-- Kontraindikasjon mot kirurgi
         "T.PERC_VALVE_DUE_TO_RISK AS PerkKlaffPgaRisiko",
