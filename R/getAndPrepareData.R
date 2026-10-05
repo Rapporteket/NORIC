@@ -889,7 +889,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
     by = c("ForlopsID", "AvdRESH", "PasientID")) 
   
   
-  # Datagrunnlag for ePROM
+  # EPROM bestilt
   tavi %<>% 
     dplyr::mutate(
       eprom_bestilt = dplyr::case_when(
