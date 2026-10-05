@@ -1464,6 +1464,7 @@ queryTaviprom <- function(){
     proms.EXPIRY_DATE AS ePromUtloeptDato,
     proms.STATUS AS ePromStatus,
     proms.FORM_ORDER_STATUS_ERROR_CODE	AS form_order_status_error_code,	
+    proms.FORM_ORDER_ERROR_MESSAGE	AS form_order_status_error_message,	
     
     r.Q01 AS rose01,
     r.Q02 AS rose02,
