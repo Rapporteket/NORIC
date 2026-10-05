@@ -923,7 +923,8 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
   # LEgg til listestekst
   
   tavi %<>%
-    noric::legg_til_taviStatus()
+    noric::legg_til_taviStatus() %>% 
+    noric::legg_til_taviErrorCode()
   
   # Fikse rekkeflge
   tavi %<>% 
@@ -947,6 +948,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
                   ePromStatus,
                   ePromStatus_tekst, 
                   form_order_status_error_code,
+                  form_order_status_error_code_tekst,
                   ePromBestillingsdato:ePromUtloeptDato, 
                   Registreringstype, 
                   rose01:premStatus, 
