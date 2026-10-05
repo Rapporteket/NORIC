@@ -796,7 +796,7 @@ queryAortaklaffvarnum <- function(){
     
     -- Pasientinfo
     P.SSN_TYPE AS FnrType,
-    P.SSNSUBTYPE AS FnrSubType,
+    P.SSNSUBTYPE AS FnrSubtype,
     P.DECEASED AS AvdodFReg,
     P.DECEASED_DATE AS DodsdatoFReg,
     P.MUNICIPALITY_NAME AS Kommune,

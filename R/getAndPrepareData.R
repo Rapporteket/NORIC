@@ -967,7 +967,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
       kriterie_alder = ifelse(PasientAlder >= 18, "ja", "nei"), 
       kriterie_norsk = ifelse(
         FnrType %in% c("Norsk personnr", "SyntPop nummer") & 
-          !FnrSubtype %in% c(2, 4),
+          FnrSubtype %in% c("Folkeregister", "D-nummer"),
         "ja", "nei"), 
       
       kriterie_levende = ifelse(
