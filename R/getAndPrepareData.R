@@ -1042,48 +1042,38 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
   
   nyeste_eprom_bestilling <- lubridate::date(max(pciProm$ProsedyreDato)) 
   
-  # KOBLE med variabler fra AK
-  # tavi <- dplyr::left_join(
-  #   aK, 
-  #   tP %>%
-  #     dplyr::select(-ProsedyreDato, -FnrType, -FnrSubtype) %>% 
-  #     dplyr::mutate(
-  #       eprom_bestilt = "ja"), 
-  #   by = c("ForlopsID", "AvdRESH", "PasientID")) 
-  # 
-  # 
-  # # EPROM bestilt
-  # tavi %<>% 
-  #   dplyr::mutate(
-  #     eprom_bestilt = dplyr::case_when(
-  #       
-  #       ProsedyreDato > nyeste_eprom_bestilling ~ 
-  #         "nei, registreringen er for ny", 
-  #       
-  #       ProsedyreDato < as.Date("2022-12-19", format = "%Y-%m-%d") ~ 
-  #         "nei, før innføring av prom",
-  #       
-  #       is.na(eprom_bestilt) ~
-  #         "nei",
-  #       
-  #       !is.na(eprom_bestilt) ~ 
-  #         "ja")
-  #   ) 
-  # 
-  # tavi %<>% 
-  #   dplyr::mutate(
-  #     dg_prosedyre_til_dod = dplyr::if_else(.data$AvdodFReg == "Ja", 
-  #                                           as.numeric(difftime(DodsdatoFReg, 
-  #                                                               ProsedyreDato, 
-  #                                                               units = "days")), 
-  #                                           NA_real_))
-  # 
-  # # Endre Sykehusnavn til kortere versjoner:
-  # tavi %<>% noric::fikse_sykehusnavn(df = .)
-  # 
-  # 
-  # 
-  # # LEgg til listestekst
+  # KOBLE med variabler fra AP
+  pci <- dplyr::left_join(
+    aP,
+    pciProm %>%
+      dplyr::select(-ProsedyreDato) %>%
+      dplyr::mutate(
+        eprom_bestilt = "ja"),
+    by = c("ForlopsID", "AvdRESH", "PasientID"))
+
+
+  # EPROM bestilt
+  pci %<>%
+    dplyr::mutate(
+      eprom_bestilt = dplyr::case_when(
+
+        ProsedyreDato > nyeste_eprom_bestilling ~
+          "nei, registreringen er for ny",
+
+        ProsedyreDato < as.Date("2026-05-27", format = "%Y-%m-%d") ~
+          "nei, før innføring av prom",
+
+        is.na(eprom_bestilt) ~
+          "nei",
+
+        !is.na(eprom_bestilt) ~
+          "ja")
+    )
+  
+  # Endre Sykehusnavn til kortere versjoner:
+  pci %<>% noric::fikse_sykehusnavn(df = .)
+
+   # # LEgg til listestekst
   # 
   # tavi %<>%
   #   noric::legg_til_taviStatus() %>% 
