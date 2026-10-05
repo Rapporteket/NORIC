@@ -359,10 +359,15 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
     END AS PasientKjonn,
     P.BIRTH_DATE AS FodselsDato,
     P.SSN_TYPE AS FnrType,
+    P.SSNSUBTYPE AS FnrSubtype,
     P.DECEASED AS AvdodFReg,
     P.DECEASED_DATE AS DodsdatoFReg,
     (SELECT v.NAME FROM valve v WHERE T.INSTRUMENTTYPE = v.ID) AS TypeKlaffeprotese,
-    TD.DISCHARGETO AS UtskrevetTil
+    TD.DISCHARGETO AS UtskrevetTil, 
+    T.TSUPDATED AS TSUPDATED_pros, 
+    T.TSCREATED AS TSCREATED_pros, 
+    TD.TSUPDATED AS TSUPDATED_utsk, 
+    TD.TSCREATED AS TSCREATED_utsk 
     
    FROM mce MCE
       INNER JOIN patient P ON MCE.PATIENT_ID = P.ID

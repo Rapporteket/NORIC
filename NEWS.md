@@ -1,3 +1,10 @@
+# noric 4.7.0 Oppdatert om TAVI-prom i utforsker
+* proms.status har fått nytt nivå (status 6)
+* lagt til variabler i utforsker: 
+kriteriesjekk (alder, norsk, satt inn klaff, ... ) og en samlevariabel for datagrunnlag for tavi-prom
+* Oppdater kodeboken med nye utledete variabler
+* Små bugfixer i kodeboken
+
 # noric 4.6.2 Småfiks
 * Fiks HastegradEUROSCORE i mapping-filen
 * Fjerne gamle variabler: Malignitet og Strålebehandling
