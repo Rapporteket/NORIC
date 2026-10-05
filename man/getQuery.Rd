@@ -12,6 +12,7 @@
 \alias{queryMitralklaffvarnum}
 \alias{queryMitralklaffoppfvarnum}
 \alias{queryTaviprom}
+\alias{queryPciprom}
 \alias{queryForlopsoversikt}
 \alias{querySkjemaoversikt}
 \alias{queryPasienterstudier}
@@ -42,6 +43,8 @@ queryMitralklaffvarnum()
 queryMitralklaffoppfvarnum()
 
 queryTaviprom()
+
+queryPciprom()
 
 queryForlopsoversikt()
 

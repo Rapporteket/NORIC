@@ -25,7 +25,7 @@
 #' done (e.g. added variables from FO, added time-variables, rename hospitals)
 #'
 #' @name getPrepData
-#' @aliases getPrepApData getPrepCtData getPrepAkData getPrepAkOppfData getPrepAnPData getPrepAnDData getPrepSsData getPrepMkData getPrepTaviPromData getPrepFoData getPrepSoData getPrepPsData getPrepApLightData
+#' @aliases getPrepApData getPrepCtData getPrepAkData getPrepAkOppfData getPrepAnPData getPrepAnDData getPrepSsData getPrepMkData getPrepTaviPromData getPrepPciPromData  getPrepFoData getPrepSoData getPrepPsData getPrepApLightData
 NULL
 
 #' @rdname getPrepData
@@ -1019,5 +1019,168 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
          eprom_bestilt %in% "nei, registreringen er for ny" ~ "Nei: Registreringen er for ny", 
          TRUE ~ NA_character_
       ))
+}
+
+
+
+
+#' @rdname getPrepData
+#' @export
+getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
+                                singleHospital = 0, ...){
+  
+  
+  . <- ""
+  
+  dataListe <- noric::getPciProm(registryName = registryName,
+                                  fromDate = fromDate,
+                                  toDate = toDate,
+                                  singleRow = singleRow, 
+                                  singleHospital = singleHospital)
+  pciProm <- dataListe$pciProm
+  aP <- dataListe$aP
+  
+  nyeste_eprom_bestilling <- lubridate::date(max(pciProm$ProsedyreDato)) 
+  
+  # KOBLE med variabler fra AK
+  # tavi <- dplyr::left_join(
+  #   aK, 
+  #   tP %>%
+  #     dplyr::select(-ProsedyreDato, -FnrType, -FnrSubtype) %>% 
+  #     dplyr::mutate(
+  #       eprom_bestilt = "ja"), 
+  #   by = c("ForlopsID", "AvdRESH", "PasientID")) 
+  # 
+  # 
+  # # EPROM bestilt
+  # tavi %<>% 
+  #   dplyr::mutate(
+  #     eprom_bestilt = dplyr::case_when(
+  #       
+  #       ProsedyreDato > nyeste_eprom_bestilling ~ 
+  #         "nei, registreringen er for ny", 
+  #       
+  #       ProsedyreDato < as.Date("2022-12-19", format = "%Y-%m-%d") ~ 
+  #         "nei, før innføring av prom",
+  #       
+  #       is.na(eprom_bestilt) ~
+  #         "nei",
+  #       
+  #       !is.na(eprom_bestilt) ~ 
+  #         "ja")
+  #   ) 
+  # 
+  # tavi %<>% 
+  #   dplyr::mutate(
+  #     dg_prosedyre_til_dod = dplyr::if_else(.data$AvdodFReg == "Ja", 
+  #                                           as.numeric(difftime(DodsdatoFReg, 
+  #                                                               ProsedyreDato, 
+  #                                                               units = "days")), 
+  #                                           NA_real_))
+  # 
+  # # Endre Sykehusnavn til kortere versjoner:
+  # tavi %<>% noric::fikse_sykehusnavn(df = .)
+  # 
+  # 
+  # 
+  # # LEgg til listestekst
+  # 
+  # tavi %<>%
+  #   noric::legg_til_taviStatus() %>% 
+  #   noric::legg_til_taviErrorCode()
+  # 
+  # # Fikse rekkeflge
+  # tavi %<>% 
+  #   dplyr::select(AvdRESH,
+  #                 Sykehusnavn,
+  #                 PasientID, 
+  #                 ForlopsID, 
+  #                 FnrType, 
+  #                 FnrSubtype,
+  #                 PasientAlder, 
+  #                 PasientKjonn,
+  #                 AvdodFReg, 
+  #                 DodsdatoFReg,
+  #                 TypeKlaffeprotese, 
+  #                 UtskrevetTil, 
+  #                 Prosedyre, 
+  #                 ScreeningBeslutning, 
+  #                 ProsedyreDato, 
+  #                 dg_prosedyre_til_dod, 
+  #                 eprom_bestilt, 
+  #                 ePromStatus,
+  #                 ePromStatus_tekst, 
+  #                 form_order_status_error_code,
+  #                 form_order_status_error_code_tekst,
+  #                 form_order_status_error_message,
+  #                 ePromBestillingsdato:ePromUtloeptDato, 
+  #                 Registreringstype, 
+  #                 rose01:premStatus, 
+  #                 TSUPDATED_pros, 
+  #                 TSUPDATED_utsk, 
+  #                 TSCREATED_pros,
+  #                 TSCREATED_utsk) %>% 
+  #   # Legg til aar, maaned, uke, etc.
+  #   noric::legg_til_tidsvariabler(df = ., var = ProsedyreDato)
+  
+  # tavi %>% 
+  #   mutate(
+  #     dod_innen_3mnd = dplyr::if_else((difftime(ProsedyreDato %m+% months(3), DodsdatoFReg) >= 0),
+  #                                     "ja", "nei", NA_character_), 
+  #     dod_innen_4mnd = dplyr::if_else((difftime(ProsedyreDato %m+% months(4), DodsdatoFReg) >= 0),
+  #                                     "ja", "nei", NA_character_),
+  #     
+  #     kriterie_alder = ifelse(PasientAlder >= 18, "ja", "nei"), 
+  #     kriterie_norsk = ifelse(
+  #       FnrType %in% c("Norsk personnr", "SyntPop nummer") & 
+  #         FnrSubtype %in% c("Folkeregister", "D-nummer"),
+  #       "ja", "nei"), 
+  #     
+  #     kriterie_levende = ifelse(
+  #       AvdodFReg %in% "Nei" |
+  #         (AvdodFReg %in% "Ja" & dod_innen_3mnd %in% "nei"), 
+  #       "ja", "nei"), 
+  #     
+  #     kriterie_sykehjem = ifelse(!UtskrevetTil %in% "Sykehjem" , "ja", "nei"), 
+  #     
+  #     kriterie_satt_inn_klaff = ifelse(
+  #       (!is.na(TypeKlaffeprotese) & Prosedyre %in% "TAVI") |
+  #         (!is.na(TypeKlaffeprotese) & !is.na(ScreeningBeslutning)), 
+  #       "ja", "nei"),
+  #     
+  #     # kriterie_enesteprom = ifelse(
+  #     #   sjekk om forsøk på bestilling 
+  #     #   er etter eventuel karens for
+  #     #   forrige prsoedyre "ja", "nei"),
+  #     
+  #     kriterie_alle = ifelse(kriterie_alder %in% "ja" &
+  #                              kriterie_norsk %in% "ja" &
+  #                              kriterie_levende %in% "ja" &
+  #                              kriterie_sykehjem %in% "ja" &
+  #                              kriterie_satt_inn_klaff %in% "ja", 
+  #                            "ja", "nei"),
+      # 
+      # datagrunnlag_taviprom = dplyr::case_when(
+      #   kriterie_alle %in% "ja" & 
+      #     eprom_bestilt == "ja" ~ "Ja",
+      #   
+      #   kriterie_alle %in% "ja" & 
+      #     eprom_bestilt == "nei" &
+      #     !aar %in% 2023 ~ "Nei: Kriterier OK, mangler utsending (mulig etterreg./fl. tavi) ", # Mulig etter-registrering elle rikke første tavi!
+      #   
+      #   kriterie_alle %in% "ja" & 
+      #     eprom_bestilt == "nei" &
+      #     aar %in% 2023 ~ "Nei: Feil fra 2023", # Mulig etter-registrering!
+      #   
+      #   kriterie_alle %in% "nei" & 
+      #     eprom_bestilt == "nei" ~ "Nei: Mangler kriterier",     
+      #   
+      #   kriterie_alle %in% "nei" & 
+      #     eprom_bestilt == "ja" ~ "Nei: Mangler kriterie, prom feilaktig sendt ", # Mulig etter-registrering!
+      #   
+      #   eprom_bestilt %in% "nei, før innføring av prom" ~ "Nei: Før innføring av prom", 
+      #   eprom_bestilt %in% "nei, registreringen er for ny" ~ "Nei: Registreringen er for ny", 
+      #   TRUE ~ NA_character_
+      # ))
 }
 

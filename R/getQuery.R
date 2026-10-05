@@ -10,7 +10,7 @@
 
 #' @return query as string
 #' @name getQuery
-#' @aliases queryAngiopcinum queryCtangiovarnum queryAortaklaffvarnum queryAortaklaffoppfvarnum queryAndreprosedyrervarnum queryAnnendiagnostikkvarnum querySegmentstentnum queryMitralklaffvarnum queryMitralklaffoppfvarnum queryTaviprom queryForlopsoversikt querySkjemaoversikt queryPasienterstudier queryApLight queryDiagnose queryPciLabassistent queryAngioLabassistent queryPatientInfo queryRawData
+#' @aliases queryAngiopcinum queryCtangiovarnum queryAortaklaffvarnum queryAortaklaffoppfvarnum queryAndreprosedyrervarnum queryAnnendiagnostikkvarnum querySegmentstentnum queryMitralklaffvarnum queryMitralklaffoppfvarnum queryTaviprom queryPciprom queryForlopsoversikt querySkjemaoversikt queryPasienterstudier queryApLight queryDiagnose queryPciLabassistent queryAngioLabassistent queryPatientInfo queryRawData
 NULL
 
 
@@ -1565,6 +1565,101 @@ queryTaviprom <- function(){
 ")
 }
 
+
+
+
+#' @rdname getQuery
+#' @export
+queryPciprom <- function(){
+  
+  paste0("
+  SELECT
+    MCE.CENTREID AS AvdRESH,
+    MCE.MCEID AS ForlopsID,
+    P.ID AS PasientID,
+    proms.REGISTRATION_TYPE AS Registreringstype,
+    regangio.INTERDAT AS ProsedyreDato,
+
+    proms.TSSENDT AS ePromBestillingsdato,
+    proms.TSRECEIVED AS ePromMottatt,
+    proms.EXPIRY_DATE AS ePromUtloeptDato,
+    proms.STATUS AS ePromStatus,
+    proms.FORM_ORDER_STATUS_ERROR_CODE	AS form_order_status_error_code,	
+    proms.FORM_ORDER_ERROR_MESSAGE	AS form_order_status_error_message,	
+
+    eq5d.Q1 AS eq5d01,
+    eq5d.Q2 AS eq5d02,
+    eq5d.Q3 AS eq5d03,
+    eq5d.Q4 AS eq5d04,
+    eq5d.Q5 AS eq5d05,
+    eq5d.Q6 AS eq5d06,
+    eq5d.SCORE AS eq5dScore,
+    
+    hqol.Q01 AS heart01,
+    hqol.Q02 AS heart02,
+    hqol.Q03 AS heart03,
+    hqol.Q04 AS heart04,
+    hqol.Q05 AS heart05,
+    hqol.Q06 AS heart06,
+    hqol.Q07 AS heart07,
+    hqol.Q08 AS heart08,
+    hqol.Q09 AS heart09,
+    hqol.Q10 AS heart10,
+    hqol.Q11 AS heart11,
+    hqol.Q12 AS heart12,
+    hqol.Q13 AS heart13,
+    hqol.Q14 AS heart14,
+    
+    haaq.HIADDQ01 AS hiaddq01,
+    haaq.HIADDQ02A AS hiaddq02a,
+    haaq.HIADDQ02B AS hiaddq02b,
+    haaq.HIADDQ03 AS hiaddq03,
+    haaq.HIADDQ04 AS hiaddq04,
+    haaq.HIADDQ05 AS hiaddq055,
+    haaq.HIADDQ06 AS hiaddq06,
+    haaq.HIADDQ07 AS hiaddq07,
+    haaq.HIADDQ08 AS hiaddq08,
+    haaq.HIADDQ09A AS hiaddq09a,
+    haaq.HIADDQ09B AS hiaddq09b,
+    haaq.HIADDQ10 AS hiaddq10,
+    haaq.HIADDQ11 AS hiaddq11,
+    haaq.HIADDQ12 AS hiaddq12,
+    haaq.HIADDQ13 AS hiaddq13,
+    haaq.HIADDQ14 AS hiaddq14,
+    haaq.HIADDQ15 AS hiaddq15,
+    haaq.HIADDQ16 AS hiaddq16,
+    haaq.HIADDQ17 AS hiaddq17,
+    
+    prem.Q01 AS prem01,
+    prem.Q02 AS prem02,
+    prem.Q03 AS prem03,
+    prem.Q04 AS prem04,
+    prem.Q05 AS prem05,
+    prem.Q06 AS prem06,
+    prem.Q07 AS prem07,
+    prem.Q08 AS prem08,
+    prem.Q09 AS prem09,
+    prem.Q10 AS prem10,
+    prem.Q11 AS prem11,
+    prem.Q12 AS prem12,
+    prem.Q13 AS prem13,
+    prem.Q14 AS prem14,
+    prem.Q15 AS prem15,
+    prem.FORM_COMPLETED_VIA_PROMS AS premFerdigViaProm,
+    prem.TSUPDATED AS premDato,
+    prem.STATUS AS premStatus
+    
+FROM proms
+  INNER JOIN mce MCE ON proms.MCEID = MCE.MCEID
+  INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+  LEFT JOIN regangio on MCE.MCEID = regangio.MCEID
+  LEFT JOIN eq5d_5l eq5d ON MCE.MCEID = eq5d.MCEID
+  LEFT JOIN heart_attack_additional_questions haaq ON MCE.MCEID = haaq.MCEID
+  LEFT JOIN heart_qol hqol ON MCE.MCEID = hqol.MCEID
+  LEFT JOIN prem ON MCE.MCEID = prem.MCEID
+  WHERE proms.REGISTRATION_TYPE LIKE 'PCI%'
+")
+}
 
 #' @rdname getQuery
 #' @export
