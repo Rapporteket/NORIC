@@ -463,6 +463,10 @@ getPciProm <- function(registryName, fromDate, toDate, singleRow,
       INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
       INNER JOIN regangio A ON MCE.MCEID = A.MCEID
       LEFT JOIN discharge D ON MCE.MCEID = D.MCEID
+      
+    WHERE
+    A.INTERDAT >= '", fromDate, "' AND
+    A.INTERDAT <= '", toDate, "'
   ")
   
 
