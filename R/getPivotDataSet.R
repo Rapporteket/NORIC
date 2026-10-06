@@ -24,7 +24,7 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
   # declare dot
   . <- ""
   
-  validSetId <- c("ApLight", "AnP", "AnD", "AP", "AK", "AKOppf", "CT", "FO",
+  validSetId <- c("ApLight", "AnP", "AnD", "AP","APprom", "AK", "AKOppf", "CT", "FO",
                   "MK", "PS", "SO", "SS", "TP")
   
   
@@ -62,6 +62,14 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                   singleRow = singleRow,
                                   session = session, 
                                   singleHospital = singleHospital)
+    }
+    if (setId == "APprom") {
+      dat <- noric::getPrepPciPromData(registryName = registryName,
+                                       fromDate = fromDate,
+                                       toDate = toDate,
+                                       singleRow = singleRow,
+                                       session = session, 
+                                       singleHospital = singleHospital)
     }
     if (setId == "AK") {
       dat <- noric::getPrepAkData(registryName = registryName,
@@ -160,7 +168,8 @@ getPivotDataSet <- function(setId = "", registryName, singleRow = FALSE,
                                                "Granskere",
                                                "OpprettetAv",
                                                "SistLagretAv", 
-                                               "FnrType"))
+                                               "FnrType", 
+                                               "FnrSubtype"))
   }
   
   dat
