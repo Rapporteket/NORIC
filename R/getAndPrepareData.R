@@ -1130,7 +1130,7 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
     # Legg til aar, maaned, uke, etc.
     noric::legg_til_tidsvariabler(var = ProsedyreDato)
   
-  pci %>%
+  pci %<>%
     mutate(
       dod_innen_3mnd = dplyr::if_else(
         (difftime(ProsedyreDato %m+% months(3), AvdodDatoFReg) >= 0),
@@ -1161,26 +1161,21 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
       kriterie_indikasjon = ifelse(
         ! Indikasjon %in% c("Donorutredning", "Vitieutredning"),
         "ja", "nei" ),
-      
-      # , kriterie TAVI, PCI, ingen ny tavi etterpaå
-      
-      
-  
-  
-  #     # kriterie_enesteprom = ifelse(
-  #     #   sjekk om forsøk på bestilling 
-  #     #   er etter eventuel karens for
-  #     #   forrige prsoedyre "ja", "nei"),
-  #     
+    
       kriterie_alle = ifelse(kriterie_alder %in% "ja" &
                                kriterie_norsk %in% "ja" &
                                kriterie_levende %in% "ja" &
                                kriterie_sykehjem %in% "ja" &
                                kriterie_pci %in% "ja" &
                                kriterie_indikasjon %in% "ja",
-                             "ja", "nei"),
-
-  datagrunnlag_pciprom = dplyr::case_when(
+                             "ja", "nei"))
+  
+  pci  %<>% noric::kriterie_taviprom_siste_aar(df = ., registryName = registryName) %>% 
+    noric::kriterie_pciprom_siste_aar(df = ., registryName = registryName) %>%
+    noric::kriterie_ingen_ny_tavi(df = ., registryName = registryName)
+  
+  pci  %>% dplyr::mutate(
+    datagrunnlag_pciprom = dplyr::case_when(
     kriterie_alle %in% "ja" &
       eprom_bestilt == "ja" ~ "Ja",
 
@@ -1197,5 +1192,6 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
     eprom_bestilt %in% "nei, registreringen er for ny" ~ "Nei: Registreringen er for ny",
     TRUE ~ NA_character_
   ))
+  
 }
 
