@@ -143,8 +143,8 @@ kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
           "nei", "ja"))
     
     return(df %>% dplyr::left_join(., 
-                                  df_sub  %>%  dplyr::select(kriterie_pciprom, PasientID), 
-                                  by = "PasientID"))
+                                  df_sub  %>%  dplyr::select(kriterie_pciprom, PasientID, ForlopsID), 
+                                  by = c("PasientID", "ForlopsID")))
   } 
   if(nrow(df_sub)== 0) {
     return(df  %>%  dplyr::mutate(kriterie_pciprom = "ja"))
@@ -209,8 +209,8 @@ kriterie_ingen_ny_tavi <- function(df, registryName = NULL){
           "nei", "ja"))
     
     return(df %>% dplyr::left_join(., 
-                                   df_sub  %>%  dplyr::select(kriterie_ingen_ny_tavi, PasientID), 
-                                   by = "PasientID"))
+                                   df_sub  %>%  dplyr::select(kriterie_ingen_ny_tavi, PasientID, ForlopsID), 
+                                   by = c("PasientID", "ForlopsID")))
   } 
   if(nrow(df_sub)== 0) {
     return(df  %>%  dplyr::mutate(kriterie_ingen_ny_tavi = "ja"))
