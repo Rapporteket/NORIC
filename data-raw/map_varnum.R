@@ -1347,7 +1347,7 @@ aort_varnavn_kobl <-
         "T.GRIPTEST AS Gripestyrke",
         "T.EURO2_DIALYSIS AS DialyseFoerOp",
         "T.KRITISKT AS KritiskPreopTilstand",
-        "T.EURO2_URGENCY AS HastegradEUROSCORE",
+        "T.EURO2_URGENCY AS HastegradEuroSCORE",
         
         #-- Kontraindikasjon mot kirurgi
         "T.PERC_VALVE_DUE_TO_RISK AS PerkKlaffPgaRisiko",

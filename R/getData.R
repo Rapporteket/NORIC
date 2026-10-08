@@ -419,6 +419,96 @@ getTaviProm <- function(registryName, fromDate, toDate, singleRow,
 }
 
 
+#' @rdname getData
+#' @export
+getPciProm <- function(registryName, fromDate, toDate, singleRow, 
+                        singleHospital = 0, ...){
+  
+  if (is.null(fromDate)) {fromDate <- as.Date("1900-01-01")}
+  if (is.null(toDate)) {toDate <- noric::getLatestEntry(registryName)}
+  
+  
+
+  queryAp <- paste0("
+  
+  SELECT
+    A.CENTREID AS AvdRESH,
+    MCE.MCEID AS ForlopsID,
+    MCE.PARENT_MCEID as KobletForlopsID,
+    MCE.PARENT_MCEID as PrimaerForlopsID,
+    P.ID AS PasientID,
+    P.SSN_TYPE AS FnrType,
+    P.SSNSUBTYPE AS FnrSubtype,
+    P.DECEASED  AS AvdodFReg,
+    P.DECEASED_DATE as AvdodDatoFReg,
+    
+    CASE
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NOT NULL THEN 'Sekundær'
+      WHEN MCE.INTERVENTION_TYPE IN (1,2,3,7) AND MCE.PARENT_MCEID IS NULL THEN 'Primær'
+      ELSE NULL
+    END AS Regtype,
+    A.REGTYP AS ProsedyreType,
+    MCE.MCETYPE AS Hastegrad,
+
+    A.INTERDAT AS ProsedyreDato,
+    A.INTERDAT_TIME AS ProsedyreTid,
+    P.GENDER AS Kjonn,
+    P.BIRTH_DATE FodselsDato,
+    A.TIDPCI  AS TidlPCI,
+    A.TIDINF  AS TidlInfarkt,
+    A.INDIKATION  AS Indikasjon, 
+    D.DISCHARGETO AS UtskrevetTil
+    
+    FROM mce MCE
+      INNER JOIN patient P ON MCE.PATIENT_ID = P.ID
+      INNER JOIN regangio A ON MCE.MCEID = A.MCEID
+      LEFT JOIN discharge D ON MCE.MCEID = D.MCEID
+      
+    WHERE
+    A.INTERDAT >= '", fromDate, "' AND
+    A.INTERDAT <= '", toDate, "'
+  ")
+  
+
+
+
+  queryProm <- paste0(
+    noric::queryPciprom(),
+    "AND
+    regangio.INTERDAT >= '", fromDate, "' AND
+    regangio.INTERDAT <= '", toDate, "'
+    ")
+
+  if(singleHospital != 0) {
+    queryAp <- paste0(queryAp, "AND MCE.CENTREID = ", singleHospital)
+    queryProm <- paste0(queryProm, "AND MCE.CENTREID = ", singleHospital)
+  }
+
+
+  if (singleRow) {
+    queryProm <- paste0(queryProm, "\nLIMIT\n  1;")
+    queryAp <- paste0(queryAp, "\nLIMIT\n  1;")
+    msg <- "Query single row data for pciprom"
+  } else {
+    queryProm <- paste0(queryProm, " ;")
+    queryAp <- paste0(queryAp, " ;")
+    msg <- "Query data for pciprom"
+  }
+
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+  }
+
+  pciProm <- rapbase::loadRegData(registryName, queryProm)
+  aPnum <- rapbase::loadRegData(registryName, queryAp)
+  aP <- noric::erstatt_koder_m_etiketter(aPnum,
+                                         mapping = noric::angp_map_num_tekst) %>%
+    noric::utlede_alder(df = ., var = ProsedyreDato)
+
+
+  list(pciProm = pciProm,
+       aP = aP)
+}
 
 #' @rdname getData
 #' @export

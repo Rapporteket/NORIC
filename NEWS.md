@@ -1,3 +1,10 @@
+# noric 4.8.0 NY! PCI-prom i utforsker
+* Lage tabell med PCI-prom i utforsker
+* lage hjelpevariabler: kriteriesjekk (alder, norsk, pci, indikasjon ... ) 
+* lage samlevariabel for datagrunnlag for pci-prom
+# * Oppdater kodeboken med nye utledete variabler
+* Små bugfixer i kodeboken fra v4.7.0
+
 # noric 4.7.0 Oppdatert om TAVI-prom i utforsker
 * proms.status har fått nytt nivå (status 6)
 * lagt til variabler i utforsker: 

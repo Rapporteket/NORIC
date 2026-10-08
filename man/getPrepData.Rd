@@ -11,6 +11,7 @@
 \alias{getPrepSsData}
 \alias{getPrepMkData}
 \alias{getPrepTaviPromData}
+\alias{getPrepPciPromData}
 \alias{getPrepFoData}
 \alias{getPrepSoData}
 \alias{getPrepPsData}
@@ -126,6 +127,15 @@ getPrepApLightData(
 )
 
 getPrepTaviPromData(
+  registryName,
+  fromDate,
+  toDate,
+  singleRow,
+  singleHospital = 0,
+  ...
+)
+
+getPrepPciPromData(
   registryName,
   fromDate,
   toDate,
