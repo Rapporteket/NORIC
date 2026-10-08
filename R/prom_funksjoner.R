@@ -1,23 +1,51 @@
-#' NORIC PCI prom 
+#' Hjelpefunksjoner for PCI-prom 
 #' 
-#' Hjelpefunksjoner for PCI prom
+#' For forløp der alle andre kriterier (alder, prosedyretype, indikasjon,
+#'  utskrivelse, etc.) er oppfylt, det vil si
+#'   \code{kriterie_alle_midlertidig} = \emph{ja}. 
+#'  Sjekker om pasientene hadde eksisterende TAVI-PROM eller PCI-PROM det
+#'  siste året. Sjekker om pasienten har fått TAVI i de 3 påfølgende månedene. 
+#'  
+#'  Legger til ny variabel: 
+#'  
+#' \code{kriterie_taviprom_siste_aar()}
+#'  \itemize{
+#'  \item \code{kriterie_ingen_taviprom har verdien} har verdien \emph{nei}
+#'  dersom pasienten hadde TAVI-PROM det siste året.  
+#'  }
+#' \code{kriterie_pciprom_siste_aar()}
+#'  \itemize{
+#'  \item \code{kriterie_ingen_pciprom har verdien} har verdien \emph{nei}
+#'  dersom pasienten hadde PCI-PROM det siste året.  
+#'  }
+#'  #' \code{kriterie_ingen_tavi_neste3mnd()}
+#'  \itemize{
+#'  \item \code{kriterie_ingen_ny_tavi har verdien} har verdien \emph{nei}
+#'  dersom pasienten har vært til en TAVI-prosedyre i etterkant av PCI
+#'   prosedyren (0-3mnd).
+#'  }
+#'  
 #'
-#' @param df pci + pciprom
+#' @param df Inneholder data fra pci + pciprom. Må inneholde 
+#' variabelen \code{kriterie_alle_midlertidig}. 
 #' @param registryName for SQL queries
 #'
 #' @name prom_funksjoner
-#' @aliases kriterie_taviprom_siste_aar  kriterie_pciprom_siste_aar kriterie_ingen_ny_tavi
+#' @aliases kriterie_taviprom_siste_aar  kriterie_pciprom_siste_aar kriterie_ingen_tavi_neste3mnd
 #' 
 #' 
 #' @rdname prom_funksjoner
 #' @export
 kriterie_taviprom_siste_aar <- function(df, registryName = NULL){
   
+  stopifnot("kriterie_alle_midlertidig" %in% names(df))
+  
   # alle PID for pasienter med pci som har de øvrige kriteriene for pci-prom 
   # og som har prosedyredato etter prodsetting av pci-prom
   df_sub <- df  %>%  
-    dplyr::filter(kriterie_alle %in% "ja", 
-                  ProsedyreDato >= as.Date("2026-05-27", format = "%Y-%m-%d"))  %>%  
+    dplyr::filter(
+      kriterie_alle_midlertidig %in% "ja", 
+      ProsedyreDato >= as.Date("2026-05-27", format = "%Y-%m-%d")) %>%  
     dplyr::select(PasientID, ProsedyreDato, ForlopsID) 
   
   if(nrow(df_sub)>0){
@@ -27,26 +55,24 @@ kriterie_taviprom_siste_aar <- function(df, registryName = NULL){
       dplyr::pull(PasientID)  %>%  
       stringr::str_flatten_comma(last = ", ")
     
-    # Alle TAVI-prom for de utvalgte pasientene, men ingen kontroll på dato ennå
+    # Alle TAVI-prom for de utvalgte pasientene
     query = paste0("
            SELECT
-             P.ID AS PasientID,
+             MCE.PATIENT_ID AS PasientID,
              proms.TSSENDT AS ePromBestillingsdato_tavi
            FROM
              proms
            INNER JOIN
              mce MCE ON proms.MCEID = MCE.MCEID
-           INNER JOIN
-             patient P ON MCE.PATIENT_ID = P.ID
            WHERE
              proms.REGISTRATION_TYPE LIKE 'TAVI%'
            AND
              proms.TSSENDT > '2025-05-27'
            AND
-             P.ID IN ",
+             MCE.PATIENT_ID IN ",
                    "(", list_patients, ")",
                    " ;")
-
+    
     proms_tavi <- rapbase::loadRegData(
       registryName = registryName,
       query = query)
@@ -54,25 +80,33 @@ kriterie_taviprom_siste_aar <- function(df, registryName = NULL){
     # Dersom TAVI-eProm er bestilt i vinduet 
     # [9-8mnd FØR pci-prosedyren; 3-4mnd ETTER pci prosedyren]
     # så blir kriterie_taviprom = nei
-    df_sub %<>% dplyr::select(ProsedyreDato, PasientID)  %>%
+    df_sub %<>% 
+      dplyr::select(ProsedyreDato, PasientID, ForlopsID)  %>%
+      dplyr::filter(
+        ProsedyreDato >= as.Date("2026-05-27", format = "%Y-%m-%d")) %>%
       dplyr::inner_join(., 
                         proms_tavi, 
                         by = "PasientID",
-                        relationship = "many-to-many") %>%
+                        relationship = "one-to-many") %>%
+      dplyr::filter(
+        kriterie_alle_midlertidig %in% "ja", 
+        ProsedyreDato >= as.Date("2026-05-27", format = "%Y-%m-%d")) %>%  
       dplyr::mutate(
         teoretisk_pciProm_lower = ProsedyreDato %m-% months(9), 
-        teoretisk_pciProm_upper = ProsedyreDato %m+% months(4), 
-        kriterie_taviprom = ifelse(
+        teoretisk_pciProm_upper = ProsedyreDato %m+% months(3), 
+        kriterie_ingen_taviprom = ifelse(
           ePromBestillingsdato_tavi < teoretisk_pciProm_upper &
             ePromBestillingsdato_tavi > teoretisk_pciProm_lower,
-          "nei", "ja"))
+          "nei", NA_character_))
     
-    return(df %>%dplyr::left_join(., 
-                                  df_sub  %>%  dplyr::select(kriterie_taviprom, PasientID), 
-                                  by = "PasientID"))
+    return(
+      dplyr::left_join(
+        df, 
+        df_sub  %>%  dplyr::select(kriterie_ingen_taviprom, PasientID), 
+        by = "PasientID"))
   } 
   if(nrow(df_sub)== 0) {
-    return(df  %>%  dplyr::mutate(kriterie_taviprom = "ja"))
+    return(df  %>%  dplyr::mutate(kriterie_ingen_taviprom = NA_character_))
   }
 }
 
@@ -83,12 +117,14 @@ kriterie_taviprom_siste_aar <- function(df, registryName = NULL){
 #' @rdname prom_funksjoner
 #' @export
 kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
+  stopifnot("kriterie_alle_midlertidig" %in% names(df))
   
   # alle PID for pasienter med pci som har de øvrige kriteriene for pci-prom 
   # og som har prosedyredato etter prodsetting av pci-prom
   df_sub <- df  %>%  
-    dplyr::filter(kriterie_alle %in% "ja", 
-                  ProsedyreDato >= as.Date("2026-05-27", format = "%Y-%m-%d"))  %>% 
+    dplyr::filter(
+      kriterie_alle_midlertidig %in% "ja", 
+      ProsedyreDato >= as.Date("2026-05-27", format = "%Y-%m-%d")) %>% 
     dplyr::select(PasientID, ProsedyreDato, ForlopsID) 
   
   if(nrow(df_sub)>0){
@@ -101,34 +137,33 @@ kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
     # Alle PCI-prom for de utvalgte pasientene, men ingen kontroll på dato ennå
     query <- paste0("
            SELECT
-             P.ID AS PasientID,
+             MCE.PATIENT_ID AS PasientID,
              MCE.MCEID AS ForlopsID_pciProm,
              proms.TSSENDT AS ePromBestillingsdato_pci
            FROM
              proms
            INNER JOIN
              mce MCE ON proms.MCEID = MCE.MCEID
-           INNER JOIN
-             patient P ON MCE.PATIENT_ID = P.ID
            WHERE
              proms.REGISTRATION_TYPE LIKE 'PCI%'
            AND
              proms.TSSENDT > '2025-05-27'
            AND
-             P.ID IN ",
-                   "(", list_patients, ")",
-                   " ;")
+             MCE.PATIENT_ID IN ",
+                    "(", list_patients, ")",
+                    " ;")
     
     proms_pci <- rapbase::loadRegData(
       registryName = registryName,
       query = query)  %>%  
       dplyr::mutate(ePromBestillingsdato_pci = as.Date(ePromBestillingsdato_pci, 
-                                                format = "%Y-%m-%d"))
+                                                       format = "%Y-%m-%d"))
     
-   # Dersom PCI-eProm er bestilt i vinduet 
+    # Dersom PCI-eProm er bestilt i vinduet 
     # [9mnd FØR pci-prosedyren; 3mnd ETTER pci prosedyren]
     # så blir kriterie_taviprom = nei
-    df_sub %<>% dplyr::select(ProsedyreDato, PasientID, ForlopsID)  %>%
+    df_sub %<>% 
+      dplyr::select(ProsedyreDato, PasientID, ForlopsID)  %>%
       dplyr::inner_join(., 
                         proms_pci, 
                         by = "PasientID",
@@ -136,18 +171,21 @@ kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
       dplyr::filter(ForlopsID != ForlopsID_pciProm) %>%
       dplyr::mutate(
         teoretisk_pciProm_lower = ProsedyreDato %m-% months(9), 
-        teoretisk_pciProm_upper = ProsedyreDato %m+% months(4), 
-        kriterie_pciprom = ifelse(
+        teoretisk_pciProm_upper = ProsedyreDato %m+% months(3), 
+        kriterie_ingen_pciprom = ifelse(
           ePromBestillingsdato_pci >= teoretisk_pciProm_lower & 
             ePromBestillingsdato_pci <= teoretisk_pciProm_upper,
-          "nei", "ja"))
+          "nei", NA_character_))
     
-    return(df %>% dplyr::left_join(., 
-                                  df_sub  %>%  dplyr::select(kriterie_pciprom, PasientID, ForlopsID), 
-                                  by = c("PasientID", "ForlopsID")))
+    return(
+      dplyr::left_join(
+        df, 
+        df_sub %>% dplyr::select(kriterie_ingen_pciprom, PasientID, ForlopsID), 
+        by = c("PasientID", "ForlopsID"))
+    )
   } 
   if(nrow(df_sub)== 0) {
-    return(df  %>%  dplyr::mutate(kriterie_pciprom = "ja"))
+    return(df %>%  dplyr::mutate(kriterie_ingen_pciprom = NA_character_))
   }
 }
 
@@ -156,23 +194,25 @@ kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
 
 #' @rdname prom_funksjoner
 #' @export
-kriterie_ingen_ny_tavi <- function(df, registryName = NULL){
+kriterie_ingen_tavi_neste3mnd <- function(df, registryName = NULL){
+  stopifnot("kriterie_alle_midlertidig" %in% names(df))
   
   # alle PID for pasienter med pci som har de øvrige kriteriene for pci-prom 
   # og som har prosedyredato etter prodsetting av pci-prom
   df_sub <- df  %>%  
-    dplyr::filter(kriterie_alle %in% "ja", 
-                  ProsedyreDato >= as.Date("2026-05-27", format = "%Y-%m-%d"))  %>%  
+    dplyr::filter(
+      kriterie_alle_midlertidig %in% "ja", 
+      ProsedyreDato >= as.Date("2026-05-27", format = "%Y-%m-%d"))  %>%  
     dplyr::select(PasientID, ProsedyreDato, ForlopsID) 
   
   if(nrow(df_sub)>0){
-   
+    
     list_patients <- df_sub  %>%  
       dplyr::distinct(PasientID)  %>%  
       dplyr::pull(PasientID)  %>%  
       stringr::str_flatten_comma(last = ", ")
     
-    # Alle TAVI for de utvalgte pasientene, men ingen kontroll på dato ennå
+    # Alle TAVI for de utvalgte pasientene
     query = paste0("
                    SELECT
                       MCE.PATIENT_ID AS PasientID,
@@ -187,33 +227,34 @@ kriterie_ingen_ny_tavi <- function(df, registryName = NULL){
                    MCE.PATIENT_ID IN ",
                    "(", list_patients, ")",
                    " ;")
-
+    
     nye_tavi <- rapbase::loadRegData(
       registryName = registryName,
       query = query)
     
-     
-    # Dersom PCI-eProm er bestilt i vinduet 
-    # [9mnd FØR pci-prosedyren; 3mnd ETTER pci prosedyren]
-    # så blir kriterie_taviprom = nei
-    df_sub %<>% dplyr::select(ProsedyreDato, PasientID, ForlopsID)  %>%
+    df_sub %<>% 
+      dplyr::select(ProsedyreDato, PasientID, ForlopsID)  %>%
       dplyr::inner_join(., 
                         nye_tavi, 
                         by = "PasientID",
                         relationship = "many-to-many") %>%
+      dplyr::filter(ProsedyreDato <= ProsedyreDato_tavi)  %>%
       dplyr::mutate(
         teoretisk_pciProm_upper = ProsedyreDato %m+% months(3), 
         kriterie_ingen_ny_tavi = ifelse(
           ProsedyreDato_tavi >= ProsedyreDato &
             ProsedyreDato_tavi <= teoretisk_pciProm_upper, 
-          "nei", "ja"))
+          "nei", NA_character_))
     
-    return(df %>% dplyr::left_join(., 
-                                   df_sub  %>%  dplyr::select(kriterie_ingen_ny_tavi, PasientID, ForlopsID), 
-                                   by = c("PasientID", "ForlopsID")))
+    return(
+      dplyr::left_join(
+        df, 
+        df_sub %>% dplyr::select(kriterie_ingen_ny_tavi, PasientID, ForlopsID), 
+        by = c("PasientID", "ForlopsID"))
+    )
   } 
   if(nrow(df_sub)== 0) {
-    return(df  %>%  dplyr::mutate(kriterie_ingen_ny_tavi = "ja"))
+    return(df %>% dplyr::mutate(kriterie_ingen_ny_tavi = NA_character_))
   }
 }
 

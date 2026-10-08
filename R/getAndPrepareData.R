@@ -1050,7 +1050,6 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
   
   nyeste_eprom_bestilling <- lubridate::date(max(pciProm$ProsedyreDato)) 
   
-  # KOBLE med variabler fra AP
   pci <- dplyr::left_join(
     aP,
     pciProm %>%
@@ -1059,26 +1058,18 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
         eprom_bestilt = "ja"),
     by = c("ForlopsID", "AvdRESH", "PasientID"))
   
-  
-  # EPROM bestilt
   pci %<>%
     dplyr::mutate(
       eprom_bestilt = dplyr::case_when(
-        
         ProsedyreDato > nyeste_eprom_bestilling ~
           "nei, registreringen er for ny",
-        
         ProsedyreDato < as.Date("2026-05-27", format = "%Y-%m-%d") ~
           "nei, før innføring av prom",
-        
-        is.na(eprom_bestilt) ~
-          "nei",
-        
-        !is.na(eprom_bestilt) ~
-          "ja")
+        is.na(eprom_bestilt) ~ "nei",
+        !is.na(eprom_bestilt) ~ "ja", 
+        TRUE ~ NA_character_)
     )
   
-  # Endre Sykehusnavn til kortere versjoner:
   pci %<>% noric::fikse_sykehusnavn(df = .)
   
   # # LEgg til listestekst
@@ -1097,18 +1088,16 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
                   -PrimaerForlopsID,
                   Regtype,
                   ProsedyreType,
+                  Hastegrad,
                   FnrType,
                   FnrSubtype,
                   PasientAlder,
                   Kjonn,
                   AvdodFReg,
                   AvdodDatoFReg,
-                  
                   TidlPCI, TidlInfarkt, Indikasjon,
                   UtskrevetTil,
-                  
                   ProsedyreDato, ProsedyreTid,
-                  # dg_prosedyre_til_dod,
                   eprom_bestilt,
                   ePromStatus,
                   # ePromStatus_tekst,
@@ -1117,17 +1106,11 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
                   form_order_status_error_message,
                   ePromBestillingsdato:ePromUtloeptDato,
                   Registreringstype,
-                  
                   eq5d01:eq5dScore,
                   heart01:heart14,
                   hiaddq01:hiaddq17,
                   prem01:prem15
-                  # TSUPDATED_pros,
-                  # TSUPDATED_utsk,
-                  # TSCREATED_pros,
-                  # TSCREATED_utsk
     ) %>%
-    # Legg til aar, maaned, uke, etc.
     noric::legg_til_tidsvariabler(var = ProsedyreDato)
   
   pci %<>%
@@ -1161,37 +1144,49 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
       kriterie_indikasjon = ifelse(
         ! Indikasjon %in% c("Donorutredning", "Vitieutredning"),
         "ja", "nei" ),
-    
-      kriterie_alle = ifelse(kriterie_alder %in% "ja" &
-                               kriterie_norsk %in% "ja" &
-                               kriterie_levende %in% "ja" &
-                               kriterie_sykehjem %in% "ja" &
-                               kriterie_pci %in% "ja" &
-                               kriterie_indikasjon %in% "ja",
-                             "ja", "nei"))
+      
+      kriterie_alle_midlertidig = ifelse(kriterie_alder %in% "ja" &
+                                           kriterie_norsk %in% "ja" &
+                                           kriterie_levende %in% "ja" &
+                                           kriterie_sykehjem %in% "ja" &
+                                           kriterie_pci %in% "ja" &
+                                           kriterie_indikasjon %in% "ja",
+                                         "ja", "nei"))
   
-  pci  %<>% noric::kriterie_taviprom_siste_aar(df = ., registryName = registryName) %>% 
+  # KRITERIER FOR KOMBINASJONER MED ANDRE FORLØP
+  # Disse legges bare til for prosedyrer som også har ja på kriterie_alle
+  pci  %<>%
+    noric::kriterie_taviprom_siste_aar(df = ., registryName = registryName) %>% 
     noric::kriterie_pciprom_siste_aar(df = ., registryName = registryName) %>%
-    noric::kriterie_ingen_ny_tavi(df = ., registryName = registryName)
+    noric::kriterie_ingen_tavi_neste3mnd(df = ., registryName = registryName) %>%
+    dplyr::mutate(
+      kriterie_alle = ifelse(
+        test = (kriterie_alle_midlertidig %in% "ja" & 
+                  !kriterie_ingen_taviprom %in% "nei" &
+                  !kriterie_ingen_pciprom %in% "nei" &
+                  !kriterie_ingen_ny_tavi %in% "nei"), 
+        yes = "ja", 
+        no = "nei"
+      ))
   
   pci  %>% dplyr::mutate(
     datagrunnlag_pciprom = dplyr::case_when(
-    kriterie_alle %in% "ja" &
-      eprom_bestilt == "ja" ~ "Ja",
-
-    kriterie_alle %in% "ja" &
-      eprom_bestilt == "nei"  ~ "Nei: Kriterier OK, mangler utsending (mulig etterreg./fl. tavi) ", # Mulig etter-registrering elle rikke første tavi!
-
-    kriterie_alle %in% "nei" &
-      eprom_bestilt == "nei" ~ "Nei: Mangler kriterier",
-
-    kriterie_alle %in% "nei" &
-      eprom_bestilt == "ja" ~ "Nei: Mangler kriterie, prom feilaktig sendt ", # Mulig etter-registrering!
-
-    eprom_bestilt %in% "nei, før innføring av prom" ~ "Nei: Før innføring av prom",
-    eprom_bestilt %in% "nei, registreringen er for ny" ~ "Nei: Registreringen er for ny",
-    TRUE ~ NA_character_
-  ))
+      kriterie_alle %in% "ja" &
+        eprom_bestilt == "ja" ~ "Ja",
+      
+      kriterie_alle %in% "ja" &
+        eprom_bestilt == "nei"  ~ "Nei: Kriterier OK, mangler utsending (mulig etterreg./blokkert av tidl prom fra hj.inf) ", # Mulig etter-registrering elle rikke første tavi!
+      
+      kriterie_alle %in% "nei" &
+        eprom_bestilt == "nei" ~ "Nei: Mangler kriterier",
+      
+      kriterie_alle %in% "nei" &
+        eprom_bestilt == "ja" ~ "Nei: Mangler kriterie, prom feilaktig sendt (mulig etterreg./dodsdato forsinket)", # Mulig etter-registrering!
+      
+      eprom_bestilt %in% "nei, før innføring av prom" ~ "Nei: Før innføring av prom",
+      eprom_bestilt %in% "nei, registreringen er for ny" ~ "Nei: Registreringen er for ny",
+      TRUE ~ NA_character_
+    ))
   
 }
 

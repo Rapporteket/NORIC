@@ -4,20 +4,44 @@
 \alias{prom_funksjoner}
 \alias{kriterie_taviprom_siste_aar}
 \alias{kriterie_pciprom_siste_aar}
-\alias{kriterie_ingen_ny_tavi}
-\title{NORIC PCI prom}
+\alias{kriterie_ingen_tavi_neste3mnd}
+\title{Hjelpefunksjoner for PCI-prom}
 \usage{
 kriterie_taviprom_siste_aar(df, registryName = NULL)
 
 kriterie_pciprom_siste_aar(df, registryName = NULL)
 
-kriterie_ingen_ny_tavi(df, registryName = NULL)
+kriterie_ingen_tavi_neste3mnd(df, registryName = NULL)
 }
 \arguments{
-\item{df}{pci + pciprom}
+\item{df}{Inneholder data fra pci + pciprom. Må inneholde 
+variabelen \code{kriterie_alle_midlertidig}.}
 
 \item{registryName}{for SQL queries}
 }
 \description{
-Hjelpefunksjoner for PCI prom
+For forløp der alle andre kriterier (alder, prosedyretype, indikasjon,
+ utskrivelse, etc.) er oppfylt, det vil si
+  \code{kriterie_alle_midlertidig} = \emph{ja}. 
+ Sjekker om pasientene hadde eksisterende TAVI-PROM eller PCI-PROM det
+ siste året. Sjekker om pasienten har fått TAVI i de 3 påfølgende månedene. 
+ 
+ Legger til ny variabel: 
+ 
+\code{kriterie_taviprom_siste_aar()}
+ \itemize{
+ \item \code{kriterie_ingen_taviprom har verdien} har verdien \emph{nei}
+ dersom pasienten hadde TAVI-PROM det siste året.  
+ }
+\code{kriterie_pciprom_siste_aar()}
+ \itemize{
+ \item \code{kriterie_ingen_pciprom har verdien} har verdien \emph{nei}
+ dersom pasienten hadde PCI-PROM det siste året.  
+ }
+ #' \code{kriterie_ingen_tavi_neste3mnd()}
+ \itemize{
+ \item \code{kriterie_ingen_ny_tavi har verdien} har verdien \emph{nei}
+ dersom pasienten har vært til en TAVI-prosedyre i etterkant av PCI
+  prosedyren (0-3mnd).
+ }
 }
