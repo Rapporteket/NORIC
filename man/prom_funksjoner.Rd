@@ -5,21 +5,31 @@
 \alias{kriterie_taviprom_siste_aar}
 \alias{kriterie_pciprom_siste_aar}
 \alias{kriterie_ingen_tavi_neste3mnd}
-\title{Hjelpefunksjoner for PCI-prom}
+\alias{legg_til_promStatus}
+\alias{legg_til_promErrorCode}
+\title{Hjelpefunksjoner for databehandling av PROM}
 \usage{
 kriterie_taviprom_siste_aar(df, registryName = NULL)
 
 kriterie_pciprom_siste_aar(df, registryName = NULL)
 
 kriterie_ingen_tavi_neste3mnd(df, registryName = NULL)
+
+legg_til_promStatus(df)
+
+legg_til_promErrorCode(df)
 }
 \arguments{
-\item{df}{Inneholder data fra pci + pciprom. Må inneholde 
-variabelen \code{kriterie_alle_midlertidig}.}
+\item{df}{Inneholder data fra pci/tavi + respetiktive prom.
+
+Noen df må inneholde variabelen \code{kriterie_alle_midlertidig}.}
 
 \item{registryName}{for SQL queries}
 }
 \description{
+Gjeler PCI-prom og TAVI-prom
+}
+\details{
 For forløp der alle andre kriterier (alder, prosedyretype, indikasjon,
  utskrivelse, etc.) er oppfylt, det vil si
   \code{kriterie_alle_midlertidig} = \emph{ja}. 
