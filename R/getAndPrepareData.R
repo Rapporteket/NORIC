@@ -997,7 +997,7 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
       #   er etter eventuel karens for
       #   forrige prsoedyre "ja", "nei"),
       
-      kriterie_alle = ifelse(kriterie_sykehus %in% "ja" & 
+      kriterie_alle_taviprom = ifelse(kriterie_sykehus %in% "ja" & 
                                kriterie_alder %in% "ja" &
                                kriterie_norsk %in% "ja" &
                                kriterie_levende %in% "ja" &
@@ -1006,21 +1006,21 @@ getPrepTaviPromData <- function(registryName, fromDate, toDate, singleRow,
                              "ja", "nei"),
       
       datagrunnlag_taviprom = dplyr::case_when(
-        kriterie_alle %in% "ja" & 
+        kriterie_alle_taviprom %in% "ja" & 
           eprom_bestilt == "ja" ~ "Ja",
         
-        kriterie_alle %in% "ja" & 
+        kriterie_alle_taviprom %in% "ja" & 
           eprom_bestilt == "nei" &
           !aar %in% 2023 ~ "Nei: Kriterier OK, mangler utsending (mulig etterreg./fl. tavi) ", # Mulig etter-registrering elle rikke første tavi!
         
-        kriterie_alle %in% "ja" & 
+        kriterie_alle_taviprom %in% "ja" & 
           eprom_bestilt == "nei" &
           aar %in% 2023 ~ "Nei: Feil fra 2023", # Mulig etter-registrering!
         
-        kriterie_alle %in% "nei" & 
+        kriterie_alle_taviprom %in% "nei" & 
           eprom_bestilt == "nei" ~ "Nei: Mangler kriterier",     
         
-        kriterie_alle %in% "nei" & 
+        kriterie_alle_taviprom %in% "nei" & 
           eprom_bestilt == "ja" ~ "Nei: Mangler kriterie, prom feilaktig sendt ", # Mulig etter-registrering!
         
         eprom_bestilt %in% "nei, før innføring av prom" ~ "Nei: Før innføring av prom", 
@@ -1160,7 +1160,7 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
     noric::kriterie_pciprom_siste_aar(df = ., registryName = registryName) %>%
     noric::kriterie_ingen_tavi_neste3mnd(df = ., registryName = registryName) %>%
     dplyr::mutate(
-      kriterie_alle = ifelse(
+      kriterie_alle_pciprom = ifelse(
         test = (kriterie_alle_midlertidig %in% "ja" & 
                   !kriterie_ingen_taviprom %in% "nei" &
                   !kriterie_ingen_pciprom %in% "nei" &
@@ -1171,16 +1171,16 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
   
   pci  %>% dplyr::mutate(
     datagrunnlag_pciprom = dplyr::case_when(
-      kriterie_alle %in% "ja" &
+      kriterie_alle_pciprom %in% "ja" &
         eprom_bestilt == "ja" ~ "Ja",
       
-      kriterie_alle %in% "ja" &
+      kriterie_alle_pciprom %in% "ja" &
         eprom_bestilt == "nei"  ~ "Nei: Kriterier OK, mangler utsending (mulig etterreg./blokkert av tidl prom fra hj.inf) ", # Mulig etter-registrering elle rikke første tavi!
       
-      kriterie_alle %in% "nei" &
+      kriterie_alle_pciprom %in% "nei" &
         eprom_bestilt == "nei" ~ "Nei: Mangler kriterier",
       
-      kriterie_alle %in% "nei" &
+      kriterie_alle_pciprom %in% "nei" &
         eprom_bestilt == "ja" ~ "Nei: Mangler kriterie, prom feilaktig sendt (mulig etterreg./dodsdato forsinket)", # Mulig etter-registrering!
       
       eprom_bestilt %in% "nei, før innføring av prom" ~ "Nei: Før innføring av prom",
