@@ -5,28 +5,41 @@
 \alias{kriterie_taviprom_siste_aar}
 \alias{kriterie_pciprom_siste_aar}
 \alias{kriterie_ingen_tavi_neste3mnd}
-\title{Hjelpefunksjoner for PCI-prom}
+\alias{legg_til_promStatus}
+\alias{legg_til_promErrorCode}
+\title{Hjelpefunksjoner for databehandling av PROM}
 \usage{
 kriterie_taviprom_siste_aar(df, registryName = NULL)
 
 kriterie_pciprom_siste_aar(df, registryName = NULL)
 
 kriterie_ingen_tavi_neste3mnd(df, registryName = NULL)
+
+legg_til_promStatus(df)
+
+legg_til_promErrorCode(df)
 }
 \arguments{
-\item{df}{Inneholder data fra pci + pciprom. Må inneholde 
-variabelen \code{kriterie_alle_midlertidig}.}
+\item{df}{Inneholder data fra pci/tavi + respetiktive prom.
+
+Noen df må inneholde variabelen \code{kriterie_alle_midlertidig}.}
 
 \item{registryName}{for SQL queries}
 }
 \description{
-For forløp der alle andre kriterier (alder, prosedyretype, indikasjon,
- utskrivelse, etc.) er oppfylt, det vil si
-  \code{kriterie_alle_midlertidig} = \emph{ja}. 
+Gjelder PCI-prom og TAVI-prom, og legger til en variabel med listetekst : 
+\itemize{
+\item legg_til_promStatus
+\item legg_til_promErrorCode
+}
+}
+\details{
+Disse tre gjelder kun PCI-prom og baserer seg på forløp der alle
+  andre kriterier (alder, prosedyretype, indikasjon, utskrivelse, etc.) er
+   oppfylt, det vil si \code{kriterie_alle_midlertidig} = \emph{ja}. 
  Sjekker om pasientene hadde eksisterende TAVI-PROM eller PCI-PROM det
- siste året. Sjekker om pasienten har fått TAVI i de 3 påfølgende månedene. 
- 
- Legger til ny variabel: 
+ siste året. Sjekker om pasienten har fått TAVI i de 3 påfølgende månedene.
+ Funksjonene legger til følgence variabel: 
  
 \code{kriterie_taviprom_siste_aar()}
  \itemize{

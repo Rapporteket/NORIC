@@ -1,12 +1,12 @@
 ## code to prepare `def_utledete_var` dataset goes here
 
 def_utledete_var <- readxl::read_excel(
-  path = "data-raw/definisjoner_utledete_variabler_noric_v2_20261005.xlsx")
+  path = "data-raw/definisjoner_utledete_variabler_noric_v3_20261009.xlsx")
 
 usethis::use_data(def_utledete_var, overwrite = TRUE)
 
 
 
-kb <-readxl::read_excel("data-raw/klokebokNoric20230511_tilRapporteket.xlsx")
+kb <-readxl::read_excel("data-raw/klokebokNoric20261009_tilRapporteket.xlsx")
 
 usethis::use_data(kb, overwrite = TRUE)
