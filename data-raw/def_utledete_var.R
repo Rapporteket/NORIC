@@ -7,6 +7,6 @@ usethis::use_data(def_utledete_var, overwrite = TRUE)
 
 
 
-kb <-readxl::read_excel("data-raw/klokebokNoric20230511_tilRapporteket.xlsx")
+kb <-readxl::read_excel("data-raw/klokebokNoric20261009_tilRapporteket.xlsx")
 
 usethis::use_data(kb, overwrite = TRUE)
