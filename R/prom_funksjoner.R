@@ -1,14 +1,19 @@
 #' Hjelpefunksjoner for databehandling av PROM 
 #' 
-#' Gjeler PCI-prom og TAVI-prom 
+#' Gjelder PCI-prom og TAVI-prom, og legger til en variabel med listetekst : 
+#' \itemize{
+#' \item legg_til_promStatus
+#' \item legg_til_promErrorCode
+#' }
 #' 
-#' For forløp der alle andre kriterier (alder, prosedyretype, indikasjon,
-#'  utskrivelse, etc.) er oppfylt, det vil si
-#'   \code{kriterie_alle_midlertidig} = \emph{ja}. 
-#'  Sjekker om pasientene hadde eksisterende TAVI-PROM eller PCI-PROM det
-#'  siste året. Sjekker om pasienten har fått TAVI i de 3 påfølgende månedene. 
 #'  
-#'  Legger til ny variabel: 
+#'  
+#'  Disse tre gjelder kun PCI-prom og baserer seg på forløp der alle
+#'   andre kriterier (alder, prosedyretype, indikasjon, utskrivelse, etc.) er
+#'    oppfylt, det vil si \code{kriterie_alle_midlertidig} = \emph{ja}. 
+#'  Sjekker om pasientene hadde eksisterende TAVI-PROM eller PCI-PROM det
+#'  siste året. Sjekker om pasienten har fått TAVI i de 3 påfølgende månedene.
+#'  Funksjonene legger til følgence variabel: 
 #'  
 #' \code{kriterie_taviprom_siste_aar()}
 #'  \itemize{
@@ -114,9 +119,6 @@ kriterie_taviprom_siste_aar <- function(df, registryName = NULL){
 }
 
 
-
-
-
 #' @rdname prom_funksjoner
 #' @export
 kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
@@ -192,8 +194,6 @@ kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
     return(df %>%  dplyr::mutate(kriterie_ingen_pciprom = NA_character_))
   }
 }
-
-
 
 
 #' @rdname prom_funksjoner
