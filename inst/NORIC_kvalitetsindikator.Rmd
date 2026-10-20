@@ -1342,7 +1342,7 @@ viser antall og andel prosedyrer der det har blitt utført trykkmåling ved
 kransårerøntgen hos pasienter med stabil angina pectoris og der angiografi 
 viser minst ett segment med stenosegrad mellom 30 - 99 %. Tabell
 \@ref(tab:TabNtrykkmaaling) viser måloppnåelse per måned for 
-`r params$hospitalName` og nasjonalt (Mål $\geq$ 30 %). 
+`r params$hospitalName` og nasjonalt (Mål $\geq$ 40 %). 
 
 
 
@@ -1447,7 +1447,7 @@ pasienter der det er utført supplerende billeddiagnostikk under prosedyren.
 Pasienter som tidligere har fått utført ACB-operasjon og pasienter som blir
 behandlet for akutt hjerteinfarkt av typen STEMI er ikke medregnet i analysene.
 Tabell \@ref(tab:TabNstentingVH) viser måloppnåelse per måned for 
-`r params$hospitalName` og nasjonalt (Mål $\geq$ 60 %). 
+`r params$hospitalName` og nasjonalt (Mål $\geq$ 80 %). 
 
 
 

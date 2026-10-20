@@ -1,5 +1,25 @@
-# noric 4.7.0
-* Ny kvalitetsindikator for strålebelastning (Angio og TAVI)
+# noric 4.8.0 NY! PCI-prom i utforsker
+* Lage tabell med PCI-prom i utforsker
+* lage hjelpevariabler: kriteriesjekk (alder, norsk, pci, indikasjon ... ) 
+* lage samlevariabel for datagrunnlag for pci-prom
+# * Oppdater kodeboken med nye utledete variabler
+* Små bugfixer i kodeboken fra v4.7.0
+
+# noric 4.7.0 Oppdatert om TAVI-prom i utforsker
+* proms.status har fått nytt nivå (status 6)
+* lagt til variabler i utforsker: 
+kriteriesjekk (alder, norsk, satt inn klaff, ... ) og en samlevariabel for datagrunnlag for tavi-prom
+* Oppdater kodeboken med nye utledete variabler
+* Små bugfixer i kodeboken
+
+# noric 4.6.2 Småfiks
+* Fiks HastegradEUROSCORE i mapping-filen
+* Fjerne gamle variabler: Malignitet og Strålebehandling
+* ForlopsType2 i TAVI-mpdulen endres til Hastegrad
+
+
+# noric 4.6.1 Bugfix
+Oppdatere filer for bruk av pakken forcats
 
 # noric 4.6.0 Nyeste versjon av rapbase
 * Variabelen TidlABC er endret til TidlACB i angio/PCI-tabellen

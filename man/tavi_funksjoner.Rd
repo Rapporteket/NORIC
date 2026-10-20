@@ -3,9 +3,12 @@
 \name{tavi_funksjoner}
 \alias{tavi_funksjoner}
 \alias{legg_til_taviStatus}
+\alias{legg_til_taviErrorCode}
 \title{NORIC tavi prom}
 \usage{
 legg_til_taviStatus(df)
+
+legg_til_taviErrorCode(df)
 }
 \arguments{
 \item{df}{AortaklaffVar tabell}

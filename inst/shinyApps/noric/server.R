@@ -408,6 +408,7 @@ shinyServer(function(input, output, session) {
         `Bruk og valg av data...` = "info",
         `Angio PCI med utledete variabler` = "ApLight",
         `Angio PCI` = "AP",
+        `PCI eprom` = "APprom",
         `Andre prosedyrer` = "AnP",
         `Annen diagnostikk` = "AnD",
         `Aortaklaff` = "AK",
@@ -422,6 +423,8 @@ shinyServer(function(input, output, session) {
       )
       if (user$org() != 0) {
         dataSets <- within(dataSets, rm("Aortaklaff eprom"))
+        dataSets <- within(dataSets, rm("PCI eprom"))
+        
       }
       
     } else {

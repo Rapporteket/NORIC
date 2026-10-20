@@ -23,6 +23,7 @@
 \alias{getPciAssistent}
 \alias{getPI}
 \alias{getRawData}
+\alias{getPciProm}
 \alias{getDk}
 \title{Load data for NORIC}
 \usage{
@@ -43,6 +44,8 @@ getSs(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 getMk(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
 getTaviProm(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
+
+getPciProm(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
 getFo(registryName, fromDate, toDate, singleRow, singleHospital = 0, ...)
 
