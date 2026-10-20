@@ -33,7 +33,6 @@ Diverse fiks
 * Gruppering av klaffetyper er endret.
 
 
-
 # noric 4.4.0 Nedlasting rawdata
 Tilgjengeliggjort alle rådata for nedlasting (nasjonal SC)
 

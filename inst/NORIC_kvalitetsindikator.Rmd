@@ -557,9 +557,9 @@ cap <- paste0(
   "PCI-sykehus og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid ", 
-  "for arteriepunksjon er registrert. Måneder med mindre enn 50 \\% komplett ",
+  "for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett ",
   " data eller færre enn 5 forløp blir markert med stjerne og andel forløp ", 
-  "med ventetid under 24 timer beregnes ikke. (Målnivå: 50 \\%)")
+  "med ventetid under 24 timer beregnes ikke. (Målnivå: 50\\%)")
 
 
 nstemi_24t_lokalt <- aP_nasjonalt %>%
@@ -802,7 +802,7 @@ cap <- paste0(
   "overflyttet fra annet sykehus hver for seg og samlet. ", 
   "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
   "Per måned, fra hele siste året til og med siste hele måned. ", 
-  "Måneder der sykehuset har færre enn 50 \\% komplette data eller færre enn ", 
+  "Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn ", 
   "5 forløp vises ikke i diagrammet.")
 
 
@@ -1138,9 +1138,9 @@ cap <- paste0(
   "og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid for ", 
-  "arteriepunksjon er registrert. Måneder med mindre enn 50 \\% komplett data ", 
+  "arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data ", 
   "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ", 
-  "ventetid under 72 timer beregnes ikke. (Målnivå: 80 \\%)"
+  "ventetid under 72 timer beregnes ikke. (Målnivå: 80\\%)"
 )
 
 
@@ -1256,9 +1256,9 @@ if (params$reshId != 106944) {
     "Ekskludert er også pasienter som kun har fått utført angiografi, og ikke PCI. ",
     "Med 'komplette' menes forløp der både tidspunkt for arteriepunksjon og ", 
     " beslutningsutløsende EKG er registrert og gyldige. ", 
-    "Måneder med mindre enn 50 \\% komplette data eller færre enn 5 forløp blir ", 
+    "Måneder med mindre enn 50\\% komplette data eller færre enn 5 forløp blir ", 
     "markert med stjerne og andel pasienter med PCI innen 120 minutter ", 
-    "beregnes ikke for disse. (Målnivå: 80 \\%)")
+    "beregnes ikke for disse. (Målnivå: 80\\%)")
   
   
   stemi_120min_lokalt <- aP_nasjonalt %>%
@@ -1352,7 +1352,7 @@ viser minst ett segment med stenosegrad mellom 30 - 99 %. Tabell
 cap <- paste0(
   "Antall og andel prosedyrer der det ved indikasjon stabil ",
   "koronarsykdom og der angiografi viser minst ett segment med ",
-  "stenosegrad mellom 30 - 99 \\% har blitt utført trykkmåling i ",
+  "stenosegrad mellom 30 - 99\\% har blitt utført trykkmåling i ",
   "form av enten fractional flow reserve (FFR), ",
   "instantaneous wave-free ratio (iFR), ",
   "index of microvascular resistance (IMR), ",
@@ -1360,7 +1360,7 @@ cap <- paste0(
   "coronary artery aortic pressure (Pa-hyperemi) eller ",
   "coronary artery distal pressure (Pd-hyperemi). ",
   "Med 'komplette' menes forløp der variabelen 'Annen diagnostikk' ikke er ",
-  "manglende eller ukjent. Måneder med mindre enn 50 \\% komplette data ",
+  "manglende eller ukjent. Måneder med mindre enn 50\\% komplette data ",
   "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ",
   "utført trykkmåling beregnes ikke.")
 
@@ -1456,7 +1456,7 @@ cap <- paste0(
   "Antall og andel prosedyrer der det er brukt supplerende ",
   "billeddiagnostike metoder (IVUS og/eller OCT). ",
   "Med 'komplette' menes forløp der variabelen 'Annen diagnostikk' ikke er ",
-  "manglende eller ukjent. Kvartaler med mindre enn 50 \\% komplette data ",
+  "manglende eller ukjent. Kvartaler med mindre enn 50\\% komplette data ",
   "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ",
   "supplerende bildeframstilling i tilknytning til PCI av venstre hovedstamme ",
   "beregnes ikke. ")
@@ -1742,7 +1742,7 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     "Antall og andel pasienter som har fått implantert permanent pacemaker ",
     "under sykehusoppholdet etter kateterbasert innsetting av aortaklaff. ",
     "Kun registreringer der prosedyreskjemaet er ferdigstilt er tatt med. ",
-    "Kvartal der andel ferdigstilte prosedyreskjemaer er mindre enn 50 \\% ",
+    "Kvartal der andel ferdigstilte prosedyreskjemaer er mindre enn 50\\% ",
     "blir markert med stjerne og vi regner ikke ut andel implanterte ",
     "permanente pacemaker for disse.")
   
