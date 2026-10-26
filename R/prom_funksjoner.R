@@ -1,12 +1,19 @@
-#' Hjelpefunksjoner for PCI-prom 
+#' Hjelpefunksjoner for databehandling av PROM 
 #' 
-#' For forløp der alle andre kriterier (alder, prosedyretype, indikasjon,
-#'  utskrivelse, etc.) er oppfylt, det vil si
-#'   \code{kriterie_alle_midlertidig} = \emph{ja}. 
-#'  Sjekker om pasientene hadde eksisterende TAVI-PROM eller PCI-PROM det
-#'  siste året. Sjekker om pasienten har fått TAVI i de 3 påfølgende månedene. 
+#' Gjelder PCI-prom og TAVI-prom, og legger til en variabel med listetekst : 
+#' \itemize{
+#' \item legg_til_promStatus
+#' \item legg_til_promErrorCode
+#' }
+#' 
 #'  
-#'  Legger til ny variabel: 
+#'  
+#'  Disse tre gjelder kun PCI-prom og baserer seg på forløp der alle
+#'   andre kriterier (alder, prosedyretype, indikasjon, utskrivelse, etc.) er
+#'    oppfylt, det vil si \code{kriterie_alle_midlertidig} = \emph{ja}. 
+#'  Sjekker om pasientene hadde eksisterende TAVI-PROM eller PCI-PROM det
+#'  siste året. Sjekker om pasienten har fått TAVI i de 3 påfølgende månedene.
+#'  Funksjonene legger til følgence variabel: 
 #'  
 #' \code{kriterie_taviprom_siste_aar()}
 #'  \itemize{
@@ -26,12 +33,13 @@
 #'  }
 #'  
 #'
-#' @param df Inneholder data fra pci + pciprom. Må inneholde 
-#' variabelen \code{kriterie_alle_midlertidig}. 
+#' @param df Inneholder data fra pci/tavi + respetiktive prom.
+#' 
+#' Noen df må inneholde variabelen \code{kriterie_alle_midlertidig}. 
 #' @param registryName for SQL queries
 #'
 #' @name prom_funksjoner
-#' @aliases kriterie_taviprom_siste_aar  kriterie_pciprom_siste_aar kriterie_ingen_tavi_neste3mnd
+#' @aliases kriterie_taviprom_siste_aar  kriterie_pciprom_siste_aar kriterie_ingen_tavi_neste3mnd legg_til_promStatus legg_til_promErrorCode
 #' 
 #' 
 #' @rdname prom_funksjoner
@@ -111,9 +119,6 @@ kriterie_taviprom_siste_aar <- function(df, registryName = NULL){
 }
 
 
-
-
-
 #' @rdname prom_funksjoner
 #' @export
 kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
@@ -191,8 +196,6 @@ kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
 }
 
 
-
-
 #' @rdname prom_funksjoner
 #' @export
 kriterie_ingen_tavi_neste3mnd <- function(df, registryName = NULL){
@@ -258,5 +261,32 @@ kriterie_ingen_tavi_neste3mnd <- function(df, registryName = NULL){
   }
 }
 
+#' @rdname prom_funksjoner
+#' @export
+legg_til_promStatus <- function(df){
+  stopifnot("ePromStatus" %in% names(df))
+  
+  df %>% dplyr::mutate(ePromStatus_tekst= dplyr::case_when(
+    ePromStatus %in% 0 ~ "created", 
+    ePromStatus %in% 1 ~ "ordered", 
+    ePromStatus %in% 2 ~ "expired", 
+    ePromStatus %in% 3 ~ "completed", 
+    ePromStatus %in% c(4,6) ~ "failed",
+    TRUE ~ NA_character_)) %>% 
+    dplyr::relocate(ePromStatus_tekst, .after = ePromStatus)
+}
 
-
+#' @rdname prom_funksjoner
+#' @export
+legg_til_promErrorCode <- function(df){
+  stopifnot("form_order_status_error_code" %in% names(df))
+  
+  df %>% dplyr::mutate(form_order_status_error_code_tekst = dplyr::case_when(
+    form_order_status_error_code %in% -1 ~ "unknown", 
+    form_order_status_error_code %in% 0 ~ "none", 
+    form_order_status_error_code %in% 1 ~ "patient unreachable", 
+    form_order_status_error_code %in% 2 ~ "sikker digital post error", 
+    TRUE ~ NA_character_)) %>% 
+    dplyr::relocate(form_order_status_error_code_tekst, 
+                    .after = form_order_status_error_code)
+}

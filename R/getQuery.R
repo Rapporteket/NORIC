@@ -1615,7 +1615,7 @@ queryPciprom <- function(){
     haaq.HIADDQ02B AS hiaddq02b,
     haaq.HIADDQ03 AS hiaddq03,
     haaq.HIADDQ04 AS hiaddq04,
-    haaq.HIADDQ05 AS hiaddq055,
+    haaq.HIADDQ05 AS hiaddq05,
     haaq.HIADDQ06 AS hiaddq06,
     haaq.HIADDQ07 AS hiaddq07,
     haaq.HIADDQ08 AS hiaddq08,

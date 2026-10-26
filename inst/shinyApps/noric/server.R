@@ -600,7 +600,7 @@ shinyServer(function(input, output, session) {
   # vektor med alle variabelnavn i valgt tabell
   selectedkbTabVars <- shiny::reactive({
     if (input$kbdTab %in% c("ApLight", "AnP", "AnD",
-                            "AP", "AK", "AKOppf", "CT", "FO",
+                            "AP", "APprom", "AK", "AKOppf", "CT", "FO",
                             "MK", "PS", "SO", "SS", "TP")) {
       metaDatKb() %>% names()
     }
