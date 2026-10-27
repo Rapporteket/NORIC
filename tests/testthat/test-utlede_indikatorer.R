@@ -1378,7 +1378,123 @@ testthat::test_that("ki_pacemakerbehov works", {
       df_ak = data.frame(tullenavn = c(1, 1, 1))))
 })
 
-# Legg inn test for ki_straaledose_angio
+
+
+testthat::test_that("ki_straaledose_angio works", {
+  
+  x <- data.frame(
+    ProsedyreType = c(rep("Angio", 38), "Angio + PCI", "PCI"),
+    Straledose = c(2100, 3500, rep(500, 34), 99000, NA, rep(500, 2)),
+    Vekt = c(rep(70, 33), 50, 95, NA, rep(70, 4)),
+    TidlACB = c(rep("Nei", 30), "Ukjent", NA, "Ja", rep("Nei", 7)),
+    FFR = c(rep("Nei", 28), NA, "Ja", rep("Nei", 10)),
+    IFR = c(rep("Nei", 26), NA, "Ja", rep("Nei", 12)),
+    PDPA = c(rep("Nei", 24), NA, "Ja", rep("Nei", 14)),
+    IMR = c(rep("Nei", 22), NA, "Ja", rep("Nei", 16)),
+    PA_Hyperemi = c(rep("Nei", 20), NA, "Ja", rep("Nei", 18)),
+    PD_Hyperemi = c(rep("Nei", 18), NA, "Ja", rep("Nei", 20)),
+    NIRS = c(rep("Nei", 16), NA, "Ja", rep("Nei", 22)),
+    IVUS = c(rep("Nei", 14), NA, "Ja", rep("Nei", 24)),
+    OCT = c(rep("Nei", 12), NA, "Ja", rep("Nei", 26)),
+    AdjuvantTerapi = c(rep("Nei", 9), "Ukjent", NA, "Ja", rep("Nei", 28)),
+    Tilleggsprosedyrer = c(rep("Nei", 6), "Ukjent", NA, "Ja", rep("Nei", 31)))
+  
+  x_out <- noric::ki_straaledose_angio(df_ap = x)
+  
+  testthat::expect_equal(
+    names(x_out),
+    c("ProsedyreType", 
+      "Straledose",
+      "Vekt", 
+      "TidlACB",
+      "FFR",
+      "IFR",
+      "PDPA",
+      "IMR",
+      "PA_Hyperemi",
+      "PD_Hyperemi", 
+      "NIRS",
+      "IVUS", 
+      "OCT", 
+      "AdjuvantTerapi", 
+      "Tilleggsprosedyrer"))
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(ProsedyreType %in% "Angio",
+                      !TidlACB %in% "Ja", 
+                      Vekt >= 55 & Vekt <= 90,
+                      !FFR %in% "Ja",
+                      !IFR %in% "Ja",
+                      !PDPA %in% "Ja",
+                      !PD_Hyperemi %in% "Ja",
+                      !PA_Hyperemi %in% "Ja",
+                      !IMR %in% "Ja",
+                      !NIRS %in% "Ja",
+                      !IVUS %in% "Ja",
+                      !OCT %in% "Ja",
+                      !AdjuvantTerapi %in% "Ja",
+                      !Tilleggsprosedyrer %in% "Ja") %>%
+      dplyr::pull(indik_straaledose_angio_data) == "ja"))
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(!ProsedyreType %in% "Angio" |
+                      TidlACB %in% "Ja" |
+                      Vekt < 55 |
+                      Vekt > 90 |
+                      FFR %in% "Ja" |
+                      IFR %in% "Ja" |
+                      PDPA %in% "Ja" |
+                      PD_Hyperemi %in% "Ja" |
+                      PA_Hyperemi %in% "Ja" |
+                      IMR %in% "Ja" |
+                      NIRS %in% "Ja" |
+                      IVUS %in% "Ja" |
+                      OCT %in% "Ja" |
+                      AdjuvantTerapi %in% "Ja" |
+                      Tilleggsprosedyrer %in% "Ja") %>%
+      dplyr::pull(indik_straaledose_angio_data) == "nei"))
+  
+  
+  testthat::expect_true(
+    all(x_out %>%
+          dplyr::filter(indik_straaledose_angio_data == "nei") %>%
+          dplyr::select(indik_straaledose_angio) %>%
+          is.na()))
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(indik_straaledose_angio_data == "ja" &
+                      !Straledose %in% c(99000, NA) &
+                      Straledose < 2000) %>%
+      dplyr::pull(indik_straaledose_angio) %in% "ja"))
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(indik_straaledose_angio_data == "ja" &
+                      !Straledose %in% c(99000, NA) &
+                      Straledose > 2000) %>%
+      dplyr::pull(indik_straaledose_angio) %in% "nei"))
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(indik_straaledose_angio_data == "ja" &
+                      (Straledose %in% c(99000, NA))) %>%
+      dplyr::pull(indik_straaledose_angio) %in% "manglende"))
+  
+  
+  
+  testthat::expect_error(
+    noric::ki_straaledose_angio(
+      df_ap = data.frame(tullenavn = c(1, 1, 1))))
+  
+  
+  testthat::expect_error(
+    noric::ki_straaledose_angio(
+      df_ap = data.frame(ProsedyreType = "Angio",
+                         Straledose = 500)))
+})
 
 
 # Legg inn test for ki_straaledose_tavi
