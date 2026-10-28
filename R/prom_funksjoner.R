@@ -271,6 +271,7 @@ legg_til_promStatus <- function(df){
     ePromStatus %in% 1 ~ "ordered", 
     ePromStatus %in% 2 ~ "expired", 
     ePromStatus %in% 3 ~ "completed", 
+    ePromStatus %in% 5 ~ "eprox hjerteinfarkt blokkerer utsending", 
     ePromStatus %in% c(4,6) ~ "failed",
     TRUE ~ NA_character_)) %>% 
     dplyr::relocate(ePromStatus_tekst, .after = ePromStatus)
