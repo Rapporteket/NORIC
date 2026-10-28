@@ -1417,7 +1417,9 @@ testthat::test_that("ki_straaledose_angio works", {
       "IVUS", 
       "OCT", 
       "AdjuvantTerapi", 
-      "Tilleggsprosedyrer"))
+      "Tilleggsprosedyrer",
+      "indik_straaledose_angio_data",
+      "indik_straaledose_angio"))
   
   testthat::expect_true(all(
     x_out %>%
@@ -1510,10 +1512,12 @@ testthat::test_that("ki_straaledose_tavi works", {
   
   testthat::expect_equal(
     names(x_out),
-    c("TypeKlaffeprotese", 
+    c("AvdRESH",
+      "TypeKlaffeprotese", 
       "Straaledose",
-      "AvdRESH",
-      "ProsedyreDato"))
+      "ProsedyreDato",
+      "indik_straaledose_tavi_data",
+      "indik_straaledose_tavi"))
   
   testthat::expect_true(all(
     x_out %>%
