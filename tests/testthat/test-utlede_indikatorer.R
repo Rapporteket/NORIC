@@ -1284,7 +1284,7 @@ test_that("ki_stemi_pci_innen120min works", {
 testthat::test_that("ki_pacemakerbehov works", {
   
   x <- data.frame(
-    AvdRESH = c(NA, 0,102966, 101619, 109880, 104284, 700422, rep(106944,7)), 
+    AvdRESH = c(NA, 0, 102966, 101619, 109880, 104284, 700422, rep(106944, 7)), 
     TypeKlaffeprotese = c(rep("CoreValve", 2), NA, rep("CoreValve", 11)),
     LabKompDod = c("Nei", "Nei", "Nei", "Ja", NA, "Ukjent", rep("Nei", 8)), 
     Pacemaker = c(rep("Nei", 4), "Ja", rep("Nei", 9)), 
@@ -1306,11 +1306,11 @@ testthat::test_that("ki_pacemakerbehov works", {
   testthat::expect_true(all(
     x_out %>%
       dplyr::filter(!AvdRESH %in% c(102966, 
-                                          101619, 
-                                          109880, 
-                                          104284, 
-                                          700422, 
-                                          106944)) %>%
+                                    101619, 
+                                    109880, 
+                                    104284, 
+                                    700422, 
+                                    106944)) %>%
       dplyr::pull(indik_pacemakerbehov_data) == "nei"))
   
   testthat::expect_true(all(
@@ -1483,8 +1483,6 @@ testthat::test_that("ki_straaledose_angio works", {
                       (Straledose %in% c(99000, NA))) %>%
       dplyr::pull(indik_straaledose_angio) %in% "manglende"))
   
-  
-  
   testthat::expect_error(
     noric::ki_straaledose_angio(
       df_ap = data.frame(tullenavn = c(1, 1, 1))))
@@ -1497,6 +1495,85 @@ testthat::test_that("ki_straaledose_angio works", {
 })
 
 
-# Legg inn test for ki_straaledose_tavi
+testthat::test_that("ki_straaledose_tavi works", {
+  
+  x <- data.frame(
+    AvdRESH = c(101619, 109880, 104284, 700422, rep(102966, 9), NA, 0),
+    TypeKlaffeprotese = c(rep("CoreValve", 12), NA, rep("CoreValve", 2)),
+    Straaledose = c(rep(3000, 6), 8000, 9000, 10000, 11000,
+                    NA, 99000, rep(3000, 3)),
+    ProsedyreDato = c(rep(as.Date("01-02-2017", format = "%d-%m-%Y"), 5),
+                      as.Date("01-06-2016", format = "%d-%m-%Y"),
+                      rep(as.Date("01-02-2017", format = "%d-%m-%Y"), 9)))
+  
+  x_out <- noric::ki_straaledose_tavi(df_ak = x)
+  
+  testthat::expect_equal(
+    names(x_out),
+    c("TypeKlaffeprotese", 
+      "Straaledose",
+      "AvdRESH",
+      "ProsedyreDato"))
+  
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(as.Date(ProsedyreDato) >= as.Date("2017-01-01"),
+                      !is.na(TypeKlaffeprotese),
+                      AvdRESH %in% c(102966,
+                                     101619,
+                                     109880,
+                                     104284,
+                                     700422)) %>%
+      dplyr::pull(indik_straaledose_tavi_data) == "ja"))
+
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(as.Date(ProsedyreDato) < as.Date("2017-01-01") |
+                      is.na(TypeKlaffeprotese) |
+                      !AvdRESH %in% c(102966,
+                                      101619,
+                                      109880,
+                                      104284,
+                                      700422)) %>%
+                      dplyr::pull(indik_straaledose_tavi_data) == "nei"))
+
+
+  testthat::expect_true(
+    all(x_out %>%
+          dplyr::filter(indik_straaledose_tavi_data == "nei") %>%
+          dplyr::select(indik_straaledose_tavi) %>%
+          is.na()))
+
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(indik_straaledose_tavi_data == "ja" &
+                      !Straaledose %in% c(99000, NA) &
+                      Straaledose < 7500 &
+                      as.Date(ProsedyreDato) >= as.Date("2017-01-01")) %>%
+      dplyr::pull(indik_straaledose_tavi) %in% "ja"))
+
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(indik_straaledose_tavi_data == "ja" &
+                      !Straaledose %in% c(99000, NA) &
+                      Straaledose > 7500) %>%
+      dplyr::pull(indik_straaledose_tavi) %in% "nei"))
+
+  testthat::expect_true(all(
+    x_out %>%
+      dplyr::filter(indik_straaledose_tavi_data == "ja" &
+                      (Straaledose %in% c(99000, NA))) %>%
+      dplyr::pull(indik_straaledose_tavi) %in% "manglende"))
+
+  testthat::expect_error(
+    noric::ki_straaledose_tavi(
+      df_ak = data.frame(tullenavn = c(1, 1, 1))))
+
+
+  testthat::expect_error(
+    noric::ki_straaledose_tavi(
+      df_ak = data.frame(TypeKlaffeprotese = "CoreValve",
+                         Straaledose = 500)))
+})
 
 
