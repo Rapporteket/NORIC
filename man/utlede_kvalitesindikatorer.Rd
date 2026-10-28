@@ -11,6 +11,8 @@
 \alias{ki_nstemi_utredet_innen72t}
 \alias{ki_stemi_pci_innen120min}
 \alias{ki_ak_pacemakerbehov}
+\alias{ki_straaledose_angio}
+\alias{ki_straaledose_tavi}
 \title{NORIC's quality indicators}
 \usage{
 ki_ferdigstilt_komplikasjoner(df_ap)
@@ -30,6 +32,10 @@ ki_nstemi_utredet_innen72t(df_ap)
 ki_stemi_pci_innen120min(df_ap)
 
 ki_ak_pacemakerbehov(df_ak)
+
+ki_straaledose_angio(df_ap)
+
+ki_straaledose_tavi(df_ak)
 }
 \arguments{
 \item{df_ap}{NORIC's \code{AngioPCIVar}-table. Depending on indicators, must

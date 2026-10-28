@@ -1,3 +1,7 @@
+# noric 4.9.0 Kvalitetsindikator Strålebelastning
+* Laget kvalitetsindikator Strålebelasting for Angio og TAVI
+* Laget test for de nye kvalitetsidikatorene og fikset test for eprom status
+
 # noric 4.8.0 NY! PCI-prom i utforsker
 * Lage tabell med PCI-prom i utforsker
 * lage hjelpevariabler: kriteriesjekk (alder, norsk, pci, indikasjon ... ) 
@@ -31,7 +35,6 @@ Diverse fiks
 * Endring av kvalitetsindikatorene trykkmåling og IVUS/OCT ved stening i LMS.
 * Variabelnavnet Hastegrad i TAVI-modulen er endret til HastegradEuroSCORE.
 * Gruppering av klaffetyper er endret.
-
 
 
 # noric 4.4.0 Nedlasting rawdata
