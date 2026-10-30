@@ -102,6 +102,10 @@ ui <- shiny::tagList(
         shiny::uiOutput("statsTab")
       ),
       shiny::tabPanel(
+        title = "Tabell over abonnementer",
+        shiny::uiOutput("autoreportTab")
+      ),
+      shiny::tabPanel(
         title = "Eksport",
         shiny::uiOutput("exportTab")
       ),
