@@ -21,7 +21,7 @@
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getAp getCt getAk getAkOppf getAnP getAnD getSs getMk getTaviProm getSh getFo getSo getPs getApLight getMergeReportMce getMergeReportPid getMergeReportSegmentId getAngioAssistent getPciAssistent getPI getRawData
+#' @aliases getAp getCt getAk getAkOppf getAnP getAnD getSs getMk getTaviProm getPciProm getSh getFo getSo getPs getApLight getMergeReportMce getMergeReportPid getMergeReportSegmentId getAngioAssistent getPciAssistent getPI getRawData
 NULL
 #' @rdname getData
 #' @export
