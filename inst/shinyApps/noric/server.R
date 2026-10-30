@@ -764,6 +764,9 @@ shinyServer(function(input, output, session) {
       dataSetsDump(c(
         dataSetsDump(),
         "AortaklaffProm",
+        "AortaklaffPromPrep",
+        "PciProm",
+        "PciPromPrep",
         "MergeReportFID",
         "MergeReportPID",
         "MergeReportSegmentId",

@@ -11,6 +11,7 @@
 \alias{getSs}
 \alias{getMk}
 \alias{getTaviProm}
+\alias{getPciProm}
 \alias{getSh}
 \alias{getFo}
 \alias{getSo}
@@ -23,7 +24,6 @@
 \alias{getPciAssistent}
 \alias{getPI}
 \alias{getRawData}
-\alias{getPciProm}
 \alias{getDk}
 \title{Load data for NORIC}
 \usage{
