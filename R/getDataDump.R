@@ -27,7 +27,10 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              # "segment_history",
                              "MitralklaffVar",
                              "PasienterStudier_ignorerKalender", 
-                             "AortaklaffProm", 
+                             "AortaklaffProm",
+                             "AortaklaffPromPrep",
+                             "PciProm",
+                             "PciPromPrep",
                              "UtskrDiagnoser", 
                              "MergeReportFID", 
                              "MergeReportPID", 
@@ -146,6 +149,33 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                                    singleRow = FALSE,
                                    singleHospital = singleHospital)
     tab <- tab_list$taviProm
+  }
+  
+  
+  if (tableName %in% "AortaklaffPromPrep") {
+    tab <- noric::getPrepTaviPromData(registryName = registryName,
+                                           fromDate = fromDate,
+                                           toDate = toDate,
+                                           singleRow = FALSE,
+                                           singleHospital = singleHospital)
+  }
+  
+  
+  if (tableName %in% "PciProm") {
+    tab_list <- noric::getPciProm(registryName = registryName,
+                                   fromDate = fromDate,
+                                   toDate = toDate,
+                                   singleRow = FALSE,
+                                   singleHospital = singleHospital)
+    tab <- tab_list$pciProm
+  }
+  
+  if (tableName %in% "PciPromPrep") {
+    tab <- noric::getPrepPciPromData(registryName = registryName,
+                                     fromDate = fromDate,
+                                     toDate = toDate,
+                                     singleRow = FALSE,
+                                     singleHospital = singleHospital)
   }
   
   if (tableName %in% "UtskrDiagnoser") {

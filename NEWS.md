@@ -1,3 +1,7 @@
+# noric 4.10.0 Datadump prom utvidet
+* Legger til pciprom i datadump
+* Legger til utvidet promdata (fra prep-data) for TAVI og PCI
+
 # noric 4.9.0 Kvalitetsindikator Strålebelastning
 * Laget kvalitetsindikator Strålebelasting for Angio og TAVI
 * Laget test for de nye kvalitetsidikatorene og fikset test for eprom status
