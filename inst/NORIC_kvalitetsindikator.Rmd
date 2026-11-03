@@ -1542,11 +1542,29 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
+```{r pagebreakStraledoseAngio, results = "asis", eval = (params$tableFormat == "latex")}
+cat("\n\n\\pagebreak\n")
+```
+
+# Strålebelastning ved invasiv koronar angiografi
+
+Stråledosen ved invasive koronare prosedyrer varierer betydelig og er bl.a. 
+avhengig av kroppsvekt, prosedyretype og kompleksiteten av prosedyrene. Stråledosen varierer også mellom operatører og de forskjellige laboratoriene. 
+Statens strålevern fastsetter nasjonale referanseverdier (NRV) for ulike
+prosedyrer, og ble i 2017 fastsatt til 20 Gycm$^2$ (svarende til 2000 µGym$^2$) 
+for koronar angiografi.
+
+
+
 ```{r }
 if (params$rendered_by_shiny)
   shiny::setProgress(0.90)  # set progress to 90%
 ```
 
+
+```{r pagebreakBlodfortynnendeMedisiner, results = "asis", eval = (params$tableFormat == "latex")}
+cat("\n\n\\pagebreak\n")
+```
 
 # Foreskriving av blodfortynnende medisiner
 Datagrunnlag for indikatoren: primærforløp der minst en stent er satt inn under
