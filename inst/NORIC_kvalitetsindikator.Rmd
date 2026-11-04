@@ -1557,7 +1557,7 @@ for koronar angiografi.
 
 ```{r TabNstralebelastningAngio, results='asis', warning=FALSE}
 cap <- paste0(
-  "Andel rene koronare angiografier der stråledose (dose-areal produkt) er ",
+  "Antall og andel rene koronare angiografier der stråledose (dose-areal produkt) er ",
   "under 2000 µGym$^2$. Gjelder kun angiografier uten samtidig utført PCI, ",
   "tilleggsprosedyrer, trykkmåling, supplerende billeddiagnostikk eller ",
   "annen behandling. Ekskludert er prosedyrer der pasienten tidligere har ",
@@ -1835,7 +1835,7 @@ for prosedyrer med kateterbasert innsetting av aortaklaff (TAVI).
 
 if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
   cap <- paste0(
-    "Andel prosedyrer med innsetting av aortaklaff (TAVI) der stråledose ",
+    "Antall og andel prosedyrer med innsetting av aortaklaff (TAVI) der stråledose ",
     "(dose-areal produkt) er under 7500 µGym$^2$. ",
     "Måneder med mindre enn 50\\% komplette data eller færre enn ",
     "5 forløp blir markert med stjerne og andel forløp med strålebelastning ",
