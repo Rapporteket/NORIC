@@ -1562,7 +1562,10 @@ cap <- paste0(
   "tilleggsprosedyrer, trykkmåling, supplerende billeddiagnostikk eller ",
   "annen behandling. Ekskludert er prosedyrer der pasienten tidligere har ",
   "fått utført bypass-operasjon eller der pasientens vekt er < 55 kg ",
-  "eller > 90 kg. Måneder med mindre enn 50\\% komplette data eller færre enn ",
+  "eller > 90 kg. ",
+  "Med 'komplette' menes forløp der variabelen 'Straledose' ikke er ",
+  "manglende (tomt eller registrert med verdien 99 000). ",
+  "Måneder med mindre enn 50\\% komplette data eller færre enn ",
   "5 forløp blir markert med stjerne og andel forløp med strålebelastning ",
   "under NVR beregnes ikke.")
 
@@ -1837,6 +1840,8 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
   cap <- paste0(
     "Antall og andel prosedyrer med innsetting av aortaklaff (TAVI) der stråledose ",
     "(dose-areal produkt) er under 7500 µGym$^2$. ",
+    "Med 'komplette' menes forløp der variabelen 'Straaledose' ikke er ",
+    "manglende (tomt eller registrert med verdien 99 000). ",
     "Måneder med mindre enn 50\\% komplette data eller færre enn ",
     "5 forløp blir markert med stjerne og andel forløp med strålebelastning ",
     "under NVR beregnes ikke.")
