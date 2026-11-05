@@ -7,6 +7,7 @@
 \alias{kriterie_ingen_tavi_neste3mnd}
 \alias{legg_til_promStatus}
 \alias{legg_til_promErrorCode}
+\alias{kriterie_sykehjem}
 \title{Hjelpefunksjoner for databehandling av PROM}
 \usage{
 kriterie_taviprom_siste_aar(df, registryName = NULL)
@@ -18,6 +19,8 @@ kriterie_ingen_tavi_neste3mnd(df, registryName = NULL)
 legg_til_promStatus(df)
 
 legg_til_promErrorCode(df)
+
+kriterie_sykehjem(df, registryName = NULL)
 }
 \arguments{
 \item{df}{Inneholder data fra pci/tavi + respetiktive prom.

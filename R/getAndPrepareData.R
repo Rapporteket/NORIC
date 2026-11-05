@@ -1056,7 +1056,7 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
                   PasientID,
                   ForlopsID,
                   -KobletForlopsID, 
-                  -PrimaerForlopsID,
+                  PrimaerForlopsID,
                   Regtype,
                   ProsedyreType,
                   Hastegrad,
@@ -1101,12 +1101,9 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
       
       kriterie_levende = ifelse(
         AvdodFReg %in% "Nei" | (AvdodFReg %in% "Ja" & dod_innen_3mnd %in% "nei"),
-        "ja", "nei"),
-      
-      kriterie_sykehjem = ifelse(
-        !UtskrevetTil %in% "Sykehjem",
-        "ja", "nei"),
-      
+        "ja", "nei"))  %>%
+    noric::kriterie_sykehjem()  %>%
+    dplyr::mutate(
       kriterie_pci = ifelse(
         ProsedyreType %in% c("PCI", "Angio + PCI"), 
         "ja", "nei" ), 
@@ -1122,9 +1119,9 @@ getPrepPciPromData <- function(registryName, fromDate, toDate, singleRow,
                                            kriterie_pci %in% "ja" &
                                            kriterie_indikasjon %in% "ja",
                                          "ja", "nei")) %>%
-  
-  # KRITERIER FOR KOMBINASJONER MED ANDRE FORLØP
-  # Disse legges bare til for prosedyrer som også har ja på kriterie_alle
+    
+    # KRITERIER FOR KOMBINASJONER MED ANDRE FORLØP
+    # Disse legges bare til for prosedyrer som også har ja på kriterie_alle
     noric::kriterie_taviprom_siste_aar(df = ., registryName = registryName) %>% 
     noric::kriterie_pciprom_siste_aar(df = ., registryName = registryName) %>%
     noric::kriterie_ingen_tavi_neste3mnd(df = ., registryName = registryName) %>%
