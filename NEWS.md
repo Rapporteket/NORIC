@@ -1,3 +1,6 @@
+# noric 4.10.1 Bugfix
+* Legg til utskrivelsessted for sekundære forløp
+
 # noric 4.10.0 Datadump prom utvidet
 * Legger til pciprom i datadump
 * Legger til utvidet promdata (fra prep-data) for TAVI og PCI

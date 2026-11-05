@@ -39,7 +39,7 @@
 #' @param registryName for SQL queries
 #'
 #' @name prom_funksjoner
-#' @aliases kriterie_taviprom_siste_aar  kriterie_pciprom_siste_aar kriterie_ingen_tavi_neste3mnd legg_til_promStatus legg_til_promErrorCode
+#' @aliases kriterie_taviprom_siste_aar  kriterie_pciprom_siste_aar kriterie_ingen_tavi_neste3mnd legg_til_promStatus legg_til_promErrorCode kriterie_sykehjem
 #' 
 #' 
 #' @rdname prom_funksjoner
@@ -111,7 +111,7 @@ kriterie_taviprom_siste_aar <- function(df, registryName = NULL){
         df, 
         df_sub  %>%  dplyr::select(kriterie_ingen_taviprom, PasientID, ForlopsID), 
         by = c("PasientID", "ForlopsID"))
-      )
+    )
   } 
   if(nrow(df_sub)== 0) {
     return(df  %>%  dplyr::mutate(kriterie_ingen_taviprom = NA_character_))
@@ -122,10 +122,10 @@ kriterie_taviprom_siste_aar <- function(df, registryName = NULL){
 #' @rdname prom_funksjoner
 #' @export
 kriterie_pciprom_siste_aar <- function(df, registryName = NULL){
-
+  
   stopifnot(c("kriterie_alle_midlertidig") %in% names(df))
   
-    
+  
   # alle PID for pasienter med pci som har de øvrige kriteriene for pci-prom 
   # og som har prosedyredato etter prodsetting av pci-prom
   df_sub <- df  %>%  
@@ -291,3 +291,25 @@ legg_til_promErrorCode <- function(df){
     dplyr::relocate(form_order_status_error_code_tekst, 
                     .after = form_order_status_error_code)
 }
+
+
+#' @rdname prom_funksjoner
+#' @export
+kriterie_sykehjem <- function(df, registryName = NULL){
+  
+  df |> noric::utlede_OppholdsID() |> 
+    dplyr::group_by(OppholdsID) |> 
+    dplyr::mutate(
+      UtskrevetTilSykehjem_opphold = dplyr::if_else(
+        condition = any(UtskrevetTil %in% "Sykehjem", na.rm = TRUE), 
+        true = "sykehjem", 
+        false = "annet")) |> 
+    dplyr::ungroup() |> 
+    
+    dplyr::mutate(
+      kriterie_sykehjem = ifelse(
+        !UtskrevetTilSykehjem_opphold %in% "sykehjem",
+        "ja", "nei"))
+
+}
+
