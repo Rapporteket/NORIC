@@ -31,6 +31,7 @@ library(knitr)
 library(kableExtra)
 library(dplyr)
 library(janitor)
+library(noric)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
@@ -359,6 +360,22 @@ AP %<>%
                                   "Subakutt",
                                   "Planlagt",
                                   NA)), 
+    
+    # Hvorvidt det er gjort Annen Diagnostikk, Tilleggprosedyrer, Adjuvant terapi:
+    tilleggsprosedyrer = ifelse(FFR %in% "Ja" |
+                                  IFR %in% "Ja" |
+                                  IVUS %in% "Ja" |
+                                  OCT %in% "Ja" |
+                                  NIRS %in% "Ja" |
+                                  PDPA %in% "Ja" |
+                                  PD_Hyperemi %in% "Ja" |
+                                  PA_Hyperemi %in% "Ja" |
+                                  IMR %in% "Ja" |
+                                  AdjuvantTerapi %in% "Ja" |
+                                  Tilleggsprosedyrer %in% "Ja",
+                                yes = "Ja",
+                                no = "Nei"),
+    
     SkjemaStatusKomplikasjoner = factor(SkjemaStatusKomplikasjoner, 
                                         levels = c(-1, 0, 1, NA)),
     SkjemastatusHovedskjema = factor(SkjemastatusHovedskjema, 
@@ -2679,6 +2696,160 @@ if (params$rendered_by_shiny == TRUE)
 
 <br/><br/>
 
+
+
+# Stråledose ved invasiv koronar angiografi
+
+Stråledosen ved invasive koronare prosedyrer varierer betydelig og er bl.a. 
+avhengig av kroppsvekt, prosedyretype og kompleksiteten av prosedyrene. Stråledosen varierer også mellom operatører og de forskjellige laboratoriene. 
+Statens strålevern fastsetter nasjonale referanseverdier (NRV) for ulike
+prosedyrer, og ble i 2017 fastsatt til 20 Gycm$^2$ (svarende til 2000 µGym$^2$) 
+for koronar angiografi.
+
+<br/>
+
+```{r tabAntallProsPrLabStraledose, results = "asis"}
+
+cap <- paste0("Antall koronar angiografi uten ",
+              "PCI, tilleggsprosedyrer, trykkmålinger, supplerende ",
+              "billeddiagnostikk eller annen behandling ved de ulike ",
+              "hjertekateteriseringslaboratoriene. ",
+              "Ekskludert er prosedyrer der pasienten tidligere har ",
+              "fått utført bypass-operasjon eller der pasientens vekt er < 55 kg ",
+              "eller > 90 kg. ",
+              "Ukjent eller manglende registrering av lab eller manglende ",
+              "registrering av stråledose (NA eller 99 000), er også ",
+              "ekskludert.")
+
+tabStraledose <- AP %>% ki_straaledose_angio() %>%
+  dplyr::filter(
+    indik_straaledose_angio_data %in% "ja",
+    indik_straaledose_angio %in% c("ja", "nei"),
+    # Labnummer ukjent eller manglende
+    !LabNummer %in% c(NA, "Ukjent")) %>% 
+    dplyr::select(Straledose, LabNummer, aar) %>%
+  dplyr::count(aar, LabNummer, .drop = TRUE) %>% 
+  tidyr::pivot_wider(names_from = LabNummer, 
+                     values_from = n)
+
+align <- c("l", rep("r", dim(tabStraledose)[2] - 1))
+
+
+if (params$tableFormat == "html") {
+  tabStraledose %>% rename("År" = "aar") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11)
+  
+} else if (params$tableFormat == "latex") {
+  tabStraledose %>% rename("År" = "aar") %>% 
+    knitr::kable(format = params$tableFormat,
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                              font_size = 8)
+}
+
+```
+
+
+<br/><br/>
+
+**Forklaring boksplott:** 
+Boksplottet viser fordelingen av liggetiden. 
+Medianverdien er markert av den tykke linjen midt i boksen. 
+De blå boksene inneholder halvparten av registreringene og
+er avgrenset av nedre (25%) og øvre (75%) kvartil. 
+Bredden på boksen kalles interkvartil bredde (IQR). 
+De vertikale greinene viser minste og største verdi i datasettet innenfor
+henholdsvis 1,5 x IQR under nedre kvartil og 
+1.5 x IQR over øvre kvartil. Punktene utenfor greinene viser uteliggere,
+det vil si forløp med usedvanlig lav eller høy stråledose. 
+
+<br/>
+
+```{r FigBoxplotStraledose, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = fig.cap, warning=FALSE}
+
+fig.cap = paste0(
+  "Boksplott av stråledose ved koronar angiografi uten ",
+  "PCI, tilleggsprosedyrer, trykkmålinger, supplerende billeddiagnostikk ",
+  "eller annen behandling ved de ulike hjertekateteriseringslaboratoriene. ",
+  "Ekskludert er prosedyrer der pasienten tidligere har ",
+  "fått utført bypass-operasjon eller der pasientens vekt er < 55 kg ",
+  "eller > 90 kg. ",
+  "Ukjent eller manglende registrering av lab eller manglende registrering av ","
+  stråledose (NA eller 99 000), er også ekskludert.")
+
+TabNBoksplottStraledose <- AP %>% ki_straaledose_angio() %>%
+  dplyr::filter(
+    indik_straaledose_angio_data %in% "ja",
+    indik_straaledose_angio %in% c("ja", "nei"),
+    # Labnummer ukjent eller manglende
+    !LabNummer %in% c(NA, "Ukjent")) %>%
+    dplyr::select(Straledose, LabNummer, aar)
+
+antallLab <- TabNBoksplottStraledose %>% count(LabNummer) %>% nrow()
+
+TabNBoksplottStraledose %>% 
+  ggplot2::ggplot(mapping= ggplot2::aes(x = LabNummer, 
+                                        y = Straledose)) +
+  ggplot2::geom_boxplot(
+    ggplot2::aes(alpha = aar, 
+                 colour = aar), 
+    na.rm = TRUE, 
+    fill = colPrimary[4],
+    position = ggplot2::position_dodge(preserve= "single")) +
+  ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
+  ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
+  # ggplot2::ylim(0, )+
+  ggplot2::theme_minimal()  +
+  ggplot2::xlab("") + 
+  ggplot2::ylab(expression(paste("Stråledose (", mu, "Gym"^2, ")"))) + 
+  ggplot2::theme(
+    legend.position = c(0.5, 0.9), 
+    legend.direction = "horizontal",
+    legend.text = ggplot2::element_text(size = 12),
+    axis.text = ggplot2::element_text(size = 12), 
+    axis.title = ggplot2::element_text(size = 12)
+  ) +
+  # NRV-linjer:
+  # Hvit mållinje:
+  # (Annotate gjør slik at alpha fungerer)
+  ggplot2::annotate("segment",
+                    x = 0.5,
+                    y = 2000,
+                    xend = (antallLab + 0.45),
+                    yend = 2000,
+                    size = 1.2,
+                    colour = "white",
+                    alpha = 0.5) +
+  # Stiplet mållinje:
+  ggplot2::annotate("segment",
+                    x = 0.445,
+                    y = 2000,
+                    xend = (antallLab + 0.55),
+                    yend = 2000,
+                    linetype = "11",
+                    size = 1.2,
+                    color = "#cc0000",
+                    alpha = 0.7) +
+  # "NRV" tekst ved linjen:
+  ggplot2::geom_text(aes(x = 0.5, y = 2200),
+                     label = "NRV",
+                     color =  "#cc0000")
+
+``` 
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+<br/><br/>
 
 # Stentbruk og intervensjoner
 
