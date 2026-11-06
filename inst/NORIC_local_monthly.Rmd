@@ -2713,13 +2713,13 @@ for koronar angiografi.
 cap <- paste0("Antall koronar angiografi uten ",
               "PCI, tilleggsprosedyrer, trykkmålinger, supplerende ",
               "billeddiagnostikk eller annen behandling ved de ulike ",
-              "hjertekateteriseringslaboratoriene. ",
+              "hjertekateteriseringslaboratoriene ved ",
+              params$hospitalName, ". ",
               "Ekskludert er prosedyrer der pasienten tidligere har ",
               "fått utført bypass-operasjon eller der pasientens vekt er < 55 kg ",
               "eller > 90 kg. ",
               "Ukjent eller manglende registrering av lab eller manglende ",
-              "registrering av stråledose (NA eller 99 000), er også ",
-              "ekskludert.")
+              "registrering av stråledose, er også ekskludert.")
 
 tabStraledose <- AP %>% ki_straaledose_angio() %>%
   dplyr::filter(
@@ -2777,12 +2777,13 @@ det vil si forløp med usedvanlig lav eller høy stråledose.
 fig.cap = paste0(
   "Boksplott av stråledose ved koronar angiografi uten ",
   "PCI, tilleggsprosedyrer, trykkmålinger, supplerende billeddiagnostikk ",
-  "eller annen behandling ved de ulike hjertekateteriseringslaboratoriene. ",
+  "eller annen behandling ved de ulike hjertekateteriseringslaboratoriene ved ",
+  params$hospitalName, ". ",
   "Ekskludert er prosedyrer der pasienten tidligere har ",
   "fått utført bypass-operasjon eller der pasientens vekt er < 55 kg ",
   "eller > 90 kg. ",
   "Ukjent eller manglende registrering av lab eller manglende registrering av ","
-  stråledose (NA eller 99 000), er også ekskludert.")
+  stråledose er også ekskludert.")
 
 TabNBoksplottStraledose <- AP %>% ki_straaledose_angio() %>%
   dplyr::filter(
