@@ -45,6 +45,7 @@ shinyServer(function(input, output, session) {
     shiny::showTab(inputId = "tabs", target = "Abonnement")
     shiny::showTab(inputId = "tabs", target = "Utsending")
     shiny::showTab(inputId = "tabs", target = "Bruksstatistikk")
+    shiny::showTab(inputId = "tabs", target = "Tabell over abonnementer")
     shiny::showTab(inputId = "tabs", target = "Aortaklaff")
     
     if (shiny::req(user$role()) == "LU") {
@@ -76,6 +77,7 @@ shinyServer(function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Eksport")
       shiny::hideTab(inputId = "tabs", target = "Staging data")
       shiny::hideTab(inputId = "tabs", target = "Rawdata")
+      shiny::hideTab(inputId = "tabs", target = "Tabell over abonnementer")
     }
     
     if(shiny::req(user$org()) %in% c(108141, 4210141, 114150, 105502, 106944)){
@@ -272,7 +274,19 @@ shinyServer(function(input, output, session) {
       NULL
     }
   })
-  
+
+  output$autoreportTab <- shiny::renderUI({
+      # autoreporttable tab only for national user.
+      if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
+        rapbase::statsAutoreportUI("noricStatsAutoreport")
+      } else {
+        NULL
+      }
+    })
+
+  # autoreporttable server part
+  rapbase::statsAutoreportServer("noricStatsAutoreport")
+
   output$exportTab <- shiny::renderUI({
     # export tab only for national user.
     if ((user$role() %in% c("SC", "CC")) & user$org() == 0) {
