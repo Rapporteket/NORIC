@@ -1208,7 +1208,7 @@ for prosedyrer med kateterbasert innsetting av aortaklaff (TAVI).
 
 ```{r tabAntallProsPrLabStraledoseTAVI, results = "asis"}
 
-cap <- paste0("Antall kateterbasert innsetting av aortaklaff ved ",
+cap <- paste0("Antall kateterbasert innsetting av aortaklaff (TAVI) ved ",
               params$hospitalName, " per år og lab. ",
               "Manglende registrering av stråledose eller ",
               "labnummer er ekskludert.")
@@ -1269,8 +1269,8 @@ det vil si forløp med usedvanlig lav eller høy stråledose.
 ```{r FigBoxplotStraledoseTAVI, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = fig.cap, warning=FALSE}
 
 fig.cap = paste0(
-  "Boksplott av stråledose ved kateterbasert innsetting av aortaklaff ved ",
-  params$hospitalName, ". ",
+  "Boksplott av stråledose ved kateterbasert innsetting av aortaklaff ",
+  "(TAVI) ved ", params$hospitalName, ". ",
   "Ukjent eller manglende registrering av lab eller manglende registrering av ","
   stråledose er ekskludert.")
 
