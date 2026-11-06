@@ -32,6 +32,7 @@ library(kableExtra)
 library(dplyr)
 library(janitor)
 library(forcats)
+library(noric)
 
 options(knitr.table.format = params$tableFormat)
 
@@ -366,11 +367,6 @@ Eventuelle spørsmål knyttet til rapporten kan rettes til [noric@helse-bergen.n
 `r if(params$tableFormat !="latex") {"-->"}`
 
 <br/><br/>
-
-
-
-
-
 
 
 
@@ -1198,7 +1194,152 @@ if (params$tableFormat == "html") {
 
 <br/>
 
+## Strålebelastning ved kateterbasert innsetting av aortaklaff
 
+Stråledosen ved invasive prosedyrer som TAVI varierer betydelig og er avhengig 
+av blant annet kroppsvekt, anatomiske forhold hos pasienten og kompleksiteten 
+av prosedyren. Stråledosen varierer også mellom operatører og 
+de forskjellige laboratoriene. 
+Statens strålevern fastsetter nasjonale referanseverdier (NRV) for ulike
+prosedyrer, og ble i 2017 fastsatt til 75 Gycm$^2$ (svarende til 7500 µGym$^2$) 
+for prosedyrer med kateterbasert innsetting av aortaklaff (TAVI).
+
+<br/>
+
+```{r tabAntallProsPrLabStraledoseTAVI, results = "asis"}
+
+cap <- paste0("Antall kateterbasert innsetting av aortaklaff (TAVI) ved ",
+              params$hospitalName, " per år og lab. ",
+              "Manglende registrering av stråledose eller ",
+              "labnummer er ekskludert.")
+
+tabStraledoseTAVI <- AK %>% ki_straaledose_tavi() %>%
+  dplyr::filter(
+    indik_straaledose_tavi_data %in% "ja",
+    indik_straaledose_tavi %in% c("ja", "nei"),
+    # Labnummer ukjent eller manglende
+    !Labnr %in% c(NA, "Ukjent")) %>% 
+    dplyr::select(Straaledose, Labnr, aar) %>%
+  dplyr::count(aar, Labnr, .drop = FALSE)%>%
+  tidyr::pivot_wider(names_from = Labnr, 
+                     values_from = n)
+
+tabStraledoseTAVI <- tabStraledoseTAVI[, colSums(tabStraledoseTAVI != 0) > 0]
+
+align <- c("l", rep("r", dim(tabStraledoseTAVI)[2] - 1))
+
+
+if (params$tableFormat == "html") {
+  tabStraledoseTAVI %>% rename("År" = "aar") %>% 
+    knitr::kable(caption = cap, align = align) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped",
+                                                    "hover",
+                                                    "condensed"),
+                              full_width = FALSE, 
+                              font_size = 11)
+  
+} else if (params$tableFormat == "latex") {
+  tabStraledoseTAVI %>% rename("År" = "aar") %>% 
+    knitr::kable(format = params$tableFormat,
+                 caption = cap,
+                 booktabs = TRUE,
+                 align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                              font_size = 8)
+}
+
+```
+
+
+<br/><br/>
+
+**Forklaring boksplott:** 
+Boksplottet viser fordelingen av liggetiden. 
+Medianverdien er markert av den tykke linjen midt i boksen. 
+De blå boksene inneholder halvparten av registreringene og
+er avgrenset av nedre (25%) og øvre (75%) kvartil. 
+Bredden på boksen kalles interkvartil bredde (IQR). 
+De vertikale greinene viser minste og største verdi i datasettet innenfor
+henholdsvis 1,5 x IQR under nedre kvartil og 
+1.5 x IQR over øvre kvartil. Punktene utenfor greinene viser uteliggere,
+det vil si forløp med usedvanlig lav eller høy stråledose. 
+
+<br/>
+
+```{r FigBoxplotStraledoseTAVI, fig.width = 7, fig.height = 4.5, fig.align = "center", fig.pos = "H", out.width = "\\textwidth", fig.cap = fig.cap, warning=FALSE}
+
+fig.cap = paste0(
+  "Boksplott av stråledose ved kateterbasert innsetting av aortaklaff ",
+  "(TAVI) ved ", params$hospitalName, ". ",
+  "Ukjent eller manglende registrering av lab eller manglende registrering av ","
+  stråledose er ekskludert.")
+
+TabNBoksplottStraledoseTAVI <- AK %>% ki_straaledose_tavi() %>%
+  dplyr::filter(
+    indik_straaledose_tavi_data %in% "ja",
+    indik_straaledose_tavi %in% c("ja", "nei"),
+    # Labnummer ukjent eller manglende
+    !Labnr %in% c(NA, "Ukjent")) %>% 
+    dplyr::select(Straaledose, Labnr, aar)
+
+antallLab <- TabNBoksplottStraledoseTAVI %>% count(Labnr) %>% nrow()
+
+TabNBoksplottStraledoseTAVI %>% 
+  ggplot2::ggplot(mapping= ggplot2::aes(x = Labnr, 
+                                        y = Straaledose)) +
+  ggplot2::geom_boxplot(
+    ggplot2::aes(alpha = aar, 
+                 colour = aar), 
+    na.rm = TRUE, 
+    fill = colPrimary[4],
+    position = ggplot2::position_dodge(preserve= "single")) +
+  ggplot2::scale_alpha_manual("", values = c(0.5, 1)) +
+  ggplot2::scale_color_manual("", values = c("gray40", "gray20")) +
+  # ggplot2::ylim(0, )+
+  ggplot2::theme_minimal()  +
+  ggplot2::xlab("") + 
+  ggplot2::ylab(expression(paste("Stråledose (", mu, "Gym"^2, ")"))) + 
+  ggplot2::theme(
+    legend.position = c(0.5, 0.9), 
+    legend.direction = "horizontal",
+    legend.text = ggplot2::element_text(size = 12),
+    axis.text = ggplot2::element_text(size = 12), 
+    axis.title = ggplot2::element_text(size = 12)
+  ) +
+  # NRV-linjer:
+  # Hvit mållinje:
+  # (Annotate gjør slik at alpha fungerer)
+  ggplot2::annotate("segment",
+                    x = 0.5,
+                    y = 7500,
+                    xend = (antallLab + 0.45),
+                    yend = 7500,
+                    size = 1.2,
+                    colour = "white",
+                    alpha = 0.5) +
+  # Stiplet mållinje:
+  ggplot2::annotate("segment",
+                    x = 0.445,
+                    y = 7500,
+                    xend = (antallLab + 0.55),
+                    yend = 7500,
+                    linetype = "11",
+                    size = 1.2,
+                    color = "#cc0000",
+                    alpha = 0.7) +
+  # "NRV" tekst ved linjen:
+  ggplot2::geom_text(aes(x = 0.65, y = 8500),
+                     label = "NRV",
+                     color =  "#cc0000")
+
+``` 
+
+
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
+
+<br/><br/>
 
 
 # Komplikasjoner

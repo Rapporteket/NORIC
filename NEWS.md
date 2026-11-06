@@ -1,3 +1,7 @@
+# noric 4.11.0 Legger til stråledose i kvalitetsindikatorrapporten
+* Kvalitetsindikatorrapporten oppdateres med stråledosedata
+
+
 # noric 4.10.0 Datadump prom utvidet
 * Legger til pciprom i datadump
 * Legger til utvidet promdata (fra prep-data) for TAVI og PCI
