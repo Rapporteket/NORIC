@@ -566,9 +566,9 @@ cap <- paste0(
   "PCI-sykehus og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid ", 
-  "for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett ",
-  " data eller færre enn 5 forløp blir markert med stjerne og andel forløp ", 
-  "med ventetid under 24 timer beregnes ikke. (Målnivå: 50\\%)")
+  "for arteriepunksjon er registrert. Måneder med mindre enn 50% komplett ",
+  " data eller færre enn 5 forløp blir markert med stjerne, og andel forløp ", 
+  "med ventetid under 24 timer beregnes ikke for disse. (Målnivå: 50%)")
 
 
 nstemi_24t_lokalt <- aP_nasjonalt %>%
@@ -811,7 +811,7 @@ cap <- paste0(
   "overflyttet fra annet sykehus hver for seg og samlet. ", 
   "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
   "Per måned, fra hele siste året til og med siste hele måned. ", 
-  "Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn ", 
+  "Måneder der sykehuset har færre enn 50% komplette data eller færre enn ", 
   "5 forløp vises ikke i diagrammet.")
 
 
@@ -1063,7 +1063,7 @@ cap <- paste0(
   "Figurene viser pasienter innlagt direkte på PCI-sykehus og pasienter ", 
   "overflyttet fra annet sykehus hver for seg og samlet. ", 
   "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
-  "Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data ",
+  "Søylen vises ikke for sykehuset for år med færre enn 50% komplette data ",
   "eller færre enn 5 forløp. ", 
   "Merk at søylen for ", periode_data$nyesteRegYear, 
   " inneholder registreringer hittil i år." )
@@ -1147,9 +1147,9 @@ cap <- paste0(
   "og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid for ", 
-  "arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data ", 
-  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ", 
-  "ventetid under 72 timer beregnes ikke. (Målnivå: 80\\%)"
+  "arteriepunksjon er registrert. Måneder med mindre enn 50% komplett data ", 
+  "eller færre enn 5 forløp blir markert med stjerne, og andel forløp med ", 
+  "ventetid under 72 timer beregnes ikke for disse. (Målnivå: 80%)"
 )
 
 
@@ -1265,9 +1265,9 @@ if (params$reshId != 106944) {
     "Ekskludert er også pasienter som kun har fått utført angiografi, og ikke PCI. ",
     "Med 'komplette' menes forløp der både tidspunkt for arteriepunksjon og ", 
     " beslutningsutløsende EKG er registrert og gyldige. ", 
-    "Måneder med mindre enn 50\\% komplette data eller færre enn 5 forløp blir ", 
-    "markert med stjerne og andel pasienter med PCI innen 120 minutter ", 
-    "beregnes ikke for disse. (Målnivå: 80\\%)")
+    "Måneder med mindre enn 50% komplette data eller færre enn 5 forløp blir ", 
+    "markert med stjerne, og andel pasienter med PCI innen 120 minutter ", 
+    "beregnes ikke for disse. (Målnivå: 80%)")
   
   
   stemi_120min_lokalt <- aP_nasjonalt %>%
@@ -1361,7 +1361,7 @@ viser minst ett segment med stenosegrad mellom 30 - 99 %. Tabell
 cap <- paste0(
   "Antall og andel prosedyrer der det ved indikasjon stabil ",
   "koronarsykdom og der angiografi viser minst ett segment med ",
-  "stenosegrad mellom 30 - 99\\% har blitt utført trykkmåling i ",
+  "stenosegrad mellom 30 - 99% har blitt utført trykkmåling i ",
   "form av enten fractional flow reserve (FFR), ",
   "instantaneous wave-free ratio (iFR), ",
   "index of microvascular resistance (IMR), ",
@@ -1369,9 +1369,9 @@ cap <- paste0(
   "coronary artery aortic pressure (Pa-hyperemi) eller ",
   "coronary artery distal pressure (Pd-hyperemi). ",
   "Med 'komplette' menes forløp der variabelen 'Annen diagnostikk' ikke er ",
-  "manglende eller ukjent. Måneder med mindre enn 50\\% komplette data ",
-  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ",
-  "utført trykkmåling beregnes ikke.")
+  "manglende eller ukjent. Måneder med mindre enn 50% komplette data ",
+  "eller færre enn 5 forløp blir markert med stjerne, og andel forløp med ",
+  "utført trykkmåling beregnes ikke for disse.")
 
 
 #Lokal
@@ -1465,10 +1465,10 @@ cap <- paste0(
   "Antall og andel prosedyrer der det er brukt supplerende ",
   "billeddiagnostike metoder (IVUS og/eller OCT). ",
   "Med 'komplette' menes forløp der variabelen 'Annen diagnostikk' ikke er ",
-  "manglende eller ukjent. Kvartaler med mindre enn 50\\% komplette data ",
-  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ",
+  "manglende eller ukjent. Kvartaler med mindre enn 50% komplette data ",
+  "eller færre enn 5 forløp blir markert med stjerne, og andel forløp med ",
   "supplerende bildeframstilling i tilknytning til PCI av venstre hovedstamme ",
-  "beregnes ikke. ")
+  "beregnes ikke for disse. ")
 
 
 #Lokalt
@@ -1558,16 +1558,16 @@ for koronar angiografi.
 ```{r TabNstralebelastningAngio, results='asis', warning=FALSE}
 cap <- paste0(
   "Antall og andel rene koronare angiografier der stråledose (dose-areal produkt) er ",
-  "under 2000 µGym$^2$. Gjelder kun angiografier uten samtidig utført PCI, ",
+  "under 2000 µGym². Gjelder kun angiografier uten samtidig utført PCI, ",
   "tilleggsprosedyrer, trykkmåling, supplerende billeddiagnostikk eller ",
   "annen behandling. Ekskludert er prosedyrer der pasienten tidligere har ",
   "fått utført bypass-operasjon eller der pasientens vekt er < 55 kg ",
   "eller > 90 kg. ",
   "Med 'komplette' menes forløp der variabelen 'Straledose' ikke er ",
   "manglende (tomt eller registrert med verdien 99 000). ",
-  "Måneder med mindre enn 50\\% komplette data eller færre enn ",
-  "5 forløp blir markert med stjerne og andel forløp med strålebelastning ",
-  "under NVR beregnes ikke.")
+  "Måneder med mindre enn 50% komplette data eller færre enn ",
+  "5 forløp blir markert med stjerne, og andel forløp med strålebelastning ",
+  "under NVR beregnes ikke for disse.")
 
 #Lokal
 nStralebelastiningAngio <- aP_nasjonalt %>%
@@ -1839,12 +1839,12 @@ for prosedyrer med kateterbasert innsetting av aortaklaff (TAVI).
 if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
   cap <- paste0(
     "Antall og andel prosedyrer med innsetting av aortaklaff (TAVI) der stråledose ",
-    "(dose-areal produkt) er under 7500 µGym$^2$. ",
+    "(dose-areal produkt) er under 7500 µGym². ",
     "Med 'komplette' menes forløp der variabelen 'Straaledose' ikke er ",
     "manglende (tomt eller registrert med verdien 99 000). ",
-    "Måneder med mindre enn 50\\% komplette data eller færre enn ",
-    "5 forløp blir markert med stjerne og andel forløp med strålebelastning ",
-    "under NVR beregnes ikke.")
+    "Måneder med mindre enn 50% komplette data eller færre enn ",
+    "5 forløp blir markert med stjerne, og andel forløp med strålebelastning ",
+    "under NVR beregnes ikke for disse.")
   
   #Lokal
   nStralebelastiningTAVI <- aK_nasjonalt %>%
@@ -1936,9 +1936,8 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     "Antall og andel pasienter som har fått implantert permanent pacemaker ",
     "under sykehusoppholdet etter kateterbasert innsetting av aortaklaff. ",
     "Kun registreringer der prosedyreskjemaet er ferdigstilt er tatt med. ",
-    "Kvartal der andel ferdigstilte prosedyreskjemaer er mindre enn 50\\% ",
-    "blir markert med stjerne og vi regner ikke ut andel implanterte ",
-    "permanente pacemaker for disse.")
+    "Kvartal der andel ferdigstilte prosedyreskjemaer er mindre enn 50% ",
+    "blir markert med stjerne, og andel regnes ikke ut for disse.")
   
   prep_tab_pacemaker_lokalt <- aK_nasjonalt %>%
     dplyr::filter(AvdRESH %in% params$reshId) %>%
