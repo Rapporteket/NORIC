@@ -173,7 +173,7 @@ sS_nasjonalt <- noric::getPrepSsData(
 
 # Hardkodet 2018- dags dato pga figur 4,5 og 6
 aP_nasjonalt <- noric::getPrepApData(
-  params$registryName,
+  registryName = params$registryName,
   fromDate  = as.Date("2018-01-01", format = "%Y-%m-%d"),
   toDate = periode_data$siste_dato,
   singleRow = FALSE, 
@@ -220,6 +220,7 @@ aP_nasjonalt %<>%
     AvdRESH,
     Sykehusnavn,
     Regtype,
+    Vekt,
     PrimaerForlopsID,
     ProsedyreDato,
     ProsedyreTid,
@@ -248,6 +249,9 @@ aP_nasjonalt %<>%
     PDPA, 
     PA_Hyperemi, 
     PD_Hyperemi,
+    NIRS,
+    AdjuvantTerapi,
+    Tilleggsprosedyrer,
     ForlopsID,
     ASA,
     AndrePlatehemmere,
@@ -256,6 +260,7 @@ aP_nasjonalt %<>%
     Antikoagulantia,
     UtskrStatiner,
     TidlACB,
+    Straledose,
     contains("SEGMENT"), 
     UtskrevetDod,
     SkjemaStatusStart,
@@ -284,7 +289,7 @@ aP_nasjonalt %<>%
   noric::satt_inn_stent_i_lms(df_ap = ., df_ss = sS_nasjonalt) %>%
   
 
-  # LEgg til hjelpevariabler for ventetider
+  # Legg til hjelpevariabler for ventetider
   noric::legg_til_ventetid_nstemi_timer(.) %>%
   noric::legg_til_ventetid_stemi_min(.) %>%
   
@@ -297,6 +302,7 @@ aP_nasjonalt %<>%
   noric::ki_nstemi_utredet_innen24t() %>%
   noric::ki_nstemi_utredet_innen72t() %>%
   noric::ki_stemi_pci_innen120min() %>%
+  noric::ki_straaledose_angio() %>%
   
   dplyr::mutate(
     maaned = as.factor(format(x = ProsedyreDato, format = "%Y-%m")),
@@ -318,6 +324,7 @@ aK_nasjonalt %<>%
     AvdKompPacemaker,
     LabKompDod,
     TypeKlaffeprotese,
+    Straaledose,
     Sykehusnavn,
     AvdRESH,
     ForlopsID,
@@ -325,11 +332,13 @@ aK_nasjonalt %<>%
     SkjemaStatusHovedskjema) %>% 
   
   dplyr::mutate(
+    maaned = as.factor(format(x = ProsedyreDato, format = "%Y-%m")),
     kvartal = paste0(
       lubridate::year(ProsedyreDato),
       " Q",
       lubridate::quarter(ProsedyreDato, with_year = FALSE))) %>%
-  noric::ki_ak_pacemakerbehov(df_ak = .)
+  noric::ki_ak_pacemakerbehov(df_ak = .) %>%
+  noric::ki_straaledose_tavi(df_ak = .)
 
 
 ```
@@ -557,9 +566,9 @@ cap <- paste0(
   "PCI-sykehus og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid ", 
-  "for arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett ",
-  " data eller færre enn 5 forløp blir markert med stjerne og andel forløp ", 
-  "med ventetid under 24 timer beregnes ikke. (Målnivå: 50\\%)")
+  "for arteriepunksjon er registrert. Måneder med mindre enn 50% komplett ",
+  " data eller færre enn 5 forløp blir markert med stjerne, og andel forløp ", 
+  "med ventetid under 24 timer beregnes ikke for disse. (Målnivå: 50%)")
 
 
 nstemi_24t_lokalt <- aP_nasjonalt %>%
@@ -802,7 +811,7 @@ cap <- paste0(
   "overflyttet fra annet sykehus hver for seg og samlet. ", 
   "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
   "Per måned, fra hele siste året til og med siste hele måned. ", 
-  "Måneder der sykehuset har færre enn 50\\% komplette data eller færre enn ", 
+  "Måneder der sykehuset har færre enn 50% komplette data eller færre enn ", 
   "5 forløp vises ikke i diagrammet.")
 
 
@@ -1054,7 +1063,7 @@ cap <- paste0(
   "Figurene viser pasienter innlagt direkte på PCI-sykehus og pasienter ", 
   "overflyttet fra annet sykehus hver for seg og samlet. ", 
   "Vannrett rød stiplet linje markerer forventet måloppnåelse. ", 
-  "Søylen vises ikke for sykehuset for år med færre enn 50\\% komplette data ",
+  "Søylen vises ikke for sykehuset for år med færre enn 50% komplette data ",
   "eller færre enn 5 forløp. ", 
   "Merk at søylen for ", periode_data$nyesteRegYear, 
   " inneholder registreringer hittil i år." )
@@ -1138,9 +1147,9 @@ cap <- paste0(
   "og tid for arteriepunksjon er registrert. ", 
   "For forløp der pasienten har blitt overført fra et annet sykehus, ", 
   "er komplett data der både tid for innleggelse i henvisende sykehus og tid for ", 
-  "arteriepunksjon er registrert. Måneder med mindre enn 50\\% komplett data ", 
-  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ", 
-  "ventetid under 72 timer beregnes ikke. (Målnivå: 80\\%)"
+  "arteriepunksjon er registrert. Måneder med mindre enn 50% komplett data ", 
+  "eller færre enn 5 forløp blir markert med stjerne, og andel forløp med ", 
+  "ventetid under 72 timer beregnes ikke for disse. (Målnivå: 80%)"
 )
 
 
@@ -1256,9 +1265,9 @@ if (params$reshId != 106944) {
     "Ekskludert er også pasienter som kun har fått utført angiografi, og ikke PCI. ",
     "Med 'komplette' menes forløp der både tidspunkt for arteriepunksjon og ", 
     " beslutningsutløsende EKG er registrert og gyldige. ", 
-    "Måneder med mindre enn 50\\% komplette data eller færre enn 5 forløp blir ", 
-    "markert med stjerne og andel pasienter med PCI innen 120 minutter ", 
-    "beregnes ikke for disse. (Målnivå: 80\\%)")
+    "Måneder med mindre enn 50% komplette data eller færre enn 5 forløp blir ", 
+    "markert med stjerne, og andel pasienter med PCI innen 120 minutter ", 
+    "beregnes ikke for disse. (Målnivå: 80%)")
   
   
   stemi_120min_lokalt <- aP_nasjonalt %>%
@@ -1352,7 +1361,7 @@ viser minst ett segment med stenosegrad mellom 30 - 99 %. Tabell
 cap <- paste0(
   "Antall og andel prosedyrer der det ved indikasjon stabil ",
   "koronarsykdom og der angiografi viser minst ett segment med ",
-  "stenosegrad mellom 30 - 99\\% har blitt utført trykkmåling i ",
+  "stenosegrad mellom 30 - 99% har blitt utført trykkmåling i ",
   "form av enten fractional flow reserve (FFR), ",
   "instantaneous wave-free ratio (iFR), ",
   "index of microvascular resistance (IMR), ",
@@ -1360,9 +1369,9 @@ cap <- paste0(
   "coronary artery aortic pressure (Pa-hyperemi) eller ",
   "coronary artery distal pressure (Pd-hyperemi). ",
   "Med 'komplette' menes forløp der variabelen 'Annen diagnostikk' ikke er ",
-  "manglende eller ukjent. Måneder med mindre enn 50\\% komplette data ",
-  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ",
-  "utført trykkmåling beregnes ikke.")
+  "manglende eller ukjent. Måneder med mindre enn 50% komplette data ",
+  "eller færre enn 5 forløp blir markert med stjerne, og andel forløp med ",
+  "utført trykkmåling beregnes ikke for disse.")
 
 
 #Lokal
@@ -1456,10 +1465,10 @@ cap <- paste0(
   "Antall og andel prosedyrer der det er brukt supplerende ",
   "billeddiagnostike metoder (IVUS og/eller OCT). ",
   "Med 'komplette' menes forløp der variabelen 'Annen diagnostikk' ikke er ",
-  "manglende eller ukjent. Kvartaler med mindre enn 50\\% komplette data ",
-  "eller færre enn 5 forløp blir markert med stjerne og andel forløp med ",
+  "manglende eller ukjent. Kvartaler med mindre enn 50% komplette data ",
+  "eller færre enn 5 forløp blir markert med stjerne, og andel forløp med ",
   "supplerende bildeframstilling i tilknytning til PCI av venstre hovedstamme ",
-  "beregnes ikke. ")
+  "beregnes ikke for disse. ")
 
 
 #Lokalt
@@ -1534,11 +1543,104 @@ cat("\n\n\\pagebreak\n")
 ```
 
 
+```{r pagebreakStraledoseAngio, results = "asis", eval = (params$tableFormat == "latex")}
+cat("\n\n\\pagebreak\n")
+```
+
+# Strålebelastning ved invasiv koronar angiografi
+
+Stråledosen ved invasive koronare prosedyrer varierer betydelig og er bl.a. 
+avhengig av kroppsvekt, prosedyretype og kompleksiteten av prosedyrene. Stråledosen varierer også mellom operatører og de forskjellige laboratoriene. 
+Statens strålevern fastsetter nasjonale referanseverdier (NRV) for ulike
+prosedyrer, og ble i 2017 fastsatt til 20 Gycm$^2$ (svarende til 2000 µGym$^2$) 
+for koronar angiografi.
+
+```{r TabNstralebelastningAngio, results='asis', warning=FALSE}
+cap <- paste0(
+  "Antall og andel rene koronare angiografier der stråledose (dose-areal produkt) er ",
+  "under 2000 µGym². Gjelder kun angiografier uten samtidig utført PCI, ",
+  "tilleggsprosedyrer, trykkmåling, supplerende billeddiagnostikk eller ",
+  "annen behandling. Ekskludert er prosedyrer der pasienten tidligere har ",
+  "fått utført bypass-operasjon eller der pasientens vekt er < 55 kg ",
+  "eller > 90 kg. ",
+  "Med 'komplette' menes forløp der variabelen 'Straledose' ikke er ",
+  "manglende (tomt eller registrert med verdien 99 000). ",
+  "Måneder med mindre enn 50% komplette data eller færre enn ",
+  "5 forløp blir markert med stjerne, og andel forløp med strålebelastning ",
+  "under NVR beregnes ikke for disse.")
+
+#Lokal
+nStralebelastiningAngio <- aP_nasjonalt %>%
+  dplyr::filter(AvdRESH %in% params$reshId) %>%
+  dplyr::filter(indik_straaledose_angio_data %in% "ja") %>%
+  dplyr::select(maaned,
+                indik_straaledose_angio) %>%
+  janitor::tabyl(maaned,
+                 indik_straaledose_angio,
+                 show_missing_levels = TRUE) %>%
+  janitor::adorn_totals("col", name = "Totalt") %>%
+  dplyr::mutate(
+    # Komplette er alle som er ja/nei, men ikke manglende
+    komplette_antall = ja + nei,
+    komplette_prosent =  komplette_antall / Totalt,
+    komplette_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(komplette_antall, " av ", Totalt, "*"),
+      false = paste0(komplette_antall, " av ", Totalt),
+      missing = NA_character_),
+    
+    # Blandt komplette: stråledose under NVR ,
+    stralebelastning_tekst = dplyr::if_else(
+      komplette_prosent < 0.50 | komplette_antall < 5,
+      true = paste0(ja, " av ", komplette_antall, " (-%)"),
+      false = paste0(ja, " av ", komplette_antall, " (",
+                     round(100 * ja / komplette_antall, 1), "%)"),
+      missing = NA_character_)) %>%
+      
+  dplyr::select(maaned,
+                komplette_tekst,
+                stralebelastning_tekst)
+
+#Nasjonal
+nStralebelastiningAngio_nasj <- aP_nasjonalt %>%
+  dplyr::filter(indik_straaledose_angio_data %in% "ja",
+                indik_straaledose_angio %in% c("ja", "nei")) %>%
+  janitor::tabyl(maaned,
+                 indik_straaledose_angio,
+                 show_missing_levels = TRUE) %>%
+  janitor::adorn_totals("col", name = "Totalt") %>%
+  dplyr::transmute(
+    maaned = maaned,
+    Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
+
+#Tabell
+tabStralebelastiningAngio <- timeTableMonth %>%
+  dplyr::left_join(., nStralebelastiningAngio, by = c("maaned")) %>%
+  dplyr::left_join(., nStralebelastiningAngio_nasj, by = c("maaned")) %>%
+  dplyr::rename(
+    "Måned" = maaned,
+    "Komplette av datagrunnlaget" = komplette_tekst,
+    "Strålebelastning under NVR av komplette" = stralebelastning_tekst) %>%
+  replace(is.na(.), "-")
+
+
+noric::mst(tab = tabStralebelastiningAngio,
+           type = params$tableFormat,
+           cap = cap,
+           digs = c(0,0,1,1),
+           align = rep("c", 4), 
+           label = "TabNstralebelastningAngio")
+```
+
 ```{r }
 if (params$rendered_by_shiny)
   shiny::setProgress(0.90)  # set progress to 90%
 ```
 
+
+```{r pagebreakBlodfortynnendeMedisiner, results = "asis", eval = (params$tableFormat == "latex")}
+cat("\n\n\\pagebreak\n")
+```
 
 # Foreskriving av blodfortynnende medisiner
 Datagrunnlag for indikatoren: primærforløp der minst en stent er satt inn under
@@ -1721,6 +1823,98 @@ cat("\n\n\\pagebreak\n")
 ```
 
 `r if (dim_ak_lokalt[1] <= 10 | aK_nasjonalt %>% nrow() == 0) {"<!--"}`
+# Strålebelastning ved kateterbasert innsetting av aortaklaff
+
+Stråledosen ved invasive prosedyrer som TAVI varierer betydelig og er avhengig 
+av blant annet kroppsvekt, anatomiske forhold hos pasienten og kompleksiteten 
+av prosedyren. Stråledosen varierer også mellom operatører og 
+de forskjellige laboratoriene. 
+Statens strålevern fastsetter nasjonale referanseverdier (NRV) for ulike
+prosedyrer, og ble i 2017 fastsatt til 75 Gycm$^2$ (svarende til 7500 µGym$^2$) 
+for prosedyrer med kateterbasert innsetting av aortaklaff (TAVI).
+`r if (dim_ak_lokalt[1] <= 10 | aK_nasjonalt %>% nrow() == 0) {"-->"}`
+
+```{r TabNstralebelastningTAVI, results='asis', warning=FALSE}
+
+if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
+  cap <- paste0(
+    "Antall og andel prosedyrer med innsetting av aortaklaff (TAVI) der stråledose ",
+    "(dose-areal produkt) er under 7500 µGym². ",
+    "Med 'komplette' menes forløp der variabelen 'Straaledose' ikke er ",
+    "manglende (tomt eller registrert med verdien 99 000). ",
+    "Måneder med mindre enn 50% komplette data eller færre enn ",
+    "5 forløp blir markert med stjerne, og andel forløp med strålebelastning ",
+    "under NVR beregnes ikke for disse.")
+  
+  #Lokal
+  nStralebelastiningTAVI <- aK_nasjonalt %>%
+    dplyr::filter(AvdRESH %in% params$reshId) %>%
+    dplyr::filter(indik_straaledose_tavi_data %in% "ja") %>%
+    dplyr::select(maaned,
+                  indik_straaledose_tavi) %>%
+    janitor::tabyl(maaned,
+                   indik_straaledose_tavi,
+                   show_missing_levels = TRUE) %>%
+    janitor::adorn_totals("col", name = "Totalt") %>%
+    dplyr::mutate(
+      # Komplette er alle som er ja/nei, men ikke manglende
+      komplette_antall = ja + nei,
+      komplette_prosent =  komplette_antall / Totalt,
+      komplette_tekst = dplyr::if_else(
+        komplette_prosent < 0.50 | komplette_antall < 5,
+        true = paste0(komplette_antall, " av ", Totalt, "*"),
+        false = paste0(komplette_antall, " av ", Totalt),
+        missing = NA_character_),
+      
+      # Blandt komplette: stråledose under NVR ,
+      stralebelastning_tekst = dplyr::if_else(
+        komplette_prosent < 0.50 | komplette_antall < 5,
+        true = paste0(ja, " av ", komplette_antall, " (-%)"),
+        false = paste0(ja, " av ", komplette_antall, " (",
+                       round(100 * ja / komplette_antall, 1), "%)"),
+        missing = NA_character_)) %>%
+    
+    dplyr::select(maaned,
+                  komplette_tekst,
+                  stralebelastning_tekst)
+  
+  #Nasjonal
+  nStralebelastiningTAVI_nasj <- aK_nasjonalt %>%
+    dplyr::filter(indik_straaledose_tavi_data %in% "ja",
+                  indik_straaledose_tavi %in% c("ja", "nei")) %>%
+    janitor::tabyl(maaned,
+                   indik_straaledose_tavi,
+                   show_missing_levels = TRUE) %>%
+    janitor::adorn_totals("col", name = "Totalt") %>%
+    dplyr::transmute(
+      maaned = maaned,
+      Nasjonalt = paste0(round(100 * ja / Totalt, 1), "%"))
+  
+  #Tabell
+  tabStralebelastiningTAVI <- timeTableMonth %>%
+    dplyr::left_join(., nStralebelastiningTAVI, by = c("maaned")) %>%
+    dplyr::left_join(., nStralebelastiningTAVI_nasj, by = c("maaned")) %>%
+    dplyr::rename(
+      "Måned" = maaned,
+      "Komplette av datagrunnlaget" = komplette_tekst,
+      "Strålebelastning under NVR av komplette" = stralebelastning_tekst) %>%
+    replace(is.na(.), "-")
+  
+  
+  noric::mst(tab = tabStralebelastiningTAVI,
+             type = params$tableFormat,
+             cap = cap,
+             digs = c(0,0,1,1),
+             align = rep("c", 4), 
+             label = "TabNstralebelastningTAVI")
+}
+```
+
+```{r pagebreakStraledoseTAVI, results = "asis", eval = (params$tableFormat == "latex")}
+cat("\n\n\\pagebreak\n")
+```
+
+`r if (dim_ak_lokalt[1] <= 10 | aK_nasjonalt %>% nrow() == 0) {"<!--"}`
 # Pacemakerbehov etter kateterbasert innsetting av aortaklaff
 
 Denne indikatoren
@@ -1742,9 +1936,8 @@ if (dim_ak_lokalt[1] > 10 & aK_nasjonalt %>% nrow() > 0) {
     "Antall og andel pasienter som har fått implantert permanent pacemaker ",
     "under sykehusoppholdet etter kateterbasert innsetting av aortaklaff. ",
     "Kun registreringer der prosedyreskjemaet er ferdigstilt er tatt med. ",
-    "Kvartal der andel ferdigstilte prosedyreskjemaer er mindre enn 50\\% ",
-    "blir markert med stjerne og vi regner ikke ut andel implanterte ",
-    "permanente pacemaker for disse.")
+    "Kvartal der andel ferdigstilte prosedyreskjemaer er mindre enn 50% ",
+    "blir markert med stjerne, og andel regnes ikke ut for disse.")
   
   prep_tab_pacemaker_lokalt <- aK_nasjonalt %>%
     dplyr::filter(AvdRESH %in% params$reshId) %>%
